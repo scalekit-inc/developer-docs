@@ -194,7 +194,7 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Providers',
+        label: 'Connectors',
         autogenerate: {
           directory: 'reference/agent-connectors',
         },

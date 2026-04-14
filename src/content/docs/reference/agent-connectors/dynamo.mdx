@@ -1,0 +1,395 @@
+---
+title: Dynamo Software
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      table td:first-child, table th:first-child {
+        white-space: nowrap;
+      }
+---
+
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
+
+<div class="grid grid-cols-5 gap-4 items-center">
+ <div class="col-span-4">
+  Connect to Dynamo Software API to access investment management, CRM, and reporting data.
+ </div>
+ <div class="flex justify-center">
+  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/dynamo.svg" width="64" height="64" alt="Dynamo Software logo" />
+ </div>
+</div>
+
+Supports authentication: <Badge text="Bearer Token" />
+
+
+## Tool list
+
+## `dynamo_bulk_delete`
+
+Delete multiple entities in Dynamo Software using bulk import.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entityName` | string | Yes | The name of the Dynamo entity whose records will be deleted (e.g., 'contact', 'activity'). |
+| `items` | `array<object>` | Yes | A required array of entity objects to delete. Each object should contain '_id' or the internal ID property for the entity. |
+
+## `dynamo_bulk_upsert`
+
+Create or update multiple entities in Dynamo Software using bulk import.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entityName` | string | Yes | The name of the Dynamo entity to bulk create or update records for (e.g., 'contact', 'activity'). |
+| `importAction` | string | No | Controls the import behavior. Default is 'updateorcreate'. 'create': only creates new records; 'update': only updates existing matches; 'updateorcreate': updates if match found, creates if not. |
+| `items` | `array<object>` | Yes | A required array of entity objects to create or update. Each object should contain the key property values plus any additional fields to set. |
+| `keyProperties` | `array<string>` | Yes | A required set of property names which combined determine the unique identity of each entity for matching purposes. |
+| `skipColumnIfSourceHasNoValue` | boolean | No | Default false. When true, blank or null property values in the input are ignored and will not overwrite existing data. When false (default), blank values will clear existing property values. |
+| `skipIfPropertyHasNoValue` | boolean | No | Default true. When true, properties not present in a given item will not overwrite existing values for that item. When false, all items must contain the same properties and unspecified values will be overwritten. |
+
+## `dynamo_create_document`
+
+Create a new document or update an existing one based on key columns in Dynamo.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `content` | string | No | The document file contents encoded as a base64 string. Required when x_ishyperlink is false (default). Maps to the '_content' field in the API body. |
+| `extension` | string | No | The file extension of the document including the dot prefix. Required when x_ishyperlink is false. |
+| `hyperlink` | string | No | The URL for a hyperlink document. Required when x_ishyperlink is true. Must be a valid URL. |
+| `title` | string | Yes | The display title of the document. Required when creating a file upload (x_ishyperlink=false) or a hyperlink (x_ishyperlink=true). |
+| `x_identifier` | boolean | No | When true, the response will include the Identifier property (Name (ID)) for the document. Default is true. |
+| `x_importaction` | string | No | Controls the create/update behavior when x_keycolumns is provided. Default is 'updateorcreate'. Only applies when x_keycolumns is also set. |
+| `x_ishyperlink` | boolean | No | When set to true, the document is created as a web link (hyperlink) instead of a file upload. Default is false. |
+| `x_keycolumns` | string | No | A set of comma-separated column names used to determine the identity of a specific document for upsert. The '_content' column cannot be used as a key column. |
+| `x_keycolumns_encoded` | boolean | No | When true, the x_keycolumns value must be provided as a base64-encoded string. Default is false. |
+| `x_resolved` | boolean | No | When false, reference properties in the response are returned as objects (with _id and _es) instead of resolved primitive values. Default is true. |
+
+## `dynamo_decrypt_property`
+
+Returns decrypted value of an encrypted property for a given entity record.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entityName` | string | Yes | The name of the Dynamo entity that contains the encrypted property (e.g., 'Contact', 'Activity'). |
+| `id` | string | Yes | The unique identifier (UUID/entity key) of the specific entity record whose encrypted property you want to decrypt. |
+| `property` | string | Yes | The name of the encrypted property to decrypt. Must be a property that is configured as encrypted in Dynamo. |
+
+## `dynamo_entity_by_id`
+
+Returns a single instance of a Dynamo entity by its ID with optional column selection and formatting controls.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entityName` | string | Yes | The name of the Dynamo entity type to retrieve a record from (e.g., 'activity', 'contact'). |
+| `id` | string | Yes | The unique identifier (UUID) of the specific entity record to retrieve. |
+| `x_columns` | string | No | Comma-separated list of property names to include in the response. Reduces bandwidth by returning only specified fields. |
+| `x_columns_encoded` | boolean | No | When true, the x_columns value must be provided as a base64-encoded string. Default is false. |
+| `x_resolved` | boolean | No | When false, reference/lookup properties are returned as raw objects (with _id and _es) instead of resolved display values. Default is true. |
+| `x_showlabels` | boolean | No | When true, property keys in the response use display labels instead of internal property names. Default is false. |
+
+## `dynamo_entity_delete`
+
+Deletes a single instance of the specified Dynamo entity by ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entityName` | string | Yes | The name of the Dynamo entity type from which to delete the record (e.g., 'activity', 'contact'). |
+| `id` | string | Yes | The unique identifier (UUID) of the specific entity record to delete. |
+
+## `dynamo_entity_extended_schema`
+
+Returns the extended schema definition of a specified Dynamo entity, including detailed metadata and optional permissions.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entityName` | string | Yes | The name of the Dynamo entity to retrieve the extended schema for (e.g., 'activity', 'contact', 'document'). |
+| `permissions` | boolean | No | When true, the schema response includes information about the current user's permissions to perform operations on each property. Default is false. |
+
+## `dynamo_entity_properties`
+
+Returns all properties for a specified Dynamo entity.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entityName` | string | Yes | The name of the Dynamo entity whose properties (field list) you want to retrieve. |
+
+## `dynamo_entity_put`
+
+Creates or updates an entity item in Dynamo using PUT semantics. Supports key columns or ID-based upsert via headers or request body.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `body` | `object` | Yes | The entity field values to create or update. Pass a JSON object with the Dynamo property names as keys. |
+| `entityName` | string | Yes | The name of the Dynamo entity type to create or update (e.g., 'activity', 'contact', 'document'). |
+| `x_identifier` | boolean | No | When true, the response includes the Identifier property (Name (ID)) for the entity. Default is true. |
+| `x_importaction` | string | No | Controls the create/update behavior when x_keycolumns is set. Default is 'updateorcreate'. Only applies when x_keycolumns is also provided. |
+| `x_keycolumns` | string | No | Comma-separated column names used to determine the identity of a specific entity for upsert matching. |
+| `x_keycolumns_encoded` | boolean | No | When true, the x_keycolumns value must be provided as a base64-encoded string. Default is false. |
+| `x_resolved` | boolean | No | When false, reference/lookup properties are returned as raw objects (with _id and _es) instead of resolved display values. Default is true. |
+
+## `dynamo_entity_schema`
+
+Returns the schema definition of a specified Dynamo entity.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entityName` | string | Yes | The name of the Dynamo entity whose field schema you want to retrieve (e.g., 'activity', 'contact', 'document'). |
+| `permissions` | boolean | No | When true, the schema response includes information about the current user's permissions to perform operations on each property. Default is false. |
+
+## `dynamo_entity_total`
+
+Returns total count of items for a given Dynamo entity.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entityName` | string | Yes | The name of the Dynamo entity whose total record count you want to retrieve. |
+
+## `dynamo_entity_update_by_id`
+
+Updates or creates an instance of a Dynamo entity identified by ID and returns the updated item.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `body` | `object` | Yes | Key-value pairs of entity properties to update. Property names must match the entity schema exactly. Example: `{"Subject": "Follow-up call", "Body": "Discuss proposal"}` |
+| `entityName` | string | Yes | The name of the Dynamo entity type containing the record to update (e.g., 'activity', 'contact'). |
+| `id` | string | Yes | The unique identifier (UUID) of the specific entity record to update or create. |
+| `x_identifier` | boolean | No | When true, the response includes the Identifier property (Name (ID)) for the entity. Default is true. |
+| `x_resolved` | boolean | No | When false, reference/lookup properties in the response are returned as raw objects (with _id and _es) instead of resolved display values. Default is true. |
+
+## `dynamo_entity_upsert`
+
+Creates or updates an entity item in Dynamo. Supports key-based upsert using headers or ID in request body.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `body` | `object` | Yes | JSON object containing the entity field values to create or update. Property names must match Dynamo field names exactly. |
+| `entityName` | string | Yes | The name of the Dynamo entity type to create or update a record for (e.g., 'activity', 'contact'). |
+| `x_identifier` | boolean | No | When true, the response includes the Identifier property (Name (ID)) for the entity. Default is true. |
+| `x_importaction` | string | No | Controls the create/update behavior when x_keycolumns is provided. Default is 'updateorcreate'. |
+| `x_keycolumns` | string | No | Comma-separated column names that together uniquely identify an entity for upsert matching. |
+| `x_keycolumns_encoded` | boolean | No | When true, the x_keycolumns value must be provided as a base64-encoded string. Default is false. |
+| `x_resolved` | boolean | No | When false, reference/lookup properties in the response are returned as raw objects (with _id and _es) instead of resolved display values. Default is true. |
+
+## `dynamo_get_document_by_id`
+
+Returns a single Dynamo document by its unique ID with optional column filtering and formatting controls.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | The unique identifier (UUID) of the document to retrieve. |
+| `x_columns` | string | No | Comma-separated list of property names to include in the response. Reduces bandwidth. |
+| `x_columns_encoded` | boolean | No | When true, the x_columns value must be provided as a base64-encoded string. Default is false. |
+| `x_identifier` | boolean | No | When true, the response includes the Identifier property (Name (ID)) for the document. Default is true. |
+| `x_resolved` | boolean | No | When false, reference/lookup properties are returned as raw objects (with _id and _es) instead of resolved display values. Default is true. |
+| `x_showlabels` | boolean | No | When true, property keys in the response use display labels instead of internal property names. Default is false. |
+
+## `dynamo_get_document_extended_schema`
+
+Returns an extended schema of the Dynamo Document entity, including detailed metadata and optional permission information.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `permissions` | boolean | No | When true, the extended schema response includes information about the current user's permissions to perform operations on each property. Default is false. |
+
+## `dynamo_get_document_properties`
+
+Returns all properties available for the document entity in Dynamo.
+
+## `dynamo_get_document_schema`
+
+Returns the schema definition of the Dynamo document entity, optionally including permission metadata.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `permissions` | boolean | No | When true, the schema response includes information about the current user's permissions to perform operations on each document property. Default is false. |
+
+## `dynamo_get_document_upload_restrictions`
+
+Returns upload restrictions for Dynamo Document entity such as size limits, allowed types, and validation rules.
+
+## `dynamo_get_documents`
+
+Retrieve documents from Dynamo with filters, sorting, pagination.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | No | Optional document UUID. When provided, the response contains only the document matching this ID. |
+| `x_columns` | string | No | Comma-separated list of property names to include in the response. Reduces bandwidth by returning only specified fields. |
+| `x_columns_encoded` | boolean | No | When true, the x_columns value must be provided as a base64-encoded string. Default is false. |
+| `x_resolved` | boolean | No | When false, reference/lookup properties are returned as raw objects (with _id and _es) instead of resolved display values. Default is true. |
+| `x_showlabels` | boolean | No | When true, property keys in the response use display labels instead of internal property names. Default is false. |
+| `x_sort` | string | No | Sorting expression for the returned documents. Supports single or multiple property sort with direction. |
+| `x_sort_encoded` | boolean | No | When true, the x_sort value must be provided as a base64-encoded string. Default is false. |
+
+## `dynamo_get_documents_total`
+
+Returns the total number of document entities in Dynamo.
+
+## `dynamo_get_entities`
+
+Returns all available Dynamo entities with optional filtering support.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `x_filter` | string | No | Filter entities whose properties match the given criteria. Format: propertyA=value1, propertyB=value2. |
+
+## `dynamo_get_entity_items`
+
+Returns all items for a given Dynamo entity with support for filtering, pagination, sorting, and column selection.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entityName` | string | Yes | The name of the Dynamo entity type to retrieve records from (e.g., 'activity', 'contact', 'document'). |
+| `id` | string | No | Optional UUID to filter to a single entity record. When provided, only the record matching this ID is returned. |
+| `x_columns` | string | No | Comma-separated list of property names to include in the response. Reduces bandwidth by returning only specified fields. |
+| `x_columns_encoded` | boolean | No | When true, the x_columns value must be provided as a base64-encoded string. Default is false. |
+| `x_resolved` | boolean | No | When false, reference/lookup properties are returned as raw objects (with _id and _es) instead of resolved display values. Default is true. |
+| `x_showlabels` | boolean | No | When true, property keys in the response use display labels instead of internal property names. Default is false. |
+| `x_sort` | string | No | Sorting expression for the returned records. Supports single or multiple property sort with direction. |
+| `x_sort_encoded` | boolean | No | When true, the x_sort value must be provided as a base64-encoded string. Default is false. |
+
+## `dynamo_get_entity_schema`
+
+Returns a brief schema for all available Dynamo entities with optional filtering, permission details, and extended metadata.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `full` | boolean | No | When true, returns the complete schema containing all properties that can be passed to the x-filter parameter. Default is false. |
+| `permissions` | boolean | No | When true, each entity schema includes the current user's permissions to perform operations on that entity. Default is false. |
+| `showConfirmDelete` | boolean | No | When true, the schema response includes the showConfirmDelete property for each entity. Default is false. |
+| `showSubtitle` | boolean | No | When true, the schema response includes the Subtitle property name for each entity. Default is false. |
+| `x_filter` | string | No | Filters entities whose properties match the given schema criteria. Format: propertyA=value1, propertyB=value2. |
+
+## `dynamo_reset_api_key`
+
+Removes the user's API key from the server cache. The key remains valid but will be revalidated on next request.
+
+## `dynamo_search`
+
+Retrieves data matching saved search criteria from Dynamo using advanced filter queries.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `all` | boolean | No | When true, returns all matching results across all pages instead of only the first page. Use with caution for large result sets. |
+| `query` | string | Yes | JSON-formatted advanced search query in Dynamo's 'advf' format. Copy this from the Dynamo site's advanced search panel using the 'API Query' button. |
+| `utcOffset` | number | No | The difference in hours from Coordinated Universal Time (UTC) to use for date/time calculations in the search. Default is 0 (UTC). |
+| `x_columns` | string | No | Comma-separated list of property names to include in each result. Reduces bandwidth. |
+| `x_columns_encoded` | boolean | No | When true, the x_columns value must be provided as a base64-encoded string. Default is false. |
+| `x_resolved` | boolean | No | When false, reference/lookup properties are returned as raw objects (with _id and _es) instead of resolved display values. Default is true. |
+| `x_showlabels` | boolean | No | When true, property keys in the response use display labels instead of internal property names. Default is false. |
+| `x_sort` | string | No | Sorting expression for the search results. Supports single or multiple property sort. |
+| `x_sort_encoded` | boolean | No | When true, the x_sort value must be provided as a base64-encoded string. Default is false. |
+
+## `dynamo_update_document`
+
+Creates a new version of a Dynamo document by updating it using its ID. Optionally updates title or creates hyperlink versions.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `_content` | string | No | The new document file content encoded as a base64 string. Providing this creates a new version of the document. |
+| `hyperlink` | string | No | The URL for a hyperlink document. Required when x-ishyperlink is true. Must be a valid URL. |
+| `id` | string | Yes | The unique identifier (UUID) of the document to update. |
+| `title` | string | No | Optional new title for the document. When updated, the title change applies to ALL versions of the document, not just the current version. |
+| `x-identifier` | boolean | No | When true, the response includes the Identifier property (Name (ID)) for the document. Default is true. |
+| `x-ishyperlink` | boolean | No | When true, indicates that the document being updated is a hyperlink (URL) rather than a file. Default is false. |
+| `x-resolved` | boolean | No | When false, reference/lookup properties in the response are returned as raw objects (with _id and _es) instead of resolved display values. Default is true. |
+
+## `dynamo_upsert_document`
+
+Create or update a document in Dynamo using key columns via PUT operation.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `content` | string | No | The document file contents encoded as a base64 string. Required when x_ishyperlink is false. Maps to '_content' in the API body. |
+| `extension` | string | No | The file extension including the dot prefix. Required when x_ishyperlink is false. |
+| `hyperlink` | string | No | The URL for a hyperlink document. Required when x_ishyperlink is true. Must be a valid URL. |
+| `title` | string | Yes | The display title of the document. Required for all document types (file or hyperlink). |
+| `x_identifier` | boolean | No | When true, the response includes the Identifier property (Name (ID)) for the document. Default is true. |
+| `x_importaction` | string | No | Controls the create/update behavior when x_keycolumns is provided. Default is 'updateorcreate'. |
+| `x_ishyperlink` | boolean | No | When true, the document is created/updated as a web hyperlink instead of a file upload. Default is false. |
+| `x_keycolumns` | string | No | Comma-separated column names used to determine the identity of a specific document for upsert matching. The '_content' column cannot be used as a key column. |
+| `x_keycolumns_encoded` | boolean | No | When true, the x_keycolumns value must be provided as a base64-encoded string. Default is false. |
+| `x_resolved` | boolean | No | When false, reference/lookup properties in the response are returned as raw objects (with _id and _es) instead of resolved display values. Default is true. |
+
+## `dynamo_view_get`
+
+Returns available views or items from a specified view with optional filtering, sorting, and column selection.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `path` | string | No | The path identifier of the view. If provided, returns all items matching that view's search criteria. If omitted, returns a list of all available views. |
+| `utcOffset` | number | No | The difference in hours from Coordinated Universal Time (UTC) for date/time calculations. Default is 0 (UTC). |
+| `x_columns` | string | No | Comma-separated list of additional property names to include in the response alongside the view's default columns. |
+| `x_columns_encoded` | boolean | No | When true, the x_columns value must be provided as a base64-encoded string. Default is false. |
+| `x_resolved` | boolean | No | When false, reference/lookup properties are returned as raw objects (with _id and _es) instead of resolved display values. Default is true. |
+| `x_showlabels` | boolean | No | When true, property keys in the response use display labels instead of internal property names. Default is false. |
+| `x_sort` | string | No | Sort expression that overrides the view's default sorting with higher priority. |
+| `x_sort_encoded` | boolean | No | When true, the x_sort value must be provided as a base64-encoded string. Default is false. |
+
+## `dynamo_view_post`
+
+Retrieves items from a specified Dynamo view using optional filters and query rules.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `path` | string | Yes | The path identifier of the view to search. Required. Combined with optional filter rules in the request body to retrieve matching items. |
+| `query` | string | No | JSON string representing additional filter rules to apply on top of the view's built-in search criteria. If omitted, only the view's default criteria are used. |
+| `utcOffset` | number | No | The difference in hours from Coordinated Universal Time (UTC) for date/time calculations. Default is 0 (UTC). |
+| `x_columns` | string | No | Comma-separated list of additional property names to include in the response alongside the view's default columns. |
+| `x_columns_encoded` | boolean | No | When true, the x_columns value must be provided as a base64-encoded string. Default is false. |
+| `x_resolved` | boolean | No | When false, reference/lookup properties are returned as raw objects (with _id and _es) instead of resolved display values. Default is true. |
+| `x_showlabels` | boolean | No | When true, property keys in the response use display labels instead of internal property names. Default is false. |
+| `x_sort` | string | No | Sort expression that overrides the view's default sorting with higher priority. |
+| `x_sort_encoded` | boolean | No | When true, the x_sort value must be provided as a base64-encoded string. Default is false. |
+
+## `dynamo_view_sql`
+
+Returns a list of available SQL views from Dynamo.
+
+## `dynamo_view_sql_get_by_name`
+
+Returns data from a specific SQL view in Dynamo using the view name.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `viewName` | string | Yes | The name of the SQL view to retrieve, without the 'EXPORTSQL_' prefix. The API appends this prefix automatically when calling GET /api/v2.2/View/sql/EXPORTSQL_&#123;viewName&#125;. |
+
+## `dynamo_view_sql_sp_execute`
+
+Executes a SQL stored procedure in Dynamo and returns the result.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `parameters` | `object` | No | Optional JSON object containing named parameters to pass to the stored procedure. The object's keys and values depend on the specific stored procedure's parameter requirements. |
+| `spName` | string | Yes | The name of the SQL stored procedure to execute, without the 'EXPORTSQLSP_' prefix. The API prepends this prefix automatically when calling POST /api/v2.2/View/sql/EXPORTSQLSP_&#123;spName&#125;. |
+
+## `dynamo_workflow_action_button`
+
+Triggers a workflow action button operation on a specific entity record in Dynamo.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entity` | string | Yes | The display name of the Dynamo entity type that contains the action button. Must match the entity name as configured in Dynamo. |
+| `entity_key` | string | Yes | The UUID of the specific entity record on which the action button workflow will be triggered. |
+| `property` | string | Yes | The name of the action button property on the entity that maps to the workflow to trigger. |
+
+## `dynamo_workflow_custom_operation`
+
+Triggers a custom workflow operation in Dynamo by operation name with optional parameters.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `operation` | string | Yes | The name of the custom workflow operation to trigger. Used as the last segment of the URL: POST /api/v2.2/Workflow/CustomOperation/&#123;operation&#125;. |
+| `parameters` | `object` | No | Optional JSON object containing named parameters to pass to the custom workflow operation. The keys and values depend on what the specific operation expects. |
+
+## `dynamo_workflow_schedule`
+
+Triggers all workflows defined to run on a specific schedule by schedule ID in Dynamo.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | The UUID of the Dynamo workflow schedule to trigger. All workflows associated with this schedule will be executed immediately, as if the schedule's configured time had been reached. |
