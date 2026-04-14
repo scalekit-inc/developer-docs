@@ -35,3 +35,5 @@ export { default as MCPAuthGitHubCopilotCLISection } from './coding-agents/_mcp-
 export { default as GitHubCopilotCLICodingAgentSection } from './coding-agents/_github-copilot-cli.mdx'
 export { default as CursorCodingAgentSection } from './coding-agents/_cursor.mdx'
 export { default as SkillsCLICodingAgentSection } from './coding-agents/_skills-cli.mdx'
+export { default as SetupBitbucketSection } from './agent-connectors/_setup-bitbucket.mdx'
+export { default as UsageBitbucketSection } from './agent-connectors/_usage-bitbucket.mdx'

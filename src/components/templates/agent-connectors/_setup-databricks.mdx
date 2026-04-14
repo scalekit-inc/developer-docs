@@ -1,0 +1,44 @@
+import { Steps } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with the Databricks Workspace connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. You'll need a Databricks Service Principal with an OAuth secret.
+
+<Steps>
+1. ### Open workspace settings
+
+    - Log into your Databricks workspace and click **Settings** in the left sidebar.
+
+    - Under **Workspace admin**, find **Identity and access** and click **Manage** next to **Service principals**.
+
+      ![Workspace Settings showing Identity and access section](@/assets/docs/agent-connectors/databricks/workspace-settings.png)
+
+2. ### Add a service principal
+
+    - Click **Add service principal**.
+
+    - Select an existing service principal from your account, or click **Add new** to create one.
+
+      ![Add service principal dialog](@/assets/docs/agent-connectors/databricks/add-service-principal.png)
+
+3. ### Generate a client secret
+
+    - Click on the service principal to open its details page.
+
+    - Navigate to the **Secrets** tab and click **Generate secret**.
+
+      ![Service principal Secrets tab with Generate secret button](@/assets/docs/agent-connectors/databricks/generate-secret.png)
+
+    - Copy the **Client ID** and the generated **Client Secret** — the secret is only shown once.
+
+4. ### Add credentials in Scalekit
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**.
+
+    - Find **Databricks Workspace** from the list of providers and click **Create**.
+
+    - Enter the credentials you copied:
+      - **Workspace URL** — your Databricks workspace hostname without `https://` (e.g. `adb-1234567890.1.azuredatabricks.net`)
+      - **Client ID** — the service principal's Application (client) ID
+      - **Client Secret** — the secret you generated
+
+    - Click **Save**.
+</Steps>

@@ -195,7 +195,7 @@ export const tools: Tool[] = [
         name: 'content',
         type: 'string',
         required: true,
-        description: `Body of the note. Use plain text or Markdown depending on the format field. Line breaks are supported via \\n in plaintext mode.`,
+        description: `Body of the note. Use plain text or Markdown depending on the format field. Line breaks are supported via \\n in plaintext mode. IMPORTANT: This input field is called 'content', NOT 'content_markdown'. The field 'content_markdown' only appears in the API response and is not a valid input.`,
       },
       {
         name: 'format',
@@ -1113,6 +1113,30 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Number of results to skip for pagination. Defaults to 0.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_update_record',
+    description: `Update an existing record's attributes in Attio. For multiselect attributes, the supplied values will overwrite (replace) the existing list of values. Use the Append Multiselect endpoint instead if you want to add values without removing existing ones. Supports people, companies, deals, and custom objects. IMPORTANT: Prefer using specific update tools when available — use attio_update_person for people records, attio_update_company for company records, attio_update_deal for deal records, attio_update_task for tasks, attio_update_attribute for attributes, attio_update_list for lists, attio_update_list_entry for list entries, attio_update_webhook for webhooks, attio_update_workspace_record for workspace records, and attio_update_user_record for user records. Use this generic tool only for custom objects or when no specific tool exists.`,
+    params: [
+      {
+        name: 'object',
+        type: 'string',
+        required: true,
+        description: `The slug or UUID of the object type the record belongs to. Common slugs: "people", "companies", "deals".`,
+      },
+      {
+        name: 'record_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the record to update.`,
+      },
+      {
+        name: 'values',
+        type: 'object',
+        required: true,
+        description: `Attribute values to update. Keys are attribute API slugs; values are the new data. For multiselect attributes, the supplied array replaces all existing values.`,
       },
     ],
   },

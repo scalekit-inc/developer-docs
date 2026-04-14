@@ -718,7 +718,12 @@ function generateAuthSection(authPattern, providerName) {
 function generateMdxContent(provider, tools) {
   const lines = []
 
-  const providerName = provider.display_name || 'Unknown Provider'
+  const rawName = provider.display_name || 'Unknown Provider'
+  // Normalize "something.ai" → "Something AI"
+  const providerName = rawName.replace(
+    /^([a-z])(.*)\.ai$/i,
+    (_, first, rest) => `${first.toUpperCase()}${rest} AI`,
+  )
   const providerDescription = provider.description || 'No description available.'
   const authPatterns = provider.auth_patterns || []
   const comingSoon = provider.coming_soon || false
@@ -735,7 +740,6 @@ function generateMdxContent(provider, tools) {
   // --- Frontmatter ---
   lines.push('---')
   lines.push(`title: ${providerName}`)
-  lines.push(`description: ${providerDescription}`)
   lines.push('tableOfContents: true')
   if (iconSrc) lines.push(`connectorIcon: ${iconSrc}`)
   if (authTypeLabel) lines.push(`connectorAuthType: ${authTypeLabel}`)

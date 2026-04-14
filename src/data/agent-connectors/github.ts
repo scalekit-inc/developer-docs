@@ -46,6 +46,37 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'github_branches_list',
+    description: `List all branches in a GitHub repository. Returns branch names, commit SHAs, and protection status. Supports pagination.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number of results to return (default 1)`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (max 100, default 30)`,
+      },
+      {
+        name: 'protected',
+        type: 'boolean',
+        required: false,
+        description: `Filter to only protected branches`,
+      },
+    ],
+  },
+  {
     name: 'github_file_contents_get',
     description: `Get the contents of a file or directory from a GitHub repository. Returns Base64 encoded content for files.`,
     params: [

@@ -7,6 +7,36 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
+  miro: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/Miro.svg',
+    authType: 'OAuth 2.0',
+    categories: ['productivity'],
+  },
+  bitbucket: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/bitbucket.svg',
+    authType: 'OAuth 2.0',
+    categories: ['development', 'version_control', 'collaboration', 'ci_cd'],
+  },
+  dynamo: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/dynamo.svg',
+    authType: 'Bearer Token',
+    categories: ['finance', 'crm', 'data'],
+  },
+  databricksworkspace: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/databricks-1.svg',
+    authType: 'Service Principal (OAuth 2.0)',
+    categories: ['data', 'analytics', 'automation'],
+  },
+  diarize: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/diarize.svg',
+    authType: 'Bearer Token',
+    categories: ['transcription', 'media', 'productivity', 'analytics'],
+  },
+  parallelaitaskmcp: {
+    iconUrl: 'https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/parallel-ai.svg',
+    authType: 'Bearer Token',
+    categories: ['productivity', 'ai', 'developer-tools', 'data'],
+  },
   calendly: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/calendly.svg',
     authType: 'OAuth 2.0',
