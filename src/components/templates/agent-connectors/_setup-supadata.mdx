@@ -55,19 +55,25 @@ Register your Scalekit environment with the Supadata connector so Scalekit can p
    <Tabs syncKey="tech-stack">
      <TabItem label="Node.js">
        ```typescript
+       // Never hard-code API keys — read from secure storage or user input
+       const supadataApiKey = getUserSupadataKey(); // retrieve from your secure store
+
        await scalekit.actions.upsertConnectedAccount({
          connectionName: 'supadata',
          identifier: 'user_123',       // your user's unique ID
-         credentials: { api_key: 'supa-...' },
+         credentials: { api_key: supadataApiKey },
        });
        ```
      </TabItem>
      <TabItem label="Python">
        ```python
+       # Never hard-code API keys — read from secure storage or user input
+       supadata_api_key = get_user_supadata_key()  # retrieve from your secure store
+
        scalekit_client.actions.upsert_connected_account(
            connection_name="supadata",
            identifier="user_123",
-           credentials={"api_key": "supa-..."}
+           credentials={"api_key": supadata_api_key}
        )
        ```
      </TabItem>
