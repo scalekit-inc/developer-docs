@@ -28,6 +28,12 @@ head:
         font-size: 0.8em;
         opacity: 0.7;
       }
+      .sl-markdown-content h2[data-copy-state="copied"]::after,
+      .sl-markdown-content h3[data-copy-state="copied"]::after,
+      .sl-markdown-content h4[data-copy-state="copied"]::after {
+        content: " ✓ ";
+        opacity: 0.9;
+      }
   - tag: script
     content: |
       // Using a self-executing function to avoid global namespace pollution
@@ -41,18 +47,19 @@ head:
             if (heading.hasAttribute('data-copy-initialized')) return;
             heading.setAttribute('data-copy-initialized', 'true');
 
-            heading.addEventListener('click', async () => {
-              const headingText = heading.textContent.replace(/\s📋$/, '').trim();
+            heading.addEventListener('click', async (event) => {
+              if (event.target && event.target.closest && event.target.closest('a')) return;
+              const clone = heading.cloneNode(true);
+              clone.querySelectorAll('a').forEach((el) => el.remove());
+              const headingText = (clone.textContent || '').trim();
 
               try {
                 await navigator.clipboard.writeText(headingText);
 
-                // Visual feedback
-                const originalText = heading.textContent;
-                heading.textContent = heading.textContent.replace(/\s📋$/, '') + ' ✓';
-
+                // Visual feedback via CSS attribute (avoids destroying child DOM nodes)
+                heading.setAttribute('data-copy-state', 'copied');
                 setTimeout(() => {
-                  heading.textContent = originalText;
+                  heading.removeAttribute('data-copy-state');
                 }, 2000);
               } catch (err) {
                 console.error('Failed to copy heading:', err);
