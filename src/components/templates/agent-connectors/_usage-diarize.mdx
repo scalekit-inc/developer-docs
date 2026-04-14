@@ -136,48 +136,4 @@ Use this connector when you want an agent to transcribe and diarize audio or vid
 </Aside>
 
 ## Scalekit tools
-
-### Submit a transcription job
-
-Submit a YouTube, X, Instagram, or TikTok URL for transcription. Returns a `job_id` and `estimatedTime` to use in subsequent status and download calls.
-
-```python title="examples/diarize_create_job.py"
-result = scalekit_client.actions.execute_tool(
-    tool_name="diarize_create_transcription_job",
-    connected_account_id=connected_account.id,
-    tool_input={
-        "url": "https://www.youtube.com/watch?v=example",
-        "language": "en",   # optional
-        "num_speakers": 2,  # optional
-    },
-)
-job_id = result.result["id"]
-estimated_seconds = result.result.get("estimatedTime", 120)
-```
-
-### Check job status
-
-Returns `status`: `pending`, `processing`, `completed`, or `failed`.
-
-```python title="examples/diarize_check_status.py"
-result = scalekit_client.actions.execute_tool(
-    tool_name="diarize_get_job_status",
-    connected_account_id=connected_account.id,
-    tool_input={"job_id": job_id},
-)
-print("Status:", result.result["status"])
-```
-
-### Download the transcript
-
-Download a completed transcript. `json` includes full speaker diarization, segment timestamps, and word-level data. `txt`, `srt`, and `vtt` are plain-text and subtitle formats.
-
-```python title="examples/diarize_download_transcript.py"
-result = scalekit_client.actions.execute_tool(
-    tool_name="diarize_download_transcript",
-    connected_account_id=connected_account.id,
-    tool_input={"job_id": job_id, "format": "json"},  # json | txt | srt | vtt
-)
-for segment in result.result.get("segments", []):
-    print(f"[{segment['start']:.1f}s] {segment['speaker']}: {segment['text']}")
 ```
