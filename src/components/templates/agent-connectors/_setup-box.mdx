@@ -1,0 +1,112 @@
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components'
+
+Connect Box to Scalekit so your agent can manage files, folders, users, tasks, and more on behalf of your users. Box uses OAuth 2.0 — users authorize access through Box's login flow, and Scalekit handles token storage and refresh automatically.
+
+You will need:
+- A Box developer account (free at [developer.box.com](https://developer.box.com))
+- Your Box OAuth app's Client ID and Client Secret
+- The redirect URI from Scalekit to paste into Box
+
+<Steps>
+1. ### Create a Box OAuth app
+
+   - Go to the [Box Developer Console](https://app.box.com/developers/console) and click **Create New App**.
+
+   - Select **Custom App** as the app type.
+
+   - Under authentication method, choose **User Authentication (OAuth 2.0)**. This lets your agent act on behalf of each user who authorizes access.
+
+   - Enter an app name (e.g. "My Agent App") and click **Create App**.
+
+   ![](@/assets/docs/agent-connectors/box/box-create-app.png)
+
+2. ### Copy the redirect URI from Scalekit
+
+   - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**.
+   - Find **Box** and click **Create**.
+   - Click **Use your own credentials** and copy the redirect URI. It looks like:
+     `https://<env>.scalekit.cloud/sso/v1/oauth/<conn_id>/callback`
+
+   ![](@/assets/docs/agent-connectors/box/scalekit-search-box.png)
+
+3. ### Add the redirect URI to Box
+
+   - In the [Box Developer Console](https://app.box.com/developers/console), open your app and go to the **Configuration** tab.
+   - Under **OAuth 2.0 Redirect URI**, paste the redirect URI from Scalekit and click **Save Changes**.
+
+   ![](@/assets/docs/agent-connectors/box/box-dev-console.png)
+
+4. ### Select scopes for your app
+
+   Still on the **Configuration** tab in Box, scroll down to **Application Scopes** and enable the permissions your agent needs:
+
+   | Scope | Required for |
+   |-------|-------------|
+   | `root_readonly` | Reading files and folders |
+   | `root_readwrite` | Creating, updating, and deleting files/folders |
+   | `manage_groups` | Creating and managing groups |
+   | `manage_webhook` | Creating and managing webhooks |
+   | `manage_managed_users` | Creating and managing enterprise users |
+   | `manage_enterprise_properties` | Accessing enterprise events |
+
+   <Aside type="tip" title="Minimum required scope">
+     Enable at least `root_readonly` and `root_readwrite` to use the majority of Box tools. Add other scopes only for the tools you actually use.
+   </Aside>
+
+   Click **Save Changes** after selecting scopes.
+
+5. ### Add credentials in Scalekit
+
+   - In the [Box Developer Console](https://app.box.com/developers/console), open your app → **Configuration** tab.
+   - Copy your **Client ID** and **Client Secret**.
+   - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections**, open the Box connection you created, and enter:
+     - **Client ID** — from Box
+     - **Client Secret** — from Box
+     - **Scopes** — select the same scopes you enabled in Box (e.g. `root_readonly`, `root_readwrite`)
+
+   ![](@/assets/docs/agent-connectors/box/add-credentials.png)
+
+   - Click **Save**.
+
+6. ### Add a connected account for each user
+
+   Each user who authorizes Box access becomes a connected account. During authorization, Box will show your app name and request the scopes you configured.
+
+   **Via dashboard (for testing)**
+   - In [Scalekit dashboard](https://app.scalekit.com), go to your Box connection → **Connected Accounts** → **Add Account**.
+   - Enter a **User ID** (your internal identifier for this user, e.g. `user_123`).
+   - Click **Add** — you will be redirected to Box's OAuth consent screen to authorize.
+
+   ![](@/assets/docs/agent-connectors/box/add-connected-account.png)
+
+   **Via API (for production)**
+
+   In production, generate an authorization link and redirect your user to it:
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```typescript
+       const { link } = await scalekit.actions.getAuthorizationLink({
+         connectionName: 'box',
+         identifier: 'user_123',
+       });
+       // Redirect your user to `link`
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```python
+       link_response = scalekit_client.actions.get_authorization_link(
+           connection_name="box",
+           identifier="user_123",
+       )
+       # Redirect your user to link_response.link
+       ```
+     </TabItem>
+   </Tabs>
+
+   After the user authorizes, Scalekit stores their tokens. Your agent can then call Box tools on their behalf without any further redirects.
+
+   <Aside type="note" title="Token refresh">
+     Scalekit automatically refreshes Box access tokens using the refresh token issued during authorization. If a user's token ever expires, re-run the authorization link flow for that user.
+   </Aside>
+</Steps>
