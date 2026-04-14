@@ -1,0 +1,454 @@
+---
+title: 'Enforce seat limits with SCIM provisioning'
+description: 'Block over-quota user creation and alert admins when SCIM pushes users beyond your plan seat limit.'
+date: 2026-04-14
+tags: ['SCIM', 'Modular SCIM']
+sidebar:
+  label: 'SCIM seat limits'
+tableOfContents: true
+excerpt: >
+  When your customer's identity provider pushes more users than your plan allows, SCIM won't stop it.
+  This cookbook shows how to track provisioned users per organization, block creation when the quota
+  is hit, and notify admins — using two webhook events and a counter in your database.
+featured: false
+authors:
+  - name: 'Saif'
+    title: 'Developer Advocate'
+    url: 'https://www.linkedin.com/in/saif-shines/'
+    picture: '/images/blog/authors/saif.png'
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+SCIM (System for Cross-domain Identity Management) provisioning runs unsupervised. When a customer's HR system pushes user #51 to a 50-seat plan, your application will create that user unless you explicitly block it. Scalekit delivers the provisioning events; your application decides whether to act on them.
+
+This cookbook shows the two-event pattern that keeps your seat count accurate and tells admins when they need to upgrade their plan.
+
+<Aside type="note" title="Full Stack Auth handles this automatically">
+  This pattern applies to **Modular SCIM** customers who manage their own user database. If you use Scalekit Full Stack Auth, seat enforcement is built in — you don't need this cookbook.
+</Aside>
+
+## SCIM does not enforce seat limits — your app must
+
+Scalekit translates IdP-specific provisioning protocols into a consistent set of webhook events. It does not know your billing model, your seat limits, or which organizations have room for more users. That logic lives in your application.
+
+When a user is added in the IdP, Scalekit fires `organization.directory.user_created`. When a user is removed or deactivated, Scalekit fires `organization.directory.user_deleted`. Your webhook handler is the gate between those events and your user table.
+
+## Two webhook events carry the full user lifecycle
+
+Both events include the `organization_id`, which lets you look up the seat limit for that specific customer.
+
+| Event | When it fires | What to do |
+|-------|---------------|------------|
+| `organization.directory.user_created` | IdP adds or activates a user | Check count — create user or block and notify |
+| `organization.directory.user_deleted` | IdP removes or deactivates a user | Decrement count — clear any blocked-provisioning flag |
+
+## Track a user count per organization in your database
+
+Add a table that stores the provisioned user count and seat limit for each organization. The examples below use plain SQL — translate to your ORM if preferred.
+
+```sql
+CREATE TABLE org_seat_usage (
+  org_id       TEXT PRIMARY KEY,
+  seat_limit   INTEGER NOT NULL,
+  used_seats   INTEGER NOT NULL DEFAULT 0
+);
+```
+
+Seed this table when you onboard a new customer. Update `seat_limit` whenever the customer upgrades or downgrades their plan.
+
+## Block creation when the count reaches the limit
+
+The `user_created` handler increments the seat counter and creates the user only when there is room. Always return `200` to Scalekit — returning an error code causes Scalekit to retry delivery, which does not help when the block is intentional.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```ts title="webhook-handler.ts"
+    import express from 'express'
+
+    const app = express()
+    app.use(express.json())
+
+    app.post('/webhooks/scalekit', async (req, res) => {
+      const event = req.body
+
+      if (event.type === 'organization.directory.user_created') {
+        const orgId = event.organization_id
+        const directoryUser = event.data
+
+        // Fetch current usage. Lock the row to prevent race conditions.
+        const usage = await db.queryOne(
+          'SELECT seat_limit, used_seats FROM org_seat_usage WHERE org_id = $1 FOR UPDATE',
+          [orgId]
+        )
+
+        if (!usage || usage.used_seats >= usage.seat_limit) {
+          // Seat limit reached — skip user creation and alert the admin.
+          await notifyAdminSeatLimitReached(orgId)
+          // Return 200 so Scalekit does not retry this event.
+          return res.sendStatus(200)
+        }
+
+        // Room available — create the user and increment the counter.
+        await db.transaction(async (tx) => {
+          await tx.query(
+            'INSERT INTO users (id, org_id, email, name) VALUES ($1, $2, $3, $4)',
+            [directoryUser.id, orgId, directoryUser.email, directoryUser.name]
+          )
+          await tx.query(
+            'UPDATE org_seat_usage SET used_seats = used_seats + 1 WHERE org_id = $1',
+            [orgId]
+          )
+        })
+      }
+
+      res.sendStatus(200)
+    })
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python title="webhook_handler.py"
+    from flask import Flask, request, jsonify
+
+    app = Flask(__name__)
+
+    @app.route('/webhooks/scalekit', methods=['POST'])
+    def handle_webhook():
+        event = request.get_json()
+
+        if event.get('type') == 'organization.directory.user_created':
+            org_id = event['organization_id']
+            directory_user = event['data']
+
+            # Fetch current usage. Lock the row to prevent race conditions.
+            usage = db.query_one(
+                'SELECT seat_limit, used_seats FROM org_seat_usage '
+                'WHERE org_id = %s FOR UPDATE',
+                (org_id,)
+            )
+
+            if not usage or usage['used_seats'] >= usage['seat_limit']:
+                # Seat limit reached — skip user creation and alert the admin.
+                notify_admin_seat_limit_reached(org_id)
+                # Return 200 so Scalekit does not retry this event.
+                return '', 200
+
+            # Room available — create the user and increment the counter.
+            with db.transaction():
+                db.execute(
+                    'INSERT INTO users (id, org_id, email, name) VALUES (%s, %s, %s, %s)',
+                    (directory_user['id'], org_id,
+                     directory_user['email'], directory_user['name'])
+                )
+                db.execute(
+                    'UPDATE org_seat_usage SET used_seats = used_seats + 1 '
+                    'WHERE org_id = %s',
+                    (org_id,)
+                )
+
+        return '', 200
+    ```
+  </TabItem>
+  <TabItem label="Go">
+    ```go title="webhook_handler.go"
+    package main
+
+    import (
+      "encoding/json"
+      "net/http"
+    )
+
+    func webhookHandler(w http.ResponseWriter, r *http.Request) {
+      var event map[string]interface{}
+      if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
+        http.Error(w, "bad request", http.StatusBadRequest)
+        return
+      }
+
+      if event["type"] == "organization.directory.user_created" {
+        orgID := event["organization_id"].(string)
+        data := event["data"].(map[string]interface{})
+
+        // Fetch current usage. Lock the row to prevent race conditions.
+        var seatLimit, usedSeats int
+        err := db.QueryRow(
+          "SELECT seat_limit, used_seats FROM org_seat_usage WHERE org_id = $1 FOR UPDATE",
+          orgID,
+        ).Scan(&seatLimit, &usedSeats)
+
+        if err != nil || usedSeats >= seatLimit {
+          // Seat limit reached — skip user creation and alert the admin.
+          notifyAdminSeatLimitReached(orgID)
+          // Return 200 so Scalekit does not retry this event.
+          w.WriteHeader(http.StatusOK)
+          return
+        }
+
+        // Room available — create the user and increment the counter.
+        tx, _ := db.Begin()
+        tx.Exec(
+          "INSERT INTO users (id, org_id, email, name) VALUES ($1, $2, $3, $4)",
+          data["id"], orgID, data["email"], data["name"],
+        )
+        tx.Exec(
+          "UPDATE org_seat_usage SET used_seats = used_seats + 1 WHERE org_id = $1",
+          orgID,
+        )
+        tx.Commit()
+      }
+
+      w.WriteHeader(http.StatusOK)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Java">
+    ```java title="WebhookController.java"
+    import org.springframework.web.bind.annotation.*;
+    import java.util.Map;
+
+    @RestController
+    public class WebhookController {
+
+      @PostMapping("/webhooks/scalekit")
+      public ResponseEntity<Void> handleWebhook(@RequestBody Map<String, Object> event) {
+        if ("organization.directory.user_created".equals(event.get("type"))) {
+          String orgId = (String) event.get("organization_id");
+          Map<String, Object> directoryUser = (Map<String, Object>) event.get("data");
+
+          // Fetch current usage. Lock the row to prevent race conditions.
+          OrgSeatUsage usage = db.queryForObject(
+            "SELECT seat_limit, used_seats FROM org_seat_usage WHERE org_id = ? FOR UPDATE",
+            OrgSeatUsage.class, orgId
+          );
+
+          if (usage == null || usage.getUsedSeats() >= usage.getSeatLimit()) {
+            // Seat limit reached — skip user creation and alert the admin.
+            notifyAdminSeatLimitReached(orgId);
+            // Return 200 so Scalekit does not retry this event.
+            return ResponseEntity.ok().build();
+          }
+
+          // Room available — create the user and increment the counter.
+          transactionTemplate.execute(status -> {
+            db.update(
+              "INSERT INTO users (id, org_id, email, name) VALUES (?, ?, ?, ?)",
+              directoryUser.get("id"), orgId,
+              directoryUser.get("email"), directoryUser.get("name")
+            );
+            db.update(
+              "UPDATE org_seat_usage SET used_seats = used_seats + 1 WHERE org_id = ?",
+              orgId
+            );
+            return null;
+          });
+        }
+
+        return ResponseEntity.ok().build();
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+## Decrement the count when a user is removed
+
+The `user_deleted` handler decreases the seat counter and clears any pending seat-limit notification. This lets the next `user_created` event succeed without manual intervention from your team.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```ts title="webhook-handler.ts"
+    if (event.type === 'organization.directory.user_deleted') {
+      const orgId = event.organization_id
+      const directoryUser = event.data
+
+      await db.transaction(async (tx) => {
+        // Remove the user and decrement the counter atomically.
+        await tx.query('DELETE FROM users WHERE id = $1', [directoryUser.id])
+        await tx.query(
+          'UPDATE org_seat_usage SET used_seats = GREATEST(used_seats - 1, 0) WHERE org_id = $1',
+          [orgId]
+        )
+        // Clear any pending seat-limit notification so the next user can be provisioned.
+        await tx.query(
+          "DELETE FROM notifications WHERE org_id = $1 AND type = 'seat_limit_reached'",
+          [orgId]
+        )
+      })
+    }
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python title="webhook_handler.py"
+    if event.get('type') == 'organization.directory.user_deleted':
+        org_id = event['organization_id']
+        directory_user = event['data']
+
+        with db.transaction():
+            # Remove the user and decrement the counter atomically.
+            db.execute('DELETE FROM users WHERE id = %s', (directory_user['id'],))
+            db.execute(
+                'UPDATE org_seat_usage SET used_seats = GREATEST(used_seats - 1, 0) '
+                'WHERE org_id = %s',
+                (org_id,)
+            )
+            # Clear any pending seat-limit notification so the next user can be provisioned.
+            db.execute(
+                "DELETE FROM notifications WHERE org_id = %s AND type = 'seat_limit_reached'",
+                (org_id,)
+            )
+    ```
+  </TabItem>
+  <TabItem label="Go">
+    ```go title="webhook_handler.go"
+    if event["type"] == "organization.directory.user_deleted" {
+      orgID := event["organization_id"].(string)
+      data := event["data"].(map[string]interface{})
+
+      tx, _ := db.Begin()
+      // Remove the user and decrement the counter atomically.
+      tx.Exec("DELETE FROM users WHERE id = $1", data["id"])
+      tx.Exec(
+        "UPDATE org_seat_usage SET used_seats = GREATEST(used_seats - 1, 0) WHERE org_id = $1",
+        orgID,
+      )
+      // Clear any pending seat-limit notification so the next user can be provisioned.
+      tx.Exec(
+        "DELETE FROM notifications WHERE org_id = $1 AND type = 'seat_limit_reached'",
+        orgID,
+      )
+      tx.Commit()
+    }
+    ```
+  </TabItem>
+  <TabItem label="Java">
+    ```java title="WebhookController.java"
+    if ("organization.directory.user_deleted".equals(event.get("type"))) {
+      String orgId = (String) event.get("organization_id");
+      Map<String, Object> directoryUser = (Map<String, Object>) event.get("data");
+
+      transactionTemplate.execute(status -> {
+        // Remove the user and decrement the counter atomically.
+        db.update("DELETE FROM users WHERE id = ?", directoryUser.get("id"));
+        db.update(
+          "UPDATE org_seat_usage SET used_seats = GREATEST(used_seats - 1, 0) WHERE org_id = ?",
+          orgId
+        );
+        // Clear any pending seat-limit notification so the next user can be provisioned.
+        db.update(
+          "DELETE FROM notifications WHERE org_id = ? AND type = 'seat_limit_reached'",
+          orgId
+        );
+        return null;
+      });
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+## Notify admins without spamming them
+
+A new `user_created` event fires for every blocked user. Without deduplication, your admin will receive one email per rejected provisioning attempt. Use an idempotent insert to fire the notification only once per organization until the condition is resolved.
+
+```sql
+CREATE TABLE notifications (
+  id         SERIAL PRIMARY KEY,
+  org_id     TEXT NOT NULL,
+  type       TEXT NOT NULL,
+  resolved   BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (org_id, type, resolved)
+);
+```
+
+The `UNIQUE (org_id, type, resolved)` constraint blocks duplicate active notifications. Insert with `ON CONFLICT DO NOTHING` to skip the insert when a notification already exists:
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```ts title="notify.ts"
+    async function notifyAdminSeatLimitReached(orgId: string) {
+      // Insert only if no unresolved notification exists for this org.
+      const result = await db.query(
+        `INSERT INTO notifications (org_id, type, resolved)
+         VALUES ($1, 'seat_limit_reached', FALSE)
+         ON CONFLICT (org_id, type, resolved) DO NOTHING`,
+        [orgId]
+      )
+
+      // rowCount is 0 when the conflict was skipped — admin already notified.
+      if (result.rowCount === 0) return
+
+      // Send the alert once: email, Slack, in-app — your choice.
+      await sendAdminAlert(orgId, 'Seat limit reached — users are not being provisioned.')
+    }
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python title="notify.py"
+    def notify_admin_seat_limit_reached(org_id: str) -> None:
+        # Insert only if no unresolved notification exists for this org.
+        result = db.execute(
+            """INSERT INTO notifications (org_id, type, resolved)
+               VALUES (%s, 'seat_limit_reached', FALSE)
+               ON CONFLICT (org_id, type, resolved) DO NOTHING""",
+            (org_id,)
+        )
+
+        # rowcount is 0 when the conflict was skipped — admin already notified.
+        if result.rowcount == 0:
+            return
+
+        # Send the alert once: email, Slack, in-app — your choice.
+        send_admin_alert(org_id, 'Seat limit reached — users are not being provisioned.')
+    ```
+  </TabItem>
+  <TabItem label="Go">
+    ```go title="notify.go"
+    func notifyAdminSeatLimitReached(orgID string) {
+      // Insert only if no unresolved notification exists for this org.
+      result, _ := db.Exec(
+        `INSERT INTO notifications (org_id, type, resolved)
+         VALUES ($1, 'seat_limit_reached', FALSE)
+         ON CONFLICT (org_id, type, resolved) DO NOTHING`,
+        orgID,
+      )
+
+      // RowsAffected is 0 when the conflict was skipped — admin already notified.
+      rows, _ := result.RowsAffected()
+      if rows == 0 {
+        return
+      }
+
+      // Send the alert once: email, Slack, in-app — your choice.
+      sendAdminAlert(orgID, "Seat limit reached — users are not being provisioned.")
+    }
+    ```
+  </TabItem>
+  <TabItem label="Java">
+    ```java title="NotificationService.java"
+    public void notifyAdminSeatLimitReached(String orgId) {
+      // Insert only if no unresolved notification exists for this org.
+      int rows = db.update(
+        "INSERT INTO notifications (org_id, type, resolved) " +
+        "VALUES (?, 'seat_limit_reached', FALSE) " +
+        "ON CONFLICT (org_id, type, resolved) DO NOTHING",
+        orgId
+      );
+
+      // rows is 0 when the conflict was skipped — admin already notified.
+      if (rows == 0) return;
+
+      // Send the alert once: email, Slack, in-app — your choice.
+      sendAdminAlert(orgId, "Seat limit reached — users are not being provisioned.");
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+When a user is removed and the count drops below the limit, the `user_deleted` handler deletes the notification row. The next blocked `user_created` event will insert a fresh notification and trigger a new alert.
+
+---
+
+**Related guides**
+
+- [SCIM provisioning quickstart](/directory/scim/quickstart/) — set up webhooks and the Directory API
+- [Directory webhook events reference](/reference/webhooks/directory-events/) — full event payload schemas
