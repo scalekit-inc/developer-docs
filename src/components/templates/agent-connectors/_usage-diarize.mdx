@@ -2,7 +2,7 @@ import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
 
 Once a connected account is set up, make API calls through the Scalekit proxy. Scalekit injects the Diarize API key automatically — you never handle credentials in your application code.
 
-You can interact with Diarize in two ways — via direct proxy API calls or via Scalekit optimized tool calls.
+You can interact with Diarize in two ways — via direct proxy API calls or via Scalekit-optimized tool calls.
 
 ## Proxy API calls
 
@@ -38,11 +38,14 @@ A typical Diarize workflow has three steps: submit a job, poll until complete, t
       },
     });
     const jobId = job.data.id;
+    const estimatedSeconds = job.data.estimatedTime ?? 120;
+    const deadline = Date.now() + estimatedSeconds * 2 * 1000;
     console.log('Job created:', jobId);
 
-    // Step 2: Poll until complete (use estimatedTime from response to set timeout)
+    // Step 2: Poll until complete
     let status = 'pending';
     while (status !== 'completed' && status !== 'failed') {
+      if (Date.now() > deadline) throw new Error(`Transcription timed out after ${estimatedSeconds * 2}s`);
       await new Promise(r => setTimeout(r, 10_000)); // wait 10 s between polls
       const statusRes = await actions.request({
         connectionName,
@@ -96,11 +99,15 @@ A typical Diarize workflow has three steps: submit a job, poll until complete, t
         }
     )
     job_id = job["id"]
+    estimated_seconds = job.get("estimatedTime", 120)
+    deadline = time.time() + estimated_seconds * 2
     print("Job created:", job_id)
 
-    # Step 2: Poll until complete (use estimatedTime to set timeout)
+    # Step 2: Poll until complete
     status = "pending"
     while status not in ("completed", "failed"):
+        if time.time() > deadline:
+            raise TimeoutError(f"Transcription timed out after {estimated_seconds * 2}s")
         time.sleep(10)  # wait 10 s between polls
         status_res = actions.request(
             connection_name=connection_name,
