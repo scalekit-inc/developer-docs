@@ -1,0 +1,121 @@
+---
+title: 'Build with AI'
+description: 'Use AI coding agents to implement Scalekit authentication in minutes'
+template: doc
+tableOfContents: false
+slug: 'dev-kit/build-with-ai'
+prev: false
+next: false
+sidebar:
+  label: 'Overview'
+  order: 1
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+import FoldCard from '@components/ui/FoldCard.astro'
+import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
+
+Pick the auth feature you need below. Each page gives you a ready-to-paste prompt for your coding agent — Claude Code, Cursor, GitHub Copilot CLI, or OpenCode. The agent reads your codebase, applies consistent patterns, and generates production-ready auth code in minutes.
+
+<Tabs syncKey="coding-agent">
+  <TabItem label="Claude Code">
+    ```bash title="Step 1 — Add the marketplace (Claude REPL)" showLineNumbers=false
+    /plugin marketplace add scalekit-inc/claude-code-authstack
+    ```
+
+    ```bash title="Step 2 — Install your auth plugin (Claude REPL)" showLineNumbers=false
+    # options: full-stack-auth, agent-auth, mcp-auth, modular-sso, modular-scim
+    /plugin install agent-auth@scalekit-auth-stack
+    ```
+
+    Now ask your agent to implement Scalekit auth in natural language.
+  </TabItem>
+  <TabItem label="Codex">
+    ```bash title="Step 1 — Install the Scalekit Auth Stack" frame="terminal" showLineNumbers=false
+    curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash
+    ```
+
+    Step 2 — Restart Codex, open **Plugin Directory**, select **Scalekit Auth Stack**, and enable your auth plugin.
+
+    Now ask your agent to implement Scalekit auth in natural language.
+  </TabItem>
+  <TabItem label="GitHub Copilot CLI">
+    ```bash title="Step 1 — Add the marketplace" frame="terminal" showLineNumbers=false
+    copilot plugin marketplace add scalekit-inc/github-copilot-authstack
+    ```
+
+    ```bash title="Step 2 — Install your auth plugin" frame="terminal" showLineNumbers=false
+    # options: full-stack-auth, agent-auth, mcp-auth, modular-sso, modular-scim
+    copilot plugin install agent-auth@scalekit-auth-stack
+    ```
+
+    Now ask your agent to implement Scalekit auth in natural language.
+  </TabItem>
+  <TabItem label="Cursor">
+    The Scalekit Auth Stack is pending Cursor Marketplace review. Install it locally in Cursor:
+
+    ```bash title="Step 1 — Install the Scalekit Auth Stack" frame="terminal" showLineNumbers=false
+    curl -fsSL https://raw.githubusercontent.com/scalekit-inc/cursor-authstack/main/install.sh | bash
+    ```
+
+    Step 2 — Restart Cursor, open **Settings > Cursor Settings > Plugins**, and enable your auth plugin.
+
+    Now ask your agent to implement Scalekit auth in natural language.
+  </TabItem>
+  <TabItem label="40+ agents">
+    Works with OpenCode, Windsurf, Cline, Gemini CLI, Codex, and 35+ more agents via the [Vercel Skills CLI](https://vercel.com/docs/agent-resources/skills).
+
+    ```bash title="Step 1 — Browse available skills" frame="terminal" showLineNumbers=false
+    npx skills add scalekit-inc/skills --list
+    ```
+
+    ```bash title="Step 2 — Install a specific skill" frame="terminal" showLineNumbers=false
+    npx skills add scalekit-inc/skills --skill adding-mcp-oauth
+    ```
+
+    Now ask your agent to implement Scalekit auth in natural language.
+  </TabItem>
+</Tabs>
+
+<ResponsiveCardGrid columnsDesktop={3} columnsLarge={3}>
+  <FoldCard
+    title="Full Stack Auth"
+    iconKey="fsa"
+    href="/dev-kit/build-with-ai/full-stack-auth/"
+    clickable={true}
+  />
+  <FoldCard
+    title="Agent Auth"
+    iconKey="bot"
+    href="/dev-kit/build-with-ai/agent-auth/"
+    clickable={true}
+  />
+  <FoldCard
+    title="MCP Auth"
+    iconKey="mcp"
+    href="/dev-kit/build-with-ai/mcp-auth/"
+    clickable={true}
+  />
+  <FoldCard
+    title="Modular SSO"
+    iconKey="sso"
+    href="/dev-kit/build-with-ai/sso/"
+    clickable={true}
+  />
+  <FoldCard
+    title="Modular SCIM"
+    iconKey="scim"
+    href="/dev-kit/build-with-ai/scim/"
+    clickable={true}
+  />
+</ResponsiveCardGrid>
+
+## Documentation for AI agents
+
+Load these files to give your agent full context about Scalekit APIs and integration patterns:
+
+| File | Contents | When to use |
+|------|----------|-------------|
+| [`/llms.txt`](/llms.txt) | Structured index with routing hints per product area | Most queries — smaller context |
+| [`/llms-full.txt`](/llms-full.txt) | Complete documentation for all pages | When exhaustive context is needed |
+| [`sitemap-0.xml`](https://docs.scalekit.com/sitemap-0.xml) | Full URL list of all documentation pages | Crawling or indexing all pages |

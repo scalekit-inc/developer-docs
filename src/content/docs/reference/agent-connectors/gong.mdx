@@ -1,9 +1,6 @@
 ---
 title: Gong
-description: Connect with Gong to sync calls, transcripts, insights, coaching and CRM activity
 tableOfContents: true
-sidebar:
-  order: 20
 head:
   - tag: style
     content: |
@@ -13,77 +10,325 @@ head:
       table td:first-child, table th:first-child {
         white-space: nowrap;
       }
-      /* Heading copy functionality */
-      .sl-markdown-content h2,
-      .sl-markdown-content h3,
-      .sl-markdown-content h4 {
-        position: relative;
-        cursor: pointer;
-      }
-      .sl-markdown-content h2:hover::after,
-      .sl-markdown-content h3:hover::after,
-      .sl-markdown-content h4:hover::after {
-        content: " 📋 ";
-        font-size: 0.8em;
-        opacity: 0.7;
-      }
-  - tag: script
-    content: |
-      // Using a self-executing function to avoid global namespace pollution
-      (function() {
-        // Function to initialize the copy functionality
-        function initHeadingCopy() {
-          const headings = document.querySelectorAll('.sl-markdown-content h2, .sl-markdown-content h3, .sl-markdown-content h4');
-
-          headings.forEach(heading => {
-            // Skip if already initialized
-            if (heading.hasAttribute('data-copy-initialized')) return;
-            heading.setAttribute('data-copy-initialized', 'true');
-
-            heading.addEventListener('click', async () => {
-              const headingText = heading.textContent.replace(/\s📋$/, '').trim();
-
-              try {
-                await navigator.clipboard.writeText(headingText);
-
-                // Visual feedback
-                const originalText = heading.textContent;
-                heading.textContent = heading.textContent.replace(/\s📋$/, '') + ' ✓';
-
-                setTimeout(() => {
-                  heading.textContent = originalText;
-                }, 2000);
-              } catch (err) {
-                console.error('Failed to copy heading:', err);
-              }
-            });
-          });
-        }
-
-        // Initialize on DOMContentLoaded
-        document.addEventListener('DOMContentLoaded', initHeadingCopy);
-
-        // Also initialize now in case the DOM is already loaded
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-          setTimeout(initHeadingCopy, 1);
-        }
-
-        // For Astro's client-side navigation
-        document.addEventListener('astro:page-load', initHeadingCopy);
-      })();
 ---
 
 import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
 import { Accordion, AccordionItem } from 'accessible-astro-components'
+import { SetupGongSection } from '@components/templates'
+import { UsageGongSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
   Connect with Gong to sync calls, transcripts, insights, coaching and CRM activity
  </div>
  <div class="flex justify-center">
-  <img src="https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/gong.svg" width="64" height="64" alt="Gong logo" />
+  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/gong.svg" width="64" height="64" alt="Gong logo" />
  </div>
 </div>
 
 Supports authentication: <Badge text="OAuth 2.0" /> , <Badge text="Api Key" />
 
+
+## Set up the agent connector
+
+<SetupGongSection />
+
+## Usage
+
+<UsageGongSection />
+
+## Tool list
+
+## `gong_call_outcomes_list`
+
+List all call outcome options configured in the Gong account. Returns outcome definitions such as name and ID that can be applied to calls to indicate the result of a conversation.
+
+## `gong_calls_create`
+
+Create (register) a new call in Gong. This adds a call record with metadata such as title, scheduled start time, participants, and direction. After creation, Gong returns a media upload URL that can be used to upload the call recording separately.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `actual_start` | string | Yes | The actual date and time the call started (ISO 8601 format, e.g., 2024-06-15T14:00:00Z). |
+| `call_provider_code` | string | No | The telephony or conferencing system used (e.g., 'zoom', 'webex', 'ringcentral'). |
+| `client_unique_id` | string | No | A unique identifier for this call in your system, used to prevent duplicate uploads. |
+| `direction` | string | No | Direction of the call: 'Inbound' or 'Outbound'. |
+| `disposition` | string | No | Outcome of the call (e.g., 'Connected', 'No Answer', 'Left Voicemail'). |
+| `duration` | integer | No | Duration of the call in seconds. |
+| `language` | string | No | Primary language spoken on the call as a BCP-47 language tag (e.g., 'en-US', 'es-ES'). |
+| `parties` | `array<object>` | No | Array of participant objects. Each participant should include emailAddress, name, speakerId, and userId fields. |
+| `purpose` | string | No | Purpose or topic of the call (e.g., 'Discovery', 'Demo', 'QBR'). |
+| `scheduled_end` | string | No | Scheduled end time for the call (ISO 8601 format). |
+| `scheduled_start` | string | No | Scheduled start time for the call (ISO 8601 format). |
+| `title` | string | No | Title or subject of the call. |
+| `workspace_id` | string | No | Workspace ID to associate this call with a specific Gong workspace. |
+
+## `gong_calls_get`
+
+Retrieve extensive details for one or more Gong calls by their IDs. Returns enriched call data including participants, interaction stats, topics discussed, and CRM associations.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `call_ids` | `array<string>` | Yes | Array of Gong call IDs to retrieve extensive details for. |
+| `cursor` | string | No | Cursor value from a previous API response for paginating to the next page of results. |
+| `from_date_time` | string | No | Start of the date-time range to filter calls (ISO 8601 format). |
+| `to_date_time` | string | No | End of the date-time range to filter calls (ISO 8601 format). |
+| `workspace_id` | string | No | Optional workspace ID to restrict the results to a specific Gong workspace. |
+
+## `gong_calls_list`
+
+List Gong calls with optional filters for date range, workspace, and specific call IDs. Returns a page of calls with metadata such as title, duration, participants, and direction.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `call_ids` | string | No | Comma-separated list of specific call IDs to retrieve. |
+| `cursor` | string | No | Cursor value from a previous API response for paginating to the next page of results. |
+| `from_date_time` | string | No | Start of the date-time range for filtering calls (ISO 8601 format, e.g., 2024-01-01T00:00:00Z). |
+| `to_date_time` | string | No | End of the date-time range for filtering calls (ISO 8601 format, e.g., 2024-12-31T23:59:59Z). |
+| `workspace_id` | string | No | Optional workspace ID to restrict results to a specific Gong workspace. |
+
+## `gong_calls_transcript_get`
+
+Retrieve transcripts for one or more Gong calls by their IDs. Returns speaker-attributed, sentence-level transcript segments with timing offsets for each call.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `call_ids` | `array<string>` | Yes | Array of Gong call IDs whose transcripts to retrieve. |
+| `cursor` | string | No | Cursor value from a previous API response for paginating to the next page of results. |
+| `from_date_time` | string | No | Start of the date-time range to filter calls (ISO 8601 format). |
+| `to_date_time` | string | No | End of the date-time range to filter calls (ISO 8601 format). |
+| `workspace_id` | string | No | Optional workspace ID to restrict the results to a specific Gong workspace. |
+
+## `gong_coaching_get`
+
+Get coaching data from Gong, including coaching sessions and feedback provided by managers to their team members. Supports cursor-based pagination for large result sets.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `cursor` | string | No | Cursor value from a previous response for paginating to the next page of results. |
+
+## `gong_engage_digital_interactions_create`
+
+Add a digital interaction event (such as a web visit, content engagement, or other digital touchpoint) to a Gong Engage prospect's activity timeline.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `crm_account_id` | string | No | The CRM account ID associated with this interaction. |
+| `crm_contact_id` | string | No | The CRM contact ID associated with this interaction. |
+| `event_name` | string | Yes | Name of the digital interaction event (e.g., 'Visited Pricing Page', 'Downloaded Whitepaper'). |
+| `event_timestamp` | string | Yes | Timestamp when the digital interaction occurred (ISO 8601 format). |
+| `prospect_email` | string | No | Email address of the prospect who performed this digital interaction. |
+| `url` | string | No | URL associated with the digital interaction (e.g., the page visited or content accessed). |
+
+## `gong_engage_email_activity_report`
+
+Report email engagement events (opens, clicks, bounces, unsubscribes) to Gong Engage so they appear in the activity timeline for a prospect.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `email_id` | string | Yes | External identifier for the email message that was engaged with. |
+| `event_timestamp` | string | Yes | Timestamp when the engagement event occurred (ISO 8601 format). |
+| `event_type` | string | Yes | The type of email engagement event to report. |
+| `link_url` | string | No | For EMAIL_LINK_CLICKED events, the URL of the link that was clicked. |
+| `prospect_email` | string | Yes | Email address of the prospect who triggered this engagement event. |
+
+## `gong_engage_flow_content_override`
+
+Override field placeholder values in a Gong Engage flow for specific prospects, allowing personalized content without modifying the base flow template.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `field_values` | `object` | Yes | Key-value pairs of field placeholder names and their override values to substitute into the flow content. |
+| `flow_instance_id` | string | Yes | The unique ID of the flow instance to override content for. Retrieve from the Get Flows for Prospects endpoint. |
+
+## `gong_engage_flow_folders_list`
+
+List all Gong Engage flow folders available to a user, including company folders, personal folders, and folders shared with the specified user.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `cursor` | string | No | Cursor value from a previous API response for paginating to the next page of results. |
+| `flow_owner_email` | string | Yes | Email address of the Gong user whose flow folders to retrieve. Returns company folders plus personal and shared folders for this user. |
+| `workspace_id` | string | No | Optional workspace ID to filter flow folders by a specific workspace. |
+
+## `gong_engage_flows_list`
+
+List all Gong Engage flows available to a user, including company flows, personal flows, and flows shared with the specified user.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `cursor` | string | No | Cursor value from a previous API response for paginating to the next page of results. |
+| `flow_owner_email` | string | Yes | Email address of the Gong user whose flows to retrieve. Returns company flows plus personal and shared flows for this user. |
+| `workspace_id` | string | No | Optional workspace ID to filter flows by a specific workspace. |
+
+## `gong_engage_prospects_assign`
+
+Assign up to 200 CRM prospects (contacts or leads) to a specific Gong Engage flow.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `crm_prospect_ids` | `array<string>` | Yes | Array of CRM prospect IDs (contacts or leads) to assign to the flow. Maximum 200 per request. |
+| `flow_id` | string | Yes | The unique ID of the Gong Engage flow to assign the prospects to. |
+| `flow_instance_owner_email` | string | Yes | Email address of the Gong user who will own the flow to-dos and be responsible for this flow instance. |
+
+## `gong_engage_prospects_assign_cool_off_override`
+
+Assign CRM prospects to a Gong Engage flow while overriding the cool-off period restriction that would normally prevent re-enrollment.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `crm_prospect_ids` | `array<string>` | Yes | Array of CRM prospect IDs (contacts or leads) to assign to the flow, bypassing the cool-off period. Maximum 200 per request. |
+| `flow_id` | string | Yes | The unique ID of the Gong Engage flow to assign the prospects to. |
+| `flow_instance_owner_email` | string | No | Email address of the Gong user who will own the flow to-dos and be responsible for this flow instance. |
+
+## `gong_engage_prospects_bulk_assign`
+
+Asynchronously bulk assign CRM prospects to a Gong Engage flow; returns an assignment ID that can be used to poll the operation status.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `crm_prospect_ids` | `array<string>` | Yes | Array of CRM prospect IDs (contacts or leads) to bulk assign to the flow. |
+| `flow_id` | string | Yes | The unique ID of the Gong Engage flow to assign the prospects to. |
+| `flow_instance_owner_email` | string | No | Email address of the Gong user who will own the flow to-dos and be responsible for this flow instance. |
+
+## `gong_engage_prospects_bulk_assign_status`
+
+Retrieve the status and result of a previously submitted bulk prospect-to-flow assignment operation using its assignment ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `assignment_id` | string | Yes | The unique ID of the bulk assignment operation to check, returned from the Bulk Assign Prospects to Flow request. |
+
+## `gong_engage_prospects_flows_list`
+
+List all Gong Engage flows currently assigned to a given set of CRM prospects (contacts or leads).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `crm_prospect_ids` | `array<string>` | Yes | Array of CRM prospect IDs (contacts or leads) to look up flow assignments for. Maximum 200 prospects per request. |
+
+## `gong_engage_prospects_unassign`
+
+Unassign CRM prospects (contacts or leads) from a specific Gong Engage flow using their CRM IDs, removing them from the flow sequence.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `crm_prospect_ids` | `array<string>` | Yes | Array of CRM prospect IDs (contacts or leads) to remove from the flow. |
+| `flow_id` | string | Yes | The unique ID of the Gong Engage flow to unassign the prospects from. |
+
+## `gong_engage_prospects_unassign_by_instance`
+
+Unassign prospects from a Gong Engage flow using flow instance IDs rather than CRM prospect IDs.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `flow_instance_ids` | `array<string>` | Yes | Array of flow instance IDs identifying the specific prospect-flow enrollments to remove. |
+
+## `gong_engage_task_complete`
+
+Mark a specific Gong Engage task as completed.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `completion_notes` | string | No | Optional notes about how the task was completed. |
+| `task_id` | string | Yes | The unique ID of the Gong Engage task to mark as completed. |
+
+## `gong_engage_task_skip`
+
+Skip a specific Gong Engage task, indicating it should not be performed for this prospect.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `skip_reason` | string | No | Optional reason for skipping this task. |
+| `task_id` | string | Yes | The unique ID of the Gong Engage task to skip. |
+
+## `gong_engage_tasks_list`
+
+List Gong Engage tasks for a specified user, such as call tasks, email tasks, LinkedIn tasks, and other follow-up actions.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `assignee_email` | string | Yes | Email address of the Gong user whose tasks to retrieve. |
+| `cursor` | string | No | Cursor value from a previous response for paginating to the next page of results. |
+| `from_date` | string | No | Start date for filtering tasks (ISO 8601 format, e.g., 2024-01-01T00:00:00Z). |
+| `to_date` | string | No | End date for filtering tasks (ISO 8601 format, e.g., 2024-12-31T23:59:59Z). |
+| `workspace_id` | string | No | Optional workspace ID to filter tasks by a specific workspace. |
+
+## `gong_engage_users_list`
+
+List all active Gong users in the organization, useful for finding user emails to use as flow owners or assignees in Gong Engage.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `cursor` | string | No | Cursor value from a previous API response for paginating to the next page of results. |
+| `include_avatars` | boolean | No | Whether to include avatar URLs in the response. |
+
+## `gong_engage_workspaces_list`
+
+List all company workspaces in Gong, which can be used to scope Gong Engage flows and tasks to specific business units or teams.
+
+## `gong_library_folder_content_get`
+
+Get the content of a specific Gong library folder by its folder ID. Returns calls, clips, and other media items stored inside the folder.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `folder_id` | string | Yes | The unique identifier of the library folder whose content should be retrieved. |
+
+## `gong_library_folders_list`
+
+List all library folders in the Gong account. Returns folder names, IDs, and hierarchy information. Optionally filter by workspace to retrieve folders scoped to a specific business unit.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `workspace_id` | string | No | Optional workspace ID to filter library folders belonging to a specific Gong workspace. |
+
+## `gong_scorecards_list`
+
+List all scorecard settings configured in the Gong account. Returns scorecard definitions including name, questions, and associated criteria used for call review and coaching.
+
+## `gong_stats_interaction`
+
+Get aggregated interaction statistics for Gong calls within a date range. Returns metrics such as talk ratio, longest monologue, patience, question rate, and interactivity for each participant. Optionally filter by specific call IDs.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `call_ids` | `array<string>` | No | Optional array of specific Gong call IDs to filter the statistics. |
+| `cursor` | string | No | Cursor value from a previous response for paginating to the next page of results. |
+| `from_date_time` | string | Yes | Start of the date range for retrieving interaction statistics (ISO 8601 format, e.g., 2024-01-01T00:00:00Z). |
+| `to_date_time` | string | Yes | End of the date range for retrieving interaction statistics (ISO 8601 format, e.g., 2024-12-31T23:59:59Z). |
+
+## `gong_stats_user_actions`
+
+Get user activity and scorecard statistics for Gong calls within a date range. Returns aggregated scorecard metrics and activity data per user. Optionally filter by specific user IDs.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `cursor` | string | No | Cursor value from a previous response for paginating to the next page of results. |
+| `from_date_time` | string | Yes | Start of the date range for retrieving scorecard statistics (ISO 8601 format, e.g., 2024-01-01T00:00:00Z). |
+| `to_date_time` | string | Yes | End of the date range for retrieving scorecard statistics (ISO 8601 format, e.g., 2024-12-31T23:59:59Z). |
+| `user_ids` | `array<string>` | No | Optional array of Gong user IDs to filter scorecard statistics for specific users. |
+
+## `gong_trackers_list`
+
+List all tracker (keyword tracker) settings configured in the Gong account. Returns tracker definitions including name, tracked phrases, and associated categories used for monitoring conversation topics.
+
+## `gong_users_get`
+
+Get detailed user information for specific Gong users using an extensive filter. Filter by user IDs or by a creation date range. Returns full user profiles including settings, roles, and manager details.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `created_from_date_time` | string | No | Return users created on or after this date-time (ISO 8601 format, e.g., 2024-01-01T00:00:00Z). |
+| `created_to_date_time` | string | No | Return users created on or before this date-time (ISO 8601 format, e.g., 2024-12-31T23:59:59Z). |
+| `cursor` | string | No | Cursor value from a previous response for paginating to the next page of results. |
+| `user_ids` | `array<string>` | No | Array of Gong user IDs to retrieve detailed information for. |
+
+## `gong_users_list`
+
+List all users in the Gong account. Returns user profiles including name, email, title, and manager information. Supports cursor-based pagination and optionally includes avatar URLs.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `cursor` | string | No | Cursor value from a previous response for paginating to the next page of results. |
+| `include_avatars` | boolean | No | Whether to include avatar image URLs in the response. |

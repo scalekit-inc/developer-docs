@@ -1,6 +1,7 @@
 ---
 title: "Implement access control"
 description: "Verify permissions and roles in your application code to control user access"
+tags: [rbac, authorization, access-control, permissions, roles, jwt, middleware]
 sidebar:
   label: "Implement access control"
 head:
@@ -178,7 +179,7 @@ func validateAndExtractAuth(next http.HandlerFunc) http.HandlerFunc {
         }
 
         // Validate the token using Scalekit SDK
-        isValid, err := scalekitClient.ValidateAccessToken(accessToken)
+        isValid, err := scalekitClient.ValidateAccessToken(r.Context(), accessToken)
         if err != nil || !isValid {
             http.Error(w, `{"error": "Invalid or expired token"}`, http.StatusUnauthorized)
             return

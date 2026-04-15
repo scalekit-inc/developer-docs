@@ -25,9 +25,7 @@
     --sl-text-4xl: 2.1875rem; /* 35px */
     --sl-text-5xl: 2.625rem; /* 42px */
     --sl-text-6xl: 4rem; /* 64px */
-    /* Commented out to restore Starlight Nova's default centered layout */
-    /* --sl-content-width: 100%; */
-    /* --sl-content-margin-inline: 32px; */
+    /* Article width: `--sl-content-width` is set in the unlayered block at end of file (layered tokens lose to Nova’s unlayered :root). */
     --sl-text-body: var(--sl-text-base);
     --sl-text-body-sm: var(--sl-text-xs);
     --sl-text-code: var(--sl-text-sm);
@@ -46,6 +44,9 @@
     --sl-font-system-mono: 'JetBrains Mono', 'Inter Variable', ui-monospace, monospace;
     --sl-font: var(--sl-font-system);
     --sl-font-mono: var(--sl-font-mono, var(--sl-font-system-mono)), var(--sl-font-system-mono);
+
+    /* Border tokens */
+    --sl-color-border: var(--sl-color-hairline);
 
     /* Outline and accessibility tokens */
     --sl-outline-offset-inside: -0.1875rem;
@@ -224,52 +225,6 @@
 
   :root[data-theme='dark'] #starlight__sidebar a[data-separator='section-header']:hover {
     color: var(--sl-color-gray-4) !important;
-  }
-
-  /* LLM Prompt Card Layout Fix */
-  .llm-prompt-card {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 0;
-  }
-
-  .llm-prompt-content {
-    flex: 1;
-    min-width: 0; /* Allows text to properly truncate */
-  }
-
-  .llm-prompt-content p {
-    margin: 0 0 0.5rem 0;
-    line-height: 1.5;
-  }
-
-  .llm-prompt-subtitle {
-    display: block;
-    font-size: 0.875rem;
-    color: #6b7280;
-    font-style: italic;
-    line-height: 1.4;
-  }
-
-  .llm-prompt-action {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    margin-top: 0.125rem; /* Slight alignment adjustment */
-  }
-
-  /* Responsive adjustments */
-  @media (max-width: 48rem) {
-    .llm-prompt-card {
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .llm-prompt-action {
-      align-self: flex-start;
-      margin-top: 0;
-    }
   }
 
   /* Banner components */
@@ -501,4 +456,50 @@
   .content-panel + .content-panel {
     padding-top: 0;
   }
+
+  /* Fix: Nova theme's markdown link styles apply text-decoration: underline to
+      .sl-markdown-content a:not(:where(.not-content *)), which incorrectly matches
+      LinkButton because .not-content is on the <a> itself (not a parent wrapper).
+      Override here to restore text-decoration: none for all sl-link-button elements. */
+  .sl-link-button {
+    text-decoration: none;
+    text-underline-offset: initial;
+  }
+}
+
+/* =============================================================================
+   UNLAYERED OVERRIDES - Must be outside @layer to beat third-party unlayered rules
+   ============================================================================= */
+
+/* Fix: starlight-blog injects a global rule that hides .right-sidebar-panel and
+   mobile-starlight-toc on all pages (not just blog pages) when data-has-toc is set.
+   The rule [data-has-toc] :is(.right-sidebar-panel, ...) has specificity (0,2,0).
+   This rule uses html selector for specificity (0,2,1) to win without !important. */
+@media (min-width: 72rem) {
+  html[data-has-toc] .right-sidebar-panel {
+    display: block;
+  }
+}
+
+/* Fix: starlight-blog's Blog.astro has :global(.content-panel:first-of-type) { display: none }
+   which leaks to ALL pages via Vite's shared CSS chunking (because starlight-blog's
+   MarkdownContent override is rendered on every page, pulling in the CSS bundle).
+   Blog pages are identifiable by .posts (blog index) or .post-footer (blog post) elements.
+   Specificity (0,2,1) beats Blog.astro's (0,1,0). */
+main:not(:has(.posts, .post-footer)) .content-panel:first-of-type {
+  display: block;
+}
+
+/* Fix: starlight-blog's Blog.astro leaks :global(.content-panel:nth-of-type(2)) { border-top: none }
+   to ALL pages via Vite's shared CSS chunking.
+   Non-blog pages need the hairline border between title and content panels.
+   Specificity (0,2,1) beats Blog.astro's (0,1,0). */
+main:not(:has(.posts, .post-footer)) .content-panel:nth-of-type(2) {
+  border-top: 1px solid var(--sl-color-hairline);
+}
+
+/* Readable article column for `.sl-container` (unlayered so it wins over starlight-theme-nova; do not use 100%). */
+:root,
+::backdrop {
+  --sl-content-width: 50rem;
 }

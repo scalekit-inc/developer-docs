@@ -1,0 +1,65 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with the Pipedrive connector so Scalekit handles the OAuth flow and token lifecycle on your behalf. The connection name you create is used to identify and invoke the connection in code.
+
+<Steps>
+1. ### Create a connection in Scalekit
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**. Find **Pipedrive** and click **Create**.
+
+    - Click **Use your own credentials** and copy the **Redirect URI**. It looks like:
+      `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`
+
+    Keep this tab open — you'll return to it in step 3.
+
+2. ### Create a Pipedrive OAuth app
+
+    - Go to the [Pipedrive Developer Hub](https://developers.pipedrive.com/) and sign in with your Pipedrive account.
+
+    - Create a new app and fill in the form:
+      - **App name** — a name to identify your app (e.g., `My Sales Agent`)
+      - **Callback URL** — paste the Redirect URI you copied from Scalekit
+
+    - Under **OAuth & Access Scopes**, select the permissions your agent needs:
+
+      | Scope | Access granted |
+      | --- | --- |
+      | `deals:full` | Read and write deals |
+      | `contacts:full` | Read and write persons and organizations |
+      | `leads:full` | Read and write leads |
+      | `activities:full` | Read and write activities |
+      | `products:full` | Read and write products |
+      | `users:read` | Read user information |
+      | `webhooks:full` | Manage webhooks |
+
+    - Click **Save**.
+
+    ![](@/assets/docs/agent-connectors/pipedrive/create-oauth-app.png)
+
+    <Aside type="tip" title="Use the minimum scopes">
+      Request only the scopes your agent actually uses. Narrow scopes reduce the blast radius if credentials are compromised and make it easier for users to consent.
+    </Aside>
+
+3. ### Copy your client credentials
+
+    After saving your app, Pipedrive shows the **Client ID** and **Client Secret**.
+
+    Copy both values now — you will need them in the next step.
+
+4. ### Add credentials in Scalekit
+
+    - Return to [Scalekit dashboard](https://app.scalekit.com) → **Agent Auth** → **Connections** and open the connection you created in step 1.
+
+    - Enter the following:
+      - **Client ID** — from Pipedrive
+      - **Client Secret** — from Pipedrive
+      - **Permissions** — the same scopes you selected in Pipedrive
+
+    - Click **Save**.
+
+    ![](@/assets/docs/agent-connectors/pipedrive/add-connection.png)
+
+    <Aside type="note" title="Connection name is your identifier">
+      The connection name you set here (e.g., `pipedrive`) is the string you pass to `connection_name` in every SDK call. It must match exactly — including case.
+    </Aside>
+</Steps>

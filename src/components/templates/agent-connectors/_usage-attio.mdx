@@ -1,0 +1,269 @@
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+Connect a user's Attio workspace and make API calls on their behalf — Scalekit handles OAuth and token management automatically.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript title="examples/attio.ts"
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const connectionName = 'attio';  // connection name from Scalekit dashboard
+    const identifier = 'user_123';   // your unique user identifier
+
+    // Get credentials from app.scalekit.com → Developers → API Credentials
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    const actions = scalekit.actions;
+
+    async function main() {
+      try {
+        // Step 1: Send this URL to your user to authorize Attio access
+        const { link } = await actions.getAuthorizationLink({ connectionName, identifier });
+        console.log('Authorize Attio:', link); // present this link to your user for authorization, or click it yourself for testing
+        process.stdout.write('Press Enter after authorizing...');
+        await new Promise(r => process.stdin.once('data', r));
+
+        // Step 2: After the user authorizes, make API calls via Scalekit proxy
+
+        // --- Query people records with a filter ---
+        const people = await actions.request({
+          connectionName,
+          identifier,
+          path: '/v2/objects/people/records/query',
+          method: 'POST',
+          body: {
+            filter: {
+              email_addresses: [{ email_address: { $eq: 'alice@example.com' } }],
+            },
+            limit: 10,
+          },
+        });
+        console.log('People:', people.data);
+
+        // --- Create a company record ---
+        const company = await actions.request({
+          connectionName,
+          identifier,
+          path: '/v2/objects/companies/records',
+          method: 'POST',
+          body: {
+            data: {
+              values: {
+                name: [{ value: 'Acme Corp' }],
+                domains: [{ domain: 'acme.com' }],
+              },
+            },
+          },
+        });
+        const companyId = company.data.data.id.record_id;
+        console.log('Created company:', companyId);
+
+        // --- Create a person record and associate with the company ---
+        const person = await actions.request({
+          connectionName,
+          identifier,
+          path: '/v2/objects/people/records',
+          method: 'POST',
+          body: {
+            data: {
+              values: {
+                name: [{ first_name: 'Alice', last_name: 'Smith' }],
+                email_addresses: [{ email_address: 'alice@acme.com', attribute_type: 'email' }],
+                company: [{ target_record_id: companyId }],
+              },
+            },
+          },
+        });
+        const personId = person.data.data.id.record_id;
+        console.log('Created person:', personId);
+
+        // --- Add a note to the person record ---
+        const note = await actions.request({
+          connectionName,
+          identifier,
+          path: '/v2/notes',
+          method: 'POST',
+          body: {
+            data: {
+              parent_object: 'people',
+              parent_record_id: personId,
+              title: 'Initial outreach',
+              content: 'Spoke with Alice about Q2 pricing. Follow up next week.',
+              format: 'plaintext',
+            },
+          },
+        });
+        console.log('Created note:', note.data.data.id.note_id);
+
+        // --- Create a task linked to the person ---
+        const deadlineAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(); // 7 days from now
+        const task = await actions.request({
+          connectionName,
+          identifier,
+          path: '/v2/tasks',
+          method: 'POST',
+          body: {
+            data: {
+              content: 'Send Q2 pricing proposal to Alice',
+              deadline_at: deadlineAt,
+              is_completed: false,
+              linked_records: [{ target_object: 'people', target_record_id: personId }],
+            },
+          },
+        });
+        console.log('Created task:', task.data.data.id.task_id);
+
+        // --- Verify current token and workspace ---
+        const tokenInfo = await actions.request({
+          connectionName,
+          identifier,
+          path: '/v2/self',
+          method: 'GET',
+        });
+        console.log('Connected to workspace:', tokenInfo.data.data.workspace.name);
+        console.log('Granted scopes:', tokenInfo.data.data.scopes.join(', '));
+      } catch (err) {
+        console.error('Attio request failed:', err);
+        process.exit(1);
+      }
+    }
+
+    main();
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    connection_name = "attio"  # connection name from Scalekit dashboard
+    identifier = "user_123"    # your unique user identifier
+
+    # Get credentials from app.scalekit.com → Developers → API Credentials
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+
+    # Step 1: Send this URL to your user to authorize Attio access
+    link_response = scalekit_client.actions.get_authorization_link(
+        connection_name=connection_name,
+        identifier=identifier
+    )
+    print("Authorize Attio:", link_response.link)
+
+    # Step 2: After the user authorizes, make API calls via Scalekit proxy
+
+    # --- Query people records with a filter ---
+    people = scalekit_client.actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/v2/objects/people/records/query",
+        method="POST",
+        json={
+            "filter": {
+                "email_addresses": [{"email_address": {"$eq": "alice@example.com"}}]
+            },
+            "limit": 10
+        }
+    )
+    print("People:", people)
+
+    # --- Create a company record ---
+    company = scalekit_client.actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/v2/objects/companies/records",
+        method="POST",
+        json={
+            "data": {
+                "values": {
+                    "name": [{"value": "Acme Corp"}],
+                    "domains": [{"domain": "acme.com"}]
+                }
+            }
+        }
+    )
+    company_id = company["data"]["id"]["record_id"]
+    print("Created company:", company_id)
+
+    # --- Create a person record and associate with the company ---
+    person = scalekit_client.actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/v2/objects/people/records",
+        method="POST",
+        json={
+            "data": {
+                "values": {
+                    "name": [{"first_name": "Alice", "last_name": "Smith"}],
+                    "email_addresses": [{"email_address": "alice@acme.com", "attribute_type": "email"}],
+                    "company": [{"target_record_id": company_id}]
+                }
+            }
+        }
+    )
+    person_id = person["data"]["id"]["record_id"]
+    print("Created person:", person_id)
+
+    # --- Add a note to the person record ---
+    note = scalekit_client.actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/v2/notes",
+        method="POST",
+        json={
+            "data": {
+                "parent_object": "people",
+                "parent_record_id": person_id,
+                "title": "Initial outreach",
+                "content": "Spoke with Alice about Q2 pricing. Follow up next week.",
+                "format": "plaintext"
+            }
+        }
+    )
+    print("Created note:", note["data"]["id"]["note_id"])
+
+    # --- Create a task linked to the person ---
+    task = scalekit_client.actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/v2/tasks",
+        method="POST",
+        json={
+            "data": {
+                "content": "Send Q2 pricing proposal to Alice",
+                "deadline_at": "2026-03-20T17:00:00.000Z",
+                "is_completed": False,
+                "linked_records": [
+                    {"target_object": "people", "target_record_id": person_id}
+                ]
+            }
+        }
+    )
+    print("Created task:", task["data"]["id"]["task_id"])
+
+    # --- Verify current token and workspace ---
+    token_info = scalekit_client.actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/v2/self",
+        method="GET"
+    )
+    workspace = token_info["data"]["workspace"]["name"]
+    scopes = token_info["data"]["scopes"]
+    print(f"Connected to workspace: {workspace}")
+    print(f"Granted scopes: {', '.join(scopes)}")
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="tip" title="Choosing the right filter syntax">
+Attio uses attribute slugs for filtering. Use `attio_list_attributes` to discover available attributes and their slugs before querying. For example, `email_addresses` is a multi-value attribute — filter it as an array condition.
+</Aside>

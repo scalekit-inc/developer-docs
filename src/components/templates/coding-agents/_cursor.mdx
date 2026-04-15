@@ -1,0 +1,59 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+<Aside type="note" title="Scalekit Auth Stack is under review on Cursor Marketplace">
+The Scalekit Auth Stack plugin is currently under review and not yet live on [cursor.com/marketplace](https://cursor.com/marketplace). Once approved, you'll be able to install it directly with an "Add to Cursor" button.
+
+Until then, use the local installer to load the plugins into Cursor.
+</Aside>
+
+<Steps>
+1. ## Install the Scalekit Auth Stack locally
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   curl -fsSL https://raw.githubusercontent.com/scalekit-inc/cursor-authstack/main/install.sh | bash
+   ```
+
+   This installer downloads the latest Scalekit Cursor plugin bundle and installs each auth plugin into `~/.cursor/plugins/local/<plugin-name>`.
+
+   <Aside type="tip" title="Use a symlink when iterating locally">
+   If you're developing the plugin repo locally and want changes to show up without recopies, use the local installer path described in the repository README to symlink plugins into `~/.cursor/plugins/local`.
+   </Aside>
+
+2. ## Reload Cursor and enable the plugin
+
+   Restart Cursor, or run **Developer: Reload Window**, then open **Settings > Cursor Settings > Plugins**.
+
+   {/* IMAGE PLACEHOLDER: Screenshot of Cursor Settings > Plugins showing Scalekit Auth Stack */}
+
+   Select the authentication plugin you need, such as **Full Stack Auth**, **Modular SSO**, or **MCP Auth**, and enable it.
+
+   <Aside type="note" title="Alternatively: Install via Skills CLI">
+   You can also install Scalekit skills with the Vercel Skills CLI:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   npx skills add scalekit-inc/skills
+   ```
+
+   Use `--list` to browse available skills or `--skill <name>` to install a specific auth type. Refer to Cursor's documentation for how to invoke skills once installed.
+   </Aside>
+
+3. ## Generate the implementation
+
+   Open Cursor's chat panel with **Cmd+L** (macOS) or **Ctrl+L** (Windows/Linux) and paste in an implementation prompt. Use the same prompt from the corresponding Claude Code tab — the Scalekit plugins and their authentication skills work identically in Cursor.
+
+   <Aside type="caution" title="Review generated code">
+   Always review AI-generated authentication code before deployment. Verify that environment variables, token validation logic, and error handling match your application's security requirements.
+   </Aside>
+
+4. ## Verify the implementation
+
+   After Cursor finishes generating code, confirm all authentication components are in place:
+
+   - The Scalekit plugin appears in **Settings > Cursor Settings > Plugins**
+   - Scalekit client initialized with your API credentials (set up a `.env` file with your Scalekit environment variables)
+   - Authorization URL generation and callback handler
+   - Session or token integration matching your application's existing patterns
+
+</Steps>
+
+Once the Scalekit Auth Stack is live on [cursor.com/marketplace](https://cursor.com/marketplace), you'll be able to skip the local installer and install it directly inside Cursor.

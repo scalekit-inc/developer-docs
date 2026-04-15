@@ -236,8 +236,8 @@ paths:
         - schema:
             type: string
           description: Filter by connector type. Connector identifier such as
-            'notion', 'slack', 'google', etc. Alphanumeric with hyphens and
-            underscores allowed.
+            'notion', 'slack', 'google', etc. Alphanumeric with spaces, hyphens,
+            underscores, and colons allowed.
           name: connector
           in: query
         - schema:
@@ -473,6 +473,51 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/connected_accountsGetMagicLinkForConnectedAccountRequest'
+        required: true
+  /api/v1/connected_accounts/user/verify:
+    post:
+      description: Confirms the user assertion and activates the connected
+        account after the user completes third-party OAuth. Called by the B2B
+        app server with auth_request_id and identifier. Validates that the
+        asserted identifier matches the one stored on the auth request and
+        promotes pending tokens to live.
+      tags:
+        - Connected Accounts
+      summary: Verify connected account user
+      operationId: ConnectedAccountService_VerifyConnectedAccountUser
+      responses:
+        '200':
+          description: Verification successful; connected account is now ACTIVE
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connected_accountsVerifyConnectedAccountUserResponse'
+        '400':
+          description: Invalid request - missing or malformed fields
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Unauthorized - invalid or missing access token
+          content:
+            application/json:
+              schema: {}
+        '403':
+          description: Forbidden - identifier mismatch
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not found - no pending flow for the given auth_request_id
+            or already consumed
+          content:
+            application/json:
+              schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/connected_accountsVerifyConnectedAccountUserRequest'
         required: true
   /api/v1/connected_accounts:delete:
     post:
@@ -844,20 +889,21 @@ paths:
             });
         - label: Python SDK
           lang: python
-          source: |-
-            import os
-            from scalekit import ScalekitClient
-            scalekit_client = ScalekitClient(
-                env_url=os.getenv("SCALEKIT_ENV_URL"),
-                client_id=os.getenv("SCALEKIT_CLIENT_ID"),
-                client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+          source: >-
+            from scalekit.v1.users.users_pb2 import CreateMembership
+
+            from scalekit.v1.commons.commons_pb2 import Role
+
+
+            membership = CreateMembership(
+                roles=[Role(name="admin")],
+                metadata={"department": "engineering", "location": "nyc-office"},
             )
-            # The Python SDK currently exposes a helper that 
-              #simply links an existing
-            # user to an organization.
-            resp, _ = scalekit_client.users.add_user_to_organization(
+
+            resp = scalekit_client.users.create_membership(
                 organization_id="org_123",
                 user_id="usr_123",
+                membership=membership,
             )
         - label: Go SDK
           lang: go
@@ -2468,6 +2514,58 @@ paths:
           source: Connection connection =
             scalekitClient.connections().getConnectionById(connectionId,
             organizationId);
+    delete:
+      description: Deletes an SSO connection from the specified organization by
+        connection ID. Use this endpoint when an identity provider integration
+        is no longer needed for the organization. Returns an empty response
+        after the SSO connection is deleted successfully.
+      tags:
+        - Connections
+      summary: Delete SSO connection
+      operationId: ConnectionService_DeleteConnection
+      parameters:
+        - schema:
+            type: string
+          description: Organization ID for the Connection.
+          name: organization_id
+          in: path
+          required: true
+        - schema:
+            type: string
+          description: Connection ID. Unique ID for the connection
+          name: id
+          in: path
+          required: true
+      responses:
+        '200':
+          description: SSO connection deleted successfully
+          content:
+            application/json:
+              schema: {}
+      x-codeSamples:
+        - label: Node.js SDK
+          lang: javascript
+          source: await scalekit.connection.deleteConnection(organizationId,
+            connectionId);
+        - label: Python SDK
+          lang: python
+          source: |-
+            scalekit_client.connection.delete_connection(
+              organization_id,
+              connection_id
+            )
+        - label: Go SDK
+          lang: go
+          source: |-
+            err := scalekitClient.Connection.DeleteConnection(
+              ctx,
+              organizationId,
+              connectionId,
+            )
+        - label: Java SDK
+          lang: java
+          source: scalekitClient.connections().deleteConnection(connectionId,
+            organizationId);
   /api/v1/organizations/{organization_id}/connections/{id}:disable:
     patch:
       description: Deactivate an existing connection for the specified
@@ -2476,7 +2574,7 @@ paths:
         disabled without modifying other configuration settings
       tags:
         - Connections
-      summary: Disable organization connection
+      summary: Disable SSO connection
       operationId: ConnectionService_DisableConnection
       parameters:
         - schema:
@@ -2532,7 +2630,7 @@ paths:
         enabled without modifying other configuration settings
       tags:
         - Connections
-      summary: Enable organization connection
+      summary: Enable SSO connection
       operationId: ConnectionService_EnableConnection
       parameters:
         - schema:
@@ -3581,6 +3679,37 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/usersListUserPermissionsResponse'
+      x-codeSamples:
+        - label: Node.js SDK
+          lang: javascript
+          source: const { permissions } = await
+            scalekit.user.listUserPermissions("org_123", "usr_123");
+        - label: Python SDK
+          lang: python
+          source: |-
+            resp = scalekit_client.users.list_user_permissions(
+                organization_id="org_123",
+                user_id="usr_123",
+            )
+            permissions = resp.permissions
+        - label: Go SDK
+          lang: go
+          source: >-
+            resp, err := scalekitClient.User().ListUserPermissions(ctx,
+            "org_123", "usr_123")
+
+            if err != nil {
+                // handle error
+            }
+
+            permissions := resp.Permissions
+        - label: Java SDK
+          lang: java
+          source: >-
+            ListUserPermissionsResponse resp =
+            scalekitClient.users().listUserPermissions("org_123", "usr_123");
+
+            List<Permission> permissions = resp.getPermissionsList();
   /api/v1/organizations/{organization_id}/users/{user_id}/roles:
     get:
       description: Retrieves all roles assigned to a user within a specific
@@ -3611,6 +3740,143 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/usersListUserRolesResponse'
+      x-codeSamples:
+        - label: Node.js SDK
+          lang: javascript
+          source: const { roles } = await scalekit.user.listUserRoles("org_123",
+            "usr_123");
+        - label: Python SDK
+          lang: python
+          source: |-
+            resp = scalekit_client.users.list_user_roles(
+                organization_id="org_123",
+                user_id="usr_123",
+            )
+            roles = resp.roles
+        - label: Go SDK
+          lang: go
+          source: >-
+            resp, err := scalekitClient.User().ListUserRoles(ctx, "org_123",
+            "usr_123")
+
+            if err != nil {
+                // handle error
+            }
+
+            roles := resp.Roles
+        - label: Java SDK
+          lang: java
+          source: >-
+            ListUserRolesResponse resp =
+            scalekitClient.users().listUserRoles("org_123", "usr_123");
+
+            List<Role> roles = resp.getRolesList();
+  /api/v1/organizations/{organization_id}/users:search:
+    get:
+      description: Searches for users within a specific organization by email
+        address, user ID, or external ID. The query must be at least 3
+        characters and is case-insensitive. Scopes results strictly to the given
+        organization. Returns a paginated list of matching users with up to 30
+        results per page. Use the next_page_token from the response to retrieve
+        subsequent pages.
+      tags:
+        - Users
+      summary: Search organization users
+      operationId: UserService_SearchOrganizationUsers
+      parameters:
+        - schema:
+            type: string
+          description: Unique identifier of the organization to search within.
+            Must start with 'org_' and be 1-32 characters long.
+          name: organization_id
+          in: path
+          required: true
+        - schema:
+            type: string
+            minLength: 3
+            maxLength: 100
+          description: Search term to match against user email, IDs, or external
+            IDs. Must be at least 3 characters. Case insensitive.
+          name: query
+          in: query
+          required: true
+        - schema:
+            type: integer
+            format: int64
+            minimum: 1
+            maximum: 30
+          description: Maximum number of users to return per page. Value must be
+            between 1 and 30.
+          name: page_size
+          in: query
+        - schema:
+            type: string
+          description: Token from a previous response for pagination. Provide
+            this to retrieve the next page of results.
+          name: page_token
+          in: query
+      responses:
+        '200':
+          description: Matching users within the organization returned; includes
+            pagination cursors for navigating large result sets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/usersSearchOrganizationUsersResponse'
+        '400':
+          description: Bad Request - query must be at least 3 characters and no
+            more than 100 characters, and organization_id must be a valid org_
+            prefixed identifier.
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found - organization not found.
+          content:
+            application/json:
+              schema: {}
+  /api/v1/organizations:external/{external_id}:
+    get:
+      description: Retrieves organization details by External ID, including
+        name, region, metadata, and settings
+      tags:
+        - Organizations
+      summary: Get organization details by external Id
+      operationId: OrganizationService_GetOrganizationByExternalId
+      parameters:
+        - schema:
+            type: string
+          description: Unique identifier that links an Organization Object to
+            your app's tenant, stored as an External ID
+          name: external_id
+          in: path
+          required: true
+        - schema:
+            type: string
+          description: Unique scalekit-generated identifier that uniquely
+            references an organization
+          name: id
+          in: query
+      responses:
+        '200':
+          description: Returns the complete organization object with ID, display
+            name, settings, external ID and metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organizationsGetOrganizationResponse'
+        '400':
+          description: Invalid request - external ID is empty or the caller's
+            organization claim does not match
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Organization not found - no organization exists with the
+            specified external ID
+          content:
+            application/json:
+              schema: {}
   /api/v1/passwordless/email/resend:
     post:
       description: Resend a verification email if the user didn't receive it or
@@ -4671,18 +4937,20 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: await scalekit.role.deleteRoleBase("admin");
+          source: await scalekit.role.deleteRoleBase("senior_editor");
         - label: Python SDK
           lang: python
-          source: scalekit_client.roles.delete_role_base(role_name="admin")
+          source: scalekit_client.roles.delete_role_base(role_name="senior_editor")
         - label: Go SDK
           lang: go
           source: |-
-            err := scalekitClient.Role().DeleteRoleBase(ctx, "admin")
-            if err != nil { /* handle err */ }
+            err := scalekitClient.Role().DeleteRoleBase(ctx, "senior_editor")
+            if err != nil {
+                // handle error
+            }
         - label: Java SDK
           lang: java
-          source: scalekitClient.roles().deleteRoleBase("admin");
+          source: scalekitClient.roles().deleteRoleBase("senior_editor");
   /api/v1/roles/{role_name}/dependents:
     get:
       description: Retrieves all roles that directly extend the specified base
@@ -4949,26 +5217,30 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: const res = await
-            scalekit.permission.listEffectiveRolePermissions("admin");
+          source: const { permissions } = await
+            scalekit.permission.listEffectiveRolePermissions("senior_editor");
         - label: Python SDK
           lang: python
-          source: res =
-            scalekit_client.permissions.list_effective_role_permissions(role_name="admin")
+          source: |-
+            response = scalekit_client.permissions.list_effective_role_permissions(role_name="senior_editor")
+            permissions = response.permissions
         - label: Go SDK
           lang: go
           source: >-
             resp, err :=
             scalekitClient.Permission().ListEffectiveRolePermissions(ctx,
-            "admin")
+            "senior_editor")
 
-            if err != nil { /* handle err */ }
+            if err != nil {
+                // handle error
+            }
 
-            _ = resp
+            permissions := resp.Permissions
         - label: Java SDK
           lang: java
-          source: ListEffectiveRolePermissionsResponse res =
-            scalekitClient.permissions().listEffectiveRolePermissions("admin");
+          source: |-
+            ListEffectiveRolePermissionsResponse response = scalekitClient.permissions().listEffectiveRolePermissions("senior_editor");
+            List<Permission> permissions = response.getPermissionsList();
   /api/v1/roles/{role_name}/users:count:
     get:
       description: Retrieves the total number of users currently assigned to the
@@ -5228,29 +5500,15 @@ paths:
             page_size=100)
         - label: Go SDK
           lang: go
-          source: 'all, err := scalekitClient.User().ListOrganizationUsers(ctx, "",
-            &scalekit.ListUsersOptions{PageSize: 100})'
+          source:
+            'all, err := scalekitClient.User().ListUsers(ctx, &scalekit.ListUsersOptions{PageSize:
+            100})'
         - label: Java SDK
           lang: java
           source: |-
             ListUsersRequest lur = ListUsersRequest.
               newBuilder().setPageSize(100).build();
             ListUsersResponse allUsers = users.listUsers(lur);
-  /api/v1/users/support-hash:
-    get:
-      description: Retrieves the support email hash for the current logged in
-        user, used for the Scalekit support system.
-      tags:
-        - Users
-      summary: Get support hash
-      operationId: UserService_GetSupportHash
-      responses:
-        '200':
-          description: Support hash retrieved successfully.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/usersGetSupportHashResponse'
   /api/v1/users/{id}:
     get:
       description: Retrieves all details for a user by system-generated user ID
@@ -5281,6 +5539,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/usersGetUserResponse'
+      x-codeSamples:
+        - label: Node.js SDK
+          lang: javascript
+          source: const { user } = await scalekit.user.getUser("usr_123456");
+        - label: Python SDK
+          lang: python
+          source: |-
+            resp = scalekit_client.users.get_user(user_id="usr_123456")
+            user = resp.user
+        - label: Go SDK
+          lang: go
+          source: |-
+            resp, err := scalekitClient.User().GetUser(ctx, "usr_123456")
+            if err != nil {
+                // handle error
+            }
+            user := resp.User
+        - label: Java SDK
+          lang: java
+          source: |-
+            GetUserResponse resp = scalekitClient.users().getUser("usr_123456");
+            User user = resp.getUser();
     delete:
       description: Permanently removes a user from your environment and deletes
         all associated data. Use this endpoint when you need to completely
@@ -5664,6 +5944,56 @@ paths:
           lang: java
           source: RevokeAllUserSessionsResponse res =
             scalekitClient.sessions().revokeAllUserSessions("user_123");
+  /api/v1/users:search:
+    get:
+      description: Searches for users across the entire environment by email
+        address, user ID, or external ID. The query must be at least 3
+        characters and is case-insensitive. Returns a paginated list of matching
+        users with up to 30 results per page. Use the next_page_token from the
+        response to retrieve subsequent pages.
+      tags:
+        - Users
+      summary: Search users
+      operationId: UserService_SearchUsers
+      parameters:
+        - schema:
+            type: string
+            minLength: 3
+            maxLength: 100
+          description: Search term to match against user email, IDs, or external
+            IDs. Must be at least 3 characters. Case insensitive.
+          name: query
+          in: query
+          required: true
+        - schema:
+            type: integer
+            format: int64
+            minimum: 1
+            maximum: 30
+          description: Maximum number of users to return per page. Value must be
+            between 1 and 30.
+          name: page_size
+          in: query
+        - schema:
+            type: string
+          description: Token from a previous response for pagination. Provide
+            this to retrieve the next page of results.
+          name: page_token
+          in: query
+      responses:
+        '200':
+          description: Matching users returned; includes pagination cursors for
+            navigating large result sets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/usersSearchUsersResponse'
+        '400':
+          description: Bad Request - query must be at least 3 characters and no
+            more than 100 characters.
+          content:
+            application/json:
+              schema: {}
   /api/v1/webauthn/credentials:
     get:
       description: Retrieves all registered passkeys for the current user,
@@ -5909,11 +6239,16 @@ servers:
 components:
   schemas:
     HelpInfoLink:
+      description: A documentation or reference link.
       type: object
       properties:
         description:
+          description: Human-readable label for the link (e.g. "User
+            verification flow").
           type: string
         url:
+          description: Absolute URL to the documentation page (e.g.
+            "https://docs.scalekit.com/...").
           type: string
     OrganizationServiceUpsertUserManagementSettingsBody:
       type: object
@@ -6956,7 +7291,8 @@ components:
             - google
         status:
           description: Current status of the connected account. Indicates if the
-            account is active, expired, or pending authorization.
+            account is active, expired, pending authorization, or pending user
+            identity verification.
           $ref: '#/components/schemas/connected_accountsConnectorStatus'
         token_expires_at:
           description: Expiration timestamp for the access token. After this
@@ -7028,16 +7364,19 @@ components:
           examples:
             - 2024-03-20T15:04:05Z
     connected_accountsConnectorStatus:
-      description: |-
+      description: >-
         - ACTIVE: Account is connected and credentials are valid
          - EXPIRED: Access token has expired and needs refresh
-         - PENDING_AUTH: Account awaiting user authorization
+         - PENDING_AUTH: Account awaiting user authorization (re-auth initiated)
+         - PENDING_VERIFICATION: OAuth complete; awaiting user identity verification
+        before activation
       type: string
       title: Status of a connected account indicating its current state
       enum:
         - ACTIVE
         - EXPIRED
         - PENDING_AUTH
+        - PENDING_VERIFICATION
     connected_accountsConnectorType:
       description: |-
         - OAUTH: OAuth 2.0 authorization with access and refresh tokens
@@ -7165,11 +7504,22 @@ components:
           type: string
           examples:
             - org_121312434123312
+        state:
+          description: Optional opaque state value. State added to the user
+            verify redirect URL query params to validate the user verification
+          type: string
+          examples:
+            - QVNDSUFyY2hhYml0dGVyXzE2ODQ5NzIwNzI0NTY=
         user_id:
           description: User ID for the connector
           type: string
           examples:
             - user_121312434123312
+        user_verify_url:
+          description: B2B app's user verify redirect URL
+          type: string
+          examples:
+            - https://app.yourapp.com/user/verify/callback
     connected_accountsGetMagicLinkForConnectedAccountResponse:
       type: object
       properties:
@@ -7335,6 +7685,31 @@ components:
           description: The updated connected account with refreshed credentials,
             new token expiry, and modified configuration settings.
           $ref: '#/components/schemas/connected_accountsConnectedAccount'
+    connected_accountsVerifyConnectedAccountUserRequest:
+      type: object
+      required:
+        - auth_request_id
+        - identifier
+      properties:
+        auth_request_id:
+          description: Auth request ID as base64url-encoded opaque token from
+            the user verify redirect URL query params
+          type: string
+          examples:
+            - QVNDSUFyY2hhYml0dGVyXzE2ODQ5NzIwNzI0NTY=
+        identifier:
+          description: Current logged in user's connected account identifier
+          type: string
+          examples:
+            - user@example.com
+    connected_accountsVerifyConnectedAccountUserResponse:
+      type: object
+      properties:
+        post_user_verify_redirect_url:
+          description: URL to redirect the user to after successful verification
+          type: string
+          examples:
+            - https://env1.example.com/connect/success
     connectionsCodeChallengeType:
       type: string
       enum:
@@ -7661,6 +8036,18 @@ components:
           type: boolean
           examples:
             - true
+        tenant_id:
+          description: Microsoft Entra tenant ID. Required when using a
+            single-tenant or multi-tenant app registered in Microsoft Entra.
+            Leave empty to use the common endpoint.
+          type: string
+          examples:
+            - xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+        token_access_type:
+          description: Token Access Type
+          type: string
+          examples:
+            - offline
         token_uri:
           description: Token URI
           type: string
@@ -8500,9 +8887,19 @@ components:
         validation_error_info:
           $ref: '#/components/schemas/errdetailsValidationErrorInfo'
     errdetailsHelpInfo:
+      description: >-
+        HelpInfo provides documentation links attached to an error response.
+
+        When present in ErrorInfo, clients should surface these links to help
+
+        developers resolve the error. For example, a missing required field
+        error
+
+        may include a link to the relevant guide.
       type: object
       properties:
         links:
+          description: One or more links relevant to resolving the error.
           type: array
           items:
             type: object
@@ -9791,11 +10188,6 @@ components:
           type: string
           examples:
             - John Michael Doe
-    usersGetSupportHashResponse:
-      type: object
-      properties:
-        support_hash:
-          type: string
     usersGetUserResponse:
       type: object
       properties:
@@ -9959,6 +10351,62 @@ components:
               resent_count: 2
               status: pending_invite
               user_id: usr_456
+    usersSearchOrganizationUsersResponse:
+      type: object
+      properties:
+        next_page_token:
+          description: Token for retrieving the next page of results. Empty if
+            there are no more pages.
+          type: string
+          examples:
+            - eyJwYWdlIjogMiwgImxhc3RfaWQiOiAidXNyXzEyMzQ1In0=
+        prev_page_token:
+          description: Token for retrieving the previous page of results. Empty
+            if this is the first page.
+          type: string
+          examples:
+            - eyJwYWdlIjogMCwgImZpcnN0X2lkIjogInVzcl85ODc2NSJ9
+        total_size:
+          description: Total number of users matching the request criteria,
+            regardless of pagination.
+          type: integer
+          format: int64
+          examples:
+            - 1042
+        users:
+          description: List of matching users.
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/usersUser'
+    usersSearchUsersResponse:
+      type: object
+      properties:
+        next_page_token:
+          description: Token for retrieving the next page of results. Empty if
+            there are no more pages.
+          type: string
+          examples:
+            - eyJwYWdlIjogMiwgImxhc3RfaWQiOiAidXNyXzEyMzQ1In0=
+        prev_page_token:
+          description: Token for retrieving the previous page of results. Empty
+            if this is the first page.
+          type: string
+          examples:
+            - eyJwYWdlIjogMCwgImZpcnN0X2lkIjogInVzcl85ODc2NSJ9
+        total_size:
+          description: Total number of users matching the request criteria,
+            regardless of pagination.
+          type: integer
+          format: int64
+          examples:
+            - 1042
+        users:
+          description: List of matching users.
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/usersUser'
     usersUpdateMembershipResponse:
       type: object
       properties:
@@ -10161,8 +10609,8 @@ components:
           $ref: '#/components/schemas/commonsUserProfile'
     v1connected_accountsCreateConnectedAccount:
       type: object
-      title: Payload for creating a new connected account - only authorization
-        details required
+      title: Payload for creating a new connected account - authorization
+        details are optional
       properties:
         api_config:
           description: Optional JSON configuration for connector-specific API
@@ -10174,10 +10622,10 @@ components:
               rate_limit: 1000
               timeout: 30
         authorization_details:
-          description: Required authentication credentials for the connected
-            account. Must include either OAuth tokens (access_token,
-            refresh_token, scopes) or static auth details (API keys, bearer
-            tokens).
+          description: Optional authentication credentials for the connected
+            account. Include OAuth tokens (access_token, refresh_token, scopes)
+            or static auth details (API keys, bearer tokens). Can be provided
+            later via update.
           $ref: '#/components/schemas/connected_accountsAuthorizationDetails'
           examples:
             - oauth_token:

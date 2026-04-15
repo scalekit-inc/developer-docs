@@ -1,0 +1,79 @@
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+Connect a user's Discord account and make API calls on their behalf — Scalekit handles OAuth 2.0 (PKCE), token storage, and refresh automatically.
+
+## Proxy API Calls
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const connectionName = 'discord'; // get your connection name from connection configurations
+    const identifier = 'user_123';    // your unique user identifier
+
+    // Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    const actions = scalekit.actions;
+
+    // Authenticate the user — send this link to your user
+    const { link } = await actions.getAuthorizationLink({
+      connectionName,
+      identifier,
+    });
+    console.log('🔗 Authorize Discord:', link);
+    process.stdout.write('Press Enter after authorizing...');
+    await new Promise(r => process.stdin.once('data', r));
+
+    // Fetch the authenticated user's Discord profile via Scalekit proxy
+    const user = await actions.request({
+      connectionName,
+      identifier,
+      path: '/api/users/@me',
+      method: 'GET',
+    });
+    console.log(user);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    connection_name = "discord"  # get your connection name from connection configurations
+    identifier = "user_123"      # your unique user identifier
+
+    # Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+    actions = scalekit_client.actions
+
+    # Authenticate the user — present this link to your user
+    link_response = actions.get_authorization_link(
+        connection_name=connection_name,
+        identifier=identifier
+    )
+    print("🔗 Authorize Discord:", link_response.link)
+    input("Press Enter after authorizing...")
+
+    # Fetch the authenticated user's Discord profile via Scalekit proxy
+    user = actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/api/users/@me",
+        method="GET"
+    )
+    print(user)
+    ```
+  </TabItem>
+</Tabs>
+

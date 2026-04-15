@@ -2,6 +2,7 @@
 title: Bring Your Own Auth
 overviewTitle: "Bring your own auth"
 description: Using Scalekit as a drop-in OAuth 2.1 authorization layer for your MCP Servers with federated authentication to your existing auth layer.
+tags: [mcp-auth, oauth2, federation, custom-auth, integration, enterprise]
 sidebar:
   label: 'Bring your own auth'
   order: 3
@@ -60,7 +61,7 @@ Scalekit Auth Server -> MCP Client: Continue Consent, token exchange and permiss
   - `login_request_id`: Unique identifier for the login request.
   - `state`: Value to maintain state between requests.
 
-```url wrap showLineNumbers=false title="Example Redirect URL"
+```txt wrap showLineNumbers=false title="Example Redirect URL"
 https://app.example.com/login?login_request_id=lri_86659065219908156&state=HntJ_ENB6y161i9_P1yzuZVv2SSTfD3aZH-Tej0_Y33_Fk8Z3g
 ```
 
@@ -203,7 +204,12 @@ curl --location '{{env_url}}/api/v1/connections/{{connection_id}}/auth-requests/
   --header 'Authorization: Bearer {{access_token}}' \
   --data-raw '{
     "sub": "1234567890",
-    "email": "alice@example.com"
+    "email": "alice@example.com",
+    "roles": ["support", "developer"],
+    "custom_attributes": {
+      "access_level": 101,
+      "subscription_type": "PREMIUM"
+    }
   }'
 ```
 
@@ -214,8 +220,9 @@ curl --location '{{env_url}}/api/v1/connections/{{connection_id}}/auth-requests/
 - Replace placeholders like `{{env_url}}`, `{{connection_id}}`, `{{login_request_id}}`, and `{{access_token}}` with actual values.
 - Only `sub` and `email` are required fields; all other properties are optional.
 
-You can get the `{{connection_id}}` from the User Info Post URL from Scalekit MCP server dashboard.
-If the user info post url is `https://yourapp.scalekit.com/api/v1/connections/conn_1234567890/auth-requests/{{login_request_id}}/user`, your connection_id is `conn_1234567890`.
+**Finding your `connection_id`:** Open **Dashboard > MCP Servers > [your server] > Advanced Configurations > Connection ID**. It starts with `conn_` and is distinct from the MCP server's resource ID (which starts with `res_`). Do not use the resource ID here.
+
+**Using raw HTTP instead of the SDK:** Making direct HTTP calls to this endpoint is a fully supported alternative to using an SDK. If the SDK introduces transitive dependency conflicts in your project, use the cURL tab above for the equivalent request.
 
 :::
 
@@ -227,7 +234,7 @@ If the user info post url is `https://yourapp.scalekit.com/api/v1/connections/co
 
 **Example Redirect URL:**
 
-``` wrap showLineNumbers=false frame="none"
+```txt wrap showLineNumbers=false frame="none"
 {{envurl}}/sso/v1/connections/{{connection_id}}/partner:callback?state={{state_value}}
 ```
 

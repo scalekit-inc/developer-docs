@@ -1,24 +1,23 @@
 ---
 title: Add Modular SSO
 description: "Enable enterprise SSO for any customer in minutes with built-in SAML and OIDC integrations"
+tags: [sso, modular-auth, saml, oidc, enterprise, okta, azure-ad, quickstart]
 sidebar:
-  label: 'Quickstart: Add Modular SSO'
+  label: 'Code it yourself'
 banner:
   content: |
-    Join our dev community to connect with Scalekit engineers for questions or feedback
+    Build this faster with AI coding agents. <a href="/dev-kit/build-with-ai/sso/">Build with AI →</a>
 ---
 
 import {
   LinkButton, Aside, Steps, Tabs, TabItem, CardGrid, Icon, Badge
  } from '@astrojs/starlight/components';
-import Card from '@/components/ui/Card.astro';
+import FoldCard from '@components/ui/FoldCard.astro';
 import InstallSDK from '@components/templates/_installsdk.mdx';
 import SimpleCode from '@components/ui/SimpleCode.astro';
-import CopyPrompt from '@components/ui/CopyPrompt.astro';
 import IconLucidePlay from '~icons/lucide/play'
 import IconLucideWorkflow from '~icons/lucide/workflow'
 import IconTdesignSequence from '~icons/tdesign/sequence'
-import IconRiAiGenerate2 from '~icons/ri/ai-generate-2'
 import { VideoPlayer } from 'starlight-videos/components'
 import { UserProfileSection } from '@components/templates';
 import {
@@ -58,26 +57,50 @@ Choose Modular SSO when you:
   [Full stack auth](/authenticate/fsa/quickstart/) includes SSO functionality by default. If you're using Full stack auth, you can skip this guide.
 </Aside>
 
-<Card title="Get moving, instantly, with your go-to AI assistant" icon={IconRiAiGenerate2}>
-  <div class="llm-prompt-card">
-    <div class="llm-prompt-content">
-      <p>Input this prompt in your IDE to analyze your existing code base and generate SSO implementation code accordingly.</p>
+<FoldCard
+  title="Build with a coding agent"
+  iconKey="build-with-ai"
+  iconPosition="right"
+  href="/dev-kit/build-with-ai/sso/"
+  cta="Build with AI"
+  showCta={false}
+  clickable={false}
+>
+  <Tabs syncKey="build-with-agent">
+   <TabItem label="Claude Code">
+     ```bash title="Claude REPL" showLineNumbers=false frame="none"
+     /plugin marketplace add scalekit-inc/claude-code-authstack
+     ```
+     ```bash title="Claude REPL" showLineNumbers=false frame="none"
+     /plugin install modular-sso@scalekit-auth-stack
+     ```
+   </TabItem>
+   <TabItem label="Codex">
+     ```bash title="Terminal" showLineNumbers=false frame="none"
+     curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash
+     ```
+     ```bash title="Codex" showLineNumbers=false frame="none"
+     # Restart Codex
+     # Plugin Directory -> Scalekit Auth Stack -> install modular-sso
+     ```
+   </TabItem>
+   <TabItem label="GitHub Copilot CLI">
+     ```bash title="Terminal" showLineNumbers=false frame="none"
+     copilot plugin marketplace add scalekit-inc/github-copilot-authstack
+     ```
+     ```bash title="Terminal" showLineNumbers=false frame="none"
+     copilot plugin install modular-sso@scalekit-auth-stack
+     ```
+   </TabItem>
+   <TabItem label="40+ agents">
+     ```bash title="Terminal" showLineNumbers=false frame="none"
+     npx skills add scalekit-inc/skills --skill modular-sso
+     ```
+   </TabItem>
+  </Tabs>
 
-      <span class="llm-prompt-subtitle">
-        *Compatible with Cursor, Windsurf, VS Code, and any AI-powered tools
-      </span>
-    </div>
-    <div class="llm-prompt-action">
-      <CopyPrompt
-        promptType="ssoQuickstartPrompt"
-            label="Copy llm prompt"
-        className="sk-secondary"
-        variant="secondary"
-        title="Generate SSO integration code"
-      />
-    </div>
-  </div>
-</Card>
+  [Continue building with AI →](/dev-kit/build-with-ai/sso/)
+</FoldCard>
 
 <Steps>
 
@@ -287,7 +310,7 @@ Choose Modular SSO when you:
      response_type=code&                        # OAuth2 authorization code flow
      client_id=<SCALEKIT_CLIENT_ID>&            # Your Scalekit client ID
      redirect_uri=<REDIRECT_URI>&               # URL-encoded callback URL
-     scope=openid profile email&                # "offline_access" is required to receive a refresh token
+     scope=openid profile email&                # Note: "offline_access" scope is not supported in Modular SSO
      organization_id=org_15421144869927830&     # (Optional) Route by organization
      connection_id=conn_15696105471768821&      # (Optional) Specific SSO connection
      login_hint=user@example.com                # (Optional) Extract domain from email
@@ -409,7 +432,7 @@ Choose Modular SSO when you:
    // When users start login from their IdP portal, convert to SP-initiated flow
    if idpInitiatedLogin != "" {
        // Decode the JWT to extract organization and connection information
-       claims, err := scalekit.GetIdpInitiatedLoginClaims(idpInitiatedLogin)
+       claims, err := scalekitClient.GetIdpInitiatedLoginClaims(r.Context(), idpInitiatedLogin)
        if err != nil {
            http.Error(w, err.Error(), http.StatusInternalServerError)
            return
@@ -422,7 +445,7 @@ Choose Modular SSO when you:
        }
 
        // Generate authorization URL and redirect to complete authentication
-       authUrl, err := scalekit.GetAuthorizationUrl(
+       authUrl, err := scalekitClient.GetAuthorizationUrl(
            "https://your-app.com/auth/callback",
            options
        )
@@ -570,7 +593,7 @@ Choose Modular SSO when you:
 
     // Recommended: Process IdP-initiated login flows (when users start from their SSO portal)
 
-    result, err := a.scalekit.AuthenticateWithCode(code, redirectUrl)
+    result, err := scalekitClient.AuthenticateWithCode(r.Context(), code, redirectUrl)
 
     if err != nil {
       // Handle token exchange or validation errors
@@ -645,14 +668,8 @@ Choose Modular SSO when you:
 
    ```go title="Validate tokens"
 
-    // Validate and decode the ID token
-    idTokenClaims, err := scalekitClient.ValidateToken(result.IdToken)
-    if err != nil {
-        // handle error
-    }
-
-    // Validate and decode the access token
-    accessTokenClaims, err := scalekitClient.ValidateToken(result.AccessToken)
+    // Validate and decode the access token (uses JWKS from the client)
+    accessTokenClaims, err := scalekitClient.GetAccessTokenClaims(ctx, result.AccessToken)
     if err != nil {
         // handle error
     }

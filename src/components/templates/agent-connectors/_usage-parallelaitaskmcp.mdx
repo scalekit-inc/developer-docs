@@ -1,0 +1,70 @@
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+Connect a user's Parallel AI account and run deep research tasks and batch data enrichment through Scalekit. Scalekit handles API key storage and tool execution automatically.
+
+Parallel AI Task MCP is primarily used through Scalekit tools. Use `scalekit_client.actions.execute_tool()` to create research tasks, check their status, and retrieve results — without handling Parallel AI credentials in your application code.
+
+## Tool calling
+
+Use this connector when you want an agent to run deep research or batch data enrichment using Parallel AI.
+
+- Use `parallelaitaskmcp_create_deep_research` for comprehensive, single-topic research reports with citations.
+- Use `parallelaitaskmcp_create_task_group` to enrich a list of items with structured data fields in parallel.
+- Use `parallelaitaskmcp_get_status` to poll the status of a running task without fetching the full result payload.
+- Use `parallelaitaskmcp_get_result_markdown` once a task is complete to retrieve the full Markdown output.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+    ```python title="examples/parallelaitaskmcp_create_deep_research.py"
+    import os
+    from scalekit.client import ScalekitClient
+
+    scalekit_client = ScalekitClient(
+        client_id=os.environ["SCALEKIT_CLIENT_ID"],
+        client_secret=os.environ["SCALEKIT_CLIENT_SECRET"],
+        env_url=os.environ["SCALEKIT_ENV_URL"],
+    )
+
+    connected_account = scalekit_client.actions.get_or_create_connected_account(
+        connection_name="parallelaitaskmcp",
+        identifier="user_123",
+    )
+
+    tool_response = scalekit_client.actions.execute_tool(
+        tool_name="parallelaitaskmcp_create_deep_research",
+        connected_account_id=connected_account.connected_account.id,
+        tool_input={
+            "input": "Analyze the competitive landscape of AI coding assistants in 2025",
+        },
+    )
+    print("Task created:", tool_response)
+    ```
+  </TabItem>
+  <TabItem label="Node.js">
+    ```typescript title="examples/parallelaitaskmcp_create_deep_research.ts"
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL!,
+      process.env.SCALEKIT_CLIENT_ID!,
+      process.env.SCALEKIT_CLIENT_SECRET!
+    );
+    const actions = scalekit.actions;
+
+    const connectedAccount = await actions.getOrCreateConnectedAccount({
+      connectionName: 'parallelaitaskmcp',
+      identifier: 'user_123',
+    });
+
+    const toolResponse = await actions.executeTool({
+      toolName: 'parallelaitaskmcp_create_deep_research',
+      connectedAccountId: connectedAccount?.id,
+      toolInput: {
+        input: 'Analyze the competitive landscape of AI coding assistants in 2025',
+      },
+    });
+    console.log('Task created:', toolResponse.data);
+    ```
+  </TabItem>
+</Tabs>

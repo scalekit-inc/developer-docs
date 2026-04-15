@@ -1,0 +1,36 @@
+import { Steps } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with the Confluence connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. Then complete the configuration in your application as follows:
+
+<Steps>
+1. ### Set up auth redirects
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**. Find **Confluence** and click **Create**. Copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+      ![Copy redirect URI from Scalekit dashboard](@/assets/docs/agent-connectors/confluence/use-own-credentials-redirect-uri.png)
+
+    - In the [Atlassian Developer Console](https://developer.atlassian.com/console/myapps/), open your app and go to **Authorization** → **OAuth 2.0 (3LO)** → **Configure**.
+
+    - Paste the copied URI into the **Callback URL** field and click **Save changes**.
+
+      ![Add callback URL in Atlassian Developer Console](@/assets/docs/agent-connectors/confluence/add-redirect-uri.png)
+
+2. ### Get client credentials
+
+    In the [Atlassian Developer Console](https://developer.atlassian.com/console/myapps/), open your app and go to **Settings**:
+
+    - **Client ID** — listed under **Client ID**
+    - **Client Secret** — listed under **Secret**
+
+3. ### Add credentials in Scalekit
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
+
+    - Enter your credentials:
+      - Client ID (from your Atlassian app settings)
+      - Client Secret (from your Atlassian app settings)
+      - Permissions (scopes — see [Confluence OAuth scopes reference](https://developer.atlassian.com/cloud/confluence/scopes-for-oauth-2-3LO-and-forge-apps/))
+
+      ![Add credentials for Confluence in Scalekit dashboard](@/assets/docs/agent-connectors/confluence/add-credentials.png)
+    - Click **Save**.
+</Steps>

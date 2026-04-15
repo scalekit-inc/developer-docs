@@ -107,6 +107,8 @@ const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry)
                           <a
                             href={child.href}
                             class={`dropdown-item ${child.description ? 'with-description' : ''} ${isCurrentPage(Astro.url.pathname, child) ? 'current' : ''}`}
+                            data-nav-label={child.label}
+                            data-dropdown-label={child.dropdownLabel || child.label}
                           >
                             <div class="dropdown-item-icon-wrapper">
                               {(function () {
@@ -115,7 +117,9 @@ const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry)
                               })()}
                             </div>
                             <div class="dropdown-item-content">
-                              <span class="dropdown-item-label">{child.label}</span>
+                              <span class="dropdown-item-label">
+                                {child.dropdownLabel || child.label}
+                              </span>
                               {child.description && (
                                 <span class="dropdown-item-description">{child.description}</span>
                               )}
@@ -236,6 +240,8 @@ const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry)
   .nav-section {
     flex: 1;
     display: flex;
+    min-width: 0;
+    overflow: hidden;
   }
 
   .nav-left {
@@ -248,6 +254,11 @@ const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry)
 
   .nav-right {
     justify-content: flex-end;
+  }
+
+  .nav-center,
+  .nav-right {
+    flex: 0;
   }
 
   .nav-items {
@@ -560,7 +571,7 @@ const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry)
   }
 
   /* Responsive adjustments */
-  @media (max-width: 48rem) {
+  @media (max-width: 60rem) {
     .secondary-nav {
       display: none !important;
     }

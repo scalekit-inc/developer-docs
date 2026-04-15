@@ -1,15 +1,16 @@
 ---
 title: Quickstart
 description: "Hosted auth pages, managed sessions, secure logout. Purpose built. Simple where it counts"
+tags: [full-stack-auth, quickstart, hosted-login, authentication, users, organizations, sessions]
 sidebar:
-  label: "Full stack auth 🚀"
+  label: "Code it yourself"
 tableOfContents: true
 next:
   label: "Manage users"
   link: "/fsa/data-modelling/"
 banner:
   content: |
-    Join our dev community to connect with Scalekit engineers for questions or feedback
+    Build this faster with AI coding agents. <a href="/dev-kit/build-with-ai/full-stack-auth/">Build with AI →</a>
 head:
   - tag: style
     content: |
@@ -29,15 +30,13 @@ seeAlso:
 ---
 
 import { CardGrid, Steps, TabItem, Tabs, Aside } from '@astrojs/starlight/components';
-import Card from '@/components/ui/Card.astro';
-import CopyPrompt from '@components/ui/CopyPrompt.astro';
+import FoldCard from '@components/ui/FoldCard.astro';
 import CheckItem from '@/components/ui/CheckItem.astro';
 import InstallSDK from '@components/templates/_installsdk.mdx'
 import { AuthResultTabsSection } from '@components/templates'
 import { VideoPlayer } from 'starlight-videos/components'
 import IconLucidePlay from '~icons/lucide/play'
 import IconTdesignSequence from '~icons/tdesign/sequence'
-import IconRiAiGenerate2 from '~icons/ri/ai-generate-2'
 
  You'll implement sign-up, login, and logout flows with secure session management and user management included. The foundation you build here extends to features like workspaces, enterprise SSO, MCP authentication, and SCIM provisioning.
 
@@ -71,26 +70,50 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 
 
 
-<Card title="Get moving, instantly, with your go-to AI assistant" icon={IconRiAiGenerate2}>
-  <div class="llm-prompt-card">
-    <div class="llm-prompt-content">
-      <p>Input this prompt in your IDE to analyze your existing code base and generate complete auth implementation code accordingly.</p>
+<FoldCard
+  title="Build with a coding agent"
+  iconKey="build-with-ai"
+  iconPosition="right"
+  href="/dev-kit/build-with-ai/full-stack-auth/"
+  cta="Build with AI"
+  showCta={false}
+  clickable={false}
+>
+  <Tabs syncKey="build-with-agent">
+   <TabItem label="Claude Code">
+     ```bash title="Claude REPL" showLineNumbers=false frame="none"
+     /plugin marketplace add scalekit-inc/claude-code-authstack
+     ```
+     ```bash title="Claude REPL" showLineNumbers=false frame="none"
+     /plugin install full-stack-auth@scalekit-auth-stack
+     ```
+   </TabItem>
+   <TabItem label="Codex">
+     ```bash title="Terminal" showLineNumbers=false frame="none"
+     curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash
+     ```
+     ```bash title="Codex" showLineNumbers=false frame="none"
+     # Restart Codex
+     # Plugin Directory -> Scalekit Auth Stack -> install full-stack-auth
+     ```
+   </TabItem>
+   <TabItem label="GitHub Copilot CLI">
+     ```bash title="Terminal" showLineNumbers=false frame="none"
+     copilot plugin marketplace add scalekit-inc/github-copilot-authstack
+     ```
+     ```bash title="Terminal" showLineNumbers=false frame="none"
+     copilot plugin install full-stack-auth@scalekit-auth-stack
+     ```
+   </TabItem>
+   <TabItem label="40+ agents">
+     ```bash title="Terminal" showLineNumbers=false frame="none"
+     npx skills add scalekit-inc/skills --skill implementing-scalekit-fsa
+     ```
+   </TabItem>
+  </Tabs>
 
-      <span class="llm-prompt-subtitle">
-        *Compatible with Cursor, Windsurf, VS Code, and any AI-powered tools
-      </span>
-    </div>
-    <div class="llm-prompt-action">
-      <CopyPrompt
-        promptType="fsaQuickstartPrompt"
-        label="Copy llm prompt"
-        className="sk-secondary"
-        variant="secondary"
-        title="Generate FSA integration code"
-      />
-    </div>
-  </div>
-</Card>
+  [Continue building with AI →](/dev-kit/build-with-ai/full-stack-auth/)
+</FoldCard>
 
 ----
 
@@ -153,9 +176,9 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 
    # Request user profile data (openid, profile, email) and session tracking (offline_access)
    # offline_access enables refresh tokens so users can stay logged in across sessions
-   options = AuthorizationUrlOptions(
-       scopes=['openid', 'profile', 'email', 'offline_access']
-   )
+   options = AuthorizationUrlOptions()
+   options.scopes = ['openid', 'profile', 'email', 'offline_access']
+
 
    authorization_url = scalekit.get_authorization_url(redirect_uri, options)
    # Generated URL will look like:
@@ -175,7 +198,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
        Scopes: []string{"openid", "profile", "email", "offline_access"}
    }
 
-   authorizationUrl, err := scalekit.GetAuthorizationUrl(redirectUri, options)
+   authorizationUrl, err := scalekitClient.GetAuthorizationUrl(redirectUri, options)
    // Generated URL will look like:
    // https://<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?response_type=code&client_id=skc_1234&scope=openid%20profile%20email%20offline_access&redirect_uri=https%3A%2F%2Fyourapp.com%2Fcallback
    if err != nil {
@@ -281,7 +304,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
                     code, redirect_uri, options
                 )
 
-                user = auth_result.user
+                user = auth_result["user"]
                 # id_token: Decode to access full user profile (sub, oid, email, name)
                 # access_token: Contains roles and permissions for authorization decisions
                 # refresh_token: Use to obtain new access tokens when they expire
@@ -332,7 +355,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
             // Returns: User (profile info), IdToken (JWT with user claims), AccessToken (JWT with roles/permissions), RefreshToken
             options := scalekit.AuthenticationOptions{}
             authResult, err := scalekitClient.AuthenticateWithCode(
-                code, redirectUri, options,
+                c.Request.Context(), code, redirectUri, options,
             )
 
             if err != nil {
@@ -687,7 +710,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
                 }
 
                 // Validate the access token using the Scalekit SDK
-                isValid, err := scalekit.ValidateAccessToken(decryptedAccessToken)
+                isValid, err := scalekitClient.ValidateAccessToken(r.Context(), decryptedAccessToken)
                 if err != nil || !isValid {
                     // Access token is invalid or expired
 
@@ -700,7 +723,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
                     }
 
                     // Use the refresh token to obtain a new access token from Scalekit
-                    tokenResponse, err := scalekit.RefreshAccessToken(refreshToken)
+                    tokenResponse, err := scalekitClient.RefreshAccessToken(r.Context(), refreshToken)
                     if err != nil {
                         // Refresh attempt failed; likely an expired or invalid refresh token
                         http.Error(w, `{"message": "Token refresh failed"}`, http.StatusUnauthorized)
@@ -858,7 +881,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
         <TabItem value="python" label="Python">
           ```python { 16, 13-14, 20 } collapse={1-5}
           from flask import Flask, redirect
-          from scalekit import LogoutUrlOptions
+          from scalekit.common.scalekit import LogoutUrlOptions
 
           app = Flask(__name__)
 
@@ -898,7 +921,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
                   IdTokenHint:           idToken,
                   PostLogoutRedirectUri: postLogoutRedirectUri,
               }
-              logoutUrl, err := scalekit.GetLogoutUrl(options)
+              logoutUrl, err := scalekitClient.GetLogoutUrl(options)
               if err != nil {
                   c.JSON(http.StatusInternalServerError, gin.H{
                       "error": "Failed to generate logout URL",

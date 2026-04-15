@@ -1,0 +1,95 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+import bitbucketWorkspaceOauthImg from '@/assets/docs/agent-connectors/bitbucket/bitbucket-workspace-oauth.png'
+import addOauthConsumerImg from '@/assets/docs/agent-connectors/bitbucket/add-oauth-consumer.png'
+import oauthConsumerCredentialsImg from '@/assets/docs/agent-connectors/bitbucket/oauth-consumer-credentials.png'
+import scalekitSearchBitbucketImg from '@/assets/docs/agent-connectors/bitbucket/scalekit-search-bitbucket.png'
+import configureBitbucketConnectionImg from '@/assets/docs/agent-connectors/bitbucket/configure-bitbucket-connection.png'
+import bitbucketCallbackUrlImg from '@/assets/docs/agent-connectors/bitbucket/bitbucket-callback-url.png'
+
+Register your Bitbucket OAuth consumer credentials with Scalekit so it can manage the OAuth 2.0 authentication flow and token lifecycle on your behalf. You'll need a **Key** (Client ID) and **Secret** (Client Secret) from your Bitbucket workspace settings.
+
+<Steps>
+1. ### Open OAuth consumers in your Bitbucket workspace
+
+   - Go to **Bitbucket** and open your workspace by clicking your avatar in the top-right corner and selecting the workspace you want to use.
+
+   - In the left sidebar, click **Settings** → **OAuth consumers**.
+
+     <img src={bitbucketWorkspaceOauthImg.src} alt="Bitbucket workspace settings showing OAuth consumers page" width="540" />
+
+   - Click **Add consumer** to create a new OAuth application.
+
+2. ### Create the OAuth consumer
+
+   - Fill in the consumer details:
+     - **Name** — enter a descriptive name (e.g., `Scalekit-Agent`)
+     - **Description** — optional description
+     - **URL** — your application's homepage URL
+
+   - Leave the **Callback URL** field empty for now — you'll fill it in after getting the redirect URI from Scalekit.
+
+     <img src={addOauthConsumerImg.src} alt="Bitbucket Add OAuth consumer form" width="540" />
+
+   - Under **Permissions**, select the scopes your agent needs. Recommended minimum:
+
+     | Permission | Scope | Required for |
+     | --- | --- | --- |
+     | Account | Read | User profile access |
+     | Repositories | Read | Read code and metadata |
+     | Repositories | Write | Create branches, push commits |
+     | Pull requests | Read | Read PR data |
+     | Pull requests | Write | Create, approve, and merge PRs |
+     | Pipelines | Read | View pipeline runs |
+     | Pipelines | Write | Trigger pipelines |
+
+   - Click **Save** to create the consumer.
+
+3. ### Get the redirect URI from Scalekit
+
+   - In <a href="https://app.scalekit.com" target="_blank" rel="noopener">Scalekit dashboard</a>, go to **Agent Auth** → **Create Connection**. Search for **Bitbucket** and click **Create**.
+
+     <img src={scalekitSearchBitbucketImg.src} alt="Searching for Bitbucket in the Scalekit Create Connection panel" width="540" />
+
+   - Copy the **Redirect URI** shown in the connection configuration panel. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+     <img src={configureBitbucketConnectionImg.src} alt="Scalekit Configure Bitbucket Connection panel showing Redirect URI, Client Key, and Client Secret fields" width="540" />
+
+4. ### Add the callback URL in Bitbucket
+
+   - Back in Bitbucket, open your OAuth consumer and click **Edit**.
+
+   - Paste the Scalekit Redirect URI into the **Callback URL** field.
+
+   - Click **Save** to apply the change.
+
+     <img src={bitbucketCallbackUrlImg.src} alt="Bitbucket Edit OAuth consumer with Scalekit callback URL added to the Callback URL field" width="540" />
+
+   <Aside type="caution" title="Callback URL must match exactly">
+     Bitbucket performs an exact string match on the callback URL. Any mismatch — including a trailing slash — will cause the OAuth flow to fail. Make sure you paste the URL exactly as shown in Scalekit.
+   </Aside>
+
+5. ### Copy your OAuth credentials
+
+   - In Bitbucket, go back to **Workspace settings** → **OAuth consumers** and click on your consumer name to expand it.
+
+   - The **Key** and **Secret** will be shown. Click **Reveal** next to the secret to display it.
+
+     <img src={oauthConsumerCredentialsImg.src} alt="Bitbucket OAuth consumer expanded showing Key and Secret with Reveal button" width="540" />
+
+   - Copy both values. The secret is not stored by Bitbucket after you leave this page — save it securely.
+
+6. ### Add credentials in Scalekit
+
+   - In <a href="https://app.scalekit.com" target="_blank" rel="noopener">Scalekit dashboard</a>, go to **Agent Auth** → **Connections** and open the Bitbucket connection you created.
+
+   - Enter your credentials:
+     - **Client Key** — the Key from your Bitbucket OAuth consumer
+     - **Client Secret** — the Secret from your Bitbucket OAuth consumer
+     - **Scopes** — select the scopes that match the permissions you granted in step 2
+
+   - Click **Save**.
+
+   <Aside type="tip" title="Request only the scopes you need">
+     Bitbucket displays the requested scopes on the user consent screen. Request only the minimum scopes your agent requires — this builds user trust and reduces the attack surface if a token is compromised.
+   </Aside>
+</Steps>

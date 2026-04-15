@@ -1,0 +1,125 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with the Miro connector so Scalekit handles the OAuth flow and token lifecycle for your users. Follow every step below from start to finish — by the end you will have a working connection.
+
+<Steps>
+1. ### Create a Miro app
+
+   You need a Miro OAuth app to get the Client ID and Client Secret that Scalekit will use to authorize your users.
+
+   **Go to the Miro Developer Portal:**
+
+   - Open [miro.com/app/settings/user-profile/apps](https://miro.com/app/settings/user-profile/apps) in your browser.
+   - Sign in with the Miro account you use to manage your integration.
+   - After signing in, you land on the **My Apps** page.
+
+   **Create a new app:**
+
+   - Click **Create New App** (top right of the page).
+   - Fill in the form:
+
+     | Field | What to enter |
+     | --- | --- |
+     | **App Name** | A recognizable name, e.g. `My AI Collaboration Agent` |
+     | **App Description** | Brief description, e.g. `AI agent for managing Miro boards` |
+     | **Homepage URL** | Your app's public URL. For testing you can use `https://localhost` |
+     | **Grant Type** | Select **Authorization Code** — this is required for OAuth 2.0 |
+
+   - Leave **Redirect URIs** blank for now. You will add it in the next step.
+   - Click **Create App**.
+
+   After the app is created, Miro takes you to the app's **OAuth Settings** page. Keep this tab open.
+
+   ![Create a new OAuth app in Miro Developer Portal](@/assets/docs/agent-connectors/miro/miro-create-app.png)
+
+2. ### Copy the redirect URI from Scalekit
+
+   Scalekit gives you a callback URL that Miro will redirect users back to after they authorize your app. You need to register this URL in your Miro app.
+
+   **In the Scalekit dashboard:**
+
+   - Go to [app.scalekit.com](https://app.scalekit.com) and sign in.
+   - In the left sidebar, click **Agent Auth**.
+   - Click **Create Connection**.
+   - Search for **Miro** and click **Create**.
+   - A connection details panel opens. Find the **Redirect URI** field — it looks like:
+     ```
+     https://<YOUR_ENV>.scalekit.cloud/sso/v1/oauth/conn_<ID>/callback
+     ```
+   - Click the copy icon next to the Redirect URI to copy it to your clipboard.
+
+   ![Copy the redirect URI from Scalekit dashboard](@/assets/docs/agent-connectors/miro/configure-miro-connection.png)
+
+3. ### Register the redirect URI and copy credentials
+
+   Switch back to the Miro Developer Portal tab.
+
+   - Make sure you are on the **OAuth Settings** page of your app.
+   - Scroll to the **Redirect URIs** section.
+   - Paste the redirect URI you copied from Scalekit into the input box and click **Add URI**.
+   - Click **Save Changes** at the bottom of the page.
+
+   **Copy your credentials:**
+
+   - Scroll to **OAuth Credentials** at the top of the page.
+   - **Client ID** — shown in plain text. Click **Copy ID** to copy it.
+   - **Client Secret** — click **Reveal** to show the secret, then copy it.
+
+   Keep both values in a password manager or secrets vault. You will enter them into Scalekit in the next step.
+
+   ![Miro OAuth credentials page showing Client ID, Client Secret, and Redirect URIs](@/assets/docs/agent-connectors/miro/miro-oauth-credentials.png)
+
+   <Aside type="caution" title="Client secret is shown only once">
+     The Client Secret is masked after initial creation. If you lose it, you must generate a new one in the Miro app settings — this invalidates all existing connections until you update them in Scalekit.
+   </Aside>
+
+   <Aside type="caution" title="Redirect URI must match exactly">
+     The redirect URI must match character-for-character — including the `https://` prefix and the full path. Any mismatch causes a `redirect_uri_mismatch` error during the OAuth flow.
+   </Aside>
+
+4. ### Configure permissions (scopes)
+
+   Scopes control which Miro resources your app can access on behalf of each user. You select the scopes in Scalekit when saving your credentials.
+
+   | Scope | Access granted | Plan required |
+   | --- | --- | --- |
+   | `boards:read` | Read boards, members, and all board items | All plans |
+   | `boards:write` | Create, update, and delete boards, members, and items | All plans |
+   | `identity:read` | Read current user profile including email | All plans |
+   | `team:read` | Read current team information | All plans |
+   | `auditlogs:read` | Read audit logs for the organization | Enterprise only |
+   | `organizations:read` | Read organization information | Enterprise only |
+   | `organizations:teams:read` | Read teams within an organization | Enterprise only |
+   | `organizations:teams:write` | Create and manage teams within an organization | Enterprise only |
+   | `projects:read` | Read projects within teams | Enterprise only |
+   | `projects:write` | Create and manage projects within teams | Enterprise only |
+
+   For most integrations, `boards:read` and `boards:write` are sufficient.
+
+   <Aside type="tip" title="Request only what you need">
+     Users see a list of requested permissions on the Miro authorization screen. Fewer scopes increases trust and approval rates. Only enable the scopes your integration actually uses.
+   </Aside>
+
+5. ### Add credentials in Scalekit
+
+   Switch back to the Scalekit dashboard tab.
+
+   - Go to **Agent Auth** → **Connections** and open the Miro connection you created in step 2.
+   - Fill in the credentials form:
+
+     | Field | Value |
+     | --- | --- |
+     | **Client ID** | Paste the Client ID from step 3 |
+     | **Client Secret** | Paste the Client Secret from step 3 |
+     | **Permissions** | Enter the scopes your app needs, e.g. `boards:read boards:write` |
+
+   - Click **Save**.
+
+   ![Add credentials in Scalekit dashboard](@/assets/docs/agent-connectors/miro/add-credentials.png)
+
+   Your Miro connection is now configured. Scalekit will use these credentials to run the OAuth flow whenever a user connects their Miro account.
+
+   <Aside type="tip" title="Scopes must match in both places">
+     The scopes entered here must match what you enable in your Miro app. A mismatch causes an `invalid_scope` error when users try to authorize. If you add more scopes later, update both your Miro app and this Scalekit connection.
+   </Aside>
+</Steps>

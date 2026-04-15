@@ -31,6 +31,14 @@ const frontmatter = {
         .content-panel:first-of-type:empty {
           display: none !important;
         }
+        /* Remove borders from content panels to avoid double lines */
+        .content-panel {
+          border-top: none !important;
+        }
+        /* Hide footer fold separator line */
+        .footer-fold-separator {
+          display: none !important;
+        }
         .scalar-api-reference {
           position: sticky;
           top: var(--sl-nav-height);
@@ -60,6 +68,8 @@ const frontmatter = {
           // Default to cURL on first visit (matches the previous `defaultHttpClient` behavior).
           window.localStorage.setItem(KEY, 'shell/curl')
         }
+        // Force Scalar into light mode regardless of system preference or stale localStorage.
+        window.localStorage.setItem('colorMode', 'light')
       } catch {
         // Ignore storage errors (private mode, blocked storage, etc.)
       }
@@ -162,6 +172,48 @@ const frontmatter = {
       darkMode: false,
       proxyUrl: 'https://proxy.scalar.com',
       defaultOpenAllTags: false,
+      tagsSorter: (a, b) => {
+        const tagOrder = [
+          'Organizations',
+          'Permissions',
+          'Users',
+          'Connections',
+          'Directory',
+          'Roles',
+          'Sessions',
+          'Domains',
+          'API Auth',
+          'Magic link & OTP',
+          'Passkeys',
+          'Connected Accounts',
+        ]
+        const getTagRank = (name) => {
+          const rank = tagOrder.indexOf(name ?? '')
+          return rank === -1 ? Number.POSITIVE_INFINITY : rank
+        }
+        const rankA = getTagRank(a?.name)
+        const rankB = getTagRank(b?.name)
+
+        if (rankA !== rankB) {
+          return rankA - rankB
+        }
+
+        return (a?.name ?? '').localeCompare(b?.name ?? '')
+      },
+      operationsSorter: (a, b) => {
+        const methodOrder = ['get', 'post', 'put', 'patch', 'delete']
+        const getMethodRank = (method) => {
+          const rank = methodOrder.indexOf((method ?? '').toLowerCase())
+          return rank === -1 ? Number.POSITIVE_INFINITY : rank
+        }
+        const methodComparison = getMethodRank(a?.method) - getMethodRank(b?.method)
+
+        if (methodComparison !== 0) {
+          return methodComparison
+        }
+
+        return (a?.path ?? '').localeCompare(b?.path ?? '')
+      },
       servers: [
         {
           url: 'https://{SCALEKIT_ENVIRONMENT_URL}',
@@ -222,7 +274,10 @@ const frontmatter = {
       baseServerURL: 'https://scalekit.com',
       documentDownloadType: 'json',
       // hides an unnecessary button that says "Authorize" + intro card
-      customCss: `#scalar-client-0 { margin-top: 8rem; } .introduction-card-item.scalar-reference-intro-clients { display: none; } }`,
+      customCss: `
+        #scalar-client-0 { margin-top: 8rem; }
+        .introduction-card-item.scalar-reference-intro-clients { display: none; }
+      `,
       // Custom slug generation for webhooks to prevent "undefined" in URLs
       generateWebhookSlug: (webhook) => {
         // For OpenAPI webhooks, the key is typically not included in the parsed object

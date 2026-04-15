@@ -4,7 +4,8 @@
 # Scalekit Developer Docs — CodeRabbit Configuration
 # Goal: Uphold documentation quality and ensure FSA (and all
 #       topic sections) reflect a coherent user journey as
-#       defined in src/configs/sidebar.config.ts
+#       defined in src/configs/sidebar.config.ts. Cookbooks
+#       (src/content/docs/cookbooks) use blog-style rules below.
 # ============================================================
 
 language: 'en-US'
@@ -57,7 +58,10 @@ reviews:
         - No heading should end with a colon or period.
 
         ## Content structure
-        - How-to guides MUST contain numbered `<Steps>` (Starlight component).
+        - Journey how-to guides MUST contain numbered `<Steps>` (Starlight
+          component). This does NOT apply to `src/content/docs/cookbooks/**`
+          (blog-style recipes — optional `<Steps>`, `<Tabs>` after `</Steps>` OK;
+          see cookbooks `path_instructions`).
         - Concept pages MUST NOT contain numbered steps — concepts explain, not instruct.
         - API reference pages MUST list parameters in a table with Name / Type /
           Required / Description columns.
@@ -89,6 +93,80 @@ reviews:
           imported at the top of the file if used.
         - No raw HTML `<div>` blocks unless absolutely necessary and justified
           by a code comment.
+        - If `<Steps>` is used, verify it compiles to one ordered list: each
+          numbered step starts at column 0 as `1. ## ...`, and content nested
+          under a step uses exactly 3 spaces of indentation.
+        - When `<Tabs>` appears inside a step, verify the whole tabs block stays
+          inside that list item with consistent 3-space indentation for `<Tabs>`,
+          `<TabItem>`, prose, and fenced code blocks. Flag mixed indentation that
+          would trigger the Starlight `<Steps>` parser error.
+        - Prefer plain Markdown inside `<Steps>`. If a procedure is mostly
+          `<Tabs>` or other JSX-heavy blocks, suggest normal H2/H3 sections
+          instead of forcing `<Steps>`.
+
+    # ── Cookbooks (blog-style recipes) ───────────────────
+    - path: 'src/content/docs/cookbooks/**/*.mdx'
+      instructions: |
+        This file is a Scalekit cookbook: a standalone recipe under the
+        starlight-blog integration (`prefix: cookbooks` in astro.config.mjs).
+        Apply global MDX voice, style, links, and accessibility rules, but use
+        these cookbook-specific expectations:
+
+        ## Overrides to global MDX checks
+        - Do NOT require `sidebar.order` — ordering follows the blog plugin and
+          publication metadata, not sidebar.config.ts journey slots.
+        - Do NOT require `prev` / `next` frontmatter — cookbooks are not a
+          sequential product journey; cross-links and related docs are enough.
+        - `tableOfContents` is optional — enable it when the post has many H2s.
+
+        ## Frontmatter
+        - `title` and `description` follow the same length and clarity rules as
+          global MDX.
+        - Prefer `sidebar.label` for navigation consistency; if absent, do not
+          treat it as a hard failure (older cookbooks may omit it).
+        - `date`, `tags`, `authors`, `excerpt`, and `featured` are normal for
+          cookbooks — verify tags match the topic (e.g. MCP, SSO, FSA).
+
+        ## Code examples
+        - Require all four SDK tabs (Node.js, Python, Go, Java) ONLY when the
+          snippet demonstrates Scalekit client SDK usage. For MCP setup, CLI,
+          shell, framework-only (e.g. Next.js), or IDE configuration recipes,
+          use the tabs or single-language blocks that fit the task. Do not
+          demand four SDK languages for bash, JSON, env files, or non-SDK code.
+        - Minimal examples (single command, config block) do not need both
+          success and error paths unless the recipe is explicitly about errors.
+        - Flag real-looking API keys or secrets — use placeholders such as
+          `YOUR_API_KEY` or `YOUR_CLIENT_SECRET`.
+
+        ## `<Steps>` (overrides global "how-to MUST use Steps")
+        - Do NOT require `<Steps>` on cookbooks. The global rule targets journey
+          how-to pages; a cookbook may use H2 sections, `<Tabs>`, or prose.
+        - Do NOT flag "missing Steps" when the procedure is already clear.
+        - If `<Steps>` is used, `<Tabs>` or other blocks MAY appear after
+          `</Steps>` (e.g. per–IDE or per–client variants). That is valid; do
+          not call it broken MDX or demand that Steps wrap all procedural
+          content.
+        - If `<Steps>` is used, verify it still compiles to one ordered list:
+          each numbered step starts at column 0 as `1. ## ...`, and any content
+          nested under a step uses exactly 3 spaces of indentation.
+        - When `<Tabs>` appears inside a step, verify the entire tabs block stays
+          inside that list item: `<Tabs>`, `<TabItem>`, prose, and fenced code
+          blocks should all remain indented under the step. Flag mixed
+          indentation that would trigger the Starlight error: "The `<Steps>`
+          component expects its content to be a single ordered list (`<ol>`)."
+        - If a cookbook is mostly `<Tabs>` or other JSX-heavy blocks, prefer H2
+          sections over `<Steps>` instead of forcing a fragile nested structure.
+
+        ## Structure
+        - How-to cookbooks SHOULD use `<Steps>` when the flow is procedural
+          (see `<Steps>` section above for when not to enforce it).
+        - Patterns such as "The problem", "Who needs this", and "The solution"
+          are appropriate; concept-only cookbooks do not need fake numbered
+          steps.
+
+        ## Links
+        - Same internal-link rules as global MDX (root-relative paths, no
+          unnecessary `https://docs.scalekit.com` hardcoding).
 
     # ── FSA section — journey coherence ─────────────────
     - path: 'src/content/docs/fsa/**/*.mdx'
@@ -193,25 +271,14 @@ reviews:
           loaders must stay in sync — if a new SDK repo is added to one,
           it must be added to the other.
 
-    # ── CLAUDE.md and constitution ───────────────────────
+    # ── CLAUDE.md ───────────────────────────────────────────────
     - path: 'CLAUDE.md'
       instructions: |
-        CLAUDE.md is the quick-reference for AI assistant behavior in this repo.
-        - It MUST reference `.specify/memory/constitution.md` as the single
-          source of truth.
+        CLAUDE.md is the single source of truth for all documentation standards in this repo.
         - SDK variable names section is CRITICAL — any change here must be
           intentional and reflected across all code examples in the docs.
         - The "Quality Checklist" section must end every AI-generated draft
           with `STYLE-CHECK: [PASSED | TODO]`.
-
-    - path: '.specify/**/*.md'
-      instructions: |
-        These are the project constitution and speckit command files.
-        - Constitution changes must increment `CONSTITUTION_VERSION` per
-          semantic versioning (MAJOR/MINOR/PATCH rules as defined in the file).
-        - `LAST_AMENDED_DATE` must be updated to today's date on any change.
-        - No bracketed placeholder tokens (e.g., `[PROJECT_NAME]`) should
-          remain in the committed constitution — flag any that do.
 
     # ── JS/TS source files — relaxed commenting rules ───
     - path: '**/*.{ts,js,mjs}'

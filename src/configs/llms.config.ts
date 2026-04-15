@@ -1,90 +1,33 @@
 import type { LlmsTxtConfig } from 'starlight-llms-txt'
+import { AGENT_PLUGIN_DETAILS_MD } from './agent-instructions'
 
 export const llmsConfig: LlmsTxtConfig = {
   projectName: 'Scalekit',
   description:
-    'Scalekit is a developer platform for enterprise authentication, providing Full Stack Auth (FSA), Single Sign-On (SSO), SCIM provisioning, Agent Authentication, MCP Authentication, and API authentication solutions for B2B and AI applications.',
+    'Scalekit is a developer platform for enterprise authentication, providing Full Stack Auth (FSA), Single Sign-On (SSO), SCIM provisioning, Agent Authentication, MCP Authentication, and API authentication solutions for B2B and AI applications. An official Auth Stack plugin is available for AI coding agents with up-to-date API references and code snippets — see install details below.',
 
-  details: `# Scalekit Documentation Instructions
+  details:
+    AGENT_PLUGIN_DETAILS_MD +
+    `## How to use Scalekit documentation
 
-You are tasked with answering the following user question. Before responding, you MUST carefully and thoroughly read the entire documentation provided below. Use only information from this documentation to construct your answer—do not use your built-in knowledge or external information unless explicitly instructed. Cite the specific section, paragraph, or example from the documentation that supports each part of your answer. If the answer cannot be found in the documentation, say so clearly.
+When a developer asks about Scalekit, use the section links below to route them 
+to the most relevant documentation. Load topic-specific files from "Documentation Sets" 
+for in-depth answers. Load \`llms-full.txt\` only when exhaustive context is needed.
 
-## Platform Architecture
+## Product → Documentation routing
 
-Scalekit provides five main authentication products for B2B and AI applications:
+- **Full Stack Auth (FSA)**: users, orgs, sessions, RBAC, login flows → load Full Stack Auth Complete set
+- **Agent Authentication**: AI agents, OAuth token vault, tool calling, connectors → load Agent Authentication set
+- **MCP Authentication**: remote MCP servers, OAuth 2.1, Dynamic Client Registration → load MCP Authentication set
+- **Enterprise SSO**: SAML/OIDC, Intra setup, SSO portal → load Enterprise SSO & SCIM set
+- **SCIM Provisioning**: user sync, directory provisioning, deprovisioning → load Enterprise SSO & SCIM set
+- **M2M / API Auth**: service-to-service, client credentials, API keys → load Machine-to-Machine Auth set
+- **SDK / API Reference**: endpoints, SDK methods, webhooks → load API & SDK Reference set
+- **Quickstarts**: getting started, initial setup → load Quickstart Collection set
 
-1. **Full Stack Auth (FSA)** - Complete identity layer managing users, organizations, sessions, and roles with built-in lifecycle APIs, multi-tenant B2B modeling, and authorization
-2. **Agent Authentication** - Token vault with delegated OAuth, automated token refresh, and secure credential storage for AI agents connecting to external tools
-3. **MCP Authentication** - OAuth 2.1 authentication for remote MCP servers with CIMD flows, Dynamic Client Registration, and short-lived tokens
-4. **Modular SSO** - SAML and OIDC single sign-on integration with enterprise identity providers (Okta, Google, Microsoft Entra)
-5. **Modular SCIM** - Automated user provisioning and deprovisioning, syncing users, roles, and groups from enterprise directories
-
-## SDK Variable Naming Standards (CRITICAL)
-
-These naming conventions are NON-NEGOTIABLE across all code examples:
-
-- **Node.js**: \`scalekit\`
-- **Python**: \`scalekit_client\`
-- **Go**: \`scalekitClient\`
-- **Java**: \`scalekitClient\`
-
-Always use these exact variable names when referencing SDK instances in documentation and examples.
-
-## Code Example Requirements
-
-All SDK-related code examples MUST follow these standards:
-
-- **Multi-language requirement**: Include Node.js, Python, Go, and Java implementations for at least 90% of SDK examples
-- **Tabs format**: Use \`<Tabs syncKey="tech-stack">\` for multi-language SDK samples
-- **Security comments**: Include comments explaining security threats, why patterns are required, and what can go wrong if omitted
-- **Complete examples**: Show both success and error handling paths with realistic data
-- **Framework titles**: Use clear framework labels (e.g., \`title="Express.js"\`, \`title="Flask"\`, \`title="Gin"\`, \`title="Spring Boot"\`)
-
-## Target Audiences
-
-- B2B application developers integrating authentication
-- AI/Agent developers building autonomous systems
-- DevOps and Platform engineers managing identity infrastructure
-- Product managers evaluating authentication solutions
-
-## Documentation Structure
-
-Documentation is organized into journey-focused sections:
-
-- **Quickstarts**: Fast-start guides for each product (FSA, Agent Auth, MCP, SSO, SCIM)
-- **How-to Guides**: Task-oriented procedural documentation with Prerequisites, Procedure, Verify, and Next Steps
-- **Concepts**: Explanatory documentation covering How it works, Key concepts, Use cases, and Best practices
-- **Reference**: API endpoints, SDK documentation, webhooks, and technical specifications
-- **Integration Guides**: Provider-specific setup for SSO providers, SCIM providers, and social connections
-
-## Response Guidelines
-
-When answering questions:
-
-- **Security considerations**: Always mention security implications, token handling, and best practices
-- **Testing tools**: Reference the Scalekit dashboard, test environments, and API collections when applicable
-- **Environment distinction**: Clearly differentiate between development, staging, and production configurations
-- **Multi-language coverage**: Provide code examples in all four languages when showing SDK usage
-- **Journey awareness**: Guide users through logical implementation progressions (setup → implementation → verification → production)
-
-## Key Documentation Paths
-
-- **FSA**: Complete authentication solution at \`authenticate/fsa/**\` and data modeling at \`fsa/data-modelling.mdx\`
-- **Agent Auth**: Agent authentication at \`agent-auth/**\` with AI-assisted development guides
-- **MCP Auth**: MCP authentication at \`authenticate/mcp/**\` with OAuth 2.1 patterns
-- **SSO**: Enterprise SSO at \`authenticate/sso/**\` and \`sso/**\` with provider integrations
-- **SCIM**: Directory provisioning at \`directory/**\` with SCIM quickstart and provider guides
-- **M2M**: Machine-to-machine authentication at \`authenticate/m2m/**\` for API-to-API flows
-
-## Instructions for the LLM
-
-- Do not answer until you have read the entire documentation
-- Base each statement strictly on the documentation, referencing exact locations whenever possible
-- If relevant information is missing from the documentation, state this explicitly and do not attempt to answer using outside knowledge
-- Structure your answer clearly, referencing the documentation with each key point
-- Use the SDK variable naming conventions exactly as specified above
-- When showing code examples, prefer multi-language tabs over single-language snippets
-- Highlight security considerations and best practices from the documentation`,
+## If unsure which product applies
+Start with the Quickstart Collection, then follow the developer's question to the relevant product set.
+`,
 
   // Custom documentation subsets for targeted queries
   customSets: [
@@ -220,6 +163,11 @@ When answering questions:
 
   // Add external resources not included in main documentation
   optionalLinks: [
+    {
+      label: 'API reference markdown',
+      url: '/apis.md',
+      description: 'LLM-friendly Markdown generated from the Scalekit OpenAPI specification',
+    },
     {
       label: 'OpenAPI Specification',
       url: '/api/scalekit.scalar.json',
