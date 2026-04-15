@@ -1,0 +1,133 @@
+---
+title: 'M2M JWT verification with JWKS and OAuth scopes'
+description: 'How JSON Web Key Sets work with Scalekit, how to use the /keys endpoint to verify machine-to-machine tokens, and how OAuth scopes map to JWT claims for authorization.'
+date: 2026-04-15
+tags: ['Machine-to-machine', 'API auth', 'OAuth', 'JWT']
+excerpt: Machine-to-machine access tokens are JWTs signed by Scalekit. Your API verifies signatures using the published JWKS at /keys, then authorizes requests using the scopes embedded in each token. This cookbook ties those ideas together end to end.
+featured: false
+authors:
+  - name: 'Saif'
+    title: 'Developer Advocate'
+    url: 'https://www.linkedin.com/in/saif-shines/'
+    picture: '/images/blog/authors/saif.png'
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+When you add OAuth 2.0 client credentials for your APIs, callers receive **JWT access tokens**. Before you trust any claim, you must **verify the signature** using Scalekit’s public keys (**JWKS**). After verification, you **authorize** the request—often by checking **OAuth scopes** carried in the token.
+
+This cookbook explains how JWKS and scopes fit together for Scalekit M2M flows: where keys live, how verification works at a high level, how scopes are defined and stored, and how to enforce them in your service.
+
+## Why JWKS and scopes belong in one place
+
+- **JWKS answers “is this token real?”** — You use the key identified by `kid` in the JWT header to validate the signature (typically **RS256**).
+- **Scopes answer “what may this client do?”** — After the token is valid, you inspect the `scopes` claim (and your routing rules) to allow or deny the operation.
+
+Skipping either step breaks your security model: verified-but-overpowered clients, or unverified tokens.
+
+## JWKS and Scalekit keys
+
+A **JSON Web Key Set (JWKS)** is JSON that lists one or more **JWKs**—public key material identified by a `kid` (key ID). Scalekit puts the matching `kid` in the JWT header so your validator can pick the right key without baking certificates into your app.
+
+Each environment publishes signing keys at:
+
+```http
+GET https://<SCALEKIT_ENVIRONMENT_URL>/keys
+```
+
+Use the same base URL as `/oauth/token` (for example `https://your-app.scalekit.dev`).
+
+Example response shape:
+
+```json title="Example JWKS document"
+{
+  "keys": [
+    {
+      "use": "sig",
+      "kty": "RSA",
+      "kid": "snk_58327480989122566",
+      "alg": "RS256",
+      "n": "…",
+      "e": "AQAB"
+    }
+  ]
+}
+```
+
+For access tokens, use the key where `use` is `sig` and `alg` is `RS256`.
+
+## Verify an access token
+
+At implementation time, your API typically:
+
+1. **Extracts** the bearer token from `Authorization: Bearer <token>`.
+2. **Decodes** the JWT header (base64url, first segment) and reads `kid` and `alg`. Do not trust the payload until the signature checks out.
+3. **Resolves the signing key** — fetch `https://<SCALEKIT_ENVIRONMENT_URL>/keys`, or use a JWKS client (for example `jwks-rsa` in Node.js) with **caching** and refresh when you see an unknown `kid`.
+4. **Verifies** the signature with your JWT library (RS256 for Scalekit access tokens).
+5. **Validates claims** such as `exp`, `iss` (your environment URL), and `aud` if your API relies on audience restrictions.
+6. **Authorizes** the operation using application claims—especially **`scopes`** (covered in the next section).
+
+<Aside type="tip" title="Prefer the Scalekit SDK when possible">
+  SDKs can validate access tokens against JWKS and optionally enforce scopes. See the [M2M API authentication quickstart](/authenticate/m2m/api-auth-quickstart/) and [Authenticate customer apps](/guides/m2m/api-auth-m2m-clients/). Use generic JWT + JWKS libraries when you need custom middleware or an unsupported runtime.
+</Aside>
+
+### Operational practices
+
+- **Cache JWKS** responses; refetch when verification fails with an unknown `kid` (key rotation).
+- **Fail closed** on bad signature, wrong issuer, or expired token (`401`; use `403` when the token is valid but not allowed).
+- **Never** skip signature verification based on the payload alone.
+
+## OAuth scopes for machine clients
+
+**Scopes** are permission names you attach to an OAuth client. In M2M flows they describe *what* a client may do—separate from *who* it is (`client_id` / `sub`).
+
+### Why scopes matter
+
+Without scopes, any valid client could hit any endpoint. Scopes let you apply **least privilege**, **document** what each integration is for, and **enforce** rules in your API by reading the `scopes` array on the JWT.
+
+### How scopes work in Scalekit M2M
+
+1. When you **register an API client** for an organization, you pass a `scopes` array (REST or SDKs).
+2. Scalekit stores those scopes and includes them on issued access tokens.
+3. Your API **verifies the JWT** (steps above), then checks that `scopes` includes what the route requires.
+
+Use a consistent naming pattern such as `resource:action` (for example `deployments:read`, `deployments:write`).
+
+### Register scopes on the client
+
+Scopes are set at **client creation** (and when you update the client via the API). Example:
+
+```json title="scopes on create client (illustrative)"
+"scopes": [
+  "deploy:applications",
+  "read:deployments"
+]
+```
+
+The same values appear on the client record and in issued tokens.
+
+<Aside type="note" title="Token response vs JWT payload">
+  The `/oauth/token` response may include a space-separated `scope` string for OAuth compatibility. For authorization logic, rely on the JWT payload’s **`scopes` array**. See the [quickstart](/authenticate/m2m/api-auth-quickstart/) for a decoded example.
+</Aside>
+
+### Validate scopes on your API
+
+After the token is verified:
+
+- **Read `scopes`** from the payload, for example:
+
+  ```json title="scopes in JWT payload (example)"
+  "scopes": [
+    "deploy:applications",
+    "read:deployments"
+  ]
+  ```
+
+- **Compare** what the token grants to what the route allows (for example require `deploy:applications` on `POST /deploy`); return `403` if a required scope is missing.
+- **Use SDK helpers** where they fit your stack to combine signature and scope checks (see the [quickstart](/authenticate/m2m/api-auth-quickstart/)).
+
+## Related
+
+- [Add OAuth 2.0 to your APIs](/authenticate/m2m/api-auth-quickstart/) — client registration, tokens, examples
+- [API keys](/authenticate/m2m/api-keys/) — long-lived keys; patterns may differ from OAuth client credentials
+- [Authenticate customer apps](/guides/m2m/api-auth-m2m-clients/) — customer-facing API auth and JWKS examples
