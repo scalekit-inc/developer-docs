@@ -1,17 +1,196 @@
 ---
-title: Custom Tools
-description: Learn how to create custom tools with Agent Auth.
-tags: [agentauth, tools, customization, api, integration, guide]
-pagefind: false
-head:
-  - tag: meta
-    attrs:
-      name: robots
-      content: noindex
+title: Use custom tools via API proxy
+description: Build tools that Scalekit does not provide out of the box by proxying provider API calls with per-user connected accounts.
+slug: agentkit/tools/custom-tools
+sidebar:
+  label: Custom tools
+tags: [agentkit, tools, custom-tools, api-proxy, tool-calling]
+tableOfContents: true
+prev:
+  label: "Scalekit optimized tools"
+  link: "/agentkit/tools/scalekit-optimized-tools"
+next:
+  label: "Tool execution via MCP"
+  link: "/agentkit/mcp/tool-access-via-mcp"
 ---
 
-# Custom Tools
+import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
-Custom tools are a way to create custom tools that can be used in Agent Auth.
+Scalekit optimized tools cover many common actions across 60+ connectors. When you need an action that is not available as a pre-built tool, use **API Proxy mode**.
 
-## Usage
+In API Proxy mode, your application defines the tool contract and calls the provider endpoint through `actions.request` / `actions.request()`. Scalekit injects the user's credentials from their connected account, so your agent still executes on behalf of the user without handling raw OAuth tokens.
+
+## When to use custom tools
+
+Use custom tools when:
+
+- You need a provider endpoint that does not have a pre-built Scalekit tool yet.
+- You want a strict input/output shape for your own agent workflow.
+- You need app-specific validation or transformations before returning data to the model.
+
+Use Scalekit optimized tools when they already cover your use case. They provide stable, curated schemas and less application code.
+
+| Option | Best for | Who defines tool schema |
+|---|---|---|
+| Scalekit optimized tools | Common connector actions | Scalekit |
+| Custom tools (API Proxy mode) | Unsupported or app-specific actions | Your application |
+
+## Before you start
+
+- Configure the connector in **Agent Auth > Connections**. See [Configure connections](/agentkit/connections/) for setup steps.
+- Ensure the user has an `ACTIVE` [connected account](/agentkit/quickstart#2-create-a-connected-account) for that connection.
+- Confirm the connection includes the scopes required by your target API endpoint.
+
+## Build a custom tool with API Proxy mode
+
+<Steps>
+1. #### Define your custom tool contract
+
+   Start by defining the tool input your model will produce and the output your app will return. Keep this schema focused on the task, not on provider-specific details.
+
+   Example custom tool name: `gmail_list_filters`
+
+   Example custom tool input:
+   - `identifier` (string): your app's user ID or email
+
+2. #### Call the provider API through Scalekit proxy
+
+   Use `request` on the actions client to call a provider endpoint that is not exposed as a pre-built tool.
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Python">
+   ```python showLineNumbers=false frame="none"
+   # Custom tool handler: gmail_list_filters
+   def gmail_list_filters(identifier: str):
+       response = actions.request(
+           connection_name="gmail",
+           identifier=identifier,
+           method="GET",
+           path="/gmail/v1/users/me/settings/filters",
+       )
+
+       data = response.json()
+       return {
+           "filters": data.get("filter", []),
+           "count": len(data.get("filter", [])),
+       }
+   ```
+     </TabItem>
+     <TabItem label="Node.js">
+   ```ts showLineNumbers=false frame="none"
+   // Custom tool handler: gmail_list_filters
+   async function gmailListFilters(identifier: string) {
+     const response = await scalekit.actions.request({
+       connectionName: 'gmail',
+       identifier,
+       method: 'GET',
+       path: '/gmail/v1/users/me/settings/filters',
+     });
+
+     const filters = response.data?.filter ?? [];
+     return {
+       filters,
+       count: filters.length,
+     };
+   }
+   ```
+     </TabItem>
+   </Tabs>
+
+   <Aside type="note" title="Why this is API Proxy mode">
+     Your app controls the custom tool contract, and Scalekit handles authentication and token injection for the provider API call.
+   </Aside>
+
+3. #### Expose your handler as a model-callable tool
+
+   Register your custom tool in your model's tool list, then map tool calls to your handler.
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Python">
+   ```python showLineNumbers=false frame="none"
+   custom_tools = [
+       {
+           "name": "gmail_list_filters",
+           "description": "List Gmail filters configured for the current user",
+           "input_schema": {
+               "type": "object",
+               "properties": {
+                   "identifier": {"type": "string"},
+               },
+               "required": ["identifier"],
+           },
+       }
+   ]
+
+   # In your tool router:
+   # if tool_name == "gmail_list_filters":
+   #     return gmail_list_filters(tool_input["identifier"])
+   ```
+     </TabItem>
+     <TabItem label="Node.js">
+   ```ts showLineNumbers=false frame="none"
+   const customTools = [
+     {
+       name: 'gmail_list_filters',
+       description: 'List Gmail filters configured for the current user',
+       input_schema: {
+         type: 'object',
+         properties: {
+           identifier: { type: 'string' },
+         },
+         required: ['identifier'],
+       },
+     },
+   ];
+
+   // In your tool router:
+   // if (toolName === 'gmail_list_filters') {
+   //   return await gmailListFilters(toolInput.identifier);
+   // }
+   ```
+     </TabItem>
+   </Tabs>
+
+4. #### Add authorization and error checks
+
+   Check connected account state before proxy calls and handle provider errors explicitly.
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Python">
+   ```python showLineNumbers=false frame="none"
+   account = actions.get_or_create_connected_account(
+       connection_name="gmail",
+       identifier=identifier,
+   ).connected_account
+
+   if account.status != "ACTIVE":
+       raise ValueError("Connected account is not ACTIVE. Re-authorize the user.")
+   ```
+     </TabItem>
+     <TabItem label="Node.js">
+   ```ts showLineNumbers=false frame="none"
+   const account = (await scalekit.actions.getOrCreateConnectedAccount({
+     connectionName: 'gmail',
+     identifier,
+   })).connectedAccount;
+
+   if (account?.status !== 'ACTIVE') {
+     throw new Error('Connected account is not ACTIVE. Re-authorize the user.');
+   }
+   ```
+     </TabItem>
+   </Tabs>
+</Steps>
+
+## Best practices for custom tools
+
+- **Keep schemas small:** expose only fields your model needs.
+- **Validate input server-side:** never trust model-generated parameters.
+- **Return stable output:** use predictable JSON keys across calls.
+- **Map provider errors to clear tool errors:** avoid leaking raw provider payloads to prompts.
+- **Use optimized tools first:** switch to custom tools only when the built-in catalog does not cover your endpoint.
+
+## Next steps
+
+- Use [Scalekit optimized tools](/agentkit/tools/scalekit-optimized-tools/) for supported actions.
+- Use [Tool execution via MCP](/agentkit/mcp/tool-access-via-mcp/) when you want framework-agnostic MCP delivery.

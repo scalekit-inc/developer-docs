@@ -158,12 +158,18 @@ export const sidebar = [
         label: 'Tool execution',
         collapsed: false,
         items: [
-          { label: 'Scalekit optimized tools', link: 'agentkit/tools/agent-tools-quickstart' },
+          { label: 'Scalekit optimized tools', link: 'agentkit/tools/scalekit-optimized-tools' },
+          { label: 'Custom tools', link: 'agentkit/tools/custom-tools' },
           { label: 'Tool execution via MCP', link: 'agentkit/mcp/tool-access-via-mcp' },
+        ],
+      },
+      {
+        label: 'AI Frameworks',
+        collapsed: true,
+        items: [
           {
             label: 'OpenClaw',
             link: 'agentkit/openclaw',
-            badge: { text: 'New', variant: 'tip' },
           },
           'agentkit/frameworks/langchain',
           'agentkit/frameworks/google-adk',
