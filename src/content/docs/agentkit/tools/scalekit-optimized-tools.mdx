@@ -466,8 +466,8 @@ Prefer to build it by hand? Follow the steps below.
 
    For LangChain and Google ADK, Scalekit returns native tool objects in Python — no JSON Schema reshaping needed. In Node.js, use the Vercel AI SDK by reshaping `listScopedTools` output.
 
-   ### LangChain
-
+   <Tabs syncKey="framework-adapter">
+     <TabItem label="LangChain">
    ```sh showLineNumbers=false frame="none"
    pip install scalekit-sdk-python langchain langchain-openai
    ```
@@ -500,9 +500,8 @@ Prefer to build it by hand? Follow the steps below.
    ```
 
    Full sample: [sample-langchain-agent](https://github.com/scalekit-inc/sample-langchain-agent).
-
-   ### Google ADK
-
+     </TabItem>
+     <TabItem label="Google ADK">
    ```sh showLineNumbers=false frame="none"
    pip install scalekit-sdk-python google-adk
    ```
@@ -554,8 +553,9 @@ Prefer to build it by hand? Follow the steps below.
    asyncio.run(run_agent("fetch my last 5 unread emails and summarize them"))
    ```
 
-   ### Node.js (Vercel AI SDK)
-
+   Full sample: [google-adk-agent-example](https://github.com/scalekit-inc/google-adk-agent-example).
+     </TabItem>
+     <TabItem label="Node.js (Vercel AI SDK)">
    ```sh showLineNumbers=false frame="none"
    npm install ai @ai-sdk/openai-compatible
    ```
@@ -601,10 +601,104 @@ Prefer to build it by hand? Follow the steps below.
 
    console.log(result.text);
    ```
-
-   Full sample: [google-adk-agent-example](https://github.com/scalekit-inc/google-adk-agent-example).
+     </TabItem>
+   </Tabs>
 
 </Steps>
+
+## Common AgentKit scenarios
+
+<details>
+<summary>Connected account stays in <code>PENDING_AUTH</code></summary>
+
+Your connector exists, but the user has not completed OAuth consent yet.
+
+What to do:
+
+- Call `get_or_create_connected_account` / `getOrCreateConnectedAccount`.
+- If status is not active, generate an authorization link with `get_authorization_link` / `getAuthorizationLink`.
+- Redirect the user to the link and retry after consent.
+
+Why this happens:
+
+- The connector is configured, but no active token exists for that user identifier.
+
+</details>
+
+<details>
+<summary>Tool calls fail with resource not found errors</summary>
+
+Scalekit can return different exception classes depending on SDK path, but the root cause is usually one of these:
+
+- The connector name does not exist in your workspace.
+- The user identifier has no connected account for that connector.
+- You are calling a tool name that is not available for that scoped user.
+
+What to do:
+
+- Verify connector setup under **Agent Auth > Connections**.
+- Verify your identifier is the same one used during account creation.
+- Call `list_scoped_tools` / `listScopedTools` and execute only returned tool names.
+
+</details>
+
+<details>
+<summary>LiteLLM returns model access or budget errors</summary>
+
+Your key might be restricted to specific models or monthly budget limits.
+
+Typical errors:
+
+- `key_model_access_denied`
+- `budget_exceeded`
+
+What to do:
+
+- Set `LITELLM_MODEL` to a model your key can access.
+- Handle budget and provider errors as warnings in verification runs.
+- Keep tool discovery and direct `execute_tool` / `executeTool` checks separate from LLM-loop checks.
+
+</details>
+
+<details>
+<summary>Connection names differ across environments</summary>
+
+Connection names are workspace-specific. Do not hard-code assumptions from another environment.
+
+For example:
+
+- Gmail might be `gmail`
+- GitHub might be `github-qkHFhMip`
+- Linear might be `linear`
+
+Recommended pattern:
+
+- Configure connector names with environment variables such as `GMAIL_CONNECTION_NAME`, `GITHUB_CONNECTION_NAME`, and `LINEAR_CONNECTION_NAME`.
+- Use those values in `list_scoped_tools` / `listScopedTools` filters and account APIs.
+
+</details>
+
+<details>
+<summary>Use validated examples as your baseline</summary>
+
+Use the `agent-auth-examples` verification scripts to validate runtime behavior before updating production agent code or docs.
+
+Validated scripts:
+
+- `python/validate_scalekit_optimized_tools_flow.py`
+- `python/validate_langchain_scalekit_tools_adapter.py`
+- `python/validate_google_adk_scalekit_tools_adapter.py`
+- `javascript/agents/validate-scalekit-optimized-tools-flow.js`
+- `javascript/agents/validate-vercel-ai-scalekit-tools-adapter.js`
+
+These scripts validate:
+
+- End-to-end tool discovery and execution
+- Connected account status handling
+- Anthropic/LiteLLM tool-calling loop behavior
+- LangChain, Google ADK, and Vercel AI SDK adapter flows
+
+</details>
 
 <Aside type="note" title="MCP works with any compatible framework">
   Prefer a single interface that any MCP-capable framework can consume? Scalekit generates a per-user MCP server URL that exposes your tools to any MCP client. See [Tool execution via MCP](/agentkit/mcp/tool-access-via-mcp/).
