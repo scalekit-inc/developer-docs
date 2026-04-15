@@ -1,15 +1,14 @@
 ---
-title: 'OAuth scopes for machine clients'
-description: 'What scopes are in M2M flows, how to assign them when registering API clients in Scalekit, and how to validate them on your API.'
-date: 2026-04-15
-tags: ['Machine-to-machine', 'API auth', 'OAuth']
-excerpt: Scopes name the permissions embedded in M2M access tokens. This cookbook explains how to define them at client registration, how they appear in JWTs, and how to enforce them in your API.
-featured: false
-authors:
-  - name: 'Hashirr Lukmahn'
-    title: 'Software Engineer'
-    url: 'https://www.linkedin.com/in/hashirr-lukmahn/'
-    picture: '/images/blog/authors/hashirr-lukmahn.jpg'
+title: Scopes for machine clients
+description: "What OAuth scopes are in M2M flows, how to assign them to API clients in Scalekit, and how to validate them on your API."
+tags: [m2m, oauth2, scopes, rbac, api-auth, jwt]
+browseCentral:
+  label: "OAuth scopes for M2M APIs"
+  filterType: ["tutorial"]
+  category: ["Auth modules"]
+  icon: book
+sidebar:
+  label: Scopes for API access
 ---
 
 import { Aside, Steps } from '@astrojs/starlight/components';
@@ -28,7 +27,7 @@ Without scopes, any valid client could call any endpoint. Scopes let you:
 
 1. When you **register an API client** for an organization, you pass a list of scope strings in the `scopes` field (REST) or `scopes` on the client object (SDKs).
 2. Scalekit stores those scopes on the client and includes them in issued access tokens.
-3. Your API **validates the JWT** (see [JWKS and token verification](/cookbooks/m2m-jwks-token-verification/)), then checks that the token’s `scopes` include what the route requires.
+3. Your API **validates the JWT** (see [JWKS and token verification](/authenticate/m2m/jwks-and-token-validation/)), then checks that the token’s `scopes` include what the route requires.
 
 Scopes are **strings you define** to match your product’s permission model. Use a consistent pattern such as `resource:action` (for example `deployments:read`, `deployments:write`).
 
@@ -53,7 +52,7 @@ The same values appear on the client record and in tokens issued for that client
 
 <Steps>
 
-1. **Authenticate** the request by verifying the JWT signature and standard claims ([JWKS cookbook](/cookbooks/m2m-jwks-token-verification/)).
+1. **Authenticate** the request by verifying the JWT signature and standard claims ([JWKS and token verification](/authenticate/m2m/jwks-and-token-validation/)).
 
 2. **Read `scopes`** from the verified payload. Scalekit includes granted scopes as an array:
 
@@ -73,5 +72,5 @@ The same values appear on the client record and in tokens issued for that client
 ## Related
 
 - [Add OAuth 2.0 to your APIs](/authenticate/m2m/api-auth-quickstart/) — register clients, obtain tokens, validate scopes
-- [JWKS and token verification](/cookbooks/m2m-jwks-token-verification/) — signature verification before scope checks
+- [JWKS and token verification](/authenticate/m2m/jwks-and-token-validation/) — signature verification before scope checks
 - [API keys](/authenticate/m2m/api-keys/) — long-lived keys; scope and validation patterns may differ from OAuth client credentials
