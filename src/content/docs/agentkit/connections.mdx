@@ -1,44 +1,203 @@
 ---
-title: Connections
-description: Learn how to configure and manage connections in Agent Auth to enable authentication and tool execution with third-party connectors.
-tags: [agentauth, connections, oauth2, api, guide]
+title: Configure connections
+description: Set up a connection in the Scalekit Dashboard to authorize your agent to use a third-party connector on behalf of your users.
+tags: [agentauth, connections, connected-accounts, oauth2, api, guide]
 sidebar:
   order: 3
-  label: "Connections"
+  label: "Configure connections"
 tableOfContents:
   maxHeadingLevel: 3
 prev:
-  label: "Bring your own connector"
-  link: "/agentkit/bring-your-own-connector/using-tool-proxy"
+  label: "Overview"
+  link: "/agentkit/overview"
 next:
-  label: "Connected accounts"
-  link: "/agentkit/connected-accounts"
+  label: "Authorize a user"
+  link: "/agentkit/tools/authorize"
 ---
 
-import { Aside, Steps } from '@astrojs/starlight/components';
+import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
-A **connection** is a configured integration between Scalekit and a third-party connector. It holds the credentials and settings Scalekit needs to interact with that connector's API on behalf of your users — OAuth client secrets, API keys, scopes, and so on.
+A **connection** is a configuration you create once in the Scalekit Dashboard. It holds everything Scalekit needs to interact with a connector's API — OAuth app credentials, scopes, redirect URIs, and so on. Once active, the connection is shared across all your users.
 
-You create one connection per connector in the Scalekit Dashboard. Once active, it can be shared across all your users.
+**Your users never touch the connection.** They interact with a *connected account* — the per-user instance that links their identity to a connection. The connection is your responsibility as the developer; the connected account is created when a user authenticates.
 
-## Connection types
+## What the connection form asks for
 
-| Type | When to use |
-|---|---|
-| **OAuth 2.0** | Connectors like Notion, Gmail, Slack, GitHub that use user-delegated authorization |
-| **API Key** | Connectors like Exa, HarvestAPI, Snowflake that authenticate with a static key |
-| **Bearer token** | Connectors that accept a long-lived bearer token |
-| **Basic auth** | Connectors that use username + password authentication |
+The connection form adapts to what the connector requires. Two things determine how much you need to configure:
 
-## Creating a connection
+- **OAuth-based connectors** require the most setup. You register an OAuth app with the provider, then enter those credentials into Scalekit.
+- **Non-OAuth connectors** (API key, basic auth, key pairs, and similar) require minimal developer setup — usually just a name. The user provides their own credentials when they create their connected account.
+
+The sections below walk through both patterns.
+
+## Set up an OAuth connection
+
+OAuth connections require you to create an OAuth app with the provider and link it to Scalekit. Scalekit provides the Redirect URI; you bring the Client ID and Client Secret.
 
 <Steps>
-1. Open the **Connections** section in the [Scalekit Dashboard](https://app.scalekit.com)
-2. Click **Add connection** and select a connector
-3. Enter the required credentials (OAuth client ID/secret, API key, etc.)
-4. Save — the connection is now available for use
+1. ### Open the connection form
+
+   In the Scalekit Dashboard, go to **Agent Auth > Connections** and click **Add connection**. Select the connector you want to configure.
+
+   The form shows the fields that connector requires.
+
+2. ### Copy the redirect URI
+
+   Scalekit generates a **Redirect URI** for this connection. Copy it — you'll need it in the next step.
+
+   This URI is where the provider sends the user after they complete the OAuth consent screen. Scalekit handles the callback automatically.
+
+3. ### Register your OAuth app with the provider
+
+   In the provider's developer console (GitHub, Salesforce, Google, etc.), create an OAuth app and add Scalekit's Redirect URI to the list of authorized redirect URIs.
+
+   The provider will give you a **Client ID** and **Client Secret** after registration.
+
+   <Aside type="caution" title="Redirect URI must match exactly">
+     The URI in the provider's console must match what Scalekit shows character-for-character, including trailing slashes. A mismatch causes the OAuth flow to fail with a redirect_uri_mismatch error.
+   </Aside>
+
+4. ### Enter your credentials
+
+   Back in the Scalekit Dashboard, enter the **Client ID** and **Client Secret** from the provider.
+
+5. ### Configure scopes
+
+   Select the scopes your agent needs. Scopes define what your agent can do on the user's behalf — for example, `read:email` or `repo`.
+
+   <Aside type="note" title="Scopes apply to all connected accounts">
+     The scopes you set here apply to every connected account that uses this connection. If you need different scopes for different user groups, create separate connections for each group.
+   </Aside>
+
+6. ### Save the connection
+
+   Click **Save**. The connection is now active and ready for connected accounts to be created against it.
+
 </Steps>
 
-For a step-by-step example, see how to set up a [Gmail connection](/reference/agent-connectors/gmail/).
+<Aside type="tip" title="Use Scalekit credentials to get started faster">
+  For some connectors, Scalekit offers a **Use Scalekit credentials** option. This lets you skip the OAuth app registration step and start testing immediately. Switch to your own credentials before going to production — see [Bring your own credentials](/agentkit/advanced/bring-your-own-oauth/).
+</Aside>
 
-Next, learn how to create and manage [Connected accounts](/agentkit/connected-accounts) that use these connections to authenticate and execute tools for your users.
+## Set up a non-OAuth connection
+
+For connectors that use API keys, basic auth, key pairs, or similar, the connection form asks for very little. In many cases, you only need to give the connection a name.
+
+The user provides their own credentials — their API key, account details, or private key — when they create a connected account. Scalekit collects those credentials through the connected account form and stores them securely.
+
+<Steps>
+1. Go to **Agent Auth > Connections** and click **Add connection**
+2. Select the connector
+3. Enter a **Connection name** — this identifies the connection in the dashboard and in your code
+4. Click **Save**
+</Steps>
+
+When a connected account is created for this connection, Scalekit presents the user with a form that collects the credentials their specific account requires.
+
+## Create multiple connections for the same connector
+
+You can create more than one connection for the same connector. This is useful when:
+
+- Different groups of users need different scopes
+- You want to maintain separate OAuth apps for staging and production
+- You're integrating with multiple instances of the same service (for example, two different Salesforce orgs)
+
+Each connection has its own name, which you use to identify it in API calls and in the dashboard.
+
+## Connected accounts
+
+A **connected account** is the per-user instance of a connection. When a user completes authentication, Scalekit creates a connected account that holds their tokens and tracks their authorization state.
+
+### Account states
+
+Connected accounts move through the following states:
+
+| State | Meaning |
+|---|---|
+| `PENDING` | Account created; user has not yet completed authentication |
+| `ACTIVE` | User authenticated; tokens are valid and ready for tool calls |
+| `EXPIRED` | Tokens have expired; user must re-authorize |
+| `REVOKED` | User revoked access from the provider's side |
+| `ERROR` | An authentication or configuration error occurred |
+
+When a connected account is not `ACTIVE`, generate a new authorization link and prompt the user to re-authorize:
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+    ```python
+    response = actions.get_or_create_connected_account(
+        connection_name="gmail",
+        identifier="user_123"
+    )
+    connected_account = response.connected_account
+
+    if connected_account.status != "ACTIVE":
+        link_response = actions.get_authorization_link(
+            connection_name="gmail",
+            identifier="user_123"
+        )
+        # Redirect the user to link_response.link to re-authorize
+    ```
+  </TabItem>
+  <TabItem label="Node.js">
+    ```typescript
+    const response = await actions.getOrCreateConnectedAccount({
+      connectionName: 'gmail',
+      identifier: 'user_123',
+    });
+
+    const connectedAccount = response.connectedAccount;
+
+    if (connectedAccount?.status !== 'ACTIVE') {
+      const linkResponse = await actions.getAuthorizationLink({
+        connectionName: 'gmail',
+        identifier: 'user_123',
+      });
+      // Redirect the user to linkResponse.link to re-authorize
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+### Scopes and permissions
+
+Scopes are configured at the **connection level**, not per connected account. When a user completes the OAuth flow, they approve exactly the scopes defined on that connection.
+
+**Scopes cannot be changed on an existing connected account.** To request additional permissions:
+
+<Steps>
+1. Update the connection's scopes in the Scalekit Dashboard
+2. Generate a new authorization link for the user
+3. The user completes the OAuth consent screen again, approving the updated scopes
+4. Scalekit updates the connected account with the new token set
+</Steps>
+
+### List and delete connected accounts
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+    ```python
+    # Retrieve a connected account
+    response = actions.get_connected_account(
+        connection_name="gmail",
+        identifier="user_123"
+    )
+    connected_account = response.connected_account
+    print(f"Status: {connected_account.status}")
+    ```
+  </TabItem>
+  <TabItem label="Node.js">
+    ```typescript
+    // List connected accounts
+    const listResponse = await actions.listConnectedAccounts({
+      connectionName: 'gmail',
+    });
+
+    // Delete a connected account
+    await actions.deleteConnectedAccount({
+      connectionName: 'gmail',
+      identifier: 'user_123',
+    });
+    ```
+  </TabItem>
+</Tabs>

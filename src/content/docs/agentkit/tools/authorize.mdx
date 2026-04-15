@@ -1,81 +1,146 @@
 ---
 title: Authorize a user
-description: Learn how to authorize users for successful tool execution with Agent Auth.
+description: Generate an authorization link, send it to your user, and confirm their connected account is active before your agent executes tools.
 tags: [agentauth, tools, oauth2, authorization, authentication, api, guide]
+sidebar:
+  label: "Authorize a user"
 prev:
-  label: "Connected accounts"
-  link: "/agentkit/connected-accounts"
+  label: "Configure connections"
+  link: "/agentkit/connections"
 next:
-  label: "Custom domains"
-  link: "/agentkit/advanced/custom-domain"
+  label: "Secure user verification"
+  link: "/agentkit/user-verification"
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
-Scalekit provides a completely managed authentication platform to handle complex OAuth2.0, API Keys, Bearer Tokens and any other API authentication protocols required by third party applications to execute tool calls on behalf of users.
+Once a connection is configured, your users need to grant your agent access to their account. This happens once per user per connection — Scalekit stores their tokens and keeps them fresh automatically.
 
-This managed authentication handling enables you to build powerful agents without having to worry about handling user authentication and API authentication across different applications like Salesforce, Hubspot, GMail, Google Calendar etc.
+The flow is:
+1. Create a connected account for the user
+2. Generate an authorization link and send it to the user
+3. The user completes the OAuth consent screen
+4. The connected account becomes `ACTIVE` — your agent can now execute tools
 
-## Authorize a user
-
-If you are building an agent that needs to execute actions on behalf of a user, your agent needs to get authorization from user to give access to their application.
-
-The following code sample helps your agent complete user authorization required to make a successful authenticated tool call.
+## Create a connected account and generate a link
 
 <Tabs syncKey="tech-stack">
-<TabItem label="Python">
+  <TabItem label="Python">
+    ```python
+    # Create or retrieve the connected account for this user
+    response = actions.get_or_create_connected_account(
+        connection_name="gmail",
+        identifier="user_123"  # your app's unique user ID
+    )
+    connected_account = response.connected_account
 
-```python
-link_response = actions.get_authorization_link(
-    connection_name="gmail",  # connection name to which the user needs to grant access
-    identifier="user_123"     # unique user id
-)
-print(f"click on the link to authorize gmail", link_response.link)
-input(f"Press Enter after authorizing gmail...")
-```
+    # Generate the authorization link if the account is not yet active
+    if connected_account.status != "ACTIVE":
+        link_response = actions.get_authorization_link(
+            connection_name="gmail",
+            identifier="user_123"
+        )
+        auth_url = link_response.link
+        # Redirect or send auth_url to the user
+    ```
+  </TabItem>
+  <TabItem label="Node.js">
+    ```typescript
+    // Create or retrieve the connected account for this user
+    const response = await actions.getOrCreateConnectedAccount({
+      connectionName: 'gmail',
+      identifier: 'user_123',  // your app's unique user ID
+    });
 
-</TabItem>
-<TabItem label="Node.js">
+    const connectedAccount = response.connectedAccount;
 
-```typescript
-const linkResponse = await actions.getAuthorizationLink({
-  connectionName: 'gmail',  // connection name to which the user needs to grant access
-  identifier: 'user_123',  // unique user id
-});
-console.log('click on the link to authorize gmail', linkResponse.link);
-// In production, redirect the user to linkResponse.link to complete the OAuth flow
-```
-
-</TabItem>
+    // Generate the authorization link if the account is not yet active
+    if (connectedAccount?.status !== 'ACTIVE') {
+      const linkResponse = await actions.getAuthorizationLink({
+        connectionName: 'gmail',
+        identifier: 'user_123',
+      });
+      const authUrl = linkResponse.link;
+      // Redirect or send authUrl to the user
+    }
+    ```
+  </TabItem>
 </Tabs>
 
-## Check Authorization Status
+## Send the link to the user
 
-If you would like to check whether the user has completed authorization for a given application,
+How you deliver the link depends on your application:
+
+- **Web app** — redirect the user to `auth_url` directly from your server
+- **Email or notification** — send the link for the user to open when ready
+- **In-app prompt** — show the link as a button in your UI ("Connect Gmail")
+
+Once the user opens the link and approves the OAuth consent screen, Scalekit exchanges the authorization code for tokens and marks the connected account `ACTIVE`. You do not need to handle the OAuth callback yourself.
+
+<Aside type="note" title="Production: add user verification">
+  By default, any user who completes the OAuth flow activates the connected account. In production, you should verify that the user who authorized is the same user your app intended to connect. See [Secure user verification](/agentkit/user-verification/).
+</Aside>
+
+## Check authorization status
+
+Before executing tools, confirm the connected account is active:
 
 <Tabs syncKey="tech-stack">
-<TabItem label="Python">
+  <TabItem label="Python">
+    ```python
+    response = actions.get_or_create_connected_account(
+        connection_name="gmail",
+        identifier="user_123"
+    )
+    connected_account = response.connected_account
+    print(f"Status: {connected_account.status}")
+    # ACTIVE — ready for tool calls
+    # PENDING — user has not yet completed the OAuth flow
+    # EXPIRED — tokens expired, re-authorization required
+    # REVOKED — user revoked access from the provider
+    ```
+  </TabItem>
+  <TabItem label="Node.js">
+    ```typescript
+    const response = await actions.getOrCreateConnectedAccount({
+      connectionName: 'gmail',
+      identifier: 'user_123',
+    });
 
-```python
-response = actions.get_or_create_connected_account(
-    connection_name="gmail",
-    identifier="user_123"
-)
-connected_account = response.connected_account
-print(f"Authorization status of the connected account", connected_account.status)
-```
+    const connectedAccount = response.connectedAccount;
+    console.log('Status:', connectedAccount?.status);
+    // ACTIVE — ready for tool calls
+    // PENDING — user has not yet completed the OAuth flow
+    // EXPIRED — tokens expired, re-authorization required
+    // REVOKED — user revoked access from the provider
+    ```
+  </TabItem>
+</Tabs>
 
-</TabItem>
-<TabItem label="Node.js">
+## Handle re-authorization
 
-```typescript
-const response = await actions.getOrCreateConnectedAccount({
-  connectionName: 'gmail',
-  identifier: 'user_123',
-});
-const connectedAccount = response.connectedAccount;
-console.log('Authorization status of the connected account', connectedAccount?.status);
-```
+Tokens can expire or be revoked. When a connected account is not `ACTIVE`, generate a new authorization link and prompt the user to re-authorize. The flow is identical to the initial authorization.
 
-</TabItem>
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+    ```python
+    if connected_account.status != "ACTIVE":
+        link_response = actions.get_authorization_link(
+            connection_name="gmail",
+            identifier="user_123"
+        )
+        # Prompt the user to re-authorize using link_response.link
+    ```
+  </TabItem>
+  <TabItem label="Node.js">
+    ```typescript
+    if (connectedAccount?.status !== 'ACTIVE') {
+      const linkResponse = await actions.getAuthorizationLink({
+        connectionName: 'gmail',
+        identifier: 'user_123',
+      });
+      // Prompt the user to re-authorize using linkResponse.link
+    }
+    ```
+  </TabItem>
 </Tabs>

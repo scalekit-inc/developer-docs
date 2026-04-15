@@ -149,9 +149,9 @@ export const sidebar = [
         collapsed: false,
         items: [
           'agentkit/connections',
-          'agentkit/connected-accounts',
           'agentkit/tools/authorize',
           'agentkit/user-verification',
+          'agentkit/advanced/bring-your-own-oauth',
         ],
       },
       {

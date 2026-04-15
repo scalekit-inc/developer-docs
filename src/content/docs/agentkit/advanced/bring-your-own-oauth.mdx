@@ -1,68 +1,68 @@
 ---
-title: Bring your own Credentials
-description: Learn how to use your own OAuth authentication credentials with Agent Auth for complete whitelabeling and control.
-tags: [agentauth, advanced, oauth2, federation, integration, guide]
+title: Bring your own credentials
+description: Configure your own OAuth app credentials so users see your brand on consent screens, not Scalekit's.
+tags: [agentauth, advanced, oauth2, whitelabel, guide]
+sidebar:
+  label: "Bring your own credentials"
+tableOfContents:
+  maxHeadingLevel: 3
+prev:
+  label: "Secure user verification"
+  link: "/agentkit/user-verification"
 ---
 
-import { Card, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside, Steps } from '@astrojs/starlight/components';
 
-Bring Your Own Credentials (BYOC) allows you to use your own OAuth applications and authentication credentials with Agent Auth instead of Scalekit's shared credentials. This provides complete control over the authentication experience and enables full whitelabeling of your application.
+By default, Scalekit uses its own OAuth app credentials when your users go through the OAuth consent flow. This works for development and testing, but in production your users will see Scalekit's name and branding on the consent screen — not yours.
 
-## Why bring your own authentication?
+**Bring your own credentials** lets you replace Scalekit's shared OAuth credentials with your own. Once configured, users see your app name, logo, and terms on every OAuth consent screen.
 
-### Complete whitelabeling
+## What changes when you use your own credentials
 
-When you use your own OAuth credentials, users see your application name and branding throughout the authentication flow instead of Scalekit's:
+- **Consent screens** display your application's name and branding
+- **Rate limits and quotas** are tied to your OAuth app, not Scalekit's shared pool
+- **Provider relationship** is direct — your OAuth app appears in provider dashboards and audit logs
+- **Compliance** — useful if your organization requires a direct relationship with each OAuth provider
 
-- **OAuth consent screens** display your app name and logo
-- **Authorization URLs** use your domain and branding
-- **Email notifications** from providers reference your application
-- **User permissions** are granted directly to your application
+Nothing changes in your code or the Scalekit SDK. The switch is purely a dashboard configuration on the connection.
 
-### Enhanced security and control
+## Configure your credentials
 
-- **Direct relationship**: Maintain direct OAuth relationships with providers
-- **Full audit trail**: Complete visibility into authentication flows and user consent
-- **Custom verification**: Complete OAuth app verification with your company details
-- **Compliance control**: Meet regulatory requirements for direct provider relationships
+<Steps>
+1. ### Create an OAuth app with the provider
 
-### Production-grade capabilities
+   In the provider's developer console, create a new OAuth app (or use an existing one). You'll need the **Client ID** and **Client Secret** it generates.
 
-- **Dedicated quotas**: Avoid sharing rate limits with other Scalekit customers
-- **Higher limits**: Access provider-specific quota increases for your application
-- **Priority support**: Direct support relationships with OAuth providers
-- **Custom integrations**: Build provider-specific customizations
+2. ### Open the connection in Scalekit Dashboard
 
-## How BYOC works
+   Go to **Agent Auth > Connections** and click **Edit** on the connection you want to update.
 
-### Architecture overview
+3. ### Switch to your own credentials
 
-With BYOC, authentication flows work as follows:
+   Select **Use your own credentials**. The form expands to show Client ID and Client Secret fields.
 
-1. **Scalekit** handles the initial authentication request with your OAuth client-id details
-2. **Provider** authenticates the user and returns tokens to Scalekit
-3. **Agent Auth** uses your tokens to execute tools on behalf of users
+4. ### Copy the redirect URI
 
-## Setting up BYOC
+   Scalekit displays a **Redirect URI** for this connection. Copy it.
 
-Login to Scalekit Dashboard and Click on Edit Connection for the application you want to configure your own authentication credentials.
+5. ### Add the redirect URI to your OAuth app
 
-Choose the option "Use your own credentials" and enter the Client ID and Client Secret obtained from the provider.
+   In the provider's console, add Scalekit's Redirect URI to the list of authorized redirect URIs for your OAuth app.
 
-Copy the Redirect URL you find in the Scalekit Dashboard and add it as one of the authorized redirect urls in the provider's console. That's it!
+   <Aside type="caution" title="Redirect URI must match exactly">
+     The URI must match character-for-character. A mismatch will cause OAuth flows to fail with a redirect_uri_mismatch error.
+   </Aside>
 
-![Bring your own Auth Credentials](@/assets/docs/agentkit/byoc.png)
+6. ### Enter your credentials and save
 
-## Migration from shared credentials
+   Enter the **Client ID** and **Client Secret** from your OAuth app and click **Save**.
 
-If you're currently using Scalekit's shared credentials and want to migrate to BYOC:
+   All new OAuth flows for this connection will now use your credentials.
 
-<Aside type="note">
-**Migration considerations:**
-- Users will need to re-authenticate with your OAuth applications
-- OAuth consent screens will change to show your branding
-- Rate limits and quotas will change to your application's limits
-- Some users may need to re-grant permissions
-</Aside>
+</Steps>
 
-By implementing Bring Your Own Authentication, you gain complete control over your users' authentication experience while maintaining the power and flexibility of Agent Auth's unified API for tool execution.
+## Existing connected accounts
+
+Switching credentials does not affect connected accounts that are already active. However, if a user re-authorizes or connects for the first time after the switch, they will go through the consent screen with your new credentials.
+
+If you need all users to see your branding immediately, generate new authorization links and prompt them to re-authorize.

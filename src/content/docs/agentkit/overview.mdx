@@ -1,300 +1,59 @@
 ---
 title: Overview
-description: Learn about Agent Auth, Scalekit's authentication solution for securely connecting to third-party applications through OAuth 2.0
+description: Learn how Agent Auth works — connectors, connections, and connected accounts.
 tags: [agentauth, oauth2, aigents, tools, overview, guide]
 banner:
   content: |
     Build this faster with AI coding agents. <a href="/cookbooks/set-up-agentkit-with-your-coding-agent/">Build with AI →</a>
 ---
 
-import { Card, CardGrid, LinkCard, Aside } from '@astrojs/starlight/components';
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Agent Auth is Scalekit's authentication solution that enables your applications to securely connect to third-party services on behalf of your users. It handles the complexity of OAuth flows, token management, and multi-connector authentication for popular business applications like Gmail, Slack, Jira, and more.
+Agent Auth lets your AI agents act on behalf of users across third-party applications — sending emails, reading calendars, creating tickets, querying databases, and more. Scalekit handles the OAuth flows, token storage, and API authentication so your agent code focuses on what to do, not how to authenticate.
 
-## What is Agent Auth?
+## Core concepts
 
-Agent Auth simplifies third-party authentication by providing:
+Three building blocks make up Agent Auth:
 
-- **Multi-connector OAuth**: Support for OAuth 2.0 flows across all major connectors
-- **Unified authentication API**: Single interface for managing connections to any connector
-- **Automatic token management**: Token refresh, storage, and lifecycle handling
-- **Flexible authentication modes**: Use Scalekit-managed OAuth or bring your own credentials
-- **Secure token handling**: Encrypted token storage and transmission
+**Connectors** are the third-party applications your agent can use — Gmail, Slack, Salesforce, GitHub, and many others. Each connector defines the authentication requirements and the tools available to your agent.
 
-## Key concepts
+**Connections** are configurations you create once in the Scalekit Dashboard. A connection holds the credentials Scalekit needs to talk to a connector on your behalf — OAuth client ID and secret, scopes, redirect URIs, and similar. One connection can serve all your users.
 
-### Connectors
+**Connected accounts** are per-user instances of a connection. When a user completes the authentication flow, Scalekit creates a connected account that holds their tokens and tracks their authorization state. Your agent uses a connected account to act on that user's behalf.
 
-Connectors are third-party applications that your users can authenticate with. Agent Auth supports OAuth 2.0 flows for popular platforms including Gmail, Slack, GitHub, Jira, and many more.
-
-### Connections
-
-Connections define the authentication configuration for a specific connector. Each connection contains:
-
-- **Authentication credentials** (OAuth client ID/secret, API keys)
-- **OAuth configuration** (authorization URLs, token endpoints, scopes)
-- **Connector-specific settings** (rate limits, API versions)
-
-### Connected accounts
-
-Connected accounts represent the authenticated link between a user in your application and their account on a third-party connector. Each connected account maintains:
-
-- **Authentication state** (active, expired, revoked)
-- **Access tokens** and refresh tokens with automatic refresh handling
-- **Granted OAuth scopes** and permissions
-- **Token expiration** tracking and lifecycle management
-
-## Architecture overview
+## How they fit together
 
 ```d2
-direction: down
+direction: right
 
-A: "Your Application"
-C: "Connected Account"
+Dev: "You (developer)"
+Users: "Your users"
 
-AgentAuth: {
-  label: "Agent Auth"
-  B: "Agent Auth API"
-  E: "OAuth Flow Handler"
-  G: "Token Management"
-  H: "Token Refresh"
-  B -> E
-  B -> G
-  B -> H
+Scalekit: {
+  Conn: "Connection\n(credentials + scopes)"
+  CA: "Connected accounts\n(per-user tokens)"
 }
 
-Providers: {
-  label: "OAuth Providers"
-  D: "Provider OAuth"
-  I: "Gmail"
-  J: "Slack"
-  K: "Jira"
-  L: "GitHub"
-  D -> I
-  D -> J
-  D -> K
-  D -> L
-}
+Provider: "Third-party app\n(Gmail, Slack, …)"
 
-A -> AgentAuth.B: "Initiate OAuth"
-AgentAuth.B -> C: "Manage tokens"
-C -> Providers.D: "Authenticate"
+Dev -> Scalekit.Conn: "Configure once"
+Users -> Scalekit.CA: "Authenticate"
+Scalekit.CA -> Provider: "Execute tools"
 ```
 
-## How authentication works
+The relationship flows in one direction: you configure a connection, your users authenticate against it to create connected accounts, and your agent uses those connected accounts to call tools.
 
-### 1. Configure connector connections
+## What Scalekit manages for you
 
-Set up OAuth credentials for each connector you want to support:
+- OAuth flows and token exchange for every connector
+- Secure token storage and automatic refresh
+- Per-user authorization state tracking
+- Authenticated API proxying — your agent never handles raw tokens
 
-```javascript
-// Create a connection for Gmail with OAuth 2.0
-const gmailConnection = await agentConnect.connections.create({
-  provider: 'gmail',
-  auth_type: 'oauth2',
-  credentials: {
-    client_id: 'your-gmail-client-id',
-    client_secret: 'your-gmail-client-secret'
-  },
-  scopes: ['https://www.googleapis.com/auth/gmail.send']
-});
-```
-
-### 2. Initiate OAuth flow for users
-
-When users want to connect their accounts, create a connected account and redirect them to complete OAuth:
-
-```javascript
-// Create a connected account for a user
-const connectedAccount = await agentConnect.accounts.create({
-  connection_id: gmailConnection.id,
-  identifier: 'user_123',
-  identifier_type: 'user_id'
-});
-
-// Generate OAuth authorization URL
-const authUrl = await agentConnect.accounts.getAuthUrl(connectedAccount.id);
-// Redirect user to authUrl to authenticate with the connector
-```
-
-### 3. Handle OAuth callback
-
-After the user authorizes your application, the connector redirects back with an authorization code. Agent Auth automatically exchanges this code for access and refresh tokens:
-
-```javascript
-// Agent Auth handles the OAuth callback and token exchange
-// Tokens are securely stored and automatically refreshed when needed
-const account = await agentConnect.accounts.get(connectedAccount.id);
-// account.status will be 'active' once authentication is complete
-```
-
-## Supported connectors
-
-Agent Auth supports OAuth authentication for a wide range of popular business applications:
+## Get started
 
 <CardGrid>
-  <Card title="Communication" icon="chat">
-    - Gmail (Google Workspace)
-    - Outlook (Microsoft 365)
-    - Slack
-    - Microsoft Teams
-    - Discord
-  </Card>
-  <Card title="Productivity" icon="laptop">
-    - Google Calendar
-    - Microsoft Calendar
-    - Google Drive
-    - OneDrive
-    - Notion
-  </Card>
-  <Card title="Project Management" icon="puzzle">
-    - Jira
-    - Asana
-    - Trello
-    - Monday.com
-    - Linear
-  </Card>
-  <Card title="Development" icon="github">
-    - GitHub
-    - GitLab
-    - Bitbucket
-    - Figma
-    - Vercel
-  </Card>
+  <LinkCard title="Quickstart" href="/agentkit/quickstart" description="Build a working agent with authenticated tool calls in minutes." />
+  <LinkCard title="Configure connections" href="/agentkit/connections" description="Set up your first connection and understand how connected accounts work." />
+  <LinkCard title="Connectors" href="/agentkit/connectors/" description="Browse the third-party apps your agent can connect to." />
 </CardGrid>
-
-## Common authentication scenarios
-
-### Multi-connector authentication
-
-Enable users to connect multiple third-party accounts in your application:
-
-```javascript
-// Allow users to authenticate with both Gmail and Slack
-const gmailAccount = await agentConnect.accounts.create({
-  connection_id: gmailConnection.id,
-  identifier: 'user_123',
-  identifier_type: 'user_id'
-});
-
-const slackAccount = await agentConnect.accounts.create({
-  connection_id: slackConnection.id,
-  identifier: 'user_123',
-  identifier_type: 'user_id'
-});
-
-// Generate OAuth URLs for each connector
-const gmailAuthUrl = await agentConnect.accounts.getAuthUrl(gmailAccount.id);
-const slackAuthUrl = await agentConnect.accounts.getAuthUrl(slackAccount.id);
-```
-
-### Organization-level connections
-
-Authenticate once for an entire organization:
-
-```javascript
-// Create organization-level connection for shared access
-const orgConnection = await agentConnect.accounts.create({
-  connection_id: jiraConnection.id,
-  identifier: 'org_456',
-  identifier_type: 'org_id'
-});
-
-// All users in the organization can access this connection
-const authUrl = await agentConnect.accounts.getAuthUrl(orgConnection.id);
-```
-
-### Token lifecycle management
-
-Agent Auth automatically handles token refresh and expiration:
-
-```javascript
-// Retrieve connected account - tokens are automatically refreshed if expired
-const account = await agentConnect.accounts.get(connectedAccount.id);
-
-// Check authentication status
-if (account.status === 'active') {
-  // User is authenticated and tokens are valid
-} else if (account.status === 'expired') {
-  // Re-authentication required
-  const reAuthUrl = await agentConnect.accounts.getAuthUrl(account.id);
-}
-```
-
-## Key benefits
-
-### Developer experience
-
-- **Unified authentication API**: Single interface for OAuth across all connectors
-- **Automatic token refresh**: No manual token lifecycle management required
-- **Pre-built OAuth flows**: Skip complex OAuth implementation for each connector
-- **Multi-language SDKs**: Support for popular programming languages
-- **Standardized error handling**: Consistent error responses across connectors
-
-### Security and compliance
-
-- **OAuth 2.0 standard**: Industry-standard authentication protocol
-- **Encrypted token storage**: Secure storage and transmission of access tokens
-- **Automatic token rotation**: Refresh tokens automatically to minimize exposure
-- **Audit logging**: Complete audit trail of authentication events
-- **SOC 2 certified**: Enterprise-grade security standards
-
-## Authentication options
-
-Agent Auth supports multiple authentication approaches:
-
-### Scalekit-managed OAuth
-
-Use Scalekit's shared OAuth applications for quick setup:
-
-- **Fast setup**: Get started in minutes without registering OAuth apps
-- **Shared credentials**: Pre-configured OAuth credentials for all connectors
-- **Zero configuration**: No need to manage client IDs or secrets
-- **Perfect for**: Development, testing, proof of concepts
-
-### Bring Your Own OAuth (BYOO)
-
-Use your own OAuth applications for complete control:
-
-- **Custom branding**: Users see your application name and logo during OAuth
-- **Higher rate limits**: Dedicated quotas for your OAuth application
-- **Direct relationships**: Establish direct OAuth connections with connectors
-- **Enhanced control**: Full control over OAuth scopes and permissions
-- **Perfect for**: Production applications, enterprise customers
-
-## Getting started
-
-Ready to start using Agent Auth? Here's what you need to do:
-
-<CardGrid>
-  <LinkCard title="Quickstart Guide" href="/agentkit/quickstart">
-    Get up and running with Agent Auth in minutes
-  </LinkCard>
-  <LinkCard title="Authentication Flows" href="/agentkit/authentication/auth-flows-comparison">
-    Compare different authentication flow patterns
-  </LinkCard>
-  <LinkCard title="Connectors" href="/agentkit/connectors">
-    View supported connectors and their requirements
-  </LinkCard>
-</CardGrid>
-
-## Support and resources
-
-### Documentation
-
-- **Authentication guides**: Step-by-step OAuth integration guides
-- **API reference**: Complete authentication API documentation
-- **SDK documentation**: Language-specific authentication examples
-- **Best practices**: Security and token management guidelines
-
-### Community and support
-
-- **Developer community**: Join other developers using Agent Auth
-- **Support portal**: Get help with authentication issues
-- **Professional services**: Expert assistance for complex OAuth integrations
-
-<Aside type="note">
-**Ready to get started?** Check out our [Quickstart Guide](/agentkit/quickstart) to implement your first OAuth integration with Agent Auth in minutes.
-</Aside>
-
-Agent Auth simplifies third-party authentication so you can focus on building features instead of managing OAuth flows. Start building today and provide seamless authentication experiences for your users.
