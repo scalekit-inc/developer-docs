@@ -1,0 +1,317 @@
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+Once a connected account is authorized, make Close API calls through the Scalekit proxy — no OAuth flow needed per request.
+
+## Proxy API calls
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    const actions = scalekit.actions;
+
+    // Fetch the authenticated user's profile
+    const me = await actions.request({
+      connectionName: 'close',
+      identifier: 'user_123',
+      path: '/api/v1/me/',
+      method: 'GET',
+    });
+    console.log(me);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+    actions = scalekit_client.actions
+
+    # Fetch the authenticated user's profile
+    me = actions.request(
+        connection_name="close",
+        identifier="user_123",
+        path="/api/v1/me/",
+        method="GET"
+    )
+    print(me)
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="tip" title="No OAuth flow per request">
+  Close uses OAuth 2.0 — Scalekit stores and refreshes the access token automatically. Your code only needs `connection_name` and `identifier` per request.
+</Aside>
+
+## Scalekit tools
+
+Use `execute_tool` to call Close tools directly without constructing raw HTTP requests.
+
+### Basic example — get the current user
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const me = await actions.executeTool({
+      toolName: 'close_me_get',
+      connectionName: 'close',
+      identifier: 'user_123',
+      toolInput: {},
+    });
+    console.log(me);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    me = actions.execute_tool(
+        tool_name="close_me_get",
+        connection_name="close",
+        identifier="user_123",
+        tool_input={}
+    )
+    print(me)
+    ```
+  </TabItem>
+</Tabs>
+
+## Advanced enrichment workflow
+
+This example shows a complete lead enrichment pipeline: find a lead, attach activities, enroll in a sequence, and track progress — all in one automated flow.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    const actions = scalekit.actions;
+
+    const opts = { connectionName: 'close', identifier: 'user_123' };
+
+    async function enrichAndEnrollLead(companyName: string, contactEmail: string) {
+      // 1. Find or create the lead
+      const searchResult = await actions.executeTool({
+        toolName: 'close_leads_list',
+        ...opts,
+        toolInput: { query: companyName, _limit: 1 },
+      });
+
+      let leadId: string;
+      if (searchResult.data.length > 0) {
+        leadId = searchResult.data[0].id;
+        console.log(`Found existing lead: ${leadId}`);
+      } else {
+        const newLead = await actions.executeTool({
+          toolName: 'close_lead_create',
+          ...opts,
+          toolInput: { name: companyName },
+        });
+        leadId = newLead.id;
+        console.log(`Created lead: ${leadId}`);
+      }
+
+      // 2. Create a contact on the lead
+      const contact = await actions.executeTool({
+        toolName: 'close_contact_create',
+        ...opts,
+        toolInput: {
+          lead_id: leadId,
+          name: contactEmail.split('@')[0],
+          emails: JSON.stringify([{ email: contactEmail, type: 'office' }]),
+        },
+      });
+      console.log(`Created contact: ${contact.id}`);
+
+      // 3. Create an opportunity on the lead
+      const pipelines = await actions.executeTool({
+        toolName: 'close_pipelines_list',
+        ...opts,
+        toolInput: {},
+      });
+      const pipeline = pipelines.data[0];
+      const activeStatus = pipeline.statuses.find((s: any) => s.type === 'active');
+
+      const opportunity = await actions.executeTool({
+        toolName: 'close_opportunity_create',
+        ...opts,
+        toolInput: {
+          lead_id: leadId,
+          status_id: activeStatus.id,
+          value: 500000,           // $5,000.00 in cents
+          value_currency: 'USD',
+          value_period: 'one_time',
+          confidence: 30,
+        },
+      });
+      console.log(`Created opportunity: ${opportunity.id} — $${opportunity.value / 100}`);
+
+      // 4. Log a note summarizing the enrichment
+      await actions.executeTool({
+        toolName: 'close_note_create',
+        ...opts,
+        toolInput: {
+          lead_id: leadId,
+          note: `Lead enriched automatically. Contact ${contactEmail} created. Opportunity ${opportunity.id} opened.`,
+        },
+      });
+
+      // 5. Create a follow-up task
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      await actions.executeTool({
+        toolName: 'close_task_create',
+        ...opts,
+        toolInput: {
+          lead_id: leadId,
+          text: `Follow up with ${contactEmail}`,
+          date: tomorrow.toISOString().split('T')[0],
+        },
+      });
+
+      // 6. Enroll the contact in a sequence (if sequences exist)
+      const sequences = await actions.executeTool({
+        toolName: 'close_sequences_list',
+        ...opts,
+        toolInput: { _limit: 1 },
+      });
+
+      if (sequences.data.length > 0) {
+        const subscription = await actions.executeTool({
+          toolName: 'close_sequence_subscription_create',
+          ...opts,
+          toolInput: {
+            contact_id: contact.id,
+            sequence_id: sequences.data[0].id,
+          },
+        });
+        console.log(`Enrolled contact in sequence. Subscription: ${subscription.id}`);
+      }
+
+      return { leadId, contactId: contact.id, opportunityId: opportunity.id };
+    }
+
+    // Run the enrichment
+    enrichAndEnrollLead('Acme Corp', 'jane@acme.com').then(console.log);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import scalekit.client, os, json
+    from datetime import date, timedelta
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+    actions = scalekit_client.actions
+
+    def execute(tool_name, tool_input):
+        return actions.execute_tool(
+            tool_name=tool_name,
+            connection_name="close",
+            identifier="user_123",
+            tool_input=tool_input
+        )
+
+    def enrich_and_enroll_lead(company_name: str, contact_email: str):
+        # 1. Find or create the lead
+        search = execute("close_leads_list", {"query": company_name, "_limit": 1})
+        if search["data"]:
+            lead_id = search["data"][0]["id"]
+            print(f"Found existing lead: {lead_id}")
+        else:
+            lead = execute("close_lead_create", {"name": company_name})
+            lead_id = lead["id"]
+            print(f"Created lead: {lead_id}")
+
+        # 2. Create a contact on the lead
+        contact = execute("close_contact_create", {
+            "lead_id": lead_id,
+            "name": contact_email.split("@")[0],
+            "emails": json.dumps([{"email": contact_email, "type": "office"}]),
+        })
+        print(f"Created contact: {contact['id']}")
+
+        # 3. Create an opportunity
+        pipelines = execute("close_pipelines_list", {})
+        pipeline = pipelines["data"][0]
+        active_status = next(s for s in pipeline["statuses"] if s["type"] == "active")
+
+        opp = execute("close_opportunity_create", {
+            "lead_id": lead_id,
+            "status_id": active_status["id"],
+            "value": 500000,        # $5,000.00 in cents
+            "value_currency": "USD",
+            "value_period": "one_time",
+            "confidence": 30,
+        })
+        print(f"Created opportunity: {opp['id']} — ${opp['value'] / 100:.2f}")
+
+        # 4. Log a note
+        execute("close_note_create", {
+            "lead_id": lead_id,
+            "note": (
+                f"Lead enriched automatically. "
+                f"Contact {contact_email} created. "
+                f"Opportunity {opp['id']} opened."
+            ),
+        })
+
+        # 5. Create a follow-up task
+        tomorrow = (date.today() + timedelta(days=1)).isoformat()
+        execute("close_task_create", {
+            "lead_id": lead_id,
+            "text": f"Follow up with {contact_email}",
+            "date": tomorrow,
+        })
+
+        # 6. Enroll in a sequence if one exists
+        sequences = execute("close_sequences_list", {"_limit": 1})
+        if sequences["data"]:
+            sub = execute("close_sequence_subscription_create", {
+                "contact_id": contact["id"],
+                "sequence_id": sequences["data"][0]["id"],
+            })
+            print(f"Enrolled contact in sequence. Subscription: {sub['id']}")
+
+        return {
+            "lead_id": lead_id,
+            "contact_id": contact["id"],
+            "opportunity_id": opp["id"]
+        }
+
+    result = enrich_and_enroll_lead("Acme Corp", "jane@acme.com")
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+## Required scopes
+
+Close OAuth apps automatically include both required scopes — no manual scope selection is needed.
+
+| Scope | Required for |
+|-------|-------------|
+| `all.full_access` | All 81 tools (leads, contacts, opportunities, tasks, notes, calls, emails, SMS, pipelines, sequences, webhooks, users, custom fields) |
+| `offline_access` | All tools — enables the refresh token so sessions persist beyond 1 hour |

@@ -1,0 +1,71 @@
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with the Close connector so Scalekit handles the OAuth flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically.
+
+<Steps>
+1. ### Create a Close OAuth app
+
+   - Sign in to [Close](https://app.close.com) and go to **Settings** → **Developer** → **OAuth Apps**.
+   - Click **Create New OAuth App**.
+   - Enter an app name and description.
+   - In the **Redirect URIs** field, paste the redirect URI from Scalekit (see next step — you can come back to add it).
+
+   ![](@/assets/docs/agent-connectors/close/create-oauth-app.png)
+
+   - Copy your **Client ID** and **Client Secret** from the app detail page.
+
+2. ### Set up the connection in Scalekit
+
+   - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**.
+   - Find **Close** and click **Create**.
+   - Copy the **Redirect URI** shown — it looks like:
+     `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`
+   - Note the **Connection name** (e.g., `close`) — use this as `connection_name` in your code.
+
+   ![](@/assets/docs/agent-connectors/close/add-credentials.png)
+
+   - Return to your Close OAuth app and add the redirect URI you copied.
+   - Back in Scalekit, enter your **Client ID**, **Client Secret**, and the scopes `all.full_access offline_access`.
+   - Click **Save**.
+
+3. ### Add a connected account
+
+   **Via dashboard (for testing)**
+   - In the connection page, click the **Connected Accounts** tab → **Add account**.
+   - Enter a **User ID** and click **Save**. You will be redirected to Close to authorize access.
+
+   ![](@/assets/docs/agent-connectors/close/add-connected-account.png)
+
+   **Via API (for production)**
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```typescript
+       const { link } = await scalekit.actions.getAuthorizationLink({
+         connectionName: 'close',
+         identifier: 'user_123',
+       });
+       // Redirect your user to `link` to authorize access
+       console.log('Authorize at:', link);
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```python
+       response = scalekit_client.actions.get_authorization_link(
+           connection_name="close",
+           identifier="user_123"
+       )
+       # Redirect your user to response.link to authorize access
+       print("Authorize at:", response.link)
+       ```
+     </TabItem>
+   </Tabs>
+
+   <Aside type="tip" title="Token refresh">
+     Close access tokens expire after 1 hour. Scalekit automatically refreshes them using the refresh token granted by `offline_access` — no re-authorization needed.
+   </Aside>
+</Steps>
+
+<Aside type="note" title="Required scopes">
+  Close OAuth apps automatically receive `all.full_access` and `offline_access`. No additional scope configuration is needed — all 81 tools work with these two scopes.
+</Aside>
