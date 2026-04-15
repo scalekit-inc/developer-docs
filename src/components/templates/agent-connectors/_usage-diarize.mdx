@@ -9,7 +9,7 @@ Diarize is primarily used through Scalekit tools. Use `execute_tool` to submit t
 Use this connector when you want an agent to transcribe and diarize audio or video from YouTube, X, Instagram, or TikTok.
 
 - Use `diarize_create_transcription_job` to submit a URL for transcription. Returns an `id` (job ID) and an `estimatedTime` (in seconds) for how long processing will take.
-- Use `diarize_get_job_status` to poll until `status` is `completed` or `failed`. Use `estimatedTime` to set a sensible timeout — do not give up before that time has elapsed.
+- Use `diarize_get_job_status` to poll until `status` is `COMPLETED` or `FAILED`. Use `estimatedTime` to set a sensible timeout — do not give up before that time has elapsed.
 - Use `diarize_download_transcript` to retrieve the result once complete. Choose `json` for structured speaker diarization data, or `txt`, `srt`, `vtt` for plain-text and subtitle formats.
 
 <Tabs syncKey="tech-stack">
@@ -56,9 +56,9 @@ Use this connector when you want an agent to transcribe and diarize audio or vid
         )
         status = status_result.result["status"]
         print("Status:", status)
-        if status == "completed":
+        if status == "COMPLETED":
             break
-        if status == "failed":
+        if status == "FAILED":
             raise RuntimeError(f"Job {job_id} failed")
 
     # Step 3: Download the diarized transcript
@@ -67,8 +67,7 @@ Use this connector when you want an agent to transcribe and diarize audio or vid
         connected_account_id=connected_account.id,
         tool_input={"job_id": job_id, "format": "json"},
     )
-    for segment in transcript_result.result.get("segments", []):
-        print(f"[{segment.get('start', 0):.1f}s] {segment.get('speaker', '?')}: {segment.get('text', '')}")
+    # handle the transcript_result
     ```
   </TabItem>
   <TabItem label="Node.js">
@@ -104,8 +103,8 @@ Use this connector when you want an agent to transcribe and diarize audio or vid
     console.log(`Job ${jobId} submitted. Estimated: ${estimatedSeconds}s`);
 
     // Step 2: Poll until complete
-    let status = 'pending';
-    while (status !== 'completed' && status !== 'failed') {
+    let status = 'PENDING';
+    while (status !== 'COMPLETED' && status !== 'FAILED') {
       if (Date.now() > deadline) throw new Error(`Job ${jobId} timed out after ${estimatedSeconds * 2}s`);
       await new Promise(r => setTimeout(r, 15_000));
       const statusResult = await actions.executeTool({
@@ -116,7 +115,7 @@ Use this connector when you want an agent to transcribe and diarize audio or vid
       status = statusResult.data.status;
       console.log('Status:', status);
     }
-    if (status === 'failed') throw new Error(`Job ${jobId} failed`);
+    if (status === 'FAILED') throw new Error(`Job ${jobId} failed`);
 
     // Step 3: Download the diarized transcript
     const transcriptResult = await actions.executeTool({
@@ -124,9 +123,7 @@ Use this connector when you want an agent to transcribe and diarize audio or vid
       connectedAccountId: connectedAccount.id,
       toolInput: { job_id: jobId, format: 'json' },
     });
-    for (const segment of transcriptResult.data.segments ?? []) {
-      console.log(`[${segment.start.toFixed(1)}s] ${segment.speaker}: ${segment.text}`);
-    }
+    // handle the transcriptResult
     ```
   </TabItem>
 </Tabs>
