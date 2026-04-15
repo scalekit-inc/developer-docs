@@ -133,14 +133,11 @@ export const sidebar = [
         items: [
           'agentkit/overview',
           { label: 'Quickstart: AgentKit', link: 'agentkit/quickstart' },
-          // TODO: Remove this page once its content is folded into the quickstart.
-          { label: 'Build with AI', link: 'agentkit/build-with-ai' },
           'agentkit/code-samples',
           {
             label: 'SDKs',
             collapsed: true,
             items: [
-              { label: 'Overview', link: '/agentkit/sdks/' },
               { label: 'Node.js SDK', link: '/agentkit/sdks/node/' },
               { label: 'Python SDK', link: '/agentkit/sdks/python/' },
             ],
