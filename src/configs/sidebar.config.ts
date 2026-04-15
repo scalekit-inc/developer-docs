@@ -194,7 +194,7 @@ export const sidebar = [
   {
     label: 'Agent connectors',
     id: 'agent-connectors',
-    link: '/guides/integrations/agent-connectors/',
+    link: '/agentkit/connectors/',
     icon: 'seti:bicep',
     items: [
       {
@@ -547,11 +547,7 @@ export const topics = {
   'modular-scim': ['/directory/**/*'],
 
   // Agent connectors (dedicated connectors sidebar — must come before connect)
-  'agent-connectors': [
-    '/reference/agent-connectors/**/*',
-    '/guides/integrations/agent-connectors',
-    '/guides/integrations/agent-connectors/**/*',
-  ],
+  'agent-connectors': ['/reference/agent-connectors/**/*'],
 
   // AgentKit / Connect
   connect: ['/agentkit/**/*'],

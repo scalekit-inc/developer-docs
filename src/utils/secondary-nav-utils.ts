@@ -10,11 +10,7 @@ import { IconLucideLayoutGrid } from './icon-map'
  */
 export function getActiveProduct(pathname: string, topic?: string): 'agentkit' | 'saaskit' {
   if (topic === 'connect') return 'agentkit'
-  if (
-    pathname.startsWith('/agentkit/') ||
-    pathname.startsWith('/guides/integrations/agent-connectors') ||
-    pathname.startsWith('/reference/agent-connectors')
-  )
+  if (pathname.startsWith('/agentkit/') || pathname.startsWith('/reference/agent-connectors'))
     return 'agentkit'
   return 'saaskit'
 }

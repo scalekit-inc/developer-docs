@@ -355,8 +355,10 @@ export const redirects = {
   '/dev-kit/changelogs/go/version/v1-0-4': '/sdks/go/',
 
   // Agent connectors redirects
-  '/reference/agent-connectors': '/guides/integrations/agent-connectors/',
-  '/connectors': '/guides/integrations/agent-connectors/',
+  '/reference/agent-connectors': '/agentkit/connectors/',
+  '/connectors': '/agentkit/connectors/',
+  '/guides/integrations/agent-connectors': '/agentkit/connectors/',
+  '/guides/integrations/agent-connectors/': '/agentkit/connectors/',
 
   // Other redirects
   '/fsa/data-modeling': '/fsa/data-modelling/',
