@@ -303,8 +303,12 @@ export const redirects = {
   '/m2m/authenticate-scalekit-api': '/guides/authenticate-scalekit-api/',
   '/m2m/api-auth-for-m2m-clients': '/guides/m2m/api-auth-m2m-clients/',
   '/m2m/external-ids-and-metadata': '/guides/external-ids-and-metadata/',
-  '/m2m/scopes': '/authenticate/m2m/scopes/',
-  '/guides/m2m/scopes/': '/authenticate/m2m/scopes/',
+  '/m2m/scopes': '/cookbooks/m2m-oauth-scopes/',
+  '/guides/m2m/scopes/': '/cookbooks/m2m-oauth-scopes/',
+  '/authenticate/m2m/jwks-and-token-validation': '/cookbooks/m2m-jwks-token-verification/',
+  '/authenticate/m2m/jwks-and-token-validation/': '/cookbooks/m2m-jwks-token-verification/',
+  '/authenticate/m2m/scopes': '/cookbooks/m2m-oauth-scopes/',
+  '/authenticate/m2m/scopes/': '/cookbooks/m2m-oauth-scopes/',
   '/reference/api/m2m-clients': '/guides/m2m/api-auth-m2m-clients/',
 
   // =============================================================================
