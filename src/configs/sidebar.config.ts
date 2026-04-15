@@ -145,7 +145,7 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Authentication & Security',
+        label: 'Authentication & security',
         collapsed: false,
         items: [
           'agentkit/connections',

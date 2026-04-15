@@ -85,7 +85,7 @@ const agentKitItems: NavItem[] = [
   {
     id: 'agentkit-api-reference',
     href: '/apis/',
-    label: 'API Reference',
+    label: 'API reference',
     iconComponent: IconApi,
   },
 ]
