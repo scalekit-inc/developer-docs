@@ -160,10 +160,10 @@ export const sidebar = [
       {
         label: 'Bring your own connector',
         items: [
-          'agentkit/bring-your-own-provider/overview',
-          'agentkit/bring-your-own-provider/auth-types-and-patterns',
-          'agentkit/bring-your-own-provider/managing-providers',
-          'agentkit/bring-your-own-provider/using-tool-proxy',
+          'agentkit/bring-your-own-connector/overview',
+          'agentkit/bring-your-own-connector/auth-types-and-patterns',
+          'agentkit/bring-your-own-connector/managing-providers',
+          'agentkit/bring-your-own-connector/using-tool-proxy',
         ],
       },
       {
