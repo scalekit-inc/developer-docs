@@ -89,6 +89,12 @@ export function getActiveSecondaryNavId(
     return 'rest-apis'
   }
 
+  // Fallback for AgentKit pages not registered in the sidebar map (e.g. /agentkit/sdks index)
+  // Routes through the 'connect' mapping which has path overrides for all /agentkit/* paths.
+  if (pathname.startsWith('/agentkit/') && sidebarToSecondaryNav['connect']) {
+    return resolveNavMapping(sidebarToSecondaryNav['connect'], pathname)
+  }
+
   return null
 }
 
