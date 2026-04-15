@@ -57,7 +57,7 @@ Create an environment in the [Scalekit dashboard](https://app.scalekit.com/):
 1. Copy your **Issuer URL** (e.g. `https://yourenv.scalekit.dev`), **Client ID** (`skc_...`), and **Client Secret** from **API Keys**.
 2. Register your redirect URI: `http://localhost:3000/auth/callback/scalekit`
 
-   > Auth.js v5 defaults to `/auth` as its base path — not `/api/auth`. The callback URL must match exactly or the OAuth flow will fail.
+   > This guide sets `basePath: "/auth"` in `auth.ts` — a custom override. The Auth.js v5 default is `/api/auth`. Register your redirect URI to match whatever `basePath` you configure or the OAuth flow will fail.
 
 3. Create an **Organization** and add an **SSO Connection** for your test IdP.
 4. Copy the **Connection ID** (`conn_...`) — you'll use it to route sign-in attempts during development.
@@ -272,7 +272,7 @@ AUTH_DEBUG=true pnpm dev
 
 ## Common mistakes
 
-1. **Wrong redirect URI** — registering `/api/auth/callback/scalekit` instead of `/auth/callback/scalekit`. Auth.js v5 changed the default `basePath` from `/api/auth` to `/auth`. The URI in Scalekit's dashboard must match the callback path Auth.js actually uses.
+1. **Wrong redirect URI** — registering `/api/auth/callback/scalekit` instead of `/auth/callback/scalekit`. This guide sets `basePath: "/auth"` (a custom override, not the v5 default — the default remains `/api/auth`). The URI in Scalekit's dashboard must match the callback path Auth.js actually uses.
 
 2. **Missing `AUTH_SECRET`** — sign-in appears to start but fails on the callback with no visible error. Always set `AUTH_SECRET`. Generate one with `npx auth secret`.
 
