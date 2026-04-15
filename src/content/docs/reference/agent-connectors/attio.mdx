@@ -1,6 +1,5 @@
 ---
 title: Attio
-description: Connect to Attio CRM to manage contacts, companies, deals, notes, tasks, and lists with a modern relationship management platform.
 tableOfContents: true
 head:
   - tag: style
@@ -20,7 +19,7 @@ import { UsageAttioSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
-  Connect to Attio to manage CRM records, people, companies, deals, tasks, notes, and workspace data
+  Connect to Attio CRM to manage contacts, companies, deals, notes, tasks, and lists with a modern relationship management platform.
  </div>
  <div class="flex justify-center">
   <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/attio.svg" width="64" height="64" alt="Attio logo" />
@@ -28,6 +27,7 @@ import { UsageAttioSection } from '@components/templates'
 </div>
 
 Supports authentication: <Badge text="OAuth 2.0" />
+
 
 ## Set up the agent connector
 
@@ -39,666 +39,544 @@ Supports authentication: <Badge text="OAuth 2.0" />
 
 ## Tool list
 
-## `attio_create_person`
-
-Create a new person record in Attio. Throws an error if a unique attribute like `email_addresses` conflicts with an existing record. The `values` object maps attribute slugs to their typed values — use `attio_list_attributes` on the `people` object first to discover available slugs and types.
-
-**Example `values`:**
-```json
-{
-  "name": [{ "first_name": "Alice", "last_name": "Smith" }],
-  "email_addresses": [{ "email_address": "alice@acme.com", "attribute_type": "email" }],
-  "company": [{ "target_record_id": "<company_record_id>" }]
-}
-```
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `values` | object | Yes | Attribute values keyed by attribute slug. Multi-value attributes (e.g., `email_addresses`, `phone_numbers`) must be arrays. Single-value attributes (e.g., `name`) must also be arrays with one item. |
-
-## `attio_list_people`
-
-List person records with optional filtering and sorting. Returns paginated results. Use `attio_list_attributes` on `people` to find filterable attribute slugs before building a `filter` object.
-
-**Filter example** — find people at a specific company:
-```json
-{ "company": [{ "target_record_id": "<company_record_id>" }] }
-```
-
-**Sort example** — most recently created first:
-```json
-[{ "direction": "desc", "attribute": "created_at" }]
-```
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `filter` | object | No | Attribute-based filter conditions. Keys are attribute slugs; values are match expressions |
-| `sorts` | array | No | Array of sort objects, each with `attribute` (slug) and `direction` (`asc` or `desc`) |
-| `limit` | integer | No | Number of records to return per page (default `500`) |
-| `offset` | integer | No | Number of records to skip for pagination (default `0`) |
-
-## `attio_get_person`
-
-Retrieve a single person record by its `record_id`. Returns all attribute values with temporal and audit metadata, including `created_by_actor` and `active_from`/`active_until` per value.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `record_id` | string | Yes | UUID of the person record to retrieve |
-
-## `attio_delete_person`
-
-Permanently delete a person record by its `record_id`. This operation is irreversible and cannot be undone. The underlying contact data, linked tasks, notes, and list entries associated with this person are also affected.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `record_id` | string | Yes | UUID of the person record to delete |
-
-## `attio_create_company`
-
-Create a new company record in Attio. Throws an error if a unique attribute like `domains` conflicts with an existing company. Use `attio_list_attributes` on `companies` to discover available attribute slugs.
-
-**Example `values`:**
-```json
-{
-  "name": [{ "value": "Acme Corp" }],
-  "domains": [{ "domain": "acme.com" }],
-  "description": [{ "value": "Enterprise SaaS company" }]
-}
-```
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `values` | object | Yes | Attribute values keyed by attribute slug. The `domains` attribute is unique — creating a company with an existing domain will throw a conflict error |
-
-## `attio_list_companies`
-
-List company records with optional filtering and sorting. Returns paginated results.
-
-**Filter example** — companies in a specific industry:
-```json
-{ "categories": [{ "value": "Software" }] }
-```
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `filter` | object | No | Attribute-based filter conditions |
-| `sorts` | array | No | Array of sort objects with `attribute` and `direction` |
-| `limit` | integer | No | Number of records per page (default `500`) |
-| `offset` | integer | No | Records to skip for pagination (default `0`) |
-
-## `attio_get_company`
-
-Retrieve a single company record by its `record_id`. Returns all attribute values with full audit metadata.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `record_id` | string | Yes | UUID of the company record to retrieve |
-
-## `attio_delete_company`
-
-Permanently delete a company record by its `record_id`. This operation is irreversible.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `record_id` | string | Yes | UUID of the company record to delete |
-
-## `attio_create_deal`
-
-Create a new deal record in Attio. Throws an error if a unique attribute conflict is detected. Provide at least one attribute value. Use `attio_list_attributes` on `deals` to discover available slugs.
-
-**Example `values`:**
-```json
-{
-  "name": [{ "value": "Acme Enterprise Contract" }],
-  "value": [{ "currency_value": 50000, "currency_code": "USD" }],
-  "stage": [{ "status": "In progress" }],
-  "associated_company": [{ "target_record_id": "<company_record_id>" }]
-}
-```
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `values` | object | Yes | Attribute values keyed by attribute slug |
-
-## `attio_list_deals`
-
-List deal records with optional filtering and sorting. Returns paginated results.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `filter` | object | No | Attribute-based filter conditions |
-| `sorts` | array | No | Array of sort objects with `attribute` and `direction` |
-| `limit` | integer | No | Number of records per page (default `500`) |
-| `offset` | integer | No | Records to skip for pagination (default `0`) |
-
-## `attio_get_deal`
-
-Retrieve a single deal record by its `record_id`. Returns all attribute values with temporal and audit metadata.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `record_id` | string | Yes | UUID of the deal record to retrieve |
-
-## `attio_delete_deal`
-
-Permanently delete a deal record by its `record_id`. This operation is irreversible.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `record_id` | string | Yes | UUID of the deal record to delete |
-
-## `attio_create_record`
-
-Create a new record for any Attio object type — including `people`, `companies`, `deals`, and custom objects. Use this as a generic alternative to `attio_create_person` / `attio_create_company` when the object type is dynamic. Throws an error if a unique attribute conflict is detected.
-
-**Example — create a custom object record:**
-```json
-{
-  "object": "projects",
-  "values": {
-    "name": [{ "value": "Q2 Migration" }],
-    "status": [{ "status": "active" }]
-  }
-}
-```
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `object` | string | Yes | Object type slug (e.g., `people`, `companies`, `deals`) or UUID — use `attio_list_objects` to discover available objects |
-| `values` | object | Yes | Attribute values keyed by attribute slug. Use `attio_list_attributes` on the target object to discover valid slugs and types |
-
-## `attio_list_records`
-
-List and filter records for any Attio object type. Returns guaranteed up-to-date data. Prefer this over `attio_search_records` when you need exact filtering by attribute value (e.g., find by email, status, or domain). Use `attio_search_records` for fuzzy, name-based lookups.
-
-**Example — filter people by email:**
-```json
-{
-  "object": "people",
-  "filter": { "email_addresses": [{ "email_address": { "$eq": "alice@acme.com" } }] }
-}
-```
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `object` | string | Yes | Object type slug or UUID |
-| `filter` | object | No | Attribute-based filter. Structure depends on attribute type — use `attio_list_attributes` to discover filter syntax per attribute |
-| `sorts` | array | No | Array of sort objects with `attribute` (slug) and `direction` (`asc`/`desc`) |
-| `limit` | integer | No | Records per page (default `500`) |
-| `offset` | integer | No | Records to skip for pagination (default `0`) |
-
-## `attio_search_records`
-
-Search records using a fuzzy text query. Returns matching records with their IDs, labels, and key attributes. Best for user-facing search (e.g., "find the company called Acme"). For precise attribute-based filtering, use `attio_list_records` instead.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `object` | string | Yes | Object type slug (e.g., `people`, `companies`, `deals`) |
-| `query` | string | Yes | Fuzzy text query matched against names, emails, and domains. Pass an empty string to return all records |
-| `limit` | integer | No | Number of results to return (default `20`) |
-| `offset` | integer | No | Results to skip for pagination (default `0`) |
-
-## `attio_get_record`
-
-Retrieve a specific record by object type and record ID. Returns the full record including all attribute values with their complete audit trail (`created_by_actor`, `active_from`, `active_until`).
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `object` | string | Yes | Object type slug or UUID |
-| `record_id` | string | Yes | UUID of the record to retrieve |
-
-## `attio_delete_record`
-
-Permanently delete a record by object type and record ID. This action is irreversible.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `object` | string | Yes | Object type slug or UUID |
-| `record_id` | string | Yes | UUID of the record to delete |
-
-## `attio_get_record_attribute_values`
-
-Retrieve all values for a specific attribute on a record. Useful for inspecting multi-value attributes (e.g., all email addresses on a person) or retrieving the full value history when `show_historic` is set. Not available for COMINT or enriched attributes.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `object` | string | Yes | Object type slug or UUID |
-| `record_id` | string | Yes | UUID of the record |
-| `attribute` | string | Yes | Attribute slug or UUID to retrieve values for |
-| `show_historic` | boolean | No | Set to `true` to include all historical values, not just the current ones |
-
-## `attio_create_task`
-
-Create a new task in Attio. Tasks can be linked to one or more CRM records and assigned to workspace members. Only plaintext is supported for task content.
-
-**`linked_records` structure:**
-```json
-[{ "target_object": "people", "target_record_id": "<person_record_id>" }]
-```
-
-**`assignees` structure** — use `attio_list_workspace_members` to get UUIDs:
-```json
-[{ "referenced_actor_type": "workspace-member", "referenced_actor_id": "<member_uuid>" }]
-```
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `content` | string | Yes | Task content in plaintext (max 2000 characters) |
-| `deadline_at` | string | No | ISO 8601 deadline timestamp including milliseconds and timezone, e.g. `2026-04-01T17:00:00.000Z` |
-| `is_completed` | boolean | No | Initial completion status (default: `false`) |
-| `linked_records` | array | No | Records to link this task to — each item needs `target_object` (slug) and `target_record_id` (UUID) |
-| `assignees` | array | No | Workspace members to assign the task to — each item needs `referenced_actor_type` (`workspace-member`) and `referenced_actor_id` (UUID) |
-
-## `attio_list_tasks`
-
-List tasks in Attio. Filter by linked record to retrieve tasks for a specific contact, company, or deal. Filter by completion status to show only open or completed tasks.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `linked_object` | string | No | Object type slug to filter tasks by linked record type (e.g., `people`, `companies`) |
-| `linked_record_id` | string | No | UUID of the record to filter tasks linked to a specific record — use with `linked_object` |
-| `is_completed` | boolean | No | Filter by completion status: `true` for completed, `false` for open, omit to return all |
-| `limit` | integer | No | Number of tasks to return (default `20`) |
-| `offset` | integer | No | Tasks to skip for pagination (default `0`) |
-
-## `attio_get_task`
-
-Retrieve a single task by its `task_id`. Returns the task content, deadline, completion status, assignees, and linked records.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `task_id` | string | Yes | UUID of the task to retrieve |
-
-## `attio_delete_task`
-
-Permanently delete a task by its `task_id`. This operation is irreversible.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `task_id` | string | Yes | UUID of the task to delete |
-
-## `attio_create_note`
-
-Create a note on a CRM record (person, company, deal, or custom object). Notes support plaintext or Markdown. Optionally backdate the note using `created_at` or associate it with an existing meeting via `meeting_id`.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `parent_object` | string | Yes | Object type slug the record belongs to (e.g., `people`, `companies`, `deals`) |
-| `parent_record_id` | string | Yes | UUID of the record to attach the note to |
-| `title` | string | No | Plaintext title for the note |
-| `content` | string | No | Note body — plaintext or Markdown depending on `format` |
-| `format` | string | No | Content format: `plaintext` (default) or `markdown` |
-| `created_at` | string | No | ISO 8601 timestamp to backdate the note (e.g., `2026-01-15T10:30:00Z`) — defaults to now |
-| `meeting_id` | string | No | UUID of an existing meeting to associate with this note |
-
-## `attio_list_notes`
-
-List notes in Attio. Filter by parent object and record to retrieve notes for a specific person, company, or deal. Maximum 50 results per page.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `parent_object` | string | No | Object type slug to filter notes by record type — must be provided together with `parent_record_id` |
-| `parent_record_id` | string | No | UUID of the record to filter notes — must be provided together with `parent_object` |
-| `limit` | integer | No | Number of notes to return (max `50`, default `10`) |
-| `offset` | integer | No | Notes to skip for pagination (default `0`) |
-
-## `attio_get_note`
-
-Retrieve a single note by its `note_id`. Returns the note's title, content in both plaintext and Markdown, tags, and creator information.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `note_id` | string | Yes | UUID of the note to retrieve |
-
-## `attio_delete_note`
-
-Permanently delete a note by its `note_id`. This operation is irreversible.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `note_id` | string | Yes | UUID of the note to delete |
-
-## `attio_create_comment`
-
-Create a comment on a CRM record or list entry. To comment on a record, provide `record_object` and `record_id`. To comment on a list entry, provide `list_id` and `entry_id`. To reply to an existing thread, include `thread_id`. Content is always plaintext.
-
-Use `attio_list_workspace_members` to look up the `author_actor_id` UUID.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `author_actor_id` | string | Yes | UUID of the workspace member authoring the comment — retrieve with `attio_list_workspace_members` |
-| `content` | string | Yes | Comment content in plaintext |
-| `record_object` | string | No | Object type slug when commenting on a record (e.g., `people`, `companies`) |
-| `record_id` | string | No | UUID of the record to comment on |
-| `list_id` | string | No | UUID of the list when commenting on a list entry |
-| `entry_id` | string | No | UUID of the list entry to comment on |
-| `thread_id` | string | No | UUID of an existing comment thread to reply to — omit to start a new thread |
-
-## `attio_get_comment`
-
-Retrieve a single comment by its `comment_id`. Returns the comment content, author, thread ID, and resolution status.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `comment_id` | string | Yes | UUID of the comment to retrieve |
-
-## `attio_delete_comment`
-
-Permanently delete a comment by its `comment_id`. If the comment is the head of a thread, all replies in that thread are also deleted.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `comment_id` | string | Yes | UUID of the comment to delete |
-
-## `attio_list_threads`
-
-List all comment threads on a record or list entry. Returns all threads with their messages and resolution status.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `record_object` | string | No | Object type slug when listing threads for a record |
-| `record_id` | string | No | UUID of the record |
-| `list_id` | string | No | UUID of the list when listing threads for a list entry |
-| `entry_id` | string | No | UUID of the list entry |
-
-## `attio_list_lists`
-
-Retrieve all CRM lists in the Attio workspace. Lists track pipeline stages, outreach targets, or custom groupings of records. Optionally filter returned entries by a specific parent record.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `parent_record_id` | string | No | Filter list entries to those belonging to this record UUID |
-| `parent_object` | string | No | Object type slug to scope entry filtering (use with `parent_record_id`) |
-
-## `attio_create_list`
-
-Create a new CRM list in Attio. After creation, add custom attributes with `attio_create_attribute` and add records with `attio_add_to_list`.
-
-**`workspace_member_access` structure** — to give a specific member full access:
-```json
-[{ "workspace_member_id": "<member_uuid>", "level": "full-access" }]
-```
-Pass an empty array `[]` to rely solely on `workspace_access` for all members.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `name` | string | Yes | Display name for the list |
-| `api_slug` | string | Yes | URL-safe identifier used in API calls (e.g., `q2-outreach`) |
-| `workspace_access` | string | Yes | Default access for all workspace members: `full-access`, `read-and-write`, or `read-only` |
-| `workspace_member_access` | array | Yes | Per-member access overrides — each item needs `workspace_member_id` and `level`. Pass `[]` for uniform access |
-
-## `attio_get_list`
-
-Retrieve details of a single list by its UUID or slug, including its name, parent object type, and access configuration.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `list` | string | Yes | List UUID or API slug |
-
-## `attio_list_entries`
-
-List entries in a given Attio list. Returns the records that belong to the list along with any list-specific attribute values (e.g., pipeline stage, entry date).
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `list` | string | Yes | List UUID or API slug |
-| `filter` | object | No | Filter conditions on list-level attributes |
-| `sorts` | array | No | Sort objects with `attribute` and `direction` |
-| `limit` | integer | No | Number of entries to return |
-| `offset` | integer | No | Entries to skip for pagination |
-
-## `attio_get_list_entry`
-
-Retrieve a single list entry by its `entry_id`. Returns detailed information about the entry including list-specific attribute values.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `list` | string | Yes | List UUID or API slug |
-| `entry_id` | string | Yes | UUID of the list entry to retrieve |
-
 ## `attio_add_to_list`
 
-Add a record to a specific Attio list. Returns the newly created list entry with its `entry_id` — save this if you need to remove the entry later. If the record is already in the list, a new entry is created (Attio supports multiple entries per record in the same list).
-
-Optionally set list-level attribute values (e.g., pipeline stage) on the entry using `entry_values`.
-
-**`entry_values` example** — set stage on add:
-```json
-{ "stage": [{ "status": "Qualified" }] }
-```
+Add a record (contact, company, deal, or custom object) to a specific Attio list. Returns the newly created list entry with its entry ID, which can be used to remove it later. If the record is already in the list, a new entry is created.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `list` | string | Yes | List UUID or API slug |
-| `record_id` | string | Yes | UUID of the record to add |
-| `entry_values` | object | No | Attribute values to set on the list entry itself (not the underlying record). Keys are list attribute slugs |
-
-## `attio_remove_from_list`
-
-Remove a specific entry from an Attio list by its `entry_id`. Deletes the list entry but does not delete the underlying record. Use the `entry_id` returned by `attio_add_to_list` or `attio_list_record_entries`.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `list` | string | Yes | List UUID or API slug |
-| `entry_id` | string | Yes | UUID of the list entry to remove — this is the entry ID, not the record ID |
-
-## `attio_list_record_entries`
-
-List all list memberships for a specific record across all lists. Returns the list IDs, entry IDs, and creation timestamps — useful for finding the `entry_id` needed to remove a record from a list.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `object` | string | Yes | Object type slug or UUID |
-| `record_id` | string | Yes | UUID of the record |
-
-## `attio_list_objects`
-
-Retrieve all objects available in the Attio workspace — both system objects (`people`, `companies`, `deals`, `users`, `workspaces`) and any custom objects. Call this first to discover what object types exist before querying or writing records.
-
-This tool takes no input parameters.
-
-## `attio_get_object`
-
-Retrieve details of a single object by its slug or UUID, including its display name, API slug, and whether it is system-defined or custom.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `object` | string | Yes | Object slug (e.g., `people`, `companies`) or UUID |
-
-## `attio_create_object`
-
-Create a new custom object type in the Attio workspace. Use this when you need an object beyond the standard types. After creation, add attributes with `attio_create_attribute`.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `singular_noun` | string | Yes | Singular display name (e.g., `Project`) |
-| `plural_noun` | string | Yes | Plural display name (e.g., `Projects`) |
-| `api_slug` | string | Yes | URL-safe identifier used in API calls (e.g., `projects`) |
-
-## `attio_list_attributes`
-
-List the attribute schema for an object or list — including slugs, types, and configuration for `select`/`status` attributes. **Call this before filtering or writing** to confirm the correct slugs and understand the expected value structure for each attribute type.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `object` | string | No | Object slug or UUID to list attributes for (e.g., `people`, `companies`) |
-| `list` | string | No | List slug or UUID to list attributes for |
-
-## `attio_get_attribute`
-
-Retrieve full details of a single attribute including its type, slug, configuration, required/unique flags, and metadata.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `object` | string | No | Object slug or UUID containing the attribute |
-| `list` | string | No | List slug or UUID containing the attribute |
-| `attribute` | string | Yes | Attribute slug or UUID |
+| `entry_values` | `object` | No | Optional attribute values to set on the list entry itself (not the underlying record). Keys are attribute slugs, values are the data to set. Example: `{"stage": "qualified"}` |
+| `list_id` | string | Yes | The UUID of the Attio list to add the record to. Use the List Lists tool (attio_list_lists) to retrieve available lists and their UUIDs. |
+| `parent_object` | string | Yes | The object type slug the record belongs to. Must match the object type the list is configured for — run attio_list_lists to check the list's parent object before adding. |
+| `parent_record_id` | string | Yes | The UUID of the record to add to the list. Must be a valid UUID — obtain this from search or list records results. |
 
 ## `attio_create_attribute`
 
-Create a new attribute on an object or list. The required `type` determines the structure of the `config` object.
-
-**Supported `type` values:**
-`text`, `number`, `select`, `multiselect`, `status`, `date`, `timestamp`, `checkbox`, `currency`, `record-reference`, `actor-reference`, `location`, `domain`, `email-address`, `phone-number`, `interaction`
-
-**`config` by type:**
-- Most types (text, number, date, checkbox, etc.): pass `{}`
-- `select` / `multiselect`: pass `{}` — add options via `attio_list_attribute_options` after creation
-- `record-reference`: pass `{ "relationship": { "object": "<target_object_slug>" } }`
+Creates a new attribute on an Attio object or list. Requires api_slug, title, type, description, is_required, is_unique, is_mct, and config. The config object varies by type — for most types pass an empty object `{}`. For select/multiselect, config can include options. For record-reference, config includes the target object.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `object` | string | No | Object slug or UUID to add the attribute to (provide either `object` or `list`) |
-| `list` | string | No | List slug or UUID to add the attribute to |
-| `api_slug` | string | Yes | URL-safe identifier for the attribute — must be unique within the object |
-| `title` | string | Yes | Display name shown in the Attio UI |
-| `type` | string | Yes | Attribute data type — see supported values above |
-| `description` | string | Yes | Human-readable description of what this attribute stores |
-| `is_required` | boolean | Yes | Whether a value is required when creating records of this type |
-| `is_unique` | boolean | Yes | Whether values must be unique across all records |
-| `is_multiselect` | boolean | Yes | Whether multiple values are allowed per record |
-| `config` | object | Yes | Type-specific configuration — pass `{}` for most types; see examples above |
+| `api_slug` | string | Yes | Snake_case identifier for the new attribute. Must be unique within the object. |
+| `config` | `object` | Yes | Type-specific configuration object. For most types (text, number, date, checkbox, etc.) pass an empty object `{}`. For record-reference, pass `{"relationship": {"object": "companies"}}`. |
+| `description` | string | Yes | Human-readable description of what this attribute is used for. |
+| `is_multiselect` | boolean | Yes | Whether this attribute allows multiple values per record. |
+| `is_required` | boolean | Yes | Whether this attribute is required when creating records of this object type. |
+| `is_unique` | boolean | Yes | Whether values for this attribute must be unique across all records of this object type. |
+| `object` | string | Yes | Slug or UUID of the object to create the attribute on. Common slugs: people, companies, deals. |
+| `title` | string | Yes | Human-readable display title for the attribute. |
+| `type` | string | Yes | Data type of the attribute. Supported values: text, number, select, multiselect, status, date, timestamp, checkbox, currency, record-reference, actor-reference, location, domain, email-address, phone-number, interaction. |
 
-## `attio_list_attribute_options`
+## `attio_create_comment`
 
-List all select options for a `select` or `multiselect` attribute. Returns option IDs, titles, and color configuration. Use this before writing to a select attribute to confirm valid option values.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `object` | string | No | Object slug or UUID containing the attribute |
-| `list` | string | No | List slug or UUID containing the attribute |
-| `attribute` | string | Yes | Attribute slug or UUID of the `select` or `multiselect` attribute |
-
-## `attio_list_attribute_statuses`
-
-List all statuses for a `status` attribute, including their IDs, titles, and celebration configuration. Use this before writing to a status attribute to confirm valid status titles.
+Creates a new comment on a record in Attio. Requires author_id (workspace member UUID), content, record_object (e.g. people, companies, deals), and record_id. Optionally provide thread_id to reply to an existing thread. Format is always plaintext.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `object` | string | No | Object slug or UUID containing the attribute |
-| `list` | string | No | List slug or UUID containing the attribute |
-| `attribute` | string | Yes | Attribute slug or UUID of the `status` attribute |
+| `author_id` | string | Yes | UUID of the workspace member who is authoring the comment. Use the List Workspace Members tool to find member UUIDs. |
+| `content` | string | Yes | Plaintext content of the comment. |
+| `record_id` | string | Yes | UUID of the record to attach the comment to. |
+| `record_object` | string | Yes | Object slug or UUID of the record to comment on. Common slugs: people, companies, deals. |
+| `thread_id` | string | No | UUID of an existing comment thread to reply to. Leave empty to start a new top-level comment. |
 
-## `attio_list_workspace_members`
+## `attio_create_company`
 
-List all workspace members. Use this to retrieve member UUIDs needed when assigning task owners, setting `actor-reference` attributes, or identifying comment authors.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `limit` | integer | No | Number of members to return |
-| `offset` | integer | No | Members to skip for pagination |
-
-## `attio_get_workspace_member`
-
-Retrieve a single workspace member by their UUID. Returns name, email address, access level, and avatar information.
+Creates a new company record in Attio. Throws an error on conflicts of unique attributes like domains. Use Assert Company if you prefer to update on conflicts. Note: The logo_url attribute cannot currently be set via the API.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspace_member_id` | string | Yes | UUID of the workspace member to retrieve |
+| `values` | `object` | Yes | Attribute values for the new company record. |
 
-## `attio_list_user_records`
+## `attio_create_deal`
 
-List user records in Attio with optional filtering and sorting. User records represent end-users of the connected product and are distinct from workspace members. Returns paginated results.
+Creates a new deal record in Attio. Throws an error on conflicts of unique attributes. Provide at least one attribute value in the values field.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `filter` | object | No | Attribute-based filter conditions |
-| `sorts` | array | No | Array of sort objects with `attribute` and `direction` |
-| `limit` | integer | No | Number of records to return |
-| `offset` | integer | No | Records to skip for pagination |
+| `values` | `object` | Yes | Attribute values for the new deal record. |
+
+## `attio_create_list`
+
+Creates a new list in Attio. Requires workspace_access (one of: full-access, read-and-write, read-only) and workspace_member_access array. After creation, add attributes using Create Attribute and records using Create Entry.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `api_slug` | string | Yes | Snake_case identifier for the new list used in API access. |
+| `name` | string | Yes | Human-readable display name for the new list. |
+| `parent_object` | string | Yes | Object slug the list tracks. Must be a valid object slug such as people, companies, or deals. |
+| `workspace_access` | string | Yes | Access level for all workspace members. Must be one of: full-access, read-and-write, read-only. Use full-access to give all members full control. |
+| `workspace_member_access` | `array<object>` | No | Optional array of per-member access overrides. Leave empty for uniform access via workspace_access. Each item: `{"workspace_member_id": "uuid", "level": "full-access"}`. |
+
+## `attio_create_note`
+
+Create a note on an Attio record (person, company, deal, or custom object). Notes support plaintext or Markdown formatting. You can optionally backdate the note by specifying a created_at timestamp, or associate it with an existing meeting via meeting_id.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `content` | string | Yes | Body of the note. Use plain text or Markdown depending on the format field. Line breaks are supported via \n in plaintext mode. IMPORTANT: This input field is called 'content', NOT 'content_markdown'. The field 'content_markdown' only appears in the API response and is not a valid input. |
+| `created_at` | string | No | ISO 8601 timestamp for backdating the note. Defaults to the current time if not provided. Example: "2024-01-15T10:30:00Z" |
+| `format` | string | Yes | Format of the note content. Must be either "plaintext" or "markdown". |
+| `meeting_id` | string | No | UUID of an existing meeting to associate with this note. Optional. |
+| `parent_object` | string | Yes | The slug or UUID of the parent object the note will be attached to. Common slugs: "people", "companies", "deals". |
+| `parent_record_id` | string | Yes | UUID of the parent record the note will be attached to. |
+| `title` | string | Yes | Plaintext title for the note. No formatting is allowed in the title. |
+
+## `attio_create_object`
+
+Creates a new custom object in the Attio workspace. Use when you need an object type beyond the standard types (people, companies, deals, users, workspaces).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `api_slug` | string | Yes | Snake_case identifier for the new object. |
+| `plural_noun` | string | Yes | Plural noun for the new object type. |
+| `singular_noun` | string | Yes | Singular noun for the new object type. |
+
+## `attio_create_person`
+
+Creates a new person record in Attio. Throws an error on conflicts of unique attributes like email_addresses. Use Assert Person if you prefer to update on conflicts. Note: The avatar_url attribute cannot currently be set via the API.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `values` | `object` | Yes | Attribute values for the new person record. |
+
+## `attio_create_record`
+
+Create a new record in Attio for a given object type (e.g. people, companies, deals). Provide attribute values as a JSON object mapping attribute API slugs or IDs to their values. Throws an error if a unique attribute conflict is detected — use the Assert Record endpoint instead to upsert on conflict.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `object` | string | Yes | The slug or UUID of the object type to create the record in. Common slugs: "people", "companies", "deals". |
+| `values` | `object` | Yes | Attribute values for the new record. Keys are attribute API slugs or UUIDs; values are the data to set. For multi-value attributes, supply an array. Example for a person: `{"name": [{"first_name": "Alice", "last_name": "Smith"}], "email_addresses": [{"email_address": "alice@example.com"}]}` |
+
+## `attio_create_task`
+
+Create a new task in Attio. Tasks can be linked to one or more records (people, companies, deals, etc.) and assigned to workspace members. Supports setting a deadline and initial completion status. Only plaintext format is supported for task content.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `assignees` | `array<object>` | No | Array of assignees for this task. Each item must have either referenced_actor_id (UUID) with referenced_actor_type set to workspace-member, or workspace_member_email_address. Example: [`{"referenced_actor_type": "workspace-member", "referenced_actor_id": "d4a8e6f2-3b1c-4d5e-9f0a-1b2c3d4e5f6a"}`] |
+| `content` | string | Yes | The text content of the task. Maximum 2000 characters. Only plaintext is supported. |
+| `deadline_at` | string | Yes | ISO 8601 datetime for the task deadline. Must include milliseconds and timezone, e.g. 2024-03-31T17:00:00.000Z. |
+| `is_completed` | boolean | No | Whether the task is already completed. Defaults to false. |
+| `linked_records` | `array<object>` | No | Array of records to link this task to. Each item must have a target_object (slug or UUID) and either target_record_id (UUID) or an attribute-based match. Example: [`{"target_object": "people", "target_record_id": "bf071e1f-6035-429d-b874-d83ea64ea13b"}`] |
+
+## `attio_delete_comment`
+
+Permanently deletes a comment by its comment_id. If the comment is at the head of a thread, all messages in the thread are also deleted.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `comment_id` | string | Yes | The unique identifier of the comment to delete. |
+
+## `attio_delete_company`
+
+Permanently deletes a company record from Attio by its record_id. This operation is irreversible.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `record_id` | string | Yes | The unique identifier of the company record to delete. |
+
+## `attio_delete_deal`
+
+Permanently deletes a deal record from Attio by its record_id. This operation is irreversible.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `record_id` | string | Yes | The unique identifier of the deal record to delete. |
+
+## `attio_delete_note`
+
+Permanently deletes a note from Attio by its note_id. This operation is irreversible.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `note_id` | string | Yes | The unique identifier of the note to delete. |
+
+## `attio_delete_person`
+
+Permanently deletes a person record from Attio by its record_id. This operation is irreversible.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `record_id` | string | Yes | The unique identifier of the person record to delete. |
+
+## `attio_delete_record`
+
+Permanently delete a record from Attio by its object type and record ID. This action is irreversible. Returns an empty response on success. Returns 404 if the record does not exist.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `object` | string | Yes | The slug or UUID of the object type the record belongs to. Common slugs: "people", "companies", "deals". |
+| `record_id` | string | Yes | The UUID of the record to delete. |
+
+## `attio_delete_task`
+
+Permanently deletes a task from Attio by its task_id. This operation is irreversible.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `task_id` | string | Yes | The unique identifier of the task to delete. |
 
 ## `attio_delete_user_record`
 
-Permanently delete a user record by its `record_id`. This operation is irreversible.
+Permanently deletes a user record from Attio by its record_id. This operation is irreversible.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `record_id` | string | Yes | UUID of the user record to delete |
-
-## `attio_list_workspace_records`
-
-List workspace records in Attio with optional filtering and sorting. Workspace records represent instances of connected SaaS products (e.g., a Slack workspace). Returns paginated results.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `filter` | object | No | Attribute-based filter conditions |
-| `sorts` | array | No | Array of sort objects with `attribute` and `direction` |
-| `limit` | integer | No | Number of records to return |
-| `offset` | integer | No | Records to skip for pagination |
-
-## `attio_get_workspace_record`
-
-Retrieve a single workspace record by its `record_id`. Returns all attribute values with temporal and audit metadata.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `record_id` | string | Yes | UUID of the workspace record to retrieve |
-
-## `attio_delete_workspace_record`
-
-Permanently delete a workspace record by its `record_id`. This operation is irreversible.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `record_id` | string | Yes | UUID of the workspace record to delete |
-
-## `attio_list_webhooks`
-
-Retrieve all webhooks configured in the Attio workspace. Returns webhook configurations, event subscriptions, and statuses.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `limit` | integer | No | Number of webhooks to return |
-| `offset` | integer | No | Webhooks to skip for pagination |
-
-## `attio_get_webhook`
-
-Retrieve a single webhook by its `webhook_id`. Returns the target URL, subscribed event types, current status, and metadata.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `webhook_id` | string | Yes | UUID of the webhook to retrieve |
+| `record_id` | string | Yes | The unique identifier of the user record to delete. |
 
 ## `attio_delete_webhook`
 
-Permanently delete a webhook by its `webhook_id`. This operation is irreversible.
+Permanently deletes a webhook by its webhook_id from Attio. This operation is irreversible.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `webhook_id` | string | Yes | UUID of the webhook to delete |
+| `webhook_id` | string | Yes | The unique identifier of the webhook to delete. |
 
-## `attio_list_meetings`
+## `attio_delete_workspace_record`
 
-List all meetings in the Attio workspace. Optionally filter by participants or linked records.
-
-<Aside type="caution">
-This tool is in beta and may change without notice.
-</Aside>
+Permanently deletes a workspace record from Attio by its record_id. This operation is irreversible.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `filter` | object | No | Filter conditions (e.g., by participant UUIDs or linked record IDs) |
-| `limit` | integer | No | Number of meetings to return |
-| `offset` | integer | No | Meetings to skip for pagination |
+| `record_id` | string | Yes | The unique identifier of the workspace record to delete. |
+
+## `attio_get_attribute`
+
+Retrieves details of a single attribute on an Attio object or list, including its type, slug, configuration, and metadata.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `attribute` | string | Yes | Attribute slug or UUID. |
+| `object` | string | Yes | Object slug or UUID. |
+
+## `attio_get_comment`
+
+Retrieves a single comment by its comment_id in Attio. Returns the comment's content, author, thread, and resolution status.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `comment_id` | string | Yes | The unique identifier of the comment. |
+
+## `attio_get_company`
+
+Retrieves a single company record by its record_id from Attio. Returns all attribute values with temporal and audit metadata.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `record_id` | string | Yes | The unique identifier of the company record. |
 
 ## `attio_get_current_token_info`
 
-Identify the current access token, the workspace it belongs to, the actor that authenticated, and the OAuth scopes granted. Use this to verify a user's token is active, confirm which workspace is connected, and check permissions before making write calls.
+Identifies the current access token, the workspace it is linked to, and its permissions. Use to verify token validity or retrieve workspace information.
 
-This tool takes no input parameters. It returns:
+## `attio_get_deal`
 
-| Field | Type | Description |
-| --- | --- | --- |
-| `active` | boolean | Whether the token is currently active and usable |
-| `workspace.id` | string | UUID of the connected Attio workspace |
-| `workspace.name` | string | Display name of the connected Attio workspace |
-| `actor.type` | string | Who authenticated — `workspace-member` for a user OAuth token, `api-token` for a service token |
-| `actor.id` | string | UUID of the workspace member or API token |
-| `actor.name` | string | Display name of the authenticated actor |
-| `actor.email` | string | Email address of the workspace member (present for `workspace-member` actors only) |
-| `scopes` | array | OAuth scopes granted to this token (e.g., `record_permission:read`, `note:read-write`) |
+Retrieves a single deal record by its record_id from Attio. Returns all attribute values with temporal and audit metadata.
 
-**When to call this:**
-- After a user completes OAuth — confirm the connection succeeded and identify which workspace they authorized.
-- Before a write operation — verify the required scope is in `scopes` to give a clear error rather than a cryptic API rejection.
-- When debugging — check `active` is `true` and that expected scopes are present.
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `record_id` | string | Yes | The unique identifier of the deal record. |
+
+## `attio_get_list`
+
+Retrieves details of a single list in the Attio workspace by its UUID or slug.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `list_id` | string | Yes | The unique identifier or slug of the list. |
+
+## `attio_get_list_entry`
+
+Retrieves a single list entry by its entry_id. Returns detailed information about a specific entry in an Attio list.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entry_id` | string | Yes | The unique identifier of the list entry. |
+| `list_id` | string | Yes | The unique identifier or slug of the list. |
+
+## `attio_get_note`
+
+Retrieves a single note by its note_id in Attio. Returns the note's title, content (plaintext and markdown), tags, and creator information.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `note_id` | string | Yes | The unique identifier of the note. |
+
+## `attio_get_object`
+
+Retrieves details of a single object by its slug or UUID in Attio.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `object` | string | Yes | Object slug or UUID. |
+
+## `attio_get_person`
+
+Retrieves a single person record by its record_id from Attio. Returns all attribute values with temporal and audit metadata.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `record_id` | string | Yes | The unique identifier of the person record. |
+
+## `attio_get_record`
+
+Retrieve a specific record from Attio by its object type and record ID. Returns the full record including all attribute values with their complete audit trail (created_by_actor, active_from, active_until). Supports people, companies, deals, and custom objects.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `object` | string | Yes | The slug or UUID of the object type the record belongs to. Common slugs: "people", "companies", "deals". |
+| `record_id` | string | Yes | The UUID of the record to retrieve. |
+
+## `attio_get_record_attribute_values`
+
+Retrieves all values for a given attribute on a record in Attio. Can include historic values using show_historic parameter. Not available for COMINT or enriched attributes.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `attribute` | string | Yes | Attribute slug or UUID. |
+| `object` | string | Yes | Object slug or UUID. |
+| `record_id` | string | Yes | The unique identifier of the record. |
+| `show_historic` | boolean | No | Whether to include historic values. |
+
+## `attio_get_task`
+
+Retrieves a single task by its task_id in Attio. Returns the task's content, deadline, assignees, and linked records.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `task_id` | string | Yes | The unique identifier of the task. |
+
+## `attio_get_webhook`
+
+Retrieves a single webhook by its webhook_id in Attio. Returns the webhook's target URL, event subscriptions, status, and metadata.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `webhook_id` | string | Yes | The unique identifier of the webhook. |
+
+## `attio_get_workspace_member`
+
+Retrieves a single workspace member by their workspace_member_id. Returns name, email, access level, and avatar information.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `workspace_member_id` | string | Yes | The unique identifier of the workspace member. |
+
+## `attio_get_workspace_record`
+
+Retrieves a single workspace record by its record_id from Attio. Returns all attribute values with temporal and audit metadata.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `record_id` | string | Yes | The unique identifier of the workspace record. |
+
+## `attio_list_attribute_options`
+
+Lists all select options for a select or multiselect attribute on an Attio object or list.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `attribute` | string | Yes | Attribute slug or UUID of the select/multiselect attribute. |
+| `object` | string | Yes | Object slug or UUID. |
+
+## `attio_list_attribute_statuses`
+
+Lists all statuses for a status attribute on an Attio object or list. Returns status IDs, titles, and configuration.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `attribute` | string | Yes | Attribute slug or UUID of the status attribute. |
+| `object` | string | Yes | Object slug or UUID. |
+
+## `attio_list_attributes`
+
+Lists the attribute schema for an Attio object or list, including slugs, types, and select/status configuration. Use to discover what attributes exist and their types before filtering or writing.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `object` | string | Yes | Object slug or UUID to list attributes for. |
+
+## `attio_list_companies`
+
+Lists company records in Attio with optional filtering and sorting. Use filter and sorts fields to narrow results. Returns paginated results.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `filter` | `object` | No | Filter criteria for querying companies. |
+| `limit` | number | No | Maximum number of records to return. |
+| `offset` | number | No | Number of records to skip for pagination. |
+| `sorts` | `array<object>` | No | Sorting criteria for the results. |
+
+## `attio_list_deals`
+
+Lists deal records in Attio with optional filtering and sorting. Returns paginated results.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `filter` | `object` | No | Filter criteria for querying deals. |
+| `limit` | number | No | Maximum number of records to return. |
+| `offset` | number | No | Number of records to skip for pagination. |
+| `sorts` | `array<object>` | No | Sorting criteria for the results. |
+
+## `attio_list_entries`
+
+Lists entries in a given Attio list with optional filtering and sorting. Returns records that belong to the specified list.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `filter` | `object` | No | Filter criteria for querying entries. |
+| `limit` | number | No | Maximum number of entries to return. |
+| `list_id` | string | Yes | The unique identifier or slug of the list. |
+| `offset` | number | No | Number of entries to skip for pagination. |
+| `sorts` | `array<object>` | No | Sorting criteria for the results. |
+
+## `attio_list_lists`
+
+Retrieve all CRM lists available in the Attio workspace, along with their entries for a specific record. Lists are used to track pipeline stages, outreach targets, or custom groupings of records. Optionally filter entries by a parent record ID and object type.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `limit` | number | No | Maximum number of list entries to return per list. Defaults to 20. |
+| `offset` | number | No | Number of list entries to skip for pagination. Defaults to 0. |
+
+## `attio_list_meetings`
+
+Lists all meetings in the Attio workspace. Optionally filter by participants or linked records. This endpoint is in beta.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `limit` | number | No | Maximum number of results to return. |
+| `offset` | number | No | Number of results to skip for pagination. |
+
+## `attio_list_notes`
+
+List notes in Attio. Optionally filter by a parent object and record to retrieve notes attached to a specific person, company, deal, or other object. Supports pagination via limit (max 50) and offset.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `limit` | number | No | Maximum number of notes to return. Default is 10, maximum is 50. |
+| `offset` | number | No | Number of notes to skip before returning results. Default is 0. Use with limit for pagination. |
+| `parent_object` | string | No | Filter notes by parent object slug or UUID. Examples: "people", "companies", "deals". Must be provided together with parent_record_id to filter by a specific record. |
+| `parent_record_id` | string | No | Filter notes by parent record UUID. Must be provided together with parent_object. |
+
+## `attio_list_objects`
+
+Retrieves all available objects (both system-defined and user-defined) in the Attio workspace. Fundamental for understanding workspace structure.
+
+## `attio_list_people`
+
+Lists person records in Attio with optional filtering and sorting. Use filter and sorts fields to narrow results. Returns paginated results.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `filter` | `object` | No | Filter criteria for querying people. |
+| `limit` | number | No | Maximum number of records to return. |
+| `offset` | number | No | Number of records to skip for pagination. |
+| `sorts` | `array<object>` | No | Sorting criteria for the results. |
+
+## `attio_list_record_entries`
+
+Lists all entries across all lists for which a specific record is the parent in Attio. Returns list IDs, slugs, entry IDs, and creation timestamps.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `object` | string | Yes | Object slug or UUID. |
+| `record_id` | string | Yes | The unique identifier of the parent record. |
+
+## `attio_list_records`
+
+List and query records for a specific Attio object type (e.g. people, companies, deals). Supports filtering by attribute values, sorting, and pagination with limit and offset. Returns guaranteed up-to-date data unlike the Search Records endpoint.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `filter` | `object` | No | Filter object to narrow results to a subset of records. Structure depends on the attributes of the target object. Example: `{"email_addresses": {"email_address": {"$eq": "alice@example.com"}}}` |
+| `limit` | number | No | Maximum number of records to return. Defaults to 500. |
+| `object` | string | Yes | The slug or UUID of the object type to list records for. Common slugs: "people", "companies", "deals". |
+| `offset` | number | No | Number of records to skip before returning results. Defaults to 0. Use with limit for pagination. |
+| `sorts` | `array<object>` | No | Array of sort objects to order results. Each sort object specifies a direction ("asc" or "desc"), an attribute slug or ID, and an optional field. Example: [`{"direction": "asc", "attribute": "name"}`] |
+
+## `attio_list_tasks`
+
+List tasks in Attio, optionally filtered by linked record. Returns tasks with their content, deadline, completion status, assignees, and linked records. Use record filters to retrieve tasks associated with a specific contact, company, or deal.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `is_completed` | boolean | No | Filter tasks by completion status. Set to true to return only completed tasks, false for only incomplete tasks, or omit to return all tasks. |
+| `limit` | number | No | Maximum number of tasks to return. Defaults to 20. |
+| `linked_object` | string | No | Filter tasks linked to records of this object type. Use with linked_record_id. Common slugs: "people", "companies", "deals". |
+| `linked_record_id` | string | No | Filter tasks linked to this specific record UUID. Use with linked_object to specify the object type. |
+| `offset` | number | No | Number of tasks to skip for pagination. Defaults to 0. |
+
+## `attio_list_threads`
+
+Lists threads of comments on a record or list entry in Attio. Returns all comment threads associated with a specific record or list entry.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `parent_object` | string | Yes | Object slug of the parent record. |
+| `parent_record_id` | string | Yes | The unique identifier of the parent record. |
+
+## `attio_list_user_records`
+
+Lists user records in Attio with optional filtering and sorting. Returns paginated results.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `filter` | `object` | No | Filter criteria for querying user records. |
+| `limit` | number | No | Maximum number of records to return. |
+| `offset` | number | No | Number of records to skip for pagination. |
+| `sorts` | `array<object>` | No | Sorting criteria for the results. |
+
+## `attio_list_webhooks`
+
+Retrieves all webhooks in the Attio workspace. Returns webhook configurations, subscriptions, and statuses. Supports optional limit and offset pagination parameters.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `limit` | number | No | Maximum number of webhooks to return. |
+| `offset` | number | No | Number of webhooks to skip for pagination. |
+
+## `attio_list_workspace_members`
+
+Lists all workspace members in the Attio workspace. Use to retrieve workspace member IDs needed for assigning owners or actor-reference attributes.
+
+## `attio_list_workspace_records`
+
+Lists workspace records in Attio with optional filtering and sorting. Returns paginated results.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `filter` | `object` | No | Filter criteria for querying workspace records. |
+| `limit` | number | No | Maximum number of records to return. |
+| `offset` | number | No | Number of records to skip for pagination. |
+| `sorts` | `array<object>` | No | Sorting criteria for the results. |
+
+## `attio_remove_from_list`
+
+Remove a specific entry from an Attio list by its entry ID. This deletes the list entry but does not delete the underlying record. Obtain the entry ID from the Add to List response or by querying list entries. Returns 404 if the entry does not exist.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entry_id` | string | Yes | The UUID of the list entry to remove. This is the entry ID returned when the record was added to the list, not the record ID itself. |
+| `list_id` | string | Yes | The slug or UUID of the Attio list to remove the entry from. |
+
+## `attio_search_records`
+
+Search for records in Attio for a given object type (people, companies, deals, or custom objects) using a fuzzy text query. Returns matching records with their IDs, labels, and key attributes.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `limit` | integer | No | Maximum number of results to return per page. Defaults to 20. |
+| `object` | string | Yes | The slug or UUID of the object type to search within. Common slugs: "people", "companies", "deals". |
+| `offset` | integer | No | Number of results to skip for pagination. Defaults to 0. |
+| `query` | string | Yes | Fuzzy text search string matched against names, emails, domains, phone numbers, and social handles. Pass an empty string to return all records. |
+
+## `attio_update_record`
+
+Update an existing record's attributes in Attio. For multiselect attributes, the supplied values will overwrite (replace) the existing list of values. Use the Append Multiselect endpoint instead if you want to add values without removing existing ones. Supports people, companies, deals, and custom objects. IMPORTANT: Prefer using specific update tools when available — use attio_update_person for people records, attio_update_company for company records, attio_update_deal for deal records, attio_update_task for tasks, attio_update_attribute for attributes, attio_update_list for lists, attio_update_list_entry for list entries, attio_update_webhook for webhooks, attio_update_workspace_record for workspace records, and attio_update_user_record for user records. Use this generic tool only for custom objects or when no specific tool exists.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `object` | string | Yes | The slug or UUID of the object type the record belongs to. Common slugs: "people", "companies", "deals". |
+| `record_id` | string | Yes | The UUID of the record to update. |
+| `values` | `object` | Yes | Attribute values to update. Keys are attribute API slugs; values are the new data. For multiselect attributes, the supplied array replaces all existing values. |

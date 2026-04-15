@@ -1,0 +1,87 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your Twitter app credentials with Scalekit so it can manage the OAuth 2.0 authentication flow and token lifecycle on your behalf. You'll need a **Client ID** and **Client Secret** from the <a href="https://developer.twitter.com/en/portal/dashboard" target="_blank" rel="noopener">Twitter Developer Portal</a>.
+
+<Steps>
+1. ### Create a Twitter connection in Scalekit
+
+   - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**. Search for **Twitter** and click **Create**.
+
+     ![Search for Twitter and create a new connection in Scalekit Agent Auth](@/assets/docs/agent-connectors/twitter/scalekit-search-twitter.png)
+
+   - In the **Configure Twitter Connection** panel, copy the **Redirect URI**. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`. You'll paste this into Twitter in the next step.
+
+     ![Copy the Redirect URI from the Configure Twitter Connection panel](@/assets/docs/agent-connectors/twitter/configure-twitter-connection.png)
+
+2. ### Create an app in the Twitter Developer Portal
+
+   - Go to the <a href="https://developer.twitter.com/en/portal/dashboard" target="_blank" rel="noopener">Twitter Developer Portal</a> and sign in.
+
+   - Click **+ Add App** (or **+ Create Project** to group apps by environment).
+
+     ![Twitter Developer Portal showing Projects and Apps with the Add App button](@/assets/docs/agent-connectors/twitter/twitter-developer-portal.png)
+
+   - Select **Production** environment and give your app a name.
+
+3. ### Configure user authentication settings
+
+   - In your app's overview, find **User authentication settings** and click **Set up**.
+
+     ![Twitter app User authentication settings panel](@/assets/docs/agent-connectors/twitter/twitter-user-auth-settings.png)
+
+   - Set the following values:
+
+     | Setting | Value |
+     |---|---|
+     | **App permissions** | **Read and Write** — needed to post and manage content on behalf of users |
+     | **Type of App** | **Web App, Automated App or Bot** |
+     | **Callback URI / Redirect URL** | Paste the Redirect URI from Scalekit |
+     | **Website URL** | Your application's public homepage |
+
+   - Click **Save**.
+
+4. ### Copy OAuth 2.0 credentials
+
+   - In your app, navigate to **Keys and tokens**.
+
+   - Under **OAuth 2.0 Client ID and Client Secret**, click **Generate** (or **Regenerate** if credentials already exist).
+
+   - Copy the **Client ID** and **Client Secret**.
+
+     ![Twitter app Keys and tokens page showing Client ID and Client Secret](@/assets/docs/agent-connectors/twitter/twitter-oauth-credentials.png)
+
+   <Aside type="caution" title="Client secret is shown once">
+     The Client Secret is masked after the initial creation. If you lose it, regenerate it in the Twitter Developer Portal — this invalidates all existing user tokens.
+   </Aside>
+
+5. ### Add credentials in Scalekit
+
+   - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the Twitter connection you created.
+
+   - Enter your credentials:
+     - **Client ID** — from the Twitter OAuth 2.0 section
+     - **Client Secret** — copied in the previous step
+     - **Scopes** — select the permissions your app needs:
+       - `tweet.read` — read tweets and timelines
+       - `tweet.write` — create, delete, and manage tweets
+       - `users.read` — read user profile data
+       - `follows.read` — read follower/following lists
+       - `follows.write` — follow and unfollow users
+       - `like.read` — read liked tweets
+       - `like.write` — like and unlike tweets
+       - `bookmark.read` — read bookmarked tweets
+       - `bookmark.write` — add and remove bookmarks
+       - `list.read` — read list membership and tweets
+       - `list.write` — create, update, and delete lists
+       - `dm.read` — read direct messages
+       - `dm.write` — send direct messages
+       - `mute.read` — read muted users
+       - `mute.write` — mute and unmute users
+       - `block.read` — read blocked users
+       - `block.write` — block and unblock users
+       - `offline.access` — obtain refresh tokens for long-lived access
+
+     ![Scalekit Twitter connection with Client ID, Client Secret, and scopes configured](@/assets/docs/agent-connectors/twitter/twitter-credentials-filled.png)
+
+   - Click **Save**.
+</Steps>

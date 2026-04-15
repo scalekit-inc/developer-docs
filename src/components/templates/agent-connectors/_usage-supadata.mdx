@@ -1,0 +1,71 @@
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+Once a connected account is set up, make API calls through the Scalekit proxy. Scalekit injects the Supadata API key automatically as the `x-api-key` header — you never handle credentials in your application code.
+
+You can interact with Supadata in two ways — via direct proxy API calls or via Scalekit optimized tool calls. Scroll down to see the list of available Scalekit tools.
+
+## Proxy API calls
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const connectionName = 'supadata'; // connection name from your Scalekit dashboard
+    const identifier = 'user_123';    // your user's unique identifier
+
+    // Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    const actions = scalekit.actions;
+
+    // Get a YouTube transcript via Scalekit proxy — no API key needed here
+    const result = await actions.request({
+      connectionName,
+      identifier,
+      path: '/v1/youtube/transcript',
+      method: 'GET',
+      queryParams: { videoId: 'dQw4w9WgXcQ', text: 'true' },
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    connection_name = "supadata"  # connection name from your Scalekit dashboard
+    identifier = "user_123"       # your user's unique identifier
+
+    # Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+    actions = scalekit_client.actions
+
+    # Get a YouTube transcript via Scalekit proxy — no API key needed here
+    result = actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/v1/youtube/transcript",
+        method="GET",
+        params={"videoId": "dQw4w9WgXcQ", "text": True}
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="tip" title="No OAuth flow needed">
+  Supadata uses API key auth — unlike OAuth connectors, there is no authorization link or redirect flow. Once you call `upsert_connected_account` (Python) / `upsertConnectedAccount` (Node.js), or add an account via the dashboard, your users can make requests immediately.
+</Aside>
+
+## Scalekit tools

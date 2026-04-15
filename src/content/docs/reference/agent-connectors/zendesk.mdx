@@ -1,6 +1,5 @@
 ---
 title: Zendesk
-description: Connect to Zendesk. Manage customer support tickets, users, organizations, and help desk operations
 tableOfContents: true
 head:
   - tag: style
@@ -16,6 +15,7 @@ head:
 import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
 import { Accordion, AccordionItem } from 'accessible-astro-components'
 import { SetupZendeskSection } from '@components/templates'
+import { UsageZendeskSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
@@ -32,6 +32,10 @@ Supports authentication: <Badge text="API KEY" />
 ## Set up the agent connector
 
 <SetupZendeskSection />
+
+## Usage
+
+<UsageZendeskSection />
 
 ## Tool list
 
@@ -64,15 +68,34 @@ List all organizations in Zendesk with pagination support.
 
 ## `zendesk_search_tickets`
 
-Search Zendesk tickets using a query string. Supports Zendesk's search syntax (e.g., 'type:ticket status:open'). Returns up to 1000 results with pagination.
+Search Zendesk tickets using a query string. Supports Zendesk's search syntax (e.g., 'type:ticket status:open'). Zendesk limits search results to 1,000 total — the maximum valid page is floor(1000 / per_page) (e.g., per_page=100 → max page 10, per_page=25 → max page 40). Stop paginating when next_page is null or you reach the max page; requesting beyond the limit returns a 400 error.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `page` | number | No | Page number for pagination |
-| `per_page` | number | No | Number of results per page (max 100) |
+| `page` | number | No | Page number for pagination. Max valid page = floor(1000 / per_page). Do not exceed this — Zendesk returns a 400 error beyond the 1,000 result limit. |
+| `per_page` | number | No | Number of results per page (max 100). Determines the max page ceiling: floor(1000 / per_page). Higher values mean fewer pages but a lower max page number. |
 | `query` | string | Yes | Search query string using Zendesk search syntax (e.g., 'type:ticket status:open assignee:me') |
 | `sort_by` | string | No | Field to sort results by (updated_at, created_at, priority, status, ticket_type) |
 | `sort_order` | string | No | Sort direction: asc or desc (default: desc) |
+
+## `zendesk_side_conversation_get`
+
+Retrieve a specific side conversation on a Zendesk ticket by its ID. Returns the side conversation's state, subject, participants, preview text, and timestamps. Requires the Collaboration add-on.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `include` | string | No | Sideloads to include alongside the response. Use 'side_conversation_events' to include the full event history of the side conversation. |
+| `side_conversation_id` | string | Yes | The ID of the side conversation to retrieve |
+| `ticket_id` | number | Yes | The ID of the parent ticket |
+
+## `zendesk_side_conversations_list`
+
+List all side conversations on a Zendesk ticket. Returns side conversations including their state, subject, participants, and preview text. Requires the Collaboration add-on.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `include` | string | No | Sideloads to include alongside the response. Use 'side_conversation_events' to include the full event history for each side conversation. |
+| `ticket_id` | number | Yes | The ID of the ticket whose side conversations to list |
 
 ## `zendesk_ticket_comments_list`
 

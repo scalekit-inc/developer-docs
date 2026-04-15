@@ -1,10 +1,6 @@
 ---
 title: Exa
-description: Connect to Exa for AI-powered semantic web search, content enrichment, finding similar pages, website crawling, direct answers, structured research, and large-scale URL discovery.
-tags: [agent-connectors, exa, search, web-scraping, research, ai, semantic-search]
 tableOfContents: true
-sidebar:
-  label: Exa
 head:
   - tag: style
     content: |
@@ -14,68 +10,12 @@ head:
       table td:first-child, table th:first-child {
         white-space: nowrap;
       }
-      /* Heading copy functionality */
-      .sl-markdown-content h2,
-      .sl-markdown-content h3,
-      .sl-markdown-content h4 {
-        position: relative;
-        cursor: pointer;
-      }
-      .sl-markdown-content h2:hover::after,
-      .sl-markdown-content h3:hover::after,
-      .sl-markdown-content h4:hover::after {
-        content: " 📋 ";
-        font-size: 0.8em;
-        opacity: 0.7;
-      }
-  - tag: script
-    content: |
-      // Using a self-executing function to avoid global namespace pollution
-      (function() {
-        // Function to initialize the copy functionality
-        function initHeadingCopy() {
-          const headings = document.querySelectorAll('.sl-markdown-content h2, .sl-markdown-content h3, .sl-markdown-content h4');
-
-          headings.forEach(heading => {
-            // Skip if already initialized
-            if (heading.hasAttribute('data-copy-initialized')) return;
-            heading.setAttribute('data-copy-initialized', 'true');
-
-            heading.addEventListener('click', async () => {
-              const headingText = heading.textContent.replace(/\s📋$/, '').trim();
-
-              try {
-                await navigator.clipboard.writeText(headingText);
-
-                // Visual feedback
-                const originalText = heading.textContent;
-                heading.textContent = heading.textContent.replace(/\s📋$/, '') + ' ✓';
-
-                setTimeout(() => {
-                  heading.textContent = originalText;
-                }, 2000);
-              } catch (err) {
-                console.error('Failed to copy heading:', err);
-              }
-            });
-          });
-        }
-
-        // Initialize on DOMContentLoaded
-        document.addEventListener('DOMContentLoaded', initHeadingCopy);
-
-        // Also initialize now in case the DOM is already loaded
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-          setTimeout(initHeadingCopy, 1);
-        }
-
-        // For Astro's client-side navigation
-        document.addEventListener('astro:page-load', initHeadingCopy);
-      })();
 ---
 
 import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
 import { Accordion, AccordionItem } from 'accessible-astro-components'
+import { SetupExaSection } from '@components/templates'
+import { UsageExaSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
@@ -88,26 +28,14 @@ import { Accordion, AccordionItem } from 'accessible-astro-components'
 
 Supports authentication: <Badge text="API Key" />
 
-<details>
-<summary>What you can build with this connector</summary>
-
-| Use case | Tools involved |
-|---|---|
-| **Semantic lead research** | `exa_search` (category: company) → `exa_get_contents` (summaries) |
-| **Competitive intelligence** | `exa_find_similar` → `exa_get_contents` → `exa_research` |
-| **Real-time Q&A grounding** | `exa_answer` → feed answer + sources into LLM context |
-| **Bulk URL discovery** | `exa_websets` (thousands of results) → `exa_get_contents` |
-| **Documentation indexing** | `exa_crawl` (follow internal links) → chunk and embed |
-| **Structured market reports** | `exa_research` (with `output_schema`) → structured JSON output |
-
-**Key concepts:**
-- **Neural vs keyword search**: `neural` (default) finds conceptually related pages even when your exact words don't appear. Use `keyword` for precise product names, quotes, or code identifiers.
-- **Credits**: Every request costs credits. Requesting `text`, `highlights`, or `summary` costs extra per result. Omitting content fields returns metadata only and saves credits.
-- **`exa_research` vs `exa_search`**: Use `exa_search` for targeted queries. Use `exa_research` when you need multi-angle synthesis across many sources — it runs sub-queries in parallel and costs significantly more.
-
-</details>
 
 ## Set up the agent connector
+
+<SetupExaSection />
+
+## Usage
+
+<UsageExaSection />
 
 ## Tool list
 
@@ -222,7 +150,7 @@ Search the web using Exa's AI-powered semantic or keyword search engine. Support
 
 ## `exa_websets`
 
-Execute a complex web query designed to discover and return large sets of URLs (up to thousands) matching specific criteria. Websets are ideal for lead generation, market research, competitor analysis, and large-scale data collection. Returns a webset ID — poll status with GET `/websets/v0/websets/&#123;id&#125;`. High credit consumption.
+Execute a complex web query designed to discover and return large sets of URLs (up to thousands) matching specific criteria. Websets are ideal for lead generation, market research, competitor analysis, and large-scale data collection. Returns a webset ID — poll status with GET /websets/v0/websets/\&#123;id\&#125;. High credit consumption.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |

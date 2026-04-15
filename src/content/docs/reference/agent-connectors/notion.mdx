@@ -1,7 +1,5 @@
 ---
 title: Notion
-description: Connect to Notion workspace. Create, edit pages, manage databases, and collaborate on content
-tags: [agent-connectors, notion, database, documentation, oauth, integration, tool]
 tableOfContents: true
 head:
   - tag: style
@@ -109,13 +107,44 @@ Fetch data from Notion using the workspace search API (/search). Supports pagina
 | `start_cursor` | string | No | Cursor for pagination; pass the previous response's next_cursor |
 | `tool_version` | string | No | Optional tool version to use for execution |
 
+## `notion_data_source_fetch`
+
+Retrieve a Notion database's schema, title, and properties using the Notion 2025-09-03 API. Unlike notion_database_fetch, this returns a data_sources array — each entry contains a data_source_id required by notion_data_source_query and notion_data_source_insert_row. Use this as the first step when working with merged, synced, or multi-source databases. For standard single-source databases, notion_database_fetch is sufficient. LLM guidance: extract data_sources\[0].id (or the relevant source) from the response and pass it to the query or insert tools.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `database_id` | string | Yes | The target database ID in UUID format with hyphens. |
+
+## `notion_data_source_insert_row`
+
+Create a new row (page) in a Notion data source using the 2025-09-03 API. Required for merged, synced, or multi-source databases — these require parent.data_source_id instead of parent.database_id which the older notion_database_insert_row uses. Provide the data_source_id from notion_data_source_fetch (data_sources\[].id) and a properties object mapping column names to Notion property value shapes. Optionally attach child blocks (page content), an icon, or a cover image. LLM guidance: step 1 — call notion_data_source_fetch to get the data_source_id; step 2 — build the properties object using exact column names from the schema (use 'title' key for title-type fields); step 3 — call this tool.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `child_blocks` | `array<unknown>` | No | Optional array of Notion blocks to append as page content. |
+| `cover` | `object` | No | Optional page cover object. Example: `{"type":"external","external":{"url":"https://example.com/cover.jpg"}}` |
+| `data_source_id` | string | Yes | The ID of the data source to insert a row into. Retrieve from notion_database_fetch response under data_sources[].id. |
+| `icon` | `object` | No | Optional page icon object. Example: `{"type":"emoji","emoji":"📝"}` |
+| `properties` | `object` | Yes | Object mapping column names (or property ids) to property values. Example: `{"title": {"title": [{"text": {"content": "Task A"}}]}, "Status": {"select": {"name": "Todo"}}}` |
+
+## `notion_data_source_query`
+
+Query rows (pages) from a Notion data source using the 2025-09-03 API. Required for merged, synced, or multi-source databases — these cannot be queried via notion_database_query as that tool uses the older /databases/\&#123;id\&#125;/query endpoint which does not support multiple data sources. Provide the data_source_id obtained from notion_data_source_fetch (data_sources\[].id). Supports filtering by property values, sorting, and cursor-based pagination. LLM guidance: step 1 — call notion_data_source_fetch with the database_id to retrieve the data_source_id; step 2 — pass that id here along with an optional filter, sorts, and page_size.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `data_source_id` | string | Yes | The ID of the data source to query. Retrieve from notion_database_fetch response under data_sources[].id. |
+| `filter` | `object` | No | Notion filter object to narrow results. Example: `{"property": "Status", "select": {"equals": "Done"}}`. Supports compound filters with 'and'/'or' arrays. |
+| `page_size` | integer | No | Maximum number of rows to return (1-100). |
+| `sorts` | `array<object>` | No | Order the results. Each item must include either property or timestamp, plus direction. |
+| `start_cursor` | string | No | Cursor to fetch the next page of results. |
+
 ## `notion_database_create`
 
 Create a new database in Notion under a parent page. Provide a parent object with page_id, a database title (rich_text array), and a properties object that defines the database schema (columns).
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `notion_version` | string | No | Optional override for the Notion-Version header (e.g., 2022-06-28). |
 | `parent` | `object` | Yes | Parent object specifying the page under which the database is created. Example: `{"page_id": "2561ab6c-418b-8072-beec-c4779fa811cf"}` |
 | `properties` | `object` | Yes | Database schema object defining properties (columns). Example: `{"Name": {"title": {}}, "Status": {"select": {"options": [{"name": "Todo"}, {"name": "Doing"}, {"name": "Done"}]}}}` |
 | `schema_version` | string | No | Internal override for schema version. |
@@ -124,14 +153,11 @@ Create a new database in Notion under a parent page. Provide a parent object wit
 
 ## `notion_database_fetch`
 
-Retrieve a Notion database’s full definition, including title, properties, and schema. Required: `database_id` (hyphenated UUID). LLM tip: Extract the last 32 characters from a Notion database URL, then insert hyphens (8-4-4-4-12).
+Retrieve a Notion database's full definition, including title, properties, and schema. Required: database_id (hyphenated UUID). LLM tip: Extract the last 32 characters from a Notion database URL, then insert hyphens (8-4-4-4-12).
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `database_id` | string | Yes | The target database ID in UUID format with hyphens. |
-| `notion_version` | string | No | Optional override for the Notion-Version header. |
-| `schema_version` | string | No | Optional schema version override. |
-| `tool_version` | string | No | Optional tool version override. |
 
 ## `notion_database_insert_row`
 
@@ -160,7 +186,6 @@ LLM guidance:
 | `cover` | `object` | No | Optional page cover object. Example external: `{"type":"external","external":{"url":"https://example.com/cover.jpg"}}`. |
 | `database_id` | string | Yes | Target database ID (hyphenated UUID). |
 | `icon` | `object` | No | Optional page icon object. Examples: `{"type":"emoji","emoji":"📝"}` or `{"type":"external","external":{"url":"https://..."}}`. |
-| `notion_version` | string | No | Optional Notion-Version header override (e.g., 2022-06-28). |
 | `properties` | `object` | Yes | Object mapping **column names (or property ids)** to **property values**. ️ **CRITICAL: Property Identification Rules:** - For title fields: ALWAYS use 'title' as the property key (not 'Name' or display names) - For other properties: Use exact property names from database schema (case-sensitive) - DO NOT use URL-encoded property IDs with special characters  **Recommended Workflow:** 1. Call fetch_database first to see exact property names 2. Use 'title' for title-type properties 3. Match other property names exactly as shown in schema Example: `{ "title": { "title": [ { "text": { "content": "Task A" } } ] }, "Status": { "select": { "name": "Todo" } }, "Due": { "date": { "start": "2025-09-01" } } }` |
 | `schema_version` | string | No | Optional schema version override. |
 | `tool_version` | string | No | Optional tool version override. |
@@ -178,12 +203,12 @@ Query a Notion database and return only specific properties by supplying one or 
 
 ## `notion_database_query`
 
-Query a Notion database for rows (pages). Provide database_id (hyphenated UUID). Optional: page_size, start_cursor for pagination, and sorts (array of sort objects). LLM guidance: extract the last 32 characters from a Notion database URL and insert hyphens (8-4-4-4-12) to form database_id. Sort rules: each sort item MUST include either property OR timestamp (last_edited_time/created_time), not both.
+Query a Notion database for rows (pages) using the 2022-06-28 API. Works for standard single-source databases. NOTE: If you encounter an 'Invalid request URL' error or are working with a merged, synced, or multi-source database, use the newer data source tools instead — call notion_data_source_fetch with the database_id to get the data_source_id, then call notion_data_source_query with that id. Provide database_id (hyphenated UUID). Optional: filter (Notion filter object), page_size (default 10), start_cursor for pagination, and sorts. LLM guidance: extract the last 32 characters from a Notion database URL and insert hyphens (8-4-4-4-12) to form database_id. Sort rules: each sort item MUST include either property OR timestamp (last_edited_time/created_time), not both.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `database_id` | string | Yes | Target database ID (hyphenated UUID). |
-| `notion_version` | string | No | Optional Notion-Version header override. |
+| `filter` | `object` | No | Notion filter object to narrow results. Example: `{"property": "Status", "select": {"equals": "Done"}}`. Supports compound filters with 'and'/'or' arrays. |
 | `page_size` | integer | No | Maximum number of rows to return (1–100). |
 | `schema_version` | string | No | Optional schema version override. |
 | `sorts` | `array<object>` | No | Order the results. Each item must include either property or timestamp, plus direction. |
@@ -203,12 +228,12 @@ Update a Notion database's title, description, or property schema.
 
 ## `notion_page_content_append`
 
-Append blocks to a Notion page or block. Supports paragraph, heading_1/2/3, bulleted_list_item, numbered_list_item, code, quote, callout, and divider block types.
+Append blocks to a Notion page or block. IMPORTANT: This tool uses a simplified block format — do NOT pass raw Notion API block objects. Each block takes a 'type' and a 'text' string (plain text only). The tool internally converts these into the Notion API format. Supported types: paragraph, heading_1, heading_2, heading_3, bulleted_list_item, numbered_list_item, code, quote, callout, divider. For code blocks, add a 'language' field. Dividers require only the 'type' field. Example: \[`{"type": "heading_1", "text": "My Title"}`, `{"type": "paragraph", "text": "Some content"}`, `{"type": "code", "text": "print('hi')", "language": "python"}`, `{"type": "divider"}`].
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `block_id` | string | Yes | The ID of the page or block to append content to |
-| `blocks` | `array<object>` | Yes | Array of blocks to append. Each block has a type and text (plus optional language for code blocks). |
+| `blocks` | `array<object>` | Yes | Array of blocks to append. Each block uses a simplified format with 'type' and 'text' fields — NOT the raw Notion API format. Do not pass Notion block objects with rich_text arrays. |
 
 ## `notion_page_content_get`
 
@@ -250,6 +275,18 @@ Retrieve a Notion page by its ID. Returns the page properties, metadata, and par
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `page_id` | string | Yes | The ID of the Notion page to retrieve |
+
+## `notion_page_search`
+
+Search Notion pages by text query. Returns matching pages with their titles, IDs, and metadata. Optionally sort by last_edited_time or created_time, and paginate with start_cursor.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `page_size` | integer | No | Maximum number of pages to return (1–100). |
+| `query` | string | No | Text to search for across Notion pages. |
+| `sort_direction` | string | No | Direction to sort results. |
+| `sort_timestamp` | string | No | Timestamp field to sort results by. |
+| `start_cursor` | string | No | Cursor to fetch the next page of results. |
 
 ## `notion_page_update`
 

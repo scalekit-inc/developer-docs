@@ -1,6 +1,5 @@
 ---
 title: Figma
-description: Connect to Figma API v1. Read and write files, manage components, styles, variables, webhooks, and dev resources. Enterprise features include library analytics and activity logs.
 tableOfContents: true
 head:
   - tag: style
@@ -13,12 +12,14 @@ head:
       }
 ---
 
-import { Badge, Aside } from '@astrojs/starlight/components'
-import { SetupFigmaSection, UsageFigmaSection } from '@components/templates'
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
+import { SetupFigmaSection } from '@components/templates'
+import { UsageFigmaSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
-  Connect to Figma API v1. Read and write files, manage components, styles, variables, webhooks, and dev resources. Enterprise features include library analytics and activity logs.
+  Connect to Figma to access user files, teams, projects, and design metadata via OAuth 2.0
  </div>
  <div class="flex justify-center">
   <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/figma.svg" width="64" height="64" alt="Figma logo" />
@@ -26,6 +27,7 @@ import { SetupFigmaSection, UsageFigmaSection } from '@components/templates'
 </div>
 
 Supports authentication: <Badge text="OAuth 2.0" />
+
 
 ## Set up the agent connector
 
@@ -35,109 +37,20 @@ Supports authentication: <Badge text="OAuth 2.0" />
 
 <UsageFigmaSection />
 
-## `figma_me_get`
+## Tool list
 
-Returns the authenticated user's profile information including name, email, handle, and profile image URL. No parameters required.
+## `figma_activity_logs_list`
 
-## `figma_file_get`
-
-Returns a Figma file's full document tree including all nodes, components, styles, and metadata.
+Returns activity log events for an organization (Enterprise only). Includes events for file edits, permissions changes, and user actions.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the Figma file (found in the file URL) |
-| `version` | string | No | A specific version ID to retrieve; omit for the latest version |
-| `ids` | string | No | Comma-separated list of node IDs to limit the response to specific nodes |
-| `depth` | integer | No | Maximum depth of the document tree to return |
-| `geometry` | string | No | Set to `paths` to export vector path data for nodes |
-| `plugin_data` | string | No | Comma-separated list of plugin IDs to include plugin-specific data |
-| `branch_data` | boolean | No | Whether to include branch metadata in the response |
-
-## `figma_file_nodes_get`
-
-Returns specific nodes from a Figma file by their node IDs, along with their children and associated styles and components.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the Figma file |
-| `ids` | string | Yes | Comma-separated list of node IDs to fetch |
-| `version` | string | No | A specific version ID to retrieve |
-| `depth` | integer | No | Maximum depth of the subtree to return |
-| `geometry` | string | No | Set to `paths` to export vector path data |
-| `plugin_data` | string | No | Comma-separated list of plugin IDs for plugin-specific data |
-
-## `figma_file_images_render`
-
-Renders nodes from a Figma file as images (PNG, JPG, SVG, or PDF) and returns download URLs.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the Figma file |
-| `ids` | string | Yes | Comma-separated list of node IDs to render |
-| `scale` | number | No | Image scale factor between 0.01 and 4 (default: 1) |
-| `format` | string | No | Output format: `png`, `jpg`, `svg`, or `pdf` (default: `png`) |
-| `svg_include_id` | boolean | No | Whether to include node IDs as attributes in SVG output |
-| `svg_simplify_stroke` | boolean | No | Whether to simplify inside/outside strokes in SVG output |
-| `use_absolute_bounds` | boolean | No | Whether to use the node's absolute bounding box for cropping |
-| `version` | string | No | A specific version ID to render |
-
-## `figma_file_image_fills_get`
-
-Returns download URLs for all image fills used in a Figma file. Image fills are images applied as fills to nodes.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the Figma file |
-
-## `figma_file_versions_list`
-
-Returns the version history of a Figma file, including version IDs, labels, descriptions, and creation timestamps.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the Figma file |
-| `page_size` | integer | No | Number of versions to return per page |
-| `before` | integer | No | Cursor for backward pagination; returns versions before this version ID |
-| `after` | integer | No | Cursor for forward pagination; returns versions after this version ID |
-
-## `figma_file_comments_list`
-
-Returns all comments on a Figma file, including their text, author, position, and resolved status.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the Figma file |
-| `as_md` | boolean | No | Whether to return comment text formatted as Markdown |
-
-## `figma_file_comment_create`
-
-Posts a new comment on a Figma file. Can be placed at a specific canvas position or anchored to a specific node.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the Figma file |
-| `message` | string | Yes | The text content of the comment |
-| `client_meta` | object | No | Coordinates or node anchor for placing the comment on the canvas |
-| `comment_id` | string | No | ID of the parent comment to reply to an existing thread |
-
-## `figma_file_comment_delete`
-
-Deletes a specific comment from a Figma file. Only the comment author or file owner can delete a comment.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the Figma file |
-| `comment_id` | string | Yes | The ID of the comment to delete |
-
-## `figma_comment_reactions_list`
-
-Returns a list of emoji reactions on a specific comment in a Figma file.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the Figma file |
-| `comment_id` | string | Yes | The ID of the comment to list reactions for |
-| `cursor` | string | No | Pagination cursor for fetching the next page of results |
+| `cursor` | string | No | Cursor from previous response for pagination. |
+| `end_time` | integer | No | Unix timestamp (seconds) to stop fetching events at. |
+| `event_type` | string | No | Filter by a specific event type, e.g. 'file.update'. |
+| `limit` | integer | No | Maximum number of events to return (1-1000, default 100). |
+| `order` | string | No | Sort order: asc or desc by timestamp. Default is desc. |
+| `start_time` | integer | No | Unix timestamp (seconds) to start fetching events from. |
 
 ## `figma_comment_reaction_create`
 
@@ -145,9 +58,9 @@ Adds an emoji reaction to a comment in a Figma file.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the Figma file |
-| `comment_id` | string | Yes | The ID of the comment to react to |
-| `emoji` | string | Yes | The emoji to add as a reaction (e.g., `:heart:`, `:+1:`) |
+| `comment_id` | string | Yes | The ID of the comment to react to. |
+| `emoji` | string | Yes | The emoji to react with (e.g. ':thumbsup:'). |
+| `file_key` | string | Yes | The unique key of the Figma file. |
 
 ## `figma_comment_reaction_delete`
 
@@ -155,17 +68,19 @@ Removes the authenticated user's emoji reaction from a comment in a Figma file.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the Figma file |
-| `comment_id` | string | Yes | The ID of the comment to remove the reaction from |
-| `emoji` | string | Yes | The emoji reaction to remove (e.g., `:heart:`, `:+1:`) |
+| `comment_id` | string | Yes | The ID of the comment to remove reaction from. |
+| `emoji` | string | Yes | The emoji reaction to remove (e.g. ':thumbsup:'). |
+| `file_key` | string | Yes | The unique key of the Figma file. |
 
-## `figma_file_components_list`
+## `figma_comment_reactions_list`
 
-Returns a list of all published components in a Figma file, including their keys, names, descriptions, and thumbnails.
+Returns a list of emoji reactions on a specific comment in a Figma file.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the Figma file |
+| `comment_id` | string | Yes | The ID of the comment to get reactions for. |
+| `cursor` | string | No | Pagination cursor for next page of results. |
+| `file_key` | string | Yes | The unique key of the Figma file. |
 
 ## `figma_component_get`
 
@@ -173,15 +88,7 @@ Returns metadata for a published component by its key, including name, descripti
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `key` | string | Yes | The key of the published component (from `figma_file_components_list`) |
-
-## `figma_file_component_sets_list`
-
-Returns all published component sets in a Figma file.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the Figma file |
+| `key` | string | Yes | The unique key of the component. |
 
 ## `figma_component_set_get`
 
@@ -189,117 +96,7 @@ Returns metadata for a published component set (a group of related component var
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `key` | string | Yes | The key of the published component set |
-
-## `figma_team_components_list`
-
-Returns all published components in a Figma team library, with pagination support.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `team_id` | string | Yes | The ID of the Figma team |
-| `page_size` | integer | No | Number of components to return per page |
-| `after` | integer | No | Cursor for forward pagination |
-| `before` | integer | No | Cursor for backward pagination |
-
-## `figma_team_component_sets_list`
-
-Returns all published component sets in a Figma team library, with pagination support.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `team_id` | string | Yes | The ID of the Figma team |
-| `page_size` | integer | No | Number of component sets to return per page |
-| `after` | integer | No | Cursor for forward pagination |
-| `before` | integer | No | Cursor for backward pagination |
-
-## `figma_file_styles_list`
-
-Returns all published styles in a Figma file, including color, text, effect, and grid styles.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the Figma file |
-
-## `figma_style_get`
-
-Returns metadata for a published style by its key, including name, description, style type, and containing file information.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `key` | string | Yes | The key of the published style |
-
-## `figma_team_styles_list`
-
-Returns all published styles in a Figma team library, with pagination support.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `team_id` | string | Yes | The ID of the Figma team |
-| `page_size` | integer | No | Number of styles to return per page |
-| `after` | integer | No | Cursor for forward pagination |
-| `before` | integer | No | Cursor for backward pagination |
-
-## `figma_file_variables_local_get`
-
-Returns all local variables and variable collections defined in a Figma file. Requires the `file_variables:read` scope.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the Figma file |
-
-## `figma_file_variables_published_get`
-
-Returns all published variables and variable collections from a Figma file's library. Requires the `file_variables:read` scope.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the Figma file |
-
-## `figma_file_variables_update`
-
-Creates, updates, or deletes variables and variable collections in a Figma file. Accepts a JSON payload describing the changes. Requires the `file_variables:write` scope.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the Figma file |
-| `variableCollections` | array | No | Variable collection changes: create, update, or delete collections |
-| `variableModes` | array | No | Variable mode changes: create, update, or delete modes within collections |
-| `variables` | array | No | Variable changes: create, update, or delete individual variables |
-
-## `figma_team_get`
-
-Returns metadata about a Figma team, including its name and member count.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `team_id` | string | Yes | The ID of the Figma team |
-
-## `figma_team_projects_list`
-
-Returns all projects within a Figma team that the authenticated user has access to.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `team_id` | string | Yes | The ID of the Figma team |
-
-## `figma_project_files_list`
-
-Returns all files in a Figma project, including file keys, names, thumbnails, and last modified timestamps.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `project_id` | string | Yes | The ID of the Figma project |
-| `branch_data` | boolean | No | Whether to include branch metadata for each file |
-
-## `figma_dev_resources_list`
-
-Returns dev resources (links to external tools like Storybook, Jira, etc.) attached to nodes in a Figma file.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the Figma file |
-| `node_id` | string | No | Filter results to dev resources attached to a specific node ID |
+| `key` | string | Yes | The unique key of the component set. |
 
 ## `figma_dev_resource_create`
 
@@ -307,21 +104,10 @@ Creates a dev resource (external link) attached to a node in a Figma file, such 
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the Figma file |
-| `node_id` | string | Yes | The ID of the node to attach the dev resource to |
-| `name` | string | Yes | Display name for the dev resource link |
-| `url` | string | Yes | The URL of the external resource |
-
-## `figma_dev_resource_update`
-
-Updates an existing dev resource attached to a node in a Figma file.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the Figma file |
-| `dev_resource_id` | string | Yes | The ID of the dev resource to update |
-| `name` | string | No | Updated display name for the dev resource |
-| `url` | string | No | Updated URL for the dev resource |
+| `file_key` | string | Yes | The key of the Figma file containing the target node. |
+| `name` | string | Yes | Display name for the dev resource link. |
+| `node_id` | string | Yes | The ID of the node to attach the dev resource to. |
+| `url` | string | Yes | The URL of the external resource. |
 
 ## `figma_dev_resource_delete`
 
@@ -329,65 +115,223 @@ Permanently deletes a dev resource from a node in a Figma file.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the Figma file |
-| `dev_resource_id` | string | Yes | The ID of the dev resource to delete |
+| `dev_resource_id` | string | Yes | The ID of the dev resource to delete. |
+| `file_key` | string | Yes | The key of the Figma file containing the dev resource. |
 
-## `figma_webhook_create`
+## `figma_dev_resource_update`
 
-Creates a new webhook that sends events to the specified endpoint URL when Figma events occur in a team. Requires the `webhooks:write` scope.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `team_id` | string | Yes | The ID of the Figma team to register the webhook for |
-| `event_type` | string | Yes | The event type that triggers the webhook (e.g., `FILE_UPDATE`, `FILE_VERSION_UPDATE`, `FILE_DELETE`, `LIBRARY_PUBLISH`, `FILE_COMMENT`) |
-| `endpoint` | string | Yes | The HTTPS URL that receives webhook POST requests |
-| `passcode` | string | Yes | A secret string included in each webhook payload for request verification |
-| `status` | string | No | Webhook status: `ACTIVE` or `PAUSED` (default: `ACTIVE`) |
-| `description` | string | No | A human-readable description of the webhook's purpose |
-
-## `figma_webhook_get`
-
-Returns details of a specific Figma webhook by its ID, including event type, endpoint, and status.
+Updates an existing dev resource attached to a node in a Figma file.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `webhook_id` | string | Yes | The ID of the webhook to retrieve |
+| `dev_resource_id` | string | Yes | The ID of the dev resource to update. |
+| `name` | string | No | New display name for the dev resource. |
+| `url` | string | No | New URL for the dev resource. |
 
-## `figma_webhook_update`
+## `figma_dev_resources_list`
 
-Updates an existing Figma webhook's endpoint, passcode, status, or description.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `webhook_id` | string | Yes | The ID of the webhook to update |
-| `endpoint` | string | No | Updated HTTPS URL to receive webhook events |
-| `passcode` | string | No | Updated secret for verifying webhook payloads |
-| `status` | string | No | Updated status: `ACTIVE` or `PAUSED` |
-| `description` | string | No | Updated description for the webhook |
-
-## `figma_webhook_delete`
-
-Permanently deletes a Figma webhook. This stops all future event deliveries for this webhook.
+Returns dev resources (links to external tools like Storybook, Jira, etc.) attached to nodes in a Figma file.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `webhook_id` | string | Yes | The ID of the webhook to delete |
+| `file_key` | string | Yes | The key of the Figma file to get dev resources for. |
+| `node_ids` | string | No | Comma-separated node IDs to filter by. Omit to return all dev resources in the file. |
 
-## `figma_team_webhooks_list`
+## `figma_file_comment_create`
 
-Returns all webhooks registered for a Figma team.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `team_id` | string | Yes | The ID of the Figma team |
-
-## `figma_webhook_requests_list`
-
-Returns the delivery history for a webhook, including request payloads, response codes, and timestamps.
+Posts a new comment on a Figma file. Can be placed at a specific canvas position or anchored to a specific node.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `webhook_id` | string | Yes | The ID of the webhook to fetch request history for |
+| `client_meta` | string | No | JSON string specifying position or node anchor for the comment, e.g. `{"node_id":"1:2","node_offset":{"x":0,"y":0}}`. |
+| `file_key` | string | Yes | The unique key of the Figma file. |
+| `message` | string | Yes | The text content of the comment. |
+
+## `figma_file_comment_delete`
+
+Deletes a specific comment from a Figma file. Only the comment author or file owner can delete a comment.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `comment_id` | string | Yes | The ID of the comment to delete. |
+| `file_key` | string | Yes | The unique key of the Figma file. |
+
+## `figma_file_comments_list`
+
+Returns all comments left on a Figma file, including their text, author, position, and resolved status.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `as_md` | boolean | No | If true, returns comment text as Markdown. |
+| `file_key` | string | Yes | The unique key of the Figma file. |
+
+## `figma_file_component_sets_list`
+
+Returns all published component sets in a Figma file.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_key` | string | Yes | The unique key of the Figma file. |
+
+## `figma_file_components_list`
+
+Returns a list of all published components in a Figma file, including their keys, names, descriptions, and thumbnails.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_key` | string | Yes | The unique key of the Figma file. |
+
+## `figma_file_get`
+
+Returns a Figma file's full document tree including all nodes, components, styles, and metadata.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `depth` | integer | No | Depth of the document tree to return (1-4). Lower depth returns faster. |
+| `file_key` | string | Yes | The unique key of the Figma file (found in the file URL). |
+| `version` | string | No | A specific version ID to get. Omit to get the current version. |
+
+## `figma_file_image_fills_get`
+
+Returns download URLs for all image fills used in a Figma file. Image fills are images that have been applied as fills to nodes.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_key` | string | Yes | The unique key of the Figma file. |
+
+## `figma_file_images_render`
+
+Renders nodes from a Figma file as images (PNG, JPG, SVG, or PDF) and returns URLs to download them.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_key` | string | Yes | The unique key of the Figma file. |
+| `format` | string | No | Image format: jpg, png, svg, or pdf. Default is png. |
+| `ids` | string | Yes | Comma-separated list of node IDs to render. |
+| `scale` | number | No | Image scale factor (0.01 to 4). Default is 1. |
+| `version` | string | No | A specific version ID to render from. |
+
+## `figma_file_nodes_get`
+
+Returns specific nodes from a Figma file by their node IDs, along with their children and associated styles and components.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `depth` | integer | No | Depth of the document tree to return for each node. |
+| `file_key` | string | Yes | The unique key of the Figma file. |
+| `ids` | string | Yes | Comma-separated list of node IDs to retrieve. |
+| `version` | string | No | A specific version ID to fetch nodes from. |
+
+## `figma_file_styles_list`
+
+Returns all published styles in a Figma file, including color, text, effect, and grid styles.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_key` | string | Yes | The unique key of the Figma file. |
+
+## `figma_file_variables_local_get`
+
+Returns all local variables and variable collections defined in a Figma file. Requires the variables:read scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_key` | string | Yes | The unique key of the Figma file. |
+
+## `figma_file_variables_published_get`
+
+Returns all published variables and variable collections from a Figma file's library. Requires the variables:read scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_key` | string | Yes | The unique key of the Figma file. |
+
+## `figma_file_variables_update`
+
+Creates, updates, or deletes variables and variable collections in a Figma file. Accepts a JSON payload describing the changes. Requires the variables:write scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_key` | string | Yes | The unique key of the Figma file. |
+| `payload` | string | Yes | JSON string with variableCollections, variables, and variableModeValues arrays describing changes to apply. |
+
+## `figma_file_versions_list`
+
+Returns the version history of a Figma file, including version IDs, labels, descriptions, and creation timestamps.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `after` | string | No | Return versions created after this version ID (for pagination). |
+| `before` | string | No | Return versions created before this version ID (for pagination). |
+| `file_key` | string | Yes | The unique key of the Figma file. |
+| `page_size` | integer | No | Number of versions to return per page. |
+
+## `figma_library_analytics_component_actions_get`
+
+Returns analytics data on component insertion, detachment, and usage actions from a library file. Enterprise only.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `cursor` | string | No | Pagination cursor from previous response. |
+| `end_date` | string | No | End date for analytics in YYYY-MM-DD format. |
+| `file_key` | string | Yes | The key of the library Figma file. |
+| `group_by` | string | Yes | Dimension to group results by: component or team. |
+| `start_date` | string | No | Start date for analytics in YYYY-MM-DD format. |
+
+## `figma_library_analytics_component_usages_get`
+
+Returns a snapshot of how many times each component from a library is used across the organization. Enterprise only.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `cursor` | string | No | Pagination cursor from previous response. |
+| `file_key` | string | Yes | The key of the library Figma file. |
+
+## `figma_library_analytics_style_actions_get`
+
+Returns analytics data on style insertion and detachment actions from a library file. Enterprise only.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `cursor` | string | No | Pagination cursor from previous response. |
+| `end_date` | string | No | End date for analytics in YYYY-MM-DD format. |
+| `file_key` | string | Yes | The key of the library Figma file. |
+| `group_by` | string | Yes | Dimension to group results by: style or team. |
+| `start_date` | string | No | Start date for analytics in YYYY-MM-DD format. |
+
+## `figma_library_analytics_style_usages_get`
+
+Returns a snapshot of how many times each style from a library is used across the organization. Enterprise only.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `cursor` | string | No | Pagination cursor from previous response. |
+| `file_key` | string | Yes | The key of the library Figma file. |
+
+## `figma_library_analytics_variable_actions_get`
+
+Returns analytics data on variable actions from a library file. Enterprise only.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `cursor` | string | No | Pagination cursor from previous response. |
+| `end_date` | string | No | End date for analytics in YYYY-MM-DD format. |
+| `file_key` | string | Yes | The key of the library Figma file. |
+| `group_by` | string | Yes | Dimension to group results by: variable or team. |
+| `start_date` | string | No | Start date for analytics in YYYY-MM-DD format. |
+
+## `figma_library_analytics_variable_usages_get`
+
+Returns a snapshot of how many times each variable from a library is used across the organization. Enterprise only.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `cursor` | string | No | Pagination cursor from previous response. |
+| `file_key` | string | Yes | The key of the library Figma file. |
+
+## `figma_me_get`
+
+Returns the authenticated user's information including name, email, and profile image URL.
 
 ## `figma_payments_get`
 
@@ -395,116 +339,129 @@ Returns payment and plan information for a Figma user or resource, including sub
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `user_id` | string | No | The ID of the user to check payment status for |
-| `community_file_id` | string | No | The ID of a community file to check resource payment status |
-| `plugin_id` | string | No | The ID of a plugin to check payment status for |
+| `resource_id` | string | No | The ID of the plugin or widget resource. |
+| `resource_type` | string | No | The type of resource: plugin or widget. |
+| `user_id` | string | No | The ID of the user to get payment info for. |
 
-## `figma_activity_logs_list`
+## `figma_project_files_list`
 
-Returns activity log events for an organization. Includes events for file edits, permissions changes, and user actions.
-
-<Aside type="note" title="Enterprise only">
-  Activity logs are available on Figma Enterprise plans only. The authenticated user must have organization admin permissions.
-</Aside>
+Returns all files in a Figma project, including file keys, names, thumbnails, and last modified timestamps.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `org_id` | string | Yes | The ID of the Figma organization |
-| `events` | string | No | Comma-separated list of event types to filter by |
-| `start_time` | integer | No | Unix timestamp (seconds) for the start of the time range |
-| `end_time` | integer | No | Unix timestamp (seconds) for the end of the time range |
-| `limit` | integer | No | Number of events to return per page |
-| `next_page` | string | No | Pagination cursor returned by the previous response |
+| `branch_data` | boolean | No | If true, includes branch metadata for each file. |
+| `project_id` | string | Yes | The ID of the Figma project. |
 
-## `figma_library_analytics_component_actions_get`
+## `figma_style_get`
 
-Returns analytics data on component insertion, detachment, and usage actions from a library file.
-
-<Aside type="note" title="Enterprise only">
-  Library analytics require a Figma Enterprise plan and the `library_analytics:read` scope.
-</Aside>
+Returns metadata for a published style by its key, including name, description, style type, and containing file information.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the library file |
-| `group_by` | string | Yes | Dimension to group results by: `component` or `team` |
-| `start_date` | string | No | Start date for the analytics range (ISO 8601 format, e.g., `2024-01-01`) |
-| `end_date` | string | No | End date for the analytics range (ISO 8601 format) |
-| `order` | string | No | Sort order for results: `asc` or `desc` |
-| `cursor` | string | No | Pagination cursor for the next page of results |
+| `key` | string | Yes | The unique key of the style. |
 
-## `figma_library_analytics_component_usages_get`
+## `figma_team_component_sets_list`
 
-Returns a snapshot of how many times each component from a library is used across the organization.
-
-<Aside type="note" title="Enterprise only">
-  Library analytics require a Figma Enterprise plan and the `library_analytics:read` scope.
-</Aside>
+Returns all published component sets in a Figma team library, with pagination support.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the library file |
-| `group_by` | string | Yes | Dimension to group results by: `component` or `team` |
-| `cursor` | string | No | Pagination cursor for the next page of results |
+| `after` | integer | No | Cursor for the next page of results. |
+| `before` | integer | No | Cursor for the previous page of results. |
+| `page_size` | integer | No | Number of component sets to return per page. |
+| `team_id` | string | Yes | The ID of the Figma team. |
 
-## `figma_library_analytics_style_actions_get`
+## `figma_team_components_list`
 
-Returns analytics data on style insertion and detachment actions from a library file.
-
-<Aside type="note" title="Enterprise only">
-  Library analytics require a Figma Enterprise plan and the `library_analytics:read` scope.
-</Aside>
+Returns all published components in a Figma team library, with pagination support.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the library file |
-| `group_by` | string | Yes | Dimension to group results by: `style` or `team` |
-| `start_date` | string | No | Start date for the analytics range (ISO 8601 format) |
-| `end_date` | string | No | End date for the analytics range (ISO 8601 format) |
-| `order` | string | No | Sort order for results: `asc` or `desc` |
-| `cursor` | string | No | Pagination cursor for the next page of results |
+| `after` | integer | No | Cursor for the next page of results. |
+| `before` | integer | No | Cursor for the previous page of results. |
+| `page_size` | integer | No | Number of components to return per page. |
+| `team_id` | string | Yes | The ID of the Figma team. |
 
-## `figma_library_analytics_style_usages_get`
+## `figma_team_get`
 
-Returns a snapshot of how many times each style from a library is used across the organization.
-
-<Aside type="note" title="Enterprise only">
-  Library analytics require a Figma Enterprise plan and the `library_analytics:read` scope.
-</Aside>
+Returns metadata about a Figma team, including its name and member count.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the library file |
-| `group_by` | string | Yes | Dimension to group results by: `style` or `team` |
-| `cursor` | string | No | Pagination cursor for the next page of results |
+| `team_id` | string | Yes | The ID of the Figma team. |
 
-## `figma_library_analytics_variable_actions_get`
+## `figma_team_projects_list`
 
-Returns analytics data on variable actions from a library file.
-
-<Aside type="note" title="Enterprise only">
-  Library analytics require a Figma Enterprise plan and the `library_analytics:read` scope.
-</Aside>
+Returns all projects within a Figma team that the authenticated user has access to.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the library file |
-| `group_by` | string | Yes | Dimension to group results by: `variable` or `team` |
-| `start_date` | string | No | Start date for the analytics range (ISO 8601 format) |
-| `end_date` | string | No | End date for the analytics range (ISO 8601 format) |
-| `order` | string | No | Sort order for results: `asc` or `desc` |
-| `cursor` | string | No | Pagination cursor for the next page of results |
+| `team_id` | string | Yes | The ID of the Figma team. |
 
-## `figma_library_analytics_variable_usages_get`
+## `figma_team_styles_list`
 
-Returns a snapshot of how many times each variable from a library is used across the organization.
-
-<Aside type="note" title="Enterprise only">
-  Library analytics require a Figma Enterprise plan and the `library_analytics:read` scope.
-</Aside>
+Returns all published styles in a Figma team library, with pagination support.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `file_key` | string | Yes | The unique key identifying the library file |
-| `group_by` | string | Yes | Dimension to group results by: `variable` or `team` |
-| `cursor` | string | No | Pagination cursor for the next page of results |
+| `after` | integer | No | Cursor for the next page of results. |
+| `before` | integer | No | Cursor for the previous page of results. |
+| `page_size` | integer | No | Number of styles to return per page. |
+| `team_id` | string | Yes | The ID of the Figma team. |
+
+## `figma_team_webhooks_list`
+
+Returns all webhooks registered for a Figma team.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `team_id` | string | Yes | The ID of the Figma team. |
+
+## `figma_webhook_create`
+
+Creates a new webhook that sends events to the specified endpoint URL when Figma events occur in a team.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `description` | string | No | Optional description for the webhook. |
+| `endpoint` | string | Yes | The HTTPS URL to send webhook payloads to. |
+| `event_type` | string | Yes | The event type to subscribe to: FILE_UPDATE, FILE_DELETE, FILE_VERSION_UPDATE, FILE_COMMENT, LIBRARY_PUBLISH. |
+| `passcode` | string | Yes | A passcode included in the webhook payload for verification. |
+| `status` | string | No | Webhook status: ACTIVE or PAUSED. |
+| `team_id` | string | Yes | The ID of the team to subscribe to events for. |
+
+## `figma_webhook_delete`
+
+Permanently deletes a Figma webhook. This stops all future event deliveries for this webhook.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `webhook_id` | string | Yes | The ID of the webhook to delete. |
+
+## `figma_webhook_get`
+
+Returns details of a specific Figma webhook by its ID, including event type, endpoint, and status.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `webhook_id` | string | Yes | The ID of the webhook. |
+
+## `figma_webhook_requests_list`
+
+Returns the delivery history for a webhook, including request payloads, response codes, and timestamps.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `webhook_id` | string | Yes | The ID of the webhook. |
+
+## `figma_webhook_update`
+
+Updates an existing Figma webhook's endpoint, passcode, status, or description.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `description` | string | No | Updated description for the webhook. |
+| `endpoint` | string | No | New HTTPS URL to send webhook payloads to. |
+| `passcode` | string | No | New passcode for webhook verification. |
+| `status` | string | No | Webhook status: ACTIVE or PAUSED. |
+| `webhook_id` | string | Yes | The ID of the webhook to update. |

@@ -133,6 +133,7 @@ export const sidebar = [
         items: [
           'agent-auth/overview',
           { label: 'Quickstart: Agent Auth', link: 'agent-auth/quickstart' },
+          'agent-auth/user-verification',
           'agent-auth/code-samples',
         ],
       },
@@ -193,7 +194,7 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Providers',
+        label: 'Connectors',
         autogenerate: {
           directory: 'reference/agent-connectors',
         },
