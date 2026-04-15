@@ -39,7 +39,7 @@ Install the Scalekit Auth Stack for your coding agent, then paste the implementa
 
     Then paste this prompt:
     ```md title="Implementation prompt" wrap showLineNumbers=false
-    Configure Scalekit agent authentication for Gmail. Provide code to discover the scoped tools available to a user, check their connected account status, execute the gmail_fetch_emails tool for the last 5 unread messages, and wire a complete Anthropic Messages API tool-calling loop using executeTool.
+    Configure Scalekit agent authentication for Gmail. Provide code to discover the scoped tools available to a user, check their connected account status, execute the gmail_fetch_mails tool for the last 5 unread messages, and wire a complete Anthropic Messages API tool-calling loop using executeTool.
     ```
   </TabItem>
   <TabItem label="Codex">
@@ -55,7 +55,7 @@ Install the Scalekit Auth Stack for your coding agent, then paste the implementa
     ```
     If a browser authorization prompt appears, complete the OAuth flow before continuing. Then run:
     ```bash title="Terminal" frame="terminal" showLineNumbers=false wrap
-    copilot "Configure Scalekit agent authentication for Gmail. Discover scoped tools, check connected account status, execute gmail_fetch_emails for the last 5 unread messages, and wire a complete Anthropic Messages API tool-calling loop using executeTool."
+    copilot "Configure Scalekit agent authentication for Gmail. Discover scoped tools, check connected account status, execute gmail_fetch_mails for the last 5 unread messages, and wire a complete Anthropic Messages API tool-calling loop using executeTool."
     ```
   </TabItem>
   <TabItem label="Cursor">
@@ -71,7 +71,7 @@ Install the Scalekit Auth Stack for your coding agent, then paste the implementa
     ```bash title="Terminal" frame="terminal" showLineNumbers=false
     npx skills add scalekit-inc/skills --skill integrating-agent-auth
     ```
-    Then ask your agent: "Configure Scalekit agent authentication for Gmail. Discover scoped tools, check connected account status, execute gmail_fetch_emails for the last 5 unread messages, and wire a complete Anthropic Messages API tool-calling loop using executeTool."
+    Then ask your agent: "Configure Scalekit agent authentication for Gmail. Discover scoped tools, check connected account status, execute gmail_fetch_mails for the last 5 unread messages, and wire a complete Anthropic Messages API tool-calling loop using executeTool."
   </TabItem>
 </Tabs>
 
@@ -98,7 +98,7 @@ Prefer to build it by hand? Follow the steps below.
 
    - `SCALEKIT_CLIENT_ID`
    - `SCALEKIT_CLIENT_SECRET`
-   - `SCALEKIT_ENV_URL`
+   - `SCALEKIT_ENVIRONMENT_URL`
 
    Install the SDK and initialize the client:
 
@@ -114,7 +114,7 @@ Prefer to build it by hand? Follow the steps below.
    scalekit_client = scalekit.client.ScalekitClient(
        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
-       env_url=os.getenv("SCALEKIT_ENV_URL"),
+       env_url=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
    )
    # actions is the primary entry point for AgentKit
    actions = scalekit_client.actions
@@ -128,7 +128,7 @@ Prefer to build it by hand? Follow the steps below.
    import { ScalekitClient } from '@scalekit-sdk/node';
 
    const scalekit = new ScalekitClient(
-     process.env.SCALEKIT_ENV_URL!,
+    process.env.SCALEKIT_ENVIRONMENT_URL!,
      process.env.SCALEKIT_CLIENT_ID!,
      process.env.SCALEKIT_CLIENT_SECRET!,
    );
@@ -154,19 +154,19 @@ Prefer to build it by hand? Follow the steps below.
      <TabItem label="Python">
    ```python showLineNumbers=false frame="none"
    # Returns all tools registered in your Scalekit workspace
-   response = actions.tools.list_tools()
-   for tool in response.tools:
-       # Each tool has a name, description, and JSON Schema for its inputs
-       print(tool.name, tool.description)
+   response, _ = actions.tools.list_tools()
+   # Python SDK returns tool names in this list
+   for tool_name in response.tool_names:
+       print(tool_name)
    ```
      </TabItem>
      <TabItem label="Node.js">
    ```ts showLineNumbers=false frame="none"
    // Returns all tools registered in your Scalekit workspace
    const response = await scalekit.tools.listTools();
-   for (const tool of response.tools) {
-     // Each tool has a name, description, and JSON Schema for its inputs
-     console.log(tool.name, tool.description);
+   // Node SDK exposes tool names directly
+   for (const toolName of response.toolNames) {
+     console.log(toolName);
    }
    ```
      </TabItem>
@@ -179,15 +179,19 @@ Prefer to build it by hand? Follow the steps below.
    <Tabs syncKey="tech-stack">
      <TabItem label="Python">
    ```python showLineNumbers=false frame="none"
+   from google.protobuf.json_format import MessageToDict
+
    # Tools this user can call, filtered to Gmail
    scoped = actions.tools.list_scoped_tools(
        identifier="user_123",                       # same identifier used when creating the connected account
        filter={"connection_names": ["gmail"]},      # optional — omit to include all authorized connectors
    )
-   for tool in scoped.tools:
-       print(tool.name)
-       print(tool.description)
-       print(tool.input_schema)                     # JSON Schema — pass directly to your LLM's tool-calling API
+   scoped_response, _ = scoped
+   for scoped_tool in scoped_response.tools:
+       tool_definition = MessageToDict(scoped_tool.tool).get("definition", {})
+       print(tool_definition.get("name"))
+       print(tool_definition.get("description"))
+       print(tool_definition.get("input_schema"))   # JSON Schema — pass directly to your LLM's tool-calling API
    ```
      </TabItem>
      <TabItem label="Node.js">
@@ -197,9 +201,10 @@ Prefer to build it by hand? Follow the steps below.
      filter: { connectionNames: ['gmail'] },        // optional — omit to include all authorized connectors
    });
    for (const tool of tools) {
-     console.log(tool.name);
-     console.log(tool.description);
-     console.log(tool.inputSchema);                 // JSON Schema — pass directly to your LLM's tool-calling API
+     const definition = tool.tool.definition;
+     console.log(definition.name);
+     console.log(definition.description);
+     console.log(definition.input_schema);          // JSON Schema — pass directly to your LLM's tool-calling API
    }
    ```
      </TabItem>
@@ -251,7 +256,8 @@ Prefer to build it by hand? Follow the steps below.
    });
    const account = response.connectedAccount;
 
-   if (account?.status !== 'ACTIVE') {
+   const isActive = account?.status === 'ACTIVE' || account?.status === 1;
+   if (!isActive) {
      // Not ready for tool calls — generate an authorization link and send it to the user
      const linkResponse = await actions.getAuthorizationLink({
        connectionName: 'gmail',
@@ -301,7 +307,7 @@ Prefer to build it by hand? Follow the steps below.
    ```python showLineNumbers=false frame="none"
    # Execute the Gmail fetch tool on behalf of user_123
    result = actions.execute_tool(
-       tool_name="gmail_fetch_emails",
+       tool_name="gmail_fetch_mails",
        identifier="user_123",
        tool_input={
            "query": "is:unread",
@@ -316,11 +322,11 @@ Prefer to build it by hand? Follow the steps below.
    ```ts showLineNumbers=false frame="none"
    // Execute the Gmail fetch tool on behalf of user_123
    const result = await actions.executeTool({
-     toolName: 'gmail_fetch_emails',
+     toolName: 'gmail_fetch_mails',
      identifier: 'user_123',
      toolInput: {
        query: 'is:unread',
-       maxResults: 5,
+       max_results: 5,
      },
    });
    // result.data is structured JSON — pass it directly to your agent or persist it
@@ -335,7 +341,7 @@ Prefer to build it by hand? Follow the steps below.
 
    | Connector | Tool name | Sample `tool_input` |
    |---|---|---|
-   | `gmail` | `gmail_fetch_emails` | `{ "query": "is:unread", "max_results": 5 }` |
+   | `gmail` | `gmail_fetch_mails` | `{ "query": "is:unread", "max_results": 5 }` |
    | `slack` | `slack_send_message` | `{ "channel": "#general", "text": "Hello team" }` |
    | `github` | `github_create_issue` | `{ "repo": "acme/app", "title": "Bug report", "body": "Steps to reproduce…" }` |
    | `salesforce` | `salesforce_create_lead` | `{ "first_name": "Ada", "last_name": "Lovelace", "email": "ada@example.com" }` |
@@ -353,7 +359,9 @@ Prefer to build it by hand? Follow the steps below.
    <Tabs syncKey="tech-stack">
      <TabItem label="Python">
    ```python showLineNumbers=false frame="none"
+   import os
    import anthropic
+   from google.protobuf.json_format import MessageToDict
 
    client = anthropic.Anthropic()
 
@@ -362,16 +370,21 @@ Prefer to build it by hand? Follow the steps below.
        identifier="user_123",
        filter={"connection_names": ["gmail"]},
    )
+   scoped_response, _ = scoped
    # Reshape into Anthropic's expected tool format
    llm_tools = [
-       {"name": t.name, "description": t.description, "input_schema": t.input_schema}
-       for t in scoped.tools
+       {
+           "name": MessageToDict(t.tool).get("definition", {}).get("name"),
+           "description": MessageToDict(t.tool).get("definition", {}).get("description"),
+           "input_schema": MessageToDict(t.tool).get("definition", {}).get("input_schema", {}),
+       }
+       for t in scoped_response.tools
    ]
 
    # 2. Send the user's message to the LLM with the tool list attached
    messages = [{"role": "user", "content": "Summarize my last 5 unread emails"}]
    response = client.messages.create(
-       model="claude-sonnet-4-5",
+       model=os.getenv("LITELLM_MODEL", "claude-sonnet-4-6"),
        max_tokens=1024,
        tools=llm_tools,
        messages=messages,
@@ -409,9 +422,9 @@ Prefer to build it by hand? Follow the steps below.
    });
    // Reshape into Anthropic's expected tool format
    const llmTools = tools.map((t) => ({
-     name: t.name,
-     description: t.description,
-     input_schema: t.inputSchema,
+     name: t.tool.definition.name,
+     description: t.tool.definition.description,
+     input_schema: t.tool.definition.input_schema,
    }));
 
    // 2. Send the user's message to the LLM with the tool list attached
@@ -419,7 +432,7 @@ Prefer to build it by hand? Follow the steps below.
      { role: 'user', content: 'Summarize my last 5 unread emails' },
    ];
    const response = await anthropic.messages.create({
-     model: 'claude-sonnet-4-5',
+     model: process.env.LITELLM_MODEL ?? 'claude-sonnet-4-6',
      max_tokens: 1024,
      tools: llmTools,
      messages,
@@ -451,7 +464,7 @@ Prefer to build it by hand? Follow the steps below.
 
 7. ## Use a framework adapter
 
-   For LangChain and Google ADK, Scalekit returns native tool objects — no JSON Schema reshaping needed. Both adapters are Python-only.
+   For LangChain and Google ADK, Scalekit returns native tool objects in Python — no JSON Schema reshaping needed. In Node.js, use the Vercel AI SDK by reshaping `listScopedTools` output.
 
    ### LangChain
 
@@ -461,8 +474,8 @@ Prefer to build it by hand? Follow the steps below.
 
    ```python showLineNumbers=false frame="none"
    from langchain_openai import ChatOpenAI
-   from langchain.agents import AgentExecutor, create_openai_tools_agent
-   from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+   from langchain.agents import create_agent
+   import os
 
    # Native LangChain StructuredTool objects, scoped to this user
    tools = actions.langchain.get_tools(
@@ -471,18 +484,19 @@ Prefer to build it by hand? Follow the steps below.
        page_size=100,
    )
 
-   prompt = ChatPromptTemplate.from_messages([
-       ("system", "You are a helpful assistant. Use tools if needed."),
-       MessagesPlaceholder("chat_history", optional=True),
-       ("human", "{input}"),
-       MessagesPlaceholder("agent_scratchpad"),
-   ])
-
-   llm = ChatOpenAI(model="gpt-4o")
-   agent = create_openai_tools_agent(llm, tools, prompt)
-   executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
-
-   result = executor.invoke({"input": "fetch my last 5 unread emails and summarize them"})
+   llm = ChatOpenAI(
+       model=os.getenv("LITELLM_MODEL", "claude-sonnet-4-6"),
+       openai_api_base=os.getenv("LITELLM_BASE_URL"),
+       openai_api_key=os.getenv("LITELLM_API_KEY"),
+   )
+   agent = create_agent(
+       model=llm,
+       tools=tools,
+       system_prompt="You are a helpful assistant. Use tools if needed.",
+   )
+   result = agent.invoke({
+       "messages": [{"role": "user", "content": "fetch my last 5 unread emails and summarize them"}]
+   })
    ```
 
    Full sample: [sample-langchain-agent](https://github.com/scalekit-inc/sample-langchain-agent).
@@ -494,7 +508,12 @@ Prefer to build it by hand? Follow the steps below.
    ```
 
    ```python showLineNumbers=false frame="none"
+   import asyncio
    from google.adk.agents import Agent
+   from google.adk.models.lite_llm import LiteLlm
+   from google.adk.runners import Runner
+   from google.adk.sessions import InMemorySessionService
+   from google.genai import types
 
    # Native Google ADK tool objects, scoped to this user
    gmail_tools = actions.google.get_tools(
@@ -505,16 +524,82 @@ Prefer to build it by hand? Follow the steps below.
 
    gmail_agent = Agent(
        name="gmail_assistant",
-       model="gemini-2.5-flash",
+       model=LiteLlm(model="claude-sonnet-4-6"),
        description="Gmail assistant that can read and manage emails",
        instruction="You are a helpful Gmail assistant. Focus on unread messages and provide clear summaries.",
        tools=gmail_tools,
    )
 
-   response = gmail_agent.process_request(
-       "fetch my last 5 unread emails and summarize them"
-   )
-   print(response)
+   async def run_agent(prompt: str):
+       session_service = InMemorySessionService()
+       session = await session_service.create_session(
+           app_name="gmail_adk_example",
+           user_id="user_123",
+           session_id="gmail_adk_session_1",
+       )
+       runner = Runner(
+           agent=gmail_agent,
+           app_name="gmail_adk_example",
+           session_service=session_service,
+       )
+       content = types.Content(role="user", parts=[types.Part(text=prompt)])
+       async for event in runner.run_async(
+           user_id="user_123",
+           session_id=session.id,
+           new_message=content,
+       ):
+           if event.is_final_response() and event.content and event.content.parts:
+               print(event.content.parts[0].text)
+
+   asyncio.run(run_agent("fetch my last 5 unread emails and summarize them"))
+   ```
+
+   ### Node.js (Vercel AI SDK)
+
+   ```sh showLineNumbers=false frame="none"
+   npm install ai @ai-sdk/openai-compatible
+   ```
+
+   ```ts showLineNumbers=false frame="none"
+   import { generateText, jsonSchema, tool } from 'ai';
+   import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
+
+   const { tools: scopedTools } = await scalekit.tools.listScopedTools('user_123', {
+     filter: { connectionNames: ['gmail'] },
+   });
+
+   const tools = Object.fromEntries(
+     scopedTools.map((t) => [
+       t.tool.definition.name,
+       tool({
+         description: t.tool.definition.description,
+         parameters: jsonSchema(t.tool.definition.input_schema ?? { type: 'object', properties: {} }),
+         execute: async (args) => {
+           const result = await scalekit.actions.executeTool({
+             toolName: t.tool.definition.name,
+             toolInput: args,
+             identifier: 'user_123',
+           });
+           return result.data;
+         },
+       }),
+     ]),
+   );
+
+   const litellm = createOpenAICompatible({
+     baseURL: process.env.LITELLM_BASE_URL!,
+     apiKey: process.env.LITELLM_API_KEY!,
+     name: 'litellm',
+   });
+
+   const result = await generateText({
+     model: litellm(process.env.LITELLM_MODEL ?? 'claude-sonnet-4-6'),
+     tools,
+     maxSteps: 5,
+     prompt: 'fetch my last 5 unread emails and summarize them',
+   });
+
+   console.log(result.text);
    ```
 
    Full sample: [google-adk-agent-example](https://github.com/scalekit-inc/google-adk-agent-example).
