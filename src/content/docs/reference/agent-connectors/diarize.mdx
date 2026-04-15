@@ -1,5 +1,8 @@
 ---
 title: Diarize
+description: Connect to Diarize to transcribe and diarize audio and video content from YouTube, X, Instagram, and TikTok.
+sidebar:
+  label: Diarize
 tableOfContents: true
 head:
   - tag: style
@@ -14,18 +17,29 @@ head:
 
 import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
 import { Accordion, AccordionItem } from 'accessible-astro-components'
+import { SetupDiarizeSection } from '@components/templates'
+import { UsageDiarizeSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
-  Connect to Diarize to transcribe and diarize audio and video content from YouTube, X, Instagram, and TikTok. Submit transcription jobs and retrieve results in JSON, TXT, SRT, or VTT format.
+  Connect to Diarize to transcribe and diarize audio and video content from YouTube, X, Instagram, and TikTok. Submit transcription jobs and retrieve results in JSON, TXT, SRT, or VTT format with speaker labels and word-level timestamps.
  </div>
  <div class="flex justify-center">
   <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/diarize.svg" width="64" height="64" alt="Diarize logo" />
  </div>
 </div>
 
-Supports authentication: <Badge text="Bearer Token" />
+Supports authentication: <Badge text="API Key" />
 
+![Diarize connector card shown in Scalekit's Create Connection search](@/assets/docs/agent-connectors/diarize/scalekit-search-diarize.png)
+
+## Set up the agent connector
+
+<SetupDiarizeSection />
+
+## Usage
+
+<UsageDiarizeSection />
 
 ## Tool list
 
@@ -35,11 +49,17 @@ Submit a new transcription and diarization job for an audio or video URL (YouTub
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `language` | string | No | Language code for transcription (e.g. 'en', 'es', 'fr'). Defaults to auto-detection if not provided. |
-| `num_speakers` | integer | No | Expected number of speakers in the audio. Helps improve diarization accuracy. |
-| `schema_version` | string | No | Optional schema version to use for tool execution |
-| `tool_version` | string | No | Optional tool version to use for execution |
 | `url` | string | Yes | The URL of the audio or video content to transcribe (e.g. YouTube, X, Instagram, TikTok link) |
+| `language` | string | No | Language code for transcription (e.g. `en`, `es`, `fr`). Defaults to auto-detection if not provided. |
+| `num_speakers` | integer | No | Expected number of speakers in the audio. Helps improve diarization accuracy. |
+
+## `diarize_get_job_status`
+
+Retrieve the current status of a transcription job by its job ID. Returns job state (`PENDING`, `PROCESSING`, `COMPLETED`, `FAILED`), metadata, and an `estimatedTime` field (in seconds) indicating how long processing is expected to take. Use `estimatedTime` to determine polling frequency and max wait duration — for example, a 49-minute episode may have an `estimatedTime` of ~891 s (~15 mins), so the agent should wait at least that long before giving up.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `job_id` | string | Yes | The unique ID of the transcription job to check |
 
 ## `diarize_download_transcript`
 
@@ -47,17 +67,5 @@ Download the transcript output for a completed transcription job in JSON, TXT, S
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `format` | string | No | Output format for the transcript. Supported formats: 'json', 'txt', 'srt', 'vtt'. |
 | `job_id` | string | Yes | The unique ID of the completed transcription job |
-| `schema_version` | string | No | Optional schema version to use for tool execution |
-| `tool_version` | string | No | Optional tool version to use for execution |
-
-## `diarize_get_job_status`
-
-Retrieve the current status of a transcription job by its job ID. Returns job state (pending, processing, completed, failed), metadata, and an estimatedTime field (in seconds) indicating how long processing is expected to take. Use estimatedTime to determine polling frequency and max wait duration — for example, a 49-minute episode may have an estimatedTime of ~891s (~15 mins), so the agent should wait at least that long before giving up.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `job_id` | string | Yes | The unique ID of the transcription job to check |
-| `schema_version` | string | No | Optional schema version to use for tool execution |
-| `tool_version` | string | No | Optional tool version to use for execution |
+| `format` | string | No | Output format: `json` (default), `txt`, `srt`, or `vtt` |

@@ -1,0 +1,135 @@
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+Connect a user's Diarize account and transcribe audio and video content through Scalekit tools. Scalekit handles API key storage and tool execution automatically — you never handle credentials in your application code.
+
+Diarize is primarily used through Scalekit tools. Use `execute_tool` to submit transcription jobs, poll for completion, and download results in any supported format.
+
+## Tool calling
+
+Use this connector when you want an agent to transcribe and diarize audio or video from YouTube, X, Instagram, or TikTok.
+
+- Use `diarize_create_transcription_job` to submit a URL for transcription. Returns an `id` (job ID) and an `estimatedTime` (in seconds) for how long processing will take.
+- Use `diarize_get_job_status` to poll until `status` is `COMPLETED` or `FAILED`. Use `estimatedTime` to set a sensible timeout — do not give up before that time has elapsed.
+- Use `diarize_download_transcript` to retrieve the result once complete. Choose `json` for structured speaker diarization data, or `txt`, `srt`, `vtt` for plain-text and subtitle formats.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+    ```python title="examples/diarize_transcribe.py"
+    import os, time
+    from scalekit.client import ScalekitClient
+
+    scalekit_client = ScalekitClient(
+        client_id=os.environ["SCALEKIT_CLIENT_ID"],
+        client_secret=os.environ["SCALEKIT_CLIENT_SECRET"],
+        env_url=os.environ["SCALEKIT_ENV_URL"],
+    )
+
+    connected_account = scalekit_client.actions.get_or_create_connected_account(
+        connection_name="diarize",
+        identifier="user_123",
+    ).connected_account
+
+    # Step 1: Submit a transcription job
+    create_result = scalekit_client.actions.execute_tool(
+        tool_name="diarize_create_transcription_job",
+        connected_account_id=connected_account.id,
+        tool_input={
+            "url": "https://www.youtube.com/watch?v=example",
+            "language": "en",   # optional — omit for auto-detection
+            "num_speakers": 2,  # optional — improves speaker diarization
+        },
+    )
+    job_id = create_result.result["id"]
+    estimated_seconds = create_result.result.get("estimatedTime", 120)
+    deadline = time.time() + estimated_seconds * 2
+    print(f"Job {job_id} submitted. Estimated: {estimated_seconds}s")
+
+    # Step 2: Poll until complete
+    while True:
+        if time.time() > deadline:
+            raise TimeoutError(f"Job {job_id} timed out after {estimated_seconds * 2}s")
+        time.sleep(15)
+        status_result = scalekit_client.actions.execute_tool(
+            tool_name="diarize_get_job_status",
+            connected_account_id=connected_account.id,
+            tool_input={"job_id": job_id},
+        )
+        status = status_result.result["status"]
+        print("Status:", status)
+        if status == "COMPLETED":
+            break
+        if status == "FAILED":
+            raise RuntimeError(f"Job {job_id} failed")
+
+    # Step 3: Download the diarized transcript
+    transcript_result = scalekit_client.actions.execute_tool(
+        tool_name="diarize_download_transcript",
+        connected_account_id=connected_account.id,
+        tool_input={"job_id": job_id, "format": "json"},
+    )
+    # handle the transcript_result
+    ```
+  </TabItem>
+  <TabItem label="Node.js">
+    ```typescript title="examples/diarize_transcribe.ts"
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL!,
+      process.env.SCALEKIT_CLIENT_ID!,
+      process.env.SCALEKIT_CLIENT_SECRET!
+    );
+    const actions = scalekit.actions;
+
+    const { connectedAccount } = await actions.getOrCreateConnectedAccount({
+      connectionName: 'diarize',
+      identifier: 'user_123',
+    });
+
+    // Step 1: Submit a transcription job
+    const createResult = await actions.executeTool({
+      toolName: 'diarize_create_transcription_job',
+      connectedAccountId: connectedAccount.id,
+      toolInput: {
+        url: 'https://www.youtube.com/watch?v=example',
+        language: 'en',   // optional — omit for auto-detection
+        num_speakers: 2,  // optional — improves speaker diarization
+      },
+    });
+    const jobId = createResult.data.id;
+    const estimatedSeconds = createResult.data.estimatedTime ?? 120;
+    const deadline = Date.now() + estimatedSeconds * 2 * 1000;
+    console.log(`Job ${jobId} submitted. Estimated: ${estimatedSeconds}s`);
+
+    // Step 2: Poll until complete
+    let status = 'PENDING';
+    while (status !== 'COMPLETED' && status !== 'FAILED') {
+      if (Date.now() > deadline) throw new Error(`Job ${jobId} timed out after ${estimatedSeconds * 2}s`);
+      await new Promise(r => setTimeout(r, 15_000));
+      const statusResult = await actions.executeTool({
+        toolName: 'diarize_get_job_status',
+        connectedAccountId: connectedAccount.id,
+        toolInput: { job_id: jobId },
+      });
+      status = statusResult.data.status;
+      console.log('Status:', status);
+    }
+    if (status === 'FAILED') throw new Error(`Job ${jobId} failed`);
+
+    // Step 3: Download the diarized transcript
+    const transcriptResult = await actions.executeTool({
+      toolName: 'diarize_download_transcript',
+      connectedAccountId: connectedAccount.id,
+      toolInput: { job_id: jobId, format: 'json' },
+    });
+    // handle the transcriptResult
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="note" title="Polling guidance">
+  The `estimatedTime` field (in seconds) tells you how long processing is expected to take. For a 49-minute episode, `estimatedTime` may be around 891 seconds (~15 minutes). Wait at least that long before treating the job as timed out.
+</Aside>
+
+## Scalekit tools
