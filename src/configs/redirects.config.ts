@@ -304,6 +304,8 @@ export const redirects = {
   '/m2m/api-auth-for-m2m-clients': '/guides/m2m/api-auth-m2m-clients/',
   '/m2m/external-ids-and-metadata': '/guides/external-ids-and-metadata/',
   '/m2m/scopes': '/cookbooks/m2m-jwks-and-oauth-scopes/',
+  '/m2m/scopes/': '/cookbooks/m2m-jwks-and-oauth-scopes/',
+  '/guides/m2m/scopes': '/cookbooks/m2m-jwks-and-oauth-scopes/',
   '/guides/m2m/scopes/': '/cookbooks/m2m-jwks-and-oauth-scopes/',
   '/authenticate/m2m/jwks-and-token-validation': '/cookbooks/m2m-jwks-and-oauth-scopes/',
   '/authenticate/m2m/jwks-and-token-validation/': '/cookbooks/m2m-jwks-and-oauth-scopes/',
