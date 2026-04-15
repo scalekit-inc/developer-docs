@@ -148,6 +148,7 @@ This example shows a complete lead enrichment pipeline: find a lead, attach acti
       });
       const pipeline = pipelines.data[0];
       const activeStatus = pipeline.statuses.find((s: any) => s.type === 'active');
+      if (!activeStatus) throw new Error('No active status found in pipeline');
 
       const opportunity = await actions.executeTool({
         toolName: 'close_opportunity_create',
