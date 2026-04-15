@@ -3,15 +3,15 @@ title: Scopes for machine clients
 description: "What OAuth scopes are in M2M flows, how to assign them to API clients in Scalekit, and how to validate them on your API."
 tags: [m2m, oauth2, scopes, rbac, api-auth, jwt]
 browseCentral:
-  label: "OAuth scopes for M2M APIs"
+  label: "Validate M2M scopes"
   filterType: ["tutorial"]
   category: ["Auth modules"]
   icon: book
 sidebar:
-  label: Scopes for API access
+  label: M2M scopes
 ---
 
-import { Aside, Steps } from '@astrojs/starlight/components';
+import { Aside } from '@astrojs/starlight/components';
 
 **Scopes** are named permissions attached to an OAuth client and embedded in access tokens. In machine-to-machine (M2M) flows, they tell your API *what* an automated client is allowed to do—separate from *who* the client is (identified by `client_id` / `sub`).
 
@@ -50,24 +50,20 @@ The same values appear on the client record and in tokens issued for that client
 
 ## Validate scopes on your API
 
-<Steps>
+At a high level, authorization with scopes means the following:
 
-1. **Authenticate** the request by verifying the JWT signature and standard claims ([JWKS and token verification](/authenticate/m2m/jwks-and-token-validation/)).
+- **Authenticate** the request by verifying the JWT signature and standard claims ([JWKS and token verification](/authenticate/m2m/jwks-and-token-validation/)).
+- **Read `scopes`** from the verified payload. Scalekit includes granted scopes as an array:
 
-2. **Read `scopes`** from the verified payload. Scalekit includes granted scopes as an array:
+  ```json title="scopes in JWT payload (example)"
+  "scopes": [
+    "deploy:applications",
+    "read:deployments"
+  ]
+  ```
 
-   ```json title="scopes in JWT payload (example)"
-   "scopes": [
-     "deploy:applications",
-     "read:deployments"
-   ]
-   ```
-
-3. **Compare** against what the route requires—for example require `deploy:applications` on `POST /deploy`. Return `403` if the scope is missing.
-
-4. **Use the Scalekit SDK** where possible: validation helpers can check required scopes together with signature verification (see the [quickstart](/authenticate/m2m/api-auth-quickstart/)).
-
-</Steps>
+- **Compare** what the token grants to what the route allows—for example require `deploy:applications` on `POST /deploy`, and return `403` if the scope is missing.
+- **Prefer the Scalekit SDK** when it fits your stack: validation helpers can check required scopes together with signature verification (see the [quickstart](/authenticate/m2m/api-auth-quickstart/)).
 
 ## Related
 
