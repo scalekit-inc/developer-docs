@@ -133,6 +133,7 @@ export const sidebar = [
         items: [
           'agentkit/overview',
           { label: 'Quickstart: AgentKit', link: 'agentkit/quickstart' },
+          { label: 'Build with AI', link: 'agentkit/build-with-ai' },
           'agentkit/user-verification',
           'agentkit/code-samples',
         ],
@@ -224,7 +225,6 @@ export const sidebar = [
         items: [
           'dev-kit/build-with-ai',
           'dev-kit/build-with-ai/full-stack-auth',
-          'dev-kit/build-with-ai/agentkit',
           'dev-kit/build-with-ai/mcp-auth',
           'dev-kit/build-with-ai/sso',
           'dev-kit/build-with-ai/scim',

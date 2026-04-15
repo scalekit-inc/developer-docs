@@ -13,8 +13,7 @@ export function getActiveProduct(pathname: string, topic?: string): 'agentkit' |
   if (
     pathname.startsWith('/agentkit/') ||
     pathname.startsWith('/guides/integrations/agent-connectors') ||
-    pathname.startsWith('/reference/agent-connectors') ||
-    pathname.startsWith('/home/agentkit')
+    pathname.startsWith('/reference/agent-connectors')
   )
     return 'agentkit'
   return 'saaskit'
@@ -70,9 +69,6 @@ export function getActiveSecondaryNavId(
   entry?: SecondaryNavProps['entry'],
 ): string | null {
   // Map old home routes for backwards compatibility
-  if (pathname === '/home/agentkit/' || pathname === '/home/agentkit') {
-    return 'agentkit-quickstart'
-  }
   if (pathname === '/home/saaskit/' || pathname === '/home/saaskit') {
     return 'saaskit-user-management'
   }

@@ -212,8 +212,8 @@ export const redirects = {
   // Coding agent guides moved from product quickstarts to /dev-kit/build-with-ai/
   // Note: With trailingSlash: 'ignore', single redirect without slash handles both /path and /path/ variants
 
-  '/agentkit/start-agentkit-coding-agents': '/dev-kit/build-with-ai/agentkit/',
-  '/agent-auth/start-agent-auth-coding-agents': '/dev-kit/build-with-ai/agentkit/',
+  '/agentkit/start-agentkit-coding-agents': '/agentkit/build-with-ai/',
+  '/agent-auth/start-agent-auth-coding-agents': '/agentkit/build-with-ai/',
   '/authenticate/fsa/start-fsa-coding-agents': '/dev-kit/build-with-ai/full-stack-auth/',
   '/authenticate/mcp/start-mcp-auth-coding-agents': '/dev-kit/build-with-ai/mcp-auth/',
   '/authenticate/sso/start-sso-coding-agents': '/dev-kit/build-with-ai/sso/',
@@ -222,8 +222,9 @@ export const redirects = {
   // Build with AI moved from /build-with-ai/ to /dev-kit/build-with-ai/
   '/build-with-ai': '/dev-kit/build-with-ai/',
   '/build-with-ai/full-stack-auth': '/dev-kit/build-with-ai/full-stack-auth/',
-  '/build-with-ai/agent-auth': '/dev-kit/build-with-ai/agentkit/',
-  '/dev-kit/build-with-ai/agent-auth': '/dev-kit/build-with-ai/agentkit/',
+  '/build-with-ai/agent-auth': '/agentkit/build-with-ai/',
+  '/dev-kit/build-with-ai/agentkit': '/agentkit/build-with-ai/',
+  '/dev-kit/build-with-ai/agent-auth': '/agentkit/build-with-ai/',
   '/build-with-ai/mcp-auth': '/dev-kit/build-with-ai/mcp-auth/',
   '/build-with-ai/sso': '/dev-kit/build-with-ai/sso/',
   '/build-with-ai/scim': '/dev-kit/build-with-ai/scim/',
@@ -327,9 +328,10 @@ export const redirects = {
   // Code samples moved to /resources/code-samples/
   '/dev-kit/code-samples': '/resources/code-samples/',
   '/dev-kit/code-samples/full-stack-auth': '/resources/code-samples/full-stack-auth/',
-  '/dev-kit/code-samples/agent-auth': '/resources/code-samples/agentkit/',
-  '/dev-kit/code-samples/agentkit': '/resources/code-samples/agentkit/',
-  '/resources/code-samples/agent-auth': '/resources/code-samples/agentkit/',
+  '/dev-kit/code-samples/agent-auth': '/agentkit/code-samples/',
+  '/dev-kit/code-samples/agentkit': '/agentkit/code-samples/',
+  '/resources/code-samples/agent-auth': '/agentkit/code-samples/',
+  '/resources/code-samples/agentkit': '/agentkit/code-samples/',
   '/dev-kit/code-samples/mcp-auth': '/resources/code-samples/mcp-auth/',
   '/dev-kit/code-samples/modular-sso': '/resources/code-samples/modular-sso/',
   '/dev-kit/code-samples/modular-scim': '/resources/code-samples/modular-scim/',
