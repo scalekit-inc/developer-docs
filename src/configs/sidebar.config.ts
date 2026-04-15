@@ -133,55 +133,37 @@ export const sidebar = [
         items: [
           'agentkit/overview',
           { label: 'Quickstart: AgentKit', link: 'agentkit/quickstart' },
+          // TODO: Remove this page once its content is folded into the quickstart.
           { label: 'Build with AI', link: 'agentkit/build-with-ai' },
-          'agentkit/user-verification',
           'agentkit/code-samples',
+          {
+            label: 'SDKs',
+            collapsed: true,
+            items: [
+              { label: 'Overview', link: '/agentkit/sdks/' },
+              { label: 'Node.js SDK', link: '/agentkit/sdks/node/' },
+              { label: 'Python SDK', link: '/agentkit/sdks/python/' },
+            ],
+          },
         ],
       },
       {
-        label: 'Concepts',
+        label: 'Authentication & Security',
         collapsed: false,
         items: [
           'agentkit/connectors',
           'agentkit/connections',
           'agentkit/connected-accounts',
-          // 'agentkit/authentication/auth-flows-comparison',
           'agentkit/tools/authorize',
-          // 'agentkit/authentication/token-management',
-          // 'agentkit/advanced/bring-your-own-oauth',
-          'agentkit/advanced/custom-domain',
-          // 'agentkit/authentication/scopes-permissions',
-          // 'agentkit/authentication/multi-provider',
-          // 'agentkit/authentication/troubleshooting',
-          // 'agentkit/authentication/testing-auth-flows',
-          // 'agentkit/advanced/overview',
+          'agentkit/user-verification',
         ],
       },
       {
-        label: 'Bring your own connector',
-        items: [
-          'agentkit/bring-your-own-connector/overview',
-          'agentkit/bring-your-own-connector/auth-types-and-patterns',
-          'agentkit/bring-your-own-connector/managing-providers',
-          'agentkit/bring-your-own-connector/using-tool-proxy',
-        ],
-      },
-      {
-        label: 'Tool calling',
+        label: 'Tool execution',
         collapsed: false,
         items: [
-          'agentkit/tools/agent-tools-quickstart',
-          { label: 'Tool access via MCP', link: 'agentkit/mcp/tool-access-via-mcp' },
-          //'agentkit/advanced/proxy-api-calls',
-          // 'agentkit/tools/custom-processors',
-          // 'agentkit/mcp/manage-configs',
-          // 'agentkit/mcp/custom-tools',
-        ],
-      },
-      {
-        label: 'AI Frameworks',
-        collapsed: false,
-        items: [
+          { label: 'Scalekit optimized tools', link: 'agentkit/tools/agent-tools-quickstart' },
+          { label: 'Tool execution via MCP', link: 'agentkit/mcp/tool-access-via-mcp' },
           {
             label: 'OpenClaw',
             link: 'agentkit/openclaw',
@@ -195,23 +177,23 @@ export const sidebar = [
         ],
       },
       {
-        label: 'SDKs',
-        collapsed: false,
+        label: 'Custom connector',
         items: [
-          { label: 'Overview', link: '/agentkit/sdks/' },
-          { label: 'Node.js SDK', link: '/agentkit/sdks/node/' },
-          { label: 'Python SDK', link: '/agentkit/sdks/python/' },
+          'agentkit/bring-your-own-connector/overview',
+          'agentkit/bring-your-own-connector/auth-types-and-patterns',
+          'agentkit/bring-your-own-connector/managing-providers',
+          { label: 'Tool execution', link: 'agentkit/bring-your-own-connector/using-tool-proxy' },
         ],
       },
-      // {
-      //   label: 'Concepts',
-      //   items: ['connect/providers', 'connect/connections', 'connect/connected-accounts'],
-      // },
+      {
+        label: 'Customization',
+        items: ['agentkit/advanced/custom-domain'],
+      },
     ],
   },
   {
     label: 'Agent connectors',
-    id: 'agent-providers',
+    id: 'agent-connectors',
     link: '/guides/integrations/agent-connectors/',
     icon: 'seti:bicep',
     items: [
@@ -564,8 +546,8 @@ export const topics = {
   // Modular SCIM (directory provisioning)
   'modular-scim': ['/directory/**/*'],
 
-  // Agent connectors (dedicated providers sidebar — must come before connect)
-  'agent-providers': [
+  // Agent connectors (dedicated connectors sidebar — must come before connect)
+  'agent-connectors': [
     '/reference/agent-connectors/**/*',
     '/guides/integrations/agent-connectors',
     '/guides/integrations/agent-connectors/**/*',
@@ -664,14 +646,13 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
   'modular-scim': 'saaskit-scim',
 
   // Agent connectors sidebar → AgentKit Connectors tab
-  'agent-providers': 'agentkit-connectors',
+  'agent-connectors': 'agentkit-connectors',
 
   // AgentKit sidebar → AgentKit tabs
   connect: {
     default: 'agentkit-quickstart',
     pathOverrides: {
       '/agentkit/connectors': 'agentkit-connectors',
-      '/agentkit/providers': 'agentkit-connectors',
       '/agentkit/connections': 'agentkit-connectors',
       '/agentkit/connected-accounts': 'agentkit-connectors',
       '/agentkit/sdks': 'agentkit-sdks',
