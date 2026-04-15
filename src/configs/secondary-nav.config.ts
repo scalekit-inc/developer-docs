@@ -66,23 +66,28 @@ const sharedSdksItem: NavItem = {
 const agentKitItems: NavItem[] = [
   {
     id: 'agentkit-quickstart',
-    href: '/agent-auth/quickstart/',
+    href: '/agentkit/quickstart/',
     label: 'Quickstart',
     iconComponent: IconLucideRocket,
   },
   {
-    id: 'agentkit-providers',
-    href: '/guides/integrations/agent-connectors/',
+    id: 'agentkit-connectors',
+    href: '/agentkit/connectors/',
     label: 'Connectors',
     iconComponent: IconLucideBlocks,
   },
   {
-    id: 'agentkit-code-samples',
-    href: '/agent-auth/code-samples/',
-    label: 'Code Samples',
-    iconComponent: IconLucideCode,
+    id: 'agentkit-sdks',
+    href: '/agentkit/sdks/',
+    label: 'SDKs',
+    iconComponent: IconSdk,
   },
-  sharedSdksItem,
+  {
+    id: 'agentkit-api-reference',
+    href: '/apis/',
+    label: 'API Reference',
+    iconComponent: IconApi,
+  },
 ]
 
 const saasKitItems: NavItem[] = [

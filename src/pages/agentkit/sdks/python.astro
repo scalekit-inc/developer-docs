@@ -1,0 +1,238 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
+import { Badge, Code } from '@astrojs/starlight/components'
+import { getCollection } from 'astro:content'
+import FoldCard from '@components/ui/FoldCard.astro'
+import { LinkButton } from 'starlight-theme-nova/components'
+import { getLatestRelease, formatTimeAgo } from '@/utils/release-helpers'
+
+// Load GitHub releases for Python SDK
+const releases = await getCollection('github-releases')
+const latestRelease = getLatestRelease(releases, 'scalekit-inc/scalekit-sdk-python')
+
+const frontmatter = {
+  title: 'Python SDK',
+  topic: 'connect',
+  template: 'doc' as const,
+  tableOfContents: false,
+  sidebar: { label: 'Python SDK' },
+  prev: false,
+  next: false,
+}
+---
+
+<StarlightPage frontmatter={frontmatter} hasSidebar={true}>
+  <FoldCard
+    title="Python SDK"
+    iconKey="python"
+    iconPosition="right"
+    showCta={false}
+    clickable={false}
+    showTitle={false}
+  >
+    <div class="sdk-overview-content">
+      <div class="sdk-header">
+        <div class="sdk-title-section">
+          <Code
+            code="pip install scalekit-sdk-python"
+            lang="bash"
+            showLineNumbers={false}
+            frame="none"
+          />
+          <div class="sdk-badges">
+            {latestRelease && <Badge text={latestRelease.tagName} variant="default" />}
+            <Badge text="Pydantic v2" variant="tip" />
+            <Badge text="Type Hints" variant="tip" />
+          </div>
+        </div>
+        <div class="sdk-stats">
+          {
+            latestRelease && (
+              <div class="stat-item">
+                <span class="stat-label">Updated</span>
+                <span class="stat-value">{formatTimeAgo(latestRelease.publishedAt)}</span>
+              </div>
+            )
+          }
+          {
+            latestRelease && latestRelease.repoStargazerCount > 50 && (
+              <div class="stat-item">
+                <span class="stat-label">Stars</span>
+                <span class="stat-value">⭐ {latestRelease.repoStargazerCount}</span>
+              </div>
+            )
+          }
+        </div>
+      </div>
+      <div class="sdk-links">
+        <LinkButton
+          href="https://github.com/scalekit-inc/scalekit-sdk-python"
+          target="_blank"
+          rel="noopener noreferrer"
+          variant="secondary"
+          class="github-button"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            style="margin-right: 0.5rem;"
+          >
+            <path
+              d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+            ></path>
+          </svg>
+          View on GitHub
+        </LinkButton>
+      </div>
+    </div>
+  </FoldCard>
+
+  <div class="initialization-section">
+    <Code
+      code={`from scalekit import ScalekitClient
+
+scalekit_client = ScalekitClient(
+    environment_url=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
+    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET")
+)`}
+      lang="python"
+      frame="terminal"
+      title="Initialize the client"
+      showLineNumbers={false}
+    />
+  </div>
+
+  <div class="coming-soon-section">
+    <div class="coming-soon-card">
+      <div class="coming-soon-icon">🚧</div>
+      <h2 class="coming-soon-title">AgentKit method reference coming soon</h2>
+      <p class="coming-soon-description">
+        AgentKit-specific SDK documentation is being prepared. In the meantime, browse the full SDK
+        reference on GitHub.
+      </p>
+      <a
+        href="https://github.com/scalekit-inc/scalekit-sdk-python"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="coming-soon-link"
+      >
+        View Python SDK on GitHub →
+      </a>
+    </div>
+  </div>
+</StarlightPage>
+
+<style>
+  .sdk-overview-content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sdk-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .sdk-badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+  }
+
+  .sdk-stats {
+    display: flex;
+    gap: 1rem;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--sl-color-text-2);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .stat-value {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--sl-color-text);
+  }
+
+  .sdk-links {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 1rem;
+  }
+
+  .github-button {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .initialization-section {
+    margin: 3rem 0;
+  }
+
+  .coming-soon-section {
+    margin-top: 3rem;
+    padding-top: 3rem;
+    border-top: 2px solid var(--sl-color-hairline);
+  }
+
+  .coming-soon-card {
+    padding: 2.5rem;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 0.75rem;
+    background: var(--sl-color-bg);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .coming-soon-icon {
+    font-size: 2.5rem;
+    line-height: 1;
+  }
+
+  .coming-soon-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--sl-color-text-heading);
+  }
+
+  .coming-soon-description {
+    margin: 0;
+    color: var(--sl-color-text-2);
+    max-width: 40ch;
+    line-height: 1.6;
+  }
+
+  .coming-soon-link {
+    color: var(--sl-color-accent);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9375rem;
+  }
+
+  .coming-soon-link:hover {
+    text-decoration: underline;
+  }
+</style>

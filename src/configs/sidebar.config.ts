@@ -142,7 +142,7 @@ export const sidebar = [
         label: 'Concepts',
         collapsed: false,
         items: [
-          'agentkit/providers',
+          'agentkit/connectors',
           'agentkit/connections',
           'agentkit/connected-accounts',
           // 'agentkit/authentication/auth-flows-comparison',
@@ -192,6 +192,15 @@ export const sidebar = [
           // 'agentkit/frameworks/agno', // TODO: Add when Agno framework docs are complete
           // 'agentkit/frameworks/openai', // TODO: Add when OpenAI framework docs are complete
           // 'agentkit/frameworks/anthropic', // TODO: Add when Anthropic framework docs are complete
+        ],
+      },
+      {
+        label: 'SDKs',
+        collapsed: false,
+        items: [
+          { label: 'Overview', link: '/agentkit/sdks/' },
+          { label: 'Node.js SDK', link: '/agentkit/sdks/node/' },
+          { label: 'Python SDK', link: '/agentkit/sdks/python/' },
         ],
       },
       // {
@@ -654,17 +663,21 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
   // Modular SCIM sidebar → SaaSKit SCIM tab
   'modular-scim': 'saaskit-scim',
 
-  // Agent connectors sidebar → AgentKit Providers tab
-  'agent-providers': 'agentkit-providers',
+  // Agent connectors sidebar → AgentKit Connectors tab
+  'agent-providers': 'agentkit-connectors',
 
   // AgentKit sidebar → AgentKit tabs
   connect: {
     default: 'agentkit-quickstart',
     pathOverrides: {
-      // Agent Tools no longer has its own secondary nav item; falls back to Quickstart
+      '/agentkit/connectors': 'agentkit-connectors',
+      '/agentkit/providers': 'agentkit-connectors',
+      '/agentkit/connections': 'agentkit-connectors',
+      '/agentkit/connected-accounts': 'agentkit-connectors',
+      '/agentkit/sdks': 'agentkit-sdks',
       '/agentkit/tools/agent-tools-quickstart': 'agentkit-quickstart',
-      '/agentkit/openclaw': 'agentkit-ai-frameworks',
-      '/agentkit/frameworks': 'agentkit-ai-frameworks',
+      '/agentkit/openclaw': 'agentkit-quickstart',
+      '/agentkit/frameworks': 'agentkit-quickstart',
     },
   },
 
