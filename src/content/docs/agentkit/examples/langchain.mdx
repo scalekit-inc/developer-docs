@@ -1,0 +1,84 @@
+---
+title: LangChain
+description: Build a LangChain agent with Scalekit-authenticated Gmail tools. Scalekit returns native LangChain tool objects — no schema reshaping needed.
+slug: agentkit/examples/langchain
+sidebar:
+  label: LangChain
+tags: [agentkit, examples, langchain, langgraph, gmail, tool-calling]
+tableOfContents: true
+prev:
+  label: "Connect an MCP client"
+  link: "/agentkit/mcp/connect-mcp-client"
+next:
+  label: "Google ADK"
+  link: "/agentkit/examples/google-adk"
+---
+
+import { Aside } from '@astrojs/starlight/components';
+import { LinkButton } from '@astrojs/starlight/components';
+
+<LinkButton href="https://github.com/scalekit-inc/sample-langchain-agent" variant="secondary" icon="github" target="_blank">Full code on GitHub</LinkButton>
+
+Build a LangChain agent that reads a user's Gmail inbox. Scalekit handles OAuth, token storage, and returns tools in native LangChain format — your agent code needs no Scalekit-specific logic beyond initialization.
+
+## Install
+
+```sh
+pip install scalekit-sdk-python langchain-openai langgraph
+```
+
+## Initialize
+
+```python
+import os
+import scalekit.client
+
+scalekit_client = scalekit.client.ScalekitClient(
+    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+    env_url=os.getenv("SCALEKIT_ENV_URL"),
+)
+actions = scalekit_client.actions
+```
+
+## Connect the user to Gmail
+
+```python
+response = actions.get_or_create_connected_account(
+    connection_name="gmail",
+    identifier="user_123",
+)
+if response.connected_account.status != "ACTIVE":
+    link = actions.get_authorization_link(connection_name="gmail", identifier="user_123")
+    print("Authorize Gmail:", link.link)
+    input("Press Enter after authorizing...")
+```
+
+See [Authorize a user](/agentkit/tools/authorize/) for production auth handling.
+
+## Build and run the agent
+
+`actions.langchain.get_tools()` returns native `StructuredTool` objects — pass them directly to any LangChain agent:
+
+```python
+from langchain_openai import ChatOpenAI
+from langgraph.prebuilt import create_react_agent
+
+tools = actions.langchain.get_tools(
+    identifier="user_123",
+    providers=["GMAIL"],
+    page_size=100,
+)
+
+llm = ChatOpenAI(model="gpt-4o")
+agent = create_react_agent(llm, tools)
+
+result = agent.invoke({
+    "messages": [{"role": "user", "content": "Fetch my last 5 unread emails and summarize them"}]
+})
+print(result["messages"][-1].content)
+```
+
+<Aside type="note" title="Filter by connector">
+  Pass `connection_names=["my_gmail_connection"]` instead of `providers` to scope tools to a specific named connection when a user has multiple Gmail accounts.
+</Aside>
