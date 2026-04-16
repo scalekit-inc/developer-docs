@@ -101,9 +101,9 @@ Fetches an existing connected account or creates one if none exists. Use this as
   { name: 'connection_name', type: 'str', required: true, description: 'Connector slug' },
   { name: 'identifier', type: 'str', required: true, description: "User's identifier" },
   { name: 'authorization_details', type: 'dict', required: false, description: 'OAuth token or static auth details' },
-  { name: 'organization_id', type: 'str', required: false, description: '' },
-  { name: 'user_id', type: 'str', required: false, description: '' },
-  { name: 'api_config', type: 'dict', required: false, description: '' },
+  { name: 'organization_id', type: 'str', required: false, description: 'Organization tenant ID when your app scopes auth and accounts by org' },
+  { name: 'user_id', type: 'str', required: false, description: 'Your application user ID when you map Scalekit accounts to internal users' },
+  { name: 'api_config', type: 'dict', required: false, description: 'Connector-specific options (for example scopes or static auth fields)' },
 ]} />
 
 <MethodReturns type="CreateConnectedAccountResponse" fields={[
@@ -130,9 +130,9 @@ Fetches auth details for a connected account. Returns sensitive credentials — 
 Requires `connected_account_id` **or** `connection_name` + `identifier`.
 
 <MethodParams label="Input schema" params={[
-  { name: 'connection_name', type: 'str', required: false, description: '' },
-  { name: 'identifier', type: 'str', required: false, description: '' },
-  { name: 'connected_account_id', type: 'str', required: false, description: '' },
+  { name: 'connection_name', type: 'str', required: false, description: 'Connector slug — use with identifier when you do not pass connected_account_id' },
+  { name: 'identifier', type: 'str', required: false, description: 'End-user or workspace identifier — use with connection_name' },
+  { name: 'connected_account_id', type: 'str', required: false, description: 'Connected account ID (ca_...) when resolving by ID instead of name + identifier' },
 ]} />
 
 <MethodReturns type="GetConnectedAccountAuthResponse" fields={[
@@ -167,12 +167,12 @@ Requires `connected_account_id` **or** `connection_name` + `identifier`.
 Creates a connected account with explicit auth details.
 
 <MethodParams label="Input schema" params={[
-  { name: 'connection_name', type: 'str', required: true, description: '' },
-  { name: 'identifier', type: 'str', required: true, description: '' },
-  { name: 'authorization_details', type: 'dict', required: true, description: 'OAuth token or static auth details' },
-  { name: 'organization_id', type: 'str', required: false, description: '' },
-  { name: 'user_id', type: 'str', required: false, description: '' },
-  { name: 'api_config', type: 'dict', required: false, description: '' },
+  { name: 'connection_name', type: 'str', required: true, description: 'Connector slug — must match a connection configured in your environment' },
+  { name: 'identifier', type: 'str', required: true, description: 'Stable ID for this end user or workspace (email, user_id, or custom string)' },
+  { name: 'authorization_details', type: 'dict', required: true, description: 'OAuth token payload, API key, or other credentials for this connector' },
+  { name: 'organization_id', type: 'str', required: false, description: 'Organization tenant ID when your app scopes auth and accounts by org' },
+  { name: 'user_id', type: 'str', required: false, description: 'Your application user ID when you map Scalekit accounts to internal users' },
+  { name: 'api_config', type: 'dict', required: false, description: 'Connector-specific options (for example scopes or static auth fields)' },
 ]} />
 
 Returns CreateConnectedAccountResponse. Same shape as `get_or_create_connected_account`.
@@ -182,13 +182,13 @@ Returns CreateConnectedAccountResponse. Same shape as `get_or_create_connected_a
 Requires `connected_account_id` **or** `connection_name` + `identifier`.
 
 <MethodParams label="Input schema" params={[
-  { name: 'connection_name', type: 'str', required: false, description: '' },
-  { name: 'identifier', type: 'str', required: false, description: '' },
-  { name: 'connected_account_id', type: 'str', required: false, description: '' },
-  { name: 'authorization_details', type: 'dict', required: false, description: '' },
-  { name: 'organization_id', type: 'str', required: false, description: '' },
-  { name: 'user_id', type: 'str', required: false, description: '' },
-  { name: 'api_config', type: 'dict', required: false, description: '' },
+  { name: 'connection_name', type: 'str', required: false, description: 'Connector slug — use with identifier when you do not pass connected_account_id' },
+  { name: 'identifier', type: 'str', required: false, description: 'End-user or workspace identifier — use with connection_name' },
+  { name: 'connected_account_id', type: 'str', required: false, description: 'Connected account ID (ca_...) when updating by ID instead of name + identifier' },
+  { name: 'authorization_details', type: 'dict', required: false, description: 'Replace or merge stored credentials (OAuth tokens, API keys, etc.)' },
+  { name: 'organization_id', type: 'str', required: false, description: 'Organization tenant ID when your app scopes auth and accounts by org' },
+  { name: 'user_id', type: 'str', required: false, description: 'Your application user ID when you map Scalekit accounts to internal users' },
+  { name: 'api_config', type: 'dict', required: false, description: 'Connector-specific configuration to persist on the account' },
 ]} />
 
 Returns UpdateConnectedAccountResponse.
@@ -198,9 +198,9 @@ Returns UpdateConnectedAccountResponse.
 Deletes a connected account and revokes its credentials. Requires `connected_account_id` **or** `connection_name` + `identifier`.
 
 <MethodParams label="Input schema" params={[
-  { name: 'connection_name', type: 'str', required: false, description: '' },
-  { name: 'identifier', type: 'str', required: false, description: '' },
-  { name: 'connected_account_id', type: 'str', required: false, description: '' },
+  { name: 'connection_name', type: 'str', required: false, description: 'Connector slug — use with identifier when you do not pass connected_account_id' },
+  { name: 'identifier', type: 'str', required: false, description: 'End-user or workspace identifier — use with connection_name' },
+  { name: 'connected_account_id', type: 'str', required: false, description: 'Connected account ID (ca_...) when deleting by ID instead of name + identifier' },
 ]} />
 
 Returns DeleteConnectedAccountResponse.
@@ -247,10 +247,10 @@ Makes a REST API call on behalf of a connected account. Scalekit injects the use
   { name: 'identifier', type: 'str', required: true, description: "User's identifier" },
   { name: 'path', type: 'str', required: true, description: 'API path (e.g. /gmail/v1/users/me/messages)' },
   { name: 'method', type: 'str', required: false, description: 'HTTP method. Default: GET' },
-  { name: 'query_params', type: 'dict', required: false, description: '' },
-  { name: 'body', type: 'any', required: false, description: '' },
-  { name: 'form_data', type: 'dict', required: false, description: '' },
-  { name: 'headers', type: 'dict', required: false, description: '' },
+  { name: 'query_params', type: 'dict', required: false, description: 'URL query parameters appended to path' },
+  { name: 'body', type: 'any', required: false, description: 'JSON-serializable body for POST, PUT, PATCH, or similar methods' },
+  { name: 'form_data', type: 'dict', required: false, description: 'Multipart form fields when the upstream API expects form data instead of JSON' },
+  { name: 'headers', type: 'dict', required: false, description: 'Extra HTTP headers merged with Scalekit-injected auth headers' },
 ]} />
 
 Returns `requests.Response`. Use `.json()`, `.status_code`, and standard response attributes.
@@ -279,7 +279,7 @@ messages = response.json()["messages"]
 
 <MethodParams label="Input schema" params={[
   { name: 'name', type: 'str', required: true, description: 'Config name' },
-  { name: 'description', type: 'str', required: false, description: '' },
+  { name: 'description', type: 'str', required: false, description: 'Human-readable summary of what this MCP config exposes' },
   { name: 'connection_tool_mappings', type: 'list', required: false, description: 'List of McpConfigConnectionToolMapping objects' },
 ]} />
 
@@ -306,8 +306,8 @@ config = actions.mcp.create_config(
 #### actions.mcp.list_configs
 
 <MethodParams label="Input schema" params={[
-  { name: 'page_size', type: 'int', required: false, description: '' },
-  { name: 'page_token', type: 'str', required: false, description: '' },
+  { name: 'page_size', type: 'int', required: false, description: 'Maximum configs per page (server default if omitted)' },
+  { name: 'page_token', type: 'str', required: false, description: 'Opaque cursor from a previous list response' },
   { name: 'filter_name', type: 'str', required: false, description: 'Filter by exact name' },
   { name: 'filter_provider', type: 'str', required: false, description: 'Filter by provider slug' },
   { name: 'search', type: 'str', required: false, description: 'Free-text search on name' },
@@ -318,8 +318,8 @@ Returns ListMcpConfigsResponse.
 #### actions.mcp.update_config
 
 <MethodParams label="Input schema" params={[
-  { name: 'config_id', type: 'str', required: true, description: '' },
-  { name: 'description', type: 'str', required: false, description: '' },
+  { name: 'config_id', type: 'str', required: true, description: 'MCP config ID from create_config or list_configs' },
+  { name: 'description', type: 'str', required: false, description: 'New human-readable description for this config' },
   { name: 'connection_tool_mappings', type: 'list', required: false, description: 'Replaces existing mappings' },
 ]} />
 
@@ -328,7 +328,7 @@ Returns UpdateMcpConfigResponse.
 #### actions.mcp.delete_config
 
 <MethodParams label="Input schema" params={[
-  { name: 'config_id', type: 'str', required: true, description: '' },
+  { name: 'config_id', type: 'str', required: true, description: 'MCP config ID to delete' },
 ]} />
 
 Returns DeleteMcpConfigResponse.
@@ -399,7 +399,7 @@ for conn in auth_state.connections:
 #### actions.mcp.get_instance
 
 <MethodParams label="Input schema" params={[
-  { name: 'instance_id', type: 'str', required: true, description: '' },
+  { name: 'instance_id', type: 'str', required: true, description: 'MCP instance ID from ensure_instance or list_instances' },
 ]} />
 
 Returns GetMcpInstanceResponse.
@@ -407,12 +407,12 @@ Returns GetMcpInstanceResponse.
 #### actions.mcp.list_instances
 
 <MethodParams label="Input schema" params={[
-  { name: 'page_size', type: 'int', required: false, description: '' },
-  { name: 'page_token', type: 'str', required: false, description: '' },
+  { name: 'page_size', type: 'int', required: false, description: 'Maximum instances per page (server default if omitted)' },
+  { name: 'page_token', type: 'str', required: false, description: 'Opaque cursor from a previous list response' },
   { name: 'filter_user_identifier', type: 'str', required: false, description: 'Filter by user' },
   { name: 'filter_config_name', type: 'str', required: false, description: 'Filter by config name' },
-  { name: 'filter_name', type: 'str', required: false, description: '' },
-  { name: 'filter_id', type: 'str', required: false, description: '' },
+  { name: 'filter_name', type: 'str', required: false, description: 'Filter by MCP instance display name' },
+  { name: 'filter_id', type: 'str', required: false, description: 'Filter by MCP instance ID' },
 ]} />
 
 Returns ListMcpInstancesResponse.
@@ -422,9 +422,9 @@ Returns ListMcpInstancesResponse.
 At least one of `name` or `config_name` is required.
 
 <MethodParams label="Input schema" params={[
-  { name: 'instance_id', type: 'str', required: true, description: '' },
-  { name: 'name', type: 'str', required: false, description: '' },
-  { name: 'config_name', type: 'str', required: false, description: '' },
+  { name: 'instance_id', type: 'str', required: true, description: 'MCP instance ID to update' },
+  { name: 'name', type: 'str', required: false, description: 'New display name for this instance' },
+  { name: 'config_name', type: 'str', required: false, description: 'Switch the instance to a different config by name' },
 ]} />
 
 Returns UpdateMcpInstanceResponse.
@@ -432,7 +432,7 @@ Returns UpdateMcpInstanceResponse.
 #### actions.mcp.delete_instance
 
 <MethodParams label="Input schema" params={[
-  { name: 'instance_id', type: 'str', required: true, description: '' },
+  { name: 'instance_id', type: 'str', required: true, description: 'MCP instance ID to delete' },
 ]} />
 
 Returns DeleteMcpInstanceResponse.
@@ -460,8 +460,8 @@ pip install langchain
   { name: 'providers', type: 'list', required: false, description: 'Filter by provider (e.g. ["google"])' },
   { name: 'tool_names', type: 'list', required: false, description: 'Filter by tool name' },
   { name: 'connection_names', type: 'list', required: false, description: 'Filter by connection name' },
-  { name: 'page_size', type: 'int', required: false, description: '' },
-  { name: 'page_token', type: 'str', required: false, description: '' },
+  { name: 'page_size', type: 'int', required: false, description: 'Maximum tools per page (server default if omitted)' },
+  { name: 'page_token', type: 'str', required: false, description: 'Opaque cursor from a previous list response' },
 ]} />
 
 <MethodReturns type="List[StructuredTool]" fields={[
@@ -503,8 +503,8 @@ tools = actions.google.get_tools(identifier="user@example.com")
 
 <MethodParams label="Input schema" params={[
   { name: 'filter', type: 'Filter', required: false, description: 'Filter by provider, identifier, or tool name' },
-  { name: 'page_size', type: 'int', required: false, description: '' },
-  { name: 'page_token', type: 'str', required: false, description: '' },
+  { name: 'page_size', type: 'int', required: false, description: 'Maximum tools per page (server default if omitted)' },
+  { name: 'page_token', type: 'str', required: false, description: 'Opaque cursor from a previous list response' },
 ]} />
 
 <MethodReturns type="ListToolsResponse" fields={[
@@ -519,8 +519,8 @@ Lists tools scoped to a specific user. This is what framework adapters use inter
 <MethodParams label="Input schema" params={[
   { name: 'identifier', type: 'str', required: true, description: 'User connected account identifier' },
   { name: 'filter', type: 'ScopedToolFilter', required: false, description: 'Filter by providers, tool names, or connection names' },
-  { name: 'page_size', type: 'int', required: false, description: '' },
-  { name: 'page_token', type: 'str', required: false, description: '' },
+  { name: 'page_size', type: 'int', required: false, description: 'Maximum tools per page (server default if omitted)' },
+  { name: 'page_token', type: 'str', required: false, description: 'Opaque cursor from a previous list response' },
 ]} />
 
 <MethodReturns type="ListScopedToolsResponse" fields={[
@@ -543,10 +543,10 @@ tools_response = scalekit_client.actions.tools.list_scoped_tools(
 Low-level tool execution — bypasses modifiers. Prefer `actions.execute_tool` in most cases.
 
 <MethodParams label="Input schema" params={[
-  { name: 'tool_name', type: 'str', required: true, description: '' },
-  { name: 'identifier', type: 'str', required: true, description: '' },
-  { name: 'params', type: 'dict', required: false, description: '' },
-  { name: 'connected_account_id', type: 'str', required: false, description: '' },
+  { name: 'tool_name', type: 'str', required: true, description: 'Registered tool name to execute' },
+  { name: 'identifier', type: 'str', required: true, description: 'End-user or workspace identifier used to resolve the connected account' },
+  { name: 'params', type: 'dict', required: false, description: 'Tool arguments matching the tool input schema' },
+  { name: 'connected_account_id', type: 'str', required: false, description: 'Connected account ID (ca_...) when you already know it' },
 ]} />
 
 Returns ExecuteToolResponse. Same shape as `actions.execute_tool`.
