@@ -171,8 +171,8 @@ export const sidebar = [
             label: 'OpenClaw',
             link: 'agentkit/openclaw',
           },
-          'agentkit/frameworks/langchain',
-          'agentkit/frameworks/google-adk',
+          // 'agentkit/frameworks/langchain', // TODO: Add when Langchain framework docs are ready
+          // 'agentkit/frameworks/google-adk', // TODO: Add when Google ADK framework docs are ready
           // 'agentkit/frameworks/agno', // TODO: Add when Agno framework docs are complete
           // 'agentkit/frameworks/openai', // TODO: Add when OpenAI framework docs are complete
           // 'agentkit/frameworks/anthropic', // TODO: Add when Anthropic framework docs are complete

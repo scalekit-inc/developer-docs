@@ -1,5 +1,5 @@
 ---
-title: Use pre-built tools in your agent
+title: Scalekit optimized tools for your Agent
 description: Call Scalekit's pre-built tools across 60+ connectors. Each tool returns structured, LLM-ready output — no endpoint URLs, auth headers, or parsing needed.
 slug: agentkit/tools/scalekit-optimized-tools
 sidebar:
@@ -22,123 +22,13 @@ These tools cover 60+ connectors out of the box — Gmail, Slack, GitHub, Salesf
 
 ## Before you start
 
-- A [Scalekit account](https://app.scalekit.com) with API credentials ready
-- A connector configured — without this, all tool calls fail with **resource not found**. See [Configure connections](/agentkit/connections/) for OAuth app setup, scopes, and redirect URIs.
+Complete the [AgentKit quickstart](/agentkit/quickstart/) before continuing. This page assumes:
 
-## Build with a coding agent
-
-Install the Scalekit Auth Stack for your coding agent, then paste the implementation prompt. The agent scaffolds connector setup, SDK initialization, tool discovery, and the full LLM tool-calling loop.
-
-<Tabs syncKey="coding-agent">
-  <TabItem label="Claude Code">
-    ```bash title="Terminal" frame="terminal" showLineNumbers=false
-    claude plugin marketplace add scalekit-inc/claude-code-authstack && claude plugin install agent-auth@scalekit-auth-stack
-    ```
-
-    Installing the plugin sets up Scalekit's MCP server and triggers an OAuth authorization flow in your browser. Complete the authorization before continuing.
-
-    Then paste this prompt:
-    ```md title="Implementation prompt" wrap showLineNumbers=false
-    Configure Scalekit agent authentication for Gmail. Provide code to discover the scoped tools available to a user, check their connected account status, execute the gmail_fetch_mails tool for the last 5 unread messages, and wire a complete Anthropic Messages API tool-calling loop using executeTool.
-    ```
-  </TabItem>
-  <TabItem label="Codex">
-    ```bash title="Terminal" frame="terminal" showLineNumbers=false
-    curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash
-    ```
-    Restart Codex → Plugin Directory → **Scalekit Auth Stack** → install **agent-auth**. If a browser authorization prompt appears, complete the OAuth flow before continuing. Then paste the implementation prompt above.
-  </TabItem>
-  <TabItem label="GitHub Copilot CLI">
-    ```bash title="Terminal" frame="terminal" showLineNumbers=false
-    copilot plugin marketplace add scalekit-inc/github-copilot-authstack
-    copilot plugin install agent-auth@scalekit-auth-stack
-    ```
-    If a browser authorization prompt appears, complete the OAuth flow before continuing. Then run:
-    ```bash title="Terminal" frame="terminal" showLineNumbers=false wrap
-    copilot "Configure Scalekit agent authentication for Gmail. Discover scoped tools, check connected account status, execute gmail_fetch_mails for the last 5 unread messages, and wire a complete Anthropic Messages API tool-calling loop using executeTool."
-    ```
-  </TabItem>
-  <TabItem label="Cursor">
-    <Aside type="note" title="Marketplace under review">
-      Scalekit Auth Stack is under review on Cursor Marketplace. Use the local installer below until it's live.
-    </Aside>
-    ```bash title="Terminal" frame="terminal" showLineNumbers=false
-    curl -fsSL https://raw.githubusercontent.com/scalekit-inc/cursor-authstack/main/install.sh | bash
-    ```
-    Reload Cursor → **Settings → Plugins** → enable **Agent Auth**. If a browser authorization prompt appears, complete the OAuth flow. Open chat (Cmd+L / Ctrl+L) and paste the implementation prompt above.
-  </TabItem>
-  <TabItem label="40+ agents">
-    ```bash title="Terminal" frame="terminal" showLineNumbers=false
-    npx skills add scalekit-inc/skills --skill integrating-agent-auth
-    ```
-    Then ask your agent: "Configure Scalekit agent authentication for Gmail. Discover scoped tools, check connected account status, execute gmail_fetch_mails for the last 5 unread messages, and wire a complete Anthropic Messages API tool-calling loop using executeTool."
-  </TabItem>
-</Tabs>
-
-<Aside type="caution" title="Review generated code before deploying">
-  Verify that token validation logic, error handling, and environment variable references match your application's requirements.
-</Aside>
-
-Prefer to build it by hand? Follow the steps below.
-
----
+- The SDK is installed and a `ScalekitClient` is initialized
+- A connector is configured with an active connected account for your user
 
 <Steps>
-1. ## Set up the connector
-
-   In the Scalekit Dashboard, go to **Agent Auth > Connections** and click **+ Create Connection**. Select the connector you want to use and complete the setup form.
-
-   Gmail is enabled by default in new Scalekit environments — no setup needed to get started. For other connectors, you must create a connection before any SDK call will work. A missing or inactive connection causes a **resource not found** error.
-
-   For OAuth-based connectors, the setup form asks for a Client ID, Client Secret, and scopes. See [Configure connections](/agentkit/connections/) for the full walkthrough.
-
-2. ## Initialize the SDK client
-
-   Copy your API credentials from **Developers > Settings > API Credentials** in the dashboard. Store them as environment variables:
-
-   - `SCALEKIT_CLIENT_ID`
-   - `SCALEKIT_CLIENT_SECRET`
-   - `SCALEKIT_ENVIRONMENT_URL`
-
-   Install the SDK and initialize the client:
-
-   <Tabs syncKey="tech-stack">
-     <TabItem label="Python">
-   ```sh showLineNumbers=false frame="none"
-   pip install scalekit-sdk-python
-   ```
-   ```python showLineNumbers=false frame="none"
-   import os
-   import scalekit.client
-
-   scalekit_client = scalekit.client.ScalekitClient(
-       client_id=os.getenv("SCALEKIT_CLIENT_ID"),
-       client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
-       env_url=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
-   )
-   # actions is the primary entry point for AgentKit
-   actions = scalekit_client.actions
-   ```
-     </TabItem>
-     <TabItem label="Node.js">
-   ```sh showLineNumbers=false frame="none"
-   npm install @scalekit-sdk/node
-   ```
-   ```ts showLineNumbers=false frame="none"
-   import { ScalekitClient } from '@scalekit-sdk/node';
-
-   const scalekit = new ScalekitClient(
-    process.env.SCALEKIT_ENVIRONMENT_URL!,
-     process.env.SCALEKIT_CLIENT_ID!,
-     process.env.SCALEKIT_CLIENT_SECRET!,
-   );
-   // actions is the primary entry point for AgentKit
-   const actions = scalekit.actions;
-   ```
-     </TabItem>
-   </Tabs>
-
-3. ## Discover the tools you can call
+1. ## Discover available tools
 
    Scalekit exposes four ways to find which tools are available. Pick the one that matches your need.
 
@@ -155,7 +45,6 @@ Prefer to build it by hand? Follow the steps below.
    ```python showLineNumbers=false frame="none"
    # Returns all tools registered in your Scalekit workspace
    response, _ = actions.tools.list_tools()
-   # Python SDK returns tool names in this list
    for tool_name in response.tool_names:
        print(tool_name)
    ```
@@ -164,7 +53,6 @@ Prefer to build it by hand? Follow the steps below.
    ```ts showLineNumbers=false frame="none"
    // Returns all tools registered in your Scalekit workspace
    const response = await scalekit.tools.listTools();
-   // Node SDK exposes tool names directly
    for (const toolName of response.toolNames) {
      console.log(toolName);
    }
@@ -216,128 +104,11 @@ Prefer to build it by hand? Follow the steps below.
 
    Use the playground to map out the fields you need before building your parsing logic.
 
-4. ## Authorize the user
-
-   A **connected account** links a specific user's identity to a connector. Without one, your agent has no per-user context — it cannot act on anyone's behalf. This step creates that link.
-
-   The flow runs once per user per connector:
-   1. Create a connected account for the user
-   2. Generate an authorization link and send it to them
-   3. The user completes the OAuth consent screen
-   4. The connected account becomes `ACTIVE` — your agent can now execute tools as that user
-
-   Scalekit stores and refreshes their tokens automatically from this point forward. The same code handles re-authorization when tokens expire or are revoked.
-
-   <Tabs syncKey="tech-stack">
-     <TabItem label="Python">
-   ```python showLineNumbers=false frame="none"
-   # Fetch the connected account for this user; creates one if it doesn't exist yet
-   response = actions.get_or_create_connected_account(
-       connection_name="gmail",
-       identifier="user_123",
-   )
-   account = response.connected_account
-
-   if account.status != "ACTIVE":
-       # Not ready for tool calls — generate an authorization link and send it to the user
-       link_response = actions.get_authorization_link(
-           connection_name="gmail",
-           identifier="user_123",
-       )
-       # Redirect the user to link_response.link to complete OAuth
-   ```
-     </TabItem>
-     <TabItem label="Node.js">
-   ```ts showLineNumbers=false frame="none"
-   // Fetch the connected account for this user; creates one if it doesn't exist yet
-   const response = await actions.getOrCreateConnectedAccount({
-     connectionName: 'gmail',
-     identifier: 'user_123',
-   });
-   const account = response.connectedAccount;
-
-   const isActive = account?.status === 'ACTIVE' || account?.status === 1;
-   if (!isActive) {
-     // Not ready for tool calls — generate an authorization link and send it to the user
-     const linkResponse = await actions.getAuthorizationLink({
-       connectionName: 'gmail',
-       identifier: 'user_123',
-     });
-     // Redirect the user to linkResponse.link to complete OAuth
-   }
-   ```
-     </TabItem>
-   </Tabs>
-
-   To inspect a connected account's full auth details — access token, expiry, last used timestamp — call `get_connected_account` / `getConnectedAccount`. This method returns sensitive credentials; restrict it to server-side code.
-
-   <Tabs syncKey="tech-stack">
-     <TabItem label="Python">
-   ```python showLineNumbers=false frame="none"
-   # Returns sensitive credentials — server-side only
-   details = actions.get_connected_account(
-       connection_name="gmail",
-       identifier="user_123",
-   )
-   print(details.connected_account.token_expires_at)
-   print(details.connected_account.last_used_at)
-   ```
-     </TabItem>
-     <TabItem label="Node.js">
-   ```ts showLineNumbers=false frame="none"
-   // Returns sensitive credentials — server-side only
-   const details = await actions.getConnectedAccount({
-     connectionName: 'gmail',
-     identifier: 'user_123',
-   });
-   console.log(details.connectedAccount?.tokenExpiresAt);
-   console.log(details.connectedAccount?.lastUsedAt);
-   ```
-     </TabItem>
-   </Tabs>
-
-   See [connected account states](/agentkit/connections/#account-states) for the full status reference.
-
-5. ## Execute a tool
+2. ## Execute tools across connectors
 
    `execute_tool` / `executeTool` runs a named tool for a specific user. Scalekit injects the user's OAuth token, calls the provider's API, and returns structured output — your agent never touches raw credentials or API endpoints.
 
-   <Tabs syncKey="tech-stack">
-     <TabItem label="Python">
-   ```python showLineNumbers=false frame="none"
-   # Execute the Gmail fetch tool on behalf of user_123
-   result = actions.execute_tool(
-       tool_name="gmail_fetch_mails",
-       identifier="user_123",
-       tool_input={
-           "query": "is:unread",
-           "max_results": 5,
-       },
-   )
-   # result.data is structured JSON — pass it directly to your agent or persist it
-   print(result.data)
-   ```
-     </TabItem>
-     <TabItem label="Node.js">
-   ```ts showLineNumbers=false frame="none"
-   // Execute the Gmail fetch tool on behalf of user_123
-   const result = await actions.executeTool({
-     toolName: 'gmail_fetch_mails',
-     identifier: 'user_123',
-     toolInput: {
-       query: 'is:unread',
-       max_results: 5,
-     },
-   });
-   // result.data is structured JSON — pass it directly to your agent or persist it
-   console.log(result.data);
-   ```
-     </TabItem>
-   </Tabs>
-
-   ### Invoke tools across different connectors
-
-   The same pattern works for every connector — swap `tool_name`, `tool_input`, and the `connection_name` used when creating the connected account.
+   The same pattern works for every connector — swap `tool_name` and `tool_input` for the target connector:
 
    | Connector | Tool name | Sample `tool_input` |
    |---|---|---|
@@ -350,7 +121,7 @@ Prefer to build it by hand? Follow the steps below.
      Exact tool names and input schemas vary by connector. Call `list_scoped_tools` / `listScopedTools` or open the connector detail page in the dashboard to see the current schema for any tool.
    </Aside>
 
-6. ## Wire the full LLM tool-calling loop
+3. ## Wire the LLM tool-calling loop
 
    The complete agent loop: fetch scoped tools → hand them to the LLM → execute any tool call the LLM requests → feed the result back into the conversation.
 
@@ -462,7 +233,7 @@ Prefer to build it by hand? Follow the steps below.
      </TabItem>
    </Tabs>
 
-7. ## Use a framework adapter
+4. ## Use a framework adapter
 
    For LangChain and Google ADK, Scalekit returns native tool objects in Python — no JSON Schema reshaping needed. In Node.js, use the Vercel AI SDK by reshaping `listScopedTools` output.
 
@@ -605,6 +376,37 @@ Prefer to build it by hand? Follow the steps below.
    </Tabs>
 
 </Steps>
+
+## Inspect connected account details
+
+To see a connected account's full auth details — access token, expiry, last used timestamp — call `get_connected_account` / `getConnectedAccount`. This method returns sensitive credentials; restrict it to server-side code.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+```python showLineNumbers=false frame="none"
+# Returns sensitive credentials — server-side only
+details = actions.get_connected_account(
+    connection_name="gmail",
+    identifier="user_123",
+)
+print(details.connected_account.token_expires_at)
+print(details.connected_account.last_used_at)
+```
+  </TabItem>
+  <TabItem label="Node.js">
+```ts showLineNumbers=false frame="none"
+// Returns sensitive credentials — server-side only
+const details = await actions.getConnectedAccount({
+  connectionName: 'gmail',
+  identifier: 'user_123',
+});
+console.log(details.connectedAccount?.tokenExpiresAt);
+console.log(details.connectedAccount?.lastUsedAt);
+```
+  </TabItem>
+</Tabs>
+
+See [connected account states](/agentkit/connections/#account-states) for the full status reference.
 
 ## Common AgentKit scenarios
 
