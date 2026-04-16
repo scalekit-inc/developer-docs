@@ -14,7 +14,7 @@ next:
   link: "/agentkit/examples/vercel-ai"
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
 Build an agent using OpenAI's GPT models that reads a user's Gmail inbox. Scalekit's tool schemas use `input_schema` — rename it to `parameters` and wrap it in OpenAI's function format.
 
@@ -55,6 +55,7 @@ client = OpenAI()
   <TabItem label="Node.js">
 ```typescript
 import { ScalekitClient } from '@scalekit-sdk/node';
+import { ConnectorStatus } from '@scalekit-sdk/node/lib/pkg/grpc/scalekit/v1/connected_accounts/connected_accounts_pb';
 import OpenAI from 'openai';
 
 const scalekit = new ScalekitClient(
@@ -88,7 +89,7 @@ const { connectedAccount } = await scalekit.actions.getOrCreateConnectedAccount(
   connectionName: 'gmail',
   identifier: 'user_123',
 });
-if (connectedAccount?.status !== 'ACTIVE') {
+if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
   const { link } = await scalekit.actions.getAuthorizationLink({ connectionName: 'gmail', identifier: 'user_123' });
   console.log('Authorize Gmail:', link);
 }
@@ -191,6 +192,88 @@ while (true) {
     messages.push({ role: 'tool', tool_call_id: tc.id, content: JSON.stringify(result.data) });
   }
 }
+```
+  </TabItem>
+</Tabs>
+
+## Use the Responses API
+
+OpenAI's [Responses API](https://platform.openai.com/docs/api-reference/responses) is a stateful alternative to Chat Completions. Instead of managing conversation history yourself, you pass `previous_response_id` to continue a session. The tool schema format is the same.
+
+<Aside type="note" title="OpenAI-native only">
+  The Responses API requires a direct OpenAI API key. It is not supported by OpenAI-compatible proxies.
+</Aside>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+```python
+response = client.responses.create(
+    model="gpt-4o",
+    input="Fetch my last 5 unread emails and summarize them",
+    tools=llm_tools,
+)
+
+while any(item.type == "function_call" for item in response.output):
+    tool_results = [
+        {
+            "type": "function_call_output",
+            "call_id": item.call_id,
+            "output": str(actions.execute_tool(
+                tool_name=item.name,
+                identifier="user_123",
+                tool_input=json.loads(item.arguments),
+            ).data),
+        }
+        for item in response.output
+        if item.type == "function_call"
+    ]
+    response = client.responses.create(
+        model="gpt-4o",
+        previous_response_id=response.id,
+        input=tool_results,
+        tools=llm_tools,
+    )
+
+for item in response.output:
+    if item.type == "message":
+        print(item.content[0].text)
+```
+  </TabItem>
+  <TabItem label="Node.js">
+```typescript
+let response = await openai.responses.create({
+  model: 'gpt-4o',
+  input: 'Fetch my last 5 unread emails and summarize them',
+  tools: llmTools,
+});
+
+while (response.output.some(item => item.type === 'function_call')) {
+  const toolResults = await Promise.all(
+    response.output
+      .filter(item => item.type === 'function_call')
+      .map(async item => {
+        const result = await scalekit.actions.executeTool({
+          toolName: item.name,
+          identifier: 'user_123',
+          toolInput: JSON.parse(item.arguments),
+        });
+        return {
+          type: 'function_call_output' as const,
+          call_id: item.call_id,
+          output: JSON.stringify(result.data),
+        };
+      })
+  );
+  response = await openai.responses.create({
+    model: 'gpt-4o',
+    previous_response_id: response.id,
+    input: toolResults,
+    tools: llmTools,
+  });
+}
+
+const message = response.output.find(item => item.type === 'message');
+if (message?.type === 'message') console.log(message.content[0].text);
 ```
   </TabItem>
 </Tabs>

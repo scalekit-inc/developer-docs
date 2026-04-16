@@ -4,7 +4,7 @@ description: Build a LangChain agent with Scalekit-authenticated Gmail tools. Sc
 slug: agentkit/examples/langchain
 sidebar:
   label: LangChain
-tags: [agentkit, examples, langchain, langgraph, gmail, tool-calling]
+tags: [agentkit, examples, langchain, gmail, tool-calling]
 tableOfContents: true
 prev:
   label: "Connect an MCP client"
@@ -24,7 +24,7 @@ Build a LangChain agent that reads a user's Gmail inbox. Scalekit handles OAuth,
 ## Install
 
 ```sh
-pip install scalekit-sdk-python langchain-openai langgraph
+pip install scalekit-sdk-python langchain-openai
 ```
 
 ## Initialize
@@ -58,51 +58,68 @@ See [Authorize a user](/agentkit/tools/authorize/) for production auth handling.
 
 ## Build and run the agent
 
-`actions.langchain.get_tools()` returns native `StructuredTool` objects — pass them directly to any LangChain agent:
+`actions.langchain.get_tools()` returns native `StructuredTool` objects. Bind them to your LLM and run the tool-calling loop:
 
 ```python
 from langchain_openai import ChatOpenAI
-from langgraph.prebuilt import create_react_agent
+from langchain_core.messages import HumanMessage, ToolMessage
 
 tools = actions.langchain.get_tools(
     identifier="user_123",
-    providers=["GMAIL"],
-    page_size=100,
+    connection_names=["gmail"],
 )
+tool_map = {t.name: t for t in tools}
 
-llm = ChatOpenAI(model="gpt-4o")
-agent = create_react_agent(llm, tools)
+llm = ChatOpenAI(model="gpt-4o").bind_tools(tools)
+messages = [HumanMessage("Fetch my last 5 unread emails and summarize them")]
 
-result = agent.invoke({
-    "messages": [{"role": "user", "content": "Fetch my last 5 unread emails and summarize them"}]
-})
-print(result["messages"][-1].content)
+while True:
+    response = llm.invoke(messages)
+    messages.append(response)
+    if not response.tool_calls:
+        print(response.content)
+        break
+    for tc in response.tool_calls:
+        result = tool_map[tc["name"]].invoke(tc["args"])
+        messages.append(ToolMessage(content=str(result), tool_call_id=tc["id"]))
 ```
 
-<Aside type="note" title="Filter by connector">
-  Pass `connection_names=["my_gmail_connection"]` instead of `providers` to scope tools to a specific named connection when a user has multiple Gmail accounts.
+<Aside type="note" title="Multiple Gmail accounts">
+  If a user has multiple Gmail connections, pass the specific `connection_names` value from your Scalekit dashboard to scope tools to the right one.
 </Aside>
 
 ## Use MCP instead
 
-LangChain supports MCP via `langchain-mcp-adapters`. Connect to a Scalekit-generated MCP URL to skip tool schema setup entirely:
+LangChain supports MCP via `langchain-mcp-adapters`. Install it, then connect to a Scalekit-generated MCP URL:
+
+```sh
+pip install langchain-mcp-adapters
+```
 
 ```python
 import asyncio
-from langgraph.prebuilt import create_react_agent
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage, ToolMessage
 
 async def run(mcp_url: str):
     async with MultiServerMCPClient(
         {"scalekit": {"transport": "streamable_http", "url": mcp_url}}
     ) as client:
         tools = client.get_tools()
-        agent = create_react_agent(ChatOpenAI(model="gpt-4o"), tools)
-        result = await agent.ainvoke(
-            {"messages": [{"role": "user", "content": "Fetch my last 5 unread emails and summarize them"}]}
-        )
-        print(result["messages"][-1].content)
+        tool_map = {t.name: t for t in tools}
+        llm = ChatOpenAI(model="gpt-4o").bind_tools(tools)
+        messages = [HumanMessage("Fetch my last 5 unread emails and summarize them")]
+
+        while True:
+            response = await llm.ainvoke(messages)
+            messages.append(response)
+            if not response.tool_calls:
+                print(response.content)
+                break
+            for tc in response.tool_calls:
+                result = await tool_map[tc["name"]].ainvoke(tc["args"])
+                messages.append(ToolMessage(content=str(result), tool_call_id=tc["id"]))
 
 asyncio.run(run(mcp_url))
 ```

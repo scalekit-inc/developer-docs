@@ -46,6 +46,8 @@ The flow is:
   </TabItem>
   <TabItem label="Node.js">
     ```typescript
+    import { ConnectorStatus } from '@scalekit-sdk/node/lib/pkg/grpc/scalekit/v1/connected_accounts/connected_accounts_pb';
+
     // Create or retrieve the connected account for this user
     const response = await actions.getOrCreateConnectedAccount({
       connectionName: 'gmail',
@@ -55,7 +57,7 @@ The flow is:
     const connectedAccount = response.connectedAccount;
 
     // Generate the authorization link if the account is not yet active
-    if (connectedAccount?.status !== 'ACTIVE') {
+    if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
       const linkResponse = await actions.getAuthorizationLink({
         connectionName: 'gmail',
         identifier: 'user_123',
@@ -108,6 +110,8 @@ Check the connected account status before executing tools. Tokens can expire or 
   </TabItem>
   <TabItem label="Node.js">
     ```typescript
+    import { ConnectorStatus } from '@scalekit-sdk/node/lib/pkg/grpc/scalekit/v1/connected_accounts/connected_accounts_pb';
+
     const response = await actions.getOrCreateConnectedAccount({
       connectionName: 'gmail',
       identifier: 'user_123',
@@ -119,7 +123,7 @@ Check the connected account status before executing tools. Tokens can expire or 
     // EXPIRED — tokens expired, re-authorization required
     // REVOKED — user revoked access from the provider
 
-    if (connectedAccount?.status !== 'ACTIVE') {
+    if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
       const linkResponse = await actions.getAuthorizationLink({
         connectionName: 'gmail',
         identifier: 'user_123',

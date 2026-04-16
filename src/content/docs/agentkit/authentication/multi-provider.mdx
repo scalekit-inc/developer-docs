@@ -63,7 +63,9 @@ for provider in providers:
 </TabItem>
 <TabItem value="node" label="Node.js">
 
-```javascript
+```typescript
+import { ConnectorStatus } from '@scalekit-sdk/node/lib/pkg/grpc/scalekit/v1/connected_accounts/connected_accounts_pb';
+
 // Create connected accounts for multiple providers
 const providers = ['gmail', 'slack', 'jira'];
 const userId = 'user_123';
@@ -78,7 +80,7 @@ for (const provider of providers) {
   console.log(`${provider}: ${account.status}`);
 
   // Generate authorization link if not active
-  if (account.status !== 'ACTIVE') {
+  if (account.status !== ConnectorStatus.ACTIVE) {
     const link = await scalekit.actions.getAuthorizationLink({
       connectionName: provider,
       identifier: userId

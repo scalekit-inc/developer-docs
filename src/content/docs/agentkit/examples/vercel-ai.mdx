@@ -26,6 +26,7 @@ npm install @scalekit-sdk/node ai @ai-sdk/openai
 
 ```typescript
 import { ScalekitClient } from '@scalekit-sdk/node';
+import { ConnectorStatus } from '@scalekit-sdk/node/lib/pkg/grpc/scalekit/v1/connected_accounts/connected_accounts_pb';
 
 const scalekit = new ScalekitClient(
   process.env.SCALEKIT_ENV_URL!,
@@ -41,7 +42,7 @@ const { connectedAccount } = await scalekit.actions.getOrCreateConnectedAccount(
   connectionName: 'gmail',
   identifier: 'user_123',
 });
-if (connectedAccount?.status !== 'ACTIVE') {
+if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
   const { link } = await scalekit.actions.getAuthorizationLink({ connectionName: 'gmail', identifier: 'user_123' });
   console.log('Authorize Gmail:', link);
 }
@@ -52,7 +53,7 @@ See [Authorize a user](/agentkit/tools/authorize/) for production auth handling.
 ## Run the agent
 
 ```typescript
-import { generateText, jsonSchema, tool } from 'ai';
+import { generateText, jsonSchema, stepCountIs, tool } from 'ai';
 import { openai } from '@ai-sdk/openai';
 
 const { tools: scopedTools } = await scalekit.tools.listScopedTools('user_123', {
@@ -80,7 +81,7 @@ const tools = Object.fromEntries(
 const { text } = await generateText({
   model: openai('gpt-4o'),
   tools,
-  maxSteps: 5,
+  stopWhen: stepCountIs(5),
   prompt: 'Fetch my last 5 unread emails and summarize them',
 });
 console.log(text);
@@ -106,7 +107,7 @@ const tools = await mcpClient.tools();
 const { text } = await generateText({
   model: openai('gpt-4o'),
   tools,
-  maxSteps: 5,
+  stopWhen: stepCountIs(5),
   prompt: 'Fetch my last 5 unread emails and summarize them',
 });
 await mcpClient.close();

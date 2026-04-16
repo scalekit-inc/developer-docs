@@ -182,7 +182,6 @@ export const sidebar = [
           { label: 'OpenAI', link: 'agentkit/examples/openai' },
           { label: 'Vercel AI', link: 'agentkit/examples/vercel-ai' },
           { label: 'Mastra', link: 'agentkit/examples/mastra' },
-          { label: 'CrewAI', link: 'agentkit/examples/crewai' },
           { label: 'OpenClaw', link: 'agentkit/openclaw' },
         ],
       },
