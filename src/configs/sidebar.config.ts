@@ -133,7 +133,6 @@ export const sidebar = [
         items: [
           'agentkit/overview',
           { label: 'Quickstart: AgentKit', link: 'agentkit/quickstart' },
-          'agentkit/code-samples',
           {
             label: 'SDKs',
             collapsed: true,
@@ -176,6 +175,7 @@ export const sidebar = [
         label: 'Examples',
         collapsed: true,
         items: [
+          { label: 'Overview', link: 'agentkit/examples/' },
           { label: 'LangChain', link: 'agentkit/examples/langchain' },
           { label: 'Google ADK', link: 'agentkit/examples/google-adk' },
           { label: 'Anthropic', link: 'agentkit/examples/anthropic' },

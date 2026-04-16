@@ -15,11 +15,11 @@ next:
 
 import { Aside } from '@astrojs/starlight/components';
 
-Once you have an MCP config, call `ensure_instance` to get a unique MCP URL for a specific user. Scalekit generates a URL that encodes the user's identity and authorized connections — the agent connecting to it gets exactly the tools that user is allowed to call.
+Once you have an MCP config, call `ensure_instance` to get a unique MCP URL for a specific user. Scalekit generates a URL that encodes the user's identity and authorized connections. The agent connecting to it gets exactly the tools that user is allowed to call.
 
 ## Get a per-user MCP URL
 
-`ensure_instance` is idempotent — if an instance already exists for this user and config, Scalekit returns it. Call it on every login without side effects.
+`ensure_instance` is idempotent: if an instance already exists for this user and config, Scalekit returns it. Call it on every login without side effects.
 
 ```python
 inst_response = actions.mcp.ensure_instance(
@@ -31,7 +31,7 @@ print("MCP URL:", mcp_url)
 ```
 
 <Aside type="caution" title="Keep the URL server-side">
-  The MCP URL is pre-authenticated. Treat it like a credential — never expose it to the browser or include it in client-side code.
+  The MCP URL is pre-authenticated. Treat it like a credential. Never expose it to the browser or include it in client-side code.
 </Aside>
 
 ## Check auth state
@@ -49,7 +49,7 @@ for conn in auth_state_response.connections:
     print("Auth link: ", conn.authentication_link)
 ```
 
-Surface the auth links to the user — via your app UI, email, or a Slack message — for any connection that isn't `ACTIVE`.
+Surface the auth links to the user (via your app UI, email, or a Slack message) for any connection that isn't `ACTIVE`.
 
 ## Poll until all connections are authorized
 

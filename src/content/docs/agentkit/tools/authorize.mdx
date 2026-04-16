@@ -14,7 +14,7 @@ next:
 
 import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
-Once a connection is configured, your users need to grant your agent access to their account. This happens once per user per connection — Scalekit stores their tokens and keeps them fresh automatically.
+Once a connection is configured, your users need to grant your agent access to their account. This happens once per user per connection. Scalekit stores their tokens and keeps them fresh automatically.
 
 The flow is:
 1. Create a connected account for the user
@@ -73,9 +73,9 @@ The flow is:
 
 How you deliver the link depends on your application:
 
-- **Web app** — redirect the user to `auth_url` directly from your server
-- **Email or notification** — send the link for the user to open when ready
-- **In-app prompt** — show the link as a button in your UI ("Connect Gmail")
+- **Web app:** redirect the user to `auth_url` directly if they're in an active browser session
+- **Email or notification:** send the link when the user isn't actively in your app, or when connecting at their own pace is acceptable
+- **In-app prompt:** show a button ("Connect Gmail") when you want to prompt connection at a specific moment in the user's workflow
 
 Once the user opens the link and approves the OAuth consent screen, Scalekit exchanges the authorization code for tokens and marks the connected account `ACTIVE`. You do not need to handle the OAuth callback yourself.
 
@@ -85,7 +85,7 @@ Once the user opens the link and approves the OAuth consent screen, Scalekit exc
 
 ## Check status and re-authorize
 
-Check the connected account status before executing tools. Tokens can expire or be revoked — when that happens, generate a new authorization link using the same flow.
+Check the connected account status before executing tools. Tokens can expire or be revoked, so generate a new authorization link using the same flow when that happens.
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Python">

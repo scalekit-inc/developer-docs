@@ -17,21 +17,24 @@ next:
 import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 import IconTdesignSequence from '~icons/tdesign/sequence';
 
-Before activating a connected account, Scalekit confirms that the user who completed the OAuth consent is the same user your app intended to connect. This **user verification** step runs every time a connected account is authorized and prevents OAuth consent from activating on the wrong account.
+User verification applies to OAuth-based connectors only. For API key, basic auth, and key pair connectors, the user provides credentials directly. No OAuth flow, no verification step needed.
+
+For OAuth connectors, before activating a connected account, Scalekit confirms that the user who completed the OAuth consent is the same user your app intended to connect. This **user verification** step runs every time a connected account is authorized and prevents OAuth consent from activating on the wrong account.
 
 Choose a mode in **Agent Auth > User Verification**:
 
-- **Custom user verification** — Your server checks the user against your session. Use in production.
-- **Scalekit users only** — Scalekit checks users signed in to the dashboard. Use for development and internal testing only.
+- **Custom user verification**: Your server confirms the authorizing user matches the user your app intended to connect. Use in production. Without this, any user who receives an authorization link can activate a connected account (including the wrong one).
+- **Scalekit users only**: Scalekit checks that the authorizing user is signed in to your Scalekit dashboard. No code required. Use during development and internal testing when all users are already on your team.
+
+<Aside type="note" title="Scalekit users only is for testing">
+  In this mode, the user authorizing the connection must already be signed in to the Scalekit dashboard. No verify route or API calls are needed in your code. Switch to **Custom user verification** before onboarding real users.
+</Aside>
 
 ![AgentKit User Verification showing Custom user verifier and Scalekit users only](@/assets/docs/agentkit/user-verification-config.png)
 
-<Tabs syncKey="user-verification-mode">
-  <TabItem label="Custom user verification">
+Your application implements the verify step. End users never interact with Scalekit directly.
 
-    Your application implements the verify step — end users never interact with Scalekit directly.
-
-    When the user finishes OAuth, Scalekit redirects to your verify URL with `auth_request_id` and `state` params. Your route reads the user from your session, calls Scalekit's verify API with the `auth_request_id` and the original `identifier`, and if they match, the connected account activates.
+When the user finishes OAuth, Scalekit redirects to your verify URL with `auth_request_id` and `state` params. Your route reads the user from your session, calls Scalekit's verify API with the `auth_request_id` and the original `identifier`, and if they match, the connected account activates.
 
 <details>
 <summary><IconTdesignSequence style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Review the verification sequence</summary>
@@ -166,17 +169,3 @@ const { postUserVerifyRedirectUrl } =
 </Tabs>
 
 On success, the connected account is activated. Redirect the user using `post_user_verify_redirect_url`.
-
-  </TabItem>
-  <TabItem label="Scalekit users only">
-
-    Scalekit performs verification for you — no verify route or API calls needed in your application code.
-
-    The user authorizing the connection must already be signed in to the Scalekit dashboard. If they are, verification completes automatically. If not, Scalekit shows an error instead of activating the connection.
-
-    <Aside type="note" title="Dashboard access required">
-      Users must be part of your Scalekit workspace and signed in to the dashboard before they can authorize connections. Switch to **Custom user verification** when you're ready to onboard users who don't have Scalekit accounts.
-    </Aside>
-
-  </TabItem>
-</Tabs>

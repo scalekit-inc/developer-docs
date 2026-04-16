@@ -15,13 +15,13 @@ next:
 
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 
-The SDK approach gives your code direct control: you call `execute_tool`, manage the response, and drive the agent loop. The MCP approach inverts this: you generate a pre-authenticated URL per user and hand it to any MCP-compatible agent or framework. The agent discovers available tools itself and executes them through the MCP protocol — your application code doesn't manage the loop.
-
 | Use MCP when | Use the SDK when |
 |---|---|
 | You want any MCP-compatible framework to connect | You need fine-grained control over tool execution |
 | You're exposing tools to external agents or Claude Desktop | You're building a custom agent loop |
 | You want to expose different tool sets to different agent roles | You need to mix Scalekit tools with custom logic |
+
+The SDK approach gives your code direct control: you call `execute_tool`, manage the response, and drive the agent loop. The MCP approach inverts this: you generate a pre-authenticated URL per user and hand it to any MCP-compatible agent or framework. The agent discovers available tools itself and executes them through the MCP protocol. Your application code doesn't manage the loop.
 
 ## How it works
 
@@ -32,7 +32,7 @@ Two objects are central to this model:
 | **MCP config** | A reusable template that defines which connections and tools are exposed | Once, by your app |
 | **MCP instance** | A per-user instantiation of a config, with its own URL | Once per user |
 
-You create a config once. For each user, Scalekit generates a unique, pre-authenticated URL from that config. The agent connects to the URL — Scalekit routes tool calls using the user's authorized credentials.
+You create a config once. For each user, Scalekit generates a unique, pre-authenticated URL from that config. The agent connects to the URL. Scalekit routes tool calls using the user's authorized credentials.
 
 ![Architecture diagram showing how Scalekit MCP works: app creates a config, Scalekit creates per-user instances with unique URLs, users authorize OAuth connections, and the agent connects via MCP URL](@/assets/docs/agentkit/mcp/mcp-tool-access-architecture.png)
 
@@ -44,7 +44,7 @@ See [Configure a connection](/agentkit/connections/) if you haven't set these up
 
 ## Create an MCP config
 
-An MCP config declares which connections and tools your server exposes. Create it once — not once per user.
+An MCP config declares which connections and tools your server exposes. Create it once (not once per user).
 
 ```python
 import os
@@ -77,7 +77,7 @@ print("Config created:", config_name)
 ```
 
 <Aside type="tip" title="One config, many use cases">
-  Create multiple configs for different agent roles — a customer support config that exposes ticketing tools, a sales config that exposes CRM tools. Each config produces a different URL with a different tool set.
+  Create multiple configs for different agent roles: a customer support config that exposes ticketing tools, a sales config that exposes CRM tools. Each config produces a different URL with a different tool set.
 </Aside>
 
 ## Whitelist specific tools

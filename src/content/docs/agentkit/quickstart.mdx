@@ -8,7 +8,7 @@ sidebar:
 
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 
-By the end of this guide, you'll have a working agent that fetches a user's last 5 unread Gmail messages — authenticated with their real account. Scalekit manages the OAuth flow, token storage, and API proxy so you focus on agent logic.
+By the end of this guide, you'll have a working agent that fetches a user's last 5 unread Gmail messages (authenticated with their real account). Scalekit manages the OAuth flow, token storage, and API proxy so you focus on agent logic.
 
 ## Before you start
 
@@ -29,17 +29,18 @@ Complete these steps in the Scalekit dashboard before writing any code:
 <Tabs syncKey="build-mode">
   <TabItem label="Using a coding agent">
 
-    Install the Scalekit Auth Stack for your coding agent, then paste the implementation prompt. The agent scaffolds connected account setup, the OAuth flow, and tool execution.
+    Install the Scalekit Auth Stack for your coding agent, complete the browser authorization when prompted, then paste the implementation prompt. The agent scaffolds connected account setup, the OAuth flow, and tool execution.
 
     <Tabs syncKey="coding-agent">
       <TabItem label="Claude Code">
+        1. Run the install command:
         ```bash title="Terminal" frame="terminal" showLineNumbers=false
         claude plugin marketplace add scalekit-inc/claude-code-authstack && claude plugin install agent-auth@scalekit-auth-stack
         ```
 
-        Installing the plugin sets up Scalekit's MCP server and triggers an OAuth authorization flow in your browser. Complete the authorization before continuing — this gives Claude Code direct access to your Scalekit environment to search docs, manage connections, and check connected account status.
+        2. A browser window opens — complete the OAuth authorization. This gives Claude Code direct access to your Scalekit environment to search docs, manage connections, and check connected account status.
 
-        Then paste this prompt:
+        3. Paste this prompt:
         ```md title="Implementation prompt" wrap showLineNumbers=false
         Configure Scalekit agent authentication for Gmail. Provide code to create a connected account, generate an authorization link, and — once the user authorizes — fetch the last 5 unread emails using Scalekit's tool API.
         ```
@@ -166,7 +167,7 @@ Complete these steps in the Scalekit dashboard before writing any code:
 
     ### 3. Authenticate the user
 
-    Your agent can't act on behalf of a user until they authorize access. Generate an authorization link, send it to the user, and Scalekit handles the rest — token exchange, storage, and automatic refresh. Once they complete the flow, the connected account status becomes `ACTIVE`.
+    Your agent can't act on behalf of a user until they authorize access. Generate an authorization link, send it to the user, and Scalekit handles the rest: token exchange, storage, and automatic refresh. Once they complete the flow, the connected account status becomes `ACTIVE`.
 
     <Tabs syncKey="tech-stack">
       <TabItem label="Python">
@@ -204,7 +205,7 @@ Complete these steps in the Scalekit dashboard before writing any code:
 
     ### 4. Fetch emails via tool call
 
-    Pass the tool name and your inputs to Scalekit. It handles the request to Gmail and returns a structured response your agent can reason over directly — no endpoint URLs, auth headers, or response parsing required.
+    Pass the tool name and your inputs to Scalekit. It handles the request to Gmail and returns a structured response your agent can reason over directly: no endpoint URLs, auth headers, or response parsing required.
 
     <Tabs syncKey="tech-stack">
       <TabItem label="Python">
@@ -243,12 +244,12 @@ Complete these steps in the Scalekit dashboard before writing any code:
 Run your agent and confirm:
 
 - The connected account status is `ACTIVE` after the user completes the Gmail OAuth flow.
-- The tool response contains structured email data — subject, sender, snippet, and timestamp — ready for your agent to process.
+- The tool response contains structured email data (subject, sender, snippet, and timestamp) ready for your agent to process.
 
 If the connected account stays in a `non-ACTIVE` state, the user has not completed the OAuth flow. Regenerate the authorization link and try again.
 
 ## Next steps
 
-- [Secure user verification](/agentkit/user-verification/) — Confirm the OAuth identity matches your logged-in user before activating a connected account. Required for production.
-- [Connected accounts](/agentkit/connected-accounts/) — Manage user connections across multiple providers.
-- [Tool calling](/agentkit/tools/scalekit-optimized-tools/) — Use Scalekit's optimized tools to call APIs without managing endpoints yourself.
+- [Secure user verification](/agentkit/user-verification/): Confirm the OAuth identity matches your logged-in user before activating a connected account. Required for production.
+- [Connected accounts](/agentkit/connected-accounts/): Manage user connections across multiple providers.
+- [Tool calling](/agentkit/tools/scalekit-optimized-tools/): Use Scalekit's optimized tools to call APIs without managing endpoints yourself.
