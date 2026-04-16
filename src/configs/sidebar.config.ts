@@ -177,7 +177,7 @@ export const sidebar = [
         ],
       },
       {
-        label: 'MCP',
+        label: 'Agent tools over MCP',
         collapsed: false,
         items: [
           { label: 'Configure an MCP server', link: 'agentkit/mcp/configure-mcp-server' },

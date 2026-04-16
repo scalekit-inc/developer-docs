@@ -15,6 +15,8 @@ next:
 
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 
+Suppose you ship an agent that reads a user's email and creates calendar events from chat. You want an **MCP client** (for example LangChain or Claude Desktop) to call those tools **without** storing users' OAuth tokens in the MCP client or in browser code, and **without** writing a custom tool-calling loop in your app. Scalekit keeps tokens server-side. An **MCP config** is the single template that lists which [connections](/agentkit/connections/) (for example Gmail and Google Calendar) and which tools appear on the MCP server. This page shows how to create that config. [Generate user MCP URLs](/agentkit/mcp/generate-user-urls/) and [Connect an MCP client](/agentkit/mcp/connect-mcp-client/) cover the steps that follow.
+
 | Use MCP when | Use the SDK when |
 |---|---|
 | You want any MCP-compatible framework to connect | You need fine-grained control over tool execution |
@@ -34,7 +36,142 @@ Two objects are central to this model:
 
 You create a config once. For each user, Scalekit generates a unique, pre-authenticated URL from that config. The agent connects to the URL. Scalekit routes tool calls using the user's authorized credentials.
 
-![Architecture diagram showing how Scalekit MCP works: app creates a config, Scalekit creates per-user instances with unique URLs, users authorize OAuth connections, and the agent connects via MCP URL](@/assets/docs/agentkit/mcp/mcp-tool-access-architecture.png)
+### One-time setup
+
+Declare the MCP config once with `create_config`: which connections and tools appear on the server.
+
+```d2 pad=48
+direction: right
+
+title: "How Scalekit MCP tool access works — one-time setup" {
+  near: top-center
+  shape: text
+  style.font-size: 22
+}
+
+one_time: {
+  label: "ONE-TIME SETUP"
+  style.fill: "#E3F2FD"
+  style.font-size: 16
+
+  your_app: "Your App" {
+    shape: oval
+    style.fill: "#FFE0B2"
+    style.font-size: 16
+  }
+  mcp_config: "MCP Config\ngmail_fetch_mails\ngooglecalendar_create_event" {
+    shape: rectangle
+    style.font-size: 16
+  }
+  your_app -> mcp_config: create_config()
+}
+
+next_flow: "Next: Per-user →" {
+  shape: text
+  style.font-size: 14
+  link: "#per-user"
+}
+
+one_time.mcp_config -> next_flow: ensure_instance()
+```
+
+### Per-user
+
+Call `ensure_instance` for each user. They authorize OAuth for each connection (`auth link`) until every connection is active. You receive a pre-authenticated MCP URL for that user.
+
+```d2 pad=48
+direction: right
+
+title: "How Scalekit MCP tool access works — per-user" {
+  near: top-center
+  shape: text
+  style.font-size: 22
+}
+
+prev_flow: "← One-time setup" {
+  shape: text
+  style.font-size: 14
+  link: "#one-time-setup"
+}
+
+per_user: {
+  label: "PER-USER"
+  style.fill: "#E8F5E9"
+  style.font-size: 16
+
+  instance: "Per-user instance\nmcp.scalekit.com\n/u/john-doe/..." {
+    shape: rectangle
+    style.font-size: 16
+  }
+  user_auth: "User authorizes" {
+    shape: oval
+    style.fill: "#FFE0B2"
+    style.font-size: 16
+  }
+  instance -> user_auth: auth link
+}
+
+next_flow: "Next: Runtime →" {
+  shape: text
+  style.font-size: 14
+  link: "#runtime"
+}
+
+prev_flow -> per_user.instance
+per_user.user_auth -> next_flow: MCP URL
+```
+
+### Runtime
+
+Point your MCP client at that URL (the diagram labels it **AI Agent (MCP URL)**). Tool calls flow to the providers Scalekit proxies using that user's tokens.
+
+```d2 pad=48
+direction: right
+
+title: "How Scalekit MCP tool access works — runtime" {
+  near: top-center
+  shape: text
+  style.font-size: 22
+}
+
+prev_flow: "← Per-user" {
+  shape: text
+  style.font-size: 14
+  link: "#per-user"
+}
+
+restart_flow: "↺ One-time setup" {
+  shape: text
+  style.font-size: 14
+  link: "#one-time-setup"
+}
+
+runtime: {
+  label: "RUNTIME"
+  style.fill: "#F3E5F5"
+  style.font-size: 16
+
+  agent: "AI Agent\n(MCP URL)" {
+    shape: rectangle
+    style.font-size: 16
+  }
+  gmail: Gmail {
+    shape: rectangle
+    style.fill: "#B2EBF2"
+    style.font-size: 16
+  }
+  gcal: "Google Calendar" {
+    shape: rectangle
+    style.fill: "#B2EBF2"
+    style.font-size: 16
+  }
+  agent -> gmail: tool calls
+  agent -> gcal: tool calls
+}
+
+prev_flow -> runtime.agent
+runtime.agent -> restart_flow
+```
 
 ## Prerequisites
 
