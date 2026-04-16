@@ -41,26 +41,57 @@ Use Scalekit optimized tools when they already cover your use case. They provide
 - Ensure the user has an `ACTIVE` [connected account](/agentkit/quickstart#2-create-a-connected-account) for that connection.
 - Confirm the connection includes the scopes required by your target API endpoint.
 
+## Find the right endpoint
+
+The `path` you pass to `actions.request()` is forwarded directly to the provider's API — Scalekit only adds the authentication headers. This means you need to look up the provider's API reference to get the correct path, HTTP method, and request shape.
+
+To identify the right endpoint for your connector:
+
+1. **Open the provider's API reference.** Every connector has public API docs listing available endpoints, required parameters, and response shapes.
+2. **Copy the endpoint path.** Use the path relative to the provider's base URL. For example, Gmail's base URL is `https://www.googleapis.com` — so the path for listing filters is `/gmail/v1/users/me/settings/filters`.
+3. **Check the required OAuth scopes.** Each endpoint lists the scopes it needs. Confirm those scopes are included in your connector configuration under **Agent Auth > Connections > [connector] > Scopes**.
+
+Some commonly used API references:
+
+| Connector | API reference |
+|---|---|
+| Gmail | [Google Gmail API reference](https://developers.google.com/gmail/api/reference/rest) |
+| Slack | [Slack API methods](https://api.slack.com/methods) |
+| GitHub | [GitHub REST API](https://docs.github.com/en/rest) |
+| Salesforce | [Salesforce REST API](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/) |
+| HubSpot | [HubSpot API overview](https://developers.hubspot.com/docs/api/overview) |
+
+<Aside type="note" title="Base URL is managed by Scalekit">
+  You only provide the path — Scalekit resolves the correct base URL for the connector and attaches the user's OAuth token automatically.
+</Aside>
+
 ## Build a custom tool with API Proxy mode
 
 <Steps>
 1. #### Define your custom tool contract
 
-   Start by defining the tool input your model will produce and the output your app will return. Keep this schema focused on the task, not on provider-specific details.
+   Translate the provider endpoint into a tool your model can call. The tool name and input schema should reflect your agent's intent, not the provider's API surface.
 
-   Example custom tool name: `gmail_list_filters`
+   For example, to list Gmail filters:
 
-   Example custom tool input:
-   - `identifier` (string): your app's user ID or email
+   - **Tool name:** `gmail_list_filters` — describes the action, not the endpoint
+   - **Input:** `identifier` (string) — your app's user ID, used to look up the connected account
+   - **Output:** a structured object with a `filters` array and a `count` — not the raw Gmail response
+
+   Keep the schema focused on what the model needs to reason over. Strip provider-specific noise before returning data.
 
 2. #### Call the provider API through Scalekit proxy
 
-   Use `request` on the actions client to call a provider endpoint that is not exposed as a pre-built tool.
+   Use `request` on the actions client to call any provider endpoint. Pass the HTTP method and the path from the provider's API reference.
+
+   **Read operations (GET)**
+
+   Append query parameters directly to the path string:
 
    <Tabs syncKey="tech-stack">
      <TabItem label="Python">
    ```python showLineNumbers=false frame="none"
-   # Custom tool handler: gmail_list_filters
+   # GET: list Gmail filters for this user
    def gmail_list_filters(identifier: str):
        response = actions.request(
            connection_name="gmail",
@@ -68,17 +99,27 @@ Use Scalekit optimized tools when they already cover your use case. They provide
            method="GET",
            path="/gmail/v1/users/me/settings/filters",
        )
-
        data = response.json()
        return {
            "filters": data.get("filter", []),
            "count": len(data.get("filter", [])),
        }
+
+   # GET with query parameters: fetch unread messages
+   def gmail_list_unread(identifier: str, max_results: int = 10):
+       response = actions.request(
+           connection_name="gmail",
+           identifier=identifier,
+           method="GET",
+           path=f"/gmail/v1/users/me/messages?q=is:unread&maxResults={max_results}",
+       )
+       data = response.json()
+       return {"messages": data.get("messages", [])}
    ```
      </TabItem>
      <TabItem label="Node.js">
    ```ts showLineNumbers=false frame="none"
-   // Custom tool handler: gmail_list_filters
+   // GET: list Gmail filters for this user
    async function gmailListFilters(identifier: string) {
      const response = await scalekit.actions.request({
        connectionName: 'gmail',
@@ -86,12 +127,61 @@ Use Scalekit optimized tools when they already cover your use case. They provide
        method: 'GET',
        path: '/gmail/v1/users/me/settings/filters',
      });
-
      const filters = response.data?.filter ?? [];
-     return {
-       filters,
-       count: filters.length,
-     };
+     return { filters, count: filters.length };
+   }
+
+   // GET with query parameters: fetch unread messages
+   async function gmailListUnread(identifier: string, maxResults = 10) {
+     const response = await scalekit.actions.request({
+       connectionName: 'gmail',
+       identifier,
+       method: 'GET',
+       path: `/gmail/v1/users/me/messages?q=is:unread&maxResults=${maxResults}`,
+     });
+     return { messages: response.data?.messages ?? [] };
+   }
+   ```
+     </TabItem>
+   </Tabs>
+
+   **Write operations (POST)**
+
+   Pass a request body for endpoints that create or update resources. The same pattern works for any connector — only `connection_name`, `path`, and `body` change:
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Python">
+   ```python showLineNumbers=false frame="none"
+   # POST: send a Slack message on behalf of the user
+   def slack_send_message(identifier: str, channel: str, text: str):
+       response = actions.request(
+           connection_name="slack",
+           identifier=identifier,
+           method="POST",
+           path="/api/chat.postMessage",
+           body={"channel": channel, "text": text},
+       )
+       data = response.json()
+       if not data.get("ok"):
+           raise ValueError(f"Slack error: {data.get('error')}")
+       return {"ts": data.get("ts"), "channel": data.get("channel")}
+   ```
+     </TabItem>
+     <TabItem label="Node.js">
+   ```ts showLineNumbers=false frame="none"
+   // POST: send a Slack message on behalf of the user
+   async function slackSendMessage(identifier: string, channel: string, text: string) {
+     const response = await scalekit.actions.request({
+       connectionName: 'slack',
+       identifier,
+       method: 'POST',
+       path: '/api/chat.postMessage',
+       body: { channel, text },
+     });
+     if (!response.data?.ok) {
+       throw new Error(`Slack error: ${response.data?.error}`);
+     }
+     return { ts: response.data.ts, channel: response.data.channel };
    }
    ```
      </TabItem>
@@ -119,12 +209,27 @@ Use Scalekit optimized tools when they already cover your use case. They provide
                },
                "required": ["identifier"],
            },
-       }
+       },
+       {
+           "name": "slack_send_message",
+           "description": "Send a message to a Slack channel on behalf of the user",
+           "input_schema": {
+               "type": "object",
+               "properties": {
+                   "identifier": {"type": "string"},
+                   "channel": {"type": "string"},
+                   "text": {"type": "string"},
+               },
+               "required": ["identifier", "channel", "text"],
+           },
+       },
    ]
 
    # In your tool router:
    # if tool_name == "gmail_list_filters":
    #     return gmail_list_filters(tool_input["identifier"])
+   # if tool_name == "slack_send_message":
+   #     return slack_send_message(tool_input["identifier"], tool_input["channel"], tool_input["text"])
    ```
      </TabItem>
      <TabItem label="Node.js">
@@ -141,11 +246,27 @@ Use Scalekit optimized tools when they already cover your use case. They provide
          required: ['identifier'],
        },
      },
+     {
+       name: 'slack_send_message',
+       description: 'Send a message to a Slack channel on behalf of the user',
+       input_schema: {
+         type: 'object',
+         properties: {
+           identifier: { type: 'string' },
+           channel: { type: 'string' },
+           text: { type: 'string' },
+         },
+         required: ['identifier', 'channel', 'text'],
+       },
+     },
    ];
 
    // In your tool router:
    // if (toolName === 'gmail_list_filters') {
    //   return await gmailListFilters(toolInput.identifier);
+   // }
+   // if (toolName === 'slack_send_message') {
+   //   return await slackSendMessage(toolInput.identifier, toolInput.channel, toolInput.text);
    // }
    ```
      </TabItem>
