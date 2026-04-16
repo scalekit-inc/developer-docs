@@ -22,9 +22,9 @@ Once you have an MCP config, call `ensure_instance` to get a unique MCP URL for 
 `ensure_instance` is idempotent — if an instance already exists for this user and config, Scalekit returns it. Call it on every login without side effects.
 
 ```python
-inst_response = my_mcp.ensure_instance(
-    config_name=config_name,
-    user_identifier="user_123",   # your app's unique user ID
+inst_response = actions.mcp.ensure_instance(
+    config_name=config_name,     # from cfg_response.config.name
+    user_identifier="user_123",  # your app's unique user ID
 )
 mcp_url = inst_response.instance.url
 print("MCP URL:", mcp_url)
@@ -39,11 +39,11 @@ print("MCP URL:", mcp_url)
 Before handing the URL to your agent, verify that the user has authorized all connections the config requires. Call `get_instance_auth_state` with `include_auth_links=True` to retrieve auth status and authorization links for any pending connections:
 
 ```python
-auth_state_response = my_mcp.get_instance_auth_state(
+auth_state_response = actions.mcp.get_instance_auth_state(
     instance_id=inst_response.instance.id,
     include_auth_links=True,
 )
-for conn in getattr(auth_state_response, "connections", []):
+for conn in auth_state_response.connections:
     print("Connection:", conn.connection_name)
     print("Status:    ", conn.connected_account_status)
     print("Auth link: ", conn.authentication_link)
@@ -60,12 +60,11 @@ import time
 
 def wait_for_auth(instance_id: str, poll_interval: int = 5):
     while True:
-        state = my_mcp.get_instance_auth_state(instance_id=instance_id)
-        connections = getattr(state, "connections", [])
-        if all(c.connected_account_status == "ACTIVE" for c in connections):
+        state = actions.mcp.get_instance_auth_state(instance_id=instance_id)
+        if all(c.connected_account_status == "ACTIVE" for c in state.connections):
             print("All connections authorized — MCP URL is ready.")
             return
-        pending = [c.connection_name for c in connections if c.connected_account_status != "ACTIVE"]
+        pending = [c.connection_name for c in state.connections if c.connected_account_status != "ACTIVE"]
         print(f"Waiting for: {pending}")
         time.sleep(poll_interval)
 

@@ -7,7 +7,7 @@ sidebar:
 tags: [agentkit, tools, custom-tools, api-proxy, tool-calling]
 tableOfContents: true
 prev:
-  label: "Use optimized tools"
+  label: "Use built-in tools"
   link: "/agentkit/tools/scalekit-optimized-tools"
 next:
   label: "Configure an MCP server"
@@ -55,7 +55,7 @@ Keep schemas focused on what the model needs. Strip provider-specific noise befo
 
 Use `actions.request` to call any provider endpoint. Scalekit handles credential injection.
 
-**GET requests** — append query parameters to the path:
+**GET requests** — pass query parameters as a dict:
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Python">
@@ -75,7 +75,8 @@ def gmail_list_unread(identifier: str, max_results: int = 10):
         connection_name="gmail",
         identifier=identifier,
         method="GET",
-        path=f"/gmail/v1/users/me/messages?q=is:unread&maxResults={max_results}",
+        path="/gmail/v1/users/me/messages",
+        query_params={"q": "is:unread", "maxResults": max_results},
     )
     return {"messages": response.json().get("messages", [])}
 ```
@@ -98,7 +99,8 @@ async function gmailListUnread(identifier: string, maxResults = 10) {
     connectionName: 'gmail',
     identifier,
     method: 'GET',
-    path: `/gmail/v1/users/me/messages?q=is:unread&maxResults=${maxResults}`,
+    path: '/gmail/v1/users/me/messages',
+    queryParams: { q: 'is:unread', maxResults },
   });
   return { messages: response.data?.messages ?? [] };
 }
@@ -144,7 +146,7 @@ async function slackSendMessage(identifier: string, channel: string, text: strin
 
 ## Expose as an LLM-callable tool
 
-Define the JSON Schema for your LLM and route tool calls to your handler:
+Define a JSON Schema for each custom tool and pass the list to your LLM. The schema format below matches what Scalekit returns for built-in tools — so it works directly with the Anthropic API. For OpenAI, rename `input_schema` to `parameters`.
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Python">
@@ -174,11 +176,12 @@ custom_tools = [
     },
 ]
 
-# Tool router:
-# if tool_name == "gmail_list_filters":
-#     return gmail_list_filters(tool_input["identifier"])
-# if tool_name == "slack_send_message":
-#     return slack_send_message(tool_input["identifier"], tool_input["channel"], tool_input["text"])
+def route_tool_call(tool_name: str, tool_input: dict):
+    if tool_name == "gmail_list_filters":
+        return gmail_list_filters(tool_input["identifier"])
+    if tool_name == "slack_send_message":
+        return slack_send_message(tool_input["identifier"], tool_input["channel"], tool_input["text"])
+    raise ValueError(f"Unknown tool: {tool_name}")
 ```
   </TabItem>
   <TabItem label="Node.js">
@@ -208,9 +211,11 @@ const customTools = [
   },
 ];
 
-// Tool router:
-// if (toolName === 'gmail_list_filters') return gmailListFilters(toolInput.identifier);
-// if (toolName === 'slack_send_message') return slackSendMessage(toolInput.identifier, toolInput.channel, toolInput.text);
+function routeToolCall(toolName: string, toolInput: Record<string, string>) {
+  if (toolName === 'gmail_list_filters') return gmailListFilters(toolInput.identifier);
+  if (toolName === 'slack_send_message') return slackSendMessage(toolInput.identifier, toolInput.channel, toolInput.text);
+  throw new Error(`Unknown tool: ${toolName}`);
+}
 ```
   </TabItem>
 </Tabs>

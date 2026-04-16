@@ -159,7 +159,7 @@ export const sidebar = [
         label: 'Tool calling',
         collapsed: false,
         items: [
-          { label: 'Use optimized tools', link: 'agentkit/tools/scalekit-optimized-tools' },
+          { label: 'Use built-in tools', link: 'agentkit/tools/scalekit-optimized-tools' },
           { label: 'Build custom tools', link: 'agentkit/tools/custom-tools' },
         ],
       },

@@ -49,16 +49,16 @@ An MCP config declares which connections and tools your server exposes. Create i
 ```python
 import os
 import scalekit.client
-from scalekit.actions.models.mcp_config import McpConfigConnectionToolMapping
+from scalekit.actions.types import McpConfigConnectionToolMapping
 
 scalekit_client = scalekit.client.ScalekitClient(
     client_id=os.getenv("SCALEKIT_CLIENT_ID"),
     client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
     env_url=os.getenv("SCALEKIT_ENV_URL"),
 )
-my_mcp = scalekit_client.actions.mcp
+actions = scalekit_client.actions
 
-cfg_response = my_mcp.create_config(
+cfg_response = actions.mcp.create_config(
     name="email-calendar-assistant",
     description="Reads email and creates calendar reminders",
     connection_tool_mappings=[
@@ -85,13 +85,10 @@ print("Config created:", config_name)
 The `tools` array in each `McpConfigConnectionToolMapping` controls exactly which tools are exposed on the server. To find the available tool names for a connector, call `list_tools` or check the connector's page in **Agent Auth > Connectors**.
 
 ```python
-# Expose all tools for a connector by omitting the tools filter
-McpConfigConnectionToolMapping(
-    connection_name="MY_GMAIL",
-    # tools=[...] — omit to expose all Gmail tools
-)
+# Expose all tools for a connector — omit tools to expose everything
+McpConfigConnectionToolMapping(connection_name="MY_GMAIL")
 
-# Or whitelist specific tools
+# Expose only specific tools
 McpConfigConnectionToolMapping(
     connection_name="MY_GMAIL",
     tools=["gmail_fetch_mails", "gmail_send_mail"],
