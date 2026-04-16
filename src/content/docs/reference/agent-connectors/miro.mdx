@@ -1,8 +1,6 @@
 ---
 title: Miro
 tableOfContents: true
-sidebar:
-  label: Miro
 head:
   - tag: style
     content: |
@@ -14,12 +12,14 @@ head:
       }
 ---
 
-import { Badge, Aside } from '@astrojs/starlight/components'
-import { SetupMiroSection, UsageMiroSection } from '@components/templates'
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
+import { SetupMiroSection } from '@components/templates'
+import { UsageMiroSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
-  Connect to Miro to manage boards, sticky notes, shapes, cards, frames, connectors, images, and tags using the Miro REST API.
+  Miro is a visual collaboration platform for teams. Manage boards, sticky notes, shapes, cards, frames, connectors, images, and tags using the Miro REST API.
  </div>
  <div class="flex justify-center">
   <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/Miro.svg" width="64" height="64" alt="Miro logo" />
@@ -27,6 +27,7 @@ import { SetupMiroSection, UsageMiroSection } from '@components/templates'
 </div>
 
 Supports authentication: <Badge text="OAuth 2.0" />
+
 
 ## Set up the agent connector
 
@@ -37,14 +38,6 @@ Supports authentication: <Badge text="OAuth 2.0" />
 <UsageMiroSection />
 
 ## Tool list
-
-<Aside type="note" title="Enterprise-only tools">
-  Several Miro tools require an Enterprise plan: `miro_audit_logs_get`, `miro_board_export_*`, `miro_data_classification_*`, `miro_org_*`, `miro_project_*`, `miro_team_*`, and `miro_teams_list`. These will return a `403 Forbidden` error if your Miro account is not on the Enterprise plan.
-</Aside>
-
-<Aside type="note" title="Experimental API">
-  The mind map tools (`miro_mindmap_*`) use Miro's experimental API and may change or be removed without notice.
-</Aside>
 
 ## `miro_app_card_create`
 
@@ -240,7 +233,7 @@ Updates the name or description of a Miro board.
 
 ## `miro_boards_list`
 
-Returns a list of Miro boards the authenticated user has access to. This tool takes no input parameters.
+Returns a list of Miro boards the authenticated user has access to. Supports filtering by team, project, owner, and search query.
 
 ## `miro_card_create`
 
@@ -1171,4 +1164,3 @@ Updates the content, style, or position of a text item on a Miro board.
 ## `miro_token_info_get`
 
 Returns information about the current OAuth token including the authenticated user ID, name, team, and granted scopes.
-

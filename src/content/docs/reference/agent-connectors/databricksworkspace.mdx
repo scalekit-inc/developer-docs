@@ -57,6 +57,46 @@ Terminate a Databricks cluster by cluster ID. The cluster will be deleted and al
 
 List all clusters in the Databricks workspace.
 
+## `databricksworkspace_information_schema_columns`
+
+List columns for a table using INFORMATION_SCHEMA.COLUMNS. Returns column name, data type, nullability, numeric precision/scale, max char length, and comment.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `catalog` | string | Yes | The catalog containing the table. |
+| `schema` | string | Yes | The schema containing the table. |
+| `table` | string | Yes | The table to list columns for. |
+| `warehouse_id` | string | Yes | The ID of the SQL warehouse to run the query on. |
+
+## `databricksworkspace_information_schema_schemata`
+
+List all schemas within a catalog using INFORMATION_SCHEMA.SCHEMATA. Used for schema discovery during setup.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `catalog` | string | Yes | The catalog to list schemas from. |
+| `warehouse_id` | string | Yes | The ID of the SQL warehouse to run the query on. |
+
+## `databricksworkspace_information_schema_table_constraints`
+
+List PRIMARY KEY and FOREIGN KEY constraints for tables in a schema using INFORMATION_SCHEMA.TABLE_CONSTRAINTS. Used to auto-detect join keys.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `catalog` | string | Yes | The catalog containing the schema. |
+| `schema` | string | Yes | The schema to list constraints from. |
+| `warehouse_id` | string | Yes | The ID of the SQL warehouse to run the query on. |
+
+## `databricksworkspace_information_schema_tables`
+
+List tables and views in a schema using INFORMATION_SCHEMA.TABLES. Returns table name, type (MANAGED, EXTERNAL, VIEW, etc.), and comment for schema discovery.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `catalog` | string | Yes | The catalog to query INFORMATION_SCHEMA from. |
+| `schema` | string | Yes | The schema to list tables from. |
+| `warehouse_id` | string | Yes | The ID of the SQL warehouse to run the query on. |
+
 ## `databricksworkspace_job_get`
 
 Get details of a specific Databricks job by job ID.
@@ -110,6 +150,14 @@ List all users in the Databricks workspace using the SCIM v2 API.
 
 List all secret scopes available in the Databricks workspace.
 
+## `databricksworkspace_sql_statement_cancel`
+
+Cancel a running SQL statement by its statement ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `statement_id` | string | Yes | The ID of the SQL statement to cancel. |
+
 ## `databricksworkspace_sql_statement_execute`
 
 Execute a SQL statement on a Databricks SQL warehouse and return the results.
@@ -121,6 +169,68 @@ Execute a SQL statement on a Databricks SQL warehouse and return the results.
 | `statement` | string | Yes | The SQL statement to execute. |
 | `warehouse_id` | string | Yes | The ID of the SQL warehouse to execute the statement on. |
 
+## `databricksworkspace_sql_statement_get`
+
+Get the status and results of a previously executed SQL statement by its statement ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `statement_id` | string | Yes | The ID of the SQL statement to retrieve. |
+
+## `databricksworkspace_sql_statement_result_chunk_get`
+
+Fetch a specific result chunk for a paginated SQL statement result. Use when a statement result has multiple chunks (large result sets).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `chunk_index` | integer | Yes | The index of the result chunk to fetch (0-based). |
+| `statement_id` | string | Yes | The ID of the SQL statement. |
+
+## `databricksworkspace_sql_warehouse_get`
+
+Get details of a specific Databricks SQL warehouse by its ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `warehouse_id` | string | Yes | The ID of the SQL warehouse to retrieve. |
+
+## `databricksworkspace_sql_warehouse_start`
+
+Start a stopped Databricks SQL warehouse by its ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `warehouse_id` | string | Yes | The ID of the SQL warehouse to start. |
+
+## `databricksworkspace_sql_warehouse_stop`
+
+Stop a running Databricks SQL warehouse by its ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `warehouse_id` | string | Yes | The ID of the SQL warehouse to stop. |
+
 ## `databricksworkspace_sql_warehouses_list`
 
 List all SQL warehouses available in the Databricks workspace.
+
+## `databricksworkspace_unity_catalog_catalogs_list`
+
+List all Unity Catalogs accessible to the service principal in the Databricks workspace.
+
+## `databricksworkspace_unity_catalog_schemas_list`
+
+List all schemas within a Unity Catalog in the Databricks workspace.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `catalog_name` | string | Yes | The name of the catalog to list schemas from. |
+
+## `databricksworkspace_unity_catalog_tables_list`
+
+List all tables and views within a schema in a Unity Catalog in the Databricks workspace.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `catalog_name` | string | Yes | The name of the catalog containing the schema. |
+| `schema_name` | string | Yes | The name of the schema to list tables from. |

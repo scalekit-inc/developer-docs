@@ -1,8 +1,5 @@
 ---
 title: Outlook
-description: Connect to Microsoft Outlook to manage emails, calendar events, contacts, tasks, and mailbox settings.
-sidebar:
-  label: Outlook
 tableOfContents: true
 head:
   - tag: style
@@ -25,11 +22,12 @@ import { UsageOutlookSection } from '@components/templates'
   Connect to Microsoft Outlook. Manage emails, calendar events, contacts, and tasks
  </div>
  <div class="flex justify-center">
-  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/outlook.svg" width="64" height="64" alt="Outlook logo" />
+  <img src="https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/outlook.svg" width="64" height="64" alt="Outlook logo" />
  </div>
 </div>
 
 Supports authentication: <Badge text="OAuth 2.0" />
+
 
 ## Set up the agent connector
 
@@ -47,34 +45,34 @@ Create a new calendar event in the user's Outlook calendar. Supports attendees, 
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `attendees_optional` | string | No | Comma-separated email addresses for optional attendees |
-| `attendees_required` | string | No | Comma-separated email addresses for required attendees |
-| `attendees_resource` | string | No | Comma-separated email addresses for resources (meeting rooms, equipment) |
-| `body_content` | string | No | Event description/body content |
-| `body_contentType` | string | No | Content type of the body: `HTML` or `Text` |
-| `end_datetime` | string | Yes | Event end time in RFC3339 format (e.g. `2026-01-27T15:00:00Z`) |
-| `end_timezone` | string | Yes | Timezone for the end time (e.g. `UTC`) |
-| `hideAttendees` | boolean | No | When true, each attendee only sees themselves in the attendee list |
-| `importance` | string | No | Event importance level: `low`, `normal`, or `high` |
+| `attendees_optional` | string | No | Array of email addresses for optional attendees |
+| `attendees_required` | string | No | Array of email addresses for required attendees |
+| `attendees_resource` | string | No | Array of email addresses for resources (meeting rooms, equipment) |
+| `body_content` | string | No | No description |
+| `body_contentType` | string | No | No description |
+| `end_datetime` | string | Yes | No description |
+| `end_timezone` | string | Yes | No description |
+| `hideAttendees` | boolean | No | When true, each attendee only sees themselves |
+| `importance` | string | No | Event importance level |
 | `isAllDay` | boolean | No | Mark as all-day event |
 | `isOnlineMeeting` | boolean | No | Create an online meeting (Teams/Skype) |
-| `isReminderOn` | boolean | No | Enable or disable reminder (default: true) |
-| `location` | string | No | Physical or virtual location display name |
-| `locations` | string | No | JSON array of location objects with `displayName`, `address`, and coordinates |
-| `onlineMeetingProvider` | string | No | Online meeting provider: `teamsForBusiness`, `skypeForBusiness`, or `skypeForConsumer` |
-| `recurrence_days_of_week` | string | No | Comma-separated days for weekly recurrence (e.g. `monday,wednesday,friday`) |
-| `recurrence_end_date` | string | No | End date for recurrence in YYYY-MM-DD format (required when `recurrence_range_type` is `endDate`) |
-| `recurrence_interval` | integer | No | How often the event recurs (e.g. 2 for every 2 weeks) |
-| `recurrence_occurrences` | integer | No | Number of occurrences (required when `recurrence_range_type` is `numbered`) |
-| `recurrence_range_type` | string | No | How the recurrence ends: `endDate`, `noEnd`, or `numbered` |
-| `recurrence_start_date` | string | No | Start date for recurrence in YYYY-MM-DD format |
-| `recurrence_type` | string | No | Recurrence pattern type: `daily`, `weekly`, `monthly`, or `yearly` |
-| `reminderMinutesBeforeStart` | integer | No | Minutes before event start to show reminder (default: 15) |
-| `sensitivity` | string | No | Event sensitivity/privacy level: `normal`, `personal`, `private`, or `confidential` |
-| `showAs` | string | No | Free/busy status: `free`, `tentative`, `busy`, `oof`, or `workingElsewhere` |
-| `start_datetime` | string | Yes | Event start time in RFC3339 format (e.g. `2026-01-27T14:00:00Z`) |
-| `start_timezone` | string | Yes | Timezone for the start time (e.g. `UTC`) |
-| `subject` | string | Yes | Event title/summary |
+| `isReminderOn` | boolean | No | Enable or disable reminder |
+| `location` | string | No | No description |
+| `locations` | string | No | JSON array of location objects with displayName, address, coordinates |
+| `onlineMeetingProvider` | string | No | Online meeting provider |
+| `recurrence_days_of_week` | string | No | Days of week for weekly recurrence (comma-separated) |
+| `recurrence_end_date` | string | No | End date for recurrence (YYYY-MM-DD), required if range_type is endDate |
+| `recurrence_interval` | integer | No | How often the event recurs (e.g., every 2 weeks = 2) |
+| `recurrence_occurrences` | integer | No | Number of occurrences, required if range_type is numbered |
+| `recurrence_range_type` | string | No | How the recurrence ends |
+| `recurrence_start_date` | string | No | Start date for recurrence (YYYY-MM-DD) |
+| `recurrence_type` | string | No | Recurrence pattern type |
+| `reminderMinutesBeforeStart` | integer | No | Minutes before event start to show reminder |
+| `sensitivity` | string | No | Event sensitivity/privacy level |
+| `showAs` | string | No | Free/busy status |
+| `start_datetime` | string | Yes | No description |
+| `start_timezone` | string | Yes | No description |
+| `subject` | string | Yes | No description |
 
 ## `outlook_create_contact`
 
@@ -84,7 +82,7 @@ Create a new contact in the user's mailbox with name, email addresses, and phone
 | --- | --- | --- | --- |
 | `businessPhones` | `array<string>` | No | Array of business phone numbers |
 | `companyName` | string | No | Company name |
-| `emailAddresses` | `array<object>` | No | Array of email address objects with `address` and optional `name` fields |
+| `emailAddresses` | `array<object>` | No | Array of email address objects with 'address' and optional 'name' fields |
 | `givenName` | string | Yes | First name of the contact |
 | `jobTitle` | string | No | Job title |
 | `mobilePhone` | string | No | Mobile phone number |
@@ -96,7 +94,7 @@ Delete a calendar event by ID.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `event_id` | string | Yes | The ID of the calendar event to delete |
+| `event_id` | string | Yes | No description |
 
 ## `outlook_get_attachment`
 
@@ -113,7 +111,7 @@ Retrieve an existing calendar event by ID from the user's Outlook calendar.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `event_id` | string | Yes | The ID of the calendar event to retrieve |
+| `event_id` | string | Yes | No description |
 
 ## `outlook_get_message`
 
@@ -137,9 +135,9 @@ List calendar events from the user's Outlook calendar with filtering, sorting, p
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `filter` | string | No | OData filter expression to filter events (e.g. `startsWith(subject,'Meeting')`) |
-| `orderby` | string | No | OData orderby expression to sort events (e.g. `start/dateTime desc`) |
-| `select` | string | No | Comma-separated list of properties to include in the response (e.g. `subject,start,end,location`) |
+| `filter` | string | No | OData filter expression to filter events (e.g., startsWith(subject,'All')) |
+| `orderby` | string | No | OData orderby expression to sort events (e.g., start/dateTime desc) |
+| `select` | string | No | Comma-separated list of properties to include in the response |
 | `skip` | number | No | Number of events to skip for pagination |
 | `top` | number | No | Maximum number of events to return |
 
@@ -149,9 +147,9 @@ List all contacts in the user's mailbox with support for filtering, pagination, 
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `$filter` | string | No | OData filter expression to narrow results (e.g. `emailAddresses/any(a:a/address eq 'user@example.com')`) |
-| `$orderby` | string | No | Property to sort by (e.g. `displayName`) |
-| `$select` | string | No | Comma-separated list of properties to return (e.g. `displayName,emailAddresses,phoneNumbers`) |
+| `$filter` | string | No | Filter expression to narrow results (e.g., "emailAddresses/any(a:a/address eq 'user@example.com')") |
+| `$orderby` | string | No | Property to sort by (e.g., "displayName") |
+| `$select` | string | No | Comma-separated list of properties to return (e.g., "displayName,emailAddresses,phoneNumbers") |
 | `$skip` | integer | No | Number of contacts to skip for pagination |
 | `$top` | integer | No | Number of contacts to return (default: 10) |
 
@@ -161,11 +159,11 @@ List all messages in the user's mailbox with support for filtering, pagination, 
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `$filter` | string | No | OData filter expression to narrow results (e.g. `isRead eq false`) |
-| `$orderby` | string | No | Property to sort by (e.g. `receivedDateTime desc`) |
-| `$select` | string | No | Comma-separated list of properties to return (e.g. `subject,from,receivedDateTime`) |
+| `$filter` | string | No | Filter expression to narrow results (e.g., "from/emailAddress/address eq 'user@example.com'") |
+| `$orderby` | string | No | Property to sort by (e.g., "receivedDateTime desc") |
+| `$select` | string | No | Comma-separated list of properties to return (e.g., "subject,from,receivedDateTime") |
 | `$skip` | integer | No | Number of messages to skip for pagination |
-| `$top` | integer | No | Number of messages to return, 1–1000 (default: 10) |
+| `$top` | integer | No | Number of messages to return (1-1000, default: 10) |
 
 ## `outlook_mailbox_settings_get`
 
@@ -178,11 +176,11 @@ Update mailbox settings for the signed-in user. Supports configuring automatic r
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `automaticRepliesSetting` | `object` | No | Configuration for automatic replies (out-of-office). Set status, internal/external reply messages, and optional scheduled time window. |
-| `dateFormat` | string | No | Preferred date format string for the mailbox (e.g., `MM/dd/yyyy`, `dd/MM/yyyy`, `yyyy-MM-dd`). |
+| `dateFormat` | string | No | Preferred date format string for the mailbox (e.g., 'MM/dd/yyyy', 'dd/MM/yyyy', 'yyyy-MM-dd'). |
 | `delegateMeetingMessageDeliveryOptions` | string | No | Controls how meeting messages are delivered when a delegate is configured. |
-| `language` | `object` | No | Language and locale for the mailbox. Object with locale (e.g., `en-US`) and displayName. |
-| `timeFormat` | string | No | Preferred time format string for the mailbox (e.g., `hh:mm tt` for 12-hour, `HH:mm` for 24-hour). |
-| `timeZone` | string | No | Preferred time zone for the mailbox (e.g., `UTC`, `Pacific Standard Time`, `Eastern Standard Time`). |
+| `language` | `object` | No | Language and locale for the mailbox. Object with locale (e.g., 'en-US') and displayName. |
+| `timeFormat` | string | No | Preferred time format string for the mailbox (e.g., 'hh:mm tt' for 12-hour, 'HH:mm' for 24-hour). |
+| `timeZone` | string | No | Preferred time zone for the mailbox (e.g., 'UTC', 'Pacific Standard Time', 'Eastern Standard Time'). |
 | `workingHours` | `object` | No | Working hours configuration including days of week, start/end times, and time zone. |
 
 ## `outlook_reply_to_message`
@@ -200,9 +198,9 @@ Search messages by keywords across subject, body, sender, and other fields. Retu
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `$select` | string | No | Comma-separated list of properties to return (e.g. `subject,from,receivedDateTime`) |
+| `$select` | string | No | Comma-separated list of properties to return (e.g., "subject,from,receivedDateTime") |
 | `$skip` | integer | No | Number of messages to skip for pagination |
-| `$top` | integer | No | Number of messages to return, 1–1000 (default: 10) |
+| `$top` | integer | No | Number of messages to return (1-1000, default: 10) |
 | `query` | string | Yes | Search query string (searches across subject, body, from, to) |
 
 ## `outlook_send_message`
@@ -213,7 +211,7 @@ Send an email message using Microsoft Graph API. The message is saved in the Sen
 | --- | --- | --- | --- |
 | `bccRecipients` | `array<string>` | No | Array of email addresses to BCC |
 | `body` | string | Yes | Body content of the email |
-| `bodyType` | string | No | Content type of the body: `Text` or `HTML` |
+| `bodyType` | string | No | Content type of the body (Text or HTML) |
 | `ccRecipients` | `array<string>` | No | Array of email addresses to CC |
 | `saveToSentItems` | boolean | No | Save the message in Sent Items folder (default: true) |
 | `subject` | string | Yes | Subject line of the email |
@@ -256,15 +254,6 @@ Rename a Microsoft To Do task list.
 | `display_name` | string | Yes | The new name for the task list. |
 | `list_id` | string | Yes | The ID of the task list to update. |
 
-## `outlook_todo_tasks_complete`
-
-Mark a Microsoft To Do task as completed.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `list_id` | string | Yes | The ID of the task list. |
-| `task_id` | string | Yes | The ID of the task to complete. |
-
 ## `outlook_todo_tasks_create`
 
 Create a new task in a Microsoft To Do task list with optional body, due date, importance, and reminder.
@@ -273,13 +262,13 @@ Create a new task in a Microsoft To Do task list with optional body, due date, i
 | --- | --- | --- | --- |
 | `body` | string | No | The body/notes of the task (plain text). |
 | `categories` | `array<string>` | No | Array of category names to assign to the task. |
-| `due_date` | string | No | Due date in YYYY-MM-DD format (e.g. `2026-04-15`). |
-| `due_time_zone` | string | No | Time zone for the due date (e.g. `UTC`, `America/New_York`). Defaults to UTC. |
-| `importance` | string | No | The importance of the task: `low`, `normal`, or `high`. |
+| `due_date` | string | No | Due date in YYYY-MM-DD format (e.g. "2026-04-15"). |
+| `due_time_zone` | string | No | Time zone for the due date (e.g. "UTC", "America/New_York"). Defaults to UTC. |
+| `importance` | string | No | The importance of the task: low, normal, or high. |
 | `list_id` | string | Yes | The ID of the task list to add the task to. |
-| `reminder_date_time` | string | No | Reminder date and time in ISO 8601 format (e.g. `2026-04-15T09:00:00`). |
-| `reminder_time_zone` | string | No | Time zone for the reminder (e.g. `UTC`). Defaults to UTC. |
-| `status` | string | No | The status of the task: `notStarted`, `inProgress`, `completed`, `waitingOnOthers`, or `deferred`. |
+| `reminder_date_time` | string | No | Reminder date and time in ISO 8601 format (e.g. "2026-04-15T09:00:00"). |
+| `reminder_time_zone` | string | No | Time zone for the reminder (e.g. "UTC"). Defaults to UTC. |
+| `status` | string | No | The status of the task: notStarted, inProgress, completed, waitingOnOthers, or deferred. |
 | `title` | string | Yes | The title of the task. |
 
 ## `outlook_todo_tasks_delete`
@@ -306,8 +295,8 @@ List all tasks in a Microsoft To Do task list with optional filtering and pagina
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `$filter` | string | No | OData filter expression (e.g. `status eq 'notStarted'`). |
-| `$orderby` | string | No | Property to sort by (e.g. `createdDateTime desc`). |
+| `$filter` | string | No | OData filter expression (e.g. "status eq 'notStarted'"). |
+| `$orderby` | string | No | Property to sort by (e.g. "createdDateTime desc"). |
 | `$skip` | integer | No | Number of tasks to skip for pagination. |
 | `$top` | integer | No | Number of tasks to return (default: 10). |
 | `list_id` | string | Yes | The ID of the task list. |
@@ -322,9 +311,9 @@ Update a task in a Microsoft To Do task list. Only provided fields are changed.
 | `categories` | `array<string>` | No | Array of category names to assign to the task. |
 | `due_date` | string | No | Due date in YYYY-MM-DD format. |
 | `due_time_zone` | string | No | Time zone for the due date. Defaults to UTC. |
-| `importance` | string | No | The importance: `low`, `normal`, or `high`. |
+| `importance` | string | No | The importance: low, normal, or high. |
 | `list_id` | string | Yes | The ID of the task list. |
-| `status` | string | No | The status: `notStarted`, `inProgress`, `completed`, `waitingOnOthers`, or `deferred`. |
+| `status` | string | No | The status: notStarted, inProgress, completed, waitingOnOthers, or deferred. |
 | `task_id` | string | Yes | The ID of the task to update. |
 | `title` | string | No | New title for the task. |
 
@@ -338,29 +327,29 @@ Update an existing Outlook calendar event. Only provided fields will be updated.
 | `attendees_required` | string | No | Comma-separated required attendee emails |
 | `attendees_resource` | string | No | Comma-separated resource emails (meeting rooms, equipment) |
 | `body_content` | string | No | Event description/body |
-| `body_contentType` | string | No | Content type of body: `HTML` or `Text` |
-| `categories` | string | No | Comma-separated categories to tag the event |
-| `end_datetime` | string | No | Event end time in RFC3339 format (e.g. `2026-01-27T10:00:00Z`) |
-| `end_timezone` | string | No | Timezone for the end time |
+| `body_contentType` | string | No | Content type of body |
+| `categories` | string | No | Comma-separated categories |
+| `end_datetime` | string | No | Event end time in RFC3339 format |
+| `end_timezone` | string | No | Timezone for end time |
 | `event_id` | string | Yes | The ID of the calendar event to update |
 | `hideAttendees` | boolean | No | When true, each attendee only sees themselves |
-| `importance` | string | No | Event importance level: `low`, `normal`, or `high` |
+| `importance` | string | No | Event importance level |
 | `isAllDay` | boolean | No | Mark as all-day event |
 | `isOnlineMeeting` | boolean | No | Create an online meeting (Teams/Skype) |
 | `isReminderOn` | boolean | No | Enable or disable reminder |
 | `location` | string | No | Physical or virtual location |
-| `locations` | string | No | JSON array of location objects with `displayName`, `address`, and coordinates |
-| `onlineMeetingProvider` | string | No | Online meeting provider: `teamsForBusiness`, `skypeForBusiness`, or `skypeForConsumer` |
-| `recurrence_days_of_week` | string | No | Comma-separated days for weekly recurrence (e.g. `monday,wednesday,friday`) |
-| `recurrence_end_date` | string | No | End date for recurrence in YYYY-MM-DD format |
-| `recurrence_interval` | integer | No | How often the event recurs (e.g. 2 for every 2 weeks) |
+| `locations` | string | No | JSON array of location objects with displayName, address, coordinates |
+| `onlineMeetingProvider` | string | No | Online meeting provider |
+| `recurrence_days_of_week` | string | No | Days of week for weekly recurrence (comma-separated) |
+| `recurrence_end_date` | string | No | End date for recurrence (YYYY-MM-DD) |
+| `recurrence_interval` | integer | No | How often the event recurs (e.g., every 2 weeks = 2) |
 | `recurrence_occurrences` | integer | No | Number of occurrences |
-| `recurrence_range_type` | string | No | How the recurrence ends: `endDate`, `noEnd`, or `numbered` |
-| `recurrence_start_date` | string | No | Start date for recurrence in YYYY-MM-DD format |
-| `recurrence_type` | string | No | Recurrence pattern type: `daily`, `weekly`, `monthly`, or `yearly` |
+| `recurrence_range_type` | string | No | How the recurrence ends |
+| `recurrence_start_date` | string | No | Start date for recurrence (YYYY-MM-DD) |
+| `recurrence_type` | string | No | Recurrence pattern type |
 | `reminderMinutesBeforeStart` | integer | No | Minutes before event start to show reminder |
-| `sensitivity` | string | No | Event sensitivity/privacy level: `normal`, `personal`, `private`, or `confidential` |
-| `showAs` | string | No | Free/busy status: `free`, `tentative`, `busy`, `oof`, or `workingElsewhere` |
-| `start_datetime` | string | No | Event start time in RFC3339 format (e.g. `2026-01-27T09:00:00Z`) |
-| `start_timezone` | string | No | Timezone for the start time |
+| `sensitivity` | string | No | Event sensitivity/privacy level |
+| `showAs` | string | No | Free/busy status |
+| `start_datetime` | string | No | Event start time in RFC3339 format |
+| `start_timezone` | string | No | Timezone for start time |
 | `subject` | string | No | Event title/summary |
