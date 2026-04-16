@@ -1,5 +1,5 @@
 ---
-title: Configure connections
+title: Configure a connection
 description: Set up a connection in the Scalekit Dashboard to authorize your agent to use a third-party connector on behalf of your users.
 tags: [agentauth, connections, connected-accounts, oauth2, api, guide]
 sidebar:
@@ -17,9 +17,9 @@ next:
 
 import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
-A **connection** is a configuration you create once in the Scalekit Dashboard. It holds everything Scalekit needs to interact with a connector's API — OAuth app credentials, scopes, redirect URIs, and so on. Once active, the connection is shared across all your users.
+A **connection** is a configuration you create once in the Scalekit Dashboard. It holds everything Scalekit needs to interact with a connector's API — OAuth app credentials, scopes, redirect URIs, and so on. One connection serves all your users.
 
-**Your users never touch the connection.** They interact with a *connected account* — the per-user instance that links their identity to a connection. The connection is your responsibility as the developer; the connected account is created when a user authenticates.
+Users don't configure connections. When a user authenticates, Scalekit creates a **connected account** — the per-user record that links their identity to a connection and holds their tokens.
 
 ## What the connection form asks for
 
@@ -104,100 +104,3 @@ You can create more than one connection for the same connector. This is useful w
 
 Each connection has its own name, which you use to identify it in API calls and in the dashboard.
 
-## Connected accounts
-
-A **connected account** is the per-user instance of a connection. When a user completes authentication, Scalekit creates a connected account that holds their tokens and tracks their authorization state.
-
-### Account states
-
-Connected accounts move through the following states:
-
-| State | Meaning |
-|---|---|
-| `PENDING` | Account created; user has not yet completed authentication |
-| `ACTIVE` | User authenticated; tokens are valid and ready for tool calls |
-| `EXPIRED` | Tokens have expired; user must re-authorize |
-| `REVOKED` | User revoked access from the provider's side |
-| `ERROR` | An authentication or configuration error occurred |
-
-When a connected account is not `ACTIVE`, generate a new authorization link and prompt the user to re-authorize:
-
-<Tabs syncKey="tech-stack">
-  <TabItem label="Python">
-    ```python
-    response = actions.get_or_create_connected_account(
-        connection_name="gmail",
-        identifier="user_123"
-    )
-    connected_account = response.connected_account
-
-    if connected_account.status != "ACTIVE":
-        link_response = actions.get_authorization_link(
-            connection_name="gmail",
-            identifier="user_123"
-        )
-        # Redirect the user to link_response.link to re-authorize
-    ```
-  </TabItem>
-  <TabItem label="Node.js">
-    ```typescript
-    const response = await actions.getOrCreateConnectedAccount({
-      connectionName: 'gmail',
-      identifier: 'user_123',
-    });
-
-    const connectedAccount = response.connectedAccount;
-
-    if (connectedAccount?.status !== 'ACTIVE') {
-      const linkResponse = await actions.getAuthorizationLink({
-        connectionName: 'gmail',
-        identifier: 'user_123',
-      });
-      // Redirect the user to linkResponse.link to re-authorize
-    }
-    ```
-  </TabItem>
-</Tabs>
-
-### Scopes and permissions
-
-Scopes are configured at the **connection level**, not per connected account. When a user completes the OAuth flow, they approve exactly the scopes defined on that connection.
-
-**Scopes cannot be changed on an existing connected account.** To request additional permissions:
-
-<Steps>
-1. Update the connection's scopes in the Scalekit Dashboard
-2. Generate a new authorization link for the user
-3. The user completes the OAuth consent screen again, approving the updated scopes
-4. Scalekit updates the connected account with the new token set
-</Steps>
-
-### List and delete connected accounts
-
-<Tabs syncKey="tech-stack">
-  <TabItem label="Python">
-    ```python
-    # Retrieve a connected account
-    response = actions.get_connected_account(
-        connection_name="gmail",
-        identifier="user_123"
-    )
-    connected_account = response.connected_account
-    print(f"Status: {connected_account.status}")
-    ```
-  </TabItem>
-  <TabItem label="Node.js">
-    ```typescript
-    // List connected accounts
-    const listResponse = await actions.listConnectedAccounts({
-      connectionName: 'gmail',
-    });
-
-    // Delete a connected account
-    await actions.deleteConnectedAccount({
-      connectionName: 'gmail',
-      identifier: 'user_123',
-    });
-    ```
-  </TabItem>
-</Tabs>

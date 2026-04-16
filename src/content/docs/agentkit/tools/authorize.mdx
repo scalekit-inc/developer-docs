@@ -8,7 +8,7 @@ prev:
   label: "Configure connections"
   link: "/agentkit/connections"
 next:
-  label: "Secure user verification"
+  label: "Verify user identity"
   link: "/agentkit/user-verification"
 ---
 
@@ -78,12 +78,12 @@ How you deliver the link depends on your application:
 Once the user opens the link and approves the OAuth consent screen, Scalekit exchanges the authorization code for tokens and marks the connected account `ACTIVE`. You do not need to handle the OAuth callback yourself.
 
 <Aside type="note" title="Production: add user verification">
-  By default, any user who completes the OAuth flow activates the connected account. In production, you should verify that the user who authorized is the same user your app intended to connect. See [Secure user verification](/agentkit/user-verification/).
+  By default, any user who completes the OAuth flow activates the connected account. In production, verify that the authorizing user matches the user your app intended to connect. See [Verify user identity](/agentkit/user-verification/).
 </Aside>
 
-## Check authorization status
+## Check status and re-authorize
 
-Before executing tools, confirm the connected account is active:
+Check the connected account status before executing tools. Tokens can expire or be revoked — when that happens, generate a new authorization link using the same flow.
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Python">
@@ -93,11 +93,17 @@ Before executing tools, confirm the connected account is active:
         identifier="user_123"
     )
     connected_account = response.connected_account
-    print(f"Status: {connected_account.status}")
     # ACTIVE — ready for tool calls
-    # PENDING — user has not yet completed the OAuth flow
+    # PENDING — user has not completed the OAuth flow
     # EXPIRED — tokens expired, re-authorization required
     # REVOKED — user revoked access from the provider
+
+    if connected_account.status != "ACTIVE":
+        link_response = actions.get_authorization_link(
+            connection_name="gmail",
+            identifier="user_123"
+        )
+        # Redirect or send link_response.link to the user
     ```
   </TabItem>
   <TabItem label="Node.js">
@@ -108,38 +114,17 @@ Before executing tools, confirm the connected account is active:
     });
 
     const connectedAccount = response.connectedAccount;
-    console.log('Status:', connectedAccount?.status);
     // ACTIVE — ready for tool calls
-    // PENDING — user has not yet completed the OAuth flow
+    // PENDING — user has not completed the OAuth flow
     // EXPIRED — tokens expired, re-authorization required
     // REVOKED — user revoked access from the provider
-    ```
-  </TabItem>
-</Tabs>
 
-## Handle re-authorization
-
-Tokens can expire or be revoked. When a connected account is not `ACTIVE`, generate a new authorization link and prompt the user to re-authorize. The flow is identical to the initial authorization.
-
-<Tabs syncKey="tech-stack">
-  <TabItem label="Python">
-    ```python
-    if connected_account.status != "ACTIVE":
-        link_response = actions.get_authorization_link(
-            connection_name="gmail",
-            identifier="user_123"
-        )
-        # Prompt the user to re-authorize using link_response.link
-    ```
-  </TabItem>
-  <TabItem label="Node.js">
-    ```typescript
     if (connectedAccount?.status !== 'ACTIVE') {
       const linkResponse = await actions.getAuthorizationLink({
         connectionName: 'gmail',
         identifier: 'user_123',
       });
-      // Prompt the user to re-authorize using linkResponse.link
+      // Redirect or send linkResponse.link to the user
     }
     ```
   </TabItem>

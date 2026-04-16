@@ -1,581 +1,120 @@
 ---
-title: Connected accounts
-description: Learn how to manage connected accounts in Agent Auth, including user authentication, authorization status, and account lifecycle management.
+title: Manage connected accounts
+description: Check status, list, delete, and update scopes for connected accounts.
 tags: [agentauth, connectedaccounts, oauth2, api, guide]
 sidebar:
   order: 4
-  label: "Connected accounts"
+  label: "Manage connected accounts"
 tableOfContents:
   maxHeadingLevel: 3
 prev:
-  label: "Connections"
-  link: "/agentkit/connections"
+  label: "Verify user identity"
+  link: "/agentkit/user-verification"
 next:
-  label: "Authorize a user"
-  link: "/agentkit/tools/authorize"
+  label: "Bring your own credentials"
+  link: "/agentkit/advanced/bring-your-own-oauth"
 ---
 
-import { Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Steps, Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
-Connected accounts in Agent Auth represent individual user or organization connections to third-party connectors. They contain the authentication state, tokens, and permissions needed to execute tools on behalf of a specific identifier (user_id, org_id, or custom identifier).
+A **connected account** is the per-user record that holds a user's tokens and tracks their authorization state for a specific connection. Scalekit creates one automatically when a user completes the OAuth flow.
 
-## What are connected accounts?
+## Account states
 
-Connected accounts are the runtime instances that link your users to their third-party application accounts. Each connected account:
+| State | Meaning |
+|---|---|
+| `PENDING` | User hasn't completed authentication |
+| `ACTIVE` | Tokens valid — ready for tool calls |
+| `EXPIRED` | Tokens expired — re-authorization required |
+| `REVOKED` | User revoked access from the provider |
+| `ERROR` | Authentication or configuration error |
 
-- **Links to a connection**: Uses a pre-configured connection for authentication
-- **Has a unique identifier**: Associated with a user_id, org_id, or custom identifier
-- **Maintains auth state**: Tracks whether the user has completed authentication
-- **Stores tokens**: Securely holds access tokens and refresh tokens
-- **Manages permissions**: Tracks granted scopes and permissions
-
-## Connected account lifecycle
-
-Connected accounts go through several states during their lifecycle:
-
-### Account states
-
-1. **Pending**: Account created but user hasn't completed authentication
-2. **Active**: User has authenticated and tokens are valid
-3. **Expired**: Tokens have expired and need refresh
-4. **Revoked**: User has revoked access to the application
-5. **Error**: Account has authentication or configuration errors
-6. **Suspended**: Account temporarily disabled
-
-### State transitions
-
-```d2
-direction: right
-
-A: Pending
-B: Active
-C: Expired
-D: Revoked
-E: Error
-F: Suspended
-
-A -> B
-B -> C
-C -> B
-B -> D
-B -> E
-E -> B
-B -> F
-F -> B
-```
-
-## Creating connected accounts
-
-### Using the dashboard
-
-<Steps>
-1. **Navigate to connected accounts** in your Agent Auth dashboard
-2. **Click create account** to start the process
-3. **Select connection** to use for authentication
-4. **Enter identifier** (user_id, email, or custom identifier)
-5. **Configure settings** such as scopes and permissions
-6. **Generate auth URL** for the user to complete authentication
-7. **Monitor status** until user completes the flow
-</Steps>
-
-### Using the API
-
-Create connected accounts programmatically:
+## Check account status
 
 <Tabs syncKey="tech-stack">
-<TabItem label="Python">
-
-```python
-# actions = scalekit_client.actions  (initialize ScalekitClient first — see quickstart)
-response = actions.get_or_create_connected_account(
-    connection_name="gmail",
-    identifier="user_123"
-)
-connected_account = response.connected_account
-print(f"Connected account: {connected_account.id}, status: {connected_account.status}")
-```
-
-</TabItem>
-<TabItem label="Node.js">
-
-```typescript
-// const actions = new ScalekitClient(ENV_URL, CLIENT_ID, CLIENT_SECRET).actions
-const response = await actions.getOrCreateConnectedAccount({
-  connectionName: 'gmail',
-  identifier: 'user_123',
-});
-
-const connectedAccount = response.connectedAccount;
-console.log('Connected account:', connectedAccount?.id, 'status:', connectedAccount?.status);
-```
-
-</TabItem>
-</Tabs>
-
-## Authentication flow
-
-### OAuth 2.0 flow
-
-For OAuth connections, connected accounts follow the standard OAuth flow:
-
-<Steps>
-1. **Create connected account** with pending status
-2. **Generate authorization URL** for the user
-3. **User completes OAuth flow** with the third-party connector
-4. **Connector redirects back** with authorization code
-5. **Exchange code for tokens** and update account status
-6. **Account becomes active** and ready for tool execution
-</Steps>
-
-### Authorization URL generation
-
-Generate URLs for users to complete authentication:
-
-<Tabs syncKey="tech-stack">
-<TabItem label="Python">
-
-```python
-link_response = actions.get_authorization_link(
-    connection_name="gmail",
-    identifier="user_123"
-)
-print(f"Authorization URL: {link_response.link}")
-# Redirect the user to link_response.link to complete OAuth
-```
-
-</TabItem>
-<TabItem label="Node.js">
-
-```typescript
-const linkResponse = await actions.getAuthorizationLink({
-  connectionName: 'gmail',
-  identifier: 'user_123',
-});
-
-console.log('Authorization URL:', linkResponse.link);
-// Redirect the user to linkResponse.link to complete OAuth
-```
-
-</TabItem>
-</Tabs>
-
-### Handling callbacks
-
-Scalekit handles the OAuth callback automatically. Once the user completes the authorization flow, Scalekit exchanges the code for tokens and updates the connected account status to `ACTIVE`.
-
-## Managing connected accounts
-
-### Account information
-
-Retrieve connected account details and OAuth tokens:
-
-<Tabs syncKey="tech-stack">
-<TabItem label="Python">
-
+  <TabItem label="Python">
 ```python
 response = actions.get_connected_account(
     connection_name="gmail",
     identifier="user_123"
 )
 connected_account = response.connected_account
-
-# Extract OAuth tokens from authorization details
-tokens = connected_account.authorization_details["oauth_token"]
-access_token = tokens["access_token"]
-refresh_token = tokens["refresh_token"]
-
-print(f"Account ID: {connected_account.id}")
 print(f"Status: {connected_account.status}")
 ```
-
-</TabItem>
-<TabItem label="Node.js">
-
+  </TabItem>
+  <TabItem label="Node.js">
 ```typescript
-const accountResponse = await actions.getConnectedAccount({
+const response = await actions.getConnectedAccount({
   connectionName: 'gmail',
   identifier: 'user_123',
 });
 
-const connectedAccount = accountResponse?.connectedAccount;
-const authDetails = connectedAccount?.authorizationDetails;
-
-// Extract OAuth tokens from authorization details
-const accessToken = (authDetails && authDetails.details?.case === 'oauthToken')
-  ? authDetails.details.value?.accessToken
-  : undefined;
-const refreshToken = (authDetails && authDetails.details?.case === 'oauthToken')
-  ? authDetails.details.value?.refreshToken
-  : undefined;
-
-console.log('Account ID:', connectedAccount?.id);
-console.log('Status:', connectedAccount?.status);
+console.log('Status:', response.connectedAccount?.status);
 ```
-
-</TabItem>
+  </TabItem>
 </Tabs>
 
-### Token management
+## Re-authorize when tokens expire
 
-Connected accounts automatically handle token lifecycle:
-
-**Automatic token refresh:**
-- Tokens are refreshed automatically before expiration
-- Refresh happens transparently during tool execution
-- Failed refresh attempts update account status to expired
-
-**Manual token refresh:**
-
-There is no SDK method to manually trigger a token refresh. If a connected account's status is `EXPIRED` or `ERROR`, generate a new authorization link and prompt the user to re-authorize:
+When a connected account isn't `ACTIVE`, generate a new authorization link and prompt the user to re-authorize. The flow is the same as initial authorization — see [Authorize a user](/agentkit/tools/authorize/).
 
 <Tabs syncKey="tech-stack">
-<TabItem label="Python">
-
+  <TabItem label="Python">
 ```python
-response = actions.get_or_create_connected_account(
-    connection_name="gmail",
-    identifier="user_123"
-)
-connected_account = response.connected_account
-
 if connected_account.status != "ACTIVE":
-    # Re-authorize the user to refresh their tokens
     link_response = actions.get_authorization_link(
         connection_name="gmail",
         identifier="user_123"
     )
-    print(f"Re-authorization required. Send user to: {link_response.link}")
+    # Redirect or send link_response.link to the user
 ```
-
-</TabItem>
-<TabItem label="Node.js">
-
+  </TabItem>
+  <TabItem label="Node.js">
 ```typescript
-const response = await actions.getOrCreateConnectedAccount({
-  connectionName: 'gmail',
-  identifier: 'user_123',
-});
-
-const connectedAccount = response.connectedAccount;
-
 if (connectedAccount?.status !== 'ACTIVE') {
-  // Re-authorize the user to refresh their tokens
   const linkResponse = await actions.getAuthorizationLink({
     connectionName: 'gmail',
     identifier: 'user_123',
   });
-  console.log('Re-authorization required. Send user to:', linkResponse.link);
+  // Redirect or send linkResponse.link to the user
 }
 ```
-
-</TabItem>
+  </TabItem>
 </Tabs>
 
-### Account status monitoring
+## List connected accounts
 
-Monitor account authentication status:
-
-<Tabs syncKey="tech-stack">
-<TabItem label="Python">
-
-```python
-response = actions.get_connected_account(
-    connection_name="gmail",
-    identifier="user_123"
-)
-connected_account = response.connected_account
-
-# Possible status values:
-# - PENDING: Waiting for user authentication
-# - ACTIVE: Authenticated and ready
-# - EXPIRED: Tokens expired, needs re-authorization
-# - REVOKED: User revoked access
-# - ERROR: Authentication error
-print(f"Account status: {connected_account.status}")
-```
-
-</TabItem>
-<TabItem label="Node.js">
+<Aside type="note" title="Node.js only">
+  List and delete operations are currently available in the Node.js SDK. Use the [Scalekit dashboard](https://app.scalekit.com) or REST API for Python.
+</Aside>
 
 ```typescript
-const accountResponse = await actions.getConnectedAccount({
-  connectionName: 'gmail',
-  identifier: 'user_123',
-});
-
-const connectedAccount = accountResponse?.connectedAccount;
-
-// Possible status values:
-// - PENDING: Waiting for user authentication
-// - ACTIVE: Authenticated and ready
-// - EXPIRED: Tokens expired, needs re-authorization
-// - REVOKED: User revoked access
-// - ERROR: Authentication error
-console.log('Account status:', connectedAccount?.status);
-```
-
-</TabItem>
-</Tabs>
-
-## Account permissions and scopes
-
-Scopes define what actions a connected account can perform on a user's behalf. Understanding how scopes are configured and updated is critical to building reliable agent integrations.
-
-### Scopes are set at the connection level
-
-Scopes are configured at the **connection level**, not at the individual connected account level. When a user completes the OAuth authorization flow for a connected account, they approve exactly the scopes defined on that connection.
-
-**Scopes are read-only after a connected account is created.** There is no API or SDK method to modify the granted scopes on an existing connected account after the user has completed authentication.
-
-### Add or change scopes
-
-To request additional scopes for an existing connected account:
-
-<Steps>
-1. **Update the connection configuration** — In the Scalekit dashboard, navigate to the connection and add the new scopes.
-
-2. **Generate a new magic link** — Use the Scalekit dashboard or API to create a new authorization link for the user.
-
-3. **User approves the updated consent screen** — The user visits the link and approves the expanded OAuth consent screen with the new scopes.
-
-4. **Connected account is updated** — After the user approves, Scalekit updates the connected account with the new token set.
-</Steps>
-
-The user must go through the OAuth flow again whenever scopes change. There is no way to silently add scopes on their behalf.
-
-### Account and connector status values
-
-When working with connected accounts, you may encounter the following enum values from the Scalekit platform:
-
-**Connector status**
-
-| Value | Description |
-|-------|-------------|
-| `CONNECTOR_STATUS_ACTIVE` | Connector is configured and operational |
-| `CONNECTOR_STATUS_INACTIVE` | Connector is configured but not active |
-| `CONNECTOR_STATUS_PENDING` | Connector setup is incomplete |
-| `CONNECTOR_STATUS_ERROR` | Connector has a configuration or authentication error |
-
-**Connector type**
-
-| Value | Description |
-|-------|-------------|
-| `CONNECTOR_TYPE_OAUTH2` | OAuth 2.0 connection (e.g., Gmail, Slack, GitHub) |
-| `CONNECTOR_TYPE_API_KEY` | API key-based connection (e.g., Zendesk, HubSpot) |
-| `CONNECTOR_TYPE_BASIC_AUTH` | Username and password connection |
-
-These values are returned in API responses when listing or inspecting connections and connected accounts.
-
-## Account metadata and settings
-
-### Custom metadata
-
-Custom metadata is managed via the Scalekit dashboard.
-
-## Bulk operations
-
-### Managing multiple accounts
-
-The Python SDK supports read-only retrieval via `actions.get_connected_account` (Python) / `actions.getConnectedAccount` (Node.js). Use `actions.get_or_create_connected_account` when you need create-or-retrieve semantics. Bulk list and delete operations (`actions.listConnectedAccounts`, `actions.deleteConnectedAccount`) are available in the Node.js SDK, or via the direct API and dashboard.
-
-<Tabs syncKey="tech-stack">
-<TabItem label="Python">
-
-```python
-# Get or create a connected account by identifier
-response = actions.get_or_create_connected_account(
-    connection_name="gmail",
-    identifier="user_123"
-)
-connected_account = response.connected_account
-print(f"Account: {connected_account.id}, Status: {connected_account.status}")
-```
-
-</TabItem>
-<TabItem label="Node.js">
-
-```typescript
-// List connected accounts
 const listResponse = await actions.listConnectedAccounts({
   connectionName: 'gmail',
 });
 console.log('Connected accounts:', listResponse);
+```
 
-// Delete a connected account
+## Delete a connected account
+
+Deleting a connected account removes the user's tokens and authorization state. The user must re-authorize to reconnect.
+
+```typescript
 await actions.deleteConnectedAccount({
   connectionName: 'gmail',
   identifier: 'user_123',
 });
-console.log('Connected account deleted');
 ```
 
-</TabItem>
-</Tabs>
+## Update scopes
 
-## Error handling
-
-### Common errors
-
-Handle common connected account errors:
-
-<Tabs syncKey="tech-stack">
-<TabItem label="Python">
-
-```python
-try:
-    response = actions.get_connected_account(
-        connection_name="gmail",
-        identifier="user_123"
-    )
-    connected_account = response.connected_account
-except Exception as e:
-    print(f"Error retrieving connected account: {e}")
-    # Check connected_account.status for EXPIRED, REVOKED, or ERROR states
-    # and prompt the user to re-authorize if needed
-```
-
-</TabItem>
-<TabItem label="Node.js">
-
-```typescript
-try {
-  const accountResponse = await actions.getConnectedAccount({
-    connectionName: 'gmail',
-    identifier: 'user_123',
-  });
-  const connectedAccount = accountResponse?.connectedAccount;
-  console.log('Account status:', connectedAccount?.status);
-} catch (error) {
-  console.error('Error retrieving connected account:', error);
-  // Check connectedAccount?.status for EXPIRED, REVOKED, or ERROR states
-  // and prompt the user to re-authorize if needed
-}
-```
-
-</TabItem>
-</Tabs>
-
-### Error recovery
-
-Implement error recovery strategies:
+Scopes are set at the connection level. To request additional permissions from an existing connected account:
 
 <Steps>
-1. **Detect error** - Monitor account status and API responses
-2. **Classify error** - Determine if error is recoverable
-3. **Attempt recovery** - Try token refresh or re-authentication
-4. **Notify user** - Inform user if manual action is required
-5. **Update status** - Update account status based on recovery result
+1. Update the connection's scopes in **Agent Auth > Connections > Edit**.
+2. Generate a new authorization link for the user.
+3. The user completes the OAuth consent screen, approving the updated scopes.
+4. Scalekit updates the connected account with the new token set.
 </Steps>
 
-## Security considerations
-
-### Token security
-
-Protect user tokens and credentials:
-
-- **Encryption**: All tokens are encrypted at rest and in transit
-- **Token rotation**: Implement regular token rotation
-- **Access logging**: Log all token access and usage
-- **Secure storage**: Use secure storage mechanisms for tokens
-
-### Permission management
-
-Follow principle of least privilege:
-
-- **Minimal scopes**: Request only necessary permissions
-- **Scope validation**: Verify permissions before tool execution
-- **Regular audit**: Review granted permissions regularly
-- **User consent**: Ensure users understand granted permissions
-
-### Account isolation
-
-Ensure proper account isolation:
-
-- **Tenant isolation**: Separate accounts by tenant/organization
-- **User isolation**: Prevent cross-user data access
-- **Connection isolation**: Separate different connection types
-- **Audit trail**: Maintain detailed audit logs
-
-## Monitoring and analytics
-
-### Account health monitoring
-
-Monitor the status of connected accounts by calling `actions.get_connected_account` (Python) or `actions.getConnectedAccount` (Node.js) and inspecting the `status` field. Accounts in a non-`ACTIVE` state may require re-authorization.
-
-### Usage analytics
-
-Track usage patterns and tool execution results through the Scalekit dashboard. SDK methods for usage analytics are not currently available.
-
-## Best practices
-
-### Account lifecycle management
-
-- **Regular cleanup**: Remove unused or expired accounts
-- **Status monitoring**: Monitor account status changes
-- **Proactive refresh**: Refresh tokens before expiration
-- **User notifications**: Notify users of authentication issues
-
-### Performance optimization
-
-- **Connection pooling**: Reuse connections efficiently
-- **Token caching**: Cache tokens appropriately
-- **Batch operations**: Use bulk operations when possible
-- **Async processing**: Handle authentication flows asynchronously
-
-### User experience
-
-- **Clear error messages**: Provide helpful error messages to users
-- **Seamless re-auth**: Make re-authentication flows smooth
-- **Status visibility**: Show users their connection status
-- **Easy revocation**: Allow users to easily revoke access
-
-## Testing connected accounts
-
-### Development testing
-
-Test connected accounts in development:
-
-<Tabs syncKey="tech-stack">
-<TabItem label="Python">
-
-```python
-# Create or retrieve a test connected account
-response = actions.get_or_create_connected_account(
-    connection_name="gmail",
-    identifier="test_user"
-)
-test_account = response.connected_account
-print(f"Test account: {test_account.id}, status: {test_account.status}")
-```
-
-</TabItem>
-<TabItem label="Node.js">
-
-```typescript
-// Create or retrieve a test connected account
-const response = await actions.getOrCreateConnectedAccount({
-  connectionName: 'gmail',
-  identifier: 'test_user',
-});
-
-const testAccount = response.connectedAccount;
-console.log('Test account:', testAccount?.id, 'status:', testAccount?.status);
-```
-
-</TabItem>
-</Tabs>
-
-### Integration testing
-
-Test authentication flows:
-
-<Steps>
-1. **Create test connection** with test credentials
-2. **Create connected account** with test identifier
-3. **Generate auth URL** and complete OAuth flow
-4. **Verify account status** becomes active
-5. **Test tool execution** with the account
-6. **Test token refresh** and error scenarios
-</Steps>
-
-Next, learn how to [authorize a user](/agentkit/tools/authorize) so connected accounts can complete authentication before tool execution.
+The user must go through the OAuth flow again whenever scopes change.

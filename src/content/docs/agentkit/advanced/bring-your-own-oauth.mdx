@@ -7,8 +7,11 @@ sidebar:
 tableOfContents:
   maxHeadingLevel: 3
 prev:
-  label: "Secure user verification"
-  link: "/agentkit/user-verification"
+  label: "Manage connected accounts"
+  link: "/agentkit/connected-accounts"
+next:
+  label: "Scalekit optimized tools"
+  link: "/agentkit/tools/scalekit-optimized-tools"
 ---
 
 import { Aside, Steps } from '@astrojs/starlight/components';
@@ -29,33 +32,23 @@ Nothing changes in your code or the Scalekit SDK. The switch is purely a dashboa
 ## Configure your credentials
 
 <Steps>
-1. ### Create an OAuth app with the provider
+1. ### Copy the redirect URI from Scalekit
 
-   In the provider's developer console, create a new OAuth app (or use an existing one). You'll need the **Client ID** and **Client Secret** it generates.
+   Go to **Agent Auth > Connections** and click **Edit** on the connection you want to update. Select **Use your own credentials** — the form expands and displays a **Redirect URI**. Copy it.
 
-2. ### Open the connection in Scalekit Dashboard
+2. ### Register your OAuth app with the provider
 
-   Go to **Agent Auth > Connections** and click **Edit** on the connection you want to update.
-
-3. ### Switch to your own credentials
-
-   Select **Use your own credentials**. The form expands to show Client ID and Client Secret fields.
-
-4. ### Copy the redirect URI
-
-   Scalekit displays a **Redirect URI** for this connection. Copy it.
-
-5. ### Add the redirect URI to your OAuth app
-
-   In the provider's console, add Scalekit's Redirect URI to the list of authorized redirect URIs for your OAuth app.
+   In the provider's developer console, create a new OAuth app (or use an existing one). Add the Redirect URI you copied in the previous step to the list of authorized redirect URIs.
 
    <Aside type="caution" title="Redirect URI must match exactly">
      The URI must match character-for-character. A mismatch will cause OAuth flows to fail with a redirect_uri_mismatch error.
    </Aside>
 
-6. ### Enter your credentials and save
+   The provider gives you a **Client ID** and **Client Secret** after registration.
 
-   Enter the **Client ID** and **Client Secret** from your OAuth app and click **Save**.
+3. ### Enter your credentials and save
+
+   Back in Scalekit Dashboard, enter the **Client ID** and **Client Secret** from your OAuth app and click **Save**.
 
    All new OAuth flows for this connection will now use your credentials.
 

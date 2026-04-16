@@ -151,6 +151,7 @@ export const sidebar = [
           'agentkit/connections',
           'agentkit/tools/authorize',
           'agentkit/user-verification',
+          'agentkit/connected-accounts',
           'agentkit/advanced/bring-your-own-oauth',
         ],
       },
