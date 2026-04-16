@@ -1,8 +1,6 @@
 ---
 title: Supadata
 tableOfContents: true
-sidebar:
-  label: Supadata
 head:
   - tag: style
     content: |
@@ -14,21 +12,22 @@ head:
       }
 ---
 
-import { Badge, Aside } from '@astrojs/starlight/components'
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
 import { SetupSupadataSection } from '@components/templates'
 import { UsageSupadataSection } from '@components/templates'
-import supadataIcon from '@/assets/docs/agent-connectors/supadata/supadata-icon.png'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
   Connect with Supadata to extract transcripts, metadata, and structured content from YouTube, social media, and the web using AI.
  </div>
  <div class="flex justify-center">
-  <img src={supadataIcon.src} width="64" height="64" alt="Supadata logo" />
+  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/supadata.svg" width="64" height="64" alt="Supadata logo" />
  </div>
 </div>
 
 Supports authentication: <Badge text="API Key" />
+
 
 ## Set up the agent connector
 
@@ -40,19 +39,9 @@ Supports authentication: <Badge text="API Key" />
 
 ## Tool list
 
-Supadata uses a credit-based billing model. The credit cost per call is noted on each tool below. All tools require a connected account with a valid Supadata API key — see the [setup guide](#set-up-the-agent-connector) above.
-
-| Credit cost | Tools |
-| --- | --- |
-| 1 credit | `supadata_metadata_get`, `supadata_web_map`, `supadata_web_scrape`, `supadata_youtube_channel_get`, `supadata_youtube_playlist_get`, `supadata_youtube_search`, `supadata_youtube_transcript_get`, `supadata_youtube_video_get` |
-| 1 credit (`native`/`auto` mode) or 2 credits/minute (`generate` mode) | `supadata_transcript_get` |
-| 1 credit + translation fee | `supadata_youtube_transcript_translate` (base retrieval + AI translation) |
-
 ## `supadata_metadata_get`
 
 Retrieve unified metadata for a video or media URL including title, description, author info, engagement stats, media details, and creation date. Supports YouTube, TikTok, Instagram, X (Twitter), Facebook, and more.
-
-**Cost:** 1 credit per request.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -62,31 +51,17 @@ Retrieve unified metadata for a video or media URL including title, description,
 
 Extract transcripts from YouTube, TikTok, Instagram, X (Twitter), Facebook, or direct file URLs. Supports native captions, auto-generated captions, or AI-generated transcripts. Returns timestamped segments with speaker labels.
 
-<Aside type="note" title="Credit cost depends on mode">
-  The `mode` parameter controls both quality and cost:
-
-  | Mode | Description | Credit cost |
-  | --- | --- | --- |
-  | `native` | Uses existing captions only — fastest, no AI | 1 credit |
-  | `auto` | Native captions with AI fallback if unavailable | 1 credit |
-  | `generate` | AI-generated transcript — works even without captions | 2 credits/minute of audio |
-
-  Use `native` or `auto` where possible to conserve credits. Use `generate` only when the video has no existing captions.
-</Aside>
-
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `chunkSize` | integer | No | Maximum number of characters per transcript segment chunk. |
 | `lang` | string | No | ISO 639-1 language code for the transcript (e.g., en, fr, de). Defaults to the video's original language. |
-| `mode` | string | No | Transcript generation mode: `native` (use existing captions, 1 credit), `auto` (native with AI fallback), or `generate` (AI-generated, 2 credits/minute). |
+| `mode` | string | No | Transcript generation mode: native (use existing captions, 1 credit), auto (native with AI fallback), or generate (AI-generated, 2 credits/minute). |
 | `text` | boolean | No | Return plain text instead of timestamped segments. Defaults to false. |
 | `url` | string | Yes | URL of the video or media file to transcribe. Supports YouTube, TikTok, Instagram, X, Facebook, or direct video/audio file URLs. |
 
 ## `supadata_web_map`
 
-Discover and return all URLs found on a website. Useful for site structure analysis, link auditing, and building crawl lists.
-
-**Cost:** 1 credit per request.
+Discover and return all URLs found on a website. Useful for site structure analysis, link auditing, and building crawl lists. Costs 1 credit per request.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -95,8 +70,6 @@ Discover and return all URLs found on a website. Useful for site structure analy
 ## `supadata_web_scrape`
 
 Scrape a web page and return its content as clean Markdown. Ideal for extracting readable content from any URL while stripping away navigation and ads.
-
-**Cost:** 1 credit per request.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -108,8 +81,6 @@ Scrape a web page and return its content as clean Markdown. Ideal for extracting
 
 Retrieve metadata for a YouTube channel including name, description, subscriber count, video count, and thumbnails.
 
-**Cost:** 1 credit per request.
-
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `channelId` | string | Yes | YouTube channel ID, handle (@username), or full channel URL. |
@@ -117,8 +88,6 @@ Retrieve metadata for a YouTube channel including name, description, subscriber 
 ## `supadata_youtube_playlist_get`
 
 Retrieve metadata and video list for a YouTube playlist including title, description, video count, and individual video details.
-
-**Cost:** 1 credit per request.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -128,20 +97,16 @@ Retrieve metadata and video list for a YouTube playlist including title, descrip
 
 Search YouTube for videos, channels, or playlists. Returns results with titles, IDs, descriptions, thumbnails, and metadata.
 
-**Cost:** 1 credit per request.
-
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `lang` | string | No | ISO 639-1 language code to filter results by language (e.g., en, fr). |
 | `limit` | integer | No | Maximum number of results to return. |
 | `query` | string | Yes | Search query string to find videos, channels, or playlists on YouTube. |
-| `type` | string | No | Type of results to return: `video`, `channel`, or `playlist`. |
+| `type` | string | No | Type of results to return: video, channel, or playlist. |
 
 ## `supadata_youtube_transcript_get`
 
-Retrieve the transcript for a YouTube video by video ID or URL. Returns timestamped segments with text content. Falls back to auto-generated captions if manual captions are unavailable.
-
-**Cost:** 1 credit per request.
+Retrieve the transcript for a YouTube video by video ID or URL. Returns timestamped segments with text content.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -153,10 +118,6 @@ Retrieve the transcript for a YouTube video by video ID or URL. Returns timestam
 
 Retrieve and translate a YouTube video transcript into a target language. Returns translated timestamped segments.
 
-<Aside type="note" title="Translation uses additional credits">
-  This tool first fetches the transcript (1 credit) then runs AI translation. Translation costs are billed on top of the base retrieval credit. Use `supadata_youtube_transcript_get` with the `lang` parameter if the video already has captions in your target language — that avoids translation costs entirely.
-</Aside>
-
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `lang` | string | Yes | ISO 639-1 language code to translate the transcript into (e.g., en, fr, es). |
@@ -166,8 +127,6 @@ Retrieve and translate a YouTube video transcript into a target language. Return
 ## `supadata_youtube_video_get`
 
 Retrieve detailed metadata for a YouTube video including title, description, view count, like count, duration, tags, thumbnails, and channel info.
-
-**Cost:** 1 credit per request.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
