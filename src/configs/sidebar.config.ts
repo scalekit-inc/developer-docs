@@ -132,13 +132,27 @@ export const sidebar = [
         label: 'Getting started',
         items: [
           'agentkit/overview',
-          { label: 'Quickstart: AgentKit', link: 'agentkit/quickstart' },
+          { label: 'Quickstart', link: 'agentkit/quickstart' },
           {
             label: 'SDKs',
             collapsed: true,
             items: [
               { label: 'Node.js SDK', link: '/agentkit/sdks/node/' },
               { label: 'Python SDK', link: '/agentkit/sdks/python/' },
+            ],
+          },
+          {
+            label: 'Code samples',
+            collapsed: true,
+            items: [
+              { label: 'Overview', link: 'agentkit/examples/' },
+              { label: 'LangChain', link: 'agentkit/examples/langchain' },
+              { label: 'Google ADK', link: 'agentkit/examples/google-adk' },
+              { label: 'Anthropic', link: 'agentkit/examples/anthropic' },
+              { label: 'OpenAI', link: 'agentkit/examples/openai' },
+              { label: 'Vercel AI', link: 'agentkit/examples/vercel-ai' },
+              { label: 'Mastra', link: 'agentkit/examples/mastra' },
+              { label: 'OpenClaw', link: 'agentkit/openclaw' },
             ],
           },
         ],
@@ -169,20 +183,6 @@ export const sidebar = [
           { label: 'Configure an MCP server', link: 'agentkit/mcp/configure-mcp-server' },
           { label: 'Generate user MCP URLs', link: 'agentkit/mcp/generate-user-urls' },
           { label: 'Connect an MCP client', link: 'agentkit/mcp/connect-mcp-client' },
-        ],
-      },
-      {
-        label: 'Examples',
-        collapsed: true,
-        items: [
-          { label: 'Overview', link: 'agentkit/examples/' },
-          { label: 'LangChain', link: 'agentkit/examples/langchain' },
-          { label: 'Google ADK', link: 'agentkit/examples/google-adk' },
-          { label: 'Anthropic', link: 'agentkit/examples/anthropic' },
-          { label: 'OpenAI', link: 'agentkit/examples/openai' },
-          { label: 'Vercel AI', link: 'agentkit/examples/vercel-ai' },
-          { label: 'Mastra', link: 'agentkit/examples/mastra' },
-          { label: 'OpenClaw', link: 'agentkit/openclaw' },
         ],
       },
       {
