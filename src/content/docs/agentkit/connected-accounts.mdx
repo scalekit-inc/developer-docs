@@ -1,7 +1,7 @@
 ---
 title: Manage connected accounts
-description: Check status, list, delete, and update scopes for connected accounts.
-tags: [agentauth, connectedaccounts, oauth2, api, guide]
+description: Check status, list, delete, and update credentials for connected accounts across all connector auth types.
+tags: [agentauth, connectedaccounts, oauth2, api-key, hosted-pages, guide]
 sidebar:
   order: 4
   label: "Manage connected accounts"
@@ -17,16 +17,16 @@ next:
 
 import { Steps, Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
-A **connected account** is the per-user record that holds a user's tokens and tracks their authorization state for a specific connection. Scalekit creates one automatically when a user completes the OAuth flow.
+A **connected account** is the per-user record that holds a user's credentials and tracks their authorization state for a specific connection. Scalekit creates one automatically when a user completes authentication.
 
 ## Account states
 
 | State | Meaning |
 |---|---|
 | `PENDING` | User hasn't completed authentication |
-| `ACTIVE` | Tokens valid — ready for tool calls |
-| `EXPIRED` | Tokens expired — re-authorization required |
-| `REVOKED` | User revoked access from the provider |
+| `ACTIVE` | Credentials valid — ready for tool calls |
+| `EXPIRED` | Credentials expired or invalidated — re-authentication required |
+| `REVOKED` | User revoked access or credentials were invalidated |
 | `ERROR` | Authentication or configuration error |
 
 ## Check account status
@@ -54,9 +54,16 @@ console.log('Status:', response.connectedAccount?.status);
   </TabItem>
 </Tabs>
 
-## Re-authorize when tokens expire
+## Handle inactive accounts
 
-When a connected account isn't `ACTIVE`, generate a new authorization link and prompt the user to re-authorize. The flow is the same as initial authorization — see [Authorize a user](/agentkit/tools/authorize/).
+When a connected account isn't `ACTIVE`, generate a new authorization link and send it to the user.
+
+The link opens a **Hosted Page** — a Scalekit-hosted UI that adapts automatically based on the connection's auth type:
+
+- **OAuth connectors** — presents the provider's OAuth consent screen
+- **API key, basic auth, or other connectors** — presents a form to collect the required credentials
+
+Your code is the same regardless of connector type. Scalekit determines the right flow based on the connection configuration.
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Python">
@@ -82,6 +89,10 @@ if (connectedAccount?.status !== 'ACTIVE') {
   </TabItem>
 </Tabs>
 
+<Aside type="tip" title="Customize hosted pages">
+  By default, hosted pages use Scalekit's branding. You can configure your own logo, colors, and custom domain so the pages look like part of your product. See [Custom domain](/agentkit/advanced/custom-domain/).
+</Aside>
+
 ## List connected accounts
 
 <Aside type="note" title="Node.js only">
@@ -97,7 +108,7 @@ console.log('Connected accounts:', listResponse);
 
 ## Delete a connected account
 
-Deleting a connected account removes the user's tokens and authorization state. The user must re-authorize to reconnect.
+Deleting a connected account removes the user's credentials and authorization state. The user must re-authenticate to reconnect.
 
 ```typescript
 await actions.deleteConnectedAccount({
@@ -106,9 +117,11 @@ await actions.deleteConnectedAccount({
 });
 ```
 
-## Update scopes
+## Update OAuth scopes
 
-Scopes are set at the connection level. To request additional permissions from an existing connected account:
+Scopes apply to OAuth connectors only. For non-OAuth connectors (API key, basic auth, and similar), generate a new authorization link and the hosted page will collect updated credentials.
+
+To request additional OAuth scopes from an existing connected account:
 
 <Steps>
 1. Update the connection's scopes in **Agent Auth > Connections > Edit**.
@@ -116,5 +129,3 @@ Scopes are set at the connection level. To request additional permissions from a
 3. The user completes the OAuth consent screen, approving the updated scopes.
 4. Scalekit updates the connected account with the new token set.
 </Steps>
-
-The user must go through the OAuth flow again whenever scopes change.
