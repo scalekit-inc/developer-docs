@@ -78,8 +78,6 @@ export const collections = {
         { repo: 'scalekit-inc/scalekit-sdk-python', path: 'REFERENCE.md', id: 'python' },
         { repo: 'scalekit-inc/scalekit-sdk-go', path: 'REFERENCE.md', id: 'go' },
         { repo: 'scalekit-inc/scalekit-sdk-java', path: 'REFERENCE.md', id: 'java' },
-        { repo: 'scalekit-inc/scalekit-sdk-node', path: 'AGENTKIT.md', id: 'agentkit-node' },
-        { repo: 'scalekit-inc/scalekit-sdk-python', path: 'AGENTKIT.md', id: 'agentkit-python' },
       ],
     }),
     schema: z.object({
