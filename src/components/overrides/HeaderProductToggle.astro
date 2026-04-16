@@ -94,22 +94,6 @@ const productLinks = [
   const dropdown = document.getElementById('product-dropdown')
   const labelEl = document.getElementById('product-label')
 
-  // Hydrate label and icon from localStorage if no server-side active section was detected
-  if (trigger && labelEl && trigger.dataset.hasSelection === 'false') {
-    try {
-      const stored = localStorage.getItem('sk_docs_path')
-      if (stored === 'agentkit' || stored === 'agent-actions') {
-        labelEl.textContent = 'Agents'
-        trigger.classList.remove('is-placeholder')
-        dropdown?.querySelector('[data-storage-value="agentkit"]')?.classList.add('is-active')
-      } else if (stored === 'saaskit' || stored === 'auth-for-saas') {
-        labelEl.textContent = 'SaaS'
-        trigger.classList.remove('is-placeholder')
-        dropdown?.querySelector('[data-storage-value="saaskit"]')?.classList.add('is-active')
-      }
-    } catch (_) {}
-  }
-
   if (trigger && dropdown) {
     trigger.addEventListener('click', (e) => {
       e.stopPropagation()

@@ -658,7 +658,7 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
     default: 'agentkit-quickstart',
     pathOverrides: {
       '/agentkit/connectors': 'agentkit-connectors',
-      '/agentkit/connections': 'agentkit-connectors',
+      '/agentkit/connections': 'agentkit-quickstart',
       '/agentkit/connected-accounts': 'agentkit-connectors',
       '/agentkit/sdks': 'agentkit-sdks',
       '/agentkit/tools/agent-tools-quickstart': 'agentkit-quickstart',

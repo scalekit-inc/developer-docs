@@ -28,31 +28,36 @@ const navItems = secondaryNavConfig[activeProduct]
             class={`nav-item-wrapper ${item.children && item.children.length > 0 ? 'has-dropdown' : ''}`}
             data-keep-parent-label={item.keepParentLabel ? 'true' : undefined}
           >
-            <a
-              href={item.href}
-              class={`nav-item ${isCurrentPage(Astro.url.pathname, item, entry, searchParams) ? 'current' : ''} ${item.shared ? 'shared' : ''}`}
-              aria-current="page"
-            >
-              <div class="nav-item-content">
-                {(function () {
-                  const IconComponent =
-                    item.children && item.children.length > 0
-                      ? getDisplayIcon(Astro.url.pathname, item, entry, searchParams)
-                      : item.iconComponent
-                  return IconComponent && <IconComponent class="nav-icon" />
-                })()}
-                {item.label && (
-                  <span class="nav-label">
-                    {item.children && item.children.length > 0
-                      ? getDisplayLabel(Astro.url.pathname, item, entry, searchParams)
-                      : item.label}
-                  </span>
-                )}
-                {item.children && item.children.length > 0 && (
-                  <IconChevronDown class="dropdown-icon" />
-                )}
-              </div>
-            </a>
+            {(() => {
+              const isCurrent = isCurrentPage(Astro.url.pathname, item, entry, searchParams)
+              return (
+                <a
+                  href={item.href}
+                  class={`nav-item ${isCurrent ? 'current' : ''} ${item.shared ? 'shared' : ''}`}
+                  aria-current={isCurrent ? 'page' : undefined}
+                >
+                  <div class="nav-item-content">
+                    {(function () {
+                      const IconComponent =
+                        item.children && item.children.length > 0
+                          ? getDisplayIcon(Astro.url.pathname, item, entry, searchParams)
+                          : item.iconComponent
+                      return IconComponent && <IconComponent class="nav-icon" />
+                    })()}
+                    {item.label && (
+                      <span class="nav-label">
+                        {item.children && item.children.length > 0
+                          ? getDisplayLabel(Astro.url.pathname, item, entry, searchParams)
+                          : item.label}
+                      </span>
+                    )}
+                    {item.children && item.children.length > 0 && (
+                      <IconChevronDown class="dropdown-icon" />
+                    )}
+                  </div>
+                </a>
+              )
+            })()}
           </div>
         ))
       }
@@ -115,6 +120,11 @@ const navItems = secondaryNavConfig[activeProduct]
                           <a
                             href={child.href}
                             class={`dropdown-item ${child.description ? 'with-description' : ''} ${isCurrentPage(Astro.url.pathname, child, entry, searchParams) ? 'current' : ''}`}
+                            aria-current={
+                              isCurrentPage(Astro.url.pathname, child, entry, searchParams)
+                                ? 'page'
+                                : undefined
+                            }
                             data-nav-label={child.label}
                             data-dropdown-label={child.dropdownLabel || child.label}
                           >
@@ -164,6 +174,11 @@ const navItems = secondaryNavConfig[activeProduct]
                           <a
                             href={child.href}
                             class={`dropdown-item dropdown-item-shortcut ${child.description ? 'with-description' : ''} ${isCurrentPage(Astro.url.pathname, child, entry, searchParams) ? 'current' : ''}`}
+                            aria-current={
+                              isCurrentPage(Astro.url.pathname, child, entry, searchParams)
+                                ? 'page'
+                                : undefined
+                            }
                             data-nav-label={child.label}
                             data-dropdown-label={child.dropdownLabel || child.label}
                           >
@@ -199,6 +214,11 @@ const navItems = secondaryNavConfig[activeProduct]
                       <a
                         href={child.href}
                         class={`dropdown-item ${child.description ? 'with-description' : ''} ${isCurrentPage(Astro.url.pathname, child, entry, searchParams) ? 'current' : ''}`}
+                        aria-current={
+                          isCurrentPage(Astro.url.pathname, child, entry, searchParams)
+                            ? 'page'
+                            : undefined
+                        }
                       >
                         <div class="dropdown-item-icon-wrapper">
                           {(function () {
