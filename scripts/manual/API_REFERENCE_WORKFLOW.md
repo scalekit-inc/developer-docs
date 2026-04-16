@@ -1,68 +1,64 @@
-# Scalekit API Reference Pipeline
+# Scalekit API reference pipeline
 
 This guide explains **how the API reference is wired together** in the docs repo and the exact steps to update or extend it.
 
 ---
 
-## 1. The Moving Parts
+## 1. The moving parts
 
-| File / Component                      | Responsibility                                                                                                                                  |
-| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `public/api/scalekit.swagger.json`    | Source-of-truth Swagger (OpenAPI 2) definition. Every endpoint lives here.                                                                      |
-| `scripts/search-index-apis.js`        | Parses the Swagger file → creates **search records** → returns an array used by Pagefind. Run manually or via `pnpm run generate-search-index`. |
-| `src/components/ApiSearchIndex.astro` | Hidden Astro component that renders the records from the script in HTML so Pagefind can crawl them.                                             |
-| `src/components/ScalarReference.vue`  | Embeds the interactive <kbd>@scalar/api-reference</kbd> viewer so humans can read the docs.                                                     |
-| `src/pages/apis.astro`                | Top-level page that hosts both the Scalar viewer **and** the hidden search index.                                                               |
+| File / Component                      | Responsibility                                                                                                                                                                                       |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `public/api/scalekit.scalar.json`     | OpenAPI definition used by the Scalar viewer and by `search-index-apis.js`.                                                                                                                          |
+| `scripts/search-index-apis.js`        | Parses OpenAPI → **search records** with deep-link URLs. Run manually via `pnpm run generate-search-index` for validation; `extractApiRecords` is also used at build time by `ApiSearchIndex.astro`. |
+| `src/components/ApiSearchIndex.astro` | Renders a **hidden** list of every operation in the DOM so **DocSearch** (Algolia) and other crawlers can index titles, descriptions, and `#tag/…` links.                                            |
+| `src/components/ScalarReference.vue`  | Embeds the interactive `@scalar/api-reference` viewer.                                                                                                                                               |
+| `src/pages/apis.astro`                | Hosts the Scalar viewer and the hidden `ApiSearchIndex` output.                                                                                                                                      |
 
 Diagram:
 
 ```
-Swagger → search-index-apis.js ──▶ records[] ──▶ ApiSearchIndex.astro (hidden HTML)
+OpenAPI → search-index-apis.js ──▶ records[] ──▶ ApiSearchIndex.astro (hidden HTML)
                 │
-                └──▶ ScalarReference.vue (Swagger URL prop)
+                └──▶ ScalarReference.vue (OpenAPI URL prop)
 ```
 
 ---
 
-## 2. How the Pieces Talk to Each Other
+## 2. How the pieces talk to each other
 
-1. **Build / dev-server start**
-   1. `ApiSearchIndex.astro` imports `extractApiRecords` from the script → executes it at build time.
-   2. The script reads `scalekit.swagger.json` and generates records containing:
+1. **Build / dev**
+   1. `ApiSearchIndex.astro` imports `extractApiRecords` from the script and runs at build time.
+   2. The script reads `scalekit.scalar.json` and generates records containing:
       - `title`, `description`
-      - `url` with deep link `#tag/{tag}/{method}{path}`
-      - `parameters` list (for extra search keywords)
-   3. Astro outputs a hidden `<div data-pagefind-body>` containing one `<li>` per endpoint.
-2. **Pagefind crawl**
-   - Because the hidden div carries `data-pagefind-body`, Pagefind indexes its content + links.
-   - Search results therefore point to the deep-link in `record.url`.
+      - `url` with deep link `#tag/{tag}/{method}{path}` (Scalar anchor scheme)
+      - `parameters` list (extra keywords in the hidden markup)
+   3. Astro outputs a hidden `<div class="api-search-index">` with one block per endpoint.
+2. **Site search**
+   - Search uses **Algolia DocSearch** (`@astrojs/starlight-docsearch`), not Pagefind. Starlight is configured with `pagefind: false`.
+   - The hidden markup gives crawlers and the search index **text and canonical `/apis#…` links** for each operation.
 3. **Runtime (browser)**
-   - `ScalarReference.vue` fetches the same Swagger file and renders the interactive UI.
-   - When someone clicks a Pagefind result, the `#tag/…` fragment scrolls Scalar to that endpoint.
+   - `ScalarReference.vue` loads the same OpenAPI file and renders the interactive UI.
+   - When someone opens a result that points at `/apis#tag/…`, the fragment scrolls Scalar to that operation.
 
 ---
 
-## 3. Typical Maintenance Tasks
+## 3. Typical maintenance tasks
 
-### A. Adding / Changing Endpoints
+### A. Adding / changing endpoints
 
-1. Edit **only** `public/api/scalekit.swagger.json` (or replace it from the backend generator).
+1. Update `public/api/scalekit.scalar.json` (or replace it from your OpenAPI generator).
 2. (Optional) Run `pnpm run reorder-swagger` to keep sections ordered (see `scripts/reorder-swagger.js`).
-3. _Development:_ Just restart `pnpm dev` – Astro + Pagefind re-run automatically.
-4. _CI / Production build:_ Nothing extra to do – `astro build` triggers everything.
+3. Restart `pnpm dev` or run `pnpm build` so `ApiSearchIndex` picks up changes.
 
-### B. Regenerating the Search Index Manually
+### B. Running `generate-search-index` manually
 
 ```bash
 pnpm run generate-search-index
 ```
 
-The script:
+This runs the same `extractApiRecords` logic and prints URL checks in the terminal. It does **not** write files or update Algolia; use it after OpenAPI or `generateUrlFragment()` changes to confirm fragments still match Scalar.
 
-- Validates URL fragment generation (see console output).
-- Does **not** write files – it’s executed by Astro at build time. Manual run is only for quick checks.
-
-### C. Styling / Layout Tweaks
+### C. Styling / layout tweaks
 
 | Want to change…           | Edit…                                                  |
 | ------------------------- | ------------------------------------------------------ |
@@ -70,69 +66,43 @@ The script:
 | Scalar header / theme     | `ScalarReference.vue` + `src/styles/api-reference.css` |
 | Overall page container    | `src/pages/apis.astro`                                 |
 
-### D. Updating the Deep-Link Format
+### D. Updating the deep-link format
 
 If Scalar changes its anchor scheme:
 
 1. Update `generateUrlFragment()` in `scripts/search-index-apis.js`.
-2. (Maybe) update the `<AnchorHeading id>` logic in `ApiSearchIndex.astro` so the heading id matches.
-3. Re-run a build and verify test cases printed by the script.
+2. Align `<AnchorHeading id>` logic in `ApiSearchIndex.astro` so heading `id` values match the fragment.
+3. Run `pnpm run generate-search-index` and fix any mismatches, then `pnpm build` and verify `/apis` anchors (and DocSearch after crawl, if applicable).
 
 ---
 
-## 4. Common Pitfalls & Fixes
+## 4. Common pitfalls & fixes
 
-| Symptom                                                         | Likely Cause                                          | Fix                                                               |
-| --------------------------------------------------------------- | ----------------------------------------------------- | ----------------------------------------------------------------- |
-| Pagefind result links to `#list-users` instead of full `#tag/…` | Your heading IDs don’t match the new fragment format. | Ensure `id={record.url.split('#')[1]}` in `ApiSearchIndex.astro`. |
-| New endpoints not searchable                                    | Forgot to restart dev server / rebuild                | Stop & start `pnpm dev` **or** run `pnpm run build`.              |
-| Linter shows `$ref` unresolved in Swagger                       | The referenced definition is missing                  | Add the missing schema or remove the `$ref`.                      |
-
----
-
-## 5. Handy Scripts
-
-| Command                          | What it does                                                                 |
-| -------------------------------- | ---------------------------------------------------------------------------- |
-| `pnpm run generate-search-index` | Runs `scripts/search-index-apis.js` standalone – helpful for URL validation. |
-| `pnpm run reorder-swagger`       | Applies logical ordering to Swagger paths for readability.                   |
-| `pnpm run build`                 | Full static build (Astro, Pagefind, everything).                             |
-| `pnpm run preview`               | Serve the built site locally.                                                |
+| Symptom                                                       | Likely Cause                                         | Fix                                                               |
+| ------------------------------------------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------- |
+| Search result links to `#list-users` instead of full `#tag/…` | Heading IDs do not match the new fragment format.    | Ensure `id={record.url.split('#')[1]}` in `ApiSearchIndex.astro`. |
+| New endpoints not searchable                                  | Crawler has not reindexed yet, or markup out of date | Deploy, wait for DocSearch crawl, or trigger re-crawl in Algolia. |
+| Linter shows `$ref` unresolved in OpenAPI                     | The referenced definition is missing                 | Add the missing schema or remove the `$ref`.                      |
 
 ---
 
-Happy documenting! 🎉
+## 5. Handy scripts
 
-## 6. How Search Works under the Hood
-
-Pagefind is a **static-site search engine**. It doesn’t read the Swagger directly – it crawls the HTML that Astro outputs.
-
-Step-by-step:
-
-1. **Build time**
-   1. `ApiSearchIndex.astro` renders a `<div data-pagefind-body>` that contains **every API endpoint** as list items.
-   2. Each list item includes:
-      - `h3` heading whose **`id` attribute** matches the deep-link fragment (e.g. `tag/users/get/api/v1/users`).
-      - A child `<a href="…#tag/…">` – the canonical link.
-      - Parameter bullets so names & descriptions are part of the visible DOM.
-2. **Pagefind CLI** (run automatically by the Starlight build)
-   - Walks every generated HTML file.
-   - Finds `data-pagefind-body` blocks → extracts their text & links.
-   - Stores them as static JSON & WASM bundles under `/pagefind/`.
-3. **Browser runtime**
-   - The Starlight theme loads **Pagefind UI**.
-   - When a user types a query, the UI loads the pre-built index and returns matching pages.
-   - Each result comes with a `url` (taken from the `<a>` it found in the body) and an `excerpt`.
-   - Clicking a result navigates to `/apis/#tag/…` which automatically scrolls the Scalar viewer to the correct endpoint because the heading `id` is already present in the DOM.
-
-### Why titles show up first
-
-Pagefind weighs words in headings more heavily than body text. By injecting the parameter list and full description into the list item, we give Pagefind more tokens to match – but the title will often still rank highest (good for relevance).
-
-### Sub-results & highlights
-
-If `showSubResults: true` is enabled (the default in Starlight), Pagefind will also generate _sub_ results for each heading under the `/apis` page. These sub-results inherit the same URL plus the `#tag/…` fragment, so they remain accurate.
-
-Pagefind can optionally append `?highlight=` query params; if we later import `pagefind-highlight.js`, the endpoint page will highlight the matched words inside the Scalar UI.
+| Command                          | What it does                                                                     |
+| -------------------------------- | -------------------------------------------------------------------------------- |
+| `pnpm run generate-search-index` | Runs `scripts/search-index-apis.js` — URL / fragment validation in the terminal. |
+| `pnpm run reorder-swagger`       | Applies logical ordering to OpenAPI paths for readability.                       |
+| `pnpm run build`                 | Full production build (`astro build` + post-build steps).                        |
+| `pnpm run preview`               | Serve the built site locally.                                                    |
 
 ---
+
+## 6. How search relates to this page
+
+**DocSearch** indexes content from the live site; it does not read the OpenAPI file directly. The hidden block on `/apis` exists so each operation has **discoverable text and a stable URL** in the HTML Algolia indexes.
+
+Headings and links in `ApiSearchIndex.astro` are aligned with Scalar’s `#tag/…` fragments so results scroll the viewer to the right operation after navigation.
+
+---
+
+Happy documenting!

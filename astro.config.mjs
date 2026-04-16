@@ -44,6 +44,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'Scalekit Docs',
+      // DocSearch (`starlightDocSearch`) replaces Starlight's built-in Pagefind integration.
       pagefind: false,
       routeMiddleware: './src/routeData.ts',
       lastUpdated: true,
