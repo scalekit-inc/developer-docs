@@ -1,0 +1,77 @@
+---
+title: Mastra
+description: Connect a Mastra agent to Scalekit-authenticated tools using MCP. Mastra's native MCP client connects directly to a Scalekit-generated MCP URL.
+slug: agentkit/examples/mastra
+sidebar:
+  label: Mastra
+tags: [agentkit, examples, mastra, mcp, tool-calling]
+tableOfContents: true
+prev:
+  label: "Vercel AI"
+  link: "/agentkit/examples/vercel-ai"
+next:
+  label: "OpenClaw"
+  link: "/agentkit/openclaw"
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Connect a Mastra agent to Scalekit tools using MCP. Mastra has native MCP support via `@mastra/mcp` — pass a Scalekit-generated URL and Mastra handles tool discovery automatically.
+
+<Aside type="note" title="Why MCP for Mastra">
+  Mastra's tool system uses Zod schemas internally. The MCP path skips manual schema conversion — Mastra discovers tools and their schemas directly from the Scalekit MCP server.
+</Aside>
+
+## Install
+
+```sh
+npm install @scalekit-sdk/node @mastra/core @mastra/mcp @ai-sdk/openai
+```
+
+## Get a per-user MCP URL
+
+Generate a Scalekit MCP URL for the user. This requires the Python SDK — call this from your backend and pass the URL to your Mastra application:
+
+```python
+# Backend (Python) — generate once per user session
+inst_response = actions.mcp.ensure_instance(
+    config_name="your-mcp-config",
+    user_identifier="user_123",
+)
+mcp_url = inst_response.instance.url
+# Pass mcp_url to your Mastra app (e.g. via environment variable or API response)
+```
+
+See [Configure an MCP server](/agentkit/mcp/configure-mcp-server/) and [Generate user MCP URLs](/agentkit/mcp/generate-user-urls/) to set up the config and generate the URL.
+
+## Build the agent
+
+Pass the MCP URL to `MCPClient`. Mastra fetches the tool list and schemas automatically:
+
+```typescript
+import { Agent } from '@mastra/core/agent';
+import { MCPClient } from '@mastra/mcp';
+import { openai } from '@ai-sdk/openai';
+
+const mcpUrl = process.env.SCALEKIT_MCP_URL!; // set from your backend
+
+const mcp = new MCPClient({
+  servers: {
+    scalekit: { url: new URL(mcpUrl) },
+  },
+});
+
+const tools = await mcp.getTools();
+
+const agent = new Agent({
+  name: 'gmail_assistant',
+  instructions: 'You are a helpful Gmail assistant.',
+  model: openai('gpt-4o'),
+  tools,
+});
+
+const result = await agent.generate('Fetch my last 5 unread emails and summarize them');
+console.log(result.text);
+
+await mcp.disconnect();
+```

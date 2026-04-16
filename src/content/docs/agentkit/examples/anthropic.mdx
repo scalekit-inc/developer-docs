@@ -1,0 +1,218 @@
+---
+title: Anthropic
+description: Build an Anthropic agent with Scalekit-authenticated tools. Scalekit returns tool schemas in Anthropic's native format — no conversion needed.
+slug: agentkit/examples/anthropic
+sidebar:
+  label: Anthropic
+tags: [agentkit, examples, anthropic, claude, tool-calling, tool-use]
+tableOfContents: true
+prev:
+  label: "Google ADK"
+  link: "/agentkit/examples/google-adk"
+next:
+  label: "OpenAI"
+  link: "/agentkit/examples/openai"
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+Build an agent using Anthropic's Claude that reads a user's Gmail inbox. Scalekit returns tool schemas with `input_schema` — the exact format Anthropic's tool use API expects.
+
+## Install
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+```sh
+pip install scalekit-sdk-python anthropic
+```
+  </TabItem>
+  <TabItem label="Node.js">
+```sh
+npm install @scalekit-sdk/node @anthropic-ai/sdk
+```
+  </TabItem>
+</Tabs>
+
+## Initialize
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+```python
+import os
+import scalekit.client
+import anthropic
+from google.protobuf.json_format import MessageToDict
+
+scalekit_client = scalekit.client.ScalekitClient(
+    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+    env_url=os.getenv("SCALEKIT_ENV_URL"),
+)
+actions = scalekit_client.actions
+client = anthropic.Anthropic()
+```
+  </TabItem>
+  <TabItem label="Node.js">
+```typescript
+import { ScalekitClient } from '@scalekit-sdk/node';
+import Anthropic from '@anthropic-ai/sdk';
+
+const scalekit = new ScalekitClient(
+  process.env.SCALEKIT_ENV_URL!,
+  process.env.SCALEKIT_CLIENT_ID!,
+  process.env.SCALEKIT_CLIENT_SECRET!,
+);
+const anthropic = new Anthropic();
+```
+  </TabItem>
+</Tabs>
+
+## Connect the user to Gmail
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+```python
+response = actions.get_or_create_connected_account(
+    connection_name="gmail",
+    identifier="user_123",
+)
+if response.connected_account.status != "ACTIVE":
+    link = actions.get_authorization_link(connection_name="gmail", identifier="user_123")
+    print("Authorize Gmail:", link.link)
+    input("Press Enter after authorizing...")
+```
+  </TabItem>
+  <TabItem label="Node.js">
+```typescript
+const { connectedAccount } = await scalekit.actions.getOrCreateConnectedAccount({
+  connectionName: 'gmail',
+  identifier: 'user_123',
+});
+if (connectedAccount?.status !== 'ACTIVE') {
+  const { link } = await scalekit.actions.getAuthorizationLink({ connectionName: 'gmail', identifier: 'user_123' });
+  console.log('Authorize Gmail:', link);
+}
+```
+  </TabItem>
+</Tabs>
+
+See [Authorize a user](/agentkit/tools/authorize/) for production auth handling.
+
+## Run the agent
+
+Fetch tools scoped to this user, then run the full Claude tool-use loop:
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+```python
+# Fetch tools scoped to this user
+scoped_response, _ = actions.tools.list_scoped_tools(
+    identifier="user_123",
+    filter={"connection_names": ["gmail"]},
+)
+llm_tools = [
+    {
+        "name": MessageToDict(t.tool).get("definition", {}).get("name"),
+        "description": MessageToDict(t.tool).get("definition", {}).get("description", ""),
+        "input_schema": MessageToDict(t.tool).get("definition", {}).get("input_schema", {}),
+    }
+    for t in scoped_response.tools
+]
+
+# Run the agent loop
+messages = [{"role": "user", "content": "Fetch my last 5 unread emails and summarize them"}]
+
+while True:
+    response = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=1024,
+        tools=llm_tools,
+        messages=messages,
+    )
+    if response.stop_reason == "end_turn":
+        print(response.content[0].text)
+        break
+
+    tool_results = []
+    for block in response.content:
+        if block.type == "tool_use":
+            result = actions.execute_tool(
+                tool_name=block.name,
+                identifier="user_123",
+                tool_input=block.input,
+            )
+            tool_results.append({
+                "type": "tool_result",
+                "tool_use_id": block.id,
+                "content": str(result.data),
+            })
+
+    messages.append({"role": "assistant", "content": response.content})
+    messages.append({"role": "user", "content": tool_results})
+```
+  </TabItem>
+  <TabItem label="Node.js">
+```typescript
+// Fetch tools scoped to this user
+const { tools } = await scalekit.tools.listScopedTools('user_123', {
+  filter: { connectionNames: ['gmail'] },
+});
+const llmTools = tools.map(t => ({
+  name: t.tool.definition.name,
+  description: t.tool.definition.description,
+  input_schema: t.tool.definition.input_schema,
+}));
+
+// Run the agent loop
+const messages: Anthropic.MessageParam[] = [
+  { role: 'user', content: 'Fetch my last 5 unread emails and summarize them' },
+];
+
+while (true) {
+  const response = await anthropic.messages.create({
+    model: 'claude-sonnet-4-6',
+    max_tokens: 1024,
+    tools: llmTools,
+    messages,
+  });
+
+  if (response.stop_reason === 'end_turn') {
+    const text = response.content.find(b => b.type === 'text');
+    if (text?.type === 'text') console.log(text.text);
+    break;
+  }
+
+  const toolResults: Anthropic.ToolResultBlockParam[] = [];
+  for (const block of response.content) {
+    if (block.type === 'tool_use') {
+      const result = await scalekit.actions.executeTool({
+        toolName: block.name,
+        identifier: 'user_123',
+        toolInput: block.input as Record<string, unknown>,
+      });
+      toolResults.push({ type: 'tool_result', tool_use_id: block.id, content: JSON.stringify(result.data) });
+    }
+  }
+  messages.push({ role: 'assistant', content: response.content });
+  messages.push({ role: 'user', content: toolResults });
+}
+```
+  </TabItem>
+</Tabs>
+
+## Use MCP instead
+
+Claude Desktop and other Anthropic-compatible MCP hosts connect directly to Scalekit MCP URLs. Add the URL to your MCP host config:
+
+```json
+{
+  "mcpServers": {
+    "scalekit": {
+      "transport": "streamable-http",
+      "url": "your-scalekit-mcp-url"
+    }
+  }
+}
+```
+
+For programmatic use, connect via any MCP client library and pass tools to `anthropic.messages.create`. See [Connect an MCP client](/agentkit/mcp/connect-mcp-client/) for setup details and [Generate user MCP URLs](/agentkit/mcp/generate-user-urls/) to get the URL.

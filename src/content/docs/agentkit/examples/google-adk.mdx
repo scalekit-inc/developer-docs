@@ -10,8 +10,8 @@ prev:
   label: "LangChain"
   link: "/agentkit/examples/langchain"
 next:
-  label: "OpenClaw"
-  link: "/agentkit/openclaw"
+  label: "Anthropic"
+  link: "/agentkit/examples/anthropic"
 ---
 
 import { Aside } from '@astrojs/starlight/components';
@@ -103,3 +103,25 @@ asyncio.run(main())
 <Aside type="note" title="Filter by connector">
   Pass `connection_names=["my_gmail_connection"]` instead of `providers` to scope tools to a specific named connection when a user has multiple Gmail accounts.
 </Aside>
+
+## Use MCP instead
+
+Google ADK supports MCP via `MCPToolset`. Connect to a Scalekit-generated MCP URL to skip tool setup:
+
+```python
+from google.adk.agents import Agent
+from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, StreamableHTTPConnectionParams
+
+agent = Agent(
+    name="gmail_assistant",
+    model="gemini-2.0-flash",
+    instruction="You are a helpful Gmail assistant.",
+    tools=[
+        MCPToolset(
+            connection_params=StreamableHTTPConnectionParams(url=mcp_url)
+        )
+    ],
+)
+```
+
+See [Generate user MCP URLs](/agentkit/mcp/generate-user-urls/) to get `mcp_url`.

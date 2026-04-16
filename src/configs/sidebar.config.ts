@@ -178,6 +178,10 @@ export const sidebar = [
         items: [
           { label: 'LangChain', link: 'agentkit/examples/langchain' },
           { label: 'Google ADK', link: 'agentkit/examples/google-adk' },
+          { label: 'Anthropic', link: 'agentkit/examples/anthropic' },
+          { label: 'OpenAI', link: 'agentkit/examples/openai' },
+          { label: 'Vercel AI', link: 'agentkit/examples/vercel-ai' },
+          { label: 'Mastra', link: 'agentkit/examples/mastra' },
           { label: 'OpenClaw', link: 'agentkit/openclaw' },
         ],
       },

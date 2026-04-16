@@ -82,3 +82,29 @@ print(result["messages"][-1].content)
 <Aside type="note" title="Filter by connector">
   Pass `connection_names=["my_gmail_connection"]` instead of `providers` to scope tools to a specific named connection when a user has multiple Gmail accounts.
 </Aside>
+
+## Use MCP instead
+
+LangChain supports MCP via `langchain-mcp-adapters`. Connect to a Scalekit-generated MCP URL to skip tool schema setup entirely:
+
+```python
+import asyncio
+from langgraph.prebuilt import create_react_agent
+from langchain_mcp_adapters.client import MultiServerMCPClient
+from langchain_openai import ChatOpenAI
+
+async def run(mcp_url: str):
+    async with MultiServerMCPClient(
+        {"scalekit": {"transport": "streamable_http", "url": mcp_url}}
+    ) as client:
+        tools = client.get_tools()
+        agent = create_react_agent(ChatOpenAI(model="gpt-4o"), tools)
+        result = await agent.ainvoke(
+            {"messages": [{"role": "user", "content": "Fetch my last 5 unread emails and summarize them"}]}
+        )
+        print(result["messages"][-1].content)
+
+asyncio.run(run(mcp_url))
+```
+
+See [Generate user MCP URLs](/agentkit/mcp/generate-user-urls/) to get `mcp_url`.
