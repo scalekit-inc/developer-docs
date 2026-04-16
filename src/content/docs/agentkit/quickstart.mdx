@@ -6,7 +6,8 @@ sidebar:
   order: 1
 ---
 
-import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside, TabItem } from '@astrojs/starlight/components';
+import Tabs from '@components/ui/Tabs.astro';
 
 By the end of this guide, you'll have a working agent that fetches a user's last 5 unread Gmail messages (authenticated with their real account). Scalekit manages the OAuth flow, token storage, and API proxy so you focus on agent logic.
 
@@ -32,26 +33,25 @@ Complete these steps in the Scalekit dashboard before writing any code:
     Install the Scalekit Auth Stack for your coding agent, complete the browser authorization when prompted, then paste the implementation prompt. The agent scaffolds connected account setup, the OAuth flow, and tool execution.
 
     <Tabs syncKey="coding-agent">
-      <TabItem label="Claude Code">
-        1. Run the install command:
+      <TabItem label="Claude Code" icon="claude">
         ```bash title="Terminal" frame="terminal" showLineNumbers=false
         claude plugin marketplace add scalekit-inc/claude-code-authstack && claude plugin install agent-auth@scalekit-auth-stack
         ```
 
-        2. A browser window opens — complete the OAuth authorization. This gives Claude Code direct access to your Scalekit environment to search docs, manage connections, and check connected account status.
+        Installing the plugin sets up Scalekit's MCP server and triggers an OAuth authorization flow in your browser. Complete the authorization before continuing. This gives Claude Code direct access to your Scalekit environment to search docs, manage connections, and check connected account status.
 
         3. Paste this prompt:
         ```md title="Implementation prompt" wrap showLineNumbers=false
-        Configure Scalekit agent authentication for Gmail. Provide code to create a connected account, generate an authorization link, and — once the user authorizes — fetch the last 5 unread emails using Scalekit's tool API.
+        Configure Scalekit agent authentication for Gmail. Provide code to create a connected account, generate an authorization link, and, once the user authorizes, fetch the last 5 unread emails using Scalekit's tool API.
         ```
       </TabItem>
-      <TabItem label="Codex">
+      <TabItem label="Codex" icon="codex">
         ```bash title="Terminal" frame="terminal" showLineNumbers=false
         curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash
         ```
         Restart Codex → Plugin Directory → **Scalekit Auth Stack** → install **agent-auth**. If a browser authorization prompt appears, complete the OAuth flow before continuing. Then paste the implementation prompt above.
       </TabItem>
-      <TabItem label="GitHub Copilot CLI">
+      <TabItem label="GitHub Copilot CLI" icon="githubcopilot">
         ```bash title="Terminal" frame="terminal" showLineNumbers=false
         copilot plugin marketplace add scalekit-inc/github-copilot-authstack
         copilot plugin install agent-auth@scalekit-auth-stack
@@ -61,7 +61,7 @@ Complete these steps in the Scalekit dashboard before writing any code:
         copilot "Configure Scalekit agent authentication for Gmail. Provide code to create a connected account, generate an authorization link, and fetch the last 5 unread emails using Scalekit's tool API."
         ```
       </TabItem>
-      <TabItem label="Cursor">
+      <TabItem label="Cursor" icon="cursor">
         <Aside type="note" title="Marketplace under review">
           Scalekit Auth Stack is under review on Cursor Marketplace. Use the local installer below until it's live.
         </Aside>
@@ -70,7 +70,7 @@ Complete these steps in the Scalekit dashboard before writing any code:
         ```
         Reload Cursor → **Settings → Plugins** → enable **Agent Auth**. If a browser authorization prompt appears, complete the OAuth flow before continuing. Open chat (Cmd+L / Ctrl+L) and paste the implementation prompt above.
       </TabItem>
-      <TabItem label="40+ agents">
+      <TabItem label="40+ agents" icon="sparkle">
         ```bash title="Terminal" frame="terminal" showLineNumbers=false
         npx skills add scalekit-inc/skills --skill integrating-agent-auth
         ```
@@ -137,7 +137,7 @@ Complete these steps in the Scalekit dashboard before writing any code:
 
     ### 2. Create a connected account
 
-    Scalekit tracks each user's third-party connection as a connected account. This is the record that holds their OAuth tokens — creating it tells Scalekit to start managing the user's Gmail access on your behalf.
+    Scalekit tracks each user's third-party connection as a connected account. This is the record that holds their OAuth tokens. Creating it tells Scalekit to start managing the user's Gmail access on your behalf.
 
     <Tabs syncKey="tech-stack">
       <TabItem label="Python">

@@ -11,7 +11,7 @@ export const sidebar = [
         label: 'Getting started',
         items: [
           'authenticate/set-up-scalekit',
-          { label: 'Quickstart: SaaSKit', link: 'authenticate/fsa/quickstart' },
+          { label: 'Quickstart', link: 'authenticate/fsa/quickstart' },
           'authenticate/fsa/code-samples',
         ],
       },

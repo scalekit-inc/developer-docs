@@ -1,6 +1,6 @@
 ---
 title: 'Python SDK reference'
-description: 'Complete API reference for the Scalekit Python SDK — actions client, MCP server provisioning, framework adapters, tools client, and modifiers.'
+description: 'Complete API reference for the Scalekit Python SDK: actions client, MCP server provisioning, framework adapters, tools client, and modifiers.'
 sidebar:
   label: 'Python SDK'
 tableOfContents: true
@@ -55,7 +55,7 @@ Generates a time-limited OAuth magic link to authorize a user's connection.
 ]} />
 
 <MethodReturns type="MagicLinkResponse" fields={[
-  { name: 'link', type: 'str', description: 'OAuth magic link URL — redirect the user here to start the authorization flow' },
+  { name: 'link', type: 'str', description: 'OAuth magic link URL. Redirect the user here to start the authorization flow.' },
   { name: 'expiry', type: 'datetime', description: 'Link expiry timestamp' },
 ]} />
 
@@ -125,13 +125,13 @@ print(account.connected_account.id)
 
 #### get_connected_account
 
-Fetches auth details for a connected account. Returns sensitive credentials — protect access to this method.
+Fetches auth details for a connected account. Returns sensitive credentials. Protect access to this method.
 
 Requires `connected_account_id` **or** `connection_name` + `identifier`.
 
 <MethodParams label="Input schema" params={[
-  { name: 'connection_name', type: 'str', required: false, description: 'Connector slug — use with identifier when you do not pass connected_account_id' },
-  { name: 'identifier', type: 'str', required: false, description: 'End-user or workspace identifier — use with connection_name' },
+  { name: 'connection_name', type: 'str', required: false, description: 'Connector slug. Use with identifier when you do not pass connected_account_id.' },
+  { name: 'identifier', type: 'str', required: false, description: 'End-user or workspace identifier. Use with connection_name.' },
   { name: 'connected_account_id', type: 'str', required: false, description: 'Connected account ID (ca_...) when resolving by ID instead of name + identifier' },
 ]} />
 
@@ -167,7 +167,7 @@ Requires `connected_account_id` **or** `connection_name` + `identifier`.
 Creates a connected account with explicit auth details.
 
 <MethodParams label="Input schema" params={[
-  { name: 'connection_name', type: 'str', required: true, description: 'Connector slug — must match a connection configured in your environment' },
+  { name: 'connection_name', type: 'str', required: true, description: 'Connector slug. Must match a connection configured in your environment.' },
   { name: 'identifier', type: 'str', required: true, description: 'Stable ID for this end user or workspace (email, user_id, or custom string)' },
   { name: 'authorization_details', type: 'dict', required: true, description: 'OAuth token payload, API key, or other credentials for this connector' },
   { name: 'organization_id', type: 'str', required: false, description: 'Organization tenant ID when your app scopes auth and accounts by org' },
@@ -182,8 +182,8 @@ Returns CreateConnectedAccountResponse. Same shape as `get_or_create_connected_a
 Requires `connected_account_id` **or** `connection_name` + `identifier`.
 
 <MethodParams label="Input schema" params={[
-  { name: 'connection_name', type: 'str', required: false, description: 'Connector slug — use with identifier when you do not pass connected_account_id' },
-  { name: 'identifier', type: 'str', required: false, description: 'End-user or workspace identifier — use with connection_name' },
+  { name: 'connection_name', type: 'str', required: false, description: 'Connector slug. Use with identifier when you do not pass connected_account_id.' },
+  { name: 'identifier', type: 'str', required: false, description: 'End-user or workspace identifier. Use with connection_name.' },
   { name: 'connected_account_id', type: 'str', required: false, description: 'Connected account ID (ca_...) when updating by ID instead of name + identifier' },
   { name: 'authorization_details', type: 'dict', required: false, description: 'Replace or merge stored credentials (OAuth tokens, API keys, etc.)' },
   { name: 'organization_id', type: 'str', required: false, description: 'Organization tenant ID when your app scopes auth and accounts by org' },
@@ -198,8 +198,8 @@ Returns UpdateConnectedAccountResponse.
 Deletes a connected account and revokes its credentials. Requires `connected_account_id` **or** `connection_name` + `identifier`.
 
 <MethodParams label="Input schema" params={[
-  { name: 'connection_name', type: 'str', required: false, description: 'Connector slug — use with identifier when you do not pass connected_account_id' },
-  { name: 'identifier', type: 'str', required: false, description: 'End-user or workspace identifier — use with connection_name' },
+  { name: 'connection_name', type: 'str', required: false, description: 'Connector slug. Use with identifier when you do not pass connected_account_id.' },
+  { name: 'identifier', type: 'str', required: false, description: 'End-user or workspace identifier. Use with connection_name.' },
   { name: 'connected_account_id', type: 'str', required: false, description: 'Connected account ID (ca_...) when deleting by ID instead of name + identifier' },
 ]} />
 
@@ -269,7 +269,7 @@ messages = response.json()["messages"]
 
 ## MCP server provisioning
 
-`actions.mcp` generates per-user MCP-compatible server URLs. Any MCP-compatible agent framework — LangChain, Google ADK, Anthropic, OpenAI, and others — can connect to these URLs directly.
+`actions.mcp` generates per-user MCP-compatible server URLs. Any MCP-compatible agent framework (LangChain, Google ADK, Anthropic, OpenAI, and others) can connect to these URLs directly.
 
 **Two-step model:** Create a **config** once (defines which connectors and tools to expose), then call `ensure_instance` per user to get their personal MCP server URL.
 
@@ -337,7 +337,7 @@ Returns DeleteMcpConfigResponse.
 
 #### actions.mcp.ensure_instance
 
-Creates an MCP instance for this user if one doesn't exist, or returns the existing one. Call this on every session — it's idempotent.
+Creates an MCP instance for this user if one doesn't exist, or returns the existing one. Call this on every session; it's idempotent.
 
 The `instance.url` field is the MCP server URL to give to the user's agent or IDE.
 
@@ -487,7 +487,7 @@ pip install google-adk
 
 Same parameters as `actions.langchain.get_tools`.
 
-Returns `List[ScalekitGoogleAdkTool]` — pass directly to a Google ADK agent.
+Returns `List[ScalekitGoogleAdkTool]`. Pass it directly to a Google ADK agent.
 
 ```python title="Example"
 tools = actions.google.get_tools(identifier="user@example.com")
@@ -527,7 +527,7 @@ Lists tools scoped to a specific user. This is what framework adapters use inter
   { name: 'tools', type: 'list', description: 'List of tool schemas (name, description, input_schema)' },
   { name: 'tools[].name', type: 'str', description: 'Tool name' },
   { name: 'tools[].description', type: 'str', description: 'Tool description' },
-  { name: 'tools[].input_schema', type: 'object', description: 'JSON Schema for tool inputs — pass directly to LLM API' },
+  { name: 'tools[].input_schema', type: 'object', description: 'JSON Schema for tool inputs. Pass directly to LLM API.' },
   { name: 'next_page_token', type: 'str', description: 'Token for the next page, if any' },
 ]} />
 
@@ -540,7 +540,7 @@ tools_response = scalekit_client.actions.tools.list_scoped_tools(
 
 #### actions.tools.execute_tool
 
-Low-level tool execution — bypasses modifiers. Prefer `actions.execute_tool` in most cases.
+Low-level tool execution. Bypasses modifiers. Prefer `actions.execute_tool` in most cases.
 
 <MethodParams label="Input schema" params={[
   { name: 'tool_name', type: 'str', required: true, description: 'Registered tool name to execute' },
@@ -555,7 +555,7 @@ Returns ExecuteToolResponse. Same shape as `actions.execute_tool`.
 
 ## Modifiers
 
-Modifiers intercept tool calls to transform inputs or outputs — useful for validation, enrichment, or logging.
+Modifiers intercept tool calls to transform inputs or outputs, useful for validation, enrichment, or logging.
 
 ```python
 @actions.pre_modifier(tool_names=["gmail_fetch_emails"])
