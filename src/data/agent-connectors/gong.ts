@@ -376,6 +376,12 @@ export const tools: Tool[] = [
         required: true,
         description: `Email address of the Gong user who will own the flow to-dos and be responsible for this flow instance.`,
       },
+      {
+        name: 'overrides',
+        type: 'object',
+        required: false,
+        description: `Optional overrides for specific steps and variables in the flow (Beta). Example: {"coolOffOverride": true, "steps": [{"number": 1, "subject": "Hi {{recipient.first_name}}", "body": "<div>Reaching out...</div>"}], "flowInstanceVariables": [{"name": "recipient.first_name", "value": "Mike"}]}`,
+      },
     ],
   },
   {

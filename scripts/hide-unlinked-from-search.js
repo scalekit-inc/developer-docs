@@ -61,7 +61,7 @@ function getSidebarLinkedPaths() {
 
   // Map autogenerate directories that exist
   const autogenDirs = [
-    'reference/agent-connectors',
+    'agentkit/connectors',
     'guides/integrations/social-connections',
     'guides/integrations/auth-systems',
     'guides/integrations/sso-integrations',
@@ -171,7 +171,7 @@ function main() {
 
     // Check if file is in an autogenerate directory
     const autogenDirs = [
-      'reference/agent-connectors',
+      'agentkit/connectors',
       'guides/integrations/social-connections',
       'guides/integrations/auth-systems',
       'guides/integrations/sso-integrations',

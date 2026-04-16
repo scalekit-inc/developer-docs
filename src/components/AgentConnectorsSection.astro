@@ -3,8 +3,9 @@ import { getCollection } from 'astro:content'
 import { LinkCard } from '@astrojs/starlight/components'
 import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
 
-const connectors = await getCollection('docs', ({ id }) =>
-  id.startsWith('reference/agent-connectors/'),
+const connectors = await getCollection(
+  'docs',
+  ({ id }) => id.startsWith('agentkit/connectors/') && id !== 'agentkit/connectors/index',
 )
 const sorted = [...connectors].sort((a, b) =>
   (a.data.title || '').localeCompare(b.data.title || ''),

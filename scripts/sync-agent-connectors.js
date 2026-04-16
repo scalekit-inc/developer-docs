@@ -3,7 +3,7 @@
  * sync-agent-connectors.js
  *
  * Fetches all providers + tools from the Scalekit API and regenerates
- * MDX documentation files under src/content/docs/reference/agent-connectors/.
+ * MDX documentation files under src/content/docs/agentkit/connectors/.
  *
  * Env vars (reads from .env or process.env):
  *   PROD_SCALEKIT_CLIENT_ID       – OAuth client ID (production)
@@ -857,7 +857,7 @@ async function main() {
     `✓ Synced index.ts (${Object.keys(SETUP_STEM_MAP).length} setup + ${Object.keys(USAGE_STEM_MAP).length} usage templates)`,
   )
 
-  const outputDir = path.join(__dirname, '../src/content/docs/reference/agent-connectors')
+  const outputDir = path.join(__dirname, '../src/content/docs/agentkit/connectors')
   fs.mkdirSync(outputDir, { recursive: true })
 
   const dataOutputDir = path.join(__dirname, '../src/data/agent-connectors')
@@ -938,7 +938,7 @@ async function main() {
   console.log(`   Tools: ${tools.length}`)
   console.log(`   Files written: ${written} MDX + ${written} TS data + catalog.ts`)
   console.log(`   Orphans removed: ${removed}`)
-  console.log(`   MDX output: src/content/docs/reference/agent-connectors/`)
+  console.log(`   MDX output: src/content/docs/agentkit/connectors/`)
   console.log(`   Data output: src/data/agent-connectors/`)
   console.log('🎉 Done!')
 }

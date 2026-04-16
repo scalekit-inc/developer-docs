@@ -14,8 +14,7 @@ export function getActiveProduct(
   searchParams?: URLSearchParams,
 ): 'agentkit' | 'saaskit' {
   if (topic === 'connect') return 'agentkit'
-  if (pathname.startsWith('/agentkit/') || pathname.startsWith('/reference/agent-connectors'))
-    return 'agentkit'
+  if (pathname.startsWith('/agentkit/')) return 'agentkit'
   // Preserve product context on shared pages (e.g. /apis/ linked from AgentKit nav)
   if (searchParams?.get('product') === 'agentkit') return 'agentkit'
   return 'saaskit'

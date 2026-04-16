@@ -7,6 +7,11 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
+  close: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/close.svg',
+    authType: 'OAuth 2.0',
+    categories: ['crm', 'sales', 'communication'],
+  },
   miro: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/Miro.svg',
     authType: 'OAuth 2.0',

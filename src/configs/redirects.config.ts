@@ -358,6 +358,7 @@ export const redirects = {
   '/dev-kit/changelogs/go/version/v1-0-4': '/sdks/go/',
 
   // Agent connectors redirects
+  '/reference/agent-connectors/[...slug]': '/agentkit/connectors/[...slug]',
   '/reference/agent-connectors': '/agentkit/connectors/',
   '/connectors': '/agentkit/connectors/',
   '/guides/integrations/agent-connectors': '/agentkit/connectors/',

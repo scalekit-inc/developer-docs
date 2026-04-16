@@ -209,7 +209,7 @@ export const sidebar = [
       {
         label: 'Connectors',
         autogenerate: {
-          directory: 'reference/agent-connectors',
+          directory: 'agentkit/connectors',
         },
       },
     ],
@@ -556,7 +556,7 @@ export const topics = {
   'modular-scim': ['/directory/**/*'],
 
   // Agent connectors (dedicated connectors sidebar — must come before connect)
-  'agent-connectors': ['/reference/agent-connectors/**/*'],
+  'agent-connectors': ['/agentkit/connectors/**/*'],
 
   // AgentKit / Connect
   connect: ['/agentkit/**/*'],
