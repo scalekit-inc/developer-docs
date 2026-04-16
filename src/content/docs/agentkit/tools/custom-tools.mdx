@@ -1,317 +1,253 @@
 ---
-title: Use custom tools via API proxy
-description: Build tools that Scalekit does not provide out of the box by proxying provider API calls with per-user connected accounts.
+title: Custom tools
+description: Build tools that Scalekit does not provide out of the box by proxying provider API calls through connected accounts.
 slug: agentkit/tools/custom-tools
 sidebar:
-  label: Custom tools
+  label: Build custom tools
 tags: [agentkit, tools, custom-tools, api-proxy, tool-calling]
 tableOfContents: true
 prev:
-  label: "Scalekit optimized tools"
+  label: "Use optimized tools"
   link: "/agentkit/tools/scalekit-optimized-tools"
 next:
   label: "Tool execution via MCP"
   link: "/agentkit/mcp/tool-access-via-mcp"
 ---
 
-import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 
-Scalekit optimized tools cover many common actions across 60+ connectors. When you need an action that is not available as a pre-built tool, use **API Proxy mode**.
-
-In API Proxy mode, your application defines the tool contract and calls the provider endpoint through `actions.request` / `actions.request()`. Scalekit injects the user's credentials from their connected account, so your agent still executes on behalf of the user without handling raw OAuth tokens.
-
-## When to use custom tools
-
-Use custom tools when:
-
-- You need a provider endpoint that does not have a pre-built Scalekit tool yet.
-- You want a strict input/output shape for your own agent workflow.
-- You need app-specific validation or transformations before returning data to the model.
-
-Use Scalekit optimized tools when they already cover your use case. They provide stable, curated schemas and less application code.
+When you need a provider action that Scalekit doesn't offer as a pre-built tool, use **API Proxy mode**. You define the tool contract and call the provider endpoint through `actions.request`. Scalekit injects the user's credentials from their connected account — your agent never handles raw tokens.
 
 | Option | Best for | Who defines tool schema |
 |---|---|---|
 | Scalekit optimized tools | Common connector actions | Scalekit |
-| Custom tools (API Proxy mode) | Unsupported or app-specific actions | Your application |
+| Custom tools (API Proxy) | Unsupported or app-specific actions | Your application |
 
-## Before you start
-
-- Configure the connector in **Agent Auth > Connections**. See [Configure connections](/agentkit/connections/) for setup steps.
-- Ensure the user has an `ACTIVE` [connected account](/agentkit/quickstart#2-create-a-connected-account) for that connection.
-- Confirm the connection includes the scopes required by your target API endpoint.
+This page assumes the user has an `ACTIVE` connected account. If not, see [Authorize a user](/agentkit/tools/authorize/).
 
 ## Find the right endpoint
 
-The `path` you pass to `actions.request()` is forwarded directly to the provider's API — Scalekit only adds the authentication headers. This means you need to look up the provider's API reference to get the correct path, HTTP method, and request shape.
-
-To identify the right endpoint for your connector:
-
-1. **Open the provider's API reference.** Every connector has public API docs listing available endpoints, required parameters, and response shapes.
-2. **Copy the endpoint path.** Use the path relative to the provider's base URL. For example, Gmail's base URL is `https://www.googleapis.com` — so the path for listing filters is `/gmail/v1/users/me/settings/filters`.
-3. **Check the required OAuth scopes.** Each endpoint lists the scopes it needs. Confirm those scopes are included in your connector configuration under **Agent Auth > Connections > [connector] > Scopes**.
-
-Some commonly used API references:
+The `path` you pass to `actions.request` is forwarded directly to the provider's API — Scalekit only adds authentication headers. Look up the provider's API reference to get the correct path, method, and request shape.
 
 | Connector | API reference |
 |---|---|
-| Gmail | [Google Gmail API reference](https://developers.google.com/gmail/api/reference/rest) |
+| Gmail | [Google Gmail API](https://developers.google.com/gmail/api/reference/rest) |
 | Slack | [Slack API methods](https://api.slack.com/methods) |
 | GitHub | [GitHub REST API](https://docs.github.com/en/rest) |
 | Salesforce | [Salesforce REST API](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/) |
-| HubSpot | [HubSpot API overview](https://developers.hubspot.com/docs/api/overview) |
+| HubSpot | [HubSpot API](https://developers.hubspot.com/docs/api/overview) |
 
 <Aside type="note" title="Base URL is managed by Scalekit">
-  You only provide the path — Scalekit resolves the correct base URL for the connector and attaches the user's OAuth token automatically.
+  Provide only the path — Scalekit resolves the correct base URL for the connector and injects the user's credentials automatically.
 </Aside>
 
-## Build a custom tool with API Proxy mode
+## Define your tool contract
 
-<Steps>
-1. #### Define your custom tool contract
+Design the tool around your agent's intent, not the provider's API surface. For example, to list Gmail filters:
 
-   Translate the provider endpoint into a tool your model can call. The tool name and input schema should reflect your agent's intent, not the provider's API surface.
+- **Tool name:** `gmail_list_filters` — describes the action, not the endpoint
+- **Input:** `identifier` — your app's user ID
+- **Output:** `{ filters: [...], count: N }` — structured, not the raw Gmail response
 
-   For example, to list Gmail filters:
+Keep schemas focused on what the model needs. Strip provider-specific noise before returning data.
 
-   - **Tool name:** `gmail_list_filters` — describes the action, not the endpoint
-   - **Input:** `identifier` (string) — your app's user ID, used to look up the connected account
-   - **Output:** a structured object with a `filters` array and a `count` — not the raw Gmail response
+## Proxy the API call
 
-   Keep the schema focused on what the model needs to reason over. Strip provider-specific noise before returning data.
+Use `actions.request` to call any provider endpoint. Scalekit handles credential injection.
 
-2. #### Call the provider API through Scalekit proxy
+**GET requests** — append query parameters to the path:
 
-   Use `request` on the actions client to call any provider endpoint. Pass the HTTP method and the path from the provider's API reference.
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+```python
+def gmail_list_filters(identifier: str):
+    response = actions.request(
+        connection_name="gmail",
+        identifier=identifier,
+        method="GET",
+        path="/gmail/v1/users/me/settings/filters",
+    )
+    data = response.json()
+    return {"filters": data.get("filter", []), "count": len(data.get("filter", []))}
 
-   **Read operations (GET)**
+def gmail_list_unread(identifier: str, max_results: int = 10):
+    response = actions.request(
+        connection_name="gmail",
+        identifier=identifier,
+        method="GET",
+        path=f"/gmail/v1/users/me/messages?q=is:unread&maxResults={max_results}",
+    )
+    return {"messages": response.json().get("messages", [])}
+```
+  </TabItem>
+  <TabItem label="Node.js">
+```typescript
+async function gmailListFilters(identifier: string) {
+  const response = await scalekit.actions.request({
+    connectionName: 'gmail',
+    identifier,
+    method: 'GET',
+    path: '/gmail/v1/users/me/settings/filters',
+  });
+  const filters = response.data?.filter ?? [];
+  return { filters, count: filters.length };
+}
 
-   Append query parameters directly to the path string:
+async function gmailListUnread(identifier: string, maxResults = 10) {
+  const response = await scalekit.actions.request({
+    connectionName: 'gmail',
+    identifier,
+    method: 'GET',
+    path: `/gmail/v1/users/me/messages?q=is:unread&maxResults=${maxResults}`,
+  });
+  return { messages: response.data?.messages ?? [] };
+}
+```
+  </TabItem>
+</Tabs>
 
-   <Tabs syncKey="tech-stack">
-     <TabItem label="Python">
-   ```python showLineNumbers=false frame="none"
-   # GET: list Gmail filters for this user
-   def gmail_list_filters(identifier: str):
-       response = actions.request(
-           connection_name="gmail",
-           identifier=identifier,
-           method="GET",
-           path="/gmail/v1/users/me/settings/filters",
-       )
-       data = response.json()
-       return {
-           "filters": data.get("filter", []),
-           "count": len(data.get("filter", [])),
-       }
+**POST requests** — pass a body for write operations:
 
-   # GET with query parameters: fetch unread messages
-   def gmail_list_unread(identifier: str, max_results: int = 10):
-       response = actions.request(
-           connection_name="gmail",
-           identifier=identifier,
-           method="GET",
-           path=f"/gmail/v1/users/me/messages?q=is:unread&maxResults={max_results}",
-       )
-       data = response.json()
-       return {"messages": data.get("messages", [])}
-   ```
-     </TabItem>
-     <TabItem label="Node.js">
-   ```ts showLineNumbers=false frame="none"
-   // GET: list Gmail filters for this user
-   async function gmailListFilters(identifier: string) {
-     const response = await scalekit.actions.request({
-       connectionName: 'gmail',
-       identifier,
-       method: 'GET',
-       path: '/gmail/v1/users/me/settings/filters',
-     });
-     const filters = response.data?.filter ?? [];
-     return { filters, count: filters.length };
-   }
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+```python
+def slack_send_message(identifier: str, channel: str, text: str):
+    response = actions.request(
+        connection_name="slack",
+        identifier=identifier,
+        method="POST",
+        path="/api/chat.postMessage",
+        body={"channel": channel, "text": text},
+    )
+    data = response.json()
+    if not data.get("ok"):
+        raise ValueError(f"Slack error: {data.get('error')}")
+    return {"ts": data.get("ts"), "channel": data.get("channel")}
+```
+  </TabItem>
+  <TabItem label="Node.js">
+```typescript
+async function slackSendMessage(identifier: string, channel: string, text: string) {
+  const response = await scalekit.actions.request({
+    connectionName: 'slack',
+    identifier,
+    method: 'POST',
+    path: '/api/chat.postMessage',
+    body: { channel, text },
+  });
+  if (!response.data?.ok) throw new Error(`Slack error: ${response.data?.error}`);
+  return { ts: response.data.ts, channel: response.data.channel };
+}
+```
+  </TabItem>
+</Tabs>
 
-   // GET with query parameters: fetch unread messages
-   async function gmailListUnread(identifier: string, maxResults = 10) {
-     const response = await scalekit.actions.request({
-       connectionName: 'gmail',
-       identifier,
-       method: 'GET',
-       path: `/gmail/v1/users/me/messages?q=is:unread&maxResults=${maxResults}`,
-     });
-     return { messages: response.data?.messages ?? [] };
-   }
-   ```
-     </TabItem>
-   </Tabs>
+## Expose as an LLM-callable tool
 
-   **Write operations (POST)**
+Define the JSON Schema for your LLM and route tool calls to your handler:
 
-   Pass a request body for endpoints that create or update resources. The same pattern works for any connector — only `connection_name`, `path`, and `body` change:
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+```python
+custom_tools = [
+    {
+        "name": "gmail_list_filters",
+        "description": "List Gmail filters configured for the current user",
+        "input_schema": {
+            "type": "object",
+            "properties": {"identifier": {"type": "string"}},
+            "required": ["identifier"],
+        },
+    },
+    {
+        "name": "slack_send_message",
+        "description": "Send a message to a Slack channel on behalf of the user",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "identifier": {"type": "string"},
+                "channel": {"type": "string"},
+                "text": {"type": "string"},
+            },
+            "required": ["identifier", "channel", "text"],
+        },
+    },
+]
 
-   <Tabs syncKey="tech-stack">
-     <TabItem label="Python">
-   ```python showLineNumbers=false frame="none"
-   # POST: send a Slack message on behalf of the user
-   def slack_send_message(identifier: str, channel: str, text: str):
-       response = actions.request(
-           connection_name="slack",
-           identifier=identifier,
-           method="POST",
-           path="/api/chat.postMessage",
-           body={"channel": channel, "text": text},
-       )
-       data = response.json()
-       if not data.get("ok"):
-           raise ValueError(f"Slack error: {data.get('error')}")
-       return {"ts": data.get("ts"), "channel": data.get("channel")}
-   ```
-     </TabItem>
-     <TabItem label="Node.js">
-   ```ts showLineNumbers=false frame="none"
-   // POST: send a Slack message on behalf of the user
-   async function slackSendMessage(identifier: string, channel: string, text: string) {
-     const response = await scalekit.actions.request({
-       connectionName: 'slack',
-       identifier,
-       method: 'POST',
-       path: '/api/chat.postMessage',
-       body: { channel, text },
-     });
-     if (!response.data?.ok) {
-       throw new Error(`Slack error: ${response.data?.error}`);
-     }
-     return { ts: response.data.ts, channel: response.data.channel };
-   }
-   ```
-     </TabItem>
-   </Tabs>
+# Tool router:
+# if tool_name == "gmail_list_filters":
+#     return gmail_list_filters(tool_input["identifier"])
+# if tool_name == "slack_send_message":
+#     return slack_send_message(tool_input["identifier"], tool_input["channel"], tool_input["text"])
+```
+  </TabItem>
+  <TabItem label="Node.js">
+```typescript
+const customTools = [
+  {
+    name: 'gmail_list_filters',
+    description: 'List Gmail filters configured for the current user',
+    input_schema: {
+      type: 'object',
+      properties: { identifier: { type: 'string' } },
+      required: ['identifier'],
+    },
+  },
+  {
+    name: 'slack_send_message',
+    description: 'Send a message to a Slack channel on behalf of the user',
+    input_schema: {
+      type: 'object',
+      properties: {
+        identifier: { type: 'string' },
+        channel: { type: 'string' },
+        text: { type: 'string' },
+      },
+      required: ['identifier', 'channel', 'text'],
+    },
+  },
+];
 
-   <Aside type="note" title="Why this is API Proxy mode">
-     Your app controls the custom tool contract, and Scalekit handles authentication and token injection for the provider API call.
-   </Aside>
+// Tool router:
+// if (toolName === 'gmail_list_filters') return gmailListFilters(toolInput.identifier);
+// if (toolName === 'slack_send_message') return slackSendMessage(toolInput.identifier, toolInput.channel, toolInput.text);
+```
+  </TabItem>
+</Tabs>
 
-3. #### Expose your handler as a model-callable tool
+## Check authorization before proxy calls
 
-   Register your custom tool in your model's tool list, then map tool calls to your handler.
+Verify the connected account is `ACTIVE` before making a proxy call and handle provider errors explicitly:
 
-   <Tabs syncKey="tech-stack">
-     <TabItem label="Python">
-   ```python showLineNumbers=false frame="none"
-   custom_tools = [
-       {
-           "name": "gmail_list_filters",
-           "description": "List Gmail filters configured for the current user",
-           "input_schema": {
-               "type": "object",
-               "properties": {
-                   "identifier": {"type": "string"},
-               },
-               "required": ["identifier"],
-           },
-       },
-       {
-           "name": "slack_send_message",
-           "description": "Send a message to a Slack channel on behalf of the user",
-           "input_schema": {
-               "type": "object",
-               "properties": {
-                   "identifier": {"type": "string"},
-                   "channel": {"type": "string"},
-                   "text": {"type": "string"},
-               },
-               "required": ["identifier", "channel", "text"],
-           },
-       },
-   ]
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+```python
+account = actions.get_or_create_connected_account(
+    connection_name="gmail",
+    identifier=identifier,
+).connected_account
 
-   # In your tool router:
-   # if tool_name == "gmail_list_filters":
-   #     return gmail_list_filters(tool_input["identifier"])
-   # if tool_name == "slack_send_message":
-   #     return slack_send_message(tool_input["identifier"], tool_input["channel"], tool_input["text"])
-   ```
-     </TabItem>
-     <TabItem label="Node.js">
-   ```ts showLineNumbers=false frame="none"
-   const customTools = [
-     {
-       name: 'gmail_list_filters',
-       description: 'List Gmail filters configured for the current user',
-       input_schema: {
-         type: 'object',
-         properties: {
-           identifier: { type: 'string' },
-         },
-         required: ['identifier'],
-       },
-     },
-     {
-       name: 'slack_send_message',
-       description: 'Send a message to a Slack channel on behalf of the user',
-       input_schema: {
-         type: 'object',
-         properties: {
-           identifier: { type: 'string' },
-           channel: { type: 'string' },
-           text: { type: 'string' },
-         },
-         required: ['identifier', 'channel', 'text'],
-       },
-     },
-   ];
+if account.status != "ACTIVE":
+    raise ValueError("Connected account is not ACTIVE. Re-authorize the user.")
+```
+  </TabItem>
+  <TabItem label="Node.js">
+```typescript
+const account = (await scalekit.actions.getOrCreateConnectedAccount({
+  connectionName: 'gmail',
+  identifier,
+})).connectedAccount;
 
-   // In your tool router:
-   // if (toolName === 'gmail_list_filters') {
-   //   return await gmailListFilters(toolInput.identifier);
-   // }
-   // if (toolName === 'slack_send_message') {
-   //   return await slackSendMessage(toolInput.identifier, toolInput.channel, toolInput.text);
-   // }
-   ```
-     </TabItem>
-   </Tabs>
+if (account?.status !== 'ACTIVE') {
+  throw new Error('Connected account is not ACTIVE. Re-authorize the user.');
+}
+```
+  </TabItem>
+</Tabs>
 
-4. #### Add authorization and error checks
+## Best practices
 
-   Check connected account state before proxy calls and handle provider errors explicitly.
-
-   <Tabs syncKey="tech-stack">
-     <TabItem label="Python">
-   ```python showLineNumbers=false frame="none"
-   account = actions.get_or_create_connected_account(
-       connection_name="gmail",
-       identifier=identifier,
-   ).connected_account
-
-   if account.status != "ACTIVE":
-       raise ValueError("Connected account is not ACTIVE. Re-authorize the user.")
-   ```
-     </TabItem>
-     <TabItem label="Node.js">
-   ```ts showLineNumbers=false frame="none"
-   const account = (await scalekit.actions.getOrCreateConnectedAccount({
-     connectionName: 'gmail',
-     identifier,
-   })).connectedAccount;
-
-   if (account?.status !== 'ACTIVE') {
-     throw new Error('Connected account is not ACTIVE. Re-authorize the user.');
-   }
-   ```
-     </TabItem>
-   </Tabs>
-</Steps>
-
-## Best practices for custom tools
-
-- **Keep schemas small:** expose only fields your model needs.
-- **Validate input server-side:** never trust model-generated parameters.
-- **Return stable output:** use predictable JSON keys across calls.
-- **Map provider errors to clear tool errors:** avoid leaking raw provider payloads to prompts.
-- **Use optimized tools first:** switch to custom tools only when the built-in catalog does not cover your endpoint.
-
-## Next steps
-
-- Use [Scalekit optimized tools](/agentkit/tools/scalekit-optimized-tools/) for supported actions.
-- Use [Tool execution via MCP](/agentkit/mcp/tool-access-via-mcp/) when you want framework-agnostic MCP delivery.
+- Expose only the fields your model needs — keep schemas small
+- Validate inputs server-side — never trust model-generated parameters
+- Use predictable JSON keys — return stable output across calls
+- Map provider errors to clear tool errors — don't leak raw provider payloads to prompts
