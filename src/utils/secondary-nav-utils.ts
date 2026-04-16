@@ -8,10 +8,16 @@ import { IconLucideLayoutGrid } from './icon-map'
  * Determines which product is active based on the current page context.
  * Frontmatter topic takes precedence over path-based detection.
  */
-export function getActiveProduct(pathname: string, topic?: string): 'agentkit' | 'saaskit' {
+export function getActiveProduct(
+  pathname: string,
+  topic?: string,
+  searchParams?: URLSearchParams,
+): 'agentkit' | 'saaskit' {
   if (topic === 'connect') return 'agentkit'
   if (pathname.startsWith('/agentkit/') || pathname.startsWith('/reference/agent-connectors'))
     return 'agentkit'
+  // Preserve product context on shared pages (e.g. /apis/ linked from AgentKit nav)
+  if (searchParams?.get('product') === 'agentkit') return 'agentkit'
   return 'saaskit'
 }
 
@@ -63,6 +69,7 @@ export function resolveNavMapping(mapping: SecondaryNavMapping, pathname: string
 export function getActiveSecondaryNavId(
   pathname: string,
   entry?: SecondaryNavProps['entry'],
+  searchParams?: URLSearchParams,
 ): string | null {
   // Map old home routes for backwards compatibility
   if (pathname === '/home/saaskit/' || pathname === '/home/saaskit') {
@@ -86,6 +93,8 @@ export function getActiveSecondaryNavId(
 
   // 3. Hard-coded fallbacks for pages without a sidebar (e.g. Scalar /apis)
   if (pathname.startsWith('/apis')) {
+    // When arriving from AgentKit context, highlight the AgentKit API reference item
+    if (searchParams?.get('product') === 'agentkit') return 'agentkit-api-reference'
     return 'rest-apis'
   }
 
@@ -105,8 +114,9 @@ export function isCurrentPage(
   pathname: string,
   item: NavItem,
   entry?: SecondaryNavProps['entry'],
+  searchParams?: URLSearchParams,
 ): boolean {
-  const activeId = getActiveSecondaryNavId(pathname, entry)
+  const activeId = getActiveSecondaryNavId(pathname, entry, searchParams)
 
   // For dropdown parent items, check if any child is current
   if (item.children && item.children.length > 0) {
@@ -127,10 +137,13 @@ export function getDisplayLabel(
   pathname: string,
   item: NavItem,
   entry?: SecondaryNavProps['entry'],
+  searchParams?: URLSearchParams,
 ): string {
   if (item.id === 'authenticate') {
     if (item.children && item.children.length > 0) {
-      const activeChild = item.children.find((child) => isCurrentPage(pathname, child, entry))
+      const activeChild = item.children.find((child) =>
+        isCurrentPage(pathname, child, entry, searchParams),
+      )
       if (!activeChild) return 'Choose product'
       return activeChild.label
     }
@@ -139,7 +152,9 @@ export function getDisplayLabel(
   }
 
   if (item.children && item.children.length > 0) {
-    const activeChild = item.children.find((child) => isCurrentPage(pathname, child, entry))
+    const activeChild = item.children.find((child) =>
+      isCurrentPage(pathname, child, entry, searchParams),
+    )
     // For right column items (Full-stack Auth shortcuts), always use parent label
     if (activeChild && activeChild.columnGroup === 'right') {
       return item.label
@@ -154,10 +169,13 @@ export function getDisplayIcon(
   pathname: string,
   item: NavItem,
   entry?: SecondaryNavProps['entry'],
+  searchParams?: URLSearchParams,
 ): any {
   if (item.id === 'authenticate') {
     if (item.children && item.children.length > 0) {
-      const activeChild = item.children.find((child) => isCurrentPage(pathname, child, entry))
+      const activeChild = item.children.find((child) =>
+        isCurrentPage(pathname, child, entry, searchParams),
+      )
       if (!activeChild) return IconLucideLayoutGrid
       if (activeChild.iconComponent) return activeChild.iconComponent
     }
@@ -166,7 +184,9 @@ export function getDisplayIcon(
   }
 
   if (item.children && item.children.length > 0) {
-    const activeChild = item.children.find((child) => isCurrentPage(pathname, child, entry))
+    const activeChild = item.children.find((child) =>
+      isCurrentPage(pathname, child, entry, searchParams),
+    )
     // For right column items (Full-stack Auth shortcuts), always use parent icon
     if (activeChild && activeChild.columnGroup === 'right') {
       return item.iconComponent

@@ -1,12 +1,21 @@
 ---
-import { getActiveSecondaryNavId, type SecondaryNavProps } from '../../utils/secondary-nav-utils'
+import {
+  getActiveSecondaryNavId,
+  getActiveProduct,
+  type SecondaryNavProps,
+} from '../../utils/secondary-nav-utils'
 import { IconLucideUsers, IconLucideBot } from '../../utils/icon-map'
 
 const { entry } = Astro.props satisfies SecondaryNavProps
 
-const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry)
-const isAgentKitActive = activeId?.startsWith('agentkit-') ?? false
-const isSaaSKitActive = activeId?.startsWith('saaskit-') ?? false
+const searchParams = Astro.url.searchParams
+const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry, searchParams)
+const activeProduct = getActiveProduct(Astro.url.pathname, entry?.data?.topic, searchParams)
+
+// activeId !== null means the page is in the doc system with a known nav context.
+// Shared items (rest-apis, sdks, etc.) live in SaasKit nav, so activeProduct covers them.
+const isAgentKitActive = activeProduct === 'agentkit'
+const isSaaSKitActive = activeProduct === 'saaskit' && activeId !== null
 const hasSelection = isAgentKitActive || isSaaSKitActive
 
 const activeLabel = isAgentKitActive ? 'Agents' : isSaaSKitActive ? 'SaaS' : null
