@@ -726,7 +726,6 @@ function generateMdxContent(provider, tools) {
   )
   const providerDescription = provider.description || 'No description available.'
   const authPatterns = provider.auth_patterns || []
-  const comingSoon = provider.coming_soon || false
   const iconSrc = provider.icon_src || ''
   const providerSlug = toSafeIdentifier(provider.identifier)
 
@@ -744,13 +743,6 @@ function generateMdxContent(provider, tools) {
   if (iconSrc) lines.push(`connectorIcon: ${iconSrc}`)
   if (authTypeLabel) lines.push(`connectorAuthType: ${authTypeLabel}`)
   if (categories.length) lines.push(`connectorCategories: [${categories.join(', ')}]`)
-
-  if (comingSoon) {
-    lines.push('sidebar:')
-    lines.push('  badge:')
-    lines.push('    text: Soon')
-    lines.push('    variant: tip')
-  }
 
   // Static head CSS
   lines.push('head:')
