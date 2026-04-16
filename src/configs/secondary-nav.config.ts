@@ -67,7 +67,7 @@ const agentKitItems: NavItem[] = [
   {
     id: 'agentkit-quickstart',
     href: '/agentkit/quickstart/',
-    label: 'Quickstart',
+    label: 'Docs',
     iconComponent: IconLucideRocket,
   },
   {
