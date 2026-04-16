@@ -1,22 +1,22 @@
 ---
 title: Overview
-description: Learn how AgentKit works — connectors, connections, and connected accounts
+description: Learn how AgentKit works — connectors, connections, connected accounts, and tools
 tags: [agentauth, oauth2, aigents, tools, overview, guide]
 ---
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-AgentKit lets your AI agents act on behalf of users across third-party applications to take actions such as sending emails, reading calendars, creating tickets, querying databases, and more. Scalekit handles the OAuth flows, token storage, and API authentication so your agent code focuses on what to do, not how to authenticate.
+AgentKit lets your AI agents act on behalf of users across third-party applications — sending emails, reading calendars, creating tickets, querying databases, and more. Scalekit handles the authentication complexity (OAuth, API keys, RSA key pairs, service accounts, and others) and provides the tools your agent calls, so your code focuses on what the agent should do, not how to authenticate or which API endpoint to hit.
 
 ## Core concepts
 
-Three building blocks make up Agent Auth:
+**Connectors** are the third-party applications your agent can use — Gmail, Slack, Salesforce, Snowflake, GitHub, and many others. Each connector defines its authentication requirements and exposes tools your agent can call.
 
-**Connectors** are the third-party applications your agent can use — Gmail, Slack, Salesforce, GitHub, and many others. Each connector defines the authentication requirements and the tools available to your agent.
+**Connections** are configurations you create once in the Scalekit Dashboard. A connection holds the credentials Scalekit needs to authenticate with a connector on your agent's behalf. One connection serves all your users.
 
-**Connections** are configurations you create once in the Scalekit Dashboard. A connection holds the credentials Scalekit needs to talk to a connector on your agent's behalf — OAuth client ID and secret, scopes, redirect URIs, and similar. One connection can serve all your users.
+**Connected accounts** are per-user instances of a connection. When a user completes authentication, Scalekit creates a connected account that holds their credentials and tracks their authorization state. Your agent uses a connected account to act on that specific user's behalf.
 
-**Connected accounts** are per-user instances of a connection. When a user completes the authentication flow, Scalekit creates a connected account that holds their tokens and tracks their authorization state. Your agent uses a connected account to act on that user's behalf.
+**Tools** are pre-built, connector-specific actions your agent can call — for example, `gmail_fetch_emails` or `salesforce_create_record`. Scalekit provides the tool schemas and handles the authenticated API call. Your agent passes inputs; Scalekit injects the user's credentials and returns structured output.
 
 ## How they fit together
 
@@ -25,27 +25,35 @@ direction: right
 
 Dev: "You (developer)"
 Users: "Your users"
+Agent: "Your agent"
 
 Scalekit: {
-  Conn: "Connection\n(credentials + scopes)"
-  CA: "Connected accounts\n(per-user tokens)"
+  Conn: "Connection\n(credentials + config)"
+  CA: "Connected accounts\n(per-user auth state)"
+  Tools: "Tools\n(pre-built + proxied)"
 }
 
-Provider: "Third-party app\n(Gmail, Slack, …)"
+Provider: "Third-party app\n(Gmail, Slack, Snowflake…)"
 
 Dev -> Scalekit.Conn: "Configure once"
 Users -> Scalekit.CA: "Authenticate"
-Scalekit.CA -> Provider: "Execute tools"
+Agent -> Scalekit.Tools: "Call tools"
+Scalekit.Tools -> Provider: "Authenticated API call"
 ```
 
-The relationship flows in one direction: you configure a connection, your users authenticate against it to create connected accounts, and your agent uses those connected accounts to call tools.
+You configure connections once. Your users authenticate to create connected accounts. Your agent calls tools — Scalekit handles the rest.
 
 ## What Scalekit manages for you
 
-- OAuth flows and token exchange for every connector
-- Secure token storage and automatic refresh
+**Authentication**
+- Credential management across OAuth, API keys, RSA key pairs, service accounts, and more
+- Secure credential storage and automatic token refresh
 - Per-user authorization state tracking
-- Authenticated API proxying — your agent never handles raw tokens
+
+**Tool execution**
+- Pre-built tool schemas for every connector — pass directly to any LLM API
+- Authenticated API proxying — your agent never handles raw tokens or constructs API calls
+- Native adapters for LangChain, Google ADK, and MCP-compatible frameworks
 
 ## Get started
 
