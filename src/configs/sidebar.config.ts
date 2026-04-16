@@ -145,7 +145,7 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Authentication & security',
+        label: 'Authentication',
         collapsed: false,
         items: [
           'agentkit/connections',
@@ -156,7 +156,7 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Tool execution',
+        label: 'Tool calling',
         collapsed: false,
         items: [
           { label: 'Scalekit optimized tools', link: 'agentkit/tools/scalekit-optimized-tools' },
