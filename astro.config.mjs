@@ -341,7 +341,8 @@ export default defineConfig({
     },
     optimizeDeps: {
       include: ['vue'],
-      exclude: [],
+      // starlight-blog uses Astro/Starlight virtual modules that should not be pre-bundled.
+      exclude: ['starlight-blog'],
     },
     // Provide a safe fallback for libraries that reference the CommonJS
     // global `__dirname` (e.g. canvaskit-wasm used by astro-og-canvas).

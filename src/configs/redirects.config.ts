@@ -361,7 +361,6 @@ export const redirects = {
   '/reference/agent-connectors': '/agentkit/connectors/',
   '/connectors': '/agentkit/connectors/',
   '/guides/integrations/agent-connectors': '/agentkit/connectors/',
-  '/guides/integrations/agent-connectors/': '/agentkit/connectors/',
 
   // Other redirects
   '/fsa/data-modeling': '/fsa/data-modelling/',

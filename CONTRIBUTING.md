@@ -115,22 +115,7 @@ Copy `.env.example` to `.env` before running the project. Here's what each group
 | `SCALEKIT_CLIENT_ID`     | Yes      | Identifies the docs app to Scalekit                             |
 | `SCALEKIT_REDIRECT_URI`  | Yes      | Defaults to `http://localhost:4321/auth/callback` for local dev |
 
-### Algolia Search
-
-| Variable             | Required | Description                                                          |
-| -------------------- | -------- | -------------------------------------------------------------------- |
-| `ALGOLIA_APP_ID`     | Optional | Powers the AI search Slack bot — not needed for running docs locally |
-| `ALGOLIA_API_KEY`    | Optional | Algolia API auth for the Slack bot                                   |
-| `ALGOLIA_INDEX_NAME` | Optional | Defaults to `scalekit-starlight-crawler`                             |
-
-### Slack Bot (Netlify Function)
-
-| Variable               | Required | Description                                                                 |
-| ---------------------- | -------- | --------------------------------------------------------------------------- |
-| `SLACK_BOT_TOKEN`      | Optional | OAuth token (`xoxb-*`) for the AI docs bot that responds to Slack @mentions |
-| `SLACK_SIGNING_SECRET` | Optional | Verifies incoming Slack webhook payloads                                    |
-
-> **For most doc contributions**, only `GITHUB_TOKEN` is worth setting. The rest are only needed if you're working on the Netlify functions or the auth flow.
+> **For most doc contributions**, only `GITHUB_TOKEN` is worth setting. The auth variables are only needed when you test the login flow locally.
 
 ---
 
