@@ -1,0 +1,75 @@
+---
+title: Generate user MCP URLs
+description: Create a unique, pre-authenticated MCP URL for each user from an MCP config. The URL is ready to hand to any MCP-compatible agent or framework.
+tags: [agentkit, mcp, model-context-protocol, connected-accounts, auth]
+sidebar:
+  label: Generate user MCP URLs
+tableOfContents: true
+prev:
+  label: "Configure an MCP server"
+  link: "/agentkit/mcp/configure-mcp-server"
+next:
+  label: "Connect an MCP client"
+  link: "/agentkit/mcp/connect-mcp-client"
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Once you have an MCP config, call `ensure_instance` to get a unique MCP URL for a specific user. Scalekit generates a URL that encodes the user's identity and authorized connections — the agent connecting to it gets exactly the tools that user is allowed to call.
+
+## Get a per-user MCP URL
+
+`ensure_instance` is idempotent — if an instance already exists for this user and config, Scalekit returns it. Call it on every login without side effects.
+
+```python
+inst_response = my_mcp.ensure_instance(
+    config_name=config_name,
+    user_identifier="user_123",   # your app's unique user ID
+)
+mcp_url = inst_response.instance.url
+print("MCP URL:", mcp_url)
+```
+
+<Aside type="caution" title="Keep the URL server-side">
+  The MCP URL is pre-authenticated. Treat it like a credential — never expose it to the browser or include it in client-side code.
+</Aside>
+
+## Check auth state
+
+Before handing the URL to your agent, verify that the user has authorized all connections the config requires. Call `get_instance_auth_state` with `include_auth_links=True` to retrieve auth status and authorization links for any pending connections:
+
+```python
+auth_state_response = my_mcp.get_instance_auth_state(
+    instance_id=inst_response.instance.id,
+    include_auth_links=True,
+)
+for conn in getattr(auth_state_response, "connections", []):
+    print("Connection:", conn.connection_name)
+    print("Status:    ", conn.connected_account_status)
+    print("Auth link: ", conn.authentication_link)
+```
+
+Surface the auth links to the user — via your app UI, email, or a Slack message — for any connection that isn't `ACTIVE`.
+
+## Poll until all connections are authorized
+
+Before passing the URL to your agent, poll `get_instance_auth_state` (without `include_auth_links`) until all connections are `ACTIVE`:
+
+```python
+import time
+
+def wait_for_auth(instance_id: str, poll_interval: int = 5):
+    while True:
+        state = my_mcp.get_instance_auth_state(instance_id=instance_id)
+        connections = getattr(state, "connections", [])
+        if all(c.connected_account_status == "ACTIVE" for c in connections):
+            print("All connections authorized — MCP URL is ready.")
+            return
+        pending = [c.connection_name for c in connections if c.connected_account_status != "ACTIVE"]
+        print(f"Waiting for: {pending}")
+        time.sleep(poll_interval)
+
+wait_for_auth(inst_response.instance.id)
+```
+
+Once all connections are `ACTIVE`, pass `mcp_url` to your agent. See [Connect an MCP client](/agentkit/mcp/connect-mcp-client/) for the next step.

@@ -159,13 +159,21 @@ export const sidebar = [
         label: 'Tool calling',
         collapsed: false,
         items: [
-          { label: 'Scalekit optimized tools', link: 'agentkit/tools/scalekit-optimized-tools' },
-          { label: 'Custom tools', link: 'agentkit/tools/custom-tools' },
-          { label: 'Tool execution via MCP', link: 'agentkit/mcp/tool-access-via-mcp' },
+          { label: 'Use optimized tools', link: 'agentkit/tools/scalekit-optimized-tools' },
+          { label: 'Build custom tools', link: 'agentkit/tools/custom-tools' },
         ],
       },
       {
-        label: 'AI Frameworks',
+        label: 'MCP',
+        collapsed: false,
+        items: [
+          { label: 'Configure an MCP server', link: 'agentkit/mcp/configure-mcp-server' },
+          { label: 'Generate user MCP URLs', link: 'agentkit/mcp/generate-user-urls' },
+          { label: 'Connect an MCP client', link: 'agentkit/mcp/connect-mcp-client' },
+        ],
+      },
+      {
+        label: 'Examples',
         collapsed: true,
         items: [
           {
