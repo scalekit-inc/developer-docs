@@ -1,10 +1,10 @@
-import { Tabs, TabItem } from '@astrojs/starlight/components'
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
 
-Connect a user's Jira account and make API calls on their behalf — Scalekit handles OAuth and token management automatically.
+Once a connected account is authorized, make Jira API calls through the Scalekit proxy — Scalekit handles OAuth token refresh automatically.
 
-**Don't worry about the Jira cloud ID in the path.** Scalekit automatically resolves `{{cloud_id}}` from the connected account's configuration. For example, a request with `path="/rest/api/3/myself"` will be sent to `https://api.atlassian.com/ex/jira/a1b2c3d4-e5f6-7890-abcd-ef1234567890/rest/api/3/myself` automatically.
+**Don't worry about the Jira cloud ID in the path.** Scalekit resolves `{{cloud_id}}` from the connected account configuration automatically. A request with `path="/rest/api/3/myself"` is routed to the correct Atlassian instance without any extra setup.
 
-## Proxy API Calls
+## Proxy API calls
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Node.js">
@@ -12,10 +12,6 @@ Connect a user's Jira account and make API calls on their behalf — Scalekit ha
     import { ScalekitClient } from '@scalekit-sdk/node';
     import 'dotenv/config';
 
-    const connectionName = 'jira'; // get your connection name from connection configurations
-    const identifier = 'user_123';  // your unique user identifier
-
-    // Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
     const scalekit = new ScalekitClient(
       process.env.SCALEKIT_ENV_URL,
       process.env.SCALEKIT_CLIENT_ID,
@@ -23,23 +19,14 @@ Connect a user's Jira account and make API calls on their behalf — Scalekit ha
     );
     const actions = scalekit.actions;
 
-    // Authenticate the user
-    const { link } = await actions.getAuthorizationLink({
-      connectionName,
-      identifier,
-    });
-    console.log('🔗 Authorize Jira:', link);
-    process.stdout.write('Press Enter after authorizing...');
-    await new Promise(r => process.stdin.once('data', r));
-
-    // Make a request via Scalekit proxy
-    const result = await actions.request({
-      connectionName,
-      identifier,
+    // Fetch the authenticated user's Jira profile
+    const me = await actions.request({
+      connectionName: 'jira',
+      identifier: 'user_123',
       path: '/rest/api/3/myself',
       method: 'GET',
     });
-    console.log(result);
+    console.log(me);
     ```
   </TabItem>
   <TabItem label="Python">
@@ -48,10 +35,6 @@ Connect a user's Jira account and make API calls on their behalf — Scalekit ha
     from dotenv import load_dotenv
     load_dotenv()
 
-    connection_name = "jira"  # get your connection name from connection configurations
-    identifier = "user_123"     # your unique user identifier
-
-    # Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
     scalekit_client = scalekit.client.ScalekitClient(
         client_id=os.getenv("SCALEKIT_CLIENT_ID"),
         client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
@@ -59,24 +42,266 @@ Connect a user's Jira account and make API calls on their behalf — Scalekit ha
     )
     actions = scalekit_client.actions
 
-    # Authenticate the user
-    link_response = actions.get_authorization_link(
-        connection_name=connection_name,
-        identifier=identifier
-    )
-    # present this link to your user for authorization, or click it yourself for testing
-    print("🔗 Authorize Jira:", link_response.link)
-    input("Press Enter after authorizing...")
-
-    # Make a request via Scalekit proxy
-    result = actions.request(
-        connection_name=connection_name,
-        identifier=identifier,
+    # Fetch the authenticated user's Jira profile
+    me = actions.request(
+        connection_name="jira",
+        identifier="user_123",
         path="/rest/api/3/myself",
         method="GET"
     )
-    print(result)
+    print(me)
     ```
   </TabItem>
 </Tabs>
 
+<Aside type="tip" title="No OAuth flow per request">
+  Jira uses OAuth 2.0 — Scalekit stores and refreshes the access token automatically. Your code only needs `connection_name` and `identifier` per request.
+</Aside>
+
+## Scalekit tools
+
+Use `execute_tool` to call Jira tools directly without constructing raw HTTP requests.
+
+### Basic example — get the current user
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const me = await actions.executeTool({
+      toolName: 'jira_myself_get',
+      connectionName: 'jira',
+      identifier: 'user_123',
+      toolInput: {},
+    });
+    console.log(me.accountId, me.displayName);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    me = actions.execute_tool(
+        tool_name="jira_myself_get",
+        connection_name="jira",
+        identifier="user_123",
+        tool_input={}
+    )
+    print(me["accountId"], me["displayName"])
+    ```
+  </TabItem>
+</Tabs>
+
+## Advanced enrichment workflow
+
+This example shows a complete Jira issue triage pipeline: search open bugs assigned to the current user, log triage time, transition issues to "In Progress", create follow-up tasks, and link them — all in one automated flow.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    const actions = scalekit.actions;
+
+    const opts = { connectionName: 'jira', identifier: 'user_123' };
+
+    async function triageMyBugs(projectKey: string) {
+      // 1. Get the current user's account ID
+      const me = await actions.executeTool({
+        toolName: 'jira_myself_get',
+        ...opts,
+        toolInput: {},
+      });
+      console.log(`Triaging bugs for: ${me.displayName}`);
+
+      // 2. Search for open bugs assigned to the current user
+      const searchResult = await actions.executeTool({
+        toolName: 'jira_issues_search',
+        ...opts,
+        toolInput: {
+          jql: `project = ${projectKey} AND issuetype = Bug AND assignee = currentUser() AND status = "To Do" ORDER BY priority DESC`,
+          maxResults: 10,
+          fields: 'summary,status,priority,issuetype',
+        },
+      });
+
+      const bugs = searchResult.issues ?? [];
+      console.log(`Found ${bugs.length} open bugs`);
+
+      for (const bug of bugs) {
+        const issueKey = bug.key;
+        console.log(`\nProcessing ${issueKey}: ${bug.fields.summary}`);
+
+        // 3. Add a triage comment
+        await actions.executeTool({
+          toolName: 'jira_issue_comment_add',
+          ...opts,
+          toolInput: {
+            issueIdOrKey: issueKey,
+            body: `Automated triage: picking up for sprint. Moving to In Progress.`,
+          },
+        });
+
+        // 4. Log 30 minutes of triage work
+        await actions.executeTool({
+          toolName: 'jira_issue_worklog_add',
+          ...opts,
+          toolInput: {
+            issueIdOrKey: issueKey,
+            timeSpent: '30m',
+            comment: 'Initial triage and review',
+          },
+        });
+
+        // 5. Get available transitions and move to "In Progress"
+        const transitions = await actions.executeTool({
+          toolName: 'jira_issue_transitions_list',
+          ...opts,
+          toolInput: { issueIdOrKey: issueKey },
+        });
+
+        const inProgress = transitions.transitions?.find(
+          (t: any) => t.name.toLowerCase().includes('progress')
+        );
+
+        if (inProgress) {
+          await actions.executeTool({
+            toolName: 'jira_issue_transition',
+            ...opts,
+            toolInput: {
+              issueIdOrKey: issueKey,
+              transitionId: inProgress.id,
+              comment: 'Starting work on this bug.',
+            },
+          });
+          console.log(`  → Transitioned to "${inProgress.name}"`);
+        }
+
+        // 6. Create a linked follow-up task for the fix
+        const followUp = await actions.executeTool({
+          toolName: 'jira_issue_create',
+          ...opts,
+          toolInput: {
+            project_key: projectKey,
+            summary: `[Fix] ${bug.fields.summary}`,
+            issue_type: 'Task',
+            description: `Follow-up fix task for bug ${issueKey}.`,
+            assignee_account_id: me.accountId,
+            priority_name: bug.fields.priority?.name ?? 'Medium',
+          },
+        });
+        console.log(`  → Created follow-up: ${followUp.key}`);
+
+        // 7. Link the bug to its follow-up task
+        await actions.executeTool({
+          toolName: 'jira_issue_link_create',
+          ...opts,
+          toolInput: {
+            link_type_name: 'Relates',
+            inward_issue_key: issueKey,
+            outward_issue_key: followUp.key,
+          },
+        });
+      }
+
+      console.log('\nTriage complete.');
+    }
+
+    triageMyBugs('MYPROJECT').catch(console.error);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+    actions = scalekit_client.actions
+
+    def execute(tool_name, tool_input):
+        return actions.execute_tool(
+            tool_name=tool_name,
+            connection_name="jira",
+            identifier="user_123",
+            tool_input=tool_input
+        )
+
+    def triage_my_bugs(project_key: str):
+        # 1. Get the current user's account ID
+        me = execute("jira_myself_get", {})
+        print(f"Triaging bugs for: {me['displayName']}")
+
+        # 2. Search for open bugs assigned to current user
+        search_result = execute("jira_issues_search", {
+            "jql": f'project = {project_key} AND issuetype = Bug AND assignee = currentUser() AND status = "To Do" ORDER BY priority DESC',
+            "maxResults": 10,
+            "fields": "summary,status,priority,issuetype"
+        })
+
+        bugs = search_result.get("issues", [])
+        print(f"Found {len(bugs)} open bugs")
+
+        for bug in bugs:
+            issue_key = bug["key"]
+            print(f"\nProcessing {issue_key}: {bug['fields']['summary']}")
+
+            # 3. Add a triage comment
+            execute("jira_issue_comment_add", {
+                "issueIdOrKey": issue_key,
+                "body": "Automated triage: picking up for sprint. Moving to In Progress."
+            })
+
+            # 4. Log 30 minutes of triage work
+            execute("jira_issue_worklog_add", {
+                "issueIdOrKey": issue_key,
+                "timeSpent": "30m",
+                "comment": "Initial triage and review"
+            })
+
+            # 5. Get transitions and move to "In Progress"
+            transitions = execute("jira_issue_transitions_list", {"issueIdOrKey": issue_key})
+            in_progress = next(
+                (t for t in transitions.get("transitions", [])
+                 if "progress" in t["name"].lower()),
+                None
+            )
+            if in_progress:
+                execute("jira_issue_transition", {
+                    "issueIdOrKey": issue_key,
+                    "transitionId": in_progress["id"],
+                    "comment": "Starting work on this bug."
+                })
+                print(f"  → Transitioned to \"{in_progress['name']}\"")
+
+            # 6. Create a linked follow-up task
+            follow_up = execute("jira_issue_create", {
+                "project_key": project_key,
+                "summary": f"[Fix] {bug['fields']['summary']}",
+                "issue_type": "Task",
+                "description": f"Follow-up fix task for bug {issue_key}.",
+                "assignee_account_id": me["accountId"],
+                "priority_name": bug["fields"].get("priority", {}).get("name", "Medium")
+            })
+            print(f"  → Created follow-up: {follow_up['key']}")
+
+            # 7. Link the bug to its follow-up task
+            execute("jira_issue_link_create", {
+                "link_type_name": "Relates",
+                "inward_issue_key": issue_key,
+                "outward_issue_key": follow_up["key"]
+            })
+
+        print("\nTriage complete.")
+
+    triage_my_bugs("MYPROJECT")
+    ```
+  </TabItem>
+</Tabs>

@@ -1,5 +1,8 @@
 ---
 title: Jira
+description: Connect to Jira to manage issues, projects, components, versions, worklogs, comments, attachments, filters, and workflows across your Atlassian Cloud instance.
+sidebar:
+  label: Jira
 tableOfContents: true
 head:
   - tag: style
@@ -12,14 +15,14 @@ head:
       }
 ---
 
-import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside } from '@astrojs/starlight/components'
 import { Accordion, AccordionItem } from 'accessible-astro-components'
 import { SetupJiraSection } from '@components/templates'
 import { UsageJiraSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
-  Connect to Jira. Manage issues, projects, workflows, and agile development processes
+  Connect to Jira. Manage issues, projects, workflows, comments, worklogs, attachments, filters, and agile development processes across your Atlassian Cloud instance.
  </div>
  <div class="flex justify-center">
   <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/jira.svg" width="64" height="64" alt="Jira logo" />
@@ -28,6 +31,7 @@ import { UsageJiraSection } from '@components/templates'
 
 Supports authentication: <Badge text="OAuth 2.0" />
 
+![Jira connector shown in Scalekit's Create Connection search](@/assets/docs/agent-connectors/jira/scalekit-search-jira.png)
 
 ## Set up the agent connector
 
@@ -36,3 +40,1081 @@ Supports authentication: <Badge text="OAuth 2.0" />
 ## Usage
 
 <UsageJiraSection />
+
+## Getting resource IDs
+
+Many tools require IDs that you must fetch first:
+
+| Resource | Tool to get ID | Field in response |
+|----------|---------------|-------------------|
+| Account ID | `jira_myself_get` | `accountId` |
+| Project key | `jira_projects_list` | `values[].key` (e.g. `KAN`) |
+| Issue key | `jira_issues_search` (JQL: `project = KAN`) | `issues[].key` (e.g. `KAN-1`) |
+| Issue ID | `jira_issues_search` | `issues[].id` |
+| Comment ID | `jira_issue_comments_list` | `comments[].id` |
+| Worklog ID | `jira_issue_worklogs_list` | `worklogs[].id` |
+| Attachment ID | `jira_issue_get` (expand: `attachments`) | `fields.attachment[].id` |
+| Transition ID | `jira_issue_transitions_list` | `transitions[].id` |
+| Component ID | `jira_project_components_list` | `values[].id` |
+| Version ID | `jira_project_versions_list` | `values[].id` |
+| Issue link ID | `jira_issue_get` (fields: `issuelinks`) | `fields.issuelinks[].id` |
+| Remote link ID | `jira_issue_remote_links_list` | `[].id` |
+| Filter ID | `jira_filters_search` | `values[].id` |
+| Issue type ID | `jira_issue_types_list` | `[].id` |
+| Priority ID | `jira_priorities_list` | `[].id` |
+| Role ID | `jira_roles_list` | `[].id` |
+| Permission scheme ID | `jira_permission_schemes_list` | `permissionSchemes[].id` |
+| Notification scheme ID | `jira_notification_schemes_list` | `values[].id` |
+| Group name | `jira_groups_find` | `groups[].name` |
+
+## Tool list
+
+The Jira connector provides 96 tools covering the full Jira API — issues, projects, components, versions, comments, worklogs, filters, transitions, remote links, JQL utilities, and administration.
+
+
+## `jira_attachment_delete`
+
+Permanently delete a Jira issue attachment by its ID. This action cannot be undone. Requires Delete Attachments project permission.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | Jira attachment ID to permanently delete |
+
+
+## `jira_attachment_get`
+
+Get metadata for a Jira issue attachment by its ID. Returns the filename, MIME type, size, creation date, author, and download URL.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | Jira attachment ID |
+
+
+## `jira_component_create`
+
+Create a new component in a Jira project. Components are used to group and categorize issues within a project.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `assigneeType` | string | No | Who issues in this component are assigned to by default |
+| `description` | string | No | Brief description of what this component covers |
+| `leadAccountId` | string | No | Atlassian account ID of the component lead |
+| `name` | string | Yes | Display name for the component |
+| `project` | string | Yes | Project key where this component will be created |
+
+
+## `jira_component_delete`
+
+Delete a Jira project component by its ID. Optionally move issues from the deleted component to another component. Requires Administer Projects permission.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | Numeric ID of the component to delete |
+| `moveIssuesTo` | string | No | If provided, issues in this component will be moved to this component ID |
+
+
+## `jira_component_get`
+
+Retrieve details of a Jira project component by its ID, including name, description, lead, and default assignee settings.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | Numeric ID of the component |
+
+
+## `jira_component_update`
+
+Update an existing Jira project component's name, description, lead, or default assignee settings.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `assigneeType` | string | No | Who issues in this component are assigned to by default |
+| `description` | string | No | New description for the component |
+| `id` | string | Yes | Numeric ID of the component to update |
+| `leadAccountId` | string | No | Atlassian account ID of the new component lead |
+| `name` | string | No | New display name for the component |
+
+
+## `jira_field_search`
+
+Search for Jira fields by name, type, or other criteria with pagination support. Returns paginated field results.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `maxResults` | integer | No | Number of fields per page |
+| `orderBy` | string | No | Sort field with optional - prefix for descending order |
+| `query` | string | No | Search term to filter field names |
+| `startAt` | integer | No | Zero-based starting index for pagination |
+| `type` | string | No | Field type filter: custom or system |
+
+
+## `jira_fields_list`
+
+Get all system and custom fields available in Jira. Returns field IDs, names, types, and whether they are custom or system fields. Use field IDs when referencing fields in JQL or issue creation.
+
+
+
+## `jira_filter_create`
+
+Create a saved Jira filter with a JQL query. Filters can be shared, added to favorites, and used on Jira dashboards.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `description` | string | No | Brief description of the filter's purpose |
+| `favourite` | boolean | No | Set to true to add this filter to your favorites |
+| `jql` | string | No | Jira Query Language string to define what issues this filter shows |
+| `name` | string | Yes | Display name for the saved filter |
+
+
+## `jira_filter_delete`
+
+Permanently delete a saved Jira filter. Only the filter owner or admins can delete a filter. This action cannot be undone.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | Numeric ID of the saved filter to delete |
+
+
+## `jira_filter_get`
+
+Retrieve a saved Jira filter by its ID, including the JQL query, name, owner, and share permissions.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `expand` | string | No | Expand options: sharedUsers, subscriptions |
+| `id` | string | Yes | Numeric ID of the saved filter |
+
+
+## `jira_filter_update`
+
+Update a saved Jira filter's name, description, or JQL query. Only the filter owner or admins can update a filter.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `description` | string | No | New description for the filter |
+| `id` | string | Yes | Numeric ID of the saved filter to update |
+| `jql` | string | No | New Jira Query Language string |
+| `name` | string | Yes | New display name for the filter |
+
+
+## `jira_filters_search`
+
+Search for saved Jira filters with pagination. Filter results by name, owner, project, or group. Returns filter details including JQL queries.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `accountId` | string | No | Atlassian account ID of the filter owner |
+| `expand` | string | No | Comma-separated expand options |
+| `filterName` | string | No | Filter name search term |
+| `maxResults` | integer | No | Number of filters per page |
+| `orderBy` | string | No | Sort field with optional - prefix for descending |
+| `startAt` | integer | No | Zero-based starting index for pagination |
+
+
+## `jira_group_member_add`
+
+Add a user to a Jira group. Requires Administer Jira global permission or the Site Administration role.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `accountId` | string | Yes | Atlassian account ID of the user to add |
+| `groupId` | string | No | Group ID (UUID). Use either groupId or groupname. |
+| `groupname` | string | No | Group name. Use either groupname or groupId. |
+
+
+## `jira_group_member_remove`
+
+Remove a user from a Jira group by their account ID. Requires Administer Jira global permission.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `accountId` | string | Yes | Atlassian account ID of the user to remove |
+| `groupId` | string | No | Group ID (UUID). Use either groupId or groupname. |
+| `groupname` | string | No | Group name. Use either groupname or groupId. |
+
+
+## `jira_group_members_list`
+
+Get a paginated list of users in a Jira group. Returns account IDs, display names, and email addresses of group members.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `groupId` | string | No | Group ID (UUID). Use either groupId or groupname. |
+| `groupname` | string | No | Group name. Use either groupname or groupId. |
+| `includeInactiveUsers` | boolean | No | Set to true to include inactive users |
+| `maxResults` | integer | No | Number of members per page |
+| `startAt` | integer | No | Zero-based starting index for pagination |
+
+
+## `jira_groups_find`
+
+Find Jira user groups by name. Returns groups whose names match the query. Useful for finding group names to use in permission schemes or visibility restrictions.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `accountId` | string | No | Atlassian account ID to filter groups by membership |
+| `excludeId` | string | No | Comma-separated group IDs to exclude |
+| `maxResults` | integer | No | Number of groups to return per request |
+| `query` | string | No | Search term to filter group names |
+
+
+## `jira_issue_assign`
+
+Assign or unassign a Jira issue to a user. Pass an accountId to assign, or omit/null to unassign. The user must have the Assign Issues project permission.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `accountId` | string | No | Atlassian account ID of the assignee. Omit or pass null to unassign. |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+
+
+## `jira_issue_changelog_list`
+
+Get the paginated change history for a Jira issue. Returns a list of changelog entries showing which fields changed, who changed them, and when.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+| `maxResults` | integer | No | Number of changelog entries per page |
+| `startAt` | integer | No | Zero-based starting index for pagination |
+
+
+## `jira_issue_comment_add`
+
+Add a comment to a Jira issue. The comment body is plain text and will be wrapped in ADF (Atlassian Document Format) for the v3 API. Optionally restrict visibility to a specific role or group.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `body` | string | Yes | Comment text to add to the issue |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+| `visibility_type` | string | No | Set to 'role' or 'group' to restrict who sees this comment |
+| `visibility_value` | string | No | Role name (e.g. 'Developers') or group name for visibility restriction |
+
+
+## `jira_issue_comment_delete`
+
+Permanently delete a comment from a Jira issue. Only the comment author or users with Administer Projects permission can delete comments. This action cannot be undone.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | ID of the comment to permanently delete |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+
+
+## `jira_issue_comment_get`
+
+Retrieve a specific comment on a Jira issue by comment ID. Returns the comment body, author, and timestamps.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `expand` | string | No | Set to renderedBody to include HTML-rendered comment content |
+| `id` | string | Yes | ID of the comment to fetch |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+
+
+## `jira_issue_comment_update`
+
+Update the body of an existing comment on a Jira issue. Only the comment author or users with Administer Projects permission can update comments.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `body` | string | Yes | Updated comment text |
+| `id` | string | Yes | ID of the comment to update |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+| `notifyUsers` | boolean | No | Set to false to suppress watcher notifications |
+
+
+## `jira_issue_comments_list`
+
+Get all comments for a Jira issue with pagination support. Returns comment bodies, author details, and timestamps. Use expand=renderedBody to get HTML-rendered comment content.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `expand` | string | No | Set to renderedBody to include HTML-rendered comment body |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+| `maxResults` | integer | No | Number of comments per page |
+| `orderBy` | string | No | Sort order: 'created' for oldest first, '-created' for newest first |
+| `startAt` | integer | No | Zero-based starting index for pagination |
+
+
+## `jira_issue_create`
+
+Create a new Jira issue or subtask in a specified project. Requires a project key, issue type, and summary. Supports assigning users, setting priority, labels, components, parent issue (for subtasks), and a plain-text description.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `assignee_account_id` | string | No | Atlassian account ID of the assignee |
+| `components` | array | No | Array of component name strings, e.g. ["Frontend", "API"] |
+| `description` | string | No | Detailed description of the issue |
+| `fix_versions` | array | No | Array of version name strings, e.g. ["v1.0", "v1.1"] |
+| `issue_type` | string | Yes | Issue type name as configured in the project |
+| `labels` | array | No | Array of label strings |
+| `parent_key` | string | No | Parent issue key, e.g. PROJ-123 (for subtasks) |
+| `priority_name` | string | No | Issue priority level |
+| `project_key` | string | Yes | Project key where the issue will be created |
+| `summary` | string | Yes | One-line summary of the issue |
+
+
+## `jira_issue_delete`
+
+Permanently delete a Jira issue and all its subtasks (if deleteSubtasks is true). This action cannot be undone. The user must have permission to delete the issue.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `deleteSubtasks` | string | No | Set to true to delete all subtasks along with this issue |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key to permanently delete |
+
+
+## `jira_issue_get`
+
+Retrieve details of a Jira issue by its ID or key. Returns fields, status, assignee, priority, comments summary, and other metadata. Use the fields parameter to limit the response to specific fields.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `expand` | string | No | Expand options: renderedFields, names, schema, transitions, operations, editmeta, changelog, versionedRepresentations |
+| `fields` | string | No | Fields to include in the response. Default returns all navigable fields. |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+| `properties` | string | No | Issue property keys to include in the response |
+| `updateHistory` | boolean | No | Set to true to update the viewed history |
+
+
+## `jira_issue_link_create`
+
+Create a link between two Jira issues with a specified link type (e.g. blocks, is blocked by, relates to, duplicates). Both issues must exist and the user needs Link Issues permission.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `comment` | string | No | Comment to attach to the issue link |
+| `inward_issue_key` | string | Yes | Issue key for the inward issue in the relationship |
+| `link_type_name` | string | Yes | Link type name as configured in Jira. Common values: Blocks, Cloners, Duplicate, Relates |
+| `outward_issue_key` | string | Yes | Issue key for the outward issue in the relationship |
+
+
+## `jira_issue_link_delete`
+
+Delete a specific issue link by its ID. This removes the relationship between the two linked issues. Requires Link Issues project permission.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `linkId` | string | Yes | ID of the issue link to remove |
+
+
+## `jira_issue_link_get`
+
+Retrieve details of a specific issue link by its ID, including the link type and both linked issues.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `linkId` | string | Yes | ID of the issue link |
+
+
+## `jira_issue_property_delete`
+
+Delete a custom property from a Jira issue by its property key.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+| `propertyKey` | string | Yes | Property key name to delete |
+
+
+## `jira_issue_property_get`
+
+Get the value of a custom property set on a Jira issue by its property key.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+| `propertyKey` | string | Yes | Property key name |
+
+
+## `jira_issue_property_keys_list`
+
+Get the keys of all custom properties set on a Jira issue. Issue properties are key-value stores attached to issues for storing custom data.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+
+
+## `jira_issue_property_set`
+
+Set or update a custom property on a Jira issue. Properties can store arbitrary JSON values and are visible to apps and API consumers. The value must be a valid JSON string.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+| `propertyKey` | string | Yes | Property key name (alphanumeric and hyphens) |
+| `value` | string | Yes | JSON value to store, e.g. `{"status": "deployed"}` |
+
+
+## `jira_issue_remote_link_create`
+
+Create a remote link from a Jira issue to an external resource (e.g. a GitHub PR, Confluence page, or deployment URL). If a globalId is provided and already exists, the remote link is updated instead.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `globalId` | string | No | Globally unique identifier for the remote resource, e.g. system=https://github.com&id=PR-456 |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+| `relationship` | string | No | Relationship type between the issue and the remote resource |
+| `url` | string | Yes | Full URL to the external resource |
+| `url_title` | string | Yes | Human-readable title to display for the link |
+
+
+## `jira_issue_remote_link_delete`
+
+Delete a remote link from a Jira issue by its link ID or by global ID. Provide either linkId (in the path) or globalId (as query param) to identify the link to delete.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `globalId` | string | No | Global ID of the remote link to delete. Use either linkId or globalId. |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+| `linkId` | string | No | ID of the remote link to delete. Use either linkId or globalId. |
+
+
+## `jira_issue_remote_link_get`
+
+Get a specific remote link on a Jira issue by its link ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+| `linkId` | string | Yes | ID of the remote link |
+
+
+## `jira_issue_remote_link_update`
+
+Update an existing remote link on a Jira issue by its link ID. Can change the URL, title, or relationship label.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+| `linkId` | string | Yes | ID of the remote link to update |
+| `relationship` | string | No | New relationship type between the issue and the remote resource |
+| `url` | string | Yes | New full URL to the external resource |
+| `url_title` | string | Yes | New human-readable title to display for the link |
+
+
+## `jira_issue_remote_links_list`
+
+Get all remote links for a Jira issue. Remote links connect issues to external resources (e.g. GitHub PRs, Confluence pages, deployment URLs).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `globalId` | string | No | Optional global ID to filter to a specific remote link |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+
+
+## `jira_issue_transition`
+
+Move a Jira issue to a new workflow status using a transition. Use the List Issue Transitions tool to get valid transition IDs. Optionally update fields or add a comment during the transition.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `comment` | string | No | Optional comment body to add to the issue during the transition |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+| `transitionId` | string | Yes | Transition ID from the list transitions endpoint |
+
+
+## `jira_issue_transitions_list`
+
+Get the available workflow transitions for a Jira issue. Returns the list of transitions the current user can perform, including transition IDs needed for the transition endpoint.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `expand` | string | No | Set to transitions.fields to include required fields for each transition |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+| `transitionId` | string | No | Optional transition ID to filter to a single transition |
+
+
+## `jira_issue_type_create`
+
+Create a new issue type in the Jira instance. Requires Administer Jira global permission. The new type will be available to all projects that use the default issue type scheme.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `description` | string | No | Brief description of when to use this issue type |
+| `hierarchyLevel` | integer | No | Issue hierarchy level: -1 for subtask, 0 for base type, positive for epic levels |
+| `name` | string | Yes | Unique name for the issue type |
+| `type` | string | No | Set to 'subtask' for a subtask issue type, 'standard' for regular type |
+
+
+## `jira_issue_type_delete`
+
+Delete a Jira issue type. If issues of this type exist, you must provide an alternative issue type ID to migrate them to. Requires Administer Jira global permission.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `alternativeIssueTypeId` | string | No | Required if issues of this type exist. Existing issues will be changed to this type. |
+| `id` | string | Yes | Numeric ID of the issue type to delete |
+
+
+## `jira_issue_type_get`
+
+Retrieve details of a specific Jira issue type by its ID, including name, description, icon URL, and hierarchy level.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | Numeric ID of the issue type |
+
+
+## `jira_issue_type_update`
+
+Update an existing Jira issue type's name or description. Requires Administer Jira global permission.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `description` | string | No | New description for the issue type |
+| `id` | string | Yes | Numeric ID of the issue type to update |
+| `name` | string | No | New display name for the issue type |
+
+
+## `jira_issue_types_list`
+
+Get all issue types available in the Jira instance (e.g. Bug, Story, Task, Epic, Sub-task). Returns issue type IDs, names, icons, and hierarchy levels.
+
+
+
+## `jira_issue_update`
+
+Update fields of an existing Jira issue. All fields are optional — only provided fields are changed. Supports updating summary, description, assignee, priority, labels, components, and fix versions.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `assignee_account_id` | string | No | Atlassian account ID of the new assignee (pass null to unassign) |
+| `components` | array | No | Array of component name strings |
+| `description` | string | No | New description for the issue |
+| `fix_versions` | array | No | Array of version name strings |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+| `labels` | array | No | Array of label strings |
+| `notifyUsers` | boolean | No | Set to false to suppress watcher notifications |
+| `priority_name` | string | No | Issue priority level |
+| `summary` | string | No | New one-line summary for the issue |
+
+
+## `jira_issue_vote_add`
+
+Cast a vote for a Jira issue on behalf of the authenticated user. Voting indicates the user wants this issue resolved. Only non-resolved issues can be voted on.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+
+
+## `jira_issue_vote_delete`
+
+Remove the authenticated user's vote from a Jira issue. Only the user who cast the vote can remove it.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+
+
+## `jira_issue_votes_get`
+
+Get vote information for a Jira issue, including the total vote count and whether the current user has voted.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+
+
+## `jira_issue_watcher_add`
+
+Add a user as a watcher to a Jira issue. If no accountId is provided, the currently authenticated user is added as a watcher.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `accountId` | string | No | Atlassian account ID. Leave blank to watch as yourself. |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+
+
+## `jira_issue_watcher_remove`
+
+Remove a user from the watchers list of a Jira issue. Requires the accountId of the user to remove.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `accountId` | string | Yes | Atlassian account ID of the watcher to remove |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+
+
+## `jira_issue_watchers_get`
+
+Get the list of users watching a Jira issue. Returns the watcher count and user details for each watcher.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+
+
+## `jira_issue_worklog_add`
+
+Log time worked against a Jira issue. Specify time spent using Jira duration format (e.g. '2h 30m', '1d'). Optionally set the start time and add a comment. Requires Log Work project permission.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `adjustEstimate` | string | No | How to adjust remaining estimate: auto (reduce by time logged), leave (no change), manual (set newEstimate), new (set... |
+| `comment` | string | No | Description of the work performed in this worklog entry |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+| `newEstimate` | string | No | New remaining time estimate in Jira duration format |
+| `started` | string | No | ISO 8601 datetime when work started. Defaults to current time. |
+| `timeSpent` | string | Yes | Duration of work logged. Use Jira format: 1w 2d 3h 30m |
+
+
+## `jira_issue_worklog_delete`
+
+Delete a worklog entry from a Jira issue. Only the worklog author or admins can delete worklogs. Optionally adjust the remaining time estimate.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `adjustEstimate` | string | No | How to adjust remaining estimate after deletion: auto (increase by time deleted), leave (no change), manual (set with... |
+| `id` | string | Yes | ID of the worklog entry to permanently delete |
+| `increaseBy` | string | No | Duration to add back to remaining estimate, e.g. '2h' |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+
+
+## `jira_issue_worklog_get`
+
+Get a specific worklog entry for a Jira issue by worklog ID. Returns time spent, author, start time, and any associated comment.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | ID of the worklog entry |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+
+
+## `jira_issue_worklog_update`
+
+Update an existing worklog entry on a Jira issue. Can change the time spent, start time, and comment. Only the worklog author or admins can update worklogs.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `adjustEstimate` | string | No | Remaining estimate adjustment: auto, leave, manual (set newEstimate), new (set to newEstimate) |
+| `comment` | string | No | New description of the work performed |
+| `id` | string | Yes | ID of the worklog entry to update |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+| `newEstimate` | string | No | New remaining estimate in Jira duration format |
+| `started` | string | No | ISO 8601 datetime when work started |
+| `timeSpent` | string | No | Updated duration in Jira format: 1w 2d 3h 30m |
+
+
+## `jira_issue_worklogs_list`
+
+Get all worklogs logged against a Jira issue with pagination support. Returns time spent, author, and timestamps for each worklog entry.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `issueIdOrKey` | string | Yes | Jira issue ID or key |
+| `maxResults` | integer | No | Number of worklog entries per page |
+| `startAt` | integer | No | Zero-based starting index for pagination |
+| `startedAfter` | integer | No | Filter worklogs started after this Unix epoch milliseconds timestamp |
+| `startedBefore` | integer | No | Filter worklogs started before this Unix epoch milliseconds timestamp |
+
+
+## `jira_issues_bulk_create`
+
+Create up to 50 Jira issues in a single API call. Each issue in the issueUpdates array must include fields with at minimum project, summary, and issuetype. Returns created issue keys and any errors.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `issueUpdates` | array | Yes | Array of issue creation objects. Each should have fields.project.key, fields.summary, and fields.issuetype.name. |
+
+
+## `jira_issues_search`
+
+Search for Jira issues using JQL (Jira Query Language). Returns a paginated list of matching issues with their fields. Use fields to control what data is returned per issue.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `expand` | string | No | Expand options: renderedFields, names, schema, transitions, editmeta, changelog, versionedRepresentations |
+| `fields` | string | No | Fields to include per issue. Defaults to all navigable fields. |
+| `jql` | string | Yes | Jira Query Language string. Example: project = PROJ AND assignee = currentUser() AND status != Done ORDER BY created ... |
+| `maxResults` | integer | No | Number of results per page (max 100) |
+| `startAt` | integer | No | Zero-based starting index for pagination |
+
+
+## `jira_jql_autocomplete_data`
+
+Get reference data for JQL query building, including available fields and operators. Useful for building dynamic JQL query interfaces.
+
+
+
+## `jira_jql_autocomplete_suggestions`
+
+Get autocomplete suggestions for a JQL field value. Provide the field name and optionally a partial value to get matching suggestions.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `fieldName` | string | No | JQL field name, e.g. project, assignee, status |
+| `fieldValue` | string | No | Partial value to search for matching suggestions |
+| `predicateName` | string | No | JQL predicate name for predicate-specific suggestions |
+| `predicateValue` | string | No | Partial predicate value to match |
+
+
+## `jira_jql_parse`
+
+Parse and validate one or more JQL queries. Returns the parsed structure of valid queries and error details for invalid ones. Useful for debugging JQL syntax before executing a search.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `queries` | array | Yes | Array of JQL strings to validate, e.g. ["project = PROJ AND status = Open"] |
+| `validation` | string | No | Validation strictness: strict returns errors for invalid queries, warn returns warnings, none skips validation |
+
+
+## `jira_jql_sanitize`
+
+Sanitize one or more JQL queries by converting user mentions to account IDs and fixing common formatting issues. Returns the sanitized query strings.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `queries` | array | Yes | Array of query objects, e.g. `[{"query": "assignee = currentUser()"}]` |
+
+
+## `jira_labels_list`
+
+Get a paginated list of all labels used across Jira issues in the instance. Useful for discovering available labels before applying them to issues.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `maxResults` | integer | No | Number of labels per page |
+| `startAt` | integer | No | Zero-based starting index for pagination |
+
+
+## `jira_myself_get`
+
+Get details of the currently authenticated Jira user. Returns account ID, display name, email address, and avatar URLs. Useful for getting your own account ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `expand` | string | No | Expand options: groups, applicationRoles |
+
+
+## `jira_notification_scheme_get`
+
+Retrieve details of a specific Jira notification scheme by its ID, including all configured notification events and their recipients.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `expand` | string | No | Comma-separated expand options |
+| `id` | string | Yes | Numeric ID of the notification scheme |
+
+
+## `jira_notification_schemes_list`
+
+Get all notification schemes in Jira with pagination. Notification schemes define who receives emails for issue events (created, updated, resolved, etc.).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `expand` | string | No | Comma-separated expand options |
+| `maxResults` | integer | No | Number of schemes per page |
+| `startAt` | integer | No | Zero-based starting index for pagination |
+
+
+## `jira_permission_grants_list`
+
+Get all permission grants in a Jira permission scheme. Returns each grant's permission type, holder type (user, group, role, etc.), and holder details.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `expand` | string | No | Comma-separated expand options |
+| `schemeId` | string | Yes | Numeric ID of the permission scheme |
+
+
+## `jira_permission_scheme_get`
+
+Retrieve details of a specific Jira permission scheme by its ID, including all permission grants and who they apply to.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `expand` | string | No | Comma-separated expand options |
+| `schemeId` | string | Yes | Numeric ID of the permission scheme |
+
+
+## `jira_permission_schemes_list`
+
+Get all permission schemes defined in the Jira instance. Returns scheme IDs, names, and descriptions. Permission schemes define who can perform which actions on issues in a project.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `expand` | string | No | Comma-separated expand options for additional scheme data |
+
+
+## `jira_priorities_list`
+
+Get all issue priority levels configured in the Jira instance (e.g. Highest, High, Medium, Low, Lowest). Returns priority names and IDs for use in issue creation and filtering.
+
+
+
+## `jira_priority_get`
+
+Retrieve details of a specific Jira priority level by its ID, including name, description, icon URL, and status color.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | Numeric ID of the priority level |
+
+
+## `jira_project_components_list`
+
+Get a paginated list of components for a Jira project. Components are sub-sections that group issues within a project.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `maxResults` | integer | No | Number of components per page |
+| `orderBy` | string | No | Sort field with optional + (ascending) or - (descending) prefix |
+| `projectIdOrKey` | string | Yes | Jira project key or numeric ID |
+| `query` | string | No | Search term to filter component names |
+| `startAt` | integer | No | Zero-based starting index for pagination |
+
+
+## `jira_project_create`
+
+Create a new Jira project. Requires a unique project key, project type key, and project template key. The authenticated user becomes the project lead by default.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `assigneeType` | string | No | Who issues are assigned to by default: PROJECT_LEAD or UNASSIGNED |
+| `description` | string | No | Brief description of the project's purpose |
+| `key` | string | Yes | Short unique identifier for the project (e.g. PROJ, MOBILE) |
+| `leadAccountId` | string | Yes | Atlassian account ID of the user to set as project lead |
+| `name` | string | Yes | Human-readable project name |
+| `projectTemplateKey` | string | Yes | Template key determines default workflow and screens. Scrum: com.pyxis.greenhopper.jira:gh-scrum-template, Kanban: co... |
+| `projectTypeKey` | string | Yes | Project category: software, business, or service_desk |
+
+
+## `jira_project_delete`
+
+Delete a Jira project and all its issues. This is a permanent, irreversible operation. Requires Administer Jira global permission.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `enableUndo` | boolean | No | Set to true to soft-delete (recycle bin) instead of permanently deleting |
+| `projectIdOrKey` | string | Yes | Jira project key or numeric ID to permanently delete |
+
+
+## `jira_project_get`
+
+Retrieve details of a Jira project by its ID or key, including name, type, lead, category, and metadata.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `expand` | string | No | Comma-separated expand options for additional project data |
+| `projectIdOrKey` | string | Yes | Jira project key or numeric ID |
+
+
+## `jira_project_role_get`
+
+Get details of a project role for a specific Jira project, including the list of members (users and groups) in the role.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | Numeric role ID |
+| `projectIdOrKey` | string | Yes | Jira project key or numeric ID |
+
+
+## `jira_project_roles_list`
+
+Get all project roles defined for a specific Jira project, with URLs to get member details for each role.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `projectIdOrKey` | string | Yes | Jira project key or numeric ID |
+
+
+## `jira_project_statuses_list`
+
+Get all valid issue statuses for a Jira project, grouped by issue type. Returns statuses with their names, IDs, and category colors.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `projectIdOrKey` | string | Yes | Jira project key or numeric ID |
+
+
+## `jira_project_types_list`
+
+Get all project types available in Jira (e.g. software, business, service_desk). Returns type keys, formatted names, and descriptions.
+
+
+
+## `jira_project_update`
+
+Update an existing Jira project's name, description, lead, or category. Only fields provided are updated. Requires Administer Projects permission.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `assigneeType` | string | No | Default issue assignee type |
+| `description` | string | No | New description for the project |
+| `leadAccountId` | string | No | Atlassian account ID of the new project lead |
+| `name` | string | No | New display name for the project |
+| `projectIdOrKey` | string | Yes | Jira project key or numeric ID |
+| `url` | string | No | URL to project documentation or homepage |
+
+
+## `jira_project_versions_list`
+
+Get a paginated list of versions for a Jira project. Versions are used to track releases and fix versions on issues.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `expand` | string | No | Comma-separated expand options |
+| `maxResults` | integer | No | Number of versions per page |
+| `orderBy` | string | No | Sort field with optional - prefix for descending |
+| `projectIdOrKey` | string | Yes | Jira project key or numeric ID |
+| `query` | string | No | Search term to filter version names |
+| `startAt` | integer | No | Zero-based starting index for pagination |
+| `status` | string | No | Filter versions by their release status |
+
+
+## `jira_projects_list`
+
+List all Jira projects visible to the authenticated user with support for filtering and pagination. Projects are returned only where the user has Browse Projects or Administer Projects permission.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `action` | string | No | Optional action filter (e.g., view, edit, browse) |
+| `categoryId` | integer | No | Optional category ID to filter projects |
+| `expand` | string | No | Comma-separated list of fields to expand in response |
+| `id` | string | No | Comma-separated list of project IDs |
+| `keys` | string | No | Comma-separated list of project keys |
+| `maxResults` | integer | No | Maximum number of results per page (default 50) |
+| `orderBy` | string | No | Field to sort results by with optional +/- prefix for ascending/descending |
+| `properties` | string | No | Comma-separated list of project properties to include |
+| `query` | string | No | Search term for project name or key (case-insensitive) |
+| `startAt` | integer | No | Index of the first item to return for pagination (default 0) |
+| `status` | string | No | Comma-separated project statuses (live, archived, deleted) |
+| `typeKey` | string | No | Project type key to filter by (e.g., software, business) |
+
+
+## `jira_role_create`
+
+Create a new project role in the Jira instance. The role will be available to all projects. Requires Administer Jira global permission.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `description` | string | No | What this role is used for |
+| `name` | string | Yes | Unique name for the project role |
+
+
+## `jira_role_delete`
+
+Delete a global project role from the Jira instance. Optionally swap the role's usage in projects with another role. Requires Administer Jira global permission.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | Numeric ID of the project role to delete |
+| `swap` | string | No | If provided, swap this role for the given role ID before deleting |
+
+
+## `jira_role_get`
+
+Retrieve details of a global Jira project role by its ID, including name, description, and scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | Numeric ID of the project role |
+
+
+## `jira_roles_list`
+
+Get all project roles defined in the Jira instance (global role list, not project-specific). Returns role IDs, names, and descriptions.
+
+
+
+## `jira_user_assignable_search`
+
+Find users who can be assigned to issues in a Jira project or specific issue. Provide either projectKey or issueKey (not both). Returns account IDs for use with the Assign Issue tool.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `issueKey` | string | No | Issue key to find assignable users for (e.g. PROJ-123). Use either issueKey or projectKey. |
+| `maxResults` | integer | No | Number of results per page |
+| `projectKey` | string | No | Project key to find assignable users for. Use either projectKey or issueKey. |
+| `query` | string | No | Search term to filter assignable users |
+| `startAt` | integer | No | Zero-based starting index for pagination |
+
+
+## `jira_user_get`
+
+Get details for a Jira user by their account ID. Returns display name, email address, account type, avatar URLs, and active status.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `accountId` | string | Yes | Atlassian account ID of the user |
+| `expand` | string | No | Expand options for additional user data |
+
+
+## `jira_users_search`
+
+Search for Jira users by query string. Returns users whose name, email, or display name matches the query. Useful for finding account IDs to use with other tools.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `maxResults` | integer | No | Number of results per page |
+| `query` | string | No | Search term to find users by name or email |
+| `startAt` | integer | No | Zero-based starting index for pagination |
+
+
+## `jira_version_create`
+
+Create a new version (release) in a Jira project. Versions track which release fixed or introduced an issue. Requires Administer Projects permission.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `archived` | boolean | No | Set to true to create this version in an archived state |
+| `description` | string | No | Brief description of what this version contains |
+| `name` | string | Yes | Version name as it will appear in Jira |
+| `project` | string | Yes | Project key where this version will be created |
+| `releaseDate` | string | No | Planned release date in YYYY-MM-DD format |
+| `released` | boolean | No | Set to true to mark this version as already released |
+| `startDate` | string | No | Version start date in YYYY-MM-DD format |
+
+
+## `jira_version_delete`
+
+Delete a Jira project version. Optionally move unresolved and/or fixed issues to another version before deleting. Requires Administer Projects permission.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | Numeric ID of the version to delete |
+| `moveAffectedIssuesTo` | string | No | Version ID to reassign issues affected by the deleted version |
+| `moveFixIssuesTo` | string | No | Version ID to reassign unresolved fix-version issues |
+
+
+## `jira_version_get`
+
+Retrieve details of a Jira project version by its ID, including name, release date, status, and associated project.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `expand` | string | No | Comma-separated expand options |
+| `id` | string | Yes | Numeric ID of the version |
+
+
+## `jira_version_update`
+
+Update a Jira project version's name, description, release date, or status (released/archived). Requires Administer Projects permission.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `archived` | boolean | No | Set to true to archive this version |
+| `description` | string | No | New description for the version |
+| `id` | string | Yes | Numeric ID of the version to update |
+| `name` | string | No | New display name for the version |
+| `releaseDate` | string | No | New planned release date in YYYY-MM-DD format |
+| `released` | boolean | No | Set to true to mark this version as released |
+| `startDate` | string | No | New start date in YYYY-MM-DD format |
+
+
+## `jira_workflows_search`
+
+Search for workflows in the Jira instance with pagination. Returns workflow names, IDs, statuses, and whether they are system or custom workflows.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `expand` | string | No | Comma-separated expand options for workflow details |
+| `isActive` | boolean | No | Set to true to return only active workflows |
+| `maxResults` | integer | No | Number of workflows per page |
+| `startAt` | integer | No | Zero-based starting index for pagination |
+| `workflowName` | string | No | Search term to filter workflow names |
+
