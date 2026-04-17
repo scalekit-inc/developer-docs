@@ -85,13 +85,17 @@ agent = client.beta.agents.create(
         },
     ],
     tools=[
-        {"type": "mcp_toolset", "mcp_server_name": "scalekit"},
+        {
+            "type": "mcp_toolset",
+            "mcp_server_name": "scalekit",
+            "default_config": {"permission_policy": {"type": "always_allow"}},
+        },
     ],
 )
 ```
 
 <Aside type="note" title="Tool confirmation policy">
-  MCP tools default to an `always_ask` permission policy, which pauses the agent to request approval before each tool call. For autonomous operation, set the policy to `always_allow`. See [Permission policies](https://platform.claude.com/docs/en/managed-agents/permission-policies) in the Anthropic docs.
+  MCP tools default to an `always_ask` permission policy, which pauses the agent before each tool call. The example above sets `always_allow` on the toolset so the agent runs without interruption. See [Permission policies](https://platform.claude.com/docs/en/managed-agents/permission-policies) in the Anthropic docs.
 </Aside>
 
 Save `agent.id`. You reference it in every session — no need to recreate the agent per user.
@@ -150,3 +154,97 @@ with client.beta.sessions.events.stream(session.id) as stream:
 ```
 
 The agent discovers available Gmail tools from the Scalekit MCP server, executes them using the user's pre-authorized credentials, and streams results back. You don't manage any of that loop.
+
+<details>
+<summary>Complete example</summary>
+
+```python
+import os
+import scalekit.client
+from anthropic import Anthropic
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Get a pre-authenticated MCP URL for the user
+scalekit_client = scalekit.client.ScalekitClient(
+    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+    env_url=os.getenv("SCALEKIT_ENV_URL"),
+)
+actions = scalekit_client.actions
+
+inst_response = actions.mcp.ensure_instance(
+    config_name="email-assistant",
+    user_identifier="user_123",
+)
+mcp_url = inst_response.instance.url
+
+# Create agent (once; reuse agent.id across sessions)
+client = Anthropic()
+
+agent = client.beta.agents.create(
+    name="Gmail Assistant",
+    model="claude-opus-4-7",
+    system="You are a helpful assistant with access to the user's Gmail account.",
+    mcp_servers=[
+        {
+            "type": "url",
+            "name": "scalekit",
+            "url": mcp_url,
+        },
+    ],
+    tools=[
+        {
+            "type": "mcp_toolset",
+            "mcp_server_name": "scalekit",
+            "default_config": {"permission_policy": {"type": "always_allow"}},
+        },
+    ],
+)
+
+# Create environment (once; reuse environment.id)
+environment = client.beta.environments.create(
+    name="gmail-agent-env",
+    config={
+        "type": "cloud",
+        "networking": {"type": "unrestricted"},
+    },
+)
+
+# Run a session
+session = client.beta.sessions.create(
+    agent=agent.id,
+    environment_id=environment.id,
+    title="Gmail session",
+)
+
+with client.beta.sessions.events.stream(session.id) as stream:
+    client.beta.sessions.events.send(
+        session.id,
+        events=[
+            {
+                "type": "user.message",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "Fetch my last 5 unread emails and summarize them.",
+                    }
+                ],
+            },
+        ],
+    )
+
+    for event in stream:
+        match event.type:
+            case "agent.message":
+                for block in event.content:
+                    print(block.text, end="")
+            case "agent.tool_use":
+                print(f"\n[{event.name}]")
+            case "session.status_idle":
+                print("\n")
+                break
+```
+
+</details>
