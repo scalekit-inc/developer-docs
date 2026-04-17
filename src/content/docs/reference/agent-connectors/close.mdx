@@ -1,8 +1,5 @@
 ---
 title: Close
-description: Connect to Close CRM to manage leads, contacts, opportunities, tasks, notes, calls, emails, SMS, pipelines, sequences, webhooks, and users.
-sidebar:
-  label: Close
 tableOfContents: true
 head:
   - tag: style
@@ -15,14 +12,14 @@ head:
       }
 ---
 
-import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside } from '@astrojs/starlight/components'
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
 import { Accordion, AccordionItem } from 'accessible-astro-components'
 import { SetupCloseSection } from '@components/templates'
 import { UsageCloseSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
-  Connect to Close CRM. Manage leads, contacts, opportunities, tasks, notes, calls, emails, SMS, pipelines, sequences, and webhooks.
+  Connect to Close CRM. Manage leads, contacts, opportunities, tasks, activities, and sales workflows
  </div>
  <div class="flex justify-center">
   <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/close.svg" width="64" height="64" alt="Close logo" />
@@ -31,7 +28,6 @@ import { UsageCloseSection } from '@components/templates'
 
 Supports authentication: <Badge text="OAuth 2.0" />
 
-![Close connector shown in Scalekit's Create Connection search](@/assets/docs/agent-connectors/close/scalekit-search-close.png)
 
 ## Set up the agent connector
 
@@ -41,31 +37,7 @@ Supports authentication: <Badge text="OAuth 2.0" />
 
 <UsageCloseSection />
 
-## Getting resource IDs
-
-Many tools require IDs that you must fetch first:
-
-| Resource | Tool to get ID | Field in response |
-|----------|---------------|-------------------|
-| Lead ID | `close_leads_list` | `data[].id` |
-| Contact ID | `close_contacts_list` | `data[].id` |
-| Opportunity ID | `close_opportunities_list` | `data[].id` |
-| Task ID | `close_tasks_list` | `data[].id` |
-| Note ID | `close_notes_list` | `data[].id` |
-| Call ID | `close_calls_list` | `data[].id` |
-| Email ID | `close_emails_list` | `data[].id` |
-| SMS ID | `close_sms_list` | `data[].id` |
-| Pipeline ID | `close_pipelines_list` | `data[].id` |
-| Sequence ID | `close_sequences_list` | `data[].id` |
-| Sequence subscription ID | `close_sequence_subscriptions_list` | `data[].id` |
-| User ID | `close_users_list` | `data[].id` |
-| Comment ID | `close_comments_list` (requires paid plan) | `data[].id` |
-| Webhook ID | `close_webhooks_list` | `data[].id` |
-| Custom field ID | `close_custom_fields_lead_list`, `close_custom_fields_contact_list`, `close_custom_fields_opportunity_list` | `data[].id` |
-
 ## Tool list
-
-The Close connector provides 81 tools covering the full CRM lifecycle.
 
 ## `close_activities_list`
 
@@ -73,14 +45,14 @@ List all activity types for a lead in Close (calls, emails, notes, SMS, etc.).
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `lead_id` | string | No | Filter by lead ID. Get it from `close_leads_list`. |
-| `contact_id` | string | No | Filter by contact ID. Get it from `close_contacts_list`. |
-| `user_id` | string | No | Filter by user ID. Get it from `close_users_list`. |
-| `_type` | string | No | Activity type: `Note`, `Call`, `Email`, `Sms`, etc. |
-| `_limit` | integer | No | Maximum number of results to return. |
-| `_skip` | integer | No | Number of results to skip (offset). |
-| `_order_by` | string | No | Sort field. Default: `date_created`. |
 | `_fields` | string | No | Comma-separated list of fields to return. |
+| `_limit` | integer | No | Maximum number of results to return. |
+| `_order_by` | string | No | Sort field. Default: date_created. |
+| `_skip` | integer | No | Number of results to skip (offset). |
+| `_type` | string | No | Activity type: Note, Call, Email, Sms, etc. |
+| `contact_id` | string | No | Filter by contact ID. |
+| `lead_id` | string | No | Filter by lead ID. |
+| `user_id` | string | No | Filter by user ID. |
 
 ## `close_call_create`
 
@@ -88,14 +60,14 @@ Log an external call activity on a lead in Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `lead_id` | string | Yes | ID of the lead for this call. Get it from `close_leads_list`. |
-| `status` | string | Yes | Call outcome: `completed`, `no_answer`, `wrong_number`, `left_voicemail`, etc. |
 | `contact_id` | string | No | ID of the contact called. |
-| `direction` | string | No | Call direction: `inbound` or `outbound`. |
+| `direction` | string | No | Call direction: inbound or outbound. |
 | `duration` | integer | No | Call duration in seconds. |
+| `lead_id` | string | Yes | ID of the lead for this call. |
 | `note` | string | No | Notes about the call. |
 | `phone` | string | No | Phone number called. |
 | `recording_url` | string | No | HTTPS URL of the call recording. |
+| `status` | string | Yes | Call outcome: completed, no_answer, wrong_number, left_voicemail, etc. |
 
 ## `close_call_delete`
 
@@ -103,7 +75,7 @@ Delete a call activity from Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `call_id` | string | Yes | ID of the call to delete. Get it from `close_calls_list`. |
+| `call_id` | string | Yes | ID of the call to delete. |
 
 ## `close_call_get`
 
@@ -111,7 +83,7 @@ Retrieve a single call activity by ID.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `call_id` | string | Yes | ID of the call activity. Get it from `close_calls_list`. |
+| `call_id` | string | Yes | ID of the call activity. |
 
 ## `close_call_update`
 
@@ -119,10 +91,10 @@ Update a call activity's note, status, or duration.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `call_id` | string | Yes | ID of the call to update. Get it from `close_calls_list`. |
+| `call_id` | string | Yes | ID of the call to update. |
+| `duration` | integer | No | Updated call duration in seconds. |
 | `note` | string | No | Updated call notes. |
 | `status` | string | No | Updated call status. |
-| `duration` | integer | No | Updated call duration in seconds. |
 
 ## `close_calls_list`
 
@@ -130,78 +102,58 @@ List call activities in Close, optionally filtered by lead, contact, or user.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `lead_id` | string | No | Filter by lead ID. Get it from `close_leads_list`. |
-| `contact_id` | string | No | Filter by contact ID. |
-| `user_id` | string | No | Filter by user ID. |
+| `_fields` | string | No | Comma-separated list of fields to return. |
 | `_limit` | integer | No | Maximum number of results to return. |
 | `_skip` | integer | No | Number of results to skip (offset). |
-| `_fields` | string | No | Comma-separated list of fields to return. |
+| `contact_id` | string | No | Filter by contact ID. |
+| `lead_id` | string | No | Filter by lead ID. |
+| `user_id` | string | No | Filter by user ID. |
 
 ## `close_comment_create`
 
 Post a comment on a Close object (lead, opportunity, etc.).
 
-<Aside type="caution" title="Paid plan required">
-  Comments are a paid feature in Close. This tool returns an error on trial accounts.
-</Aside>
-
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `object_id` | string | Yes | ID of the object to comment on (e.g., a lead ID or opportunity ID). |
 | `body` | string | Yes | Comment text body. |
+| `object_id` | string | Yes | ID of the object to comment on. |
 
 ## `close_comment_delete`
 
 Delete a comment from Close.
 
-<Aside type="caution" title="Paid plan required">
-  Comments are a paid feature in Close. This tool returns an error on trial accounts.
-</Aside>
-
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `comment_id` | string | Yes | ID of the comment to delete. Get it from `close_comments_list`. |
+| `comment_id` | string | Yes | ID of the comment to delete. |
 
 ## `close_comment_get`
 
 Retrieve a single comment by ID.
 
-<Aside type="caution" title="Paid plan required">
-  Comments are a paid feature in Close. This tool returns an error on trial accounts.
-</Aside>
-
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `comment_id` | string | Yes | ID of the comment. Get it from `close_comments_list`. |
+| `comment_id` | string | Yes | ID of the comment. |
 
 ## `close_comment_update`
 
 Update the text of an existing comment.
 
-<Aside type="caution" title="Paid plan required">
-  Comments are a paid feature in Close. This tool returns an error on trial accounts.
-</Aside>
-
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `comment_id` | string | Yes | ID of the comment to update. Get it from `close_comments_list`. |
 | `comment` | string | Yes | Updated comment text. |
+| `comment_id` | string | Yes | ID of the comment to update. |
 
 ## `close_comments_list`
 
-List comments on an object. Provide either `object_id` or `thread_id` to filter results — both are optional but at least one is recommended by the API.
-
-<Aside type="caution" title="Paid plan required">
-  Comments are a paid feature in Close. This tool returns an error on trial accounts.
-</Aside>
+List comments on an object. Provide either object_id or thread_id to filter results.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `object_id` | string | No | ID of the object to fetch comments for (e.g., a lead or opportunity ID). |
-| `thread_id` | string | No | ID of the comment thread. |
+| `_fields` | string | No | Comma-separated list of fields to return. |
 | `_limit` | integer | No | Maximum number of results to return. |
 | `_skip` | integer | No | Number of results to skip (offset). |
-| `_fields` | string | No | Comma-separated list of fields to return. |
+| `object_id` | string | No | ID of the object to fetch comments for. |
+| `thread_id` | string | No | ID of the comment thread. |
 
 ## `close_contact_create`
 
@@ -209,11 +161,11 @@ Create a new contact in Close and associate it with a lead.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `lead_id` | string | Yes | ID of the lead to associate this contact with. Get it from `close_leads_list`. |
+| `emails` | string | No | JSON array of email objects, e.g. [`{"email": "jane@acme.com", "type": "office"}`]. |
+| `lead_id` | string | Yes | ID of the lead to associate this contact with. |
 | `name` | string | No | Full name of the contact. |
+| `phones` | string | No | JSON array of phone objects, e.g. [`{"phone": "+1234567890", "type": "office"}`]. |
 | `title` | string | No | Job title of the contact. |
-| `emails` | string | No | JSON array of email objects, e.g. `[{"email": "jane@acme.com", "type": "office"}]`. |
-| `phones` | string | No | JSON array of phone objects, e.g. `[{"phone": "+1234567890", "type": "office"}]`. |
 
 ## `close_contact_delete`
 
@@ -221,7 +173,7 @@ Delete a contact from Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `contact_id` | string | Yes | ID of the contact to delete. Get it from `close_contacts_list`. |
+| `contact_id` | string | Yes | ID of the contact to delete. |
 
 ## `close_contact_get`
 
@@ -229,8 +181,8 @@ Retrieve a single contact by ID from Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `contact_id` | string | Yes | ID of the contact. Get it from `close_contacts_list`. |
 | `_fields` | string | No | Comma-separated list of fields to return. |
+| `contact_id` | string | Yes | ID of the contact. |
 
 ## `close_contact_update`
 
@@ -238,11 +190,11 @@ Update a contact's name, title, phone numbers, or email addresses.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `contact_id` | string | Yes | ID of the contact to update. Get it from `close_contacts_list`. |
-| `name` | string | No | New full name. |
-| `title` | string | No | New job title. |
+| `contact_id` | string | Yes | ID of the contact to update. |
 | `emails` | string | No | JSON array of email objects. |
+| `name` | string | No | New full name. |
 | `phones` | string | No | JSON array of phone objects. |
+| `title` | string | No | New job title. |
 
 ## `close_contacts_list`
 
@@ -250,10 +202,10 @@ List contacts in Close, optionally filtered by lead.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `lead_id` | string | No | Filter contacts by lead ID. Get it from `close_leads_list`. |
+| `_fields` | string | No | Comma-separated list of fields to return. |
 | `_limit` | integer | No | Maximum number of results to return. |
 | `_skip` | integer | No | Number of results to skip (offset). |
-| `_fields` | string | No | Comma-separated list of fields to return. |
+| `lead_id` | string | No | Filter contacts by lead ID. |
 
 ## `close_custom_field_contact_create`
 
@@ -262,7 +214,7 @@ Create a new custom field for contacts in Close.
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `name` | string | Yes | Name of the custom field. |
-| `type` | string | Yes | Field type: `text`, `number`, `date`, `url`, `choices`, etc. |
+| `type` | string | Yes | Field type: text, number, date, url, choices, etc. |
 
 ## `close_custom_field_contact_delete`
 
@@ -270,7 +222,7 @@ Delete a contact custom field from Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `custom_field_id` | string | Yes | ID of the custom field to delete. Get it from `close_custom_fields_contact_list`. |
+| `custom_field_id` | string | Yes | ID of the custom field to delete. |
 
 ## `close_custom_field_contact_get`
 
@@ -278,7 +230,7 @@ Retrieve a single contact custom field by ID.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `custom_field_id` | string | Yes | ID of the custom field. Get it from `close_custom_fields_contact_list`. |
+| `custom_field_id` | string | Yes | ID of the custom field. |
 
 ## `close_custom_field_contact_update`
 
@@ -286,7 +238,7 @@ Update a contact custom field's name or choices.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `custom_field_id` | string | Yes | ID of the custom field to update. Get it from `close_custom_fields_contact_list`. |
+| `custom_field_id` | string | Yes | ID of the custom field to update. |
 | `name` | string | No | New name for the custom field. |
 
 ## `close_custom_field_lead_create`
@@ -296,7 +248,7 @@ Create a new custom field for leads in Close.
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `name` | string | Yes | Name of the custom field. |
-| `type` | string | Yes | Field type: `text`, `number`, `date`, `url`, `choices`, etc. |
+| `type` | string | Yes | Field type: text, number, date, url, choices, etc. |
 
 ## `close_custom_field_lead_delete`
 
@@ -304,7 +256,7 @@ Delete a lead custom field from Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `custom_field_id` | string | Yes | ID of the custom field to delete. Get it from `close_custom_fields_lead_list`. |
+| `custom_field_id` | string | Yes | ID of the custom field to delete. |
 
 ## `close_custom_field_lead_get`
 
@@ -312,7 +264,7 @@ Retrieve a single lead custom field by ID.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `custom_field_id` | string | Yes | ID of the custom field. Get it from `close_custom_fields_lead_list`. |
+| `custom_field_id` | string | Yes | ID of the custom field. |
 
 ## `close_custom_field_lead_update`
 
@@ -320,25 +272,25 @@ Update a lead custom field's name or choices.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `custom_field_id` | string | Yes | ID of the custom field to update. Get it from `close_custom_fields_lead_list`. |
+| `custom_field_id` | string | Yes | ID of the custom field to update. |
 | `name` | string | No | New name for the custom field. |
 
 ## `close_custom_field_opportunity_create`
 
-Create a new custom field for opportunities in Close.
+Create a new custom field for opportunitys in Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `name` | string | Yes | Name of the custom field. |
-| `type` | string | Yes | Field type: `text`, `number`, `date`, `url`, `choices`, etc. |
+| `type` | string | Yes | Field type: text, number, date, url, choices, etc. |
 
 ## `close_custom_field_opportunity_delete`
 
-Delete an opportunity custom field from Close.
+Delete a opportunity custom field from Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `custom_field_id` | string | Yes | ID of the custom field to delete. Get it from `close_custom_fields_opportunity_list`. |
+| `custom_field_id` | string | Yes | ID of the custom field to delete. |
 
 ## `close_custom_field_opportunity_get`
 
@@ -346,15 +298,15 @@ Retrieve a single opportunity custom field by ID.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `custom_field_id` | string | Yes | ID of the custom field. Get it from `close_custom_fields_opportunity_list`. |
+| `custom_field_id` | string | Yes | ID of the custom field. |
 
 ## `close_custom_field_opportunity_update`
 
-Update an opportunity custom field's name or choices.
+Update a opportunity custom field's name or choices.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `custom_field_id` | string | Yes | ID of the custom field to update. Get it from `close_custom_fields_opportunity_list`. |
+| `custom_field_id` | string | Yes | ID of the custom field to update. |
 | `name` | string | No | New name for the custom field. |
 
 ## `close_custom_fields_contact_list`
@@ -363,9 +315,9 @@ List all custom fields defined for contacts in Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
+| `_fields` | string | No | Comma-separated list of fields to return. |
 | `_limit` | integer | No | Maximum number of results to return. |
 | `_skip` | integer | No | Number of results to skip (offset). |
-| `_fields` | string | No | Comma-separated list of fields to return. |
 
 ## `close_custom_fields_lead_list`
 
@@ -373,19 +325,19 @@ List all custom fields defined for leads in Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
+| `_fields` | string | No | Comma-separated list of fields to return. |
 | `_limit` | integer | No | Maximum number of results to return. |
 | `_skip` | integer | No | Number of results to skip (offset). |
-| `_fields` | string | No | Comma-separated list of fields to return. |
 
 ## `close_custom_fields_opportunity_list`
 
-List all custom fields defined for opportunities in Close.
+List all custom fields defined for opportunitys in Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
+| `_fields` | string | No | Comma-separated list of fields to return. |
 | `_limit` | integer | No | Maximum number of results to return. |
 | `_skip` | integer | No | Number of results to skip (offset). |
-| `_fields` | string | No | Comma-separated list of fields to return. |
 
 ## `close_email_create`
 
@@ -393,14 +345,14 @@ Log or send an email activity on a lead in Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `lead_id` | string | Yes | ID of the lead for this email. Get it from `close_leads_list`. |
-| `status` | string | Yes | Email status: `inbox`, `draft`, `scheduled`, `outbox`, `sent`. |
-| `contact_id` | string | No | ID of the contact this email is for. |
-| `subject` | string | No | Email subject line. |
-| `body_text` | string | No | Plain text email body. |
 | `body_html` | string | No | HTML email body. |
+| `body_text` | string | No | Plain text email body. |
+| `contact_id` | string | No | ID of the contact this email is for. |
+| `lead_id` | string | Yes | ID of the lead for this email. |
 | `sender` | string | No | Sender email address. |
-| `to` | string | No | JSON array of recipient emails, e.g. `[{"email": "jane@acme.com"}]`. |
+| `status` | string | Yes | Email status: inbox, draft, scheduled, outbox, sent. |
+| `subject` | string | No | Email subject line. |
+| `to` | string | No | JSON array of recipient emails, e.g. [`{"email": "jane@acme.com"}`]. |
 
 ## `close_email_delete`
 
@@ -408,7 +360,7 @@ Delete an email activity from Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `email_id` | string | Yes | ID of the email to delete. Get it from `close_emails_list`. |
+| `email_id` | string | Yes | ID of the email to delete. |
 
 ## `close_email_get`
 
@@ -416,7 +368,7 @@ Retrieve a single email activity by ID.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `email_id` | string | Yes | ID of the email activity. Get it from `close_emails_list`. |
+| `email_id` | string | Yes | ID of the email activity. |
 
 ## `close_email_update`
 
@@ -424,11 +376,11 @@ Update an email activity's status, subject, or body.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `email_id` | string | Yes | ID of the email to update. Get it from `close_emails_list`. |
-| `status` | string | No | New email status: `draft`, `scheduled`, `outbox`, `sent`. |
-| `subject` | string | No | New subject line. |
-| `body_text` | string | No | New plain text body. |
 | `body_html` | string | No | New HTML body. |
+| `body_text` | string | No | New plain text body. |
+| `email_id` | string | Yes | ID of the email to update. |
+| `status` | string | No | New email status: draft, scheduled, outbox, sent. |
+| `subject` | string | No | New subject line. |
 
 ## `close_emails_list`
 
@@ -436,12 +388,12 @@ List email activities in Close, optionally filtered by lead or user.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `lead_id` | string | No | Filter by lead ID. |
-| `contact_id` | string | No | Filter by contact ID. |
-| `user_id` | string | No | Filter by user ID. |
+| `_fields` | string | No | Comma-separated list of fields to return. |
 | `_limit` | integer | No | Maximum number of results to return. |
 | `_skip` | integer | No | Number of results to skip (offset). |
-| `_fields` | string | No | Comma-separated list of fields to return. |
+| `contact_id` | string | No | Filter by contact ID. |
+| `lead_id` | string | No | Filter by lead ID. |
+| `user_id` | string | No | Filter by user ID. |
 
 ## `close_lead_create`
 
@@ -449,10 +401,10 @@ Create a new lead in Close with name, contacts, addresses, and custom fields.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `name` | string | Yes | Name of the lead / company. |
 | `description` | string | No | Description or notes about the lead. |
+| `name` | string | Yes | Name of the lead / company. |
+| `status_id` | string | No | Lead status ID. |
 | `url` | string | No | Website URL of the lead. |
-| `status_id` | string | No | Lead status ID. Get it from `close_leads_list` (a field in each lead object). |
 
 ## `close_lead_delete`
 
@@ -460,7 +412,7 @@ Permanently delete a lead and all its associated data from Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `lead_id` | string | Yes | ID of the lead to delete. Get it from `close_leads_list`. |
+| `lead_id` | string | Yes | ID of the lead to delete. |
 
 ## `close_lead_get`
 
@@ -468,17 +420,17 @@ Retrieve a single lead by ID from Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `lead_id` | string | Yes | ID of the lead to retrieve. Get it from `close_leads_list`. |
 | `_fields` | string | No | Comma-separated list of fields to return. |
+| `lead_id` | string | Yes | ID of the lead to retrieve. |
 
 ## `close_lead_merge`
 
-Merge two leads into one. The source lead's data is merged into the destination lead and then deleted.
+Merge two leads into one. The source lead is merged into the destination lead.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `source` | string | Yes | ID of the lead to merge from (will be deleted). Get it from `close_leads_list`. |
-| `destination` | string | Yes | ID of the lead to merge into (will be kept). Get it from `close_leads_list`. |
+| `destination` | string | Yes | ID of the lead to merge into (will be kept). |
+| `source` | string | Yes | ID of the lead to merge from (will be deleted). |
 
 ## `close_lead_update`
 
@@ -486,11 +438,11 @@ Update an existing lead's name, status, description, or custom fields.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `lead_id` | string | Yes | ID of the lead to update. Get it from `close_leads_list`. |
-| `name` | string | No | New name for the lead. |
 | `description` | string | No | Updated description. |
-| `url` | string | No | New website URL. |
+| `lead_id` | string | Yes | ID of the lead to update. |
+| `name` | string | No | New name for the lead. |
 | `status_id` | string | No | New lead status ID. |
+| `url` | string | No | New website URL. |
 
 ## `close_leads_list`
 
@@ -498,17 +450,15 @@ List and search leads in Close. Supports full-text search and sorting.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `query` | string | No | Full-text search query to filter leads. |
-| `_limit` | integer | No | Maximum number of results to return. |
-| `_skip` | integer | No | Number of results to skip (offset). |
-| `_order_by` | string | No | Field to sort by. Prefix with `-` for descending (e.g., `-date_created`). |
 | `_fields` | string | No | Comma-separated list of fields to return. |
+| `_limit` | integer | No | Maximum number of results to return. |
+| `_order_by` | string | No | Field to sort by. Prefix with - for descending. |
+| `_skip` | integer | No | Number of results to skip (offset). |
+| `query` | string | No | Full-text search query to filter leads. |
 
 ## `close_me_get`
 
-Retrieve information about the authenticated Close user — useful for getting the current user ID and organization details.
-
-No required parameters.
+Retrieve information about the authenticated Close user.
 
 ## `close_note_create`
 
@@ -516,9 +466,9 @@ Create a note activity on a lead in Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `lead_id` | string | Yes | ID of the lead to attach this note to. Get it from `close_leads_list`. |
-| `note` | string | Yes | Note body text (plain text). |
 | `contact_id` | string | No | ID of the contact this note relates to. |
+| `lead_id` | string | Yes | ID of the lead to attach this note to. |
+| `note` | string | Yes | Note body text (plain text). |
 
 ## `close_note_delete`
 
@@ -526,7 +476,7 @@ Delete a note activity from Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `note_id` | string | Yes | ID of the note to delete. Get it from `close_notes_list`. |
+| `note_id` | string | Yes | ID of the note to delete. |
 
 ## `close_note_get`
 
@@ -534,7 +484,7 @@ Retrieve a single note activity by ID.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `note_id` | string | Yes | ID of the note activity. Get it from `close_notes_list`. |
+| `note_id` | string | Yes | ID of the note activity. |
 
 ## `close_note_update`
 
@@ -542,8 +492,8 @@ Update the body text of a note activity.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `note_id` | string | Yes | ID of the note to update. Get it from `close_notes_list`. |
 | `note` | string | Yes | Updated note body text. |
+| `note_id` | string | Yes | ID of the note to update. |
 
 ## `close_notes_list`
 
@@ -551,12 +501,12 @@ List note activities in Close, optionally filtered by lead or user.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `lead_id` | string | No | Filter by lead ID. |
-| `contact_id` | string | No | Filter by contact ID. |
-| `user_id` | string | No | Filter by user ID. |
+| `_fields` | string | No | Comma-separated list of fields to return. |
 | `_limit` | integer | No | Maximum number of results to return. |
 | `_skip` | integer | No | Number of results to skip (offset). |
-| `_fields` | string | No | Comma-separated list of fields to return. |
+| `contact_id` | string | No | Filter by contact ID. |
+| `lead_id` | string | No | Filter by lead ID. |
+| `user_id` | string | No | Filter by user ID. |
 
 ## `close_opportunities_list`
 
@@ -564,14 +514,14 @@ List opportunities in Close, with optional filters by lead, user, or status.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `lead_id` | string | No | Filter by lead ID. |
-| `user_id` | string | No | Filter by assigned user ID. |
-| `status_id` | string | No | Filter by opportunity status ID. Get it from `close_pipelines_list` → `statuses[].id`. |
-| `status_type` | string | No | Filter by status type: `active`, `won`, or `lost`. |
-| `_limit` | integer | No | Maximum number of results to return. |
-| `_skip` | integer | No | Number of results to skip (offset). |
-| `_order_by` | string | No | Field to sort by. Prefix with `-` for descending. |
 | `_fields` | string | No | Comma-separated list of fields to return. |
+| `_limit` | integer | No | Maximum number of results to return. |
+| `_order_by` | string | No | Field to sort by. Prefix with - for descending. |
+| `_skip` | integer | No | Number of results to skip (offset). |
+| `lead_id` | string | No | Filter by lead ID. |
+| `status_id` | string | No | Filter by opportunity status ID. |
+| `status_type` | string | No | Filter by status type: active, won, or lost. |
+| `user_id` | string | No | Filter by assigned user ID. |
 
 ## `close_opportunity_create`
 
@@ -579,15 +529,15 @@ Create a new opportunity (deal) in Close and associate it with a lead.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `lead_id` | string | Yes | ID of the lead for this opportunity. Get it from `close_leads_list`. |
-| `status_id` | string | Yes | ID of the opportunity status. Get it from `close_pipelines_list` → `statuses[].id`. |
-| `value` | integer | No | Monetary value of the opportunity in cents (e.g., `500000` = $5,000). |
-| `value_currency` | string | No | Currency code, e.g. `USD`. |
-| `value_period` | string | No | Billing period: `one_time`, `monthly`, or `annual`. |
-| `confidence` | integer | No | Win probability percentage (0–100). |
+| `confidence` | integer | No | Win probability percentage (0-100). |
+| `date_won` | string | No | Date won (YYYY-MM-DD), set when status is won. |
 | `expected_date` | string | No | Expected close date (YYYY-MM-DD). |
-| `date_won` | string | No | Date won (YYYY-MM-DD), set when status is `won`. |
+| `lead_id` | string | Yes | ID of the lead for this opportunity. |
 | `note` | string | No | Note about this opportunity. |
+| `status_id` | string | Yes | ID of the opportunity status. |
+| `value` | integer | No | Monetary value of the opportunity in cents. |
+| `value_currency` | string | No | Currency code, e.g. USD. |
+| `value_period` | string | No | Billing period: one_time, monthly, or annual. |
 
 ## `close_opportunity_delete`
 
@@ -595,7 +545,7 @@ Delete an opportunity from Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `opportunity_id` | string | Yes | ID of the opportunity to delete. Get it from `close_opportunities_list`. |
+| `opportunity_id` | string | Yes | ID of the opportunity to delete. |
 
 ## `close_opportunity_get`
 
@@ -603,8 +553,8 @@ Retrieve a single opportunity by ID from Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `opportunity_id` | string | Yes | ID of the opportunity. Get it from `close_opportunities_list`. |
 | `_fields` | string | No | Comma-separated list of fields to return. |
+| `opportunity_id` | string | Yes | ID of the opportunity. |
 
 ## `close_opportunity_update`
 
@@ -612,15 +562,15 @@ Update an opportunity's status, value, note, or confidence.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `opportunity_id` | string | Yes | ID of the opportunity to update. Get it from `close_opportunities_list`. |
-| `status_id` | string | No | New status ID. Get it from `close_pipelines_list` → `statuses[].id`. |
-| `value` | integer | No | Updated monetary value in cents. |
-| `value_currency` | string | No | Currency code, e.g. `USD`. |
-| `value_period` | string | No | Billing period: `one_time`, `monthly`, or `annual`. |
-| `confidence` | integer | No | Win probability (0–100). |
-| `expected_date` | string | No | Expected close date (YYYY-MM-DD). |
+| `confidence` | integer | No | Win probability (0-100). |
 | `date_won` | string | No | Date won (YYYY-MM-DD). |
+| `expected_date` | string | No | Expected close date (YYYY-MM-DD). |
 | `note` | string | No | Updated note. |
+| `opportunity_id` | string | Yes | ID of the opportunity to update. |
+| `status_id` | string | No | New status ID. |
+| `value` | integer | No | Updated monetary value in cents. |
+| `value_currency` | string | No | Currency code, e.g. USD. |
+| `value_period` | string | No | Billing period: one_time, monthly, or annual. |
 
 ## `close_pipeline_create`
 
@@ -636,7 +586,7 @@ Delete a pipeline from Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `pipeline_id` | string | Yes | ID of the pipeline to delete. Get it from `close_pipelines_list`. |
+| `pipeline_id` | string | Yes | ID of the pipeline to delete. |
 
 ## `close_pipeline_get`
 
@@ -644,7 +594,7 @@ Retrieve a single pipeline by ID.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `pipeline_id` | string | Yes | ID of the pipeline. Get it from `close_pipelines_list`. |
+| `pipeline_id` | string | Yes | ID of the pipeline. |
 
 ## `close_pipeline_update`
 
@@ -652,18 +602,18 @@ Update an existing pipeline's name or statuses.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `pipeline_id` | string | Yes | ID of the pipeline to update. Get it from `close_pipelines_list`. |
 | `name` | string | No | New pipeline name. |
+| `pipeline_id` | string | Yes | ID of the pipeline to update. |
 
 ## `close_pipelines_list`
 
-List all opportunity pipelines in the Close organization. Each pipeline includes its statuses with IDs needed for opportunity tools.
+List all opportunity pipelines in the Close organization.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
+| `_fields` | string | No | Comma-separated list of fields to return. |
 | `_limit` | integer | No | Maximum number of results to return. |
 | `_skip` | integer | No | Number of results to skip (offset). |
-| `_fields` | string | No | Comma-separated list of fields to return. |
 
 ## `close_sequence_get`
 
@@ -671,17 +621,17 @@ Retrieve a single sequence by ID.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `sequence_id` | string | Yes | ID of the sequence. Get it from `close_sequences_list`. |
+| `sequence_id` | string | Yes | ID of the sequence. |
 
 ## `close_sequence_subscription_create`
 
-Enroll a contact in a Close email sequence.
+Enroll a contact in a Close sequence.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `contact_id` | string | Yes | ID of the contact to enroll. Get it from `close_contacts_list`. |
-| `sequence_id` | string | Yes | ID of the sequence to enroll in. Get it from `close_sequences_list`. |
-| `sender_account_id` | string | No | ID of the sender email account to use. |
+| `contact_id` | string | Yes | ID of the contact to enroll. |
+| `sender_account_id` | string | No | ID of the sender email account. |
+| `sequence_id` | string | Yes | ID of the sequence to enroll in. |
 
 ## `close_sequence_subscription_get`
 
@@ -689,7 +639,7 @@ Retrieve a single sequence subscription by ID.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `subscription_id` | string | Yes | ID of the subscription. Get it from `close_sequence_subscriptions_list`. |
+| `subscription_id` | string | Yes | ID of the subscription. |
 
 ## `close_sequence_subscription_update`
 
@@ -697,21 +647,21 @@ Pause or resume a contact's sequence subscription.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `subscription_id` | string | Yes | ID of the subscription to update. Get it from `close_sequence_subscriptions_list`. |
-| `pause` | boolean | No | Set to `true` to pause the subscription, `false` to resume. |
+| `pause` | boolean | No | Set to true to pause the subscription, false to resume. |
+| `subscription_id` | string | Yes | ID of the subscription to update. |
 
 ## `close_sequence_subscriptions_list`
 
-List sequence subscriptions. The API requires at least one of `lead_id`, `contact_id`, or `sequence_id` to be provided to filter results.
+List sequence subscriptions. Provide one of lead_id, contact_id, or sequence_id to filter results.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `lead_id` | string | No | Filter by lead ID. Get it from `close_leads_list`. |
-| `contact_id` | string | No | Filter by contact ID. Get it from `close_contacts_list`. |
-| `sequence_id` | string | No | Filter by sequence ID. Get it from `close_sequences_list`. |
+| `_fields` | string | No | Comma-separated list of fields to return. |
 | `_limit` | integer | No | Maximum number of results to return. |
 | `_skip` | integer | No | Number of results to skip (offset). |
-| `_fields` | string | No | Comma-separated list of fields to return. |
+| `contact_id` | string | No | Filter by contact ID. |
+| `lead_id` | string | No | Filter by lead ID. |
+| `sequence_id` | string | No | Filter by sequence ID. |
 
 ## `close_sequences_list`
 
@@ -719,9 +669,9 @@ List email/activity sequences in Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
+| `_fields` | string | No | Comma-separated list of fields to return. |
 | `_limit` | integer | No | Maximum number of results to return. |
 | `_skip` | integer | No | Number of results to skip (offset). |
-| `_fields` | string | No | Comma-separated list of fields to return. |
 
 ## `close_sms_create`
 
@@ -729,12 +679,12 @@ Log or send an SMS activity on a lead in Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `lead_id` | string | Yes | ID of the lead for this SMS. Get it from `close_leads_list`. |
-| `status` | string | Yes | SMS status: `inbox`, `draft`, `scheduled`, `outbox`, `sent`. |
 | `contact_id` | string | No | ID of the contact for this SMS. |
-| `text` | string | No | Body text of the SMS message. |
+| `lead_id` | string | Yes | ID of the lead for this SMS. |
 | `local_phone` | string | No | Your local phone number to send from. |
 | `remote_phone` | string | No | Recipient phone number. |
+| `status` | string | Yes | SMS status: inbox, draft, scheduled, outbox, sent. |
+| `text` | string | No | Body text of the SMS message. |
 
 ## `close_sms_delete`
 
@@ -742,7 +692,7 @@ Delete an SMS activity from Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `sms_id` | string | Yes | ID of the SMS to delete. Get it from `close_sms_list`. |
+| `sms_id` | string | Yes | ID of the SMS to delete. |
 
 ## `close_sms_get`
 
@@ -750,7 +700,7 @@ Retrieve a single SMS activity by ID.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `sms_id` | string | Yes | ID of the SMS activity. Get it from `close_sms_list`. |
+| `sms_id` | string | Yes | ID of the SMS activity. |
 
 ## `close_sms_list`
 
@@ -758,12 +708,12 @@ List SMS activities in Close, optionally filtered by lead or user.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `lead_id` | string | No | Filter by lead ID. |
-| `contact_id` | string | No | Filter by contact ID. |
-| `user_id` | string | No | Filter by user ID. |
+| `_fields` | string | No | Comma-separated list of fields to return. |
 | `_limit` | integer | No | Maximum number of results to return. |
 | `_skip` | integer | No | Number of results to skip (offset). |
-| `_fields` | string | No | Comma-separated list of fields to return. |
+| `contact_id` | string | No | Filter by contact ID. |
+| `lead_id` | string | No | Filter by lead ID. |
+| `user_id` | string | No | Filter by user ID. |
 
 ## `close_sms_update`
 
@@ -771,9 +721,9 @@ Update an SMS activity's text or status.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `sms_id` | string | Yes | ID of the SMS to update. Get it from `close_sms_list`. |
-| `text` | string | No | Updated message text. |
+| `sms_id` | string | Yes | ID of the SMS to update. |
 | `status` | string | No | New SMS status. |
+| `text` | string | No | Updated message text. |
 
 ## `close_task_create`
 
@@ -781,12 +731,12 @@ Create a new task in Close and assign it to a lead and user.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `lead_id` | string | Yes | ID of the lead to associate this task with. Get it from `close_leads_list`. |
-| `text` | string | No | Task description / title. |
+| `_type` | string | No | Task type, default is lead. |
+| `assigned_to` | string | No | User ID to assign the task to. |
 | `date` | string | No | Task due date (YYYY-MM-DD or ISO 8601). |
-| `assigned_to` | string | No | User ID to assign the task to. Get it from `close_users_list`. |
 | `is_complete` | boolean | No | Whether the task is already complete. |
-| `_type` | string | No | Task type, default is `lead`. |
+| `lead_id` | string | Yes | ID of the lead to associate this task with. |
+| `text` | string | No | Task description / title. |
 
 ## `close_task_delete`
 
@@ -794,7 +744,7 @@ Delete a task from Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `task_id` | string | Yes | ID of the task to delete. Get it from `close_tasks_list`. |
+| `task_id` | string | Yes | ID of the task to delete. |
 
 ## `close_task_get`
 
@@ -802,8 +752,8 @@ Retrieve a single task by ID from Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `task_id` | string | Yes | ID of the task. Get it from `close_tasks_list`. |
 | `_fields` | string | No | Comma-separated list of fields to return. |
+| `task_id` | string | Yes | ID of the task. |
 
 ## `close_task_update`
 
@@ -811,11 +761,11 @@ Update a task's text, assigned user, due date, or completion status.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `task_id` | string | Yes | ID of the task to update. Get it from `close_tasks_list`. |
-| `text` | string | No | New task description. |
+| `assigned_to` | string | No | New assigned user ID. |
 | `date` | string | No | New due date (YYYY-MM-DD). |
-| `assigned_to` | string | No | New assigned user ID. Get it from `close_users_list`. |
 | `is_complete` | boolean | No | Mark task as complete or incomplete. |
+| `task_id` | string | Yes | ID of the task to update. |
+| `text` | string | No | New task description. |
 
 ## `close_tasks_list`
 
@@ -823,15 +773,15 @@ List tasks in Close. Filter by lead, assigned user, type, or completion status.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `lead_id` | string | No | Filter by lead ID. |
-| `assigned_to` | string | No | Filter by assigned user ID. |
-| `is_complete` | boolean | No | Filter by completion: `true` or `false`. |
-| `_type` | string | No | Task type: `lead`, `incoming_email`, `email`, `automated_email`, `outgoing_call`. |
-| `view` | string | No | Predefined view: `inbox`, `future`, or `archive`. |
-| `_limit` | integer | No | Maximum number of results to return. |
-| `_skip` | integer | No | Number of results to skip (offset). |
-| `_order_by` | string | No | Sort field. Prefix with `-` for descending. |
 | `_fields` | string | No | Comma-separated list of fields to return. |
+| `_limit` | integer | No | Maximum number of results to return. |
+| `_order_by` | string | No | Sort field. Prefix with - for descending. |
+| `_skip` | integer | No | Number of results to skip (offset). |
+| `_type` | string | No | Task type: lead, incoming_email, email, automated_email, outgoing_call. |
+| `assigned_to` | string | No | Filter by assigned user ID. |
+| `is_complete` | boolean | No | Filter by completion: true or false. |
+| `lead_id` | string | No | Filter by lead ID. |
+| `view` | string | No | Predefined view: inbox, future, or archive. |
 
 ## `close_user_get`
 
@@ -839,8 +789,8 @@ Retrieve a single user by ID from Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `user_id` | string | Yes | ID of the user. Get it from `close_users_list` or `close_me_get`. |
 | `_fields` | string | No | Comma-separated list of fields to return. |
+| `user_id` | string | Yes | ID of the user. |
 
 ## `close_users_list`
 
@@ -848,9 +798,9 @@ List all users in the Close organization.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
+| `_fields` | string | No | Comma-separated list of fields to return. |
 | `_limit` | integer | No | Maximum number of results to return. |
 | `_skip` | integer | No | Number of results to skip (offset). |
-| `_fields` | string | No | Comma-separated list of fields to return. |
 
 ## `close_webhook_create`
 
@@ -858,9 +808,9 @@ Create a new webhook subscription to receive Close event notifications.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
+| `events` | string | Yes | JSON array of event objects to subscribe to, e.g. [`{"object_type":"lead","action":"created"}`]. |
 | `url` | string | Yes | HTTPS endpoint URL to receive webhook events. |
-| `events` | string | Yes | JSON array of event objects to subscribe to, e.g. `[{"object_type":"lead","action":"created"}]`. |
-| `verify_ssl` | boolean | No | Whether to verify SSL certificates (default: `true`). |
+| `verify_ssl` | boolean | No | Whether to verify SSL certificates. |
 
 ## `close_webhook_delete`
 
@@ -868,7 +818,7 @@ Delete a webhook subscription from Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `webhook_id` | string | Yes | ID of the webhook to delete. Get it from `close_webhooks_list`. |
+| `webhook_id` | string | Yes | ID of the webhook to delete. |
 
 ## `close_webhook_get`
 
@@ -876,7 +826,7 @@ Retrieve a single webhook subscription by ID.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `webhook_id` | string | Yes | ID of the webhook. Get it from `close_webhooks_list`. |
+| `webhook_id` | string | Yes | ID of the webhook. |
 
 ## `close_webhook_update`
 
@@ -884,10 +834,10 @@ Update a webhook subscription's URL or event subscriptions.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `webhook_id` | string | Yes | ID of the webhook to update. Get it from `close_webhooks_list`. |
-| `url` | string | No | New HTTPS endpoint URL. |
 | `events` | string | No | New JSON array of event objects. |
+| `url` | string | No | New HTTPS endpoint URL. |
 | `verify_ssl` | boolean | No | Whether to verify SSL certificates. |
+| `webhook_id` | string | Yes | ID of the webhook to update. |
 
 ## `close_webhooks_list`
 
@@ -895,6 +845,6 @@ List all webhook subscriptions in Close.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
+| `_fields` | string | No | Comma-separated list of fields to return. |
 | `_limit` | integer | No | Maximum number of results to return. |
 | `_skip` | integer | No | Number of results to skip (offset). |
-| `_fields` | string | No | Comma-separated list of fields to return. |
