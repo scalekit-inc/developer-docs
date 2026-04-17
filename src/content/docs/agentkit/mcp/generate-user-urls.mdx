@@ -62,7 +62,7 @@ def wait_for_auth(instance_id: str, poll_interval: int = 5):
     while True:
         state = actions.mcp.get_instance_auth_state(instance_id=instance_id)
         if all(c.connected_account_status == "ACTIVE" for c in state.connections):
-            print("All connections authorized — MCP URL is ready.")
+            print("All connections authorized; MCP URL is ready.")
             return
         pending = [c.connection_name for c in state.connections if c.connected_account_status != "ACTIVE"]
         print(f"Waiting for: {pending}")

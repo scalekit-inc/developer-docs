@@ -31,22 +31,22 @@ from google.protobuf.json_format import MessageToDict
 
 scoped_response, _ = actions.tools.list_scoped_tools(
     identifier="user_123",
-    filter={"connection_names": ["gmail"]},   # optional — omit for all connectors
+    filter={"connection_names": ["gmail"]},   # optional; omit for all connectors
 )
 for scoped_tool in scoped_response.tools:
     definition = MessageToDict(scoped_tool.tool).get("definition", {})
     print(definition.get("name"))
-    print(definition.get("input_schema"))     # JSON Schema — pass directly to your LLM
+    print(definition.get("input_schema"))     # JSON Schema; pass directly to your LLM
 ```
   </TabItem>
   <TabItem label="Node.js">
 ```typescript
 const { tools } = await scalekit.tools.listScopedTools('user_123', {
-  filter: { connectionNames: ['gmail'] },     // optional — omit for all connectors
+  filter: { connectionNames: ['gmail'] },     // optional; omit for all connectors
 });
 for (const tool of tools) {
   const { name, input_schema } = tool.tool.definition;
-  console.log(name, input_schema);            // JSON Schema — pass directly to your LLM
+  console.log(name, input_schema);            // JSON Schema; pass directly to your LLM
 }
 ```
   </TabItem>

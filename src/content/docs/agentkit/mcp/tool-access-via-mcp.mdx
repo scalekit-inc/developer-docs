@@ -1,11 +1,11 @@
 ---
 title: Give your agent tool access via MCP
-description: Create a per-user MCP server with whitelisted, pre-authenticated tools — then hand your agent a single URL.
+description: Create a per-user MCP server with whitelisted, pre-authenticated tools; then hand your agent a single URL.
 tags: [agent-auth, quickstart, mcp, model-context-protocol, ai-agents, tools]
 sidebar:
   label: Tool access via MCP
   prev:
-    label: Quickstart — Agent tools
+    label: "Quickstart: Agent tools"
     link: /agentkit/tools/agent-tools-quickstart
   next:
     label: OpenClaw
@@ -19,11 +19,11 @@ banner:
 import { LinkCard, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 import InstallSDK from '@components/templates/_installsdk.mdx';
 
-When your agent needs to act on behalf of a user — reading their email, creating calendar events — each user must authenticate to each service separately. Managing those credentials in your agent adds complexity and security risk.
+When your agent needs to act on behalf of a user (reading their email, creating calendar events), each user must authenticate to each service separately. Managing those credentials in your agent adds complexity and security risk.
 
-Scalekit solves this with per-user MCP servers. You define which tools and connections a server exposes, and Scalekit gives you a unique, pre-authenticated URL for each user. Hand that URL to your agent — it calls tools through MCP, Scalekit handles the auth. MCP servers only support Streamable HTTP transport.
+Scalekit solves this with per-user MCP servers. You define which tools and connections a server exposes, and Scalekit gives you a unique, pre-authenticated URL for each user. Hand that URL to your agent; it calls tools through MCP, Scalekit handles the auth. MCP servers only support Streamable HTTP transport.
 
-<Aside type="caution" title="Testing only — not for production">
+<Aside type="caution" title="Testing only: not for production">
   This feature is in beta and intended for testing purposes only. Do not use it in production environments.
 </Aside>
 
@@ -44,7 +44,7 @@ Your app creates a config once, then calls `ensure_instance` whenever a new user
 
 Before you start, make sure you have:
 
-- **Scalekit API credentials** — Go to **Dashboard → Settings** and copy your `environment_url`, `client_id` and `client_secret`
+- **Scalekit API credentials**: go to **Dashboard → Settings** and copy your `environment_url`, `client_id` and `client_secret`
 - **Gmail and Google Calendar connections configured in Scalekit:**
   - **Gmail**: **Dashboard → Connections** (Agent Auth) → Create Connection → Gmail → set `Connection Name = MY_GMAIL` → Save
   - **Google Calendar**: **Dashboard → Connections** (Agent Auth) → Create Connection → Google Calendar → set `Connection Name = MY_CALENDAR` → Save
@@ -79,7 +79,7 @@ Before you start, make sure you have:
 
 2. ## Create an MCP config
 
-   An MCP config is a reusable template. It declares which connections and tools your server exposes. Create it once — not once per user.
+   An MCP config is a reusable template. It declares which connections and tools your server exposes. Create it once, not once per user.
 
    <p>
      ```python showLineNumbers=false frame="none"
@@ -103,7 +103,7 @@ Before you start, make sure you have:
 
 3. ## Get a per-user MCP URL
 
-   Call `ensure_instance` to get a unique MCP URL for a specific user. If an instance already exists for that user, Scalekit returns it — so it's safe to call on every login.
+   Call `ensure_instance` to get a unique MCP URL for a specific user. If an instance already exists for that user, Scalekit returns it; it's safe to call on every login.
 
    <p>
      ```python showLineNumbers=false frame="none"
@@ -137,7 +137,7 @@ Before you start, make sure you have:
      In production, surface these links to users via your app UI, email, or a Slack message. Poll `get_instance_auth_state` (without `include_auth_links`) to check when a user has completed authorization before passing the URL to your agent.
    </Aside>
 
-   At this point you have a per-user MCP URL. You can pass it to any spec-compliant MCP client — MCP Inspector, Claude Desktop, or an agent framework. The next step shows an example using LangChain.
+   At this point you have a per-user MCP URL. You can pass it to any spec-compliant MCP client: MCP Inspector, Claude Desktop, or an agent framework. The next step shows an example using LangChain.
 
 4. ## Connect an agent (LangChain example)
 
@@ -157,7 +157,7 @@ Before you start, make sure you have:
      ```
    </p>
 
-   Pass the MCP URL to a LangChain agent. The agent discovers available tools automatically — no additional auth configuration required:
+   Pass the MCP URL to a LangChain agent. The agent discovers available tools automatically; no additional auth configuration required:
 
    <p>
      ```python showLineNumbers=false frame="none"
@@ -186,7 +186,7 @@ Before you start, make sure you have:
    </p>
 
    <Aside type="note" title="MCP client compatibility">
-     This MCP server works with MCP Inspector, Claude Desktop, and any spec-compliant MCP client. ChatGPT's beta connector may not work correctly — it is still in beta and does not fully implement the MCP specification.
+     This MCP server works with MCP Inspector, Claude Desktop, and any spec-compliant MCP client. ChatGPT’s beta connector may not work correctly; it is still in beta and does not fully implement the MCP specification.
    </Aside>
 </Steps>
 

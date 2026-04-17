@@ -84,11 +84,11 @@ Pass these fields when creating the authorization link:
 | Field | Description |
 |---|---|
 | `identifier` | **Required.** Your user's ID or email. Scalekit stores this and checks it matches at verify time. |
-| `user_verify_url` | **Required.** Your callback URL — Scalekit redirects the user here after OAuth completes. |
+| `user_verify_url` | **Required.** Your callback URL; Scalekit redirects the user here after OAuth completes. |
 | `state` | **Recommended.** A random value to prevent CSRF. |
 
 <Aside type="note" title="How to use state">
-  Generate a cryptographically random value per flow, store it in a secure HTTP-only cookie, and validate it against the `state` query param on callback. Discard the request if they don't match — this prevents an attacker from sending crafted verify URLs to your users.
+  Generate a cryptographically random value per flow, store it in a secure HTTP-only cookie, and validate it against the `state` query param on callback. Discard the request if they don't match; this prevents an attacker from sending crafted verify URLs to your users.
 </Aside>
 
 <Tabs syncKey="tech-stack">
@@ -144,7 +144,7 @@ Validate `state` against your cookie, then call Scalekit's verify endpoint serve
   <TabItem label="Python">
 ```python
 # 1. Validate state from query param matches state in cookie
-# 2. Read user identity from your session — not from the URL
+# 2. Read user identity from your session, not from the URL
 
 response = scalekit_client.actions.verify_connected_account_user(
     auth_request_id=auth_request_id,
@@ -156,7 +156,7 @@ response = scalekit_client.actions.verify_connected_account_user(
   <TabItem label="Node.js">
 ```typescript
 // 1. Validate state from query param matches state in cookie
-// 2. Read user identity from your session — not from the URL
+// 2. Read user identity from your session, not from the URL
 
 const { postUserVerifyRedirectUrl } =
   await scalekit.actions.verifyConnectedAccountUser({

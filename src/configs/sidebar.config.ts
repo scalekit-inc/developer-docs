@@ -187,7 +187,7 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Custom connector',
+        label: 'Add your own connector',
         items: [
           'agentkit/bring-your-own-connector/overview',
           'agentkit/bring-your-own-connector/auth-types-and-patterns',
@@ -196,8 +196,8 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Customization',
-        items: ['agentkit/advanced/custom-domain'],
+        label: 'Go live',
+        items: ['agentkit/advanced/custom-domain', 'agentkit/advanced/launch-checklist'],
       },
     ],
   },
