@@ -314,11 +314,24 @@ export default defineConfig({
         'astro:build:done': async ({ logger }) => {
           const root = new URL('.', import.meta.url)
           const src = new URL('node_modules/canvaskit-wasm/bin/full/canvaskit.wasm', root)
-          const dest = new URL(
-            '.netlify/v1/functions/ssr/node_modules/canvaskit-wasm/bin/full/canvaskit.wasm',
-            root,
-          )
+          // The Netlify adapter creates canvaskit-wasm as a pnpm symlink in the SSR bundle.
+          // Lambda packaging doesn't follow symlinks, so we replace it with a real directory
+          // containing just the WASM binary that CanvasKit needs at runtime.
+          const ssrPkg = new URL('.netlify/v1/functions/ssr/node_modules/canvaskit-wasm', root)
+          const destDir = new URL('bin/full/', ssrPkg)
+          const dest = new URL('canvaskit.wasm', destDir)
           try {
+            // Remove symlink if present so we can create a real directory
+            try {
+              const stat = await fs.lstat(fileURLToPath(ssrPkg))
+              if (stat.isSymbolicLink()) {
+                await fs.rm(fileURLToPath(ssrPkg))
+                logger.info('Removed canvaskit-wasm symlink from SSR bundle')
+              }
+            } catch {
+              // Not present yet — that's fine
+            }
+            await fs.mkdir(fileURLToPath(destDir), { recursive: true })
             await fs.copyFile(fileURLToPath(src), fileURLToPath(dest))
             logger.info('Copied canvaskit.wasm to SSR function bundle')
           } catch (e) {
