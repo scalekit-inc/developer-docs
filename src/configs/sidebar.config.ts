@@ -152,6 +152,7 @@ export const sidebar = [
               { label: 'OpenAI', link: 'agentkit/examples/openai' },
               { label: 'Vercel AI', link: 'agentkit/examples/vercel-ai' },
               { label: 'Mastra', link: 'agentkit/examples/mastra' },
+              { label: 'Claude Managed Agents', link: 'agentkit/examples/claude-managed-agents' },
               { label: 'OpenClaw', link: 'agentkit/openclaw' },
             ],
           },
