@@ -30,13 +30,9 @@ const { GET } = await OGImageRoute({
     logo: {
       path: './src/assets/images/scalekit-logo-white.png',
     },
-    // A dark gradient background + border
-    bgGradient: [[18, 18, 18]], // Matches --sl-color-gray-7 from custom.css
+    bgGradient: [[255, 255, 255]],
     border: { color: [0, 255, 127], width: 16 }, // Scalekit brand green (#00FF7F)
     padding: 80,
-    bgImage: {
-      path: './src/assets/images/og/backdrop.png',
-    },
     font: {
       title: {
         families: ['Inter Variable'],
