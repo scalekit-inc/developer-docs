@@ -3,6 +3,8 @@ import { defineConfig, sharpImageService } from 'astro/config'
 import starlight from '@astrojs/starlight'
 import react from '@astrojs/react'
 import path from 'path'
+import fs from 'node:fs/promises'
+import { fileURLToPath } from 'node:url'
 import vue from '@astrojs/vue'
 import starlightSidebarTopics from 'starlight-sidebar-topics'
 import starlightImageZoom from 'starlight-image-zoom'
@@ -306,6 +308,27 @@ export default defineConfig({
     }),
     openapiToMarkdown(),
     injectAgentHeader(),
+    {
+      name: 'copy-canvaskit-wasm',
+      hooks: {
+        'astro:build:done': async ({ logger }) => {
+          const root = new URL('.', import.meta.url)
+          const src = new URL('node_modules/canvaskit-wasm/bin/full/canvaskit.wasm', root)
+          const dest = new URL(
+            '.netlify/v1/functions/ssr/node_modules/canvaskit-wasm/bin/full/canvaskit.wasm',
+            root,
+          )
+          try {
+            await fs.copyFile(fileURLToPath(src), fileURLToPath(dest))
+            logger.info('Copied canvaskit.wasm to SSR function bundle')
+          } catch (e) {
+            logger.warn(
+              `Could not copy canvaskit.wasm: ${e instanceof Error ? e.message : String(e)}`,
+            )
+          }
+        },
+      },
+    },
   ],
 
   image: {
