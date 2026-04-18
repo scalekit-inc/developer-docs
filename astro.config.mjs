@@ -320,6 +320,12 @@ export default defineConfig({
           const ssrPkg = new URL('.netlify/v1/functions/ssr/node_modules/canvaskit-wasm', root)
           const destDir = new URL('bin/full/', ssrPkg)
           const dest = new URL('canvaskit.wasm', destDir)
+          const nestedPkg = new URL(
+            '.netlify/v1/functions/ssr/node_modules/astro-og-canvas/node_modules/canvaskit-wasm/',
+            root,
+          )
+          const nestedDestDir = new URL('bin/full/', nestedPkg)
+          const nestedDest = new URL('canvaskit.wasm', nestedDestDir)
           try {
             // Remove symlink if present so we can create a real directory
             try {
@@ -334,6 +340,29 @@ export default defineConfig({
             await fs.mkdir(fileURLToPath(destDir), { recursive: true })
             await fs.copyFile(fileURLToPath(src), fileURLToPath(dest))
             logger.info('Copied canvaskit.wasm to SSR function bundle')
+            logger.info(`Primary WASM dest: ${fileURLToPath(dest)}`)
+
+            // Some bundles resolve canvaskit-wasm from inside astro-og-canvas/node_modules.
+            // Mirror the binary there if that directory exists.
+            try {
+              const nestedStat = await fs.lstat(fileURLToPath(nestedPkg))
+              if (nestedStat.isSymbolicLink()) {
+                await fs.rm(fileURLToPath(nestedPkg))
+                logger.info('Removed nested canvaskit-wasm symlink from astro-og-canvas bundle')
+              }
+              await fs.mkdir(fileURLToPath(nestedDestDir), { recursive: true })
+              await fs.copyFile(fileURLToPath(src), fileURLToPath(nestedDest))
+              logger.info(
+                `Also copied canvaskit.wasm to nested astro-og-canvas bundle path: ${fileURLToPath(nestedDest)}`,
+              )
+            } catch {
+              logger.info(
+                'Skipped nested astro-og-canvas WASM copy (nested canvaskit-wasm path not present)',
+              )
+            }
+            logger.info(
+              'Run /og-debug after deploy to compare resolvedWasmPath against these paths',
+            )
           } catch (e) {
             logger.warn(
               `Could not copy canvaskit.wasm: ${e instanceof Error ? e.message : String(e)}`,

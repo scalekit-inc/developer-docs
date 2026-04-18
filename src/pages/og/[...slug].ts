@@ -1,5 +1,6 @@
 import { getCollection } from 'astro:content'
 import { OGImageRoute } from 'astro-og-canvas'
+import type { APIContext } from 'astro'
 
 /**
  * OG image generation is server-rendered on demand (not prerendered at build time)
@@ -17,7 +18,7 @@ const entries = await getCollection('docs')
 const pages = Object.fromEntries(entries.map(({ id, data }) => [id, { data }]))
 
 // Export only GET because this route is server-rendered (prerender = false)
-const { GET } = await OGImageRoute({
+const { GET: _GET } = await OGImageRoute({
   pages,
   // matches the `[...slug].ts` filename
   param: 'slug',
@@ -28,7 +29,8 @@ const { GET } = await OGImageRoute({
     description: page.data.description,
     dir: 'ltr' as const,
     logo: {
-      path: './src/assets/images/scalekit-logo-white.png',
+      // Resolve from this module to survive server bundle path changes.
+      path: new URL('../../assets/images/scalekit-logo-white.png', import.meta.url).pathname,
     },
     bgGradient: [[255, 255, 255]],
     border: { color: [0, 255, 127], width: 16 }, // Scalekit brand green (#00FF7F)
@@ -45,9 +47,30 @@ const { GET } = await OGImageRoute({
     },
     // Load fonts locally to avoid remote fetch timeouts during build
     fonts: [
-      './node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2',
-      './node_modules/@fontsource-variable/inter/files/inter-latin-wght-italic.woff2',
+      // Resolve from this module instead of process CWD.
+      new URL(
+        '../../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2',
+        import.meta.url,
+      ).pathname,
+      new URL(
+        '../../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-italic.woff2',
+        import.meta.url,
+      ).pathname,
     ],
   }),
 })
-export { GET }
+export const GET = async (ctx: APIContext) => {
+  try {
+    return await _GET(ctx)
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    console.error('[og] render failed:', msg)
+    if (process.env.OG_DEBUG === 'true') {
+      return new Response(JSON.stringify({ error: msg }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+    return new Response(null, { status: 500 })
+  }
+}

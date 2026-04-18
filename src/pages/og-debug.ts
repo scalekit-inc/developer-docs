@@ -27,6 +27,24 @@ export const GET: APIRoute = async () => {
   }
 
   try {
+    const fontBase = new URL(
+      '../../../node_modules/@fontsource-variable/inter/files',
+      import.meta.url,
+    ).pathname
+    result.fontBase = fontBase
+    result.fontChecks = ['inter-latin-wght-normal.woff2', 'inter-latin-wght-italic.woff2'].map(
+      (file) => {
+        const fontPath = path.join(fontBase, file)
+        return { file, path: fontPath, exists: fs.existsSync(fontPath) }
+      },
+    )
+    const require = createRequire(import.meta.url)
+    result.ogCanvasLocation = require.resolve('astro-og-canvas')
+  } catch (e) {
+    result.fontError = e instanceof Error ? e.message : String(e)
+  }
+
+  try {
     const candidates = [
       '/var/task/node_modules/canvaskit-wasm',
       path.join(process.cwd(), 'node_modules/canvaskit-wasm'),
