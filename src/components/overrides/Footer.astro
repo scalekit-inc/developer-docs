@@ -4,13 +4,17 @@ import IconLucideThumbsUp from '~icons/lucide/thumbs-up'
 import IconLucideThumbsDown from '~icons/lucide/thumbs-down'
 import IconLucideMessageCircleQuestionMark from '~icons/lucide/message-circle-question-mark'
 import IconPajamasStatusHealth from '~icons/pajamas/status-health'
-import IconLucideShield from '~icons/lucide/shield'
-import IconLucideBookOpenText from '~icons/lucide/book-open-text'
 import IconCodiconWorkspaceTrusted from '~icons/codicon/workspace-trusted'
 import IconPhSparkle from '~icons/ph/sparkle'
+import trustSoc2TypeIiBadge from '@/assets/footer/trust-soc2-type-ii-badge.png'
+import trustIso27001Badge from '@/assets/footer/trust-iso-27001-badge.png'
+import trustGdprBadge from '@/assets/footer/trust-gdpr-badge.png'
+import trustCcpaBadge from '@/assets/footer/trust-ccpa-badge.png'
 
-// Don't apply fold-full-width on homepage to avoid conflict with sidebar
-const isHomePage = Astro.url.pathname === '/' || Astro.url.pathname === '/en/'
+/** Docs splash (`src/content/docs/index.mdx`, template splash) — root path only */
+const pathname = Astro.url.pathname.replace(/\/$/, '') || '/'
+const isDocsSplashHome = pathname === '/' || pathname === '/en'
+
 const footerClass = 'footer'
 ---
 
@@ -20,55 +24,50 @@ const footerClass = 'footer'
 
 <footer class={footerClass}>
   <div class="home-container">
-    <div class={`footer__wrapper ${isHomePage ? 'footer__wrapper--with-compliance' : ''}`}>
+    <div class={`footer__wrapper ${isDocsSplashHome ? 'footer__wrapper--with-compliance' : ''}`}>
       {
-        isHomePage && (
+        isDocsSplashHome && (
           <div class="compliance-section">
-            <div class="compliance-section__badges">
-              <div class="compliance-badge">
+            <div class="compliance-section__badges footer-trust-badges">
+              <div class="compliance-badge compliance-badge--asset">
                 <img
-                  src="https://placehold.co/56x56/111111/ffffff?text=SOC2"
-                  alt="SOC 2 certified"
-                  width="56"
-                  height="56"
+                  src={trustSoc2TypeIiBadge.src}
+                  alt="SOC 2 Type II"
+                  width={trustSoc2TypeIiBadge.width}
+                  height={trustSoc2TypeIiBadge.height}
+                  loading="lazy"
+                  decoding="async"
                 />
-                <span class="compliance-badge__label">SOC 2</span>
               </div>
-              <div class="compliance-badge">
+              <div class="compliance-badge compliance-badge--asset">
                 <img
-                  src="https://placehold.co/56x56/111111/ffffff?text=ISO"
-                  alt="ISO 27001 certified"
-                  width="56"
-                  height="56"
+                  src={trustIso27001Badge.src}
+                  alt="ISO 27001"
+                  width={trustIso27001Badge.width}
+                  height={trustIso27001Badge.height}
+                  loading="lazy"
+                  decoding="async"
                 />
-                <span class="compliance-badge__label">ISO 27001</span>
               </div>
-              <div class="compliance-badge">
+              <div class="compliance-badge compliance-badge--asset">
                 <img
-                  src="https://placehold.co/56x56/111111/ffffff?text=GDPR"
-                  alt="GDPR compliant"
-                  width="56"
-                  height="56"
+                  src={trustGdprBadge.src}
+                  alt="GDPR"
+                  width={trustGdprBadge.width}
+                  height={trustGdprBadge.height}
+                  loading="lazy"
+                  decoding="async"
                 />
-                <span class="compliance-badge__label">GDPR</span>
               </div>
-              <div class="compliance-badge">
+              <div class="compliance-badge compliance-badge--asset">
                 <img
-                  src="https://placehold.co/56x56/111111/ffffff?text=CCPA"
-                  alt="CCPA compliant"
-                  width="56"
-                  height="56"
+                  src={trustCcpaBadge.src}
+                  alt="CCPA"
+                  width={trustCcpaBadge.width}
+                  height={trustCcpaBadge.height}
+                  loading="lazy"
+                  decoding="async"
                 />
-                <span class="compliance-badge__label">CCPA</span>
-              </div>
-              <div class="compliance-badge">
-                <img
-                  src="https://placehold.co/56x56/111111/ffffff?text=HIPAA"
-                  alt="HIPAA eligible"
-                  width="56"
-                  height="56"
-                />
-                <span class="compliance-badge__label">HIPAA</span>
               </div>
             </div>
           </div>
@@ -164,10 +163,20 @@ const footerClass = 'footer'
 
   :global(.footer .footer__wrapper--with-compliance) {
     display: grid;
-    grid-template-columns: 35% 1fr;
-    gap: 2rem;
+    grid-template-columns: max-content minmax(0, 1fr);
     align-items: flex-start;
+    /* Keep gutter between logos and the block that sits toward the right edge */
+    column-gap: clamp(2rem, 5vw, 3.5rem);
     row-gap: 0;
+  }
+
+  /* Sit in the space beside logos — centered in the remaining column (not hugging far right) */
+  :global(.footer .footer__wrapper--with-compliance .footer__content) {
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
+    padding-left: 0;
+    min-width: 0;
   }
 
   :global(.footer .footer__content) {
@@ -245,11 +254,14 @@ const footerClass = 'footer'
     text-decoration-thickness: 2px;
   }
 
-  /* Footer links section */
+  /* Footer links: content-sized columns — 1fr 1fr left half the row empty between short labels */
   :global(.footer .footer-links) {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    grid-template-columns: repeat(2, max-content);
+    justify-content: start;
+    justify-items: start;
+    column-gap: 1.5rem;
+    row-gap: 0.75rem;
   }
 
   :global(.footer .footer-link) {
@@ -289,7 +301,14 @@ const footerClass = 'footer'
     display: flex;
     flex-wrap: nowrap;
     justify-content: flex-start;
-    gap: 0.5rem;
+    align-items: center;
+    /* Clear separation between logos without crowding (not edge-to-edge) */
+    gap: 0.75rem;
+  }
+
+  :global(.footer .footer-trust-badges) {
+    gap: 0.75rem;
+    column-gap: 0.75rem;
   }
 
   :global(.footer .compliance-badge) {
@@ -298,6 +317,19 @@ const footerClass = 'footer'
     align-items: center;
     gap: 0.3rem;
     flex-shrink: 0;
+  }
+
+  :global(.footer .compliance-badge--asset) {
+    gap: 0;
+    line-height: 0;
+  }
+
+  :global(.footer .footer-trust-badges img) {
+    height: 52px;
+    width: auto;
+    max-width: 100%;
+    display: block;
+    border-radius: 0.55rem;
   }
 
   :global(.footer .compliance-badge img) {
@@ -342,7 +374,14 @@ const footerClass = 'footer'
 
     :global(.footer .footer__wrapper--with-compliance) {
       grid-template-columns: 1fr;
-      gap: 1.5rem;
+      column-gap: 0;
+      row-gap: 1.5rem;
+    }
+
+    :global(.footer .footer__wrapper--with-compliance .footer__content) {
+      width: 100%;
+      margin-inline-start: 0;
+      padding-left: 0;
     }
 
     :global(.footer .compliance-section) {
@@ -353,7 +392,13 @@ const footerClass = 'footer'
     :global(.footer .compliance-section__badges) {
       justify-content: center;
       flex-wrap: wrap;
-      gap: 0.75rem;
+      gap: 0.65rem;
+      row-gap: 0.65rem;
+    }
+
+    :global(.footer .footer-trust-badges) {
+      gap: 0.65rem;
+      row-gap: 0.65rem;
     }
   }
 </style>
