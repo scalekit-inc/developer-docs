@@ -1,7 +1,5 @@
 import {
   IconMcp,
-  IconLucideUsers,
-  IconLucideBot,
   IconApi,
   IconSdk,
   IconMdiCubeOutline,
@@ -14,7 +12,7 @@ import {
   IconLucideWorkflow,
   IconRiAiGenerate2,
 } from '../utils/icon-map'
-import IconLucideRocket from '~icons/lucide/rocket'
+import IconLucideHome from '~icons/lucide/home'
 import IconLucideBookOpenText from '~icons/lucide/book-open-text'
 import IconLucideCheck from '~icons/lucide/check'
 
@@ -67,8 +65,8 @@ const agentKitItems: NavItem[] = [
   {
     id: 'agentkit-quickstart',
     href: '/agentkit/quickstart/',
-    label: 'Docs',
-    iconComponent: IconLucideRocket,
+    label: 'AgentKit',
+    iconComponent: IconLucideHome,
   },
   {
     id: 'agentkit-connectors',
@@ -94,8 +92,8 @@ const saasKitItems: NavItem[] = [
   {
     id: 'saaskit-user-management',
     href: '/authenticate/fsa/quickstart/',
-    label: 'User Management',
-    iconComponent: IconLucideUsers,
+    label: 'SaaSKit',
+    iconComponent: IconLucideHome,
   },
   {
     id: 'saaskit-sso',
