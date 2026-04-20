@@ -1,0 +1,291 @@
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+Once a user has connected their Box account, your agent can call Box tools directly through Scalekit — no OAuth flow needed on subsequent calls. Scalekit manages token refresh automatically.
+
+## Proxy API calls
+
+Use the proxy to call any Box REST API endpoint directly:
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    import { ScalekitClient } from '@scalekit-sdk/node';
+
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    const actions = scalekit.actions;
+
+    // List files in the root folder
+    const result = await actions.request({
+      connectionName: 'box',
+      identifier: 'user_123',
+      path: '/2.0/folders/0/items',
+      method: 'GET',
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    from scalekit.client import ScalekitClient
+    import os
+
+    scalekit_client = ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+    actions = scalekit_client.actions
+
+    # List files in the root folder
+    result = actions.request(
+        connection_name="box",
+        identifier="user_123",
+        path="/2.0/folders/0/items",
+        method="GET",
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="note" title="File upload">
+  Box file uploads use a different base URL (`upload.box.com`) that is not covered by the Scalekit proxy. To upload files, extract the user's OAuth token from the connected account and call the Box upload API directly using `https://upload.box.com/api/2.0/files/content`.
+</Aside>
+
+## Use Scalekit tools
+
+Call Box tools by name using `execute_tool`. Pass the tool name and the required input parameters.
+
+### List folder contents
+
+Start here to discover file and folder IDs. Use `"0"` for the root folder.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.executeTool({
+      toolName: 'box_folder_items_list',
+      connectedAccountId: connectedAccount.id,
+      toolInput: {
+        folder_id: '0',  // root folder
+      },
+    });
+    // result.entries[] contains files and folders with their IDs
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.execute_tool(
+        tool_name="box_folder_items_list",
+        connected_account_id=connected_account.id,
+        tool_input={"folder_id": "0"},
+    )
+    # result["entries"] contains files and folders with their IDs
+    ```
+  </TabItem>
+</Tabs>
+
+### Get file details
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const file = await actions.executeTool({
+      toolName: 'box_file_get',
+      connectedAccountId: connectedAccount.id,
+      toolInput: { file_id: '12345678' },
+    });
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    file = actions.execute_tool(
+        tool_name="box_file_get",
+        connected_account_id=connected_account.id,
+        tool_input={"file_id": "12345678"},
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+### Search Box
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const results = await actions.executeTool({
+      toolName: 'box_search',
+      connectedAccountId: connectedAccount.id,
+      toolInput: {
+        query: 'quarterly report',
+        type: 'file',
+        file_extensions: 'pdf,docx',
+      },
+    });
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    results = actions.execute_tool(
+        tool_name="box_search",
+        connected_account_id=connected_account.id,
+        tool_input={
+            "query": "quarterly report",
+            "type": "file",
+            "file_extensions": "pdf,docx",
+        },
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+### Create a task on a file
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const task = await actions.executeTool({
+      toolName: 'box_task_create',
+      connectedAccountId: connectedAccount.id,
+      toolInput: {
+        file_id: '12345678',
+        message: 'Please review this document',
+        action: 'review',
+        due_at: '2025-12-31T00:00:00Z',
+      },
+    });
+    // task.id is the task ID — use it with box_task_assignment_create
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    task = actions.execute_tool(
+        tool_name="box_task_create",
+        connected_account_id=connected_account.id,
+        tool_input={
+            "file_id": "12345678",
+            "message": "Please review this document",
+            "action": "review",
+            "due_at": "2025-12-31T00:00:00Z",
+        },
+    )
+    # task["id"] is the task ID
+    ```
+  </TabItem>
+</Tabs>
+
+### Share a file
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const link = await actions.executeTool({
+      toolName: 'box_shared_link_file_create',
+      connectedAccountId: connectedAccount.id,
+      toolInput: {
+        file_id: '12345678',
+        access: 'company',   // open | company | collaborators
+        can_download: true,
+      },
+    });
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    link = actions.execute_tool(
+        tool_name="box_shared_link_file_create",
+        connected_account_id=connected_account.id,
+        tool_input={
+            "file_id": "12345678",
+            "access": "company",
+            "can_download": True,
+        },
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+### Create a webhook
+
+Webhooks require the `manage_webhook` scope. The `triggers` field is an array of event strings.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const webhook = await actions.executeTool({
+      toolName: 'box_webhook_create',
+      connectedAccountId: connectedAccount.id,
+      toolInput: {
+        target_id: '0',
+        target_type: 'folder',
+        address: 'https://your-app.com/webhooks/box',
+        triggers: ['FILE.UPLOADED', 'FILE.DELETED', 'FOLDER.CREATED'],
+      },
+    });
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    webhook = actions.execute_tool(
+        tool_name="box_webhook_create",
+        connected_account_id=connected_account.id,
+        tool_input={
+            "target_id": "0",
+            "target_type": "folder",
+            "address": "https://your-app.com/webhooks/box",
+            "triggers": ["FILE.UPLOADED", "FILE.DELETED", "FOLDER.CREATED"],
+        },
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+### Add a collaborator to a folder
+
+Collaborations grant a user or group access to a specific file or folder. You need the user's Box ID or email login.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // First, get the user's Box ID using box_users_list or box_user_me_get
+    const collab = await actions.executeTool({
+      toolName: 'box_collaboration_create',
+      connectedAccountId: connectedAccount.id,
+      toolInput: {
+        item_id: 'FOLDER_ID',
+        item_type: 'folder',
+        accessible_by_id: 'USER_BOX_ID',
+        accessible_by_type: 'user',
+        role: 'editor',
+      },
+    });
+    // To find the collaboration ID later, use box_folder_collaborations_list
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    collab = actions.execute_tool(
+        tool_name="box_collaboration_create",
+        connected_account_id=connected_account.id,
+        tool_input={
+            "item_id": "FOLDER_ID",
+            "item_type": "folder",
+            "accessible_by_id": "USER_BOX_ID",
+            "accessible_by_type": "user",
+            "role": "editor",
+        },
+    )
+    # To find the collaboration ID later, use box_folder_collaborations_list
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="caution" title="Collaboration ID vs User ID">
+  The `collaboration_id` used by `box_collaboration_get`, `box_collaboration_update`, and `box_collaboration_delete` is **not** the same as the user's Box user ID. Fetch the collaboration ID from `box_folder_collaborations_list` or `box_file_collaborations_list` after creating the collaboration.
+</Aside>
+
+## Scalekit Tools

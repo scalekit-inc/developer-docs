@@ -1,0 +1,905 @@
+---
+title: Box
+description: Connect to Box to manage files, folders, users, tasks, webhooks, collaborations, and more using OAuth 2.0.
+sidebar:
+  label: Box
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 { font-size: var(--sl-text-xl); }
+      table td:first-child, table th:first-child { white-space: nowrap; }
+---
+
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
+import { SetupBoxSection } from '@components/templates'
+import { UsageBoxSection } from '@components/templates'
+
+<div class="grid grid-cols-5 gap-4 items-center">
+ <div class="col-span-4">
+  Connect to Box to manage files, folders, users, groups, collaborations, tasks, comments, webhooks, search, and more using the Box REST API.
+ </div>
+ <div class="flex justify-center">
+  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/box.svg" width="64" height="64" alt="Box logo" />
+ </div>
+</div>
+
+Supports authentication: <Badge text="OAuth 2.0" />
+
+![Box connector shown in Scalekit's Create Connection search](@/assets/docs/agent-connectors/box/scalekit-search-box.png)
+
+## Set up the agent connector
+
+<SetupBoxSection />
+
+## Usage
+
+<UsageBoxSection />
+
+## Getting resource IDs
+
+Most Box tools require an ID for the resource they operate on. Here is where to find each ID:
+
+| Resource | Tool to get ID | Response field |
+|----------|---------------|----------------|
+| File ID | `box_folder_items_list` (folder_id: `"0"`) | `entries[].id` where `entries[].type == "file"` |
+| Folder ID | `box_folder_items_list` (folder_id: `"0"`) | `entries[].id` where `entries[].type == "folder"` |
+| Task ID | `box_file_tasks_list` or `box_task_create` response | `id` |
+| Task assignment ID | `box_task_assignments_list` | `entries[].id` |
+| Comment ID | `box_file_comments_list` | `entries[].id` |
+| Collaboration ID | `box_folder_collaborations_list` or `box_file_collaborations_list` | `entries[].id` |
+| Collection ID | `box_collections_list` | `entries[].id` (Favorites collection = type `favorites`) |
+| Webhook ID | `box_webhooks_list` | `entries[].id` |
+| User ID | `box_user_me_get` (authenticated user) or `box_users_list` | `id` |
+| Group ID | `box_groups_list` | `entries[].id` |
+| Group membership ID | `box_group_members_list` or `box_user_memberships_list` | `entries[].id` |
+| Web link ID | `box_folder_items_list` | `entries[].id` where `entries[].type == "web_link"` |
+
+<Aside type="caution" title="Collaboration ID vs User ID">
+  The `collaboration_id` is different from the collaborating user's ID. After creating a collaboration with `box_collaboration_create`, fetch the collaboration ID using `box_folder_collaborations_list` or `box_file_collaborations_list`.
+</Aside>
+
+## Required scopes
+
+Enable the corresponding Box app scopes before calling tools that need them:
+
+| Tools | Required scope |
+|-------|---------------|
+| All file/folder read tools | `root_readonly` |
+| File/folder create, update, delete | `root_readwrite` |
+| `box_group_*`, `box_user_memberships_list` | `manage_groups` |
+| `box_webhook_*`, `box_webhooks_list` | `manage_webhook` |
+| `box_user_create`, `box_user_delete`, `box_users_list`, `box_user_update` | `manage_managed_users` |
+| `box_events_list` (enterprise stream) | `manage_enterprise_properties` |
+
+## Tool list
+
+### Files
+
+## `box_file_get`
+
+Retrieves detailed information about a file.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_id` | string | Yes | ID of the file. Get it from `box_folder_items_list` on folder_id `"0"`. |
+| `fields` | string | No | Comma-separated list of fields to return. |
+
+## `box_file_update`
+
+Updates a file's name, description, tags, or moves it to another folder.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_id` | string | Yes | ID of the file to update. |
+| `name` | string | No | New name for the file. |
+| `description` | string | No | New description for the file. |
+| `parent_id` | string | No | ID of the folder to move the file into. |
+| `tags` | string | No | Comma-separated list of tags. |
+
+## `box_file_delete`
+
+Moves a file to the trash.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_id` | string | Yes | ID of the file to delete. |
+
+## `box_file_copy`
+
+Creates a copy of a file in a specified folder.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_id` | string | Yes | ID of the file to copy. |
+| `parent_id` | string | Yes | ID of the destination folder. |
+| `name` | string | No | New name for the copied file (optional). |
+
+## `box_file_versions_list`
+
+Retrieves all previous versions of a file.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_id` | string | Yes | ID of the file. |
+
+## `box_file_thumbnail_get`
+
+Retrieves a thumbnail image for a file.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_id` | string | Yes | ID of the file. |
+| `extension` | string | Yes | Thumbnail format: `jpg` or `png`. |
+| `min_width` | integer | No | Minimum width of the thumbnail in pixels. |
+| `min_height` | integer | No | Minimum height of the thumbnail in pixels. |
+
+### Folders
+
+## `box_folder_get`
+
+Retrieves a folder's details and its immediate items.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `folder_id` | string | Yes | ID of the folder. Use `"0"` for the root folder. |
+| `fields` | string | No | Comma-separated list of fields to return. |
+| `sort` | string | No | Sort order: `id`, `name`, `date`, or `size`. |
+| `direction` | string | No | Sort direction: `ASC` or `DESC`. |
+| `offset` | integer | No | Pagination offset. |
+| `limit` | integer | No | Max items to return (max 1000). |
+
+## `box_folder_items_list`
+
+Retrieves a paginated list of items in a folder. Use folder_id `"0"` to start from the root.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `folder_id` | string | Yes | ID of the folder. Use `"0"` for the root folder. |
+| `fields` | string | No | Comma-separated list of fields to return. |
+| `sort` | string | No | Sort field: `id`, `name`, `date`, or `size`. |
+| `direction` | string | No | `ASC` or `DESC`. |
+| `offset` | integer | No | Pagination offset. |
+| `limit` | integer | No | Max items to return (max 1000). |
+
+## `box_folder_create`
+
+Creates a new folder inside a parent folder.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | string | Yes | Name of the new folder. |
+| `parent_id` | string | Yes | ID of the parent folder. Use `"0"` for root. |
+| `fields` | string | No | Comma-separated list of fields to return. |
+
+## `box_folder_update`
+
+Updates a folder's name, description, or moves it.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `folder_id` | string | Yes | ID of the folder to update. |
+| `name` | string | No | New name for the folder. |
+| `description` | string | No | New description for the folder. |
+| `parent_id` | string | No | ID of the new parent folder to move into. |
+
+## `box_folder_delete`
+
+Moves a folder to the trash.
+
+<Aside type="caution" title="Deleting non-empty folders">
+  Pass `recursive: "true"` when deleting a folder that contains files or subfolders. Box rejects the request if the folder has contents and `recursive` is omitted.
+</Aside>
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `folder_id` | string | Yes | ID of the folder to delete. |
+| `recursive` | string | No | Must be `"true"` to delete folders that contain files or subfolders. |
+
+## `box_folder_copy`
+
+Creates a copy of a folder and its contents.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `folder_id` | string | Yes | ID of the folder to copy. |
+| `parent_id` | string | Yes | ID of the destination folder. |
+| `name` | string | No | New name for the copied folder (optional). |
+
+### Search
+
+## `box_search`
+
+Searches files, folders, and web links in Box.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `query` | string | Yes | Search query string. |
+| `type` | string | No | Filter by type: `file`, `folder`, or `web_link`. |
+| `ancestor_folder_ids` | string | No | Comma-separated folder IDs to scope the search. |
+| `content_types` | string | No | Comma-separated content types: `name`, `description`, `tag`, `comments`, `file_content`. |
+| `file_extensions` | string | No | Comma-separated file extensions to filter (e.g. `pdf,docx`). |
+| `created_at_range` | string | No | ISO 8601 date range: `2024-01-01T00:00:00Z,2024-12-31T23:59:59Z`. |
+| `updated_at_range` | string | No | Date range for last updated. |
+| `owner_user_ids` | string | No | Comma-separated user IDs to filter by owner. |
+| `scope` | string | No | Search scope: `user_content` or `enterprise_content`. |
+| `limit` | integer | No | Max results (max 200). |
+| `offset` | integer | No | Pagination offset. |
+| `fields` | string | No | Comma-separated list of fields to return. |
+
+## `box_recent_items_list`
+
+Retrieves files and folders the user accessed recently.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `fields` | string | No | Comma-separated list of fields to return. |
+| `limit` | integer | No | Max results. |
+| `marker` | string | No | Pagination marker from a previous response. |
+
+### Collaborations
+
+## `box_collaboration_create`
+
+Grants a user or group access to a file or folder.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `item_id` | string | Yes | ID of the file or folder. |
+| `item_type` | string | Yes | Type of item: `file` or `folder`. |
+| `accessible_by_id` | string | Yes | Box user or group ID to grant access to. Get user IDs from `box_users_list`. |
+| `accessible_by_type` | string | Yes | Type: `user` or `group`. |
+| `role` | string | Yes | Collaboration role: `viewer`, `previewer`, `uploader`, `previewer_uploader`, `viewer_uploader`, `co-owner`, or `editor`. |
+| `notify` | string | No | Notify collaborator via email (`true`/`false`). |
+| `can_view_path` | string | No | Allow user to see path to item (`true`/`false`). |
+| `expires_at` | string | No | Expiry date in ISO 8601 format. |
+
+## `box_collaboration_get`
+
+Retrieves details of a specific collaboration.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `collaboration_id` | string | Yes | ID of the collaboration. Get it from `box_folder_collaborations_list` — this is **not** the user's ID. |
+| `fields` | string | No | Comma-separated list of fields to return. |
+
+## `box_collaboration_update`
+
+Updates the role or status of a collaboration.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `collaboration_id` | string | Yes | ID of the collaboration. Get it from `box_folder_collaborations_list`. |
+| `role` | string | No | New collaboration role. |
+| `status` | string | No | Collaboration status: `accepted` or `rejected`. |
+| `expires_at` | string | No | New expiry date in ISO 8601 format. |
+| `can_view_path` | boolean | No | Allow user to see path to item. |
+
+## `box_collaboration_delete`
+
+Removes a collaboration, revoking user or group access.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `collaboration_id` | string | Yes | ID of the collaboration to delete. Get it from `box_folder_collaborations_list`. |
+
+## `box_file_collaborations_list`
+
+Retrieves all collaborations on a file.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_id` | string | Yes | ID of the file. |
+| `fields` | string | No | Comma-separated list of fields to return. |
+
+## `box_folder_collaborations_list`
+
+Retrieves all collaborations on a folder.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `folder_id` | string | Yes | ID of the folder. |
+| `fields` | string | No | Comma-separated list of fields to return. |
+
+### Comments
+
+## `box_comment_create`
+
+Adds a comment to a file.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `item_id` | string | Yes | ID of the file to comment on. |
+| `item_type` | string | Yes | Type of item: `file` or `comment` (for replies). |
+| `message` | string | Yes | Text of the comment. |
+| `tagged_message` | string | No | Comment text with `@[user_id:user_name]` mentions. |
+
+## `box_comment_get`
+
+Retrieves a comment.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `comment_id` | string | Yes | ID of the comment. Get it from `box_file_comments_list`. |
+| `fields` | string | No | Comma-separated list of fields to return. |
+
+## `box_comment_update`
+
+Updates the text of a comment.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `comment_id` | string | Yes | ID of the comment to update. |
+| `message` | string | Yes | New text for the comment. |
+
+## `box_comment_delete`
+
+Removes a comment.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `comment_id` | string | Yes | ID of the comment to delete. |
+
+## `box_file_comments_list`
+
+Retrieves all comments on a file.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_id` | string | Yes | ID of the file. |
+| `fields` | string | No | Comma-separated list of fields to return. |
+
+### Tasks
+
+## `box_task_create`
+
+Creates a task on a file.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_id` | string | Yes | ID of the file to attach the task to. Get it from `box_folder_items_list`. |
+| `message` | string | No | Task message/description. |
+| `action` | string | No | Action: `review` or `complete`. |
+| `due_at` | string | No | Due date in ISO 8601 format (e.g. `2025-12-31T00:00:00Z`). |
+| `completion_rule` | string | No | Completion rule: `all_assignees` or `any_assignee`. |
+
+## `box_task_get`
+
+Retrieves a task's details.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `task_id` | string | Yes | ID of the task. Get it from `box_file_tasks_list`. |
+
+## `box_task_update`
+
+Updates a task's message, due date, or completion rule.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `task_id` | string | Yes | ID of the task to update. |
+| `message` | string | No | New message for the task. |
+| `due_at` | string | No | New due date in ISO 8601 format. |
+| `action` | string | No | New action: `review` or `complete`. |
+| `completion_rule` | string | No | New completion rule: `all_assignees` or `any_assignee`. |
+
+## `box_task_delete`
+
+Removes a task from a file.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `task_id` | string | Yes | ID of the task to delete. |
+
+## `box_file_tasks_list`
+
+Retrieves all tasks associated with a file.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_id` | string | Yes | ID of the file. |
+
+## `box_task_assignment_create`
+
+Assigns a task to a user.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `task_id` | string | Yes | ID of the task to assign. Get it from `box_file_tasks_list`. |
+| `user_id` | string | No | ID of the user to assign the task to. Get it from `box_users_list`. |
+| `user_login` | string | No | Email login of the user (alternative to `user_id`). |
+
+## `box_task_assignment_get`
+
+Retrieves a specific task assignment.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `task_assignment_id` | string | Yes | ID of the task assignment. Get it from `box_task_assignments_list`. |
+
+## `box_task_assignment_update`
+
+Updates a task assignment (complete, approve, or reject).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `task_assignment_id` | string | Yes | ID of the task assignment. |
+| `message` | string | No | Optional message/comment for the resolution. |
+| `resolution_state` | string | No | Resolution state: `completed`, `incomplete`, `approved`, or `rejected`. |
+
+<Aside type="caution" title="Completed tasks">
+  Box returns a `403` error when you try to delete an assignment on a completed task. This is expected API behavior — only delete assignments on tasks with `incomplete` status.
+</Aside>
+
+## `box_task_assignment_delete`
+
+Removes a task assignment from a user.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `task_assignment_id` | string | Yes | ID of the task assignment to remove. |
+
+## `box_task_assignments_list`
+
+Retrieves all assignments for a task.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `task_id` | string | Yes | ID of the task. |
+
+### Shared links
+
+## `box_shared_link_file_create`
+
+Creates or updates a shared link for a file.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_id` | string | Yes | ID of the file. |
+| `access` | string | No | Shared link access level: `open`, `company`, or `collaborators`. |
+| `unshared_at` | string | No | Expiry date in ISO 8601 format. |
+| `password` | string | No | Password to protect the shared link. |
+| `can_download` | boolean | No | Allow download (`true`/`false`). |
+| `can_preview` | boolean | No | Allow preview (`true`/`false`). |
+
+## `box_shared_link_folder_create`
+
+Creates or updates a shared link for a folder.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `folder_id` | string | Yes | ID of the folder. |
+| `access` | string | No | Shared link access level: `open`, `company`, or `collaborators`. |
+| `unshared_at` | string | No | Expiry date in ISO 8601 format. |
+| `password` | string | No | Password to protect the shared link. |
+| `can_download` | boolean | No | Allow download (`true`/`false`). |
+
+### Collections
+
+## `box_collections_list`
+
+Retrieves all collections for the user (e.g. Favorites).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `fields` | string | No | Comma-separated list of fields to return. |
+| `offset` | integer | No | Pagination offset. |
+| `limit` | integer | No | Max results. |
+
+## `box_collection_items_list`
+
+Retrieves the items in a collection. Use `box_collections_list` first to get the collection ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `collection_id` | string | Yes | ID of the collection. Get it from `box_collections_list`. |
+| `fields` | string | No | Comma-separated list of fields to return. |
+| `offset` | integer | No | Pagination offset. |
+| `limit` | integer | No | Max results. |
+
+### Metadata
+
+## `box_file_metadata_create`
+
+Applies metadata to a file using a metadata template. Requires an enterprise metadata template.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_id` | string | Yes | ID of the file. |
+| `scope` | string | Yes | Template scope: `global` or `enterprise`. |
+| `template_key` | string | Yes | Key of the metadata template. Get it from `box_metadata_templates_list`. |
+| `data_json` | string | Yes | JSON string of metadata fields and values, e.g. `"{\"department\": \"Finance\"}"`. |
+
+## `box_file_metadata_get`
+
+Retrieves a specific metadata instance on a file.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_id` | string | Yes | ID of the file. |
+| `scope` | string | Yes | Template scope: `global` or `enterprise`. |
+| `template_key` | string | Yes | Key of the metadata template. |
+
+## `box_file_metadata_list`
+
+Retrieves all metadata instances attached to a file.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_id` | string | Yes | ID of the file. |
+
+## `box_file_metadata_delete`
+
+Removes a metadata instance from a file.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_id` | string | Yes | ID of the file. |
+| `scope` | string | Yes | Template scope: `global` or `enterprise`. |
+| `template_key` | string | Yes | Key of the metadata template. |
+
+## `box_folder_metadata_list`
+
+Retrieves all metadata instances on a folder.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `folder_id` | string | Yes | ID of the folder. |
+
+## `box_metadata_template_get`
+
+Retrieves a metadata template schema. Returns `404` if no enterprise templates exist.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `scope` | string | Yes | Scope of the template: `global` or `enterprise`. |
+| `template_key` | string | Yes | Key of the metadata template. |
+
+## `box_metadata_templates_list`
+
+Retrieves all metadata templates for the enterprise.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `marker` | string | No | Pagination marker. |
+| `limit` | integer | No | Max results. |
+
+### Web links
+
+## `box_web_link_create`
+
+Creates a web link (bookmark) inside a folder.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `url` | string | Yes | URL of the web link. |
+| `parent_id` | string | Yes | ID of the parent folder. Use `"0"` for root. |
+| `name` | string | No | Name for the web link. |
+| `description` | string | No | Description of the web link. |
+
+## `box_web_link_get`
+
+Retrieves a web link's details.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `web_link_id` | string | Yes | ID of the web link. Get it from `box_folder_items_list` (type: `web_link`). |
+| `fields` | string | No | Comma-separated list of fields to return. |
+
+## `box_web_link_update`
+
+Updates a web link's URL, name, or description.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `web_link_id` | string | Yes | ID of the web link to update. |
+| `url` | string | No | New URL. |
+| `name` | string | No | New name. |
+| `description` | string | No | New description. |
+| `parent_id` | string | No | New parent folder ID. |
+
+## `box_web_link_delete`
+
+Removes a web link.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `web_link_id` | string | Yes | ID of the web link to delete. |
+
+### Trash
+
+## `box_trash_list`
+
+Retrieves items in the user's trash.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `fields` | string | No | Comma-separated list of fields to return. |
+| `limit` | integer | No | Max results. |
+| `offset` | integer | No | Pagination offset. |
+| `sort` | string | No | Sort field: `name`, `date`, or `size`. |
+| `direction` | string | No | Sort direction: `ASC` or `DESC`. |
+
+## `box_trash_file_restore`
+
+Restores a file from the trash.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_id` | string | Yes | ID of the trashed file. |
+| `name` | string | No | New name if the original name is already taken. |
+| `parent_id` | string | No | Parent folder ID if the original location is unavailable. |
+
+## `box_trash_file_permanently_delete`
+
+Permanently deletes a trashed file. This action cannot be undone.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_id` | string | Yes | ID of the trashed file. |
+
+## `box_trash_folder_restore`
+
+Restores a folder from the trash.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `folder_id` | string | Yes | ID of the trashed folder. |
+| `name` | string | No | New name if the original is already taken. |
+| `parent_id` | string | No | New parent folder ID if the original is unavailable. |
+
+## `box_trash_folder_permanently_delete`
+
+Permanently deletes a trashed folder. This action cannot be undone.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `folder_id` | string | Yes | ID of the trashed folder. |
+
+### Webhooks
+
+Webhooks require the `manage_webhook` scope.
+
+## `box_webhook_create`
+
+Creates a webhook to receive event notifications when something changes in a file or folder.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `target_id` | string | Yes | ID of the file or folder to watch. |
+| `target_type` | string | Yes | Type of target: `file` or `folder`. |
+| `address` | string | Yes | HTTPS URL to receive webhook notifications. Must be publicly accessible. |
+| `triggers` | array | Yes | Array of event strings, e.g. `["FILE.UPLOADED","FILE.DELETED"]`. See [Box webhook triggers](https://developer.box.com/reference/resources/webhook/) for the full list. |
+
+## `box_webhook_get`
+
+Retrieves a webhook's details.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `webhook_id` | string | Yes | ID of the webhook. Get it from `box_webhooks_list`. |
+
+## `box_webhook_update`
+
+Updates a webhook's address or triggers.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `webhook_id` | string | Yes | ID of the webhook to update. |
+| `address` | string | No | New HTTPS URL for notifications. |
+| `triggers` | array | No | New array of event strings. |
+| `target_id` | string | No | New target ID. |
+| `target_type` | string | No | New target type: `file` or `folder`. |
+
+## `box_webhook_delete`
+
+Removes a webhook.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `webhook_id` | string | Yes | ID of the webhook to delete. |
+
+## `box_webhooks_list`
+
+Retrieves all webhooks for the application.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `marker` | string | No | Pagination marker. |
+| `limit` | integer | No | Max results. |
+
+### Users
+
+User management tools require the `manage_managed_users` scope. Users created with Box must use an email address within the enterprise's verified domain.
+
+## `box_user_me_get`
+
+Retrieves information about the currently authenticated user. No parameters required — use this to get your own user ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `fields` | string | No | Comma-separated list of fields to return. |
+
+## `box_user_get`
+
+Retrieves information about a specific user.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `user_id` | string | Yes | ID of the user. Get it from `box_users_list` or `box_user_me_get`. |
+| `fields` | string | No | Comma-separated list of fields to return. |
+
+## `box_users_list`
+
+Retrieves all users in the enterprise.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `filter_term` | string | No | Filter users by name or login. |
+| `user_type` | string | No | Filter by type: `all`, `managed`, or `external`. |
+| `fields` | string | No | Comma-separated list of fields to return. |
+| `limit` | integer | No | Max users to return. |
+| `offset` | integer | No | Pagination offset. |
+
+## `box_user_create`
+
+Creates a new managed user in the enterprise.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | string | Yes | Full name of the user. |
+| `login` | string | No | Email address (login) for managed users. Must be within the enterprise domain. |
+| `role` | string | No | User role: `user` or `coadmin`. |
+| `space_amount` | integer | No | Storage quota in bytes (`-1` for unlimited). |
+| `is_platform_access_only` | boolean | No | Set `true` for app users (no login required). |
+
+## `box_user_update`
+
+Updates a user's properties in the enterprise.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `user_id` | string | Yes | ID of the user to update. |
+| `name` | string | No | New full name. |
+| `role` | string | No | New role: `user` or `coadmin`. |
+| `status` | string | No | New status: `active`, `inactive`, or `cannot_delete_edit`. |
+| `space_amount` | integer | No | Storage quota in bytes. |
+| `tracking_codes` | string | No | Tracking codes as a JSON array string. |
+
+## `box_user_delete`
+
+Removes a user from the enterprise.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `user_id` | string | Yes | ID of the user to delete. |
+| `notify` | string | No | Notify user via email (`true`/`false`). |
+| `force` | string | No | Force deletion even if user owns content (`true`/`false`). |
+
+## `box_user_memberships_list`
+
+Retrieves all group memberships for a user.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `user_id` | string | Yes | ID of the user. |
+| `limit` | integer | No | Max results. |
+| `offset` | integer | No | Pagination offset. |
+
+### Groups
+
+Group tools require the `manage_groups` scope.
+
+## `box_groups_list`
+
+Retrieves all groups in the enterprise.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `filter_term` | string | No | Filter groups by name. |
+| `fields` | string | No | Comma-separated list of fields to return. |
+| `limit` | integer | No | Max results. |
+| `offset` | integer | No | Pagination offset. |
+
+## `box_group_create`
+
+Creates a new group in the enterprise.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | string | Yes | Name of the group. |
+| `description` | string | No | Description of the group. |
+| `provenance` | string | No | Identifier to distinguish manually created vs synced groups. |
+| `invitability_level` | string | No | Who can invite to group: `admins_only`, `admins_and_members`, or `all_managed_users`. |
+| `member_viewability_level` | string | No | Who can view group members: `admins_only`, `admins_and_members`, or `all_managed_users`. |
+
+## `box_group_get`
+
+Retrieves information about a group.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `group_id` | string | Yes | ID of the group. Get it from `box_groups_list`. |
+| `fields` | string | No | Comma-separated list of fields to return. |
+
+## `box_group_update`
+
+Updates a group's properties.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `group_id` | string | Yes | ID of the group to update. |
+| `name` | string | No | New name for the group. |
+| `description` | string | No | New description. |
+| `invitability_level` | string | No | Who can invite: `admins_only`, `admins_and_members`, or `all_managed_users`. |
+| `member_viewability_level` | string | No | Who can view members. |
+
+## `box_group_delete`
+
+Permanently deletes a group.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `group_id` | string | Yes | ID of the group to delete. |
+
+## `box_group_members_list`
+
+Retrieves all members of a group.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `group_id` | string | Yes | ID of the group. |
+| `limit` | integer | No | Max results. |
+| `offset` | integer | No | Pagination offset. |
+
+## `box_group_membership_add`
+
+Adds a user to a group.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `user_id` | string | Yes | ID of the user to add. Get it from `box_users_list`. |
+| `group_id` | string | Yes | ID of the group. |
+| `role` | string | No | Role in the group: `member` or `admin`. |
+
+## `box_group_membership_get`
+
+Retrieves a specific group membership.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `group_membership_id` | string | Yes | ID of the group membership. Get it from `box_group_members_list`. |
+| `fields` | string | No | Comma-separated list of fields to return. |
+
+## `box_group_membership_update`
+
+Updates a user's role in a group.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `group_membership_id` | string | Yes | ID of the membership to update. |
+| `role` | string | No | New role: `member` or `admin`. |
+
+## `box_group_membership_remove`
+
+Removes a user from a group.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `group_membership_id` | string | Yes | ID of the group membership to remove. Get it from `box_group_members_list`. |
+
+### Events
+
+## `box_events_list`
+
+Retrieves events from the Box event stream. Use `admin_logs` for enterprise-wide events (requires `manage_enterprise_properties` scope).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `stream_type` | string | No | Event stream type: `all`, `changes`, `sync`, or `admin_logs`. |
+| `stream_position` | string | No | Pagination position from a previous response. |
+| `limit` | integer | No | Max events to return. |
+| `event_type` | string | No | Comma-separated list of event types to filter. |
+| `created_after` | string | No | Return events after this date (ISO 8601). |
+| `created_before` | string | No | Return events before this date (ISO 8601). |
