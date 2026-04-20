@@ -98,6 +98,14 @@ function htmlToMarkdown(html: string): string {
   return pageTitle ? `# ${pageTitle}\n\n${body}` : body
 }
 
+const LINK_HEADER = [
+  '</llms.txt>; rel="llms-txt"',
+  '</.well-known/api-catalog>; rel="api-catalog"',
+  '</apis/>; rel="service-doc"',
+  '</apis.md>; rel="service-doc"; type="text/markdown"',
+  '</.well-known/agent-skills/index.json>; rel="agent-skills"',
+].join(', ')
+
 export default async function handler(request: Request, context: Context) {
   const accept = request.headers.get('accept') ?? ''
 
@@ -114,7 +122,7 @@ export default async function handler(request: Request, context: Context) {
         const headers = new Headers(mdResponse.headers)
         headers.set('content-type', 'text/markdown; charset=utf-8')
         headers.set('x-markdown-tokens', String(tokens))
-        headers.set('link', '</llms.txt>; rel="llms-txt"')
+        headers.set('link', LINK_HEADER)
         headers.set('vary', 'Accept')
         return new Response(text, { status: 200, headers })
       }
@@ -132,7 +140,7 @@ export default async function handler(request: Request, context: Context) {
       const headers = new Headers()
       headers.set('content-type', 'text/markdown; charset=utf-8')
       headers.set('x-markdown-tokens', String(tokens))
-      headers.set('link', '</llms.txt>; rel="llms-txt"')
+      headers.set('link', LINK_HEADER)
       headers.set('vary', 'Accept')
       const cc = htmlResponse.headers.get('cache-control')
       if (cc) headers.set('cache-control', cc)
@@ -145,7 +153,7 @@ export default async function handler(request: Request, context: Context) {
 
   // Default: pass through with llms.txt discovery link
   const response = await context.next()
-  response.headers.set('link', '</llms.txt>; rel="llms-txt"')
+  response.headers.set('link', LINK_HEADER)
   return response
 }
 
