@@ -1,0 +1,295 @@
+---
+import {
+  getActiveSecondaryNavId,
+  getActiveProduct,
+  type SecondaryNavProps,
+} from '../../utils/secondary-nav-utils'
+import { IconLucideUsers, IconLucideBot } from '../../utils/icon-map'
+import { IconLucideCheck } from '../../configs/secondary-nav.config'
+
+const { entry } = Astro.props satisfies SecondaryNavProps
+
+const searchParams = Astro.url.searchParams
+const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry, searchParams)
+const activeProduct = getActiveProduct(Astro.url.pathname, entry?.data?.topic, searchParams)
+
+// activeId !== null means the page is in the doc system with a known nav context.
+// Shared items (rest-apis, sdks, etc.) live in SaasKit nav, so activeProduct covers them.
+const isAgentKitActive = activeProduct === 'agentkit'
+const isSaaSKitActive = activeProduct === 'saaskit' && activeId !== null
+const hasSelection = isAgentKitActive || isSaaSKitActive
+
+const activeLabel = isAgentKitActive ? 'AgentKit' : isSaaSKitActive ? 'Auth for SaaS' : null
+
+const productLinks = [
+  {
+    label: 'AgentKit',
+    description: 'Connect agents to apps',
+    href: '/agentkit/quickstart/',
+    isActive: isAgentKitActive,
+    storageValue: 'agentkit',
+    iconComponent: IconLucideBot,
+  },
+  {
+    label: 'Auth for SaaS',
+    description: 'Users, RBAC, SSO',
+    href: '/authenticate/fsa/quickstart/',
+    isActive: isSaaSKitActive,
+    storageValue: 'saaskit',
+    iconComponent: IconLucideUsers,
+  },
+]
+---
+
+<div class="product-phrase sl-hidden md:sl-flex" id="product-phrase">
+  <div class="product-dropdown" id="product-dropdown">
+    <button
+      class={`product-dropdown__trigger${!hasSelection ? ' is-placeholder' : ''}`}
+      aria-haspopup="listbox"
+      aria-expanded="false"
+      id="product-dropdown-trigger"
+      data-has-selection={hasSelection ? 'true' : 'false'}
+    >
+      {!hasSelection && <span class="phrase-prefix">I'm working on...</span>}
+      {
+        hasSelection && (
+          <span id="product-label" class="product-label">
+            {activeLabel}
+          </span>
+        )
+      }
+      <svg
+        class="chevron"
+        width="10"
+        height="10"
+        viewBox="0 0 10 10"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <path
+          d="M2 3.5L5 6.5L8 3.5"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"></path>
+      </svg>
+    </button>
+    <div class="product-dropdown__menu" role="listbox" aria-labelledby="product-dropdown-trigger">
+      <div class="menu-section-label">Choose product</div>
+      {
+        productLinks.map((link) => {
+          const IconComponent = link.iconComponent
+          return (
+            <a
+              href={link.href}
+              class={`product-dropdown__item ${link.isActive ? 'is-active' : ''}`}
+              role="option"
+              aria-selected={link.isActive}
+              data-storage-value={link.storageValue}
+              data-label={link.label}
+            >
+              <div class="item-icon-wrapper">
+                {IconComponent && <IconComponent class="item-icon" />}
+              </div>
+              <div class="item-content">
+                <span class="item-label">{link.label}</span>
+                <span class="item-description">{link.description}</span>
+              </div>
+              <IconLucideCheck class="item-check-icon" />
+            </a>
+          )
+        })
+      }
+    </div>
+  </div>
+</div>
+
+<script>
+  const trigger = document.getElementById('product-dropdown-trigger') as HTMLButtonElement | null
+  const dropdown = document.getElementById('product-dropdown')
+
+  if (trigger && dropdown) {
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation()
+      const isOpen = dropdown.classList.toggle('is-open')
+      trigger.setAttribute('aria-expanded', String(isOpen))
+    })
+
+    document.addEventListener('click', () => {
+      dropdown.classList.remove('is-open')
+      trigger.setAttribute('aria-expanded', 'false')
+    })
+  }
+</script>
+
+<style>
+  .product-phrase {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .product-dropdown {
+    position: relative;
+  }
+
+  .product-dropdown__trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .product-label {
+    font-weight: 600;
+    color: var(--sl-color-text);
+    text-decoration: underline;
+    text-decoration-color: var(--sl-color-gray-4);
+    text-underline-offset: 3px;
+    transition:
+      text-decoration-color 0.15s ease,
+      color 0.15s ease;
+  }
+
+  .product-dropdown__trigger:hover .product-label {
+    text-decoration-color: var(--sl-color-text);
+  }
+
+  .product-dropdown__trigger:focus-visible {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  .chevron {
+    opacity: 0.6;
+    transition: transform 0.15s ease;
+    flex-shrink: 0;
+  }
+
+  .product-dropdown.is-open .chevron {
+    transform: rotate(180deg);
+  }
+
+  .product-dropdown__menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    min-width: 16rem;
+    background: var(--sl-color-bg);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    box-shadow:
+      0 1px 2px 0 rgba(10, 10, 10, 0.05),
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    overflow: hidden;
+    padding: 0.5rem;
+  }
+
+  .product-dropdown.is-open .product-dropdown__menu {
+    display: block;
+  }
+
+  .menu-section-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--sl-color-gray-3);
+    padding: 0.25rem 0.5rem 0.5rem;
+    letter-spacing: 0.05em;
+  }
+
+  .product-dropdown__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.5rem 0.5rem;
+    color: var(--sl-color-gray-1);
+    text-decoration: none;
+    border-radius: 0.375rem;
+    transition: background-color 0.1s ease;
+    position: relative;
+  }
+
+  .product-dropdown__item:hover {
+    background: var(--sl-color-gray-6);
+  }
+
+  .item-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+  }
+
+  .item-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+  }
+
+  .item-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .item-label {
+    font-size: var(--sl-text-sm);
+    font-weight: 500;
+    line-height: 1.4;
+    color: inherit;
+  }
+
+  .item-description {
+    font-size: 0.75rem;
+    line-height: 1.25;
+    color: var(--sl-color-gray-3);
+  }
+
+  :root[data-theme='light'] .item-description {
+    color: #646464;
+  }
+
+  .item-check-icon {
+    width: 0.875rem;
+    height: 0.875rem;
+    color: #10b981;
+    flex-shrink: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.15s ease,
+      visibility 0.15s ease;
+  }
+
+  .product-dropdown__item.is-active .item-check-icon {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .product-dropdown__item.is-active .item-label {
+    font-weight: 600;
+  }
+
+  :root[data-theme='dark'] .product-dropdown__menu {
+    box-shadow:
+      0 1px 2px 0 rgba(0, 0, 0, 0.2),
+      0 4px 6px -1px rgba(0, 0, 0, 0.3),
+      0 10px 15px -3px rgba(0, 0, 0, 0.4);
+    border-color: var(--sl-color-gray-4);
+  }
+</style>

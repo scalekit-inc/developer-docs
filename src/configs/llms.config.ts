@@ -4,7 +4,7 @@ import { AGENT_PLUGIN_DETAILS_MD } from './agent-instructions'
 export const llmsConfig: LlmsTxtConfig = {
   projectName: 'Scalekit',
   description:
-    'Scalekit is a developer platform for enterprise authentication, providing Full Stack Auth (FSA), Single Sign-On (SSO), SCIM provisioning, Agent Authentication, MCP Authentication, and API authentication solutions for B2B and AI applications. An official Auth Stack plugin is available for AI coding agents with up-to-date API references and code snippets — see install details below.',
+    'Scalekit is a developer platform for enterprise authentication, providing SaaSKit (FSA, SSO, SCIM), AgentKit (OAuth for AI agents, tool calling, connectors), MCP Authentication, and API authentication solutions for B2B and AI applications. An official Auth Stack plugin is available for AI coding agents with up-to-date API references and code snippets — see install details below.',
 
   details:
     AGENT_PLUGIN_DETAILS_MD +
@@ -16,8 +16,8 @@ for in-depth answers. Load \`llms-full.txt\` only when exhaustive context is nee
 
 ## Product → Documentation routing
 
-- **Full Stack Auth (FSA)**: users, orgs, sessions, RBAC, login flows → load Full Stack Auth Complete set
-- **Agent Authentication**: AI agents, OAuth token vault, tool calling, connectors → load Agent Authentication set
+- **SaaSKit (FSA/SSO/SCIM)**: users, orgs, sessions, RBAC, login flows, SSO, provisioning → load SaaSKit Complete set
+- **AgentKit**: AI agents, OAuth token vault, tool calling, connectors → load AgentKit set
 - **MCP Authentication**: remote MCP servers, OAuth 2.1, Dynamic Client Registration → load MCP Authentication set
 - **Enterprise SSO**: SAML/OIDC, Intra setup, SSO portal → load Enterprise SSO & SCIM set
 - **SCIM Provisioning**: user sync, directory provisioning, deprovisioning → load Enterprise SSO & SCIM set
@@ -32,23 +32,25 @@ Start with the Quickstart Collection, then follow the developer's question to th
   // Custom documentation subsets for targeted queries
   customSets: [
     {
-      label: 'Full Stack Auth Complete',
+      label: 'SaaSKit Complete',
       description:
-        'Complete FSA documentation including quickstart, user authentication, organization management, and authorization',
+        'Complete SaaSKit documentation including FSA, SSO, SCIM, user management, and authorization',
       paths: [
         'authenticate/fsa/**',
         'fsa/data-modelling.mdx',
         'authenticate/manage-users-orgs/**',
         'authenticate/authz/**',
+        'authenticate/sso/**',
+        'directory/scim/**',
         'guides/user-auth/**',
         'guides/user-management/**',
       ],
     },
     {
-      label: 'Agent Authentication',
+      label: 'AgentKit',
       description:
-        'Complete Agent Auth documentation with connectors, frameworks, and tool calling for AI agents',
-      paths: ['agent-auth/**', 'dev-kit/ai-assisted-development/**'],
+        'Complete AgentKit documentation with connectors, frameworks, and tool calling for AI agents',
+      paths: ['agentkit/**', 'dev-kit/ai-assisted-development/**'],
     },
     {
       label: 'MCP Authentication',

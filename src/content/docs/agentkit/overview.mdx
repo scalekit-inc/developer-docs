@@ -1,0 +1,64 @@
+---
+title: Overview
+description: 'Learn how AgentKit works: tool calling with pre-built connectors and authentication for AI agents acting on behalf of users.'
+tags: [agentauth, oauth2, aigents, tools, overview, guide]
+sidebar:
+  label: Overview
+tableOfContents: true
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+AgentKit gives your AI agents authenticated access to third-party apps: sending emails, reading calendars, creating tickets, querying databases, and more. Your agent calls a tool; Scalekit handles the OAuth flow, token storage, and API call.
+
+## Authentication
+
+**Connections** are configurations you create once in the Scalekit Dashboard. A connection holds the credentials Scalekit needs to authenticate with a connector (OAuth app credentials, API keys, or service account details). One connection serves all your users.
+
+**Connected accounts** are per-user instances of a connection. When a user authorizes, Scalekit creates a connected account that stores their tokens and tracks their auth state. Your agent uses a connected account to act on that specific user's behalf.
+
+Scalekit supports OAuth 2.0, API keys, RSA key pairs, and service accounts across all connectors.
+
+## Tool calling
+
+**Connectors** are the pre-built integrations your agent can use: Gmail, Slack, Salesforce, Snowflake, GitHub, and many others. Each connector exposes a library of tools ready for your agent to call.
+
+**Tools** are connector-specific actions: `gmail_fetch_emails`, `salesforce_create_record`, `slack_send_message`. Scalekit provides the tool schemas and handles the authenticated API call. Your agent passes inputs; Scalekit injects the user's credentials and returns structured output.
+
+## How they fit together
+
+```d2
+direction: right
+
+Dev: "You (developer)"
+Users: "Your users"
+Agent: "Your agent"
+
+Scalekit: {
+  Conn: "Connection\n(credentials + config)"
+  CA: "Connected accounts\n(per-user auth state)"
+  Tools: "Tools\n(pre-built + proxied)"
+}
+
+Provider: "Third-party app\n(Gmail, Slack, Snowflake…)"
+
+Dev -> Scalekit.Conn: "Configure once"
+Users -> Scalekit.CA: "Authenticate"
+Agent -> Scalekit.Tools: "Call tools"
+Scalekit.Tools -> Provider: "Authenticated API call"
+```
+
+You configure connections once. Your users authenticate to create connected accounts. Your agent calls tools; Scalekit handles the rest.
+
+## Works with your framework
+
+AgentKit is framework-agnostic. Tool schemas work with any LLM API. Native adapters are available for [LangChain](/agentkit/examples/langchain/), [Google ADK](/agentkit/examples/google-adk/), and [MCP-compatible environments](/agentkit/mcp/configure-mcp-server/).
+
+## Get started
+
+<CardGrid>
+  <LinkCard title="Quickstart" href="/agentkit/quickstart" description="Build a working agent with authenticated tool calls in minutes." />
+  <LinkCard title="Configure a connection" href="/agentkit/connections" description="Set up your first connection in the Scalekit Dashboard." />
+  <LinkCard title="Connectors" href="/agentkit/connectors/" description="Browse the pre-built connectors and their tool libraries." />
+  <LinkCard title="Examples" href="/agentkit/examples/" description="Full working examples for LangChain, Google ADK, Anthropic, OpenAI, and more." />
+</CardGrid>

@@ -101,6 +101,7 @@ import IconCibOpenId from '~icons/cib/open-id'
 import IconHugeiconsXml02SAML from '~icons/hugeicons/xml-02'
 import IconMaterialSymbolsFolderSupervisedOutlineSharpDirectory from '~icons/material-symbols/folder-supervised-outline-sharp'
 import IconArcticonsPingid from '~icons/arcticons/pingid'
+import IconSolarLayersOutline from '~icons/solar/layers-outline'
 import IconArcticonsFolderMicrosoftADFS from '~icons/arcticons/folder-microsoft'
 
 // Company and platform logos
@@ -114,7 +115,27 @@ import IconHugeiconsSalesforce from '~icons/fa7-brands/salesforce'
 // products - new icons if any
 import IconClarityBlocksGroupLine from '~icons/clarity/blocks-group-line'
 import IconAntDesignUserSwitchOutlined from '~icons/ant-design/user-switch-outlined'
+import IconPhUsersFourLight from '~icons/ph/users-four-light'
 import IconMingcuteUserSecurityLine from '~icons/mingcute/user-security-line'
+import IconMaterialSymbolsShieldLockOutlineRounded from '~icons/material-symbols/shield-lock-outline-rounded'
+import IconSimpleIconsJira from '~icons/simple-icons/jira'
+import IconSimpleIconsHubspot from '~icons/simple-icons/hubspot'
+import IconSimpleIconsZendesk from '~icons/simple-icons/zendesk'
+import IconSimpleIconsNotion from '~icons/simple-icons/notion'
+import IconSimpleIconsLinear from '~icons/simple-icons/linear'
+import IconSimpleIconsFigma from '~icons/simple-icons/figma'
+import IconSimpleIconsIntercom from '~icons/simple-icons/intercom'
+import IconSimpleIconsDiscord from '~icons/simple-icons/discord'
+import IconSimpleIconsAsana from '~icons/simple-icons/asana'
+import IconSimpleIconsTrello from '~icons/simple-icons/trello'
+import IconSimpleIconsGmail from '~icons/simple-icons/gmail'
+import IconSimpleIconsStripe from '~icons/simple-icons/stripe'
+
+// AI Agent icons
+import IconSimpleIconsClaude from '~icons/simple-icons/claude'
+import IconSimpleIconsOpenai from '~icons/simple-icons/openai'
+import IconSimpleIconsGithubcopilot from '~icons/simple-icons/githubcopilot'
+import IconSimpleIconsCursor from '~icons/simple-icons/cursor'
 
 // Static icon mapping organized by categories
 export const iconMap = {
@@ -129,8 +150,7 @@ export const iconMap = {
   shield: IconLucideShield,
   authenticate: IconLucideShield,
   bot: IconLucideBot,
-  'agent-actions': IconLucideBot,
-  'agent-auth': IconLucideBot,
+  agentkit: IconLucideBot,
   'book-open': IconLucideBookOpen,
   'api-reference': IconLucideBookOpen,
   'rest-apis': IconLucideBookOpen,
@@ -199,7 +219,7 @@ export const iconMap = {
   users: IconLucideUsers,
   fsa: IconLucideUsers,
   key: IconLucideKeyRound,
-  sso: IconLucideKeyRound,
+  sso: IconMaterialSymbolsShieldLockOutlineRounded,
   mail: IconLucideMail,
   passwordless: IconLucideMail,
   api: IconApi,
@@ -209,7 +229,7 @@ export const iconMap = {
   'mcp-server': IconTablerServerSpark,
   server: IconTablerServerSpark,
   sync: IconStreamlineUserSyncOnlineInPersonRemix,
-  scim: IconStreamlineUserSyncOnlineInPersonRemix,
+  scim: IconPhUsersFourLight,
   community: IconFluentPeopleCommunity16Regular,
   theme: IconStreamlinePlumpPaintPalette,
   'status-health': IconPajamasStatusHealth,
@@ -248,6 +268,25 @@ export const iconMap = {
   github: IconHugeiconsGithub,
   salesforce: IconHugeiconsSalesforce,
   social: IconClarityBlocksGroupLine,
+  jira: IconSimpleIconsJira,
+  hubspot: IconSimpleIconsHubspot,
+  zendesk: IconSimpleIconsZendesk,
+  notion: IconSimpleIconsNotion,
+  linear: IconSimpleIconsLinear,
+  figma: IconSimpleIconsFigma,
+  intercom: IconSimpleIconsIntercom,
+  discord: IconSimpleIconsDiscord,
+  asana: IconSimpleIconsAsana,
+  trello: IconSimpleIconsTrello,
+  gmail: IconSimpleIconsGmail,
+  stripe: IconSimpleIconsStripe,
+
+  // AI agents
+  claude: IconSimpleIconsClaude,
+  openai: IconSimpleIconsOpenai,
+  codex: IconSimpleIconsOpenai,
+  githubcopilot: IconSimpleIconsGithubcopilot,
+  cursor: IconSimpleIconsCursor,
 }
 
 export type IconKey = keyof typeof iconMap
@@ -301,8 +340,11 @@ export {
   IconLucideUsers, // FSA
   IconLucideMail, // Passwordless
   IconClarityBlocksGroupLine, // Social logins
-  IconMingcuteUserSecurityLine, // Enterprise SSO
-  IconAntDesignUserSwitchOutlined, // SCIM provisioning
+  IconSolarLayersOutline, // SaaSKit home
+  IconMingcuteUserSecurityLine, // Enterprise SSO (legacy)
+  IconMaterialSymbolsShieldLockOutlineRounded, // SSO
+  IconAntDesignUserSwitchOutlined, // SCIM provisioning (legacy)
+  IconPhUsersFourLight, // SCIM
   IconSolarServerPathOutline, // API Auth
   IconOpenapi, // OpenAPI specification
 }

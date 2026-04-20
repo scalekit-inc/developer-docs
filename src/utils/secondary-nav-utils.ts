@@ -4,6 +4,22 @@ import { isHashOnly, normalizePath } from './path-matching'
 import type { NavItem } from '../configs/secondary-nav.config'
 import { IconLucideLayoutGrid } from './icon-map'
 
+/**
+ * Determines which product is active based on the current page context.
+ * Frontmatter topic takes precedence over path-based detection.
+ */
+export function getActiveProduct(
+  pathname: string,
+  topic?: string,
+  searchParams?: URLSearchParams,
+): 'agentkit' | 'saaskit' {
+  if (topic === 'connect') return 'agentkit'
+  if (pathname.startsWith('/agentkit/')) return 'agentkit'
+  // Preserve product context on shared pages (e.g. /apis/ linked from AgentKit nav)
+  if (searchParams?.get('product') === 'agentkit') return 'agentkit'
+  return 'saaskit'
+}
+
 // Props interface - entry is passed from Header.astro
 export interface SecondaryNavProps {
   entry?: {
@@ -52,7 +68,13 @@ export function resolveNavMapping(mapping: SecondaryNavMapping, pathname: string
 export function getActiveSecondaryNavId(
   pathname: string,
   entry?: SecondaryNavProps['entry'],
+  searchParams?: URLSearchParams,
 ): string | null {
+  // Map old home routes for backwards compatibility
+  if (pathname === '/home/saaskit/' || pathname === '/home/saaskit') {
+    return 'saaskit-user-management'
+  }
+
   // 1. First check explicit topic from page frontmatter
   if (entry?.data?.topic) {
     const mapping = sidebarToSecondaryNav[entry.data.topic]
@@ -70,12 +92,15 @@ export function getActiveSecondaryNavId(
 
   // 3. Hard-coded fallbacks for pages without a sidebar (e.g. Scalar /apis)
   if (pathname.startsWith('/apis')) {
+    // When arriving from AgentKit context, highlight the AgentKit API reference item
+    if (searchParams?.get('product') === 'agentkit') return 'agentkit-api-reference'
     return 'rest-apis'
   }
 
-  // 4. Default fallback for root path or unmatched pages
-  if (pathname === '/' || pathname === '') {
-    return 'home' // Home page should select the Home nav item
+  // Fallback for AgentKit pages not registered in the sidebar map (e.g. /agentkit/sdks index)
+  // Routes through the 'connect' mapping which has path overrides for all /agentkit/* paths.
+  if (pathname.startsWith('/agentkit/') && sidebarToSecondaryNav['connect']) {
+    return resolveNavMapping(sidebarToSecondaryNav['connect'], pathname)
   }
 
   return null
@@ -84,8 +109,13 @@ export function getActiveSecondaryNavId(
 /**
  * Determines if a nav item should be marked as current based on the pathname
  */
-export function isCurrentPage(pathname: string, item: NavItem): boolean {
-  const activeId = getActiveSecondaryNavId(pathname)
+export function isCurrentPage(
+  pathname: string,
+  item: NavItem,
+  entry?: SecondaryNavProps['entry'],
+  searchParams?: URLSearchParams,
+): boolean {
+  const activeId = getActiveSecondaryNavId(pathname, entry, searchParams)
 
   // For dropdown parent items, check if any child is current
   if (item.children && item.children.length > 0) {
@@ -102,21 +132,18 @@ export function isCurrentPage(pathname: string, item: NavItem): boolean {
   return activeId === item.id
 }
 
-export function getDisplayLabel(pathname: string, item: NavItem): string {
-  // Authenticate dropdown: keep the "Choose product" placeholder unless a child is active.
-  // This prevents the label from implicitly changing to "Full stack auth" when users land
-  // directly on non-auth sections (e.g. SDKs, APIs, Developer Resources).
+export function getDisplayLabel(
+  pathname: string,
+  item: NavItem,
+  entry?: SecondaryNavProps['entry'],
+  searchParams?: URLSearchParams,
+): string {
   if (item.id === 'authenticate') {
     if (item.children && item.children.length > 0) {
-      const activeChild = item.children.find((child) => isCurrentPage(pathname, child))
-
-      // No active child => user hasn't selected a specific product via the current section.
+      const activeChild = item.children.find((child) =>
+        isCurrentPage(pathname, child, entry, searchParams),
+      )
       if (!activeChild) return 'Choose product'
-
-      // For right column items (Full-stack Auth shortcuts), always use parent label.
-      if (activeChild.columnGroup === 'right') return item.label
-
-      // For left column items (Modular Auth), use child label.
       return activeChild.label
     }
 
@@ -124,7 +151,9 @@ export function getDisplayLabel(pathname: string, item: NavItem): string {
   }
 
   if (item.children && item.children.length > 0) {
-    const activeChild = item.children.find((child) => isCurrentPage(pathname, child))
+    const activeChild = item.children.find((child) =>
+      isCurrentPage(pathname, child, entry, searchParams),
+    )
     // For right column items (Full-stack Auth shortcuts), always use parent label
     if (activeChild && activeChild.columnGroup === 'right') {
       return item.label
@@ -135,19 +164,18 @@ export function getDisplayLabel(pathname: string, item: NavItem): string {
   return item.label
 }
 
-export function getDisplayIcon(pathname: string, item: NavItem): any {
-  // Authenticate dropdown: keep the grid icon placeholder unless a child is active.
+export function getDisplayIcon(
+  pathname: string,
+  item: NavItem,
+  entry?: SecondaryNavProps['entry'],
+  searchParams?: URLSearchParams,
+): any {
   if (item.id === 'authenticate') {
     if (item.children && item.children.length > 0) {
-      const activeChild = item.children.find((child) => isCurrentPage(pathname, child))
-
-      // No active child => show placeholder icon.
+      const activeChild = item.children.find((child) =>
+        isCurrentPage(pathname, child, entry, searchParams),
+      )
       if (!activeChild) return IconLucideLayoutGrid
-
-      // For right column items (Full-stack Auth shortcuts), always use parent icon.
-      if (activeChild.columnGroup === 'right') return item.iconComponent
-
-      // For left column items (Modular Auth), use child icon.
       if (activeChild.iconComponent) return activeChild.iconComponent
     }
 
@@ -155,7 +183,9 @@ export function getDisplayIcon(pathname: string, item: NavItem): any {
   }
 
   if (item.children && item.children.length > 0) {
-    const activeChild = item.children.find((child) => isCurrentPage(pathname, child))
+    const activeChild = item.children.find((child) =>
+      isCurrentPage(pathname, child, entry, searchParams),
+    )
     // For right column items (Full-stack Auth shortcuts), always use parent icon
     if (activeChild && activeChild.columnGroup === 'right') {
       return item.iconComponent

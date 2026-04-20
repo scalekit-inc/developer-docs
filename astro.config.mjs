@@ -3,6 +3,8 @@ import { defineConfig, sharpImageService } from 'astro/config'
 import starlight from '@astrojs/starlight'
 import react from '@astrojs/react'
 import path from 'path'
+import fs from 'node:fs/promises'
+import { fileURLToPath } from 'node:url'
 import vue from '@astrojs/vue'
 import starlightSidebarTopics from 'starlight-sidebar-topics'
 import starlightImageZoom from 'starlight-image-zoom'
@@ -11,7 +13,6 @@ import starlightDocSearch from '@astrojs/starlight-docsearch'
 import starlightPageActions from 'starlight-page-actions'
 import starlightThemeNova from 'starlight-theme-nova'
 import starlightVideos from 'starlight-videos'
-import starlightCopyInlineCode from 'starlight-copy-inline-code'
 import starlightLinksValidator from 'starlight-links-validator'
 import starlightLlmsTxt from 'starlight-llms-txt'
 import starlightBlog from 'starlight-blog'
@@ -45,6 +46,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'Scalekit Docs',
+      // DocSearch (`starlightDocSearch`) replaces Starlight's built-in Pagefind integration.
       pagefind: false,
       routeMiddleware: './src/routeData.ts',
       lastUpdated: true,
@@ -57,6 +59,7 @@ export default defineConfig({
         // SocialIcons: './src/components/overrides/SocialIcons.astro',
         // Sidebar: './src/components/overrides/Sidebar.astro',
         Head: './src/components/overrides/Head.astro',
+        Icon: './src/components/overrides/Icon.astro',
         Header: './src/components/overrides/Header.astro',
         Footer: './src/components/overrides/Footer.astro',
         PageSidebar: './src/components/overrides/PageSidebar.astro',
@@ -66,7 +69,7 @@ export default defineConfig({
       },
       logo: {
         dark: '/src/assets/images/scalekit-logo-white.svg',
-        light: '/src/assets/images/logos-v4/sk-docs-light.svg',
+        light: '/src/assets/images/scalekit-logo-black.svg',
         replacesTitle: true,
       },
       defaultLocale: 'en',
@@ -85,6 +88,7 @@ export default defineConfig({
       },
       customCss: [
         '@fontsource-variable/inter',
+        '@fontsource-variable/outfit',
         '@fontsource-variable/atkinson-hyperlegible-next',
         '@fontsource/jetbrains-mono',
         './src/styles/theme-priority.css',
@@ -127,20 +131,6 @@ export default defineConfig({
           },
           // No baseUrl — prevents llms.txt generation (already handled by starlight-llms-txt)
         }),
-        // Provide copy-to-clipboard button for inline code snippets site-wide for better UX
-        starlightCopyInlineCode({
-          // Show copy button only on hover (default: true)
-          showOnHover: false,
-
-          // Tooltip text for copy button (default: 'Copy')
-          copyLabel: 'Copy',
-
-          // Tooltip text after successful copy (default: 'Copied!')
-          copiedLabel: 'Copied!',
-
-          // CSS selector for inline code elements (default: ':not(pre) > code')
-          selector: ':not(pre) > code',
-        }),
         starlightBlog({
           prefix: 'cookbooks',
           rss: false,
@@ -151,15 +141,6 @@ export default defineConfig({
         }),
       ],
       head: [
-        {
-          tag: 'link',
-          attrs: {
-            rel: 'alternate',
-            type: 'text/plain',
-            title: 'LLM-friendly documentation',
-            href: '/llms.txt',
-          },
-        },
         {
           tag: 'meta',
           attrs: {
@@ -327,6 +308,69 @@ export default defineConfig({
     }),
     openapiToMarkdown(),
     injectAgentHeader(),
+    {
+      name: 'copy-canvaskit-wasm',
+      hooks: {
+        'astro:build:done': async ({ logger }) => {
+          const root = new URL('.', import.meta.url)
+          const src = new URL('node_modules/canvaskit-wasm/bin/full/canvaskit.wasm', root)
+          // The Netlify adapter creates canvaskit-wasm as a pnpm symlink in the SSR bundle.
+          // Lambda packaging doesn't follow symlinks, so we replace it with a real directory
+          // containing just the WASM binary that CanvasKit needs at runtime.
+          const ssrPkg = new URL('.netlify/v1/functions/ssr/node_modules/canvaskit-wasm', root)
+          const destDir = new URL('bin/full/', ssrPkg)
+          const dest = new URL('canvaskit.wasm', destDir)
+          const nestedPkg = new URL(
+            '.netlify/v1/functions/ssr/node_modules/astro-og-canvas/node_modules/canvaskit-wasm/',
+            root,
+          )
+          const nestedDestDir = new URL('bin/full/', nestedPkg)
+          const nestedDest = new URL('canvaskit.wasm', nestedDestDir)
+          try {
+            // Remove symlink if present so we can create a real directory
+            try {
+              const stat = await fs.lstat(fileURLToPath(ssrPkg))
+              if (stat.isSymbolicLink()) {
+                await fs.rm(fileURLToPath(ssrPkg))
+                logger.info('Removed canvaskit-wasm symlink from SSR bundle')
+              }
+            } catch {
+              // Not present yet — that's fine
+            }
+            await fs.mkdir(fileURLToPath(destDir), { recursive: true })
+            await fs.copyFile(fileURLToPath(src), fileURLToPath(dest))
+            logger.info('Copied canvaskit.wasm to SSR function bundle')
+            logger.info(`Primary WASM dest: ${fileURLToPath(dest)}`)
+
+            // Some bundles resolve canvaskit-wasm from inside astro-og-canvas/node_modules.
+            // Mirror the binary there if that directory exists.
+            try {
+              const nestedStat = await fs.lstat(fileURLToPath(nestedPkg))
+              if (nestedStat.isSymbolicLink()) {
+                await fs.rm(fileURLToPath(nestedPkg))
+                logger.info('Removed nested canvaskit-wasm symlink from astro-og-canvas bundle')
+              }
+              await fs.mkdir(fileURLToPath(nestedDestDir), { recursive: true })
+              await fs.copyFile(fileURLToPath(src), fileURLToPath(nestedDest))
+              logger.info(
+                `Also copied canvaskit.wasm to nested astro-og-canvas bundle path: ${fileURLToPath(nestedDest)}`,
+              )
+            } catch {
+              logger.info(
+                'Skipped nested astro-og-canvas WASM copy (nested canvaskit-wasm path not present)',
+              )
+            }
+            logger.info(
+              'Run /og-debug after deploy to compare resolvedWasmPath against these paths',
+            )
+          } catch (e) {
+            logger.warn(
+              `Could not copy canvaskit.wasm: ${e instanceof Error ? e.message : String(e)}`,
+            )
+          }
+        },
+      },
+    },
   ],
 
   image: {
@@ -338,11 +382,18 @@ export default defineConfig({
       alias: {
         '@': path.resolve('./src'),
         '@components': path.resolve('./src/components'),
+        '@starlight/rehype-tabs': path.resolve(
+          './node_modules/@astrojs/starlight/user-components/rehype-tabs.ts',
+        ),
+        '@astrojs/starlight/components/Icon.astro': path.resolve(
+          './node_modules/@astrojs/starlight/user-components/Icon.astro',
+        ),
       },
     },
     optimizeDeps: {
       include: ['vue'],
-      exclude: [],
+      // starlight-blog uses Astro/Starlight virtual modules that should not be pre-bundled.
+      exclude: ['starlight-blog'],
     },
     // Provide a safe fallback for libraries that reference the CommonJS
     // global `__dirname` (e.g. canvaskit-wasm used by astro-og-canvas).
@@ -370,5 +421,10 @@ export default defineConfig({
       },
     },
   },
-  adapter: netlify(),
+  adapter: netlify({
+    devFeatures: {
+      // Use Astro's local image service in dev to avoid /.netlify/images resolution issues.
+      images: false,
+    },
+  }),
 })

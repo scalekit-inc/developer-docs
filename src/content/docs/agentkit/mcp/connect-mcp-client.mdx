@@ -1,0 +1,83 @@
+---
+title: Connect an MCP client
+description: Pass a Scalekit-generated MCP URL to any MCP-compatible agent, framework, or desktop client. No additional auth configuration required.
+tags: [agentkit, mcp, model-context-protocol, langchain, claude-desktop, frameworks]
+sidebar:
+  label: Connect an MCP client
+tableOfContents: true
+prev:
+  label: "Generate user MCP URLs"
+  link: "/agentkit/mcp/generate-user-urls"
+next:
+  label: "Add your own connector"
+  link: "/agentkit/bring-your-own-connector/overview"
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+The MCP URL you generated is a standard Streamable HTTP MCP endpoint. Any spec-compliant MCP client can connect to it. No additional auth configuration, no SDK calls, no tool schema definitions are required. The client discovers available tools automatically.
+
+## LangChain / LangGraph
+
+```python
+import asyncio
+from langgraph.prebuilt import create_react_agent
+from langchain_mcp_adapters.client import MultiServerMCPClient
+
+async def run_agent(mcp_url: str):
+    client = MultiServerMCPClient(
+        {
+            "scalekit": {
+                "transport": "streamable_http",
+                "url": mcp_url,
+            },
+        }
+    )
+    tools = await client.get_tools()
+    agent = create_react_agent("openai:gpt-4.1", tools)
+    response = await agent.ainvoke({
+        "messages": "Get my latest email and create a calendar reminder in the next 15 minutes."
+    })
+    print(response)
+
+asyncio.run(run_agent(mcp_url))
+```
+
+Install dependencies:
+
+```sh
+pip install langgraph>=0.6.5 langchain-mcp-adapters>=0.1.9 openai>=1.53.0
+```
+
+## Claude Desktop
+
+Add the MCP URL to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
+
+```json
+{
+  "mcpServers": {
+    "scalekit": {
+      "transport": "streamable-http",
+      "url": "https://your-mcp-url-here"
+    }
+  }
+}
+```
+
+Restart Claude Desktop. The tools appear automatically in the tool menu.
+
+## MCP Inspector
+
+Paste the URL directly into [MCP Inspector](https://github.com/modelcontextprotocol/inspector) to explore available tools and make live test calls before wiring up a full agent.
+
+## Any other MCP client
+
+The URL works with any client that implements the MCP specification using Streamable HTTP transport. Pass the URL, select the transport type, and connect. No credentials to configure.
+
+<Aside type="note" title="ChatGPT beta connector">
+  ChatGPT's MCP connector is still in beta and does not fully implement the MCP specification. It may not work correctly with Scalekit MCP URLs.
+</Aside>
+
+For full end-to-end agent examples with LangChain, Google ADK, and other frameworks, see the [Examples](/agentkit/examples/langchain/) section.
+
+Full working code is on [GitHub](https://github.com/scalekit-inc/python-connect-demos/tree/main/mcp).

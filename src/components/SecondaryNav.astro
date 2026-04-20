@@ -1,55 +1,63 @@
 ---
-import { secondaryNavItems, IconLucideCheck } from '../configs/secondary-nav.config'
+import { secondaryNavConfig, IconLucideCheck } from '../configs/secondary-nav.config'
 import {
-  resolveNavMapping,
+  getActiveProduct,
   getActiveSecondaryNavId,
   isCurrentPage,
   getDisplayLabel,
   getDisplayIcon,
   type SecondaryNavProps,
 } from '../utils/secondary-nav-utils'
+
 import { IconLucideChevronDown as IconChevronDown } from '../utils/icon-map'
 
 const { entry } = Astro.props satisfies SecondaryNavProps
 
-// Use imported configuration and utilities
-const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry)
+const searchParams = Astro.url.searchParams
+const activeProduct = getActiveProduct(Astro.url.pathname, entry?.data?.topic, searchParams)
+const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry, searchParams)
+const navItems = secondaryNavConfig[activeProduct]
 ---
 
 <nav class="secondary-nav sl-hidden md:sl-flex" aria-label="Main topics navigation">
   <div class="nav-section nav-left">
     <div class="nav-items">
       {
-        secondaryNavItems.map((item) => (
+        navItems.map((item) => (
           <div
             class={`nav-item-wrapper ${item.children && item.children.length > 0 ? 'has-dropdown' : ''}`}
             data-keep-parent-label={item.keepParentLabel ? 'true' : undefined}
           >
-            <a
-              href={item.href}
-              class={`nav-item ${isCurrentPage(Astro.url.pathname, item) ? 'current' : ''}`}
-              aria-current="page"
-            >
-              <div class="nav-item-content">
-                {(function () {
-                  const IconComponent =
-                    item.children && item.children.length > 0
-                      ? getDisplayIcon(Astro.url.pathname, item)
-                      : item.iconComponent
-                  return IconComponent && <IconComponent class="nav-icon" />
-                })()}
-                {item.label && (
-                  <span class="nav-label">
-                    {item.children && item.children.length > 0
-                      ? getDisplayLabel(Astro.url.pathname, item)
-                      : item.label}
-                  </span>
-                )}
-                {item.children && item.children.length > 0 && (
-                  <IconChevronDown class="dropdown-icon" />
-                )}
-              </div>
-            </a>
+            {(() => {
+              const isCurrent = isCurrentPage(Astro.url.pathname, item, entry, searchParams)
+              return (
+                <a
+                  href={item.href}
+                  class={`nav-item ${isCurrent ? 'current' : ''} ${item.shared ? 'shared' : ''}`}
+                  aria-current={isCurrent ? 'page' : undefined}
+                >
+                  <div class="nav-item-content">
+                    {(function () {
+                      const IconComponent =
+                        item.children && item.children.length > 0
+                          ? getDisplayIcon(Astro.url.pathname, item, entry, searchParams)
+                          : item.iconComponent
+                      return IconComponent && <IconComponent class="nav-icon" />
+                    })()}
+                    {item.label && (
+                      <span class="nav-label">
+                        {item.children && item.children.length > 0
+                          ? getDisplayLabel(Astro.url.pathname, item, entry, searchParams)
+                          : item.label}
+                      </span>
+                    )}
+                    {item.children && item.children.length > 0 && (
+                      <IconChevronDown class="dropdown-icon" />
+                    )}
+                  </div>
+                </a>
+              )
+            })()}
           </div>
         ))
       }
@@ -71,7 +79,7 @@ const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry)
   style="position: fixed; top: 0; left: 0; pointer-events: none; z-index: 999999;"
 >
   {
-    secondaryNavItems
+    navItems
       .filter((item) => item.children && item.children.length > 0)
       .map((item) => {
         // Check if this dropdown has column groups
@@ -102,11 +110,21 @@ const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry)
                                   {child.sectionDescription}
                                 </div>
                               )}
+                              {child.sectionHref && child.sectionCtaLabel && (
+                                <a href={child.sectionHref} class="dropdown-section-cta">
+                                  {child.sectionCtaLabel}
+                                </a>
+                              )}
                             </>
                           )}
                           <a
                             href={child.href}
-                            class={`dropdown-item ${child.description ? 'with-description' : ''} ${isCurrentPage(Astro.url.pathname, child) ? 'current' : ''}`}
+                            class={`dropdown-item ${child.description ? 'with-description' : ''} ${isCurrentPage(Astro.url.pathname, child, entry, searchParams) ? 'current' : ''}`}
+                            aria-current={
+                              isCurrentPage(Astro.url.pathname, child, entry, searchParams)
+                                ? 'page'
+                                : undefined
+                            }
                             data-nav-label={child.label}
                             data-dropdown-label={child.dropdownLabel || child.label}
                           >
@@ -146,11 +164,21 @@ const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry)
                                   {child.sectionDescription}
                                 </div>
                               )}
+                              {child.sectionHref && child.sectionCtaLabel && (
+                                <a href={child.sectionHref} class="dropdown-section-cta">
+                                  {child.sectionCtaLabel}
+                                </a>
+                              )}
                             </>
                           )}
                           <a
                             href={child.href}
-                            class={`dropdown-item dropdown-item-shortcut ${child.description ? 'with-description' : ''} ${isCurrentPage(Astro.url.pathname, child) ? 'current' : ''}`}
+                            class={`dropdown-item dropdown-item-shortcut ${child.description ? 'with-description' : ''} ${isCurrentPage(Astro.url.pathname, child, entry, searchParams) ? 'current' : ''}`}
+                            aria-current={
+                              isCurrentPage(Astro.url.pathname, child, entry, searchParams)
+                                ? 'page'
+                                : undefined
+                            }
                             data-nav-label={child.label}
                             data-dropdown-label={child.dropdownLabel || child.label}
                           >
@@ -185,7 +213,12 @@ const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry)
                       )}
                       <a
                         href={child.href}
-                        class={`dropdown-item ${child.description ? 'with-description' : ''} ${isCurrentPage(Astro.url.pathname, child) ? 'current' : ''}`}
+                        class={`dropdown-item ${child.description ? 'with-description' : ''} ${isCurrentPage(Astro.url.pathname, child, entry, searchParams) ? 'current' : ''}`}
+                        aria-current={
+                          isCurrentPage(Astro.url.pathname, child, entry, searchParams)
+                            ? 'page'
+                            : undefined
+                        }
                       >
                         <div class="dropdown-item-icon-wrapper">
                           {(function () {
@@ -235,6 +268,7 @@ const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry)
     isolation: isolate;
     background-color: var(--sl-color-bg);
     z-index: calc(var(--sl-z-index-navbar) - 1);
+    border-bottom: 1px solid var(--sl-color-hairline-shade);
   }
 
   .nav-section {
@@ -304,6 +338,18 @@ const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry)
     border-radius: 0.375rem;
     border-bottom: none;
     margin: 0.25rem 0;
+  }
+
+  /* Shared items are temporary — will be split into product-specific entries */
+  .nav-item.shared {
+    color: var(--sl-color-gray-3);
+    border-radius: 0.375rem;
+    margin: 0.25rem 0;
+    padding: 0.3rem 0.9rem;
+  }
+
+  .nav-item.shared:hover {
+    color: var(--sl-color-gray-1);
   }
 
   .nav-item-content {
@@ -404,6 +450,19 @@ const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry)
     color: var(--sl-color-gray-3);
     padding: 0 0.25rem 0.75rem 0.25rem;
     line-height: 1.25rem;
+  }
+
+  .dropdown-section-cta {
+    display: inline-block;
+    margin: -0.2rem 0.25rem 0.75rem 0.25rem;
+    color: var(--sl-color-accent-high);
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .dropdown-section-cta:hover {
+    text-decoration: underline;
   }
 
   .dropdown-item {

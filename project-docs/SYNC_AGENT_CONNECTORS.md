@@ -2,7 +2,7 @@
 
 ## What it does
 
-`scripts/sync-agent-connectors.js` fetches all providers and tools from the Scalekit production API and regenerates every MDX file under `src/content/docs/reference/agent-connectors/`. It also keeps `src/components/templates/agent-connectors/index.ts` in sync with whatever setup templates exist on disk.
+`scripts/sync-agent-connectors.js` fetches all providers and tools from the Scalekit production API and regenerates every MDX file under `src/content/docs/agentkit/connectors/`. It also keeps `src/components/templates/agent-connectors/index.ts` in sync with whatever setup templates exist on disk.
 
 Run it whenever connector data changes on the API side (new providers, updated tool schemas, etc.).
 
@@ -22,7 +22,7 @@ Set these in `.env` at the project root (see `.env.template`):
 
 ## What gets generated
 
-- **`src/content/docs/reference/agent-connectors/<provider>.mdx`** — one file per provider, containing frontmatter, auth badges, setup section (if a template exists), and a full tool reference table.
+- **`src/content/docs/agentkit/connectors/<provider>.mdx`** — one file per provider, containing frontmatter, auth badges, setup section (if a template exists), and a full tool reference table.
 - **`src/components/templates/agent-connectors/index.ts`** — re-exports every `SetupXSection` component from the templates in that directory. Regenerated on every run from the actual files on disk.
 
 Orphaned `.mdx` docs (providers no longer returned by the API) are automatically deleted.

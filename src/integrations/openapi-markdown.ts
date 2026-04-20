@@ -1,8 +1,8 @@
 import type { AstroIntegration } from 'astro'
-import { createMarkdownFromOpenApi } from '@scalar/openapi-to-markdown'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { createMarkdownFromOpenApi } from '@scalar/openapi-to-markdown'
 
 export default function openapiToMarkdown(): AstroIntegration {
   return {

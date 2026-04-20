@@ -1,0 +1,29 @@
+---
+import DefaultIcon from '@astrojs/starlight/components/Icon.astro'
+import { iconMap } from '@/utils/icon-map'
+
+interface Props {
+  name: string
+  label?: string
+  color?: string
+  size?: string
+  class?: string
+}
+
+const { name, label, size, color } = Astro.props
+const isCustom = name in iconMap
+const CustomIcon = isCustom ? iconMap[name as keyof typeof iconMap] : null
+const a11yAttrs = label ? ({ 'aria-label': label } as const) : ({ 'aria-hidden': 'true' } as const)
+---
+
+{
+  isCustom && CustomIcon ? (
+    <CustomIcon
+      {...a11yAttrs}
+      class={Astro.props.class}
+      style={`color: ${color || 'var(--sl-icon-color)'}; font-size: ${size || 'var(--sl-icon-size, 1em)'}; width: 1em; height: 1em;`}
+    />
+  ) : (
+    <DefaultIcon {...Astro.props} />
+  )
+}

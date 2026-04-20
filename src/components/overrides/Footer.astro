@@ -4,13 +4,17 @@ import IconLucideThumbsUp from '~icons/lucide/thumbs-up'
 import IconLucideThumbsDown from '~icons/lucide/thumbs-down'
 import IconLucideMessageCircleQuestionMark from '~icons/lucide/message-circle-question-mark'
 import IconPajamasStatusHealth from '~icons/pajamas/status-health'
-import IconLucideShield from '~icons/lucide/shield'
-import IconLucideBookOpenText from '~icons/lucide/book-open-text'
 import IconCodiconWorkspaceTrusted from '~icons/codicon/workspace-trusted'
 import IconPhSparkle from '~icons/ph/sparkle'
+import trustSoc2TypeIiBadge from '@/assets/footer/trust-soc2-type-ii-badge.png'
+import trustIso27001Badge from '@/assets/footer/trust-iso-27001-badge.png'
+import trustGdprBadge from '@/assets/footer/trust-gdpr-badge.png'
+import trustCcpaBadge from '@/assets/footer/trust-ccpa-badge.png'
 
-// Don't apply fold-full-width on homepage to avoid conflict with sidebar
-const isHomePage = Astro.url.pathname === '/' || Astro.url.pathname === '/en/'
+/** Docs splash (`src/content/docs/index.mdx`, template splash) — root path only */
+const pathname = Astro.url.pathname.replace(/\/$/, '') || '/'
+const isDocsSplashHome = pathname === '/' || pathname === '/en'
+
 const footerClass = 'footer'
 ---
 
@@ -20,49 +24,105 @@ const footerClass = 'footer'
 
 <footer class={footerClass}>
   <div class="home-container">
-    <div class="footer__content">
-      <div data-feedback-section class="feedback-section">
-        <span class="feedback-question">Were you able to complete your task?</span>
-        <div class="feedback-actions" role="group" aria-label="Task completion feedback">
-          <button type="button" data-feedback-value="yes" class="feedback-button">
-            <IconLucideThumbsUp class="feedback-button__icon" aria-hidden="true" />
-            Yes
-          </button>
-          <button type="button" data-feedback-value="no" class="feedback-button">
-            <IconLucideThumbsDown class="feedback-button__icon" aria-hidden="true" />
-            No
-          </button>
+    <div class={`footer__wrapper ${isDocsSplashHome ? 'footer__wrapper--with-compliance' : ''}`}>
+      {
+        isDocsSplashHome && (
+          <div class="compliance-section">
+            <div class="compliance-section__badges footer-trust-badges">
+              <div class="compliance-badge compliance-badge--asset">
+                <img
+                  src={trustSoc2TypeIiBadge.src}
+                  alt="SOC 2 Type II"
+                  width={trustSoc2TypeIiBadge.width}
+                  height={trustSoc2TypeIiBadge.height}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <div class="compliance-badge compliance-badge--asset">
+                <img
+                  src={trustIso27001Badge.src}
+                  alt="ISO 27001"
+                  width={trustIso27001Badge.width}
+                  height={trustIso27001Badge.height}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <div class="compliance-badge compliance-badge--asset">
+                <img
+                  src={trustGdprBadge.src}
+                  alt="GDPR"
+                  width={trustGdprBadge.width}
+                  height={trustGdprBadge.height}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <div class="compliance-badge compliance-badge--asset">
+                <img
+                  src={trustCcpaBadge.src}
+                  alt="CCPA"
+                  width={trustCcpaBadge.width}
+                  height={trustCcpaBadge.height}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+            </div>
+          </div>
+        )
+      }
+      <div class="footer__content">
+        <div data-feedback-section class="feedback-section">
+          <span class="feedback-question">Were you able to complete your task?</span>
+          <div class="feedback-actions" role="group" aria-label="Task completion feedback">
+            <button type="button" data-feedback-value="yes" class="feedback-button">
+              <IconLucideThumbsUp class="feedback-button__icon" aria-hidden="true" />
+              Yes
+            </button>
+            <button type="button" data-feedback-value="no" class="feedback-button">
+              <IconLucideThumbsDown class="feedback-button__icon" aria-hidden="true" />
+              No
+            </button>
+          </div>
+          <p
+            data-feedback-response
+            class="feedback-message"
+            role="status"
+            aria-live="polite"
+            hidden
+          >
+          </p>
         </div>
-        <p data-feedback-response class="feedback-message" role="status" aria-live="polite" hidden>
-        </p>
-      </div>
 
-      <div class="footer-links">
-        <div class="footer-link">
-          <IconLucideMessageCircleQuestionMark class="footer-link__icon" aria-hidden="true" />
-          <span><a href="mailto:support@scalekit.com">Contact support</a></span>
-        </div>
-        <div class="footer-link">
-          <IconCodiconWorkspaceTrusted class="footer-link__icon" aria-hidden="true" />
-          <span
-            ><a
-              href="https://www.scalekit.com/trust-center"
-              target="_blank"
-              rel="noopener noreferrer">Trust center</a
-            ></span
-          >
-        </div>
-        <div class="footer-link">
-          <IconPajamasStatusHealth class="footer-link__icon" aria-hidden="true" />
-          <span
-            ><a href="https://scalekit.statuspage.io/" target="_blank" rel="noopener noreferrer"
-              >Status page</a
-            ></span
-          >
-        </div>
-        <div class="footer-link">
-          <IconPhSparkle class="footer-link__icon" aria-hidden="true" />
-          <span>LLM usage: <a href="https://docs.scalekit.com/llms.txt">llms.txt</a></span>
+        <div class="footer-links">
+          <div class="footer-link">
+            <IconLucideMessageCircleQuestionMark class="footer-link__icon" aria-hidden="true" />
+            <span><a href="mailto:support@scalekit.com">Contact support</a></span>
+          </div>
+          <div class="footer-link">
+            <IconCodiconWorkspaceTrusted class="footer-link__icon" aria-hidden="true" />
+            <span
+              ><a
+                href="https://www.scalekit.com/trust-center"
+                target="_blank"
+                rel="noopener noreferrer">Trust center</a
+              ></span
+            >
+          </div>
+          <div class="footer-link">
+            <IconPajamasStatusHealth class="footer-link__icon" aria-hidden="true" />
+            <span
+              ><a href="https://scalekit.statuspage.io/" target="_blank" rel="noopener noreferrer"
+                >Status page</a
+              ></span
+            >
+          </div>
+          <div class="footer-link">
+            <IconPhSparkle class="footer-link__icon" aria-hidden="true" />
+            <span>LLM usage: <a href="https://docs.scalekit.com/llms.txt">llms.txt</a></span>
+          </div>
         </div>
       </div>
     </div>
@@ -85,10 +145,45 @@ const footerClass = 'footer'
   /* Base footer styles - apply to both homepage and doc pages */
   :global(.footer) {
     margin: 1rem 0;
-    padding-top: 1rem;
     text-align: left;
     font-size: 0.875rem;
     color: var(--sl-color-gray-3);
+  }
+
+  :global(.footer .home-container) {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 4rem;
+  }
+
+  :global(.footer .footer__wrapper) {
+    width: 100%;
+  }
+
+  :global(.footer .footer__wrapper--with-compliance) {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    align-items: center;
+    /* Keep gutter between logos and the block that sits toward the right edge */
+    column-gap: clamp(2rem, 5vw, 3.5rem);
+    row-gap: 0;
+  }
+
+  /* Push links to far right, badges stay far left */
+  :global(.footer .footer__wrapper--with-compliance .footer__content) {
+    width: fit-content;
+    max-width: 100%;
+    margin-inline-start: auto;
+    margin-inline-end: 0;
+    padding-left: 0;
+    min-width: 0;
+  }
+
+  :global(.footer .footer__content) {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
   }
 
   :global(.footer .feedback-section) {
@@ -159,12 +254,19 @@ const footerClass = 'footer'
     text-decoration-thickness: 2px;
   }
 
-  /* Footer links section */
+  /* Footer links: content-sized columns — 1fr 1fr left half the row empty between short labels */
   :global(.footer .footer-links) {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-top: 1rem;
+    grid-template-columns: repeat(2, max-content);
+    justify-content: start;
+    justify-items: start;
+    column-gap: 1.5rem;
+    row-gap: 0.75rem;
+  }
+
+  /* Home page only: single row of 4 items */
+  :global(.footer .footer__wrapper--with-compliance .footer-links) {
+    grid-template-columns: repeat(4, max-content);
   }
 
   :global(.footer .footer-link) {
@@ -193,7 +295,69 @@ const footerClass = 'footer'
     border-bottom-color: var(--sl-color-gray-1);
   }
 
+  /* Compliance badges section — gateway homepage only */
+  :global(.footer .compliance-section) {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  :global(.footer .compliance-section__badges) {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    /* Clear separation between logos without crowding (not edge-to-edge) */
+    gap: 0.75rem;
+  }
+
+  :global(.footer .footer-trust-badges) {
+    gap: 0.75rem;
+    column-gap: 1.75rem;
+  }
+
+  :global(.footer .compliance-badge) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    flex-shrink: 0;
+  }
+
+  :global(.footer .compliance-badge--asset) {
+    gap: 0;
+    line-height: 0;
+  }
+
+  :global(.footer .footer-trust-badges img) {
+    height: 52px;
+    width: auto;
+    max-width: 100%;
+    display: block;
+    border-radius: 0.55rem;
+  }
+
+  :global(.footer .compliance-badge img) {
+    border-radius: 0.7rem;
+    display: block;
+  }
+
+  :global(.footer .compliance-badge__label) {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--sl-color-text-muted);
+    background: var(--sl-color-bg-sidebar);
+    border: 1px solid var(--sl-color-hairline);
+    padding: 0.1rem 0.4rem;
+    border-radius: 0.25rem;
+    white-space: nowrap;
+  }
+
   @media (max-width: 36rem) {
+    :global(.footer .home-container) {
+      padding: 0 1rem;
+    }
+
     :global(.footer .feedback-section) {
       flex-direction: column;
       align-items: flex-start;
@@ -211,6 +375,39 @@ const footerClass = 'footer'
     :global(.footer .footer-links) {
       grid-template-columns: 1fr;
       gap: 0.75rem;
+    }
+
+    :global(.footer .footer__wrapper--with-compliance .footer-links) {
+      grid-template-columns: repeat(2, max-content);
+    }
+
+    :global(.footer .footer__wrapper--with-compliance) {
+      grid-template-columns: 1fr;
+      column-gap: 0;
+      row-gap: 1.5rem;
+    }
+
+    :global(.footer .footer__wrapper--with-compliance .footer__content) {
+      width: 100%;
+      margin-inline-start: 0;
+      padding-left: 0;
+    }
+
+    :global(.footer .compliance-section) {
+      align-items: center;
+      width: 100%;
+    }
+
+    :global(.footer .compliance-section__badges) {
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      row-gap: 0.65rem;
+    }
+
+    :global(.footer .footer-trust-badges) {
+      gap: 0.65rem;
+      row-gap: 0.65rem;
     }
   }
 </style>

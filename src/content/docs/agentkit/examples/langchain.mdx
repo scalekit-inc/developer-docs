@@ -1,0 +1,127 @@
+---
+title: LangChain
+description: Build a LangChain agent with Scalekit-authenticated Gmail tools. Scalekit returns native LangChain tool objects; no schema reshaping needed.
+slug: agentkit/examples/langchain
+sidebar:
+  label: LangChain
+tags: [agentkit, examples, langchain, gmail, tool-calling]
+tableOfContents: true
+prev:
+  label: "Connect an MCP client"
+  link: "/agentkit/mcp/connect-mcp-client"
+next:
+  label: "Google ADK"
+  link: "/agentkit/examples/google-adk"
+---
+
+import { Aside } from '@astrojs/starlight/components';
+import { LinkButton } from '@astrojs/starlight/components';
+
+Build a LangChain agent that reads a user's Gmail inbox. Scalekit handles OAuth, token storage, and returns tools in native LangChain format. Your agent code needs no Scalekit-specific logic beyond initialization.
+
+<LinkButton href="https://github.com/scalekit-inc/sample-langchain-agent" variant="secondary" class="sk-secondary" target="_blank" rel="noopener" icon="github">Full code on GitHub</LinkButton>
+
+## Install
+
+```sh
+pip install scalekit-sdk-python langchain-openai
+```
+
+## Initialize
+
+```python
+import os
+import scalekit.client
+
+scalekit_client = scalekit.client.ScalekitClient(
+    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+    env_url=os.getenv("SCALEKIT_ENV_URL"),
+)
+actions = scalekit_client.actions
+```
+
+## Connect the user to Gmail
+
+```python
+response = actions.get_or_create_connected_account(
+    connection_name="gmail",
+    identifier="user_123",
+)
+if response.connected_account.status != "ACTIVE":
+    link = actions.get_authorization_link(connection_name="gmail", identifier="user_123")
+    print("Authorize Gmail:", link.link)
+    input("Press Enter after authorizing...")
+```
+
+See [Authorize a user](/agentkit/tools/authorize/) for production auth handling.
+
+## Build and run the agent
+
+`actions.langchain.get_tools()` returns native `StructuredTool` objects. Bind them to your LLM and run the tool-calling loop:
+
+```python
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage, ToolMessage
+
+tools = actions.langchain.get_tools(
+    identifier="user_123",
+    connection_names=["gmail"],
+)
+tool_map = {t.name: t for t in tools}
+
+llm = ChatOpenAI(model="gpt-4o").bind_tools(tools)
+messages = [HumanMessage("Fetch my last 5 unread emails and summarize them")]
+
+while True:
+    response = llm.invoke(messages)
+    messages.append(response)
+    if not response.tool_calls:
+        print(response.content)
+        break
+    for tc in response.tool_calls:
+        result = tool_map[tc["name"]].invoke(tc["args"])
+        messages.append(ToolMessage(content=str(result), tool_call_id=tc["id"]))
+```
+
+<Aside type="note" title="Multiple Gmail accounts">
+  If a user has multiple Gmail connections, pass the specific `connection_names` value from your Scalekit dashboard to scope tools to the right one.
+</Aside>
+
+## Use MCP instead
+
+LangChain supports MCP via `langchain-mcp-adapters`. Install it, then connect to a Scalekit-generated MCP URL:
+
+```sh
+pip install langchain-mcp-adapters
+```
+
+```python
+import asyncio
+from langchain_mcp_adapters.client import MultiServerMCPClient
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage, ToolMessage
+
+async def run(mcp_url: str):
+    async with MultiServerMCPClient(
+        {"scalekit": {"transport": "streamable_http", "url": mcp_url}}
+    ) as client:
+        tools = client.get_tools()
+        tool_map = {t.name: t for t in tools}
+        llm = ChatOpenAI(model="gpt-4o").bind_tools(tools)
+        messages = [HumanMessage("Fetch my last 5 unread emails and summarize them")]
+
+        while True:
+            response = await llm.ainvoke(messages)
+            messages.append(response)
+            if not response.tool_calls:
+                print(response.content)
+                break
+            for tc in response.tool_calls:
+                result = await tool_map[tc["name"]].ainvoke(tc["args"])
+                messages.append(ToolMessage(content=str(result), tool_call_id=tc["id"]))
+
+asyncio.run(run(mcp_url))
+```
+
+See [Generate user MCP URLs](/agentkit/mcp/generate-user-urls/) to get `mcp_url`.
