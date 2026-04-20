@@ -11,6 +11,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   calendar: 'Calendar',
   communication: 'Communication',
   crm: 'CRM',
+  ci_cd: 'CI/CD',
   customer_support: 'Customer Support',
   data: 'Data',
   developer_tools: 'Developer Tools',

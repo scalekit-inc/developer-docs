@@ -40,7 +40,7 @@ export const catalog: Record<string, ProviderMeta> = {
   parallelaitaskmcp: {
     iconUrl: 'https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/parallel-ai.svg',
     authType: 'Bearer Token',
-    categories: ['productivity', 'ai', 'developer-tools', 'data'],
+    categories: ['productivity', 'ai', 'developer_tools', 'data'],
   },
   calendly: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/calendly.svg',
