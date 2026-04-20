@@ -35,7 +35,7 @@ export const catalog: Record<string, ProviderMeta> = {
   dynamo: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/dynamo.svg',
     authType: 'Bearer Token',
-    categories: ['finance', 'crm', 'data'],
+    categories: ['finance', 'crm', 'data', 'sales'],
   },
   databricksworkspace: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/databricks-1.svg',
