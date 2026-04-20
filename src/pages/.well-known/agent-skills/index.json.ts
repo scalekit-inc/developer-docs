@@ -1,4 +1,4 @@
-import type { Config } from '@netlify/edge-functions'
+import type { APIRoute } from 'astro'
 
 const REPO = 'scalekit-inc/skills'
 const BRANCH = 'main'
@@ -17,7 +17,6 @@ async function sha256Hex(content: string): Promise<string> {
 
 function extractDescription(skillMd: string): string {
   const lines = skillMd.split('\n')
-  // First non-empty, non-heading line after the H1
   let pastH1 = false
   for (const line of lines) {
     const trimmed = line.trim()
@@ -27,13 +26,12 @@ function extractDescription(skillMd: string): string {
     }
     if (trimmed && !trimmed.startsWith('#')) return trimmed.slice(0, 160)
   }
-  // Fallback: use the H1 title
   const h1 = lines.find((l) => l.trim().startsWith('# '))
   return h1 ? h1.replace(/^#\s+/, '').trim() : ''
 }
 
-export default async function handler() {
-  const token = Deno.env.get('GITHUB_TOKEN')
+export const GET: APIRoute = async () => {
+  const token = import.meta.env.GITHUB_TOKEN
   const authHeaders: Record<string, string> = {
     'User-Agent': 'docs.scalekit.com/agent-skills-index',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -77,6 +75,4 @@ export default async function handler() {
   })
 }
 
-export const config: Config = {
-  path: '/.well-known/agent-skills/index.json',
-}
+export const prerender = false
