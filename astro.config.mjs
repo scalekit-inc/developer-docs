@@ -423,7 +423,6 @@ export default defineConfig({
   },
   adapter: netlify({
     devFeatures: {
-      // Use Astro's local image service in dev to avoid /.netlify/images resolution issues.
       images: false,
     },
   }),
