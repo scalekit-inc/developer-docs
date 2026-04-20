@@ -12,6 +12,7 @@ tableOfContents: true
 ---
 
 import { Aside } from '@astrojs/starlight/components'
+import { DISTR_URL } from '../../../configs/self-hosted'
 
 Scalekit's self-hosted deployment lets you run the full Scalekit platform on your own Kubernetes cluster. All authentication data stays within your infrastructure — nothing leaves your network.
 
@@ -24,9 +25,7 @@ Use self-hosted deployment when your organization requires:
 
 ## How it works
 
-Scalekit is distributed as a **Helm chart** and deployed on Kubernetes. Scalekit uses [distr.sh](https://distr.sh) to distribute the chart and container images to your cluster.
-
-A pre-install Helm hook runs database migrations automatically before each install or upgrade — you do not run migrations manually.
+Scalekit is deployed on Kubernetes via a Helm chart managed through the <a href={DISTR_URL}>Scalekit distribution portal</a>. You configure the deployment with a `values.yaml` file, apply Kubernetes secrets to your cluster, and connect the cluster to the portal — which handles chart delivery, migrations, and upgrades.
 
 ## What Scalekit runs
 
@@ -56,11 +55,11 @@ Scalekit does not bundle a database or cache in production. You provision and ma
 </Aside>
 
 <Aside type="note" title="Access required">
-  Self-hosted deployment requires a Scalekit enterprise license. You receive your Helm chart access and container registry token through [distr.sh](https://distr.sh) as part of onboarding.
+  Self-hosted deployment requires a Scalekit enterprise license. You receive your Helm chart access and container registry token through the <a href={DISTR_URL}>Scalekit distribution portal</a> as part of onboarding.
 </Aside>
 
 ## Next steps
 
 1. [System requirements](/self-hosted/system-requirements/) — verify your infrastructure before starting
-2. [Install Scalekit](/self-hosted/installation/) — deploy the Helm chart on your cluster
-3. [Configure Scalekit](/self-hosted/configuration/) — set your domain, database, and email settings
+2. [Configure Scalekit](/self-hosted/configuration/) — understand the values.yaml structure
+3. [Install Scalekit](/self-hosted/installation/) — deploy through the Scalekit distribution portal

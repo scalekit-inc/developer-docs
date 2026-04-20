@@ -15,14 +15,13 @@ next:
 ---
 
 import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+import { REGISTRY_HOST } from '../../../configs/self-hosted'
 
-Scalekit is configured through a `values.yaml` file passed to Helm at install and upgrade time. This page shows two complete examples followed by a field-by-field reference.
-
-The full schema is in `scalekit/values.schema.json` inside the chart package.
+Scalekit is configured through a `values.yaml` file. The [setup script](/self-hosted/setup-script/) generates this file for you — use the examples and field reference below to understand the structure or to make changes after initial setup.
 
 ## Complete examples
 
-Pick the example that matches your setup. Replace placeholder values before running `helm install`.
+These examples show the full structure of a generated `values.yaml`. The setup script produces this file automatically — refer here when reviewing or modifying values after initial setup.
 
 <Tabs syncKey="config-mode">
 <TabItem label="Evaluation (subcharts)">
@@ -306,7 +305,7 @@ All sensitive values are stored in Kubernetes secrets, not in `values.yaml`. The
 | `authentication-secret` | DB password, Redis password, OIDC keys, cookie keys, email keys, Svix API key |
 | `svix-secrets` | `db-dsn`, `jwt-secret`, `main-secret`, `redis-dsn`, `api-token` |
 | `openfga-secrets` | `keys`, `password`, `uri`, `username` |
-| `artifact-registry-secret` | Docker registry credentials for `ar.scalekit.cloud` |
+| `artifact-registry-secret` | Docker registry credentials for <code>{REGISTRY_HOST}</code> |
 
 <Aside type="caution" title="Never put secrets in values.yaml">
   All credentials are injected into pods via Kubernetes secrets. Do not add passwords or keys to `values.yaml`.

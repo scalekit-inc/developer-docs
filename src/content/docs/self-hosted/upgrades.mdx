@@ -3,7 +3,7 @@ title: Upgrades & maintenance
 description: How to upgrade your self-hosted Scalekit deployment and perform routine maintenance tasks.
 sidebar:
   label: Upgrades & maintenance
-  order: 5
+  order: 7
 tags: [self-hosted, upgrades, maintenance, helm, kubernetes]
 tableOfContents: true
 prev:
@@ -15,15 +15,14 @@ next:
 ---
 
 import { Steps, Aside } from '@astrojs/starlight/components'
+import { DISTR_URL } from '../../../configs/self-hosted'
 
 ## Upgrade Scalekit
 
-New Scalekit versions are distributed through [distr.sh](https://distr.sh). When an upgrade is available, download the new chart version from your distr.sh account.
+New versions are available through the <a href={DISTR_URL}>Scalekit distribution portal</a>. Upgrades are performed through the portal — it handles chart delivery and runs database migrations automatically before the new pods start.
 
-The chart includes a pre-upgrade Helm hook that runs database migrations before the new pods start. You do not need to run migrations manually.
-
-<Aside type="caution" title="Back up your database before upgrading">
-  Always take a PostgreSQL backup before running `helm upgrade`. See [Back up your databases](#back-up-your-databases) below.
+<Aside type="caution" title="Back up your databases before upgrading">
+  Always take a PostgreSQL backup before upgrading. See [Back up your databases](#back-up-your-databases) below.
 </Aside>
 
 <Steps>
@@ -31,54 +30,59 @@ The chart includes a pre-upgrade Helm hook that runs database migrations before 
 
    ```bash
    # Scalekit core database
-   pg_dump -h <db-host> -U scalekit -d scalekit \
+   pg_dump -h <db-host> -U <db-user> -d scalekit \
      -F c -f scalekit-backup-$(date +%Y%m%d).dump
 
    # Svix database
-   pg_dump -h <db-host> -U scalekit -d svix \
+   pg_dump -h <db-host> -U <db-user> -d svix \
      -F c -f svix-backup-$(date +%Y%m%d).dump
    ```
 
-2. ## Download the new chart version
+2. ## Select the new version in the portal
 
-   Log in to [distr.sh](https://distr.sh) and download the updated chart archive.
+   Log in to the <a href={DISTR_URL}>Scalekit distribution portal</a>. In the left sidebar, click **Deployments** and select your deployment.
 
-3. ## Run the upgrade
+   - Click **Edit deployment**
+   - Under **Version**, select the new version
+   - Click **Update deployment**
+
+   The portal provides a `kubectl apply` command. Copy it.
+
+3. ## Apply the update to your cluster
+
+   Run the command from the portal on your cluster:
 
    ```bash
-   helm upgrade scalekit ./scalekit \
-     --namespace scalekit \
-     --values values.yaml \
-     --wait
+   kubectl apply -n <namespace> -f "<portal-provided-url>"
    ```
 
-   The pre-upgrade hook runs migrations, then the new pods roll out. `--wait` blocks until the rollout is complete.
+   Migrations run automatically before the new pods start.
 
 4. ## Verify the upgrade
 
    ```bash
-   kubectl get pods -n scalekit
-   kubectl rollout status deployment/scalekit -n scalekit
+   kubectl get pods -n <namespace>
+   kubectl rollout status deployment/scalekit -n <namespace>
    ```
 
 </Steps>
 
 ## Roll back an upgrade
 
-If an upgrade causes issues, roll back to the previous Helm release revision:
+If an upgrade causes issues, roll back using Helm:
 
 ```bash
 # List revisions
-helm history scalekit -n scalekit
+helm history scalekit -n <namespace>
 
 # Roll back to the previous revision
-helm rollback scalekit -n scalekit
+helm rollback scalekit -n <namespace>
 ```
 
-If the upgrade ran schema migrations, you also need to restore your database backup:
+If the upgrade ran schema migrations, restore your database backup as well:
 
 ```bash
-pg_restore -h <db-host> -U scalekit -d scalekit \
+pg_restore -h <db-host> -U <db-user> -d scalekit \
   -F c scalekit-backup-<date>.dump
 ```
 
@@ -93,23 +97,23 @@ pg_restore -h <db-host> -U scalekit -d scalekit \
 ```bash
 # Full backup of all three databases
 for db in scalekit svix openfga; do
-  pg_dump -h <db-host> -U scalekit -d $db \
+  pg_dump -h <db-host> -U <db-user> -d $db \
     -F c -f ${db}-$(date +%Y%m%d-%H%M).dump
 done
 ```
 
 ## Renew TLS certificates
 
-When your TLS certificate is due for renewal, update the Kubernetes secret and Scalekit will pick up the new certificate on the next pod restart:
+When your TLS certificate is due for renewal, update the Kubernetes secret and restart Scalekit to pick it up:
 
 ```bash
 kubectl create secret tls your-tls-secret \
   --cert=new-cert.pem \
   --key=new-key.pem \
-  -n scalekit \
+  -n <namespace> \
   --dry-run=client -o yaml | kubectl apply -f -
 
-kubectl rollout restart deployment/scalekit -n scalekit
+kubectl rollout restart deployment/scalekit -n <namespace>
 ```
 
 ## Routine maintenance tasks
@@ -117,7 +121,8 @@ kubectl rollout restart deployment/scalekit -n scalekit
 | Task | Frequency | Action |
 |------|-----------|--------|
 | Review auth logs | Daily | Admin dashboard → **Audit logs** |
-| Check pod health | Daily | `kubectl get pods -n scalekit` |
+| Check pod health | Daily | `kubectl get pods -n <namespace>` |
 | Rotate Redis cache | As needed | Automatic — expired keys are evicted by Redis TTL |
 | Vacuum PostgreSQL | Weekly | Run `VACUUM ANALYZE` on each Scalekit database |
-| Rotate secrets | Per policy | Re-run `setup-secrets.sh` with new values and restart pods |
+| Rotate registry token | Before expiry | Create a new token in the portal, update `artifact-registry-secret`, restart pods |
+| Rotate individual secrets | Per policy | Edit the specific Kubernetes secret directly and restart pods |

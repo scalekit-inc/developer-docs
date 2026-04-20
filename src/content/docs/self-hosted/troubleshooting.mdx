@@ -11,6 +11,11 @@ prev:
   link: /self-hosted/upgrades/
 ---
 
+import { Code } from '@astrojs/starlight/components'
+import { REGISTRY_HOST } from '../../../configs/self-hosted'
+
+export const registrySecretCmd = `kubectl create secret docker-registry artifact-registry-secret \\\n  --docker-server=${REGISTRY_HOST} \\\n  --docker-username=oauth2accesstoken \\\n  --docker-password=<your-registry-token> \\\n  -n <namespace>`
+
 ## Check pod status first
 
 Before investigating specific errors, confirm which pods are unhealthy:
@@ -49,13 +54,7 @@ kubectl logs <pod-name> -n scalekit -c svix --tail=100
    kubectl get secret artifact-registry-secret -n scalekit
    ```
 2. If missing, re-run the setup script or recreate it manually:
-   ```bash
-   kubectl create secret docker-registry artifact-registry-secret \
-     --docker-server=ar.scalekit.cloud \
-     --docker-username=oauth2accesstoken \
-     --docker-password=<your-registry-token> \
-     -n scalekit
-   ```
+   <Code lang="bash" code={registrySecretCmd} />
 3. Verify the token is current — registry tokens from distr.sh may expire.
 
 ---
