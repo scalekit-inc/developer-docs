@@ -191,7 +191,7 @@ export const sidebar = [
         items: [
           'agentkit/bring-your-own-connector/overview',
           'agentkit/bring-your-own-connector/auth-types-and-patterns',
-          'agentkit/bring-your-own-connector/managing-providers',
+          'agentkit/bring-your-own-connector/managing-connectors',
           { label: 'Tool execution', link: 'agentkit/bring-your-own-connector/using-tool-proxy' },
         ],
       },

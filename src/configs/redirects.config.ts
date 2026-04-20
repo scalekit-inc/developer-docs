@@ -357,6 +357,10 @@ export const redirects = {
   '/dev-kit/changelogs/java/version/v1-0-1': '/sdks/java/',
   '/dev-kit/changelogs/go/version/v1-0-4': '/sdks/go/',
 
+  // managing-providers renamed to managing-connectors
+  '/agentkit/bring-your-own-connector/managing-providers':
+    '/agentkit/bring-your-own-connector/managing-connectors/',
+
   // Agent connectors redirects
   '/reference/agent-connectors/[...slug]': '/agentkit/connectors/[...slug]',
   '/reference/agent-connectors': '/agentkit/connectors/',
