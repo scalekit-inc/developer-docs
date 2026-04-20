@@ -3630,13 +3630,18 @@ export const tools: Tool[] = [
     name: 'bitbucket_workspace_project_update',
     description: `Updates an existing project in a workspace.`,
     params: [
-      { name: 'key', type: 'string', required: true, description: `Updated project key.` },
+      {
+        name: 'key',
+        type: 'string',
+        required: true,
+        description: `The project key to set in the request body. To keep the existing key, pass the same value as project_key. To rename the key, pass the new key here.`,
+      },
       { name: 'name', type: 'string', required: true, description: `Updated name of the project.` },
       {
         name: 'project_key',
         type: 'string',
         required: true,
-        description: `The project key (e.g. PROJ).`,
+        description: `The current project key used in the URL path to identify which project to update (e.g. PROJ).`,
       },
       {
         name: 'workspace',

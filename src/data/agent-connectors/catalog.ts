@@ -7,6 +7,16 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
+  box: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/box.svg',
+    authType: 'OAuth 2.0',
+    categories: ['productivity', 'storage'],
+  },
+  bigqueryserviceaccount: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/bigquery.svg',
+    authType: 'Service Account',
+    categories: ['data', 'analytics'],
+  },
   close: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/close.svg',
     authType: 'OAuth 2.0',
@@ -40,7 +50,7 @@ export const catalog: Record<string, ProviderMeta> = {
   parallelaitaskmcp: {
     iconUrl: 'https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/parallel-ai.svg',
     authType: 'Bearer Token',
-    categories: ['productivity', 'ai', 'developer_tools', 'data'],
+    categories: ['productivity', 'ai', 'developer-tools', 'data'],
   },
   calendly: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/calendly.svg',
