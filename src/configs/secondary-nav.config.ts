@@ -4,8 +4,8 @@ import {
   IconSdk,
   IconMdiCubeOutline,
   IconCodiconDebugStart,
-  IconMingcuteUserSecurityLine,
-  IconAntDesignUserSwitchOutlined,
+  IconMaterialSymbolsShieldLockOutlineRounded,
+  IconPhUsersFourLight,
   IconHugeiconsResourcesAdd,
   IconLucideBlocks,
   IconLucideCode,
@@ -13,6 +13,7 @@ import {
   IconRiAiGenerate2,
 } from '../utils/icon-map'
 import IconLucideHome from '~icons/lucide/home'
+import IconSolarLayersOutline from '~icons/solar/layers-outline'
 import IconLucideBookOpenText from '~icons/lucide/book-open-text'
 import IconLucideCheck from '~icons/lucide/check'
 
@@ -93,19 +94,19 @@ const saasKitItems: NavItem[] = [
     id: 'saaskit-user-management',
     href: '/authenticate/fsa/quickstart/',
     label: 'SaaSKit',
-    iconComponent: IconLucideHome,
+    iconComponent: IconSolarLayersOutline,
   },
   {
     id: 'saaskit-sso',
     href: '/authenticate/sso/add-modular-sso/',
     label: 'SSO',
-    iconComponent: IconMingcuteUserSecurityLine,
+    iconComponent: IconMaterialSymbolsShieldLockOutlineRounded,
   },
   {
     id: 'saaskit-scim',
     href: '/directory/scim/quickstart/',
     label: 'SCIM',
-    iconComponent: IconAntDesignUserSwitchOutlined,
+    iconComponent: IconPhUsersFourLight,
   },
   {
     id: 'saaskit-mcp-auth',

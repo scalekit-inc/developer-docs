@@ -101,6 +101,7 @@ import IconCibOpenId from '~icons/cib/open-id'
 import IconHugeiconsXml02SAML from '~icons/hugeicons/xml-02'
 import IconMaterialSymbolsFolderSupervisedOutlineSharpDirectory from '~icons/material-symbols/folder-supervised-outline-sharp'
 import IconArcticonsPingid from '~icons/arcticons/pingid'
+import IconSolarLayersOutline from '~icons/solar/layers-outline'
 import IconArcticonsFolderMicrosoftADFS from '~icons/arcticons/folder-microsoft'
 
 // Company and platform logos
@@ -114,7 +115,9 @@ import IconHugeiconsSalesforce from '~icons/fa7-brands/salesforce'
 // products - new icons if any
 import IconClarityBlocksGroupLine from '~icons/clarity/blocks-group-line'
 import IconAntDesignUserSwitchOutlined from '~icons/ant-design/user-switch-outlined'
+import IconPhUsersFourLight from '~icons/ph/users-four-light'
 import IconMingcuteUserSecurityLine from '~icons/mingcute/user-security-line'
+import IconMaterialSymbolsShieldLockOutlineRounded from '~icons/material-symbols/shield-lock-outline-rounded'
 import IconSimpleIconsJira from '~icons/simple-icons/jira'
 import IconSimpleIconsHubspot from '~icons/simple-icons/hubspot'
 import IconSimpleIconsZendesk from '~icons/simple-icons/zendesk'
@@ -216,7 +219,7 @@ export const iconMap = {
   users: IconLucideUsers,
   fsa: IconLucideUsers,
   key: IconLucideKeyRound,
-  sso: IconLucideKeyRound,
+  sso: IconMaterialSymbolsShieldLockOutlineRounded,
   mail: IconLucideMail,
   passwordless: IconLucideMail,
   api: IconApi,
@@ -226,7 +229,7 @@ export const iconMap = {
   'mcp-server': IconTablerServerSpark,
   server: IconTablerServerSpark,
   sync: IconStreamlineUserSyncOnlineInPersonRemix,
-  scim: IconStreamlineUserSyncOnlineInPersonRemix,
+  scim: IconPhUsersFourLight,
   community: IconFluentPeopleCommunity16Regular,
   theme: IconStreamlinePlumpPaintPalette,
   'status-health': IconPajamasStatusHealth,
@@ -337,8 +340,11 @@ export {
   IconLucideUsers, // FSA
   IconLucideMail, // Passwordless
   IconClarityBlocksGroupLine, // Social logins
-  IconMingcuteUserSecurityLine, // Enterprise SSO
-  IconAntDesignUserSwitchOutlined, // SCIM provisioning
+  IconSolarLayersOutline, // SaaSKit home
+  IconMingcuteUserSecurityLine, // Enterprise SSO (legacy)
+  IconMaterialSymbolsShieldLockOutlineRounded, // SSO
+  IconAntDesignUserSwitchOutlined, // SCIM provisioning (legacy)
+  IconPhUsersFourLight, // SCIM
   IconSolarServerPathOutline, // API Auth
   IconOpenapi, // OpenAPI specification
 }
