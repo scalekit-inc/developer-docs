@@ -1,0 +1,66 @@
+---
+title: Self-hosted deployment overview
+description: Deploy Scalekit on your own Kubernetes cluster to meet data residency, compliance, and network isolation requirements.
+sidebar:
+  label: Overview
+  order: 1
+  next:
+    label: System requirements
+    link: /self-hosted/system-requirements/
+tags: [self-hosted, on-premises, kubernetes, helm, deployment]
+tableOfContents: true
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+Scalekit's self-hosted deployment lets you run the full Scalekit platform on your own Kubernetes cluster. All authentication data stays within your infrastructure — nothing leaves your network.
+
+Use self-hosted deployment when your organization requires:
+
+- **Data residency**: Auth data must remain in a specific region or on-premises location
+- **Network isolation**: The auth service must not be reachable from the public internet
+- **Compliance**: Regulations such as FedRAMP, HIPAA, or internal security policies prohibit use of SaaS auth services
+- **Air-gapped environments**: Your deployment environment has no outbound internet access
+
+## How it works
+
+Scalekit is distributed as a **Helm chart** and deployed on Kubernetes. Scalekit uses [distr.sh](https://distr.sh) to distribute the chart and container images to your cluster.
+
+A pre-install Helm hook runs database migrations automatically before each install or upgrade — you do not run migrations manually.
+
+## What Scalekit runs
+
+A self-hosted deployment runs as a single Kubernetes `Deployment` with multiple containers:
+
+| Component | Description |
+|-----------|-------------|
+| **Auth service** | Core service handling login, token issuance, sessions, SSO, and SCIM |
+| **Dashboard** | Admin web UI for managing your Scalekit instance |
+| **Flagd** | Feature flag sidecar for runtime configuration |
+| **Svix** | Webhook delivery service |
+| **OpenFGA** | Fine-grained authorization engine (optional) |
+
+## What you provide
+
+Scalekit does not bundle a database or cache in production. You provision and manage these separately:
+
+| Dependency | Requirement | Notes |
+|------------|-------------|-------|
+| **Kubernetes** | 1.27 or later | Any managed or self-managed cluster |
+| **PostgreSQL** | 15 or later | Three databases required: `scalekit`, `svix`, `openfga` |
+| **Redis** | 6.2 or later | Used for sessions, caching, and job queues |
+| **SMTP** | Any provider | Postmark and SendGrid have first-class support |
+
+<Aside type="note" title="Evaluation shortcut">
+  The Helm chart includes optional PostgreSQL and Redis subcharts. Enable them to spin up Scalekit quickly without provisioning external services. **Use subcharts for evaluation only** — they are not suitable for production.
+</Aside>
+
+<Aside type="note" title="Access required">
+  Self-hosted deployment requires a Scalekit enterprise license. You receive your Helm chart access and container registry token through [distr.sh](https://distr.sh) as part of onboarding.
+</Aside>
+
+## Next steps
+
+1. [System requirements](/self-hosted/system-requirements/) — verify your infrastructure before starting
+2. [Install Scalekit](/self-hosted/installation/) — deploy the Helm chart on your cluster
+3. [Configure Scalekit](/self-hosted/configuration/) — set your domain, database, and email settings

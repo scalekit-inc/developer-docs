@@ -25,6 +25,7 @@ import IconLucidePalette from '~icons/lucide/palette'
 import IconLucideCheck from '~icons/lucide/check'
 import IconLucideHome from '~icons/lucide/home'
 import IconLucideBookOpenText from '~icons/lucide/book-open-text'
+import IconLucideServer from '~icons/lucide/server'
 
 export interface NavItem {
   id: string // Unique identifier for the nav item
@@ -235,6 +236,12 @@ export const secondaryNavItems: NavItem[] = [
         description: 'Programmatic control to manage users, orgs, sessions etc.',
       },
     ],
+  },
+  {
+    id: 'self-hosted',
+    href: '/self-hosted/overview/',
+    label: 'Self-hosted',
+    iconComponent: IconLucideServer,
   },
   // Temporarily hidden - Agent Auth
   // {

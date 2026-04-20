@@ -1,0 +1,313 @@
+---
+title: Configure Scalekit
+description: Complete values.yaml examples and field reference for a self-hosted Scalekit deployment.
+sidebar:
+  label: Configuration
+  order: 3
+tags: [self-hosted, configuration, helm, values, kubernetes, gateway]
+tableOfContents: true
+prev:
+  label: System requirements
+  link: /self-hosted/system-requirements/
+next:
+  label: Setup script
+  link: /self-hosted/setup-script/
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+Scalekit is configured through a `values.yaml` file passed to Helm at install and upgrade time. This page shows two complete examples followed by a field-by-field reference.
+
+The full schema is in `scalekit/values.schema.json` inside the chart package.
+
+## Complete examples
+
+Pick the example that matches your setup. Replace placeholder values before running `helm install`.
+
+<Tabs syncKey="config-mode">
+<TabItem label="Evaluation (subcharts)">
+
+Use this configuration to evaluate Scalekit without provisioning external PostgreSQL or Redis. The chart spins up bundled instances automatically.
+
+**Do not use this in production.** The bundled databases have no backups, no replication, and no persistent storage guarantees.
+
+```yaml title="values.yaml (evaluation)"
+scalekit:
+  config:
+    app:
+      domain: "auth.example.com"    # your domain, without scheme or trailing slash
+      protocol: "https"
+      region: "us"                  # us or eu — set once, do not change after first install
+
+    seedData:
+      adminUser:
+        firstName: "Admin"
+        lastName: "User"
+        email: "admin@example.com"
+      emailServer:
+        serverType: "SMTP"
+        provider: "POSTMARK"        # POSTMARK, SENDGRID, or OTHER
+        enabled: true
+        settings:
+          fromEmail: "noreply@example.com"
+          fromName: "Your Company"
+          host: "smtp.postmarkapp.com"
+          port: 587
+          username: "your-smtp-api-key"
+
+# Bundled PostgreSQL — evaluation only
+postgresql:
+  enabled: true
+
+# Bundled Redis — evaluation only
+redis:
+  enabled: true
+
+gateway:
+  enabled: true
+  className: "gke-l7-global-external-managed"  # your GatewayClass
+  provider: "gcp"                              # gcp, or "" for generic Gateway API
+  redirectToHttps: true
+  healthCheckPolicy:
+    enabled: true                              # GKE only
+```
+
+</TabItem>
+<TabItem label="Production (external services)">
+
+Use this configuration for production deployments with external PostgreSQL and Redis that you manage.
+
+```yaml title="values.yaml (production)"
+scalekit:
+  config:
+    app:
+      domain: "auth.example.com"    # your domain, without scheme or trailing slash
+      protocol: "https"
+      region: "us"                  # us or eu — set once, do not change after first install
+
+    database:
+      host: "pg.internal.example.com"
+      name: "scalekit"
+      user: "scalekit"
+      port: 5432
+      # Password is stored in the authentication-secret Kubernetes secret
+
+    redis:
+      host: "redis.internal.example.com"
+      port: 6379
+      db: 0
+      # Password is stored in the authentication-secret Kubernetes secret
+
+    seedData:
+      adminUser:
+        firstName: "Admin"
+        lastName: "User"
+        email: "admin@example.com"
+      emailServer:
+        serverType: "SMTP"
+        provider: "POSTMARK"        # POSTMARK, SENDGRID, or OTHER
+        enabled: true
+        settings:
+          fromEmail: "noreply@example.com"
+          fromName: "Your Company"
+          host: "smtp.postmarkapp.com"
+          port: 587
+          username: "your-smtp-api-key"
+
+# External services — disable subcharts
+postgresql:
+  enabled: false
+
+redis:
+  enabled: false
+
+gateway:
+  enabled: true
+  className: "gke-l7-global-external-managed"  # your GatewayClass
+  provider: "gcp"                              # gcp, or "" for generic Gateway API
+  redirectToHttps: true
+  healthCheckPolicy:
+    enabled: true                              # GKE only
+```
+
+</TabItem>
+</Tabs>
+
+---
+
+## Field reference
+
+### App
+
+```yaml
+scalekit:
+  config:
+    app:
+      domain: "auth.example.com"
+      protocol: "https"
+      region: "us"
+```
+
+| Field | Description |
+|-------|-------------|
+| `domain` | Base domain for your Scalekit instance. Must match your gateway hostname. |
+| `protocol` | Use `https` in production. For local HTTP dev, set to `http` and add `oidc.allow_insecure: true`. |
+| `region` | Data residency context. Set once — do not change after the initial install. |
+
+### Database
+
+```yaml
+scalekit:
+  config:
+    database:
+      host: "your-db-host"
+      name: "scalekit"
+      user: "scalekit"
+      port: 5432
+```
+
+The database password is stored in the `authentication-secret` Kubernetes secret (`database_password` key), not in `values.yaml`.
+
+Omit this section entirely when using the bundled PostgreSQL subchart (`postgresql.enabled: true`).
+
+### Redis
+
+```yaml
+scalekit:
+  config:
+    redis:
+      host: "your-redis-host"
+      port: 6379
+      db: 0
+```
+
+The Redis password is stored in the `authentication-secret` Kubernetes secret (`redis_password` key).
+
+Omit this section entirely when using the bundled Redis subchart (`redis.enabled: true`).
+
+### Seed data
+
+Seed data is applied once on first install. It creates the initial admin user and configures the email server.
+
+```yaml
+scalekit:
+  config:
+    seedData:
+      adminUser:
+        firstName: "Admin"
+        lastName: "User"
+        email: "admin@example.com"
+      emailServer:
+        serverType: "SMTP"
+        provider: "POSTMARK"      # POSTMARK, SENDGRID, or OTHER
+        enabled: true
+        settings:
+          fromEmail: "noreply@example.com"
+          fromName: "Your Company"
+          host: "smtp.postmarkapp.com"
+          port: 587
+          username: "your-smtp-api-key-or-username"
+```
+
+<Aside type="note" title="Email server password">
+  The email server password is stored in `authentication-secret` under `seed_data_email_server_settings_password`. The setup script sets this automatically.
+</Aside>
+
+### Gateway
+
+Scalekit uses the Kubernetes Gateway API for ingress.
+
+```yaml
+gateway:
+  enabled: true
+  className: "gke-l7-global-external-managed"
+  provider: "gcp"
+  redirectToHttps: true
+  healthCheckPolicy:
+    enabled: true   # GKE only
+```
+
+Set `gateway.className` to the GatewayClass for your cluster:
+
+| Provider | GatewayClass |
+|----------|-------------|
+| GKE (external) | `gke-l7-global-external-managed` |
+| GKE (internal) | `gke-l7-regional-internal-managed` |
+| Istio | `istio` |
+| Envoy Gateway | `eg` |
+
+Set `provider: "gcp"` only for GKE — it enables GKE-specific resources like `HealthCheckPolicy`. Leave it empty (`""`) for all other providers.
+
+## Gateway annotations
+
+Annotations on the Gateway resource are how you attach TLS certificates and configure provider-specific behavior. Add them under `gateway.annotations` in your `values.yaml`:
+
+```yaml
+gateway:
+  annotations:
+    <annotation-key>: "<annotation-value>"
+```
+
+Common annotations by provider:
+
+| Provider | Annotation | Purpose |
+|----------|-----------|---------|
+| GKE | `networking.gke.io/certmap` | Attach a GCP Certificate Manager cert map for TLS |
+| cert-manager (any cluster) | `cert-manager.io/cluster-issuer` | Provision TLS via cert-manager |
+| AWS (ALB) | `kubernetes.io/ingress.class` | Route through an ALB |
+
+### Example: GCP Certificate Manager
+
+```yaml
+gateway:
+  enabled: true
+  className: "gke-l7-global-external-managed"
+  provider: "gcp"
+  annotations:
+    networking.gke.io/certmap: "scalekit-cert-map"
+  redirectToHttps: true
+  healthCheckPolicy:
+    enabled: true
+```
+
+## Optional components
+
+### OpenFGA (fine-grained authorization)
+
+OpenFGA is disabled by default. Enable it when you need fine-grained authorization at scale:
+
+```yaml
+sidecars:
+  openfga:
+    enabled: true
+```
+
+OpenFGA requires its own PostgreSQL database (`openfga`). Credentials are stored in the `openfga-secrets` Kubernetes secret.
+
+### Directory server (SCIM)
+
+SCIM provisioning is disabled by default:
+
+```yaml
+scalekit:
+  config:
+    directoryServer:
+      enabled: true
+```
+
+## Secrets reference
+
+All sensitive values are stored in Kubernetes secrets, not in `values.yaml`. The setup script (`setup-secrets.sh`) creates these for you.
+
+| Secret name | Key fields |
+|-------------|------------|
+| `authentication-service-token` | `TOKEN` — dashboard auth token |
+| `db-migrations` | `DATABASE_URL`, `DB_ADAPTER` |
+| `authentication-secret` | DB password, Redis password, OIDC keys, cookie keys, email keys, Svix API key |
+| `svix-secrets` | `db-dsn`, `jwt-secret`, `main-secret`, `redis-dsn`, `api-token` |
+| `openfga-secrets` | `keys`, `password`, `uri`, `username` |
+| `artifact-registry-secret` | Docker registry credentials for `ar.scalekit.cloud` |
+
+<Aside type="caution" title="Never put secrets in values.yaml">
+  All credentials are injected into pods via Kubernetes secrets. Do not add passwords or keys to `values.yaml`.
+</Aside>

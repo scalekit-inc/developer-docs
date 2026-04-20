@@ -1,0 +1,85 @@
+---
+title: Install Scalekit
+description: Deploy Scalekit on a Kubernetes cluster using Helm and the Gateway API.
+sidebar:
+  label: Installation
+  order: 6
+tags: [self-hosted, installation, kubernetes, helm, gateway]
+tableOfContents: true
+prev:
+  label: Setup script
+  link: /self-hosted/setup-script/
+next:
+  label: Upgrades & maintenance
+  link: /self-hosted/upgrades/
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Deploy Scalekit on any Kubernetes cluster using the Helm chart distributed through [distr.sh](https://distr.sh). The chart uses the Kubernetes **Gateway API** for ingress.
+
+<Steps>
+1. ## Get the Helm chart and registry token
+
+   Log in to your [distr.sh](https://distr.sh) account. From the Scalekit application page, copy:
+
+   - Your **Helm chart** archive or repository URL
+   - Your **container registry token** for `ar.scalekit.cloud`
+
+2. ## Run the setup script
+
+   The [setup script](/self-hosted/setup-script/) collects your configuration interactively and generates two files: a secrets script and a `values.yaml`. Copy the script from that page, then run it:
+
+   ```bash
+   chmod +x setup-secrets.sh
+   bash setup-secrets.sh
+   ```
+
+   When prompted for environment, enter `2` for a Kubernetes cluster.
+
+   The script walks you through namespace, PostgreSQL, Redis, SMTP, registry token, Gateway, domain, and admin user settings. At the end it prints the exact commands to run next.
+
+3. ## Apply the Kubernetes secrets
+
+   Run the secrets script the setup script generated:
+
+   ```bash
+   bash scalekit-secrets-gke-<timestamp>.sh
+   ```
+
+   Verify all secrets were created:
+
+   ```bash
+   kubectl get secrets -n <namespace>
+   ```
+
+   Expected secrets: `authentication-service-token`, `db-migrations`, `authentication-secret`, `svix-secrets`, `openfga-secrets`, `artifact-registry-secret`.
+
+4. ## Install the Helm chart
+
+   Run the `helm install` command printed by the setup script:
+
+   ```bash
+   helm install scalekit oci://ar.scalekit.cloud/scalekit/charts/scalekit \
+     --version <chart-version> \
+     -n <namespace> \
+     --values values-gke-<timestamp>.yaml \
+     --wait
+   ```
+
+   The pre-install hook runs database migrations before the pods start. `--wait` blocks until all pods are ready.
+
+   <Aside type="caution" title="Databases must exist before install">
+     The migration hook fails if any of the three PostgreSQL databases (`scalekit`, `svix`, `openfga`) do not exist. The setup script prints the exact `CREATE DATABASE` commands to run if needed.
+   </Aside>
+
+5. ## Verify the deployment
+
+   ```bash
+   kubectl get pods -n <namespace>
+   kubectl get gateway -n <namespace>
+   ```
+
+   All pods should show `Running` status. Open the admin dashboard at `https://<your-domain>` and sign in with the admin credentials you provided during setup.
+
+</Steps>

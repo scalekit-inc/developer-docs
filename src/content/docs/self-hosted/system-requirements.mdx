@@ -1,0 +1,108 @@
+---
+title: System requirements
+description: Kubernetes, database, and network requirements for a self-hosted Scalekit deployment.
+sidebar:
+  label: System requirements
+  order: 2
+tags: [self-hosted, requirements, kubernetes, prerequisites]
+tableOfContents: true
+prev:
+  label: Overview
+  link: /self-hosted/overview/
+next:
+  label: Install Scalekit
+  link: /self-hosted/installation/
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+Before installing Scalekit, confirm your infrastructure meets the requirements below.
+
+## Kubernetes
+
+| Requirement | Value |
+|-------------|-------|
+| Kubernetes version | 1.27 or later |
+| Helm version | 3.12 or later |
+| `kubectl` | Configured with cluster access |
+
+Any managed Kubernetes service works — GKE, EKS, AKS, or a self-managed cluster.
+
+Scalekit uses the **Kubernetes Gateway API** for ingress. Your cluster must have a GatewayClass installed:
+
+| Provider | GatewayClass |
+|----------|-------------|
+| GKE | `gke-l7-global-external-managed` (built-in) |
+| Istio | `istio` |
+| Envoy Gateway | `eg` |
+
+On GKE, the Gateway controller is enabled by default. For other clusters, install the Gateway API CRDs and a compatible controller before deploying Scalekit.
+
+## PostgreSQL
+
+Scalekit requires **three separate databases** on PostgreSQL 15 or later. These can all live on the same PostgreSQL instance.
+
+| Database | Used by |
+|----------|---------|
+| `scalekit` | Core auth service |
+| `svix` | Webhook delivery (Svix) |
+| `openfga` | Authorization engine (if enabled) |
+
+Create a dedicated user with full privileges on each database. Scalekit runs migrations automatically on install and upgrade.
+
+<Aside type="tip" title="Evaluation without external PostgreSQL">
+  The Helm chart includes an optional PostgreSQL subchart. Set `postgresql.enabled: true` in your `values.yaml` to spin up a bundled database for evaluation. Do not use this in production.
+</Aside>
+
+<Aside type="tip" title="CockroachDB">
+  CockroachDB is also supported. Set `DB_ADAPTER=postgresql` in the `db-migrations` secret (the setup script handles this automatically).
+</Aside>
+
+## Redis
+
+| Requirement | Value |
+|-------------|-------|
+| Version | 6.2 or later |
+
+Scalekit uses Redis for session storage, token caching, and background job queues. Redis does not need persistence enabled, but enabling RDB snapshots is recommended for production.
+
+<Aside type="tip" title="Evaluation without external Redis">
+  The Helm chart includes an optional Redis subchart. Set `redis.enabled: true` in your `values.yaml` to use it for evaluation. Do not use this in production.
+</Aside>
+
+## Email (SMTP)
+
+Scalekit sends transactional email for password resets, magic links, and user invitations. You need an SMTP provider configured before first run.
+
+Supported providers with first-class integration: **Postmark**, **SendGrid**. Any SMTP server works with the `OTHER` provider type.
+
+## Node sizing
+
+| Resource | Production (per node) |
+|----------|-----------------------|
+| CPU | 4 vCPUs |
+| RAM | 8 GB |
+
+The Scalekit Deployment defaults to 2 replicas with autoscaling up to 20. Each replica includes all sidecar containers. Tune `replicaCount` and HPA settings in your `values.yaml`.
+
+## Network and DNS
+
+### DNS
+
+Create a wildcard DNS record pointing to the external IP assigned to your Gateway:
+
+```
+*.your-domain.com  →  <gateway-external-ip>
+```
+
+### TLS
+
+HTTPS is required. Manage certificates through your cloud provider's certificate manager (for example, GCP Certificate Manager) and reference it via a Gateway annotation. cert-manager is also supported — add the appropriate annotation to `gateway.annotations` in your `values.yaml`.
+
+## Container registry access
+
+Scalekit container images are hosted on `ar.scalekit.cloud`. You receive registry credentials through [distr.sh](https://distr.sh) as part of onboarding. The registry token is stored as a Kubernetes image pull secret (`artifact-registry-secret`) during setup.
+
+## Next step
+
+Once your infrastructure is ready, proceed to [install Scalekit](/self-hosted/installation/).

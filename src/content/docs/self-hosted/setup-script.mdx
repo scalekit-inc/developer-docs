@@ -1,0 +1,664 @@
+---
+title: Secrets setup script
+description: Interactive script that generates all Kubernetes secrets and a values.yaml for your Scalekit deployment.
+sidebar:
+  label: Setup script
+  order: 5
+  prev:
+    label: Configure Scalekit
+    link: /self-hosted/configuration/
+  next:
+    label: Install Scalekit
+    link: /self-hosted/installation/
+tags: [self-hosted, secrets, kubernetes, helm, setup]
+tableOfContents: true
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+The setup script is a **one-time tool for initial deployment**. Run it once to bootstrap your cluster — do not run it again on an existing installation.
+
+It collects your configuration interactively and produces two output files:
+
+- **A secrets script** (`scalekit-secrets-<timestamp>.sh`) — runs `kubectl` commands to create all six required Kubernetes secrets
+- **A values file** (`values-<timestamp>.yaml`) — ready to pass directly to `helm install`
+
+At the end it prints the exact `helm install` command to run.
+
+## Prerequisites
+
+| Tool | Version | Purpose |
+|------|---------|---------|
+| `bash` | 4.0 or later | Run the script |
+| `openssl` | Any modern version | Generate cryptographic keys and tokens |
+| `python3` | 3.6 or later | Generate Svix JWT and OIDC client secret |
+| `kubectl` | 1.27 or later | Create Kubernetes secrets in your cluster |
+
+`kubectl` must be configured and pointed at the cluster you are deploying to before you run the script.
+
+On macOS, `bash` ships as version 3. Install a newer version with Homebrew:
+
+```bash
+brew install bash
+```
+
+## Run the script
+
+<Aside type="caution" title="Run this script only once">
+  The script auto-generates cryptographic keys — OIDC master key, cookie encryption keys, Svix JWT secret, and others. These are written into your Kubernetes secrets and used by the running system. If you run the script again, it generates different values and overwrites the secrets, which will break your existing deployment.
+
+  To update a single credential (for example, to rotate a database password), edit the specific Kubernetes secret directly rather than re-running the script.
+</Aside>
+
+Copy the script below, save it as `setup-secrets.sh`, make it executable, then run it:
+
+```bash
+chmod +x setup-secrets.sh
+bash setup-secrets.sh
+```
+
+When prompted to choose an environment, enter `2` for a Kubernetes cluster deployment.
+
+### Optional flags
+
+| Flag | Effect |
+|------|--------|
+| `--enable-openfga` | Includes OpenFGA secrets and database configuration |
+| `--change-defaults` | Prompts you to confirm or override default values instead of accepting them silently |
+
+## What the script collects
+
+The script walks through these sections:
+
+| Section | What it asks |
+|---------|-------------|
+| **Namespace** | Kubernetes namespace to deploy into |
+| **PostgreSQL** | Host, port, credentials, and database names |
+| **Redis** | Host, port, password, and db indexes for app, background jobs, and Svix |
+| **Email (SMTP)** | From address, host, port, username, and password |
+| **Container registry** | Registry token from distr.sh |
+| **Gateway** | GatewayClass name and GCP certificate map |
+| **App settings** | Domain, region |
+| **Admin user** | First name, last name, email for the initial dashboard login |
+
+All cryptographic values (OIDC keys, cookie keys, Svix JWT, etc.) are auto-generated — you do not supply these.
+
+## After the script completes
+
+The script prints the exact commands to run:
+
+```bash
+# 1. Apply all Kubernetes secrets
+bash scalekit-secrets-<timestamp>.sh
+
+# 2. Install the Helm chart
+helm install scalekit oci://ar.scalekit.cloud/scalekit/charts/scalekit \
+  --version <chart-version> \
+  -n <namespace> \
+  --values values-<timestamp>.yaml
+```
+
+<Aside type="caution" title="Check databases exist first">
+  The script reminds you to verify that all three PostgreSQL databases exist before running `helm install`. The migration hook will fail if any database is missing.
+</Aside>
+
+## Script
+
+```bash title="setup-secrets.sh"
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ── Arguments ─────────────────────────────────────────────────────────────────
+# Usage: bash setup-secrets.sh [--enable-openfga] [--change-defaults]
+OPENFGA_ENABLED="false"
+CHANGE_DEFAULTS="false"
+for arg in "$@"; do
+  case "$arg" in
+    --enable-openfga)  OPENFGA_ENABLED="true" ;;
+    --change-defaults) CHANGE_DEFAULTS="true" ;;
+    *) echo "Unknown argument: $arg"; exit 1 ;;
+  esac
+done
+
+# ── Colours ──────────────────────────────────────────────────────────────────
+BOLD=$'\033[1m'
+DIM=$'\033[2m'
+RED=$'\033[31m'
+GREEN=$'\033[32m'
+YELLOW=$'\033[33m'
+CYAN=$'\033[36m'
+RESET=$'\033[0m'
+
+header()  { echo "\n${BOLD}${CYAN}▶ $*${RESET}"; }
+prompt()  { echo "${YELLOW}$*${RESET}"; }
+success() { echo "${GREEN}✓ $*${RESET}"; }
+dim()     { echo "${DIM}$*${RESET}"; }
+
+ask() {
+  local var="$1" msg="$2" default="${3:-}"
+  if [[ -n "$default" && "$CHANGE_DEFAULTS" == "false" ]]; then
+    eval "$var=\"$default\""
+    dim "  $msg = $default (default)"
+    return
+  fi
+  while true; do
+    if [[ -n "$default" ]]; then
+      read -rp "${YELLOW}$msg [${default}]: ${RESET}" input
+    else
+      read -rp "${YELLOW}$msg: ${RESET}" input
+    fi
+    if [[ -z "$input" && -n "$default" ]]; then
+      eval "$var=\"$default\""
+      break
+    elif [[ -n "$input" ]]; then
+      eval "$var=\"$input\""
+      break
+    else
+      echo "${RED}  ✗ This field is required. Please enter a value.${RESET}"
+    fi
+  done
+}
+
+ask_secret() {
+  local var="$1" msg="$2" default="${3:-}"
+  local allow_empty="${3+yes}"
+  while true; do
+    if [[ -n "$default" ]]; then
+      read -rp "${YELLOW}$msg [${default}]: ${RESET}" input
+    else
+      read -rp "${YELLOW}$msg: ${RESET}" input
+    fi
+    if [[ -z "$input" && -n "$default" ]]; then
+      eval "$var=\"$default\""
+      break
+    elif [[ -z "$input" && "$allow_empty" == "yes" ]]; then
+      eval "$var=\"\""
+      break
+    elif [[ -n "$input" ]]; then
+      eval "$var=\"$input\""
+      break
+    else
+      echo "${RED}  ✗ This field is required. Please enter a value.${RESET}"
+    fi
+  done
+}
+
+# ── Step 1: Namespace & environment ──────────────────────────────────────────
+header "Step 1 — Namespace & environment"
+ask NAMESPACE "Kubernetes namespace to deploy Scalekit into"
+echo
+echo -e "${YELLOW}Which environment are you deploying to?${RESET}"
+echo "  1) Minikube (local)"
+echo "  2) Kubernetes cluster (GKE / cloud)"
+read -rp "${YELLOW}Enter 1 or 2: ${RESET}" ENV_CHOICE
+ENV_LABEL=$([[ "$ENV_CHOICE" == "1" ]] && echo "minikube" || echo "gke")
+
+# ── Step 2: Auto-generate values ─────────────────────────────────────────────
+header "Step 2 — Generating secure values"
+
+OIDC_MASTER_KEY=$(openssl rand -hex 16)
+SECURECOOKIE_ENCRYPTKEY=$(openssl rand -hex 16)
+SECURECOOKIE_HASHKEY=$(openssl rand -hex 16)
+SVIX_JWT_SECRET=$(openssl rand -base64 32)
+SVIX_MAIN_SECRET=$(openssl rand -base64 32)
+TRAEFIK_TOKEN=$(openssl rand -hex 16)
+FGA_API_TOKEN=$(openssl rand -hex 24)
+OPENFGA_EXTRA_KEY=$(openssl rand -hex 24)
+APP_OIDC_CLIENT_ID="skc_8573429015935040"
+
+APP_OIDC_CLIENT_SECRET=$(python3 -c "
+import secrets
+print(f'sk_{secrets.token_urlsafe(48)}')
+")
+
+success "Generated: oidc_master_key, securecookie keys, svix secrets, traefik token, fga tokens, oidc client id/secret"
+
+# ── Step 3: Svix JWT ──────────────────────────────────────────────────────────
+header "Step 3 — Svix JWT token"
+dim "The Svix API token is a JWT signed with the generated svix_jwt_secret."
+
+SVIX_SUB=$(python3 -c "
+import secrets, string
+chars = string.ascii_letters + string.digits
+print('org_' + ''.join(secrets.choice(chars) for _ in range(22)))
+")
+
+SVIX_API_KEY=$(python3 -c "
+import base64, hashlib, hmac as _hmac, json, time
+
+secret = '''${SVIX_JWT_SECRET}'''
+sub    = '${SVIX_SUB}'
+now    = int(time.time())
+exp    = now + 315360000  # 10 years
+
+header  = base64.urlsafe_b64encode(json.dumps({'alg':'HS256','typ':'JWT'}, separators=(',',':')).encode()).rstrip(b'=').decode()
+payload = base64.urlsafe_b64encode(json.dumps({'iat':now,'exp':exp,'nbf':now,'iss':'svix-server','sub':sub}, separators=(',',':')).encode()).rstrip(b'=').decode()
+msg     = f'{header}.{payload}'
+sig     = base64.urlsafe_b64encode(_hmac.new(secret.encode(), msg.encode(), hashlib.sha256).digest()).rstrip(b'=').decode()
+print(f'{msg}.{sig}')
+")
+
+success "Svix JWT token generated (used as svix_api_key and svix-secrets api-token)"
+
+# ── Step 4: Collect user-provided values ─────────────────────────────────────
+header "Step 4 — Required configuration"
+dim "  The following sections collect everything needed to configure Scalekit's"
+dim "  services and generate all Kubernetes secrets and the values.yaml file."
+echo
+
+# ── Database ──────────────────────────────────────────────────────────────────
+header "  [Database] PostgreSQL"
+dim "  Scalekit uses a shared PostgreSQL server with one set of credentials"
+dim "  across all components. Each component gets its own database."
+dim ""
+dim "  These values will be used to:"
+dim "    - create the 'db-migrations' secret  (DATABASE_URL, DB_ADAPTER)"
+dim "    - create the 'authentication-secret' (database_password)"
+dim "    - create the 'svix-secrets'          (db-dsn)"
+if [[ "$OPENFGA_ENABLED" == "true" ]]; then
+dim "    - create the 'openfga-secrets'       (uri, password, username)"
+fi
+dim ""
+dim "  All databases must already exist on your server before running helm install."
+echo
+
+ask        DB_HOST           "  PostgreSQL host (IP or hostname)"
+read -rp "${YELLOW}  PostgreSQL port [5432]: ${RESET}" input; DB_PORT="${input:-5432}"
+ask        DB_USER           "  PostgreSQL username"
+ask_secret DATABASE_PASSWORD "  PostgreSQL password"
+echo
+dim "  Database names — each component gets its own isolated database:"
+ask DB_NAME_SCALEKIT  "  Scalekit main application database name" "scalekit"
+ask DB_NAME_SVIX      "  Svix webhooks database name" "webhooks"
+if [[ "$OPENFGA_ENABLED" == "true" ]]; then
+  ask DB_NAME_OPENFGA "  OpenFGA authorization database name" "openfga"
+fi
+echo
+
+# Construct all DB URLs from shared credentials
+DATABASE_URL="postgresql://${DB_USER}:${DATABASE_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME_SCALEKIT}"
+SVIX_DB_DSN="postgresql://${DB_USER}:${DATABASE_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME_SVIX}"
+if [[ "$OPENFGA_ENABLED" == "true" ]]; then
+  OPENFGA_DB_URI="postgresql://${DB_USER}:${DATABASE_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME_OPENFGA}"
+fi
+
+# ── Redis ─────────────────────────────────────────────────────────────────────
+header "  [Redis]"
+dim "  Redis powers three isolated workloads — main app cache, the Asynq"
+dim "  background job queue, and the Svix webhook message bus. All three share"
+dim "  the same server but use different database indexes to stay isolated."
+dim ""
+dim "  These values will be used to:"
+dim "    - set redis/asynq config in values.yaml"
+dim "    - create the 'authentication-secret' (redis_password, asynq_redis_password)"
+dim "    - create the 'svix-secrets'          (redis-dsn)"
+dim ""
+dim "  Leave password empty if your Redis instance has no auth configured."
+echo
+
+ask        REDIS_HOST     "  Redis host (IP or hostname)"
+read -rp "${YELLOW}  Redis port [6379]: ${RESET}" input; REDIS_PORT="${input:-6379}"
+ask_secret REDIS_PASSWORD "  Redis password (leave empty if none)" ""
+ASYNQ_REDIS_PASSWORD="$REDIS_PASSWORD"
+echo
+dim "  Database indexes — each component gets its own slot to avoid key collisions:"
+ask REDIS_DB       "  Redis db index for main application" "10"
+ask ASYNQ_REDIS_DB "  Redis db index for Asynq background jobs" "12"
+ask SVIX_REDIS_DB  "  Redis db index for Svix webhooks" "11"
+
+SVIX_REDIS_DSN="redis://${REDIS_HOST}:${REDIS_PORT}/${SVIX_REDIS_DB}#insecure"
+echo
+
+# ── Email ─────────────────────────────────────────────────────────────────────
+EMAIL_KEY="na"
+SENDGRID_KEY="na"
+POSTMARK_KEY="na"
+
+header "  [Email] Outbound SMTP"
+dim "  Scalekit sends transactional emails (invites, magic links, verification"
+dim "  codes) via SMTP."
+dim ""
+dim "  These values will be used to:"
+dim "    - set seedData.emailServer in values.yaml (from, host, port, username)"
+echo
+
+ask        EMAIL_FROM      "  Sender email address (e.g. hi@yourdomain.com)"
+ask        EMAIL_FROM_NAME "  Sender display name (e.g. Team Scalekit)"
+ask_secret SMTP_HOST       "  SMTP server host" "smtp.postmarkapp.com"
+ask_secret SMTP_PORT       "  SMTP server port" "587"
+ask        SMTP_USERNAME   "  SMTP login username"
+ask_secret SMTP_PASSWORD   "  SMTP login password"
+echo
+
+# ── Image Registry ────────────────────────────────────────────────────────────
+header "  [Registry] Container Image Registry"
+dim "  Scalekit images are hosted on a private registry at ar.scalekit.cloud."
+dim "  Kubernetes needs a pull secret with your access token to download images."
+dim ""
+dim "  These values will be used to:"
+dim "    - create the 'artifact-registry-secret' (docker-registry pull secret)"
+echo
+
+ask        REGISTRY_SERVER   "  Container registry server URL" "ar.scalekit.cloud"
+dim "  Registry username is always: oauth2accesstoken"
+REGISTRY_USERNAME="oauth2accesstoken"
+ask_secret REGISTRY_PASSWORD "  Registry access token (your personal or service account token)"
+echo
+
+# ── GKE Gateway (GKE only) ────────────────────────────────────────────────────
+if [[ "$ENV_CHOICE" == "2" ]]; then
+  header "  [GKE Gateway]"
+  dim "  On GKE, all external traffic enters through a Google-managed L7 gateway."
+  dim ""
+  dim "  These values will be used to:"
+  dim "    - set gateway.className and networking.gke.io/certmap in values.yaml"
+  echo
+  ask GATEWAY_CLASS "  GKE gateway class name" "gke-l7-global-external-managed"
+  ask CERT_MAP_NAME "  GCP certificate map name covering your domain (networking.gke.io/certmap)"
+  echo
+fi
+
+# ── App ───────────────────────────────────────────────────────────────────────
+header "  [App] Application settings"
+dim "  The base domain is used to derive all subdomains (app.*, auth.*). Region"
+dim "  controls data residency labelling. Replica count sets pods per service."
+dim ""
+dim "  These values will be used to:"
+dim "    - set scalekit.config.app.* in values.yaml  (domain, protocol, region)"
+echo
+
+if [[ "$ENV_CHOICE" == "1" ]]; then
+  ask APP_DOMAIN    "  Application base domain" "scalekit.local"
+  APP_PROTOCOL="http"
+  OIDC_ALLOW_INSECURE="true"
+else
+  ask APP_DOMAIN    "  Application base domain (e.g. onprem.scalekit.cloud)"
+  APP_PROTOCOL="https"
+  OIDC_ALLOW_INSECURE="false"
+fi
+ask APP_REGION    "  Deployment region for data residency labelling (e.g. us, eu)" "us"
+ask REPLICA_COUNT "  Number of pod replicas per service" "2"
+echo
+
+# ── Admin seed user ───────────────────────────────────────────────────────────
+header "  [Admin] Seed admin user"
+dim "  This account is created automatically on first boot. Use it to log in"
+dim "  to the Scalekit dashboard and set up your workspace."
+dim ""
+dim "  These values will be used to:"
+dim "    - set seedData.adminUser.* in values.yaml  (firstName, lastName, email)"
+echo
+
+ask ADMIN_FIRST_NAME "  Admin user first name"
+ask ADMIN_LAST_NAME  "  Admin user last name"
+ask ADMIN_EMAIL      "  Admin user email address (used to log in to the dashboard)"
+echo
+
+
+# ── Step 5: Summary ───────────────────────────────────────────────────────────
+header "Step 5 — Review all values"
+echo
+echo -e "${DIM}Auto-generated:${RESET}"
+echo "  traefik_token             = $TRAEFIK_TOKEN"
+echo "  oidc_master_key           = $OIDC_MASTER_KEY"
+echo "  securecookie_encryptkey   = $SECURECOOKIE_ENCRYPTKEY"
+echo "  securecookie_hashkey      = $SECURECOOKIE_HASHKEY"
+echo "  svix_jwt_secret           = $SVIX_JWT_SECRET"
+echo "  svix_main_secret          = $SVIX_MAIN_SECRET"
+echo "  svix_api_key              = $SVIX_API_KEY"
+echo "  fga_api_token             = $FGA_API_TOKEN"
+echo "  openfga_extra_key         = $OPENFGA_EXTRA_KEY"
+echo "  app_oidc_client_id        = $APP_OIDC_CLIENT_ID"
+echo "  app_oidc_client_secret    = $APP_OIDC_CLIENT_SECRET"
+echo
+echo -e "${DIM}Database (shared credentials):${RESET}"
+echo "  host                      = $DB_HOST:$DB_PORT"
+echo "  username                  = $DB_USER"
+echo "  password                  = $DATABASE_PASSWORD"
+echo "  scalekit db               = $DB_NAME_SCALEKIT  →  $DATABASE_URL"
+echo "  svix db                   = $DB_NAME_SVIX      →  $SVIX_DB_DSN"
+if [[ "$OPENFGA_ENABLED" == "true" ]]; then
+  echo "  openfga db                = $DB_NAME_OPENFGA   →  $OPENFGA_DB_URI"
+fi
+echo
+echo -e "${DIM}Provided by you:${RESET}"
+echo "  namespace                 = $NAMESPACE"
+echo "  environment               = $ENV_LABEL"
+echo "  redis host:port           = $REDIS_HOST:$REDIS_PORT"
+echo "  redis password            = ${REDIS_PASSWORD:-<empty>}"
+echo "  redis.db (main)           = $REDIS_DB"
+echo "  redis.db (asynq)          = $ASYNQ_REDIS_DB"
+echo "  redis.db (svix)           = $SVIX_REDIS_DB  →  $SVIX_REDIS_DSN"
+echo "  smtp password             = $SMTP_PASSWORD"
+echo "  smtp from                 = $EMAIL_FROM_NAME <$EMAIL_FROM>"
+echo "  smtp host:port            = $SMTP_HOST:$SMTP_PORT"
+echo "  smtp username             = $SMTP_USERNAME"
+echo "  app.domain                = $APP_DOMAIN"
+echo "  app.region                = $APP_REGION"
+echo "  app.protocol              = $APP_PROTOCOL"
+echo "  replicaCount              = $REPLICA_COUNT"
+echo "  adminUser                 = $ADMIN_FIRST_NAME $ADMIN_LAST_NAME <$ADMIN_EMAIL>"
+echo "  registry_server           = $REGISTRY_SERVER"
+echo "  registry_password         = $REGISTRY_PASSWORD"
+echo
+
+# ── Step 6: Write secrets script ─────────────────────────────────────────────
+OUTPUT_FILE="$(pwd)/scalekit-secrets-${ENV_LABEL}-$(date +%Y%m%d%H%M%S).sh"
+
+cat > "$OUTPUT_FILE" <<EOF
+#!/usr/bin/env bash
+# Scalekit secrets setup — generated $(date)
+# Environment: $ENV_LABEL | Namespace: $NAMESPACE
+
+# Create namespace
+kubectl create namespace $NAMESPACE
+
+# authentication-service-token
+kubectl create secret generic authentication-service-token \
+  --from-literal=TOKEN="$TRAEFIK_TOKEN" \
+  --dry-run=client -o yaml | kubectl apply -f - -n $NAMESPACE
+
+# db-migrations
+kubectl create secret generic db-migrations \
+  --from-literal=DATABASE_URL="$DATABASE_URL" \
+  --from-literal=DB_ADAPTER="postgresql" \
+  --dry-run=client -o yaml | kubectl apply -f - -n $NAMESPACE
+
+# authentication-secret
+kubectl create secret generic authentication-secret \
+  --from-literal=app_oidc_client_id="$APP_OIDC_CLIENT_ID" \
+  --from-literal=app_oidc_client_secret="$APP_OIDC_CLIENT_SECRET" \
+  --from-literal=email_key="$EMAIL_KEY" \
+  --from-literal=fga_config_api_token="$FGA_API_TOKEN" \
+  --from-literal=oidc_master_key="$OIDC_MASTER_KEY" \
+  --from-literal=postmark_key="$POSTMARK_KEY" \
+  --from-literal=database_password="$DATABASE_PASSWORD" \
+  --from-literal=asynq_redis_password="$ASYNQ_REDIS_PASSWORD" \
+  --from-literal=redis_password="$REDIS_PASSWORD" \
+  --from-literal=securecookie_encryptkey="$SECURECOOKIE_ENCRYPTKEY" \
+  --from-literal=securecookie_hashkey="$SECURECOOKIE_HASHKEY" \
+  --from-literal=sendgrid_key="$SENDGRID_KEY" \
+  --from-literal=app_scalekit_traefik_token="$TRAEFIK_TOKEN" \
+  --from-literal=svix_api_key="$SVIX_API_KEY" \
+  --from-literal=seed_data_email_server_settings_password="$SMTP_PASSWORD" \
+  --dry-run=client -o yaml | kubectl apply -f - -n $NAMESPACE
+
+# svix-secrets
+kubectl create secret generic svix-secrets \
+  --from-literal=db-dsn="$SVIX_DB_DSN" \
+  --from-literal=jwt-secret="$SVIX_JWT_SECRET" \
+  --from-literal=main-secret="$SVIX_MAIN_SECRET" \
+  --from-literal=redis-dsn="$SVIX_REDIS_DSN" \
+  --from-literal=api-token="$SVIX_API_KEY" \
+  --dry-run=client -o yaml | kubectl apply -f - -n $NAMESPACE
+
+# artifact-registry-secret
+kubectl create secret docker-registry artifact-registry-secret \
+  --docker-server="$REGISTRY_SERVER" \
+  --docker-username="$REGISTRY_USERNAME" \
+  --docker-password="$REGISTRY_PASSWORD" \
+  -n $NAMESPACE
+
+# Verify all secrets are present
+kubectl get secrets -n $NAMESPACE
+EOF
+
+if [[ "$OPENFGA_ENABLED" == "true" ]]; then
+  cat >> "$OUTPUT_FILE" <<EOF
+
+# openfga-secrets
+kubectl create secret generic openfga-secrets \
+  --from-literal=keys="${OPENFGA_EXTRA_KEY},${FGA_API_TOKEN}" \
+  --from-literal=password="$DATABASE_PASSWORD" \
+  --from-literal=uri="$OPENFGA_DB_URI" \
+  --from-literal=username="$DB_USER" \
+  --dry-run=client -o yaml | kubectl apply -f - -n $NAMESPACE
+EOF
+fi
+
+chmod +x "$OUTPUT_FILE"
+success "Secrets script written to: $OUTPUT_FILE"
+
+# ── Step 7: Generate values.yaml ─────────────────────────────────────────────
+header "Step 7 — Generating values.yaml"
+
+PROTO="$APP_PROTOCOL"
+CDN1="${PROTO}://cdn.scalekit.com"
+CDN2="${PROTO}://cdn.scalekit.cloud"
+WILD="${PROTO}://*.${APP_DOMAIN}"
+
+CSP_HEADER="default-src 'self' ${CDN1} ${CDN2} ${WILD}; "
+CSP_HEADER+="style-src 'self' 'unsafe-inline' ${PROTO}://fonts.googleapis.com ${CDN1} ${CDN2} ${WILD}; "
+CSP_HEADER+="script-src 'self' ${CDN1} ${CDN2} ${WILD}; "
+CSP_HEADER+="connect-src 'self' ${CDN1} ${CDN2} ${WILD} wss://*.pusher.com; "
+CSP_HEADER+="font-src ${PROTO}://fonts.gstatic.com; "
+CSP_HEADER+="worker-src 'self' blob:; "
+CSP_HEADER+="img-src 'self' ${PROTO}: data:; "
+CSP_HEADER+="frame-src 'self' ${CDN1} ${CDN2} ${WILD};"
+
+VALUES_FILE="$(pwd)/values-${ENV_LABEL}-$(date +%Y%m%d%H%M%S).yaml"
+
+cat > "$VALUES_FILE" <<EOF
+replicaCount: ${REPLICA_COUNT}
+
+scalekit:
+  service:
+    annotations:
+      cloud.google.com/neg: '{"exposed_ports":{"8888":{}}}'
+  config:
+    app:
+      region: ${APP_REGION}
+      domain: "${APP_DOMAIN}"
+    database:
+      host: "${DB_HOST}"
+      name: "${DB_NAME_SCALEKIT}"
+      user: "${DB_USER}"
+      port: ${DB_PORT}
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      db: ${REDIS_DB}
+    asynq:
+      redis:
+        host: ${REDIS_HOST}
+        port: ${REDIS_PORT}
+        db: ${ASYNQ_REDIS_DB}
+    seedData:
+      adminUser:
+        firstName: "${ADMIN_FIRST_NAME}"
+        lastName: "${ADMIN_LAST_NAME}"
+        email: "${ADMIN_EMAIL}"
+      emailServer:
+        serverType: "SMTP"
+        provider: "OTHER"
+        enabled: true
+        idOffset: 1
+        settings:
+          fromEmail: "${EMAIL_FROM}"
+          fromName: "${EMAIL_FROM_NAME}"
+          host: "${SMTP_HOST}"
+          port: ${SMTP_PORT}
+          username: "${SMTP_USERNAME}"
+
+sidecars:
+  dashboard:
+    service:
+      annotations:
+        cloud.google.com/neg: '{"exposed_ports":{"8000":{}}}'
+    securityContext:
+      runAsUser: 0
+      runAsGroup: 0
+    env:
+      - name: CSP_HEADER
+        value: "${CSP_HEADER}"
+  flagd:
+    service:
+      annotations:
+        cloud.google.com/neg: '{"exposed_ports":{"8016":{}}}'
+  svix:
+    service:
+      annotations:
+        cloud.google.com/neg: '{"exposed_ports":{"8071":{}}}'
+    config:
+      region: "${APP_REGION}"
+      defaultRegion: "${APP_REGION}"
+$(if [[ "$OPENFGA_ENABLED" == "true" ]]; then echo "  openfga:
+    enabled: true"; fi)
+
+gateway:
+  enabled: true
+  provider: gcp
+  className: "${GATEWAY_CLASS}"
+  annotations:
+    networking.gke.io/certmap: "${CERT_MAP_NAME}"
+  redirectToHttps: true
+  healthCheckPolicy:
+    enabled: true
+EOF
+
+success "values.yaml written to: $VALUES_FILE"
+
+# ── Step 8: Helm install command ─────────────────────────────────────────────
+header "Step 8 — Helm install"
+ask CHART_VERSION "Which version of the Scalekit chart do you want to install? (e.g. 0.1.0)"
+
+header "Done"
+echo
+success "Secrets script : $OUTPUT_FILE"
+success "values.yaml    : $VALUES_FILE"
+echo
+echo -e "${BOLD}${CYAN}┌─────────────────────────────────────────────────────────────┐${RESET}"
+echo -e "${BOLD}${CYAN}│                  before you proceed                         │${RESET}"
+echo -e "${BOLD}${CYAN}└─────────────────────────────────────────────────────────────┘${RESET}"
+echo
+echo -e "  Ensure the following databases exist on ${BOLD}${DB_HOST}:${DB_PORT}${RESET}"
+echo
+echo "    psql -h localhost -p $DB_PORT -U $DB_USER -d postgres -c '\l'"
+echo
+echo -e "  Expected databases:"
+echo -e "    ${GREEN}✓${RESET}  $DB_NAME_SCALEKIT    (Scalekit main application)"
+echo -e "    ${GREEN}✓${RESET}  $DB_NAME_SVIX        (Svix webhooks)"
+if [[ "$OPENFGA_ENABLED" == "true" ]]; then
+  echo -e "    ${GREEN}✓${RESET}  $DB_NAME_OPENFGA     (OpenFGA authorization)"
+fi
+echo
+echo -e "  If any database is missing, create it first:"
+echo "    psql -h localhost -p $DB_PORT -U $DB_USER -d postgres -c 'CREATE DATABASE $DB_NAME_SCALEKIT;'"
+echo "    psql -h localhost -p $DB_PORT -U $DB_USER -d postgres -c 'CREATE DATABASE $DB_NAME_SVIX;'"
+if [[ "$OPENFGA_ENABLED" == "true" ]]; then
+  echo "    psql -h localhost -p $DB_PORT -U $DB_USER -d postgres -c 'CREATE DATABASE $DB_NAME_OPENFGA;'"
+fi
+echo
+echo -e "${BOLD}${CYAN}┌─────────────────────────────────────────────────────────────┐${RESET}"
+echo -e "${BOLD}${CYAN}│              execute the following commands                  │${RESET}"
+echo -e "${BOLD}${CYAN}└─────────────────────────────────────────────────────────────┘${RESET}"
+echo
+echo "  bash $OUTPUT_FILE"
+echo
+echo "  helm install scalekit oci://ar.scalekit.cloud/scalekit/charts/scalekit \\"
+echo "    --version ${CHART_VERSION} \\"
+echo "    -n ${NAMESPACE} \\"
+echo "    --values=${VALUES_FILE}"
+echo
+echo -e "${BOLD}${CYAN}└─────────────────────────────────────────────────────────────┘${RESET}"
+```

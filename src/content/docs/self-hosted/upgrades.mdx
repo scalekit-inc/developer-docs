@@ -1,0 +1,123 @@
+---
+title: Upgrades & maintenance
+description: How to upgrade your self-hosted Scalekit deployment and perform routine maintenance tasks.
+sidebar:
+  label: Upgrades & maintenance
+  order: 5
+tags: [self-hosted, upgrades, maintenance, helm, kubernetes]
+tableOfContents: true
+prev:
+  label: Installation
+  link: /self-hosted/installation/
+next:
+  label: Troubleshooting
+  link: /self-hosted/troubleshooting/
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+## Upgrade Scalekit
+
+New Scalekit versions are distributed through [distr.sh](https://distr.sh). When an upgrade is available, download the new chart version from your distr.sh account.
+
+The chart includes a pre-upgrade Helm hook that runs database migrations before the new pods start. You do not need to run migrations manually.
+
+<Aside type="caution" title="Back up your database before upgrading">
+  Always take a PostgreSQL backup before running `helm upgrade`. See [Back up your databases](#back-up-your-databases) below.
+</Aside>
+
+<Steps>
+1. ## Back up your databases
+
+   ```bash
+   # Scalekit core database
+   pg_dump -h <db-host> -U scalekit -d scalekit \
+     -F c -f scalekit-backup-$(date +%Y%m%d).dump
+
+   # Svix database
+   pg_dump -h <db-host> -U scalekit -d svix \
+     -F c -f svix-backup-$(date +%Y%m%d).dump
+   ```
+
+2. ## Download the new chart version
+
+   Log in to [distr.sh](https://distr.sh) and download the updated chart archive.
+
+3. ## Run the upgrade
+
+   ```bash
+   helm upgrade scalekit ./scalekit \
+     --namespace scalekit \
+     --values values.yaml \
+     --wait
+   ```
+
+   The pre-upgrade hook runs migrations, then the new pods roll out. `--wait` blocks until the rollout is complete.
+
+4. ## Verify the upgrade
+
+   ```bash
+   kubectl get pods -n scalekit
+   kubectl rollout status deployment/scalekit -n scalekit
+   ```
+
+</Steps>
+
+## Roll back an upgrade
+
+If an upgrade causes issues, roll back to the previous Helm release revision:
+
+```bash
+# List revisions
+helm history scalekit -n scalekit
+
+# Roll back to the previous revision
+helm rollback scalekit -n scalekit
+```
+
+If the upgrade ran schema migrations, you also need to restore your database backup:
+
+```bash
+pg_restore -h <db-host> -U scalekit -d scalekit \
+  -F c scalekit-backup-<date>.dump
+```
+
+## Back up your databases
+
+| Database | Frequency (production) | Retention |
+|----------|----------------------|-----------|
+| `scalekit` | Every 6 hours | 30 days |
+| `svix` | Daily | 7 days |
+| `openfga` | Daily | 7 days |
+
+```bash
+# Full backup of all three databases
+for db in scalekit svix openfga; do
+  pg_dump -h <db-host> -U scalekit -d $db \
+    -F c -f ${db}-$(date +%Y%m%d-%H%M).dump
+done
+```
+
+## Renew TLS certificates
+
+When your TLS certificate is due for renewal, update the Kubernetes secret and Scalekit will pick up the new certificate on the next pod restart:
+
+```bash
+kubectl create secret tls your-tls-secret \
+  --cert=new-cert.pem \
+  --key=new-key.pem \
+  -n scalekit \
+  --dry-run=client -o yaml | kubectl apply -f -
+
+kubectl rollout restart deployment/scalekit -n scalekit
+```
+
+## Routine maintenance tasks
+
+| Task | Frequency | Action |
+|------|-----------|--------|
+| Review auth logs | Daily | Admin dashboard → **Audit logs** |
+| Check pod health | Daily | `kubectl get pods -n scalekit` |
+| Rotate Redis cache | As needed | Automatic — expired keys are evicted by Redis TTL |
+| Vacuum PostgreSQL | Weekly | Run `VACUUM ANALYZE` on each Scalekit database |
+| Rotate secrets | Per policy | Re-run `setup-secrets.sh` with new values and restart pods |
