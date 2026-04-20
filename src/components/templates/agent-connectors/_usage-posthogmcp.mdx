@@ -1,0 +1,82 @@
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+Connect a user's PostHog account and interact with PostHog's analytics, feature flags, experiments, and more through Scalekit. Scalekit handles the OAuth flow, token storage, and tool execution automatically.
+
+PostHog MCP is primarily used through Scalekit tools. Use `scalekit_client.actions.execute_tool()` to query analytics, manage feature flags, run experiments, and retrieve insights without calling the upstream MCP server directly.
+
+## Tool calling
+
+Use this connector when you want an agent to work with PostHog data and configuration.
+
+- Use `posthogmcp_feature_flag_get_all` to list and search feature flags in a project.
+- Use `posthogmcp_query_run` to run trend, funnel, path, or HogQL queries against your analytics data.
+- Use `posthogmcp_experiment_create` to create A/B tests with custom metrics and variant splits.
+- Use `posthogmcp_survey_create` to create surveys and `posthogmcp_survey_stats` to retrieve response data.
+- Use `posthogmcp_event_definitions_list` to discover available events before building queries or funnels.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+    ```python title="examples/posthogmcp_list_flags.py"
+    import os
+    from scalekit.client import ScalekitClient
+
+    scalekit_client = ScalekitClient(
+        client_id=os.environ["SCALEKIT_CLIENT_ID"],
+        client_secret=os.environ["SCALEKIT_CLIENT_SECRET"],
+        env_url=os.environ["SCALEKIT_ENV_URL"],
+    )
+
+    auth_link = scalekit_client.actions.get_authorization_link(
+        connection_name="posthogmcp",
+        identifier="user_123",
+    )
+    print("Authorize PostHog MCP:", auth_link.link)
+    input("Press Enter after authorizing...")
+
+    connected_account = scalekit_client.actions.get_or_create_connected_account(
+        connection_name="posthogmcp",
+        identifier="user_123",
+    )
+
+    tool_response = scalekit_client.actions.execute_tool(
+        tool_name="posthogmcp_feature_flag_get_all",
+        connected_account_id=connected_account.connected_account.id,
+        tool_input={},
+    )
+    print("Feature flags:", tool_response)
+    ```
+  </TabItem>
+  <TabItem label="Node.js">
+    ```typescript title="examples/posthogmcp_list_flags.ts"
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL!,
+      process.env.SCALEKIT_CLIENT_ID!,
+      process.env.SCALEKIT_CLIENT_SECRET!
+    );
+    const actions = scalekit.actions;
+
+    const { link } = await actions.getAuthorizationLink({
+      connectionName: 'posthogmcp',
+      identifier: 'user_123',
+    });
+    console.log('Authorize PostHog MCP:', link);
+    process.stdout.write('Press Enter after authorizing...');
+    await new Promise((resolve) => process.stdin.once('data', resolve));
+
+    const connectedAccount = await actions.getOrCreateConnectedAccount({
+      connectionName: 'posthogmcp',
+      identifier: 'user_123',
+    });
+
+    const toolResponse = await actions.executeTool({
+      toolName: 'posthogmcp_feature_flag_get_all',
+      connectedAccountId: connectedAccount?.id,
+      toolInput: {},
+    });
+    console.log('Feature flags:', toolResponse.data);
+    ```
+  </TabItem>
+</Tabs>
