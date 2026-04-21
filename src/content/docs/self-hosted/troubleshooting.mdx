@@ -92,24 +92,6 @@ kubectl logs <pod-name> -n scalekit -c svix --tail=100
 
 ---
 
-## Authentication errors
-
-### `redirect_uri_mismatch` during login
-
-**Cause**: The callback URL in the authorization request does not match any registered redirect URL.
-
-**Fix**: In the admin dashboard, go to **Applications > Your App > Redirect URLs** and add the exact callback URL your application uses.
-
----
-
-### `invalid_client` on token exchange
-
-**Cause**: Wrong `client_id` or `client_secret`, or the credentials point to a different environment.
-
-**Fix**: Check **Dashboard > Developers > API credentials** and confirm `SCALEKIT_ENVIRONMENT_URL` in your application matches your self-hosted domain.
-
----
-
 ## Gateway issues
 
 ### Gateway has no external IP
@@ -133,17 +115,8 @@ On GKE, confirm the GKE Gateway controller is enabled in your cluster settings.
 
 ---
 
-### TLS certificate not provisioning
-
-**Cause**: The certificate annotation on the Gateway is incorrect, or the certificate manager has not issued the certificate yet.
-
-**Fix**: Check your cloud provider's certificate manager console for issuance errors. Confirm the `gateway.annotations` value in `values.yaml` uses the correct annotation key and certificate resource name for your provider.
-
----
-
 ## Get support
 
 If the issue is not covered here:
 
-- **Enterprise support**: File a ticket via your Scalekit customer portal with pod logs and the output of `kubectl describe pod <pod-name> -n scalekit` attached.
 - **Community**: Join the [Scalekit Slack community](https://join.slack.com/t/scalekit-community/shared_invite/zt-3gsxwr4hc-0tvhwT2b_qgVSIZQBQCWRw) in the `#self-hosted` channel.
