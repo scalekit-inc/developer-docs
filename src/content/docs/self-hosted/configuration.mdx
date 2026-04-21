@@ -167,7 +167,10 @@ scalekit:
       port: 5432
 ```
 
-The database password is stored in the `authentication-secret` Kubernetes secret (`database_password` key), not in `values.yaml`.
+When using external PostgreSQL (`postgresql.enabled: false`), the database password is injected via Kubernetes secret:
+
+- **`secrets.create: true`** — provide it under `secrets.database.password` in `values.yaml`; the chart creates the secret automatically
+- **`secrets.create: false`** — pre-create the `authentication-secret` with a `database_password` key using the setup script
 
 Omit this section entirely when using the bundled PostgreSQL subchart (`postgresql.enabled: true`).
 
@@ -182,7 +185,10 @@ scalekit:
       db: 0
 ```
 
-The Redis password is stored in the `authentication-secret` Kubernetes secret (`redis_password` key).
+When using external Redis (`redis.enabled: false`), the Redis password and DSN are injected via Kubernetes secret:
+
+- **`secrets.create: true`** — provide the DSN under `secrets.svix.redisDsn` in `values.yaml`; the chart creates the secret automatically
+- **`secrets.create: false`** — pre-create the `svix-secrets` with a `redis-dsn` key using the setup script
 
 Omit this section entirely when using the bundled Redis subchart (`redis.enabled: true`).
 
@@ -211,7 +217,7 @@ scalekit:
 ```
 
 <Aside type="note" title="Email server password">
-  The email server password is stored in `authentication-secret` under `seed_data_email_server_settings_password`. The setup script sets this automatically.
+  The SMTP password is not set here. Provide it via `secrets.smtp.password` in `values.yaml` when using `secrets.create: true`, or in the `authentication-secret` Kubernetes secret (`seed_data_email_server_settings_password` key) when using the setup script.
 </Aside>
 
 ### Gateway
@@ -298,17 +304,16 @@ scalekit:
 
 ## Secrets reference
 
-All sensitive values are stored in Kubernetes secrets, not in `values.yaml`. The setup script (`setup-secrets.sh`) creates these for you.
+Scalekit uses Kubernetes secrets to inject all sensitive values into pods. There are two ways these secrets are created:
 
-| Secret name | Key fields |
-|-------------|------------|
-| `authentication-service-token` | `TOKEN` — dashboard auth token |
-| `db-migrations` | `DATABASE_URL`, `DB_ADAPTER` |
-| `authentication-secret` | DB password, Redis password, OIDC keys, cookie keys, email keys, webhook API key |
-| `svix-secrets` | `db-dsn`, `jwt-secret`, `main-secret`, `redis-dsn`, `api-token` |
-| `openfga-secrets` | `keys`, `password`, `uri`, `username` |
-| `artifact-registry-secret` | Docker registry credentials for <code>{REGISTRY_HOST}</code> |
+- **`secrets.create: true`** (quick start) — the chart auto-creates all secrets from values you provide in `values.yaml` under the `secrets.*` block
+- **`secrets.create: false`** (full deployment) — you pre-create the secrets using the setup script
 
-<Aside type="caution" title="Never put secrets in values.yaml">
-  All credentials are injected into pods via Kubernetes secrets. Do not add passwords or keys to `values.yaml`.
-</Aside>
+| Secret name | Key fields | Created by |
+|-------------|------------|------------|
+| `authentication-service-token` | `TOKEN` — dashboard auth token | Chart or setup script |
+| `db-migrations` | `DATABASE_URL`, `DB_ADAPTER` | Chart or setup script |
+| `authentication-secret` | DB password, Redis password, OIDC keys, cookie keys, email keys, webhook API key | Chart or setup script |
+| `svix-secrets` | `db-dsn`, `jwt-secret`, `main-secret`, `redis-dsn`, `api-token` | Chart or setup script |
+| `artifact-registry-secret` | Docker registry credentials for <code>{REGISTRY_HOST}</code> | Chart or setup script |
+| `openfga-secrets` | `keys`, `uri` | Chart or setup script — only when `sidecars.openfga.enabled: true` |

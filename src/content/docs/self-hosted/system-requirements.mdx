@@ -29,7 +29,12 @@ Before installing Scalekit, confirm your infrastructure meets the requirements b
 
 Any managed Kubernetes service works — GKE, EKS, AKS, or a self-managed cluster.
 
-Scalekit uses the **Kubernetes Gateway API** for ingress. Your cluster must have a GatewayClass installed:
+Scalekit supports two ingress options — use one, not both:
+
+- **Kubernetes Gateway API** (recommended for cloud clusters): requires a GatewayClass installed on your cluster
+- **Nginx Ingress** (for local or Minikube deployments): requires the nginx ingress controller
+
+For Gateway API, common GatewayClasses:
 
 | Provider | GatewayClass |
 |----------|-------------|
@@ -46,7 +51,7 @@ Scalekit requires **three separate databases** on PostgreSQL 15 or later. These 
 | Database | Used by |
 |----------|---------|
 | `scalekit` | Core auth service |
-| `svix` | Webhook delivery |
+| `webhooks` | Webhook delivery |
 | `openfga` | Authorization engine (if enabled) |
 
 Create a dedicated user with full privileges on each database. Scalekit runs migrations automatically on install and upgrade.

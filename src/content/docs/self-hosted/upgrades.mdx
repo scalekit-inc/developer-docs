@@ -33,9 +33,9 @@ New versions are available through the <a href={DISTR_URL}>Scalekit distribution
    pg_dump -h <db-host> -U <db-user> -d scalekit \
      -F c -f scalekit-backup-$(date +%Y%m%d).dump
 
-   # Svix database
-   pg_dump -h <db-host> -U <db-user> -d svix \
-     -F c -f svix-backup-$(date +%Y%m%d).dump
+   # Webhooks database
+   pg_dump -h <db-host> -U <db-user> -d webhooks \
+     -F c -f webhooks-backup-$(date +%Y%m%d).dump
    ```
 
 2. ## Select the new version in the portal
@@ -91,12 +91,12 @@ pg_restore -h <db-host> -U <db-user> -d scalekit \
 | Database | Frequency (production) | Retention |
 |----------|----------------------|-----------|
 | `scalekit` | Every 6 hours | 30 days |
-| `svix` | Daily | 7 days |
+| `webhooks` | Daily | 7 days |
 | `openfga` | Daily | 7 days |
 
 ```bash
 # Full backup of all three databases
-for db in scalekit svix openfga; do
+for db in scalekit webhooks openfga; do
   pg_dump -h <db-host> -U <db-user> -d $db \
     -F c -f ${db}-$(date +%Y%m%d-%H%M).dump
 done
