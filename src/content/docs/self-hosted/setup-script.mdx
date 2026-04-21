@@ -22,9 +22,7 @@ The setup script is a **one-time tool for initial deployment**. Run it once to b
 It collects your configuration interactively and produces two output files:
 
 - **A secrets script** (`scalekit-secrets-<env>-<timestamp>.sh`) — runs `kubectl` commands to create all five required Kubernetes secrets
-- **A values file** (`values-<env>-<timestamp>.yaml`) — ready to pass directly to `helm install`
-
-At the end it prints the exact `helm install` command to run.
+- **A values file** (`values-<env>-<timestamp>.yaml`) — paste this into the <a href={DISTR_URL}>Scalekit distribution portal</a> when creating your deployment
 
 ## Prerequisites
 
@@ -69,7 +67,7 @@ When prompted to choose an environment, enter the number that matches your targe
 
 ### Evaluation mode
 
-Option `4` is a shortcut for a local or throwaway environment. The script asks only for a webhook JWT secret, a webhook API token, and a registry access token, then exits. It generates a minimal `values-eval-<timestamp>.yaml` and prints a single `helm install` command. No databases or Redis instances are needed — the chart provides bundled ones.
+Option `4` is a shortcut for a local or throwaway environment. The script asks only for a webhook JWT secret, a webhook API token, and a registry access token, then exits. It generates a minimal `values-eval-<timestamp>.yaml` to paste into the distribution portal. No databases or Redis instances are needed — the chart provides bundled ones.
 
 **Do not use evaluation mode in production.** The bundled databases have no backups, no replication, and no persistent storage guarantees.
 
@@ -112,21 +110,16 @@ The script only asks for:
 
 ## After the script completes
 
-The script prints the exact commands to run:
+The script prints the paths to both generated files. Before proceeding:
 
-```bash
-# 1. Apply all Kubernetes secrets
-bash scalekit-secrets-<timestamp>.sh
-
-# 2. Install the Helm chart
-helm install scalekit oci://ar.scalekit.cloud/scalekit/charts/scalekit \
-  --version <chart-version> \
-  -n <namespace> \
-  --values values-<timestamp>.yaml
-```
+1. Run the secrets script to create all Kubernetes secrets:
+   ```bash
+   bash scalekit-secrets-<env>-<timestamp>.sh
+   ```
+2. Paste the contents of `values-<env>-<timestamp>.yaml` into the <a href={DISTR_URL}>Scalekit distribution portal</a> when creating or updating your deployment — see [Install Scalekit](/self-hosted/installation/) for the full portal flow.
 
 <Aside type="caution" title="Check databases exist first">
-  The script reminds you to verify that all three PostgreSQL databases exist before running `helm install`. The migration hook will fail if any database is missing.
+  The script reminds you to verify that all three PostgreSQL databases exist before connecting your cluster. The migration hook will fail if any database is missing.
 </Aside>
 
 ## Script
