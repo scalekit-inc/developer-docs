@@ -19,26 +19,10 @@ import { DISTR_URL } from '../../../configs/self-hosted'
 
 ## Upgrade Scalekit
 
-New versions are available through the <a href={DISTR_URL}>Scalekit distribution portal</a>. Upgrades are performed through the portal — it handles chart delivery and runs database migrations automatically before the new pods start.
-
-<Aside type="caution" title="Back up your databases before upgrading">
-  Always take a PostgreSQL backup before upgrading. See [Back up your databases](#back-up-your-databases) below.
-</Aside>
+New versions are available through the <a href={DISTR_URL}>Scalekit distribution portal</a>. Upgrades are performed through the portal — the Distr agent running in your cluster picks up the change and applies it automatically. Database migrations run before the new pods start.
 
 <Steps>
-1. ## Back up your databases
-
-   ```bash
-   # Scalekit core database
-   pg_dump -h <db-host> -U <db-user> -d scalekit \
-     -F c -f scalekit-backup-$(date +%Y%m%d).dump
-
-   # Webhooks database
-   pg_dump -h <db-host> -U <db-user> -d webhooks \
-     -F c -f webhooks-backup-$(date +%Y%m%d).dump
-   ```
-
-2. ## Select the new version in the portal
+1. ## Select the new version in the portal
 
    Log in to the <a href={DISTR_URL}>Scalekit distribution portal</a>. In the left sidebar, click **Deployments** and select your deployment.
 
@@ -46,19 +30,17 @@ New versions are available through the <a href={DISTR_URL}>Scalekit distribution
    - Under **Version**, select the new version
    - Click **Update deployment**
 
-   The portal provides a `kubectl apply` command. Copy it.
+   The portal notifies the Distr agent in your cluster. No manual `kubectl` command is needed.
 
-3. ## Apply the update to your cluster
+2. ## Monitor the upgrade
 
-   Run the command from the portal on your cluster:
+   The Distr agent handles chart delivery and migration sequencing. Check its logs to follow progress:
 
    ```bash
-   kubectl apply -n <namespace> -f "<portal-provided-url>"
+   kubectl logs -l app=distr-agent -n <namespace> --tail=100 -f
    ```
 
-   Migrations run automatically before the new pods start.
-
-4. ## Verify the upgrade
+3. ## Verify the upgrade
 
    ```bash
    kubectl get pods -n <namespace>
@@ -79,42 +61,9 @@ helm history scalekit -n <namespace>
 helm rollback scalekit -n <namespace>
 ```
 
-If the upgrade ran schema migrations, restore your database backup as well:
-
-```bash
-pg_restore -h <db-host> -U <db-user> -d scalekit \
-  -F c scalekit-backup-<date>.dump
-```
-
-## Back up your databases
-
-| Database | Frequency (production) | Retention |
-|----------|----------------------|-----------|
-| `scalekit` | Every 6 hours | 30 days |
-| `webhooks` | Daily | 7 days |
-| `openfga` | Daily | 7 days |
-
-```bash
-# Full backup of all three databases
-for db in scalekit webhooks openfga; do
-  pg_dump -h <db-host> -U <db-user> -d $db \
-    -F c -f ${db}-$(date +%Y%m%d-%H%M).dump
-done
-```
-
 ## Renew TLS certificates
 
-When your TLS certificate is due for renewal, update the Kubernetes secret and restart Scalekit to pick it up:
-
-```bash
-kubectl create secret tls your-tls-secret \
-  --cert=new-cert.pem \
-  --key=new-key.pem \
-  -n <namespace> \
-  --dry-run=client -o yaml | kubectl apply -f -
-
-kubectl rollout restart deployment/scalekit -n <namespace>
-```
+TLS certificates are managed through your cloud provider's certificate manager (for example, GCP Certificate Manager) or cert-manager. Renew certificates through your provider — the gateway picks up the updated certificate automatically without restarting Scalekit.
 
 ## Routine maintenance tasks
 
@@ -123,6 +72,6 @@ kubectl rollout restart deployment/scalekit -n <namespace>
 | Review auth logs | Daily | Admin dashboard → **Audit logs** |
 | Check pod health | Daily | `kubectl get pods -n <namespace>` |
 | Rotate Redis cache | As needed | Automatic — expired keys are evicted by Redis TTL |
-| Vacuum PostgreSQL | Weekly | Run `VACUUM ANALYZE` on each Scalekit database |
+| Back up databases | Regular | Take consistent backups of your PostgreSQL databases |
 | Rotate registry token | Before expiry | Create a new token in the portal, update `artifact-registry-secret`, restart pods |
 | Rotate individual secrets | Per policy | Edit the specific Kubernetes secret directly and restart pods |
