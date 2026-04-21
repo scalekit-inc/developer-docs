@@ -65,7 +65,14 @@ Deploy Scalekit on any Kubernetes cluster using the Helm chart distributed throu
    bash setup-secrets.sh
    ```
 
-   When prompted for environment, enter `2` for a Kubernetes cluster. The script walks you through namespace, PostgreSQL, Redis, SMTP, registry token, Gateway, domain, and admin user settings.
+   When prompted for environment, select the option that matches your target:
+
+   - `1` — Minikube (local, uses nginx ingress)
+   - `2` — GCP / GKE (configures GKE Gateway and NEG annotations)
+   - `3` — Other Kubernetes cluster (generic config, add your own ingress)
+   - `4` — Evaluation (bundled PostgreSQL and Redis; minimal setup)
+
+   The script walks you through namespace, PostgreSQL, Redis, SMTP, registry token, domain, and admin user settings. GKE-specific Gateway settings are only collected for option `2`.
 
    When the script finishes, it prints the paths to two generated files. Before proceeding, open each file and verify the values are correct.
 
@@ -95,7 +102,7 @@ Deploy Scalekit on any Kubernetes cluster using the Helm chart distributed throu
    kubectl get secrets -n <namespace>
    ```
 
-   Expected secrets: `authentication-service-token`, `db-migrations`, `authentication-secret`, `svix-secrets`, `openfga-secrets`, `artifact-registry-secret`.
+   Expected secrets: `authentication-service-token`, `db-migrations`, `authentication-secret`, `svix-secrets`, `artifact-registry-secret`. If you ran the script with `--enable-openfga`, `openfga-secrets` will also be present.
 
 4. ## Create a deployment
 

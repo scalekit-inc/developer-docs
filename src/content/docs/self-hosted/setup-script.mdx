@@ -21,8 +21,8 @@ The setup script is a **one-time tool for initial deployment**. Run it once to b
 
 It collects your configuration interactively and produces two output files:
 
-- **A secrets script** (`scalekit-secrets-<timestamp>.sh`) — runs `kubectl` commands to create all six required Kubernetes secrets
-- **A values file** (`values-<timestamp>.yaml`) — ready to pass directly to `helm install`
+- **A secrets script** (`scalekit-secrets-<env>-<timestamp>.sh`) — runs `kubectl` commands to create all five required Kubernetes secrets
+- **A values file** (`values-<env>-<timestamp>.yaml`) — ready to pass directly to `helm install`
 
 At the end it prints the exact `helm install` command to run.
 
@@ -32,7 +32,7 @@ At the end it prints the exact `helm install` command to run.
 |------|---------|---------|
 | `bash` | 4.0 or later | Run the script |
 | `openssl` | Any modern version | Generate cryptographic keys and tokens |
-| `python3` | 3.6 or later | Generate Svix JWT and OIDC client secret |
+| `python3` | 3.6 or later | Generate webhook JWT and OIDC client secret |
 | `kubectl` | 1.27 or later | Create Kubernetes secrets in your cluster |
 
 `kubectl` must be configured and pointed at the cluster you are deploying to before you run the script.
@@ -46,7 +46,7 @@ brew install bash
 ## Run the script
 
 <Aside type="caution" title="Run this script only once">
-  The script auto-generates cryptographic keys — OIDC master key, cookie encryption keys, Svix JWT secret, and others. These are written into your Kubernetes secrets and used by the running system. If you run the script again, it generates different values and overwrites the secrets, which will break your existing deployment.
+  The script auto-generates cryptographic keys — OIDC master key, cookie encryption keys, webhook JWT secret, and others. These are written into your Kubernetes secrets and used by the running system. If you run the script again, it generates different values and overwrites the secrets, which will break your existing deployment.
 
   To update a single credential (for example, to rotate a database password), edit the specific Kubernetes secret directly rather than re-running the script.
 </Aside>
@@ -58,7 +58,20 @@ chmod +x setup-secrets.sh
 bash setup-secrets.sh
 ```
 
-When prompted to choose an environment, enter `2` for a Kubernetes cluster deployment.
+When prompted to choose an environment, enter the number that matches your target:
+
+| Option | Environment | Notes |
+|--------|-------------|-------|
+| `1` | Minikube (local) | Uses nginx ingress; sets `http` protocol and `allow_insecure: true` |
+| `2` | GCP / GKE | Configures GKE Gateway API and NEG annotations |
+| `3` | Other Kubernetes cluster | Generic config — you add your own ingress or gateway |
+| `4` | Evaluation | Fast path: Helm spins up bundled PostgreSQL and Redis; only asks for webhook and registry credentials |
+
+### Evaluation mode
+
+Option `4` is a shortcut for a local or throwaway environment. The script asks only for a webhook JWT secret, a webhook API token, and a registry access token, then exits. It generates a minimal `values-eval-<timestamp>.yaml` and prints a single `helm install` command. No databases or Redis instances are needed — the chart provides bundled ones.
+
+**Do not use evaluation mode in production.** The bundled databases have no backups, no replication, and no persistent storage guarantees.
 
 ### Optional flags
 
@@ -69,20 +82,33 @@ When prompted to choose an environment, enter `2` for a Kubernetes cluster deplo
 
 ## What the script collects
 
+### Full setup (options 1, 2, 3)
+
 The script walks through these sections:
 
 | Section | What it asks |
 |---------|-------------|
 | **Namespace** | Kubernetes namespace to deploy into |
-| **PostgreSQL** | Host, port, credentials, and database names |
-| **Redis** | Host, port, password, and db indexes for app, background jobs, and Svix |
+| **Environment** | Deployment target: Minikube, GCP/GKE, other K8s, or Evaluation |
+| **PostgreSQL** | Host, port, credentials, and database names (scalekit, webhooks, openfga if enabled) |
+| **Redis** | Host, port, password, and db indexes for app, background jobs, and webhooks |
 | **Email (SMTP)** | From address, host, port, username, and password |
 | **Container registry** | Registry token from the <a href={DISTR_URL}>Scalekit distribution portal</a>; server defaults to <code>{REGISTRY_HOST}</code> |
-| **Gateway** | GatewayClass name and GCP certificate map |
-| **App settings** | Domain, region |
+| **GKE Gateway** | GatewayClass name and GCP certificate map (GCP/GKE only) |
+| **App settings** | Domain, region, replica count |
 | **Admin user** | First name, last name, email for the initial dashboard login |
 
-All cryptographic values (OIDC keys, cookie keys, Svix JWT, etc.) are auto-generated — you do not supply these.
+All cryptographic values (OIDC keys, cookie keys, webhook JWT, etc.) are auto-generated — you do not supply these.
+
+### Evaluation mode (option 4)
+
+The script only asks for:
+
+| Section | What it asks |
+|---------|-------------|
+| **Namespace** | Kubernetes namespace to deploy into |
+| **Webhook credentials** | JWT secret and API token |
+| **Container registry** | Registry access token |
 
 ## After the script completes
 
@@ -137,6 +163,7 @@ dim()     { echo "${DIM}$*${RESET}"; }
 
 ask() {
   local var="$1" msg="$2" default="${3:-}"
+  # If a default exists and --change-defaults is not set, use it silently
   if [[ -n "$default" && "$CHANGE_DEFAULTS" == "false" ]]; then
     eval "$var=\"$default\""
     dim "  $msg = $default (default)"
@@ -162,6 +189,7 @@ ask() {
 
 ask_secret() {
   local var="$1" msg="$2" default="${3:-}"
+  # If the 3rd argument was explicitly passed (even as ""), empty input is allowed
   local allow_empty="${3+yes}"
   while true; do
     if [[ -n "$default" ]]; then
@@ -190,9 +218,72 @@ ask NAMESPACE "Kubernetes namespace to deploy Scalekit into"
 echo
 echo -e "${YELLOW}Which environment are you deploying to?${RESET}"
 echo "  1) Minikube (local)"
-echo "  2) Kubernetes cluster (GKE / cloud)"
-read -rp "${YELLOW}Enter 1 or 2: ${RESET}" ENV_CHOICE
-ENV_LABEL=$([[ "$ENV_CHOICE" == "1" ]] && echo "minikube" || echo "gke")
+echo "  2) GCP / GKE"
+echo "  3) Other Kubernetes cluster"
+echo "  4) Evaluation (quickstart — Helm brings up PostgreSQL & Redis)"
+read -rp "${YELLOW}Enter 1, 2, 3 or 4: ${RESET}" ENV_CHOICE
+if [[ "$ENV_CHOICE" == "1" ]]; then
+  ENV_LABEL="minikube"
+elif [[ "$ENV_CHOICE" == "2" ]]; then
+  ENV_LABEL="gke"
+elif [[ "$ENV_CHOICE" == "4" ]]; then
+  ENV_LABEL="eval"
+else
+  ENV_LABEL="k8s"
+fi
+
+# ── Evaluation flow (early exit) ──────────────────────────────────────────────
+if [[ "$ENV_CHOICE" == "4" ]]; then
+  header "Step 2 — Evaluation setup"
+  dim "  Helm will spin up PostgreSQL and Redis automatically."
+  dim "  You only need a Svix API token and registry credentials."
+  echo
+
+  ask_secret SVIX_JWT_SECRET   "  Svix JWT secret (must be the secret used to sign the API token)"
+  ask_secret SVIX_API_KEY      "  Svix API token (JWT signed with the above secret)"
+  ask_secret REGISTRY_PASSWORD "  Registry access token"
+  echo
+
+  VALUES_FILE="$(pwd)/values-eval-$(date +%Y%m%d%H%M%S).yaml"
+  cat > "$VALUES_FILE" <<EOF
+secrets:
+  create: true
+  svix:
+    jwtSecret: "${SVIX_JWT_SECRET}"
+    apiToken: "${SVIX_API_KEY}"
+  registry:
+    password: "${REGISTRY_PASSWORD}"
+
+postgresql:
+  enabled: true
+
+redis:
+  enabled: true
+EOF
+
+  success "values.yaml written to: $VALUES_FILE"
+  echo
+
+  header "Step 3 — Helm install"
+  ask CHART_VERSION "  Chart version to install (e.g. 0.1.0)"
+  echo
+
+  header "Done"
+  echo
+  success "values.yaml : $VALUES_FILE"
+  echo
+  echo -e "${BOLD}${CYAN}┌─────────────────────────────────────────────────────────────┐${RESET}"
+  echo -e "${BOLD}${CYAN}│              execute the following command                   │${RESET}"
+  echo -e "${BOLD}${CYAN}└─────────────────────────────────────────────────────────────┘${RESET}"
+  echo
+  echo "  helm install scalekit oci://ar.scalekit.cloud/scalekit/charts/scalekit \\"
+  echo "    --version ${CHART_VERSION} \\"
+  echo "    -n ${NAMESPACE} \\"
+  echo "    --values=${VALUES_FILE}"
+  echo
+  echo -e "${BOLD}${CYAN}└─────────────────────────────────────────────────────────────┘${RESET}"
+  exit 0
+fi
 
 # ── Step 2: Auto-generate values ─────────────────────────────────────────────
 header "Step 2 — Generating secure values"
@@ -307,7 +398,7 @@ ask REDIS_DB       "  Redis db index for main application" "10"
 ask ASYNQ_REDIS_DB "  Redis db index for Asynq background jobs" "12"
 ask SVIX_REDIS_DB  "  Redis db index for Svix webhooks" "11"
 
-SVIX_REDIS_DSN="redis://${REDIS_HOST}:${REDIS_PORT}/${SVIX_REDIS_DB}#insecure"
+SVIX_REDIS_DSN="redis://${REDIS_PASSWORD:+:${REDIS_PASSWORD}@}${REDIS_HOST}:${REDIS_PORT}/${SVIX_REDIS_DB}#insecure"
 echo
 
 # ── Email ─────────────────────────────────────────────────────────────────────
@@ -346,7 +437,7 @@ REGISTRY_USERNAME="oauth2accesstoken"
 ask_secret REGISTRY_PASSWORD "  Registry access token (your personal or service account token)"
 echo
 
-# ── GKE Gateway (GKE only) ────────────────────────────────────────────────────
+# ── GKE Gateway (GCP only) ────────────────────────────────────────────────────
 if [[ "$ENV_CHOICE" == "2" ]]; then
   header "  [GKE Gateway]"
   dim "  On GKE, all external traffic enters through a Google-managed L7 gateway."
@@ -363,13 +454,17 @@ fi
 header "  [App] Application settings"
 dim "  The base domain is used to derive all subdomains (app.*, auth.*). Region"
 dim "  controls data residency labelling. Replica count sets pods per service."
+if [[ "$ENV_CHOICE" == "1" ]]; then
+  dim "  Minikube default: scalekit.local (local testing only, not internet-reachable)."
+fi
 dim ""
 dim "  These values will be used to:"
 dim "    - set scalekit.config.app.* in values.yaml  (domain, protocol, region)"
+dim "    - set replicaCount in values.yaml"
 echo
 
 if [[ "$ENV_CHOICE" == "1" ]]; then
-  ask APP_DOMAIN    "  Application base domain" "scalekit.local"
+  ask APP_DOMAIN    "  Application base domain (subdomains app.* and auth.* will be derived from this)" "scalekit.local"
   APP_PROTOCOL="http"
   OIDC_ALLOW_INSECURE="true"
 else
@@ -430,7 +525,9 @@ echo "  redis password            = ${REDIS_PASSWORD:-<empty>}"
 echo "  redis.db (main)           = $REDIS_DB"
 echo "  redis.db (asynq)          = $ASYNQ_REDIS_DB"
 echo "  redis.db (svix)           = $SVIX_REDIS_DB  →  $SVIX_REDIS_DSN"
+echo "  email_key                 = na (fixed)"
 echo "  smtp password             = $SMTP_PASSWORD"
+echo "  sendgrid_key              = na (fixed)"
 echo "  smtp from                 = $EMAIL_FROM_NAME <$EMAIL_FROM>"
 echo "  smtp host:port            = $SMTP_HOST:$SMTP_PORT"
 echo "  smtp username             = $SMTP_USERNAME"
@@ -455,49 +552,49 @@ cat > "$OUTPUT_FILE" <<EOF
 kubectl create namespace $NAMESPACE
 
 # authentication-service-token
-kubectl create secret generic authentication-service-token \
-  --from-literal=TOKEN="$TRAEFIK_TOKEN" \
+kubectl create secret generic authentication-service-token \\
+  --from-literal=TOKEN="$TRAEFIK_TOKEN" \\
   --dry-run=client -o yaml | kubectl apply -f - -n $NAMESPACE
 
 # db-migrations
-kubectl create secret generic db-migrations \
-  --from-literal=DATABASE_URL="$DATABASE_URL" \
-  --from-literal=DB_ADAPTER="postgresql" \
+kubectl create secret generic db-migrations \\
+  --from-literal=DATABASE_URL="$DATABASE_URL" \\
+  --from-literal=DB_ADAPTER="postgresql" \\
   --dry-run=client -o yaml | kubectl apply -f - -n $NAMESPACE
 
 # authentication-secret
-kubectl create secret generic authentication-secret \
-  --from-literal=app_oidc_client_id="$APP_OIDC_CLIENT_ID" \
-  --from-literal=app_oidc_client_secret="$APP_OIDC_CLIENT_SECRET" \
-  --from-literal=email_key="$EMAIL_KEY" \
-  --from-literal=fga_config_api_token="$FGA_API_TOKEN" \
-  --from-literal=oidc_master_key="$OIDC_MASTER_KEY" \
-  --from-literal=postmark_key="$POSTMARK_KEY" \
-  --from-literal=database_password="$DATABASE_PASSWORD" \
-  --from-literal=asynq_redis_password="$ASYNQ_REDIS_PASSWORD" \
-  --from-literal=redis_password="$REDIS_PASSWORD" \
-  --from-literal=securecookie_encryptkey="$SECURECOOKIE_ENCRYPTKEY" \
-  --from-literal=securecookie_hashkey="$SECURECOOKIE_HASHKEY" \
-  --from-literal=sendgrid_key="$SENDGRID_KEY" \
-  --from-literal=app_scalekit_traefik_token="$TRAEFIK_TOKEN" \
-  --from-literal=svix_api_key="$SVIX_API_KEY" \
-  --from-literal=seed_data_email_server_settings_password="$SMTP_PASSWORD" \
+kubectl create secret generic authentication-secret \\
+  --from-literal=app_oidc_client_id="$APP_OIDC_CLIENT_ID" \\
+  --from-literal=app_oidc_client_secret="$APP_OIDC_CLIENT_SECRET" \\
+  --from-literal=email_key="$EMAIL_KEY" \\
+  --from-literal=fga_config_api_token="$FGA_API_TOKEN" \\
+  --from-literal=oidc_master_key="$OIDC_MASTER_KEY" \\
+  --from-literal=postmark_key="$POSTMARK_KEY" \\
+  --from-literal=database_password="$DATABASE_PASSWORD" \\
+  --from-literal=asynq_redis_password="$ASYNQ_REDIS_PASSWORD" \\
+  --from-literal=redis_password="$REDIS_PASSWORD" \\
+  --from-literal=securecookie_encryptkey="$SECURECOOKIE_ENCRYPTKEY" \\
+  --from-literal=securecookie_hashkey="$SECURECOOKIE_HASHKEY" \\
+  --from-literal=sendgrid_key="$SENDGRID_KEY" \\
+  --from-literal=app_scalekit_traefik_token="$TRAEFIK_TOKEN" \\
+  --from-literal=svix_api_key="$SVIX_API_KEY" \\
+  --from-literal=seed_data_email_server_settings_password="$SMTP_PASSWORD" \\
   --dry-run=client -o yaml | kubectl apply -f - -n $NAMESPACE
 
 # svix-secrets
-kubectl create secret generic svix-secrets \
-  --from-literal=db-dsn="$SVIX_DB_DSN" \
-  --from-literal=jwt-secret="$SVIX_JWT_SECRET" \
-  --from-literal=main-secret="$SVIX_MAIN_SECRET" \
-  --from-literal=redis-dsn="$SVIX_REDIS_DSN" \
-  --from-literal=api-token="$SVIX_API_KEY" \
+kubectl create secret generic svix-secrets \\
+  --from-literal=db-dsn="$SVIX_DB_DSN" \\
+  --from-literal=jwt-secret="$SVIX_JWT_SECRET" \\
+  --from-literal=main-secret="$SVIX_MAIN_SECRET" \\
+  --from-literal=redis-dsn="$SVIX_REDIS_DSN" \\
+  --from-literal=api-token="$SVIX_API_KEY" \\
   --dry-run=client -o yaml | kubectl apply -f - -n $NAMESPACE
 
 # artifact-registry-secret
-kubectl create secret docker-registry artifact-registry-secret \
-  --docker-server="$REGISTRY_SERVER" \
-  --docker-username="$REGISTRY_USERNAME" \
-  --docker-password="$REGISTRY_PASSWORD" \
+kubectl create secret docker-registry artifact-registry-secret \\
+  --docker-server="$REGISTRY_SERVER" \\
+  --docker-username="$REGISTRY_USERNAME" \\
+  --docker-password="$REGISTRY_PASSWORD" \\
   -n $NAMESPACE
 
 # Verify all secrets are present
@@ -508,11 +605,11 @@ if [[ "$OPENFGA_ENABLED" == "true" ]]; then
   cat >> "$OUTPUT_FILE" <<EOF
 
 # openfga-secrets
-kubectl create secret generic openfga-secrets \
-  --from-literal=keys="${OPENFGA_EXTRA_KEY},${FGA_API_TOKEN}" \
-  --from-literal=password="$DATABASE_PASSWORD" \
-  --from-literal=uri="$OPENFGA_DB_URI" \
-  --from-literal=username="$DB_USER" \
+kubectl create secret generic openfga-secrets \\
+  --from-literal=keys="${OPENFGA_EXTRA_KEY},${FGA_API_TOKEN}" \\
+  --from-literal=password="$DATABASE_PASSWORD" \\
+  --from-literal=uri="$OPENFGA_DB_URI" \\
+  --from-literal=username="$DB_USER" \\
   --dry-run=client -o yaml | kubectl apply -f - -n $NAMESPACE
 EOF
 fi
@@ -523,6 +620,7 @@ success "Secrets script written to: $OUTPUT_FILE"
 # ── Step 7: Generate values.yaml ─────────────────────────────────────────────
 header "Step 7 — Generating values.yaml"
 
+# Generate CSP header from protocol + domain
 PROTO="$APP_PROTOCOL"
 CDN1="${PROTO}://cdn.scalekit.com"
 CDN2="${PROTO}://cdn.scalekit.cloud"
@@ -539,7 +637,71 @@ CSP_HEADER+="frame-src 'self' ${CDN1} ${CDN2} ${WILD};"
 
 VALUES_FILE="$(pwd)/values-${ENV_LABEL}-$(date +%Y%m%d%H%M%S).yaml"
 
-cat > "$VALUES_FILE" <<EOF
+if [[ "$ENV_CHOICE" == "1" ]]; then
+  cat > "$VALUES_FILE" <<EOF
+replicaCount: ${REPLICA_COUNT}
+
+scalekit:
+  config:
+    app:
+      region: ${APP_REGION}
+      domain: "${APP_DOMAIN}"
+      protocol: "${APP_PROTOCOL}"
+      oidc:
+        allow_insecure: ${OIDC_ALLOW_INSECURE}
+    database:
+      host: "${DB_HOST}"
+      name: "${DB_NAME_SCALEKIT}"
+      user: "${DB_USER}"
+      port: ${DB_PORT}
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      db: ${REDIS_DB}
+    seedData:
+      adminUser:
+        firstName: "${ADMIN_FIRST_NAME}"
+        lastName: "${ADMIN_LAST_NAME}"
+        email: "${ADMIN_EMAIL}"
+      emailServer:
+        serverType: "SMTP"
+        provider: "OTHER"
+        enabled: true
+        idOffset: 1
+        settings:
+          fromEmail: "${EMAIL_FROM}"
+          fromName: "${EMAIL_FROM_NAME}"
+          host: "${SMTP_HOST}"
+          port: ${SMTP_PORT}
+          username: "${SMTP_USERNAME}"
+
+sidecars:
+  dashboard:
+    securityContext:
+      runAsUser: 0
+      runAsGroup: 0
+    env:
+      - name: CSP_HEADER
+        value: "${CSP_HEADER}"
+  svix:
+    config:
+      region: "${APP_REGION}"
+      defaultRegion: "${APP_REGION}"
+
+ingress:
+  enabled: true
+  className: "nginx"
+
+resourceMetadata:
+  ingress:
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-buffer-size: "50m"
+      nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
+      nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+EOF
+
+elif [[ "$ENV_CHOICE" == "2" ]]; then
+  cat > "$VALUES_FILE" <<EOF
 replicaCount: ${REPLICA_COUNT}
 
 scalekit:
@@ -559,11 +721,6 @@ scalekit:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
       db: ${REDIS_DB}
-    asynq:
-      redis:
-        host: ${REDIS_HOST}
-        port: ${REDIS_PORT}
-        db: ${ASYNQ_REDIS_DB}
     seedData:
       adminUser:
         firstName: "${ADMIN_FIRST_NAME}"
@@ -604,7 +761,9 @@ sidecars:
       region: "${APP_REGION}"
       defaultRegion: "${APP_REGION}"
 $(if [[ "$OPENFGA_ENABLED" == "true" ]]; then echo "  openfga:
-    enabled: true"; fi)
+    enabled: true
+    # storeId: \"\"
+    # modelId: \"\""; fi)
 
 gateway:
   enabled: true
@@ -616,6 +775,60 @@ gateway:
   healthCheckPolicy:
     enabled: true
 EOF
+
+else
+  cat > "$VALUES_FILE" <<EOF
+replicaCount: ${REPLICA_COUNT}
+
+scalekit:
+  config:
+    app:
+      region: ${APP_REGION}
+      domain: "${APP_DOMAIN}"
+    database:
+      host: "${DB_HOST}"
+      name: "${DB_NAME_SCALEKIT}"
+      user: "${DB_USER}"
+      port: ${DB_PORT}
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      db: ${REDIS_DB}
+    seedData:
+      adminUser:
+        firstName: "${ADMIN_FIRST_NAME}"
+        lastName: "${ADMIN_LAST_NAME}"
+        email: "${ADMIN_EMAIL}"
+      emailServer:
+        serverType: "SMTP"
+        provider: "OTHER"
+        enabled: true
+        idOffset: 1
+        settings:
+          fromEmail: "${EMAIL_FROM}"
+          fromName: "${EMAIL_FROM_NAME}"
+          host: "${SMTP_HOST}"
+          port: ${SMTP_PORT}
+          username: "${SMTP_USERNAME}"
+
+sidecars:
+  dashboard:
+    securityContext:
+      runAsUser: 0
+      runAsGroup: 0
+    env:
+      - name: CSP_HEADER
+        value: "${CSP_HEADER}"
+  svix:
+    config:
+      region: "${APP_REGION}"
+      defaultRegion: "${APP_REGION}"
+$(if [[ "$OPENFGA_ENABLED" == "true" ]]; then echo "  openfga:
+    enabled: true
+    # storeId: \"\"
+    # modelId: \"\""; fi)
+EOF
+fi
 
 success "values.yaml written to: $VALUES_FILE"
 
@@ -662,4 +875,44 @@ echo "    -n ${NAMESPACE} \\"
 echo "    --values=${VALUES_FILE}"
 echo
 echo -e "${BOLD}${CYAN}└─────────────────────────────────────────────────────────────┘${RESET}"
+
+if [[ "$ENV_CHOICE" == "1" ]]; then
+  echo
+  echo -e "${BOLD}${CYAN}┌─────────────────────────────────────────────────────────────┐${RESET}"
+  echo -e "${BOLD}${CYAN}│           Minikube — expose & access traffic                 │${RESET}"
+  echo -e "${BOLD}${CYAN}└─────────────────────────────────────────────────────────────┘${RESET}"
+  echo
+  dim "  1. Enable the ingress addon:"
+  echo "     minikube addons enable ingress"
+  echo
+  dim "  2. Patch the ingress controller to type LoadBalancer:"
+  echo "     kubectl patch svc ingress-nginx-controller \\"
+  echo "       -n ingress-nginx \\"
+  echo "       -p '{\"spec\": {\"type\": \"LoadBalancer\"}}'"
+  echo
+  dim "  3. Start Minikube tunnel (keep this running in a separate terminal):"
+  echo "     minikube tunnel"
+  echo
+  dim "  4. Add entries to /etc/hosts (requires sudo):"
+  echo "     sudo sh -c 'echo \"127.0.0.1 app.${APP_DOMAIN} auth.${APP_DOMAIN}\" >> /etc/hosts'"
+  echo
+  dim "     Or add manually — open /etc/hosts and append this line:"
+  echo "     127.0.0.1  app.${APP_DOMAIN}  auth.${APP_DOMAIN}"
+  echo
+  dim "  5. Update CoreDNS so pods inside the cluster can resolve app.${APP_DOMAIN} and auth.${APP_DOMAIN}:"
+  echo
+  dim "     Open the CoreDNS ConfigMap and find the IP already assigned to host.minikube.internal."
+  dim "     Add two more entries pointing to that same IP:"
+  echo
+  echo "        kubectl edit configmap coredns -n kube-system"
+  echo
+  echo "        # Inside the hosts { } block, add:"
+  echo "        <host.minikube.internal IP>  app.${APP_DOMAIN}"
+  echo "        <host.minikube.internal IP>  auth.${APP_DOMAIN}"
+  echo
+  dim "     Then restart CoreDNS to apply:"
+  echo "        kubectl rollout restart deployment coredns -n kube-system"
+  echo
+  echo "${BOLD}${CYAN}└─────────────────────────────────────────────────────────────┘${RESET}"
+fi
 ```

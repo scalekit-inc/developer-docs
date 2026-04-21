@@ -474,7 +474,11 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: ['self-hosted/overview', 'self-hosted/system-requirements'],
+        items: [
+          'self-hosted/overview',
+          'self-hosted/quickstart',
+          'self-hosted/system-requirements',
+        ],
       },
       {
         label: 'Deploy',

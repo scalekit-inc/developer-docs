@@ -1,0 +1,206 @@
+---
+title: Quick start
+description: Deploy Scalekit on Kubernetes in minutes using bundled databases and a single values.yaml file.
+sidebar:
+  label: Quick start
+  order: 2
+  prev:
+    label: Overview
+    link: /self-hosted/overview/
+  next:
+    label: System requirements
+    link: /self-hosted/system-requirements/
+tags: [self-hosted, quickstart, kubernetes, helm]
+tableOfContents: true
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components'
+import { REGISTRY_HOST, DISTR_URL } from '../../../configs/self-hosted'
+
+Get Scalekit running on Kubernetes with a single `helm install`. This guide uses bundled PostgreSQL and Redis and auto-creates Kubernetes secrets from your `values.yaml` — no external databases or `kubectl secret` commands needed.
+
+<Aside type="caution" title="Not for production">
+  The bundled databases have no backups, no replication, and no persistent storage guarantees. For a production deployment with external services and full secret management, follow the [installation guide](/self-hosted/installation/).
+</Aside>
+
+## Before you start
+
+| Requirement | Notes |
+|-------------|-------|
+| `kubectl` 1.27+ | Configured against your target cluster |
+| Helm 3.12+ | Run `helm version` to verify |
+| Domain | Subdomains `app.<domain>` and `auth.<domain>` must resolve to your cluster |
+| Gateway class | A GatewayClass must be installed on your cluster |
+| TLS certificate | Attached via a gateway annotation (GCP cert map, cert-manager, etc.) |
+| SMTP credentials | Any provider; Postmark and SendGrid have first-class support |
+| Registry token | From the <a href={DISTR_URL}>Scalekit distribution portal</a> — see step 1 |
+| `openssl` and `python3` | To generate webhook credentials in step 2 |
+
+---
+
+<Steps>
+
+1. ## Get a registry token
+
+   Log in to the <a href={DISTR_URL}>Scalekit distribution portal</a> and create a Personal Access Token. This token authenticates your cluster to pull Scalekit images from <code>{REGISTRY_HOST}</code>.
+
+   <Aside type="caution" title="Token expiry breaks image pulls">
+     When the token expires, new deployments and upgrades will fail with `ImagePullBackOff`. Set a reminder to renew it before it lapses.
+   </Aside>
+
+   Copy the token — it is shown only once.
+
+2. ## Generate webhook credentials
+
+   Run these commands to produce a JWT secret and a signed API token. Copy both output lines — you will paste them into `values.yaml` in the next step.
+
+   ```bash frame="terminal"
+   export JWT_SECRET=$(openssl rand -base64 32)
+   echo "jwtSecret: $JWT_SECRET"
+
+   python3 << 'EOF'
+   import base64, hashlib, hmac as _hmac, json, os, secrets, string, time
+
+   secret = os.environ['JWT_SECRET']
+   chars = string.ascii_letters + string.digits
+   sub = 'org_' + ''.join(secrets.choice(chars) for _ in range(22))
+   now = int(time.time())
+   exp = now + 315360000
+
+   h = base64.urlsafe_b64encode(json.dumps({'alg':'HS256','typ':'JWT'}, separators=(',',':')).encode()).rstrip(b'=').decode()
+   p = base64.urlsafe_b64encode(json.dumps({'iat':now,'exp':exp,'nbf':now,'iss':'svix-server','sub':sub}, separators=(',',':')).encode()).rstrip(b'=').decode()
+   msg = f'{h}.{p}'
+   sig = base64.urlsafe_b64encode(_hmac.new(secret.encode(), msg.encode(), hashlib.sha256).digest()).rstrip(b'=').decode()
+   print(f'apiToken: {msg}.{sig}')
+   EOF
+   ```
+
+   The output looks like:
+
+   ```
+   jwtSecret: aB3cD4eF5gH6...
+   apiToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+   ```
+
+3. ## Create values.yaml
+
+   Create a `values.yaml` file using the template below. Replace each placeholder with your actual value.
+
+   ```yaml title="values.yaml"
+   scalekit:
+     config:
+       app:
+         domain: "<your-domain>"            # e.g. scalekit.example.com — no scheme or trailing slash
+       seedData:
+         adminUser:
+           firstName: "<firstname>"
+           lastName: "<lastname>"
+           email: "<admin-email>"
+         emailServer:
+           settings:
+             fromEmail: "hi@<your-domain>"
+             fromName: "Team <Your Company>"
+             host: "<smtp-host>"
+             port: <smtp-port>
+             username: "<smtp-username>"
+
+   postgresql:
+     enabled: true
+
+   redis:
+     enabled: true
+
+   secrets:
+     create: true
+     svix:
+       jwtSecret: "<jwtSecret from step 2>"
+       apiToken: "<apiToken from step 2>"
+     registry:
+       password: "<registry token from step 1>"
+
+   gateway:
+     enabled: true
+     provider: "<provider>"                # gcp for GKE; other for all other clusters
+     className: "<gateway-class-name>"     # e.g. gke-l7-global-external-managed
+     annotations:
+       <annotation-key>: "<annotation-value>"   # e.g. networking.gke.io/certmap: your-cert-map
+     redirectToHttps: true
+     healthCheckPolicy:
+       enabled: true                       # GKE only — set false for other providers
+   ```
+
+   | Field | Description |
+   |-------|-------------|
+   | `domain` | Base domain. The chart derives `app.<domain>` and `auth.<domain>` from this. |
+   | `adminUser` | First admin account created on first boot. Use this to log in to the dashboard. |
+   | `emailServer` | SMTP settings for transactional email (invites, magic links, verification codes). The password is provided separately via `secrets.registry.password` — see [full configuration](/self-hosted/configuration/) for details. |
+   | `secrets.create` | When `true`, the chart creates all required Kubernetes secrets from the values below. |
+   | `secrets.svix` | Webhook service credentials generated in step 2. |
+   | `secrets.registry.password` | Registry access token from step 1. |
+   | `gateway.provider` | Set to `gcp` for GKE to enable GKE-specific resources. Leave empty for all other providers. |
+   | `gateway.className` | The GatewayClass installed on your cluster. |
+   | `gateway.annotations` | Attach a TLS certificate via your provider's annotation. |
+
+4. ## Create a deployment in the portal
+
+   Deployments are managed through the <a href={DISTR_URL}>Scalekit distribution portal</a>.
+
+   Create the namespace on your cluster first:
+
+   ```bash
+   kubectl create namespace <namespace>
+   ```
+
+   Then, in the portal:
+
+   - In the left sidebar, click **Deployments**, then **+ New Deployment**
+   - Select **Scalekit Onprem** and click **Continue**
+   - Set a **Deployment Name** (`scalekit` is recommended) and enter the **Kubernetes Namespace** you just created
+   - Leave **Enable cluster-scoped permissions** checked and click **Continue**
+   - Select the **Version** you want to install
+   - Under **Helm values**, paste the full contents of your `values.yaml`
+   - Click **Create Deployment**
+
+   The portal shows a **Deployment Created Successfully** screen with a `kubectl apply` command. Click **Copy Command** and run it on your cluster:
+
+   ```bash
+   kubectl apply -n <namespace> -f "<portal-provided-url>"
+   ```
+
+   This connects your cluster to the portal, which then installs the Helm chart and runs database migrations.
+
+5. ## Update DNS
+
+   Once the gateway is provisioned, get its external IP:
+
+   ```bash
+   kubectl get gateway -n scalekit
+   ```
+
+   Copy the address from the `ADDRESS` column. In your DNS provider, create a wildcard `A` record:
+
+   ```
+   *.<your-domain>  →  <gateway-external-ip>
+   ```
+
+   DNS propagation can take a few minutes. Verify with:
+
+   ```bash
+   dig app.<your-domain>
+   ```
+
+6. ## Verify
+
+   ```bash
+   kubectl get pods -n scalekit
+   ```
+
+   All pods should show `Running`. Open `https://app.<your-domain>` in a browser and sign in with the admin email you set in `values.yaml`.
+
+</Steps>
+
+## Next steps
+
+- Ready for production? Switch to external databases and full secret management — follow the [installation guide](/self-hosted/installation/).
+- Review every configuration field in the [configuration reference](/self-hosted/configuration/).
+- Learn how to upgrade and maintain your deployment in [upgrades & maintenance](/self-hosted/upgrades/).
