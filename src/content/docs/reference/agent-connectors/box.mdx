@@ -66,8 +66,8 @@ Enable the corresponding Box app scopes before calling tools that need them:
 
 | Tools | Required scope |
 |-------|---------------|
-| All file/folder read tools | `root_readonly` |
-| File/folder create, update, delete | `root_readwrite` |
+| All file/folder read tools, `box_file_download`, `box_file_representations_get` | `root_readonly` |
+| File/folder create, update, delete, `box_file_upload` | `root_readwrite` |
 | `box_group_*`, `box_user_memberships_list` | `manage_groups` |
 | `box_webhook_*`, `box_webhooks_list` | `manage_webhook` |
 | `box_user_create`, `box_user_delete`, `box_users_list`, `box_user_update` | `manage_managed_users` |
@@ -134,6 +134,56 @@ Retrieves a thumbnail image for a file.
 | `extension` | string | Yes | Thumbnail format: `jpg` or `png`. |
 | `min_width` | integer | No | Minimum width of the thumbnail in pixels. |
 | `min_height` | integer | No | Minimum height of the thumbnail in pixels. |
+
+## `box_file_download`
+
+Initiates a file download from Box. Returns HTTP 200 or 302 on success. Binary file content is not returned in the tool response (`data=None`); use the Scalekit SDK proxy method to retrieve the actual file bytes.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_id` | string | Yes | ID of the file to download. Get it from `box_folder_items_list` on folder_id `"0"`. |
+| `version` | string | No | File version ID to download a specific version. Get it from `box_file_versions_list`. |
+
+<Aside type="note" title="Retrieving file bytes">
+  To read the downloaded file content, use the Scalekit SDK proxy method instead of this tool:
+
+  ```python
+  result = scalekit_client.actions.request(
+      connection_name="box",
+      identifier="user_123",
+      path=f"/2.0/files/{file_id}/content",
+      method="GET",
+  )
+  ```
+</Aside>
+
+## `box_file_representations_get`
+
+Retrieves available representations for a file, such as PDFs, extracted text, or image thumbnails. Box generates representations on demand — poll until the `status` is `success` before downloading.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_id` | string | Yes | ID of the file. Get it from `box_folder_items_list`. |
+| `x_rep_hints` | string | Yes | Representation formats to request, e.g. `[pdf][extracted_text]` or `[jpg?dimensions=320x320]`. Multiple formats can be combined. |
+
+<Aside type="tip" title="Common x_rep_hints values">
+  | Value | Description |
+  |-------|-------------|
+  | `[pdf]` | PDF version of the file |
+  | `[extracted_text]` | Plain text extracted from the file |
+  | `[jpg?dimensions=320x320]` | JPEG thumbnail at 320×320 pixels |
+  | `[pdf][extracted_text]` | Request multiple representations at once |
+</Aside>
+
+## `box_file_upload`
+
+Uploads a new text file (up to 50 MB) to a specified Box folder using multipart/form-data. File content is passed as plain text. For files larger than 50 MB, use Box's chunked upload API.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_name` | string | Yes | Name to give the uploaded file, including the extension (e.g. `report.txt`). |
+| `parent_id` | string | Yes | ID of the folder to upload into. Use `"0"` for the root folder. |
+| `file_content` | string | Yes | Text content of the file to upload. |
 
 ### Folders
 
