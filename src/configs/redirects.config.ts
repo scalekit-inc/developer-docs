@@ -357,9 +357,11 @@ export const redirects = {
   '/dev-kit/changelogs/java/version/v1-0-1': '/sdks/java/',
   '/dev-kit/changelogs/go/version/v1-0-4': '/sdks/go/',
 
-  // managing-providers renamed to managing-connectors
+  // managing-providers and managing-connectors merged into auth-types-and-patterns
   '/agentkit/bring-your-own-connector/managing-providers':
-    '/agentkit/bring-your-own-connector/managing-connectors/',
+    '/agentkit/bring-your-own-connector/auth-types-and-patterns/',
+  '/agentkit/bring-your-own-connector/managing-connectors':
+    '/agentkit/bring-your-own-connector/auth-types-and-patterns/',
 
   // Agent connectors redirects
   '/reference/agent-connectors/[...slug]': '/agentkit/connectors/[...slug]',

@@ -1,33 +1,29 @@
 ---
-title: Call the upstream service
-description: Call a custom connector's upstream API through Tool Proxy, or discover and execute tools from a custom MCP connector.
+title: Making tool calls
+description: Make tool calls using a REST API connector via Tool Proxy, or discover and execute tools from a custom MCP connector.
 tags: [agentauth, connectors, proxy, api, guide]
 sidebar:
-  label: "Call upstream service"
+  label: "Making tool calls"
 tableOfContents:
   maxHeadingLevel: 3
 prev:
-  label: "Managing connectors"
-  link: "/agentkit/bring-your-own-connector/managing-connectors"
+  label: "Create a connector"
+  link: "/agentkit/bring-your-own-connector/auth-types-and-patterns"
 next:
   label: "Custom domain"
   link: "/agentkit/advanced/custom-domain"
 ---
 
-import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-Use this page to call a custom connector's upstream service after the connector, connection, and connected account are set up.
+Use this page to make tool calls after the connector, connection, and connected account are set up.
 
-The call runtime depends on the connector type:
+The call method depends on the connector type:
 
 - **REST API connectors** — use `actions.request()` to proxy HTTP calls through Tool Proxy
 - **MCP connectors** — use `list_scoped_tools` to discover available tools, then `execute_tool` to call them
 
 Both types use the same connection, connected account, and user authorization model.
-
-<Aside type="tip" title="Which section applies to you?">
-If your connector points to a REST API, use the [REST API proxy calls](#rest-api-proxy-calls) section. If your connector points to an MCP server (the JSON has `is_mcp: true`), use the [MCP tool calling](#mcp-tool-calling) section.
-</Aside>
 
 ## Prerequisites
 
@@ -38,13 +34,11 @@ Make sure:
 - The [connected account](/agentkit/connected-accounts) exists
 - The user has completed [authorization](/agentkit/tools/authorize)
 
-Once these pieces are in place, you can call the upstream service.
-
-After you create the connector, create a connection for it in the Scalekit Dashboard:
+Create a connection for your connector in the Scalekit Dashboard:
 
 ![Connections page showing a custom connector connection alongside built-in connectors](@/assets/docs/agentkit/bring-your-own-connector/custom-provider-connection.png)
 
-After the user completes authorization, the connected account appears in the Connected Accounts tab and is ready for calls:
+After the user completes authorization, the connected account appears in the Connected Accounts tab:
 
 ![Connected Accounts tab showing an authenticated account for a custom connector](@/assets/docs/agentkit/bring-your-own-connector/custom-provider-connected-account.png)
 
@@ -130,13 +124,16 @@ print(result)
 </TabItem>
 </Tabs>
 
-The request shape stays the same regardless of whether the connector uses OAUTH, BASIC, BEARER, or API_KEY. The connector definition controls how Scalekit authenticates the upstream call.
+The request shape stays the same regardless of auth type — the connector definition controls how Scalekit authenticates the call.
 
 ## MCP tool calling
 
-MCP custom connectors expose tools from the upstream MCP server. Instead of making HTTP requests through `actions.request()`, you discover the available tools and execute them by name.
+MCP connectors expose tools from the upstream MCP server. Discover the available tools, then execute them by name.
 
-### Discover available tools
+<details>
+<summary>Discover available tools (optional)</summary>
+
+If you already know the tool names from the Scalekit Dashboard, you can skip this step.
 
 Call `list_scoped_tools` with the connection name to see which tools the MCP server exposes for a given user.
 
@@ -195,13 +192,9 @@ print("Available tools:", tool_names)
 </TabItem>
 </Tabs>
 
-<Aside type="note" title="Tool names come from the MCP server">
-Tool names are defined by the upstream MCP server and may differ from built-in Scalekit connector tool names. Always call `list_scoped_tools` first to discover which tools are available for a given connection.
-</Aside>
+</details>
 
-### Execute a tool
-
-Once you know the tool name, call `execute_tool` with the connection name, identifier, and any tool-specific input.
+Call `execute_tool` with the connection name, identifier, and any tool-specific input.
 
 <Tabs syncKey="tech-stack">
 <TabItem label="Node.js">
