@@ -15,6 +15,7 @@ import {
 import IconLucideHome from '~icons/lucide/home'
 import IconSolarLayersOutline from '~icons/solar/layers-outline'
 import IconLucideBookOpenText from '~icons/lucide/book-open-text'
+import IconLucideServer from '~icons/lucide/server'
 import IconLucideCheck from '~icons/lucide/check'
 
 export interface NavItem {
@@ -186,6 +187,41 @@ const saasKitItems: NavItem[] = [
       },
     ],
   },
+  {
+    id: 'api-reference',
+    href: '#sdks-apis',
+    label: 'SDKs & APIs',
+    iconComponent: IconMdiCubeOutline,
+    children: [
+      {
+        id: 'sdks',
+        href: '/sdks/',
+        label: 'SDKs',
+        iconComponent: IconSdk,
+        description: 'Ready-to-use libraries to implement auth in your app',
+      },
+      {
+        id: 'rest-apis',
+        href: '/apis/#description/overview',
+        label: 'REST APIs',
+        iconComponent: IconApi,
+        description: 'Programmatic control to manage users, orgs, sessions etc.',
+      },
+    ],
+  },
+  {
+    id: 'self-hosted',
+    href: '/self-hosted/overview/',
+    label: 'Self-hosted',
+    iconComponent: IconLucideServer,
+  },
+  // Temporarily hidden - Agent Auth
+  // {
+  //   id: 'agent-actions',
+  //   href: '/agent-actions/quickstart',
+  //   label: 'Agent Auth',
+  //   iconComponent: IconLucideBot,
+  // },
   sharedSdksItem,
 ]
 

@@ -1,0 +1,186 @@
+---
+title: Install Scalekit
+description: Deploy Scalekit on a Kubernetes cluster using Helm and the Gateway API.
+sidebar:
+  label: Installation
+  order: 6
+tags: [self-hosted, installation, kubernetes, helm, gateway]
+tableOfContents: true
+prev:
+  label: Setup script
+  link: /self-hosted/setup-script/
+next:
+  label: Upgrades & maintenance
+  link: /self-hosted/upgrades/
+---
+
+import { Steps, Aside, Code } from '@astrojs/starlight/components'
+import { REGISTRY_HOST, DISTR_URL } from '../../../configs/self-hosted'
+
+export const kubectlConnectCmd = `kubectl apply -n <namespace> -f "${DISTR_URL}/api/v1/connect?targetId=<targetId>&targetSecret=<targetSecret>"`
+
+Deploy Scalekit on any Kubernetes cluster using the Helm chart distributed through the <a href={DISTR_URL}>Scalekit distribution portal</a>. The chart uses the Kubernetes **Gateway API** for ingress.
+
+<Steps>
+1. ## Create a personal access token
+
+   Log in to the <a href={DISTR_URL}>Scalekit distribution portal</a>. This token authenticates your cluster to pull both the Helm chart and container images from <code>{REGISTRY_HOST}</code>.
+
+   ![Scalekit distribution portal login](@/assets/docs/self-hosted/portal-login.png)
+
+   After signing in you will see the portal home page.
+
+   ![Scalekit distribution portal home](@/assets/docs/self-hosted/portal-home.png)
+
+   Click the **profile icon** in the top-right corner.
+
+   ![Profile icon in the top-right corner](@/assets/docs/self-hosted/portal-profile-icon.png)
+
+   In the dropdown, select **Personal Access Tokens**.
+
+   ![Profile dropdown menu with Personal Access Tokens option](@/assets/docs/self-hosted/portal-profile-menu.png)
+
+   You will see the Personal Access Tokens page. Click **+ Create token**.
+
+   ![Personal Access Tokens page](@/assets/docs/self-hosted/portal-pat-list.png)
+
+   A form slides in. Enter a **Label** and set an **Expires At** date, then click **+ Create**.
+
+   ![Create a Personal Access Token form](@/assets/docs/self-hosted/portal-pat-form.png)
+
+   <Aside type="caution" title="Token expiry breaks image pulls">
+     When the token expires, your cluster can no longer pull images from <code>{REGISTRY_HOST}</code>. New deployments and upgrades will fail with `ImagePullBackOff`. Choose an expiry that gives you enough time to rotate before it lapses, and set a reminder to renew it.
+   </Aside>
+
+   Your token is displayed once. **Copy it immediately** — it cannot be retrieved after you leave this page.
+
+   ![Token displayed after creation — copy it now](@/assets/docs/self-hosted/portal-pat-created.png)
+
+2. ## Run the setup script
+
+   The [setup script](/self-hosted/setup-script/) collects your configuration interactively and generates two files: a secrets script and a `values.yaml`. Copy the script from that page, then run it:
+
+   ```bash
+   chmod +x setup-secrets.sh
+   bash setup-secrets.sh
+   ```
+
+   When prompted for environment, select the option that matches your target:
+
+   - `1` — Minikube (local, uses nginx ingress)
+   - `2` — GCP / GKE (configures GKE Gateway and NEG annotations)
+   - `3` — Other Kubernetes cluster (generic config, add your own ingress)
+   - `4` — Evaluation (bundled PostgreSQL and Redis; minimal setup)
+
+   The script walks you through namespace, PostgreSQL, Redis, SMTP, registry token, domain, and admin user settings. GKE-specific Gateway settings are only collected for option `2`.
+
+   When the script finishes, it prints the paths to two generated files. Before proceeding, open each file and verify the values are correct.
+
+   **`values-gke-<timestamp>.yaml`** — confirm:
+   - `app.domain` matches your intended domain
+   - `database.host`, `database.name`, and `database.user` point to the right PostgreSQL instance
+   - `redis.host` points to the right Redis instance
+   - `seedData.adminUser.email` is the address you want for the initial admin login
+   - `gateway.className` and `gateway.annotations` match your cluster's gateway configuration
+
+   **`scalekit-secrets-gke-<timestamp>.sh`** — confirm:
+   - The namespace at the top matches your intended namespace
+   - Database and Redis connection strings in `db-migrations` and `authentication-secret` are correct
+   - The registry token in `artifact-registry-secret` is the one you just created
+
+3. ## Apply the Kubernetes secrets
+
+   Run the secrets script the setup script generated:
+
+   ```bash
+   bash scalekit-secrets-gke-<timestamp>.sh
+   ```
+
+   Verify all secrets were created:
+
+   ```bash
+   kubectl get secrets -n <namespace>
+   ```
+
+   Expected secrets: `authentication-service-token`, `db-migrations`, `authentication-secret`, `svix-secrets`, `artifact-registry-secret`. If you ran the script with `--enable-openfga`, `openfga-secrets` will also be present.
+
+4. ## Create a deployment
+
+   Deployments are created through the <a href={DISTR_URL}>Scalekit distribution portal</a>.
+
+   #### Open Deployments
+
+   In the left sidebar, click **Deployments**, then click **+ New Deployment** in the top-right corner.
+
+   ![Deployments page](@/assets/docs/self-hosted/portal-deployments.png)
+
+   #### Select the application
+
+   In the **Create New Deployment** dialog, select **Scalekit Onprem** and click **Continue**.
+
+   ![Create New Deployment — select Scalekit Onprem](@/assets/docs/self-hosted/portal-new-deployment.png)
+
+   #### Configure the deployment
+
+   ![Deployment Configuration form](@/assets/docs/self-hosted/portal-deployment-config.png)
+
+   - **Deployment Name** — any name you choose; `scalekit` is recommended
+   - **Kubernetes Namespace** — must match the namespace you used in step 3
+   - Leave **Enable cluster-scoped permissions** checked
+   - Leave **Set custom resource requirements for the Distr agent** unchecked
+
+   Click **Continue**.
+
+   #### Select a version and add values
+
+   ![Application Configuration form](@/assets/docs/self-hosted/portal-app-config.png)
+
+   - **Version** — select the latest available version from the dropdown
+   - **Helm release name** — leave as `scalekit` or set your own
+   - **Helm values** — paste the full contents of `values-gke-<timestamp>.yaml` generated by the setup script
+
+   Click **Create Deployment**. The portal moves to the **Deploy** step and shows a `kubectl apply` command.
+
+   #### Connect your cluster
+
+   The portal shows a **Deployment Created Successfully** screen with a `kubectl apply` command.
+
+   ![Deployment created successfully — copy the kubectl command](@/assets/docs/self-hosted/portal-deploy-success.png)
+
+   Click **Copy Command** and run it on your cluster:
+
+   <Code lang="bash" code={kubectlConnectCmd} />
+
+   <Aside type="caution" title="Databases must exist before connecting">
+     The deployment triggers database migrations on connect. If any of the three PostgreSQL databases (`scalekit`, `webhooks`, `openfga`) do not exist, the migration will fail. The setup script prints the exact `CREATE DATABASE` commands to run if needed.
+   </Aside>
+
+5. ## Update DNS
+
+   Once the Gateway is up, get its external IP:
+
+   ```bash
+   kubectl get gateway -n <namespace>
+   ```
+
+   Copy the external IP from the `ADDRESS` column. In your DNS provider, create a wildcard `A` record pointing to it:
+
+   ```
+   *.<your-domain>  →  <gateway-external-ip>
+   ```
+
+   DNS propagation can take a few minutes. You can verify with:
+
+   ```bash
+   dig app.<your-domain>
+   ```
+
+6. ## Verify the deployment
+
+   ```bash
+   kubectl get pods -n <namespace>
+   ```
+
+   All pods should show `Running` status. Open the admin dashboard at `https://app.<your-domain>` and sign in with the admin credentials you provided during setup.
+
+</Steps>

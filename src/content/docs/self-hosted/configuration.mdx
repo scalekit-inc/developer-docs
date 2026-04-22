@@ -1,0 +1,319 @@
+---
+title: Configure Scalekit
+description: Complete values.yaml examples and field reference for a self-hosted Scalekit deployment.
+sidebar:
+  label: Configuration
+  order: 3
+tags: [self-hosted, configuration, helm, values, kubernetes, gateway]
+tableOfContents: true
+prev:
+  label: System requirements
+  link: /self-hosted/system-requirements/
+next:
+  label: Setup script
+  link: /self-hosted/setup-script/
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+import { REGISTRY_HOST } from '../../../configs/self-hosted'
+
+Scalekit is configured through a `values.yaml` file. The [setup script](/self-hosted/setup-script/) generates this file for you — use the examples and field reference below to understand the structure or to make changes after initial setup.
+
+## Complete examples
+
+These examples show the full structure of a generated `values.yaml`. The setup script produces this file automatically — refer here when reviewing or modifying values after initial setup.
+
+<Tabs syncKey="config-mode">
+<TabItem label="Quick start (subcharts)">
+
+Use this configuration to get Scalekit running quickly without provisioning external PostgreSQL or Redis. Setting `secrets.create: true` lets the chart create all required Kubernetes secrets from values in this file — no `kubectl` secret commands needed.
+
+**Do not use this in production.** The bundled databases have no backups, no replication, and no persistent storage guarantees. See the [quick start guide](/self-hosted/quickstart/) for a step-by-step walkthrough.
+
+```yaml title="values.yaml (quick start)"
+scalekit:
+  config:
+    app:
+      domain: "<your-domain>"
+    seedData:
+      adminUser:
+        firstName: "<firstname>"
+        lastName: "<lastname>"
+        email: "<admin-email>"
+      emailServer:
+        settings:
+          fromEmail: "hi@<your-domain>"
+          fromName: "Team <Your Company>"
+          host: "<smtp-host>"
+          port: <smtp-port>
+          username: "<smtp-username>"
+
+postgresql:
+  enabled: true
+
+redis:
+  enabled: true
+
+secrets:
+  create: true
+  svix:
+    jwtSecret: "<jwt secret that signs your api token>"
+    apiToken: "<JWT signed with the above secret>"
+  registry:
+    password: "<registry access token>"
+
+gateway:
+  enabled: true
+  provider: "<provider>"           # gcp for GKE; other for all other clusters
+  className: "<gateway-class-name>"
+  annotations:
+    <annotation-key>: "<annotation-value>"
+  redirectToHttps: true
+  healthCheckPolicy:
+    enabled: true                  # GKE only
+```
+
+</TabItem>
+<TabItem label="Production (external services)">
+
+Use this configuration for production deployments with external PostgreSQL and Redis that you manage.
+
+```yaml title="values.yaml (production)"
+scalekit:
+  config:
+    app:
+      domain: "auth.example.com"    # your domain, without scheme or trailing slash
+      protocol: "https"
+      region: "us"                  # us or eu — set once, do not change after first install
+
+    database:
+      host: "pg.internal.example.com"
+      name: "scalekit"
+      user: "scalekit"
+      port: 5432
+      # Password is stored in the authentication-secret Kubernetes secret
+
+    redis:
+      host: "redis.internal.example.com"
+      port: 6379
+      db: 0
+      # Password is stored in the authentication-secret Kubernetes secret
+
+    seedData:
+      adminUser:
+        firstName: "Admin"
+        lastName: "User"
+        email: "admin@example.com"
+      emailServer:
+        serverType: "SMTP"
+        provider: "POSTMARK"        # POSTMARK, SENDGRID, or OTHER
+        enabled: true
+        settings:
+          fromEmail: "noreply@example.com"
+          fromName: "Your Company"
+          host: "smtp.postmarkapp.com"
+          port: 587
+          username: "your-smtp-api-key"
+
+# External services — disable subcharts
+postgresql:
+  enabled: false
+
+redis:
+  enabled: false
+
+gateway:
+  enabled: true
+  className: "gke-l7-global-external-managed"  # your GatewayClass
+  provider: "gcp"                              # gcp for GKE; other for all other clusters
+  redirectToHttps: true
+  healthCheckPolicy:
+    enabled: true                              # GKE only
+```
+
+</TabItem>
+</Tabs>
+
+---
+
+## Field reference
+
+### App
+
+```yaml
+scalekit:
+  config:
+    app:
+      domain: "auth.example.com"
+      protocol: "https"
+      region: "us"
+```
+
+| Field | Description |
+|-------|-------------|
+| `domain` | Base domain for your Scalekit instance. Must match your gateway hostname. |
+| `protocol` | Use `https` in production. For local HTTP dev, set to `http` and add `oidc.allow_insecure: true`. |
+| `region` | Data residency context. Set once — do not change after the initial install. |
+
+### Database
+
+```yaml
+scalekit:
+  config:
+    database:
+      host: "your-db-host"
+      name: "scalekit"
+      user: "scalekit"
+      port: 5432
+```
+
+When using external PostgreSQL (`postgresql.enabled: false`), the database password is injected via Kubernetes secret:
+
+- **`secrets.create: true`** — provide it under `secrets.database.password` in `values.yaml`; the chart creates the secret automatically
+- **`secrets.create: false`** — pre-create the `authentication-secret` with a `database_password` key using the setup script
+
+Omit this section entirely when using the bundled PostgreSQL subchart (`postgresql.enabled: true`).
+
+### Redis
+
+```yaml
+scalekit:
+  config:
+    redis:
+      host: "your-redis-host"
+      port: 6379
+      db: 0
+```
+
+When using external Redis (`redis.enabled: false`), the Redis password and DSN are injected via Kubernetes secret:
+
+- **`secrets.create: true`** — provide the DSN under `secrets.svix.redisDsn` in `values.yaml`; the chart creates the secret automatically
+- **`secrets.create: false`** — pre-create the `svix-secrets` with a `redis-dsn` key using the setup script
+
+Omit this section entirely when using the bundled Redis subchart (`redis.enabled: true`).
+
+### Seed data
+
+Seed data is applied once on first install. It creates the initial admin user and configures the email server.
+
+```yaml
+scalekit:
+  config:
+    seedData:
+      adminUser:
+        firstName: "Admin"
+        lastName: "User"
+        email: "admin@example.com"
+      emailServer:
+        serverType: "SMTP"
+        provider: "POSTMARK"      # POSTMARK, SENDGRID, or OTHER
+        enabled: true
+        settings:
+          fromEmail: "noreply@example.com"
+          fromName: "Your Company"
+          host: "smtp.postmarkapp.com"
+          port: 587
+          username: "your-smtp-api-key-or-username"
+```
+
+<Aside type="note" title="Email server password">
+  The SMTP password is not set here. Provide it via `secrets.smtp.password` in `values.yaml` when using `secrets.create: true`, or in the `authentication-secret` Kubernetes secret (`seed_data_email_server_settings_password` key) when using the setup script.
+</Aside>
+
+### Gateway
+
+Scalekit uses the Kubernetes Gateway API for ingress.
+
+```yaml
+gateway:
+  enabled: true
+  className: "gke-l7-global-external-managed"
+  provider: "gcp"
+  redirectToHttps: true
+  healthCheckPolicy:
+    enabled: true   # GKE only
+```
+
+Set `gateway.className` to the GatewayClass for your cluster:
+
+| Provider | GatewayClass |
+|----------|-------------|
+| GKE (external) | `gke-l7-global-external-managed` |
+| GKE (internal) | `gke-l7-regional-internal-managed` |
+| Istio | `istio` |
+| Envoy Gateway | `eg` |
+
+Set `provider: "gcp"` for GKE — it enables GKE-specific resources like `HealthCheckPolicy`. Set `provider: "other"` for all other clusters.
+
+## Gateway annotations
+
+Annotations on the Gateway resource are how you attach TLS certificates and configure provider-specific behavior. Add them under `gateway.annotations` in your `values.yaml`:
+
+```yaml
+gateway:
+  annotations:
+    <annotation-key>: "<annotation-value>"
+```
+
+Common annotations by provider:
+
+| Provider | Annotation | Purpose |
+|----------|-----------|---------|
+| GKE | `networking.gke.io/certmap` | Attach a GCP Certificate Manager cert map for TLS |
+| cert-manager (any cluster) | `cert-manager.io/cluster-issuer` | Provision TLS via cert-manager |
+| AWS (ALB) | `kubernetes.io/ingress.class` | Route through an ALB |
+
+### Example: GCP Certificate Manager
+
+```yaml
+gateway:
+  enabled: true
+  className: "gke-l7-global-external-managed"
+  provider: "gcp"
+  annotations:
+    networking.gke.io/certmap: "scalekit-cert-map"
+  redirectToHttps: true
+  healthCheckPolicy:
+    enabled: true
+```
+
+## Optional components
+
+### OpenFGA (fine-grained authorization)
+
+OpenFGA is disabled by default. Enable it when you need fine-grained authorization at scale:
+
+```yaml
+sidecars:
+  openfga:
+    enabled: true
+```
+
+OpenFGA requires its own PostgreSQL database (`openfga`). Credentials are stored in the `openfga-secrets` Kubernetes secret.
+
+### Directory server (SCIM)
+
+SCIM provisioning is disabled by default:
+
+```yaml
+scalekit:
+  config:
+    directoryServer:
+      enabled: true
+```
+
+## Secrets reference
+
+Scalekit uses Kubernetes secrets to inject all sensitive values into pods. There are two ways these secrets are created:
+
+- **`secrets.create: true`** (quick start) — the chart auto-creates all secrets from values you provide in `values.yaml` under the `secrets.*` block
+- **`secrets.create: false`** (full deployment) — you pre-create the secrets using the setup script
+
+| Secret name | Key fields | Created by |
+|-------------|------------|------------|
+| `authentication-service-token` | `TOKEN` — dashboard auth token | Chart or setup script |
+| `db-migrations` | `DATABASE_URL`, `DB_ADAPTER` | Chart or setup script |
+| `authentication-secret` | DB password, Redis password, OIDC keys, cookie keys, email keys, webhook API key | Chart or setup script |
+| `svix-secrets` | `db-dsn`, `jwt-secret`, `main-secret`, `redis-dsn`, `api-token` | Chart or setup script |
+| `artifact-registry-secret` | Docker registry credentials for <code>{REGISTRY_HOST}</code> | Chart or setup script |
+| `openfga-secrets` | `keys`, `uri` | Chart or setup script — only when `sidecars.openfga.enabled: true` |

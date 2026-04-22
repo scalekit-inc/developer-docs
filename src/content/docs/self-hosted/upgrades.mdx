@@ -1,0 +1,77 @@
+---
+title: Upgrades & maintenance
+description: How to upgrade your self-hosted Scalekit deployment and perform routine maintenance tasks.
+sidebar:
+  label: Upgrades & maintenance
+  order: 7
+tags: [self-hosted, upgrades, maintenance, helm, kubernetes]
+tableOfContents: true
+prev:
+  label: Installation
+  link: /self-hosted/installation/
+next:
+  label: Troubleshooting
+  link: /self-hosted/troubleshooting/
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components'
+import { DISTR_URL } from '../../../configs/self-hosted'
+
+## Upgrade Scalekit
+
+New versions are available through the <a href={DISTR_URL}>Scalekit distribution portal</a>. Upgrades are performed through the portal — the Distr agent running in your cluster picks up the change and applies it automatically. Database migrations run before the new pods start.
+
+<Steps>
+1. ## Select the new version in the portal
+
+   Log in to the <a href={DISTR_URL}>Scalekit distribution portal</a>. In the left sidebar, click **Deployments** and select your deployment.
+
+   - Click **Edit deployment**
+   - Under **Version**, select the new version
+   - Click **Update deployment**
+
+   The portal notifies the Distr agent in your cluster. No manual `kubectl` command is needed.
+
+2. ## Monitor the upgrade
+
+   The Distr agent handles chart delivery and migration sequencing. Check its logs to follow progress:
+
+   ```bash
+   kubectl logs -l app=distr-agent -n <namespace> --tail=100 -f
+   ```
+
+3. ## Verify the upgrade
+
+   ```bash
+   kubectl get pods -n <namespace>
+   kubectl rollout status deployment/scalekit -n <namespace>
+   ```
+
+</Steps>
+
+## Roll back an upgrade
+
+If an upgrade causes issues, roll back using Helm:
+
+```bash
+# List revisions
+helm history scalekit -n <namespace>
+
+# Roll back to the previous revision
+helm rollback scalekit -n <namespace>
+```
+
+## Renew TLS certificates
+
+TLS certificates are managed through your cloud provider's certificate manager (for example, GCP Certificate Manager) or cert-manager. Renew certificates through your provider — the gateway picks up the updated certificate automatically without restarting Scalekit.
+
+## Routine maintenance tasks
+
+| Task | Frequency | Action |
+|------|-----------|--------|
+| Review auth logs | Daily | Admin dashboard → **Audit logs** |
+| Check pod health | Daily | `kubectl get pods -n <namespace>` |
+| Rotate Redis cache | As needed | Automatic — expired keys are evicted by Redis TTL |
+| Back up databases | Regular | Take consistent backups of your PostgreSQL databases |
+| Rotate registry token | Before expiry | Create a new token in the portal, update `artifact-registry-secret`, restart pods |
+| Rotate individual secrets | Per policy | Edit the specific Kubernetes secret directly and restart pods |

@@ -1,0 +1,122 @@
+---
+title: Troubleshooting
+description: Diagnose and fix common issues with a self-hosted Scalekit deployment on Kubernetes.
+sidebar:
+  label: Troubleshooting
+  order: 6
+tags: [self-hosted, troubleshooting, kubernetes, helm, debugging]
+tableOfContents: true
+prev:
+  label: Upgrades & maintenance
+  link: /self-hosted/upgrades/
+---
+
+import { Code } from '@astrojs/starlight/components'
+import { REGISTRY_HOST } from '../../../configs/self-hosted'
+
+export const registrySecretCmd = `kubectl create secret docker-registry artifact-registry-secret \\\n  --docker-server=${REGISTRY_HOST} \\\n  --docker-username=oauth2accesstoken \\\n  --docker-password=<your-registry-token> \\\n  -n <namespace>`
+
+## Check pod status first
+
+Before investigating specific errors, confirm which pods are unhealthy:
+
+```bash
+kubectl get pods -n scalekit
+kubectl describe pod <pod-name> -n scalekit
+kubectl logs <pod-name> -n scalekit --tail=100
+```
+
+For the Scalekit pod (which runs multiple containers), specify the container:
+
+```bash
+# Main auth service
+kubectl logs <pod-name> -n scalekit -c scalekit --tail=100
+
+# Dashboard
+kubectl logs <pod-name> -n scalekit -c dashboard --tail=100
+
+# Svix
+kubectl logs <pod-name> -n scalekit -c svix --tail=100
+```
+
+---
+
+## Helm install failures
+
+### `ImagePullBackOff` or `ErrImagePull`
+
+**Cause**: The cluster cannot pull images from `ar.scalekit.cloud` — usually a missing or incorrect registry secret.
+
+**Fix**:
+
+1. Confirm the `artifact-registry-secret` exists:
+   ```bash
+   kubectl get secret artifact-registry-secret -n scalekit
+   ```
+2. If missing, re-run the setup script or recreate it manually:
+   <Code lang="bash" code={registrySecretCmd} />
+3. Verify the token is current — registry tokens from distr.sh may expire.
+
+---
+
+### Migration hook fails or times out
+
+**Cause**: The `db-migrations` pre-install hook cannot connect to PostgreSQL.
+
+**Fix**:
+
+1. Check the migration job logs:
+   ```bash
+   kubectl get jobs -n scalekit
+   kubectl logs job/scalekit-db-migrations -n scalekit
+   ```
+2. Confirm the `DATABASE_URL` in the `db-migrations` secret is correct and the database host is reachable from the cluster.
+3. Confirm the database and user exist and the user has full privileges.
+
+---
+
+### Pod stuck in `CrashLoopBackOff`
+
+**Cause**: A required secret key is missing, or a configuration value is incorrect.
+
+**Fix**:
+
+1. Check the pod logs for the startup error:
+   ```bash
+   kubectl logs <pod-name> -n scalekit -c scalekit --previous
+   ```
+2. Common causes:
+   - Missing key in `authentication-secret` — re-run `setup-secrets.sh`
+   - `database.host` or `redis.host` in `values.yaml` is unreachable from the cluster
+   - `domain` in `values.yaml` does not match the gateway hostname
+
+---
+
+## Gateway issues
+
+### Gateway has no external IP
+
+**Cause**: The GatewayClass is not installed, or the Gateway controller is not running.
+
+**Fix**:
+
+```bash
+kubectl get gateway -n scalekit
+kubectl describe gateway scalekit -n scalekit
+```
+
+Check that `gateway.className` in your `values.yaml` matches an installed GatewayClass:
+
+```bash
+kubectl get gatewayclass
+```
+
+On GKE, confirm the GKE Gateway controller is enabled in your cluster settings.
+
+---
+
+## Get support
+
+If the issue is not covered here:
+
+- **Community**: Join the [Scalekit Slack community](https://join.slack.com/t/scalekit-community/shared_invite/zt-3gsxwr4hc-0tvhwT2b_qgVSIZQBQCWRw) in the `#self-hosted` channel.

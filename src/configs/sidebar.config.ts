@@ -470,6 +470,34 @@ export const sidebar = [
     ],
   },
   {
+    label: 'Self-hosted',
+    id: 'self-hosted',
+    link: '/self-hosted/overview/',
+    icon: 'server',
+    items: [
+      {
+        label: 'Getting started',
+        items: [
+          'self-hosted/overview',
+          'self-hosted/quickstart',
+          'self-hosted/system-requirements',
+        ],
+      },
+      {
+        label: 'Deploy',
+        items: [
+          'self-hosted/configuration',
+          'self-hosted/setup-script',
+          'self-hosted/installation',
+        ],
+      },
+      {
+        label: 'Maintain',
+        items: ['self-hosted/upgrades', 'self-hosted/troubleshooting'],
+      },
+    ],
+  },
+  {
     label: 'SDKs & APIs',
     id: 'sdks',
     link: '/sdks/',
@@ -578,6 +606,9 @@ export const topics = {
     '/cookbooks/**/*',
     '/**/*', // Catch-all: anything not matched above defaults here
   ],
+
+  // Self-hosted deployment
+  'self-hosted': ['/self-hosted/**/*'],
 
   // === Developer Kit (tools, code, SDKs, AI helpers) ===
   'dev-kit': [
@@ -696,6 +727,9 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
 
   // SDKs sidebar → 'SDKs' tab
   sdks: 'sdks',
+
+  // Self-hosted sidebar → 'Self-hosted' top-level nav item
+  'self-hosted': 'self-hosted',
 
   // Events reference sidebar → 'Webhooks' tab under API Reference
   'events-reference': 'webhooks-events',
