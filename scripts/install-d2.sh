@@ -32,7 +32,7 @@ esac
 # Map OS names
 case "$OS" in
   Darwin)
-    OS="darwin"
+    OS="macos"
     ;;
   Linux)
     OS="linux"
