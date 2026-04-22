@@ -16,11 +16,11 @@ next:
 
 import { Aside } from '@astrojs/starlight/components';
 
-Bring your own connector lets you add custom connectors when the API you need is not available as a built-in connector.
+Bring your own connector lets you add custom connectors when the API or MCP server you need is not available as a built-in connector.
 
-Use bring your own connector to support unsupported SaaS APIs, partner systems, and internal APIs while keeping authentication, authorization, and secure API access in Scalekit.
+Use bring your own connector to support unsupported SaaS APIs, partner systems, internal APIs, and remote MCP servers while keeping authentication, authorization, and secure API access in Scalekit.
 
-Once the connector is created, you use the same flow as other connectors: create a connection, create or fetch a connected account, authorize the user, and call the upstream API through Tool Proxy.
+Once the connector is created, you use the same flow as other connectors: create a connection, create or fetch a connected account, authorize the user, and call the upstream service through Tool Proxy or MCP tool calling.
 
 Custom connectors appear alongside built-in connectors when you create a connection in Scalekit:
 
@@ -31,13 +31,13 @@ Custom connectors appear alongside built-in connectors when you create a connect
 Bring your own connector lets you:
 
 - Extend beyond the built-in connector catalog without inventing a separate auth stack
-- Bring unsupported SaaS APIs, partner systems, and internal APIs into the same secure access model
+- Bring unsupported SaaS APIs, partner systems, internal APIs, and remote MCP servers into the same secure access model
 - Reuse connections, connected accounts, and user authorization instead of building one-off auth plumbing
 - Keep credential handling, authorization, and governed API access centralized in Scalekit
-- Move from connector definition to live upstream API calls through Tool Proxy using the same runtime model as other integrations
+- Move from connector definition to live upstream calls through Tool Proxy (REST) or tool calling (MCP) using the same runtime model as other integrations
 
-<Aside type="note">
-Custom connectors route all API calls through Tool Proxy. Direct SDK calls to the upstream API are not supported.
+<Aside type="note" title="Two runtime modes">
+REST API custom connectors route calls through Tool Proxy using `actions.request()`. MCP custom connectors use tool discovery and execution via `list_scoped_tools` and `execute_tool`. Both use the same connection and connected account model.
 </Aside>
 
 ## How bring your own connector works
@@ -47,6 +47,6 @@ Bring your own connector uses the same model as built-in connectors:
 1. Create a connector definition
 2. Create a connection in Scalekit Dashboard
 3. Create a connected account and authorize the user
-4. Use Tool Proxy to call the upstream API
+4. Call the upstream service — through Tool Proxy for REST API connectors, or through tool calling for MCP connectors
 
-Creating the connector defines how Scalekit should authenticate to the upstream API. After that, connections, connected accounts, user authorization, and Tool Proxy work the same way as they do for built-in connectors.
+Creating the connector definition tells Scalekit how to authenticate to the upstream API or MCP server. After that, connections, connected accounts, user authorization, and the call runtime work the same way as they do for built-in connectors.

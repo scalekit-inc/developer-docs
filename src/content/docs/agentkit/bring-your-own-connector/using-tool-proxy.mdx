@@ -1,9 +1,9 @@
 ---
-title: Use Tool Proxy
-description: Use Tool Proxy with your connector after creating a connection, authorizing a user, and setting up a connected account.
+title: Call the upstream service
+description: Call a custom connector's upstream API through Tool Proxy, or discover and execute tools from a custom MCP connector.
 tags: [agentauth, connectors, proxy, api, guide]
 sidebar:
-  label: "Use tool proxy"
+  label: "Call upstream service"
 tableOfContents:
   maxHeadingLevel: 3
 prev:
@@ -14,20 +14,20 @@ next:
   link: "/agentkit/advanced/custom-domain"
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
-Use this page to call a custom connector through Tool Proxy after the connector, connection, and connected account are set up.
+Use this page to call a custom connector's upstream service after the connector, connection, and connected account are set up.
 
-The connector definition controls how Scalekit authenticates the upstream API. Your application still uses a connection, a connected account, user authorization, and `actions.request(...)`.
+The call runtime depends on the connector type:
 
-Bring your own connector does not introduce a separate runtime model. You still use the same flow as built-in connectors:
+- **REST API connectors** — use `actions.request()` to proxy HTTP calls through Tool Proxy
+- **MCP connectors** — use `list_scoped_tools` to discover available tools, then `execute_tool` to call them
 
-- Create a connection for the connector in Scalekit Dashboard
-- Create or fetch the connected account for the user
-- Authorize the user if the connected account is not active
-- Call the upstream API through Tool Proxy
+Both types use the same connection, connected account, and user authorization model.
 
-Tool Proxy uses the connected account context to inject the correct authentication details before routing the request to the upstream API.
+<Aside type="tip" title="Which section applies to you?">
+If your connector points to a REST API, use the [REST API proxy calls](#rest-api-proxy-calls) section. If your connector points to an MCP server (the JSON has `is_mcp: true`), use the [MCP tool calling](#mcp-tool-calling) section.
+</Aside>
 
 ## Prerequisites
 
@@ -38,19 +38,19 @@ Make sure:
 - The [connected account](/agentkit/connected-accounts) exists
 - The user has completed [authorization](/agentkit/tools/authorize)
 
-Once these pieces are in place, you can call the upstream API through Tool Proxy.
-
-In the request examples below, `path` is relative to the connector `proxy_url`. `connectionName` must match the connection you created, and `identifier` must match the connected account you want to use for the request.
+Once these pieces are in place, you can call the upstream service.
 
 After you create the connector, create a connection for it in the Scalekit Dashboard:
 
 ![Connections page showing a custom connector connection alongside built-in connectors](@/assets/docs/agentkit/bring-your-own-connector/custom-provider-connection.png)
 
-After the user completes authorization, the connected account appears in the Connected Accounts tab and is ready for proxy calls:
+After the user completes authorization, the connected account appears in the Connected Accounts tab and is ready for calls:
 
 ![Connected Accounts tab showing an authenticated account for a custom connector](@/assets/docs/agentkit/bring-your-own-connector/custom-provider-connected-account.png)
 
-## Proxy API calls
+## REST API proxy calls
+
+In the request examples below, `path` is relative to the connector `proxy_url`. `connectionName` must match the connection you created, and `identifier` must match the connected account you want to use for the request.
 
 <Tabs syncKey="tech-stack">
 <TabItem label="Node.js">
@@ -131,3 +131,107 @@ print(result)
 </Tabs>
 
 The request shape stays the same regardless of whether the connector uses OAUTH, BASIC, BEARER, or API_KEY. The connector definition controls how Scalekit authenticates the upstream call.
+
+## MCP tool calling
+
+MCP custom connectors expose tools from the upstream MCP server. Instead of making HTTP requests through `actions.request()`, you discover the available tools and execute them by name.
+
+### Discover available tools
+
+Call `list_scoped_tools` with the connection name to see which tools the MCP server exposes for a given user.
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js">
+
+```typescript
+import { ScalekitClient } from '@scalekit-sdk/node';
+import 'dotenv/config';
+
+const scalekit = new ScalekitClient(
+  process.env.SCALEKIT_ENV_URL,
+  process.env.SCALEKIT_CLIENT_ID,
+  process.env.SCALEKIT_CLIENT_SECRET
+);
+
+const connectionName = 'your-mcp-connection'; // connection name from Scalekit Dashboard
+const identifier = 'user_123'; // your unique user identifier
+
+const scoped = await scalekit.tools.listScopedTools(identifier, {
+  filter: { connectionNames: [connectionName] },
+  pageSize: 100,
+});
+
+const toolNames = scoped.tools?.map((st) => st.tool?.definition?.name) ?? [];
+console.log('Available tools:', toolNames);
+```
+
+</TabItem>
+<TabItem label="Python">
+
+```python
+import scalekit.client, os
+from dotenv import load_dotenv
+load_dotenv()
+
+scalekit_client = scalekit.client.ScalekitClient(
+    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+    env_url=os.getenv("SCALEKIT_ENV_URL"),
+)
+
+connection_name = "your-mcp-connection"  # connection name from Scalekit Dashboard
+identifier = "user_123"  # your unique user identifier
+
+response, _ = scalekit_client.tools.list_scoped_tools(
+    identifier=identifier,
+    filter={"connection_names": [connection_name]},
+    page_size=100,
+)
+
+tool_names = [scoped_tool.tool.definition["name"] for scoped_tool in response.tools]
+print("Available tools:", tool_names)
+```
+
+</TabItem>
+</Tabs>
+
+<Aside type="note" title="Tool names come from the MCP server">
+Tool names are defined by the upstream MCP server and may differ from built-in Scalekit connector tool names. Always call `list_scoped_tools` first to discover which tools are available for a given connection.
+</Aside>
+
+### Execute a tool
+
+Once you know the tool name, call `execute_tool` with the connection name, identifier, and any tool-specific input.
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js">
+
+```typescript
+const actions = scalekit.actions;
+
+const result = await actions.executeTool({
+  toolName: 'tool_name_from_discovery', // replace with a name from list_scoped_tools
+  connectionName: 'your-mcp-connection',
+  identifier: 'user_123',
+  toolInput: { key: 'value' }, // replace with the tool's required input
+});
+console.log(result);
+```
+
+</TabItem>
+<TabItem label="Python">
+
+```python
+actions = scalekit_client.actions
+
+result = actions.execute_tool(
+    tool_name="tool_name_from_discovery",  # replace with a name from list_scoped_tools
+    connection_name="your-mcp-connection",
+    identifier="user_123",
+    tool_input={"key": "value"},  # replace with the tool's required input
+)
+print(result)
+```
+
+</TabItem>
+</Tabs>
