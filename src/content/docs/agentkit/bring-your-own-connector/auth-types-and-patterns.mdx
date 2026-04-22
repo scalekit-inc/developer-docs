@@ -14,9 +14,9 @@ next:
   link: "/agentkit/bring-your-own-connector/managing-connectors"
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
-Auth patterns define how Scalekit should authenticate to the upstream API.
+Auth patterns define how Scalekit should authenticate to the upstream API or MCP server.
 
 Use this page to choose an auth type and build the connector payload for a custom connector.
 
@@ -55,10 +55,11 @@ Within `auth_patterns`, the most common fields are:
 - `oauth_config`: OAuth-specific configuration, such as authorize and token endpoints
 - `auth_header_key_override`: Custom header name when the upstream does not use `Authorization`. For example, some APIs expect auth in a header such as `X-API-Key` instead of the standard `Authorization` header.
 - `auth_field_mutations`: Value transformations applied before the credential is sent. This is useful when the upstream expects a prefix, suffix, or default companion value, such as adding a token prefix or setting a fallback password value for Basic auth.
+- `is_mcp`: Set to `true` when the upstream is an MCP server. Tells Scalekit to route the connector through MCP tool calling instead of the HTTP proxy.
 
 These fields control how Scalekit collects credentials and applies them during proxy calls.
 
-## Example JSON payloads
+## REST API provider payloads
 
 Use a payload like the following based on the auth pattern you need. In the management flow, you can pass these JSON bodies into the appropriate create or update request.
 
@@ -195,6 +196,135 @@ Use a payload like the following based on the auth pattern you need. In the mana
 </TabItem>
 </Tabs>
 
+## MCP provider payloads
+
+MCP providers use the same four auth types but with three structural differences:
+
+- `is_mcp: true` is set in all `auth_patterns[]` entries
+- OAuth MCP connectors use a simplified `oauth_config: {"pkce_enabled": true}` — no `authorize_uri`, `token_uri`, or `user_info_uri` (the MCP server handles authorization via Dynamic Client Registration)
+- Non-OAuth MCP connectors omit `oauth_config` entirely
+
+<Tabs>
+<TabItem label="OAuth MCP">
+
+```json
+{
+  "display_name": "Github MCP",
+  "description": "Connect to Github MCP",
+  "auth_patterns": [
+    {
+      "description": "Authenticate with Github MCP using browser OAuth.",
+      "display_name": "OAuth 2.1/DCR",
+      "fields": [],
+      "is_mcp": true,
+      "oauth_config": {
+        "pkce_enabled": true
+      },
+      "type": "OAUTH"
+    }
+  ],
+  "proxy_url": "https://api.githubcopilot.com/mcp/",
+  "proxy_enabled": true
+}
+```
+
+</TabItem>
+<TabItem label="Bearer MCP">
+
+```json
+{
+  "display_name": "Apify MCP",
+  "description": "Connect to Apify MCP to run web scraping, browser automation, and data extraction Actors directly from your AI workflows.",
+  "auth_patterns": [
+    {
+      "description": "Authenticate with Apify using your API Token.",
+      "display_name": "Apify Token",
+      "fields": [
+        {
+          "field_name": "token",
+          "hint": "Your Apify API Token",
+          "input_type": "password",
+          "label": "Apify Token",
+          "required": true
+        }
+      ],
+      "is_mcp": true,
+      "type": "BEARER"
+    }
+  ],
+  "proxy_url": "https://mcp.apify.com",
+  "proxy_enabled": true
+}
+```
+
+</TabItem>
+<TabItem label="Basic MCP">
+
+```json
+{
+  "display_name": "My Internal MCP",
+  "description": "Connect to an internal MCP server that authenticates with a username and password",
+  "auth_patterns": [
+    {
+      "type": "BASIC",
+      "display_name": "Basic Auth",
+      "description": "Authenticate with a username and password",
+      "is_mcp": true,
+      "fields": [
+        {
+          "field_name": "username",
+          "label": "Username",
+          "input_type": "text",
+          "hint": "Your username",
+          "required": true
+        },
+        {
+          "field_name": "password",
+          "label": "Password",
+          "input_type": "password",
+          "hint": "Your password",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "proxy_url": "https://mcp.internal.example.com",
+  "proxy_enabled": true
+}
+```
+
+</TabItem>
+<TabItem label="API Key MCP">
+
+```json
+{
+  "display_name": "My API Key MCP",
+  "description": "Connect to an MCP server that authenticates with a static API key",
+  "auth_patterns": [
+    {
+      "type": "API_KEY",
+      "display_name": "API Key",
+      "description": "Authenticate with a static API key",
+      "is_mcp": true,
+      "fields": [
+        {
+          "field_name": "api_key",
+          "label": "API Key",
+          "input_type": "password",
+          "hint": "Your API key",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "proxy_url": "https://mcp.example.com",
+  "proxy_enabled": true
+}
+```
+
+</TabItem>
+</Tabs>
+
 ## Review the final payload carefully
 
 When you review the final payload, pay close attention to:
@@ -204,5 +334,6 @@ When you review the final payload, pay close attention to:
 - Required `fields` and `account_fields`
 - OAuth endpoints and scopes, if the connector uses OAuth
 - `proxy_url`
+- Whether `is_mcp` is set to `true` for MCP providers
 
 Use the payload body from this page in the create and update requests on the [Managing connectors](/agentkit/bring-your-own-connector/managing-connectors) page.
