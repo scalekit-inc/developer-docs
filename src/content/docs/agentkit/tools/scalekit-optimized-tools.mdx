@@ -1,0 +1,286 @@
+---
+title: Scalekit optimized built-in tools
+description: Call Scalekit's pre-built tools across 60+ connectors. Each tool returns structured, LLM-ready output with no endpoint URLs, auth headers, or parsing needed.
+slug: agentkit/tools/scalekit-optimized-tools
+sidebar:
+  label: Use built-in tools
+tags: [agentkit, tools, optimized, connectors, llm, tool-calling]
+tableOfContents: true
+prev:
+  label: "Bring your own credentials"
+  link: "/agentkit/advanced/bring-your-own-oauth"
+next:
+  label: "Custom tools"
+  link: "/agentkit/tools/custom-tools"
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Scalekit ships pre-built tools for every connector in the catalog: Gmail, Slack, GitHub, Salesforce, Notion, Linear, HubSpot, and more. Each tool has an LLM-ready schema and returns structured output. Your agent passes inputs; Scalekit injects the user's credentials and handles the API call.
+
+This page assumes you have an `ACTIVE` connected account for the user. If not, see [Authorize a user](/agentkit/tools/authorize/).
+
+## Find available tools
+
+Use `list_scoped_tools` / `listScopedTools` to get the tools this specific user is authorized to call. **This is the list you pass to your LLM.**
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+```python
+from google.protobuf.json_format import MessageToDict
+
+scoped_response, _ = actions.tools.list_scoped_tools(
+    identifier="user_123",
+    filter={"connection_names": ["gmail"]},   # optional; omit for all connectors
+)
+for scoped_tool in scoped_response.tools:
+    definition = MessageToDict(scoped_tool.tool).get("definition", {})
+    print(definition.get("name"))
+    print(definition.get("input_schema"))     # JSON Schema; pass directly to your LLM
+```
+  </TabItem>
+  <TabItem label="Node.js">
+```typescript
+const { tools } = await scalekit.tools.listScopedTools('user_123', {
+  filter: { connectionNames: ['gmail'] },     // optional; omit for all connectors
+});
+for (const tool of tools) {
+  const { name, input_schema } = tool.tool.definition;
+  console.log(name, input_schema);            // JSON Schema; pass directly to your LLM
+}
+```
+  </TabItem>
+</Tabs>
+
+To browse all available tools without filtering by user, use `list_tools` / `listTools`. To explore tools interactively and inspect live response shapes, use the playground at **app.scalekit.com > Agent Auth > Playground**.
+
+## Execute a tool
+
+`execute_tool` / `executeTool` runs a named tool for a specific user. The same pattern works across every connector. Swap `tool_name` and `tool_input`:
+
+| Connector | Tool name | Sample `tool_input` |
+|---|---|---|
+| `gmail` | `gmail_fetch_mails` | `{ "query": "is:unread", "max_results": 5 }` |
+| `slack` | `slack_send_message` | `{ "channel": "#general", "text": "Hello" }` |
+| `github` | `github_create_issue` | `{ "repo": "acme/app", "title": "Bug", "body": "…" }` |
+| `salesforce` | `salesforce_create_lead` | `{ "first_name": "Ada", "last_name": "Lovelace", "email": "ada@example.com" }` |
+
+<Aside type="note" title="Tool names are illustrative">
+  Exact tool names and input schemas vary by connector. Call `list_scoped_tools` or check the connector page in the dashboard for the current schema.
+</Aside>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+```python
+result = actions.execute_tool(
+    tool_name="gmail_fetch_mails",
+    identifier="user_123",
+    tool_input={"query": "is:unread", "max_results": 5},
+)
+print(result.data)
+```
+  </TabItem>
+  <TabItem label="Node.js">
+```typescript
+const result = await scalekit.actions.executeTool({
+  toolName: 'gmail_fetch_mails',
+  identifier: 'user_123',
+  toolInput: { query: 'is:unread', max_results: 5 },
+});
+console.log(result.data);
+```
+  </TabItem>
+</Tabs>
+
+## Wire into your LLM
+
+The full agent loop: fetch scoped tools → pass to LLM → execute tool calls → feed results back.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+```python
+import anthropic
+from google.protobuf.json_format import MessageToDict
+
+client = anthropic.Anthropic()
+
+# 1. Fetch tools scoped to this user
+scoped_response, _ = actions.tools.list_scoped_tools(
+    identifier="user_123",
+    filter={"connection_names": ["gmail"]},
+)
+llm_tools = [
+    {
+        "name": MessageToDict(t.tool).get("definition", {}).get("name"),
+        "description": MessageToDict(t.tool).get("definition", {}).get("description"),
+        "input_schema": MessageToDict(t.tool).get("definition", {}).get("input_schema", {}),
+    }
+    for t in scoped_response.tools
+]
+
+# 2. Send to LLM
+messages = [{"role": "user", "content": "Summarize my last 5 unread emails"}]
+response = client.messages.create(
+    model="claude-sonnet-4-6",
+    max_tokens=1024,
+    tools=llm_tools,
+    messages=messages,
+)
+
+# 3. Execute tool calls and feed results back
+for block in response.content:
+    if block.type == "tool_use":
+        tool_result = actions.execute_tool(
+            tool_name=block.name,
+            identifier="user_123",
+            tool_input=block.input,
+        )
+        messages.append({"role": "assistant", "content": response.content})
+        messages.append({
+            "role": "user",
+            "content": [{"type": "tool_result", "tool_use_id": block.id, "content": str(tool_result.data)}],
+        })
+```
+  </TabItem>
+  <TabItem label="Node.js">
+```typescript
+import Anthropic from '@anthropic-ai/sdk';
+
+const anthropic = new Anthropic();
+
+// 1. Fetch tools scoped to this user
+const { tools } = await scalekit.tools.listScopedTools('user_123', {
+  filter: { connectionNames: ['gmail'] },
+});
+const llmTools = tools.map((t) => ({
+  name: t.tool.definition.name,
+  description: t.tool.definition.description,
+  input_schema: t.tool.definition.input_schema,
+}));
+
+// 2. Send to LLM
+const messages: Anthropic.MessageParam[] = [
+  { role: 'user', content: 'Summarize my last 5 unread emails' },
+];
+const response = await anthropic.messages.create({
+  model: 'claude-sonnet-4-6',
+  max_tokens: 1024,
+  tools: llmTools,
+  messages,
+});
+
+// 3. Execute tool calls and feed results back
+for (const block of response.content) {
+  if (block.type === 'tool_use') {
+    const toolResult = await scalekit.actions.executeTool({
+      toolName: block.name,
+      identifier: 'user_123',
+      toolInput: block.input as Record<string, unknown>,
+    });
+    messages.push({ role: 'assistant', content: response.content });
+    messages.push({
+      role: 'user',
+      content: [{ type: 'tool_result', tool_use_id: block.id, content: JSON.stringify(toolResult.data) }],
+    });
+  }
+}
+```
+  </TabItem>
+</Tabs>
+
+## Use a framework adapter
+
+For LangChain and Google ADK, Scalekit returns native tool objects in Python with no schema reshaping needed.
+
+<Tabs syncKey="framework-adapter">
+  <TabItem label="LangChain">
+```python
+from langchain_openai import ChatOpenAI
+from langchain.agents import create_agent
+
+tools = actions.langchain.get_tools(
+    identifier="user_123",
+    providers=["GMAIL"],
+    page_size=100,
+)
+llm = ChatOpenAI(model="claude-sonnet-4-6")
+agent = create_agent(model=llm, tools=tools, system_prompt="You are a helpful assistant.")
+result = agent.invoke({"messages": [{"role": "user", "content": "Fetch my last 5 unread emails"}]})
+```
+  </TabItem>
+  <TabItem label="Google ADK">
+```python
+from google.adk.agents import Agent
+from google.adk.models.lite_llm import LiteLlm
+
+gmail_tools = actions.google.get_tools(
+    identifier="user_123",
+    providers=["GMAIL"],
+    page_size=100,
+)
+agent = Agent(
+    name="gmail_assistant",
+    model=LiteLlm(model="claude-sonnet-4-6"),
+    tools=gmail_tools,
+)
+```
+  </TabItem>
+  <TabItem label="Node.js (Vercel AI SDK)">
+```typescript
+import { generateText, jsonSchema, tool } from 'ai';
+
+const { tools: scopedTools } = await scalekit.tools.listScopedTools('user_123', {
+  filter: { connectionNames: ['gmail'] },
+});
+const tools = Object.fromEntries(
+  scopedTools.map((t) => [
+    t.tool.definition.name,
+    tool({
+      description: t.tool.definition.description,
+      parameters: jsonSchema(t.tool.definition.input_schema ?? { type: 'object', properties: {} }),
+      execute: async (args) => {
+        const result = await scalekit.actions.executeTool({
+          toolName: t.tool.definition.name,
+          toolInput: args,
+          identifier: 'user_123',
+        });
+        return result.data;
+      },
+    }),
+  ]),
+);
+```
+  </TabItem>
+</Tabs>
+
+<Aside type="note" title="MCP-compatible frameworks">
+  Prefer a single interface any MCP client can consume? See [Configure an MCP server](/agentkit/mcp/configure-mcp-server/).
+</Aside>
+
+## Troubleshooting
+
+<details>
+<summary>Connected account stays in <code>PENDING</code></summary>
+
+The user hasn't completed the OAuth flow yet. Call `get_authorization_link` and redirect the user to the link. Retry after consent completes.
+
+</details>
+
+<details>
+<summary>Tool call fails with resource not found</summary>
+
+Check three things:
+- The connector name exists in **Agent Auth > Connections**
+- The `identifier` matches the one used when creating the connected account
+- Call `list_scoped_tools` and only execute tool names it returns
+
+</details>
+
+<details>
+<summary>Connection names differ across environments</summary>
+
+Connection names are workspace-specific. Don't hard-code them. Use environment variables (`GMAIL_CONNECTION_NAME`, `GITHUB_CONNECTION_NAME`) and reference those in API calls.
+
+</details>
+
+If you need an endpoint not covered by optimized tools, see [Custom tools](/agentkit/tools/custom-tools/).

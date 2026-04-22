@@ -1,0 +1,250 @@
+---
+title: Claude Managed Agents
+description: Connect a Claude Managed Agent to Scalekit-authenticated tools via MCP. Anthropic runs the agent loop; you describe the task, Claude handles the rest.
+slug: agentkit/examples/claude-managed-agents
+sidebar:
+  label: Claude Managed Agents
+tags: [agentkit, examples, claude, anthropic, managed-agents, mcp]
+tableOfContents: true
+prev:
+  label: "Mastra"
+  link: "/agentkit/examples/mastra"
+next:
+  label: "OpenClaw"
+  link: "/agentkit/openclaw"
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+<Aside type="caution" title="Beta">
+  Claude Managed Agents is in public beta. All API requests require the `managed-agents-2026-04-01` beta header, which the Anthropic SDK sets automatically. API behavior may change between releases.
+</Aside>
+
+Connect a Claude Managed Agent to Scalekit-authenticated Gmail tools via MCP. You generate a Scalekit MCP URL, pass it to the agent, and describe a task. Anthropic manages the agent loop: tool discovery, execution, retries, and session state.
+
+Compare this to the [Anthropic SDK example](/agentkit/examples/anthropic/): that approach uses the Messages API and requires you to fetch tool schemas, build a tool-use loop, and feed results back manually. Here, none of that exists in your code.
+
+## Prerequisites
+
+- A Scalekit account with a Gmail connection configured. See [Configure a connection](/agentkit/connections/).
+- A Scalekit MCP config and a per-user instance URL already created. See [Configure an MCP server](/agentkit/mcp/configure-mcp-server/) and [Generate user MCP URLs](/agentkit/mcp/generate-user-urls/).
+- An [Anthropic API key](https://platform.anthropic.com/settings/keys).
+
+## Install
+
+```sh
+pip install anthropic scalekit-sdk-python
+```
+
+## Get a Scalekit MCP URL
+
+Generate a per-user MCP URL from your existing MCP config. This URL is pre-authenticated; it encodes the user's identity and their authorized connections.
+
+```python
+import os
+import scalekit.client
+
+scalekit_client = scalekit.client.ScalekitClient(
+    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+    env_url=os.getenv("SCALEKIT_ENV_URL"),
+)
+actions = scalekit_client.actions
+
+inst_response = actions.mcp.ensure_instance(
+    config_name="email-assistant",  # your MCP config name
+    user_identifier="user_123",     # your app's unique user ID
+)
+mcp_url = inst_response.instance.url
+```
+
+<Aside type="caution" title="Keep the MCP URL server-side">
+  The MCP URL is pre-authenticated. Never expose it in client-side code or browser requests. Pass it directly to the Managed Agent from your backend.
+</Aside>
+
+Before passing the URL to the agent, confirm the user has authorized all connections the config requires. See [Check auth state](/agentkit/mcp/generate-user-urls/#check-auth-state).
+
+## Create the agent
+
+Define the agent once and reuse it across sessions. Pass the Scalekit MCP URL as an MCP server; no vault or additional auth configuration needed, because the URL is already authenticated.
+
+```python
+from anthropic import Anthropic
+
+client = Anthropic()
+
+agent = client.beta.agents.create(
+    name="Gmail Assistant",
+    model="claude-opus-4-7",
+    system="You are a helpful assistant with access to the user's Gmail account.",
+    mcp_servers=[
+        {
+            "type": "url",
+            "name": "scalekit",
+            "url": mcp_url,
+        },
+    ],
+    tools=[
+        {
+            "type": "mcp_toolset",
+            "mcp_server_name": "scalekit",
+            "default_config": {"permission_policy": {"type": "always_allow"}},
+        },
+    ],
+)
+```
+
+<Aside type="note" title="Tool confirmation policy">
+  MCP tools default to an `always_ask` permission policy, which pauses the agent before each tool call. The example above sets `always_allow` on the toolset so the agent runs without interruption. See [Permission policies](https://platform.claude.com/docs/en/managed-agents/permission-policies) in the Anthropic docs.
+</Aside>
+
+Save `agent.id`. You reference it in every session; no need to recreate the agent per user.
+
+## Create an environment
+
+An environment is the cloud container the agent runs in. Create one and reuse it.
+
+```python
+environment = client.beta.environments.create(
+    name="gmail-agent-env",
+    config={
+        "type": "cloud",
+        "networking": {"type": "unrestricted"},
+    },
+)
+```
+
+## Run a session
+
+Start a session, send a task, and stream results. No `vault_ids` needed; the Scalekit MCP URL handles authentication.
+
+```python
+session = client.beta.sessions.create(
+    agent=agent.id,
+    environment_id=environment.id,
+    title="Gmail session",
+)
+
+with client.beta.sessions.events.stream(session.id) as stream:
+    client.beta.sessions.events.send(
+        session.id,
+        events=[
+            {
+                "type": "user.message",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "Fetch my last 5 unread emails and summarize them.",
+                    }
+                ],
+            },
+        ],
+    )
+
+    for event in stream:
+        match event.type:
+            case "agent.message":
+                for block in event.content:
+                    print(block.text, end="")
+            case "agent.tool_use":
+                print(f"\n[{event.name}]")
+            case "session.status_idle":
+                print("\n")
+                break
+```
+
+The agent discovers available Gmail tools from the Scalekit MCP server, executes them using the user's pre-authorized credentials, and streams results back. You don't manage any of that loop.
+
+<details>
+<summary>Complete example</summary>
+
+```python
+import os
+import scalekit.client
+from anthropic import Anthropic
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Get a pre-authenticated MCP URL for the user
+scalekit_client = scalekit.client.ScalekitClient(
+    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+    env_url=os.getenv("SCALEKIT_ENV_URL"),
+)
+actions = scalekit_client.actions
+
+inst_response = actions.mcp.ensure_instance(
+    config_name="email-assistant",
+    user_identifier="user_123",
+)
+mcp_url = inst_response.instance.url
+
+# Create agent (once; reuse agent.id across sessions)
+client = Anthropic()
+
+agent = client.beta.agents.create(
+    name="Gmail Assistant",
+    model="claude-opus-4-7",
+    system="You are a helpful assistant with access to the user's Gmail account.",
+    mcp_servers=[
+        {
+            "type": "url",
+            "name": "scalekit",
+            "url": mcp_url,
+        },
+    ],
+    tools=[
+        {
+            "type": "mcp_toolset",
+            "mcp_server_name": "scalekit",
+            "default_config": {"permission_policy": {"type": "always_allow"}},
+        },
+    ],
+)
+
+# Create environment (once; reuse environment.id)
+environment = client.beta.environments.create(
+    name="gmail-agent-env",
+    config={
+        "type": "cloud",
+        "networking": {"type": "unrestricted"},
+    },
+)
+
+# Run a session
+session = client.beta.sessions.create(
+    agent=agent.id,
+    environment_id=environment.id,
+    title="Gmail session",
+)
+
+with client.beta.sessions.events.stream(session.id) as stream:
+    client.beta.sessions.events.send(
+        session.id,
+        events=[
+            {
+                "type": "user.message",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "Fetch my last 5 unread emails and summarize them.",
+                    }
+                ],
+            },
+        ],
+    )
+
+    for event in stream:
+        match event.type:
+            case "agent.message":
+                for block in event.content:
+                    print(block.text, end="")
+            case "agent.tool_use":
+                print(f"\n[{event.name}]")
+            case "session.status_idle":
+                print("\n")
+                break
+```
+
+</details>

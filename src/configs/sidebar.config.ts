@@ -2,7 +2,7 @@ import { createSectionHeader, createSpacing } from './sidebar-utils'
 
 export const sidebar = [
   {
-    label: 'Full stack auth',
+    label: 'SaaSKit',
     id: 'authenticate',
     link: '/authenticate/fsa/quickstart/',
     icon: 'seti:lock',
@@ -11,7 +11,7 @@ export const sidebar = [
         label: 'Getting started',
         items: [
           'authenticate/set-up-scalekit',
-          { label: 'Quickstart: Full stack auth', link: 'authenticate/fsa/quickstart' },
+          { label: 'Quickstart (SaaSKit)', link: 'authenticate/fsa/quickstart' },
           'authenticate/fsa/code-samples',
         ],
       },
@@ -123,87 +123,96 @@ export const sidebar = [
     ],
   },
   {
-    label: 'Agent Auth',
-    link: '/agent-auth/quickstart',
+    label: 'AgentKit',
+    link: '/agentkit/quickstart',
     id: 'connect',
     icon: 'seti:bicep',
     items: [
       {
         label: 'Getting started',
         items: [
-          'agent-auth/overview',
-          { label: 'Quickstart: Agent Auth', link: 'agent-auth/quickstart' },
-          'agent-auth/user-verification',
-          'agent-auth/code-samples',
+          'agentkit/overview',
+          { label: 'Quickstart (AgentKit)', link: 'agentkit/quickstart' },
+          {
+            label: 'SDKs',
+            collapsed: true,
+            items: [
+              { label: 'Node.js SDK', link: '/agentkit/sdks/node/' },
+              { label: 'Python SDK', link: '/agentkit/sdks/python/' },
+            ],
+          },
+          {
+            label: 'Code samples',
+            collapsed: true,
+            items: [
+              { label: 'Overview', link: 'agentkit/examples/' },
+              { label: 'LangChain', link: 'agentkit/examples/langchain' },
+              { label: 'Google ADK', link: 'agentkit/examples/google-adk' },
+              { label: 'Anthropic', link: 'agentkit/examples/anthropic' },
+              { label: 'OpenAI', link: 'agentkit/examples/openai' },
+              { label: 'Vercel AI', link: 'agentkit/examples/vercel-ai' },
+              { label: 'Mastra', link: 'agentkit/examples/mastra' },
+              { label: 'Claude Managed Agents', link: 'agentkit/examples/claude-managed-agents' },
+              { label: 'OpenClaw', link: 'agentkit/openclaw' },
+            ],
+          },
         ],
       },
       {
-        label: 'Concepts',
+        label: 'Authentication',
         collapsed: false,
         items: [
-          'agent-auth/providers',
-          'agent-auth/connections',
-          'agent-auth/connected-accounts',
-          // 'agent-auth/authentication/auth-flows-comparison',
-          'agent-auth/tools/authorize',
-          // 'agent-auth/authentication/token-management',
-          // 'agent-auth/advanced/bring-your-own-oauth',
-          'agent-auth/advanced/custom-domain',
-          // 'agent-auth/authentication/scopes-permissions',
-          // 'agent-auth/authentication/multi-provider',
-          // 'agent-auth/authentication/troubleshooting',
-          // 'agent-auth/authentication/testing-auth-flows',
-          // 'agent-auth/advanced/overview',
-        ],
-      },
-      {
-        label: 'Bring your own provider',
-        items: [
-          'agent-auth/bring-your-own-provider/overview',
-          'agent-auth/bring-your-own-provider/auth-types-and-patterns',
-          'agent-auth/bring-your-own-provider/managing-providers',
-          'agent-auth/bring-your-own-provider/using-tool-proxy',
+          'agentkit/connections',
+          'agentkit/tools/authorize',
+          'agentkit/user-verification',
+          'agentkit/connected-accounts',
+          'agentkit/advanced/bring-your-own-oauth',
         ],
       },
       {
         label: 'Tool calling',
         collapsed: false,
         items: [
-          'agent-auth/tools/agent-tools-quickstart',
-          { label: 'Tool access via MCP', link: 'agent-auth/mcp/tool-access-via-mcp' },
-          //'agent-auth/advanced/proxy-api-calls',
-          // 'agent-auth/tools/custom-processors',
-          // 'agent-auth/mcp/manage-configs',
-          // 'agent-auth/mcp/custom-tools',
+          { label: 'Use built-in tools', link: 'agentkit/tools/scalekit-optimized-tools' },
+          { label: 'Build custom tools', link: 'agentkit/tools/custom-tools' },
         ],
       },
       {
-        label: 'AI Frameworks',
+        label: 'Agent tools over MCP',
         collapsed: false,
         items: [
-          {
-            label: 'OpenClaw',
-            link: 'agent-auth/openclaw',
-            badge: { text: 'New', variant: 'tip' },
-          },
-          'agent-auth/frameworks/langchain',
-          'agent-auth/frameworks/google-adk',
-          // 'agent-auth/frameworks/agno', // TODO: Add when Agno framework docs are complete
-          // 'agent-auth/frameworks/openai', // TODO: Add when OpenAI framework docs are complete
-          // 'agent-auth/frameworks/anthropic', // TODO: Add when Anthropic framework docs are complete
+          { label: 'Configure an MCP server', link: 'agentkit/mcp/configure-mcp-server' },
+          { label: 'Generate user MCP URLs', link: 'agentkit/mcp/generate-user-urls' },
+          { label: 'Connect an MCP client', link: 'agentkit/mcp/connect-mcp-client' },
         ],
       },
+      {
+        label: 'Add your own connector',
+        items: [
+          'agentkit/bring-your-own-connector/overview',
+          'agentkit/bring-your-own-connector/auth-types-and-patterns',
+          'agentkit/bring-your-own-connector/managing-connectors',
+          'agentkit/bring-your-own-connector/using-tool-proxy',
+        ],
+      },
+      {
+        label: 'Go live',
+        items: ['agentkit/advanced/custom-domain', 'agentkit/advanced/launch-checklist'],
+      },
+    ],
+  },
+  {
+    label: 'Agent connectors',
+    id: 'agent-connectors',
+    link: '/agentkit/connectors/',
+    icon: 'seti:bicep',
+    items: [
       {
         label: 'Connectors',
         autogenerate: {
-          directory: 'reference/agent-connectors',
+          directory: 'agentkit/connectors',
         },
       },
-
-      // {
-      //   label: 'Concepts',
-      //   items: ['connect/providers', 'connect/connections', 'connect/connected-accounts'],
-      // },
     ],
   },
   {
@@ -217,7 +226,6 @@ export const sidebar = [
         items: [
           'dev-kit/build-with-ai',
           'dev-kit/build-with-ai/full-stack-auth',
-          'dev-kit/build-with-ai/agent-auth',
           'dev-kit/build-with-ai/mcp-auth',
           'dev-kit/build-with-ai/sso',
           'dev-kit/build-with-ai/scim',
@@ -271,7 +279,6 @@ export const sidebar = [
         items: [
           { label: 'Overview', link: 'resources/code-samples' },
           'resources/code-samples/full-stack-auth',
-          'resources/code-samples/agent-auth',
           'resources/code-samples/mcp-auth',
           'resources/code-samples/modular-sso',
           'resources/code-samples/modular-scim',
@@ -292,10 +299,6 @@ export const sidebar = [
         label: 'SCIM integrations',
         collapsed: true,
         autogenerate: { directory: 'guides/integrations/scim-integrations' },
-      },
-      {
-        label: 'Agent connectors',
-        link: 'guides/integrations/agent-connectors',
       },
       createSpacing(),
       createSectionHeader('Workflows'),
@@ -559,7 +562,7 @@ export const sidebar = [
  * These pages will use the built-in Starlight sidebar and not render a list of topics.
  */
 export const exclude = [
-  '/', // Home page
+  '/', // Gateway page — no topic sidebar
   '/blog',
   '/404', // Error page
   '/apis/**/*', // REST API reference has Scalar-powered navigation
@@ -581,8 +584,11 @@ export const topics = {
   // Modular SCIM (directory provisioning)
   'modular-scim': ['/directory/**/*'],
 
-  // Agent Auth / Connect
-  connect: ['/agent-auth/**/*', '/reference/agent-connectors/**/*'],
+  // Agent connectors (dedicated connectors sidebar — must come before connect)
+  'agent-connectors': ['/agentkit/connectors/**/*'],
+
+  // AgentKit / Connect
+  connect: ['/agentkit/**/*'],
 
   // === Resources (integrations, workflows, references) ===
   resources: [
@@ -648,37 +654,50 @@ export type SecondaryNavMapping =
  * Values must match `secondaryNavItems[*].id`.
  */
 export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
-  // Main authentication sidebar → Full-stack Auth tabs (with path-based routing)
+  // Main authentication sidebar → SaaSKit tabs (with path-based routing)
   authenticate: {
-    default: 'fsa-quickstart',
+    default: 'saaskit-user-management',
     pathOverrides: {
-      '/authenticate/fsa/implement-login': 'fsa-user-auth',
-      '/authenticate/fsa/complete-login': 'fsa-user-auth',
-      '/authenticate/fsa/manage-session': 'fsa-user-auth',
-      '/authenticate/fsa/logout': 'fsa-user-auth',
-      '/fsa/data-modelling': 'fsa-users-orgs',
-      '/authenticate/manage-users-orgs': 'fsa-users-orgs',
-      '/authenticate/manage-organizations': 'fsa-users-orgs',
-      '/authenticate/authz': 'fsa-authorization',
-      '/guides/custom-domain': 'fsa-customize',
-      '/fsa/guides/login-page-branding': 'fsa-customize',
-      '/guides/email-providers': 'fsa-customize',
-      '/guides/dashboard/custom-email-templates': 'fsa-customize',
-      // Removed: interceptors and workflows now use topics-based routing (maps to dev-kit)
+      '/authenticate/mcp': 'saaskit-mcp-auth',
+      '/authenticate/sso': 'saaskit-sso',
+      '/directory/scim': 'saaskit-scim',
+      '/authenticate/fsa': 'saaskit-user-management',
+      '/authenticate/manage-users-orgs': 'saaskit-user-management',
+      '/authenticate/manage-organizations': 'saaskit-user-management',
+      '/authenticate/auth-methods': 'saaskit-user-management',
+      '/authenticate/authz': 'saaskit-user-management',
+      '/fsa': 'saaskit-user-management',
+      '/guides/custom-domain': 'saaskit-user-management',
+      '/guides/email-providers': 'saaskit-user-management',
+      '/guides/dashboard/custom-email-templates': 'saaskit-user-management',
     },
   },
 
-  // MCP sidebar → 'Auth for MCP' tab
-  mcp: 'mcp',
+  // MCP sidebar → SaaSKit MCP Auth tab
+  mcp: 'saaskit-mcp-auth',
 
-  // Modular SSO sidebar → 'Modular SSO' tab
-  'modular-sso': 'modular-sso',
+  // Modular SSO sidebar → SaaSKit SSO tab
+  'modular-sso': 'saaskit-sso',
 
-  // Modular SCIM sidebar → 'Modular SCIM' tab
-  'modular-scim': 'modular-scim',
+  // Modular SCIM sidebar → SaaSKit SCIM tab
+  'modular-scim': 'saaskit-scim',
 
-  // Agent Auth sidebar → 'Agent Auth' tab
-  connect: 'agent-auth',
+  // Agent connectors sidebar → AgentKit Connectors tab
+  'agent-connectors': 'agentkit-connectors',
+
+  // AgentKit sidebar → AgentKit tabs
+  connect: {
+    default: 'agentkit-quickstart',
+    pathOverrides: {
+      '/agentkit/connectors': 'agentkit-connectors',
+      '/agentkit/connections': 'agentkit-quickstart',
+      '/agentkit/connected-accounts': 'agentkit-connectors',
+      '/agentkit/sdks': 'agentkit-sdks',
+      '/agentkit/tools/agent-tools-quickstart': 'agentkit-quickstart',
+      '/agentkit/openclaw': 'agentkit-quickstart',
+      '/agentkit/frameworks': 'agentkit-quickstart',
+    },
+  },
 
   // Developer Kit sidebar → Developer Resources dropdown (left column)
   'dev-kit': {

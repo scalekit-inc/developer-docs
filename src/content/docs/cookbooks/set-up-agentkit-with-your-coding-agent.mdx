@@ -1,0 +1,114 @@
+---
+title: 'Set up AgentKit with your coding agent'
+description: 'Add Scalekit Agent Auth to your codebase using Claude Code, Codex, GitHub Copilot CLI, Cursor, or any of 40+ coding agents.'
+date: 2026-04-15
+tags: ['Agent auth']
+sidebar:
+  label: 'Set up AgentKit with coding agents'
+excerpt: >
+  Install the Scalekit Auth Stack plugin into your coding agent and paste one
+  prompt. The agent scaffolds OAuth handling, token management, and connected
+  account logic so you can start writing agent logic immediately.
+featured: false
+authors:
+  - name: 'Saif'
+    title: 'Developer Advocate'
+    url: 'https://www.linkedin.com/in/saif-shines/'
+    picture: '/images/blog/authors/saif.png'
+---
+
+import { TabItem, Aside } from '@astrojs/starlight/components'
+import Tabs from '@components/ui/Tabs.astro'
+
+Install the Scalekit Auth Stack plugin into your coding agent and paste one prompt. The agent generates client initialization, connected account management, OAuth authorization, and token handling — no boilerplate required.
+
+## Before you start
+
+- A Scalekit account at [app.scalekit.com](https://app.scalekit.com)
+- A connector configured under **Agent Auth → Connections** (for example, `gmail`)
+- Your API credentials from **Developers → API Credentials**
+
+## Pick your coding agent
+
+<Tabs syncKey="coding-agent">
+  <TabItem label="Claude Code" icon="claude">
+    ```bash title="Terminal" frame="terminal" showLineNumbers=false
+    claude plugin marketplace add scalekit-inc/claude-code-authstack && claude plugin install agent-auth@scalekit-auth-stack
+    ```
+
+    Installing the plugin sets up Scalekit's MCP server and triggers an OAuth authorization flow in your browser. Complete the authorization before continuing — this gives Claude Code direct access to your Scalekit environment to search docs, manage connections, and check connected account status.
+
+    Then paste this prompt:
+    ```md title="Implementation prompt" wrap showLineNumbers=false
+    Configure Scalekit agent authentication for [connector-name]. Provide code to create a connected account, generate an authorization link, retrieve the token, and call the API on behalf of the user.
+    ```
+  </TabItem>
+  <TabItem label="Codex" icon="codex">
+    ```bash title="Terminal" frame="terminal" showLineNumbers=false
+    curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash
+    ```
+    Restart Codex → Plugin Directory → **Scalekit Auth Stack** → install **agent-auth**. If a browser authorization prompt appears, complete the OAuth flow before continuing. Then paste the implementation prompt above.
+  </TabItem>
+  <TabItem label="GitHub Copilot CLI" icon="githubcopilot">
+    ```bash title="Terminal" frame="terminal" showLineNumbers=false
+    copilot plugin marketplace add scalekit-inc/github-copilot-authstack
+    copilot plugin install agent-auth@scalekit-auth-stack
+    ```
+    Then run:
+    ```bash title="Terminal" frame="terminal" showLineNumbers=false wrap
+    copilot "Configure Scalekit agent authentication for [connector-name]. Provide code to create a connected account, generate an authorization link, retrieve the token, and call the API on behalf of the user."
+    ```
+  </TabItem>
+  <TabItem label="Cursor" icon="cursor">
+    <Aside type="note" title="Marketplace under review">
+      Scalekit Auth Stack is under review on Cursor Marketplace. Use the local installer below until it's live.
+    </Aside>
+    ```bash title="Terminal" frame="terminal" showLineNumbers=false
+    curl -fsSL https://raw.githubusercontent.com/scalekit-inc/cursor-authstack/main/install.sh | bash
+    ```
+    Reload Cursor → **Settings → Plugins** → enable **Agent Auth**. If a browser authorization prompt appears, complete the OAuth flow before continuing. Open chat (Cmd+L / Ctrl+L) and paste the implementation prompt above.
+  </TabItem>
+  <TabItem label="40+ agents" icon="sparkle">
+    ```bash title="Terminal" frame="terminal" showLineNumbers=false
+    npx skills add scalekit-inc/skills --skill integrating-agent-auth
+    ```
+    Then ask your agent to configure Scalekit authentication for your connector and generate connected account, auth link, and token-fetch code.
+
+    Supported agents include Claude Code, Cursor, GitHub Copilot CLI, OpenCode, Windsurf, Cline, Gemini CLI, Codex, and 30+ others.
+  </TabItem>
+</Tabs>
+
+## Verify the setup
+
+1. **Set environment variables** — copy `SCALEKIT_CLIENT_ID`, `SCALEKIT_CLIENT_SECRET`, and `SCALEKIT_ENV_URL` from the dashboard → **API Credentials**.
+2. **Trigger the authorization flow** — run the generated example and confirm the browser redirects to the connector's consent page.
+3. **Fetch a token** — after consent, call the token-fetch function and confirm you receive a valid response.
+
+<Aside type="caution" title="Review generated code before deploying">
+  Verify that token validation logic, error handling, and environment variable references match your application's requirements. The generated code is a foundation, not a finished implementation.
+</Aside>
+
+## Troubleshooting
+
+<details>
+<summary>The agent generated code for a connector I haven't configured yet</summary>
+
+The plugin uses the connector name you provide in the prompt. If that connector isn't configured in your Scalekit Dashboard, the OAuth flow will fail at runtime with a "connector not found" error.
+
+Fix: go to **Agent Auth → Connections** in the [Scalekit Dashboard](https://app.scalekit.com), create the connection, then re-run the agent prompt with the exact connection name from the dashboard.
+
+</details>
+
+<details>
+<summary>I want to swap connectors after the initial generation</summary>
+
+Re-run the implementation prompt with the new connector name. The agent updates the connector reference in the client initialization and regenerates the token-fetch call. Existing connected accounts for the old connector are not affected.
+
+</details>
+
+<details>
+<summary>The scaffolded code references an SDK version that doesn't match my lockfile</summary>
+
+The plugin targets the latest stable Scalekit SDK. If your lockfile pins an older version, either upgrade the SDK (`npm install @scalekit-sdk/node@latest` or equivalent) or ask the agent to regenerate using your pinned version by adding "use SDK version X.Y.Z" to the prompt.
+
+</details>

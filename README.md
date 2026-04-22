@@ -70,6 +70,8 @@ developer-docs/
 npm install -g pnpm
 ```
 
+Optionally, use [Volta](https://volta.sh) to manage Node and pnpm versions automatically — the project's `package.json` already has the correct versions pinned.
+
 #### Run locally
 
 ```bash
@@ -88,15 +90,15 @@ Open [http://localhost:4321](http://localhost:4321). Changes to MDX files hot-re
 
 #### Useful Commands
 
-| Command                      | Description                                                 |
-| ---------------------------- | ----------------------------------------------------------- |
-| `pnpm dev`                   | Start the site with Netlify Dev (matches deploy env)        |
-| `pnpm start`                 | Run Astro dev only — use when previewing D2 diagram changes |
-| `pnpm build`                 | Build the production site to `./dist`                       |
-| `pnpm preview`               | Preview the production build locally                        |
-| `pnpm format`                | Auto-format all `.md`, `.mdx`, `.astro`, `.ts` files        |
-| `pnpm format:check`          | Check formatting without writing changes                    |
-| `pnpm generate-search-index` | Regenerate the Algolia API search index                     |
+| Command                      | Description                                                   |
+| ---------------------------- | ------------------------------------------------------------- |
+| `pnpm dev`                   | Start the site with Netlify Dev (matches deploy env)          |
+| `pnpm start`                 | Run Astro dev only — use when previewing D2 diagram changes   |
+| `pnpm build`                 | Build the production site to `./dist`                         |
+| `pnpm preview`               | Preview the production build locally                          |
+| `pnpm format`                | Auto-format all `.md`, `.mdx`, `.astro`, `.ts` files          |
+| `pnpm format:check`          | Check formatting without writing changes                      |
+| `pnpm generate-search-index` | Validate API deep-link URL fragments (`search-index-apis.js`) |
 
 ---
 

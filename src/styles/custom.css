@@ -17,7 +17,7 @@
     --sl-text-2xs: 0.75rem; /* 12px */
     --sl-text-xs: 0.8125rem; /* 13px */
     --sl-text-sm: 0.9rem; /* 14.4px - increased slightly */
-    --sl-text-base: 1rem; /* 15.2px - increased for better readability */
+    --sl-text-base: 1.1rem; /* 15.2px - increased for better readability */
     --sl-text-lg: 1.125rem; /* 18px */
     --sl-text-xl: 1.25rem; /* 20px */
     --sl-text-2xl: 1.5rem; /* 24px */
@@ -39,10 +39,11 @@
     --sl-text-h5: var(--sl-text-base) !important;*/
 
     --sl-font-system:
-      ui-sans-serif, system-ui, Roboto, 'Atkinson Hyperlegible Next Variable',
-      'Inter Variable, Arial, sans-serif,';
+      ui-sans-serif, system-ui, Roboto, 'Atkinson Hyperlegible Next Variable', 'Inter Variable',
+      Arial, sans-serif;
     --sl-font-system-mono: 'JetBrains Mono', 'Inter Variable', ui-monospace, monospace;
-    --sl-font: var(--sl-font-system);
+    --sl-font: 'Inter Variable', Arial, sans-serif;
+    --sl-font-heading: 'Outfit Variable', var(--sl-font-system);
     --sl-font-mono: var(--sl-font-mono, var(--sl-font-system-mono)), var(--sl-font-system-mono);
 
     /* Border tokens */
@@ -125,13 +126,7 @@
   }
 
   /* Table components */
-  .sl-markdown-content h2 {
-    font-size: var(--sl-text-xl);
-  }
-
-  .sl-markdown-content h3 {
-    font-size: var(--sl-text-lg);
-  }
+  /* Heading sizes defined in overrides layer below */
 
   /* Image components */
   starlight-image-zoom-zoomable img {
@@ -298,7 +293,7 @@
     line-height: 1.25rem;
     padding: 0.5rem 1rem;
     border-radius: 0.375rem !important; /* match .sk-primary */
-    font-weight: 600;
+    font-weight: 500;
   }
 
   /* Keep radius consistent across states and for the status pill */
@@ -464,6 +459,38 @@
   .sl-link-button {
     text-decoration: none;
     text-underline-offset: initial;
+  }
+
+  /* Apply Outfit font to all headings */
+  :is(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--sl-font-heading) !important;
+  }
+
+  .sl-markdown-content :is(h1, h2, h3, h4, h5, h6):not(:where(.not-content *)) {
+    font-weight: 500;
+  }
+
+  /* Base body is ~500 (Nova/Tailwind); match real bold semantics vs. normal text */
+  .sl-markdown-content strong,
+  .sl-markdown-content b {
+    font-weight: 600;
+  }
+
+  .sl-markdown-content summary:not(:where(.not-content *)) {
+    font-weight: 500;
+  }
+
+  .card-title {
+    font-weight: 500;
+  }
+
+  /* Inline code — minimal treatment
+     Removes Nova's heavy border box; keeps a subtle background tint. */
+  .sl-markdown-content :not(pre) > code {
+    border: none !important;
+    background-color: color-mix(in srgb, currentColor 7%, transparent) !important;
+    padding: 0.1em 0.35em !important;
+    border-radius: 0.25rem !important;
   }
 }
 

@@ -1,0 +1,61 @@
+---
+title: Bring your own credentials
+description: Configure your own OAuth app credentials so users see your brand on consent screens, not Scalekit's.
+tags: [agentauth, advanced, oauth2, whitelabel, guide]
+sidebar:
+  label: "Bring your own credentials"
+tableOfContents:
+  maxHeadingLevel: 3
+prev:
+  label: "Manage connected accounts"
+  link: "/agentkit/connected-accounts"
+next:
+  label: "Scalekit optimized tools"
+  link: "/agentkit/tools/scalekit-optimized-tools"
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+By default, Scalekit uses its own OAuth app credentials when your users go through the OAuth consent flow. This works for development and testing, but in production your users will see Scalekit's name and branding on the consent screen, not yours.
+
+**Bring your own credentials** lets you replace Scalekit's shared OAuth credentials with your own. Once configured, users see your app name, logo, and terms on every OAuth consent screen.
+
+## What changes when you use your own credentials
+
+- **Consent screens** display your application's name and branding
+- **Rate limits and quotas** are tied to your OAuth app, not Scalekit's shared pool
+- **Provider relationship** is direct, and your OAuth app appears in provider dashboards and audit logs
+- **Compliance**: useful if your organization requires a direct relationship with each OAuth provider
+
+Nothing changes in your code or the Scalekit SDK. The switch is purely a dashboard configuration on the connection.
+
+## Configure your credentials
+
+<Steps>
+1. ### Copy the redirect URI from Scalekit
+
+   Go to **Agent Auth > Connections** and click **Edit** on the connection you want to update. Select **Use your own credentials**. The form expands and displays a **Redirect URI**. Copy it.
+
+2. ### Register your OAuth app with the provider
+
+   In the provider's developer console, create a new OAuth app (or use an existing one). Add the Redirect URI you copied in the previous step to the list of authorized redirect URIs.
+
+   <Aside type="caution" title="Redirect URI must match exactly">
+     The URI must match character-for-character. A mismatch will cause OAuth flows to fail with a redirect_uri_mismatch error.
+   </Aside>
+
+   The provider gives you a **Client ID** and **Client Secret** after registration.
+
+3. ### Enter your credentials and save
+
+   Back in Scalekit Dashboard, enter the **Client ID** and **Client Secret** from your OAuth app and click **Save**.
+
+   All new OAuth flows for this connection will now use your credentials.
+
+</Steps>
+
+## Existing connected accounts
+
+<Aside type="caution" title="Existing connected accounts are not affected immediately">
+  Switching credentials does not re-authorize users who are already active. They continue using the previous credentials until they re-authorize. If you need all users to see your branding immediately, generate new authorization links and prompt them to re-authorize.
+</Aside>

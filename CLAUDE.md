@@ -599,6 +599,17 @@ This project uses pnpm patches to fix upstream bugs. Before modifying patches or
 
 ---
 
+## Agentkit Code Examples
+
+Code examples for the agentkit documentation live in the external repo **[scalekit-developers/agent-auth-examples](https://github.com/scalekit-developers/agent-auth-examples)**, organized as:
+
+- `javascript/frameworks/<framework>` — JS/TS examples (anthropic, mastra, openai, quickstart, vercel-ai)
+- `python/frameworks/<framework>` — Python examples (anthropic, crewai, google-adk, langchain, openai, quickstart)
+
+When updating code snippets in `src/content/docs/agentkit/`, look up the current implementation in that repo first, then verify the docs snippets match.
+
+---
+
 ## Active Technologies
 
 - MDX (Markdown + JSX), TypeScript 5.x + Astro + Starlight framework, Tailwind CSS

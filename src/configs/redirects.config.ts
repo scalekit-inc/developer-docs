@@ -4,6 +4,8 @@ export const redirects = {
   // =============================================================================
   // '/': '/authenticate/welcome',
   '/authenticate': '/',
+  '/auth-for-saas': '/authenticate/fsa/quickstart/',
+  '/home/auth-for-saas': '/home/saaskit/',
 
   // =============================================================================
   // FULL STACK AUTH (FSA) REDIRECTS
@@ -196,82 +198,13 @@ export const redirects = {
   '/mcp/expressjs-quickstart': '/authenticate/mcp/expressjs-quickstart/',
 
   // =============================================================================
-  // AGENT AUTH REDIRECTS
+  // AGENTKIT REDIRECTS (Agent Auth and Agent Actions → AgentKit)
+  // NOTE: These rules are now defined in public/_redirects for proper ordering.
+  // Using Netlify's native syntax with :splat to ensure specific rules match
+  // before wildcards (first match wins). Keeping this comment for reference.
   // =============================================================================
-
-  // Tool calling pages merged into agent-tools-quickstart
-  '/agent-auth/tools/execute': '/agent-auth/tools/agent-tools-quickstart/',
-  '/agent-auth/tools/modifiers': '/agent-auth/tools/agent-tools-quickstart/',
-  '/agent-auth/agentic-quickstart': '/agent-auth/tools/agent-tools-quickstart/',
-
-  // Agent auth shorthand paths
-  '/agent-auth': '/agent-auth/quickstart/',
-  '/apis/agent-auth': '/agent-auth/quickstart/',
-  '/integrations/agent-auth': '/agent-auth/quickstart/',
-
-  // Agent Actions rebranded to Agent Auth (preserve all legacy URLs)
-  //
-  // Notes (Astro routing):
-  // - File-based routes take precedence over redirects.
-  // - Prefer a single dynamic redirect for 1:1 path renames.
-  // - With trailingSlash: 'ignore', a single redirect handles both
-  //   `/path` and `/path/` variants, so avoid defining both.
-  //
-  // Explicit redirects below handle known routes, while the dynamic route
-  // src/pages/agent-actions/[...slug].ts serves as a safety net for any
-  // paths not explicitly listed here.
-  // Main pages
-  '/agent-actions': '/agent-auth/quickstart/',
-  '/agent-actions/overview': '/agent-auth/overview/',
-  '/agent-actions/quickstart': '/agent-auth/quickstart/',
-  '/agent-actions/providers': '/agent-auth/providers/',
-  '/agent-actions/connections': '/agent-auth/connections/',
-  '/agent-actions/connected-accounts': '/agent-auth/connected-accounts/',
-  '/agent-actions/agentic-quickstart': '/agent-auth/agentic-quickstart/',
-
-  // Authentication pages
-  '/agent-actions/authentication/auth-flows-comparison':
-    '/agent-auth/authentication/auth-flows-comparison/',
-  '/agent-actions/authentication/multi-provider': '/agent-auth/authentication/multi-provider/',
-  '/agent-actions/authentication/scopes-permissions':
-    '/agent-auth/authentication/scopes-permissions/',
-  '/agent-actions/authentication/testing-auth-flows':
-    '/agent-auth/authentication/testing-auth-flows/',
-  '/agent-actions/authentication/token-management': '/agent-auth/authentication/token-management/',
-  '/agent-actions/authentication/troubleshooting': '/agent-auth/authentication/troubleshooting/',
-
-  // Advanced pages
-  '/agent-actions/advanced/bring-your-own-oauth': '/agent-auth/advanced/bring-your-own-oauth/',
-  '/agent-actions/advanced/custom-domain': '/agent-auth/advanced/custom-domain/',
-  '/agent-actions/advanced/overview': '/agent-auth/advanced/overview/',
-  '/agent-actions/advanced/proxy-api-calls': '/agent-auth/advanced/proxy-api-calls/',
-
-  // Frameworks pages
-  '/agent-actions/frameworks/agno': '/agent-auth/frameworks/agno/',
-  '/agent-actions/frameworks/anthropic': '/agent-auth/frameworks/anthropic/',
-  '/agent-actions/frameworks/google-adk': '/agent-auth/frameworks/google-adk/',
-  '/agent-actions/frameworks/google-genai': '/agent-auth/frameworks/google-genai/',
-  '/agent-actions/frameworks/langchain': '/agent-auth/frameworks/langchain/',
-  '/agent-actions/frameworks/mastra': '/agent-auth/frameworks/mastra/',
-  '/agent-actions/frameworks/mcp': '/agent-auth/frameworks/mcp/',
-  '/agent-actions/frameworks/openai': '/agent-auth/frameworks/openai/',
-  '/agent-actions/frameworks/vercel-ai': '/agent-auth/frameworks/vercel-ai/',
-
-  // MCP pages
-  '/agent-actions/mcp/quickstart': '/agent-auth/mcp/quickstart/',
-  '/agent-auth/mcp/quickstart': '/agent-auth/mcp/tool-access-via-mcp/',
-
-  // User verification
-  '/agent-actions/user-verification': '/agent-auth/user-verification/',
-
-  // Tools pages
-  '/agent-actions/tools/authorize': '/agent-auth/tools/authorize/',
-  '/agent-actions/tools/custom-processors': '/agent-auth/tools/custom-processors/',
-  '/agent-actions/tools/custom-tools': '/agent-auth/tools/custom-tools/',
-  '/agent-actions/tools/execute': '/agent-auth/tools/execute/',
-  '/agent-actions/tools/modifiers': '/agent-auth/tools/modifiers/',
-  '/agent-actions/tools/overview': '/agent-auth/tools/overview/',
-  '/agent-actions/tools/proxy-tools': '/agent-auth/tools/proxy-tools/',
+  // Redirects moved to: public/_redirects
+  // This ensures proper rule ordering without Netlify adapter interference.
 
   // =============================================================================
   // BUILD WITH AI REDIRECTS (coding agent guides)
@@ -279,16 +212,22 @@ export const redirects = {
   // Coding agent guides moved from product quickstarts to /dev-kit/build-with-ai/
   // Note: With trailingSlash: 'ignore', single redirect without slash handles both /path and /path/ variants
 
-  '/agent-auth/start-agent-auth-coding-agents': '/dev-kit/build-with-ai/agent-auth/',
+  '/agentkit/start-agentkit-coding-agents': '/cookbooks/set-up-agentkit-with-your-coding-agent/',
+  '/agent-auth/start-agent-auth-coding-agents':
+    '/cookbooks/set-up-agentkit-with-your-coding-agent/',
   '/authenticate/fsa/start-fsa-coding-agents': '/dev-kit/build-with-ai/full-stack-auth/',
   '/authenticate/mcp/start-mcp-auth-coding-agents': '/dev-kit/build-with-ai/mcp-auth/',
   '/authenticate/sso/start-sso-coding-agents': '/dev-kit/build-with-ai/sso/',
   '/directory/scim/start-scim-coding-agents': '/dev-kit/build-with-ai/scim/',
 
   // Build with AI moved from /build-with-ai/ to /dev-kit/build-with-ai/
+  // Agent Auth variant now lives in cookbooks
+  '/agentkit/build-with-ai': '/cookbooks/set-up-agentkit-with-your-coding-agent/',
   '/build-with-ai': '/dev-kit/build-with-ai/',
   '/build-with-ai/full-stack-auth': '/dev-kit/build-with-ai/full-stack-auth/',
-  '/build-with-ai/agent-auth': '/dev-kit/build-with-ai/agent-auth/',
+  '/build-with-ai/agent-auth': '/cookbooks/set-up-agentkit-with-your-coding-agent/',
+  '/dev-kit/build-with-ai/agentkit': '/cookbooks/set-up-agentkit-with-your-coding-agent/',
+  '/dev-kit/build-with-ai/agent-auth': '/cookbooks/set-up-agentkit-with-your-coding-agent/',
   '/build-with-ai/mcp-auth': '/dev-kit/build-with-ai/mcp-auth/',
   '/build-with-ai/sso': '/dev-kit/build-with-ai/sso/',
   '/build-with-ai/scim': '/dev-kit/build-with-ai/scim/',
@@ -392,7 +331,10 @@ export const redirects = {
   // Code samples moved to /resources/code-samples/
   '/dev-kit/code-samples': '/resources/code-samples/',
   '/dev-kit/code-samples/full-stack-auth': '/resources/code-samples/full-stack-auth/',
-  '/dev-kit/code-samples/agent-auth': '/resources/code-samples/agent-auth/',
+  '/dev-kit/code-samples/agent-auth': '/agentkit/code-samples/',
+  '/dev-kit/code-samples/agentkit': '/agentkit/code-samples/',
+  '/resources/code-samples/agent-auth': '/agentkit/code-samples/',
+  '/resources/code-samples/agentkit': '/agentkit/code-samples/',
   '/dev-kit/code-samples/mcp-auth': '/resources/code-samples/mcp-auth/',
   '/dev-kit/code-samples/modular-sso': '/resources/code-samples/modular-sso/',
   '/dev-kit/code-samples/modular-scim': '/resources/code-samples/modular-scim/',
@@ -415,9 +357,15 @@ export const redirects = {
   '/dev-kit/changelogs/java/version/v1-0-1': '/sdks/java/',
   '/dev-kit/changelogs/go/version/v1-0-4': '/sdks/go/',
 
+  // managing-providers renamed to managing-connectors
+  '/agentkit/bring-your-own-connector/managing-providers':
+    '/agentkit/bring-your-own-connector/managing-connectors/',
+
   // Agent connectors redirects
-  '/reference/agent-connectors': '/guides/integrations/agent-connectors/',
-  '/connectors': '/guides/integrations/agent-connectors/',
+  '/reference/agent-connectors/[...slug]': '/agentkit/connectors/[...slug]',
+  '/reference/agent-connectors': '/agentkit/connectors/',
+  '/connectors': '/agentkit/connectors/',
+  '/guides/integrations/agent-connectors': '/agentkit/connectors/',
 
   // Other redirects
   '/fsa/data-modeling': '/fsa/data-modelling/',

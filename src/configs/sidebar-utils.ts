@@ -67,6 +67,11 @@ export function buildPathToSidebarMap(sidebarConfig: SidebarItem[]): Map<string,
 
   for (const sidebar of sidebarConfig) {
     if (sidebar.id && sidebar.items) {
+      // Include the sidebar's own entry-point link so paths that match it
+      // (but aren't listed in items) still resolve to the correct sidebar
+      if (sidebar.link && !sidebar.link.startsWith('#')) {
+        map.set(normalizePath(sidebar.link), sidebar.id)
+      }
       extractPathsFromItems(sidebar.items, sidebar.id, map)
     }
   }

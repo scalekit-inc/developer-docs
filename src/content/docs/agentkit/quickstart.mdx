@@ -1,0 +1,266 @@
+---
+title: "AgentKit: Connect my agent to apps"
+description: Build a working agent that makes authenticated tool calls on behalf of users, using Gmail as the example connector.
+tags: [agent-auth, quickstart, ai-agents, oauth, token-vault, tool-integration, delegated-oauth]
+sidebar:
+  order: 1
+---
+
+import { Aside, TabItem } from '@astrojs/starlight/components';
+import Tabs from '@components/ui/Tabs.astro';
+import quickstartArchitecture from '@/assets/pages/hero/agentkit.svg';
+
+<img
+  src={quickstartArchitecture.src}
+  alt="Architecture diagram: an AI agent connects through Scalekit MCP Gateway with delegated auth, scoped permissions, and tool calls to SaaS apps such as Gmail, Slack, and Salesforce."
+  width={quickstartArchitecture.width}
+  height={quickstartArchitecture.height}
+  loading="eager"
+  decoding="async"
+/>
+
+By the end of this guide, you'll have a working agent that fetches a user's last 5 unread Gmail messages (authenticated with their real account). Scalekit manages the OAuth flow, token storage, and API proxy so you focus on agent logic.
+
+
+
+## Before you start
+
+Complete these steps in the Scalekit dashboard before writing any code:
+
+1. **Create a Scalekit account** at [app.scalekit.com](https://app.scalekit.com).
+2. **Configure a Gmail connector** at Dashboard → **Agent Auth → Connections → + Create Connection** → select **Gmail**.
+
+   Gmail is enabled by default in new Scalekit environments. To connect to other services, create a connection for each app under **Agent Auth → Connections**.
+
+3. **Copy your API credentials** at Dashboard → **Developers → Settings → API Credentials**. Save these three values as environment variables:
+   - `SCALEKIT_CLIENT_ID`
+   - `SCALEKIT_CLIENT_SECRET`
+   - `SCALEKIT_ENV_URL`
+
+## Build your agent
+
+<Tabs syncKey="build-mode">
+  <TabItem label="Using a coding agent">
+
+    Install the Scalekit Auth Stack for your coding agent, complete the browser authorization when prompted, then paste the implementation prompt. The agent scaffolds connected account setup, the OAuth flow, and tool execution.
+
+    <Tabs syncKey="coding-agent">
+      <TabItem label="Claude Code" icon="claude">
+        ```bash title="Terminal" frame="terminal" showLineNumbers=false
+        claude plugin marketplace add scalekit-inc/claude-code-authstack && claude plugin install agent-auth@scalekit-auth-stack
+        ```
+
+        Installing the plugin sets up Scalekit's MCP server and triggers an OAuth authorization flow in your browser. Complete the authorization before continuing. This gives Claude Code direct access to your Scalekit environment to search docs, manage connections, and check connected account status. Then paste the prompt below.
+      </TabItem>
+      <TabItem label="Codex" icon="codex">
+        ```bash title="Terminal" frame="terminal" showLineNumbers=false
+        curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash
+        ```
+        Restart Codex → Plugin Directory → **Scalekit Auth Stack** → install **agent-auth**. If a browser authorization prompt appears, complete the OAuth flow before continuing. Then paste the prompt below.
+      </TabItem>
+      <TabItem label="GitHub Copilot CLI" icon="githubcopilot">
+        ```bash title="Terminal" frame="terminal" showLineNumbers=false
+        copilot plugin marketplace add scalekit-inc/github-copilot-authstack
+        copilot plugin install agent-auth@scalekit-auth-stack
+        ```
+        If a browser authorization prompt appears, complete the OAuth flow before continuing. Then run:
+        ```bash title="Terminal" frame="terminal" showLineNumbers=false wrap
+        copilot "Configure Scalekit agent authentication for Gmail. Provide code to create a connected account, generate an authorization link, and fetch the last 5 unread emails using Scalekit's tool API."
+        ```
+      </TabItem>
+      <TabItem label="Cursor" icon="cursor">
+        <Aside type="note" title="Marketplace under review">
+          Scalekit Auth Stack is under review on Cursor Marketplace. Use the local installer below until it's live.
+        </Aside>
+        ```bash title="Terminal" frame="terminal" showLineNumbers=false
+        curl -fsSL https://raw.githubusercontent.com/scalekit-inc/cursor-authstack/main/install.sh | bash
+        ```
+        Reload Cursor → **Settings → Plugins** → enable **Agent Auth**. If a browser authorization prompt appears, complete the OAuth flow before continuing. Open chat (Cmd+L / Ctrl+L) and paste the prompt below.
+      </TabItem>
+      <TabItem label="40+ agents" icon="sparkle">
+        ```bash title="Terminal" frame="terminal" showLineNumbers=false
+        npx skills add scalekit-inc/skills --skill integrating-agent-auth
+        ```
+        Then ask your agent: "Configure Scalekit agent authentication for Gmail, create a connected account, generate an authorization link, and fetch the last 5 unread emails using Scalekit's tool API."
+      </TabItem>
+    </Tabs>
+
+    ```md title="Implementation prompt" wrap showLineNumbers=false
+    Configure Scalekit agent authentication for Gmail. Provide code to create a connected account, generate an authorization link, and, once the user authorizes, fetch the last 5 unread emails using Scalekit's tool API.
+    ```
+
+    <Aside type="caution" title="Review generated code before deploying">
+      Verify that token validation logic, error handling, and environment variable references match your application's requirements.
+    </Aside>
+
+  </TabItem>
+  <TabItem label="Step by step">
+
+    ### 1. Set up your environment
+
+    Install the Scalekit SDK and initialize the client with your API credentials:
+
+    <Tabs syncKey="tech-stack">
+      <TabItem label="Python">
+        ```sh showLineNumbers=false frame="none"
+        pip install scalekit-sdk-python python-dotenv requests
+        ```
+      </TabItem>
+      <TabItem label="Node.js">
+        ```sh showLineNumbers=false frame="none"
+        npm install @scalekit-sdk/node
+        ```
+      </TabItem>
+    </Tabs>
+    <Tabs syncKey="tech-stack">
+      <TabItem label="Python">
+        ```python showLineNumbers=false frame="none" wrap
+        import scalekit.client
+        import os
+        import requests
+        from dotenv import load_dotenv
+        load_dotenv()
+
+        scalekit_client = scalekit.client.ScalekitClient(
+            client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+            client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+            env_url=os.getenv("SCALEKIT_ENV_URL"),
+        )
+        actions = scalekit_client.actions
+        ```
+      </TabItem>
+      <TabItem label="Node.js">
+        ```typescript showLineNumbers=false frame="none"
+        import { ScalekitClient } from '@scalekit-sdk/node';
+        import { ConnectorStatus } from '@scalekit-sdk/node/lib/pkg/grpc/scalekit/v1/connected_accounts/connected_accounts_pb';
+        import 'dotenv/config';
+
+        const scalekit = new ScalekitClient(
+          process.env.SCALEKIT_ENV_URL,
+          process.env.SCALEKIT_CLIENT_ID,
+          process.env.SCALEKIT_CLIENT_SECRET
+        );
+
+        const actions = scalekit.actions;
+        ```
+      </TabItem>
+    </Tabs>
+
+    ### 2. Create a connected account
+
+    Scalekit tracks each user's third-party connection as a connected account. This is the record that holds their OAuth tokens. Creating it tells Scalekit to start managing the user's Gmail access on your behalf.
+
+    <Tabs syncKey="tech-stack">
+      <TabItem label="Python">
+        ```python wrap {2} showLineNumbers=false frame="none"
+        # Create or retrieve the user's connected Gmail account
+        response = actions.get_or_create_connected_account(
+            connection_name="gmail",
+            identifier="user_123"  # Replace with your system's unique user ID
+        )
+        connected_account = response.connected_account
+        print(f'Connected account created: {connected_account.id}')
+        ```
+      </TabItem>
+      <TabItem label="Node.js">
+        ```typescript showLineNumbers=false frame="none"
+        // Create or retrieve the user's connected Gmail account
+        const response = await actions.getOrCreateConnectedAccount({
+          connectionName: 'gmail',
+          identifier: 'user_123',  // Replace with your system's unique user ID
+        });
+
+        const connectedAccount = response.connectedAccount;
+        console.log('Connected account created:', connectedAccount?.id);
+        ```
+      </TabItem>
+    </Tabs>
+
+    ### 3. Authenticate the user
+
+    Your agent can't act on behalf of a user until they authorize access. Generate an authorization link, send it to the user, and Scalekit handles the rest: token exchange, storage, and automatic refresh. Once they complete the flow, the connected account status becomes `ACTIVE`.
+
+    <Tabs syncKey="tech-stack">
+      <TabItem label="Python">
+        ```python showLineNumbers=false frame="none" wrap
+        # Generate authorization link if user hasn't authorized or token is expired
+        if(connected_account.status != "ACTIVE"):
+              print(f"Gmail is not connected: {connected_account.status}")
+              link_response = actions.get_authorization_link(
+                  connection_name="gmail",
+                  identifier="user_123"
+              )
+              print(f"🔗 click on the link to authorize Gmail", link_response.link)
+              input(f"⎆ Press Enter after authorizing Gmail...")
+
+        # In production, redirect user to this URL to complete OAuth flow
+        ```
+      </TabItem>
+      <TabItem label="Node.js">
+        ```typescript showLineNumbers=false frame="none" wrap
+        // Generate authorization link if user hasn't authorized or token is expired
+        if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
+          console.log('gmail is not connected:', connectedAccount?.status);
+          const linkResponse = await actions.getAuthorizationLink({
+            connectionName: 'gmail',
+            identifier: 'user_123',
+          });
+          console.log('🔗 click on the link to authorize gmail', linkResponse.link);
+          // In production, redirect user to this URL to complete OAuth flow
+        }
+        ```
+      </TabItem>
+    </Tabs>
+
+    Open the link in a browser and authorize the Gmail connection. Once complete, the connected account status updates to `ACTIVE` and your agent can act on the user's behalf.
+
+    ### 4. Fetch emails via tool call
+
+    Pass the tool name and your inputs to Scalekit. It handles the request to Gmail and returns a structured response your agent can reason over directly: no endpoint URLs, auth headers, or response parsing required.
+
+    <Tabs syncKey="tech-stack">
+      <TabItem label="Python">
+        ```python showLineNumbers=false frame="none" wrap
+        response = actions.execute_tool(
+            tool_name="gmail_fetch_mails",
+            identifier="user_123",
+            tool_input={
+                "query": "is:unread",
+                "max_results": 5,
+            },
+        )
+        print(response)
+        ```
+      </TabItem>
+      <TabItem label="Node.js">
+        ```typescript showLineNumbers=false frame="none" wrap
+        const toolResponse = await actions.executeTool({
+          toolName: 'gmail_fetch_mails',
+          connectedAccountId: connectedAccount?.id,
+          toolInput: {
+            query: 'is:unread',
+            max_results: 5,
+          },
+        });
+        console.log('Recent emails:', toolResponse.data);
+        ```
+      </TabItem>
+    </Tabs>
+
+  </TabItem>
+</Tabs>
+
+## Verify it works
+
+Run your agent and confirm:
+
+- The connected account status is `ACTIVE` after the user completes the Gmail OAuth flow.
+- The tool response contains structured email data (subject, sender, snippet, and timestamp) ready for your agent to process.
+
+If the connected account stays in a `non-ACTIVE` state, the user has not completed the OAuth flow. Regenerate the authorization link and try again.
+
+## Next steps
+
+- [Secure user verification](/agentkit/user-verification/): Confirm the OAuth identity matches your logged-in user before activating a connected account. Required for production.
+- [Connected accounts](/agentkit/connected-accounts/): Manage user connections across multiple providers.
+- [Tool calling](/agentkit/tools/scalekit-optimized-tools/): Use Scalekit's optimized tools to call APIs without managing endpoints yourself.

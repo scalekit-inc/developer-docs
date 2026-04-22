@@ -1,0 +1,59 @@
+---
+title: AgentKit launch checklist
+description: Verify your AgentKit integration is production-ready before going live.
+tags: [agentkit, production, checklist, security, deployment]
+sidebar:
+  label: Launch checklist
+tableOfContents: true
+prev:
+  label: "Custom domain"
+  link: "/agentkit/advanced/custom-domain"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 { font-size: var(--sl-text-xl); }
+      /* Hide bullets on checkbox lists */
+      .sl-markdown-content ul:has(input[type="checkbox"]) {
+        list-style: none;
+        padding-left: 0;
+      }
+      .sl-markdown-content ul:has(input[type="checkbox"]) li {
+        list-style: none;
+      }
+---
+
+Use this checklist before moving your AgentKit integration to production.
+
+## Environment and credentials
+
+- [ ] Switch to the production environment in the Scalekit dashboard
+- [ ] Set `SCALEKIT_ENV_URL`, `SCALEKIT_CLIENT_ID`, and `SCALEKIT_CLIENT_SECRET` to production values, not dev or staging
+
+## Connections
+
+- [ ] All connectors your agent uses are configured in the production environment
+- [ ] Each connection shows as active in the dashboard
+- [ ] Connection names used in code match the names in the dashboard exactly
+
+## Authorization and connected accounts
+
+- [ ] End-to-end authorization flow tested with a real user account in production
+- [ ] Connected accounts created and verified for at least one test user
+- [ ] Magic link generation and redirect tested (OAuth connectors)
+- [ ] Re-authorization flow tested: verify behavior when a token expires or is revoked
+
+## Security
+
+- [ ] MCP URLs are generated and consumed server-side only; never passed to or generated in client-side code
+- [ ] `identifier` values passed to Tool Proxy are tied to authenticated users, not shared, static, or guessable
+- [ ] Per-user MCP URLs are not cached longer than the session they were issued for
+
+## Custom connector (if applicable)
+
+- [ ] Connector definition promoted from Dev to Production (see [Managing connectors](/agentkit/bring-your-own-connector/managing-connectors))
+- [ ] Auth pattern validated with a real connected account in production
+- [ ] Tool Proxy calls return expected responses against the production upstream API
+
+## Go live
+
+- [ ] Custom domain configured and SSL verified (see [Custom domain](/agentkit/advanced/custom-domain))

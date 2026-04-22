@@ -1,12 +1,12 @@
 ---
-title: Hosted user management widgets
+title: UI widgets - Sign up, login, user profiles
 description: Customers manage organizations and users for their workspace through hosted widgets
 sidebar:
-  label: Hosted users & orgs widgets
+  label: Hosted UI widgets
 tags: [hosted-widgets, organizations, users, permissions, branding, user-management, ui]
 ---
 
-import { Aside, Steps } from '@astrojs/starlight/components'
+import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components'
 
 Your customers, especially workspace administrators, want to manage organizations and users for their members. Scalekit provides a hosted widgets portal that lets your customers view and manage organizations, users, and settings for their workspace on their own—without you building custom UI.
 
@@ -20,31 +20,88 @@ Scalekit verifies the organization member's access permissions and automatically
 
 
 
-```d2 pad=36
-direction: right
+```d2 pad=56 layout=elk
+direction: down
 
-your_app: "B2B App"
-
-hosted: "Hosted Widgets\n <SCALEKIT_ENVIRONMENT_URL>/ui/"
-
-org_widgets: "Organization widgets" {
-  style.font-size: 18
-  org_settings: "Organization settings"
-  member_mgmt: "Member management"
-  sso_config: "SSO configuration"
-  scim_config: "SCIM configuration"
+your_app: "Your B2B app" {
+  style.font-size: 22
 }
 
-user_widgets: "User widgets" {
-  style.font-size: 18
-  user_profile: "User profile"
-  user_security: "User security"
+hosted: "Hosted widgets URL\n<SCALEKIT_ENVIRONMENT_URL>/ui/" {
+  style.font-size: 22
+  width: 720
 }
 
-your_app -> hosted: "Redirect to"
-hosted -> org_widgets
+auth_widgets: "Authentication widgets\n- Signup\n- Login" {
+  style.font-size: 20
+  width: 320
+}
+
+user_widgets: "User widgets\n- User profile\n- User security" {
+  style.font-size: 20
+  width: 320
+}
+
+org_widgets: "Organization widgets\n- Organization settings\n- Member management\n- SSO configuration\n- SCIM configuration" {
+  style.font-size: 20
+  width: 420
+}
+
+your_app -> hosted: "Redirect"
+hosted -> auth_widgets
 hosted -> user_widgets
+hosted -> org_widgets
 ```
+
+## Signup/login widgets
+
+Signup and login widgets give users an entry point to authentication before they access the rest of Hosted Widgets. Use these pages as managed, branded auth screens without building custom UI.
+
+
+
+<Steps>
+
+1. ### Redirect your customers to Scalekit's auth endpoint
+
+   Pass `prompt` in the authorization URL to decide which hosted auth screen appears for your customers.
+
+   <Tabs>
+   <TabItem value="login" label="Login">
+   ```sh title="Authorization URL (login)" showLineNumbers=false frame
+   <SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?
+     response_type=code&
+     client_id=<SCALEKIT_CLIENT_ID>&
+     redirect_uri=<CALLBACK_URL>&
+     scope=openid+profile+email+offline_access&
+     state=<RANDOM_STATE>&
+     prompt=login
+   ```
+
+   Pass `prompt=login` to show the login page. Your customers will land on `<SCALEKIT_ENVIRONMENT_URL>/a/auth/login`.
+
+    ![Login page of coffee desk app](@/assets/docs/hosted-widgets/login.png)
+   </TabItem>
+
+   <TabItem value="signup" label="Signup">
+   ```sh title="Authorization URL (signup)" showLineNumbers=false frame
+   <SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?
+     response_type=code&
+     client_id=<SCALEKIT_CLIENT_ID>&
+     redirect_uri=<CALLBACK_URL>&
+     scope=openid+profile+email+offline_access&
+     state=<RANDOM_STATE>&
+     prompt=create
+   ```
+
+   Pass `prompt=create` to show the signup page. Your customers will land on `<SCALEKIT_ENVIRONMENT_URL>/a/auth/signup`.
+
+    ![Coffee desk signup page](@/assets/docs/hosted-widgets/signup.png)
+   </TabItem>
+   </Tabs>
+
+   For complete URL parameters and SDK examples, see [Initiate user signup or login](/authenticate/fsa/implement-login/).
+
+</Steps>
 
 ## Organization widgets
 

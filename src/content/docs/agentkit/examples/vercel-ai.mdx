@@ -1,0 +1,117 @@
+---
+title: Vercel AI SDK
+description: Build a Vercel AI SDK agent with Scalekit-authenticated tools using the tool() helper and jsonSchema() adapter.
+slug: agentkit/examples/vercel-ai
+sidebar:
+  label: Vercel AI
+tags: [agentkit, examples, vercel-ai, ai-sdk, tool-calling]
+tableOfContents: true
+prev:
+  label: "OpenAI"
+  link: "/agentkit/examples/openai"
+next:
+  label: "Mastra"
+  link: "/agentkit/examples/mastra"
+---
+
+Build an agent using the Vercel AI SDK that reads a user's Gmail inbox. Use `tool()` and `jsonSchema()` from the `ai` package to wrap Scalekit tools. No manual schema conversion needed.
+
+## Install
+
+```sh
+npm install @scalekit-sdk/node ai @ai-sdk/openai
+```
+
+## Initialize
+
+```typescript
+import { ScalekitClient } from '@scalekit-sdk/node';
+import { ConnectorStatus } from '@scalekit-sdk/node/lib/pkg/grpc/scalekit/v1/connected_accounts/connected_accounts_pb';
+
+const scalekit = new ScalekitClient(
+  process.env.SCALEKIT_ENV_URL!,
+  process.env.SCALEKIT_CLIENT_ID!,
+  process.env.SCALEKIT_CLIENT_SECRET!,
+);
+```
+
+## Connect the user to Gmail
+
+```typescript
+const { connectedAccount } = await scalekit.actions.getOrCreateConnectedAccount({
+  connectionName: 'gmail',
+  identifier: 'user_123',
+});
+if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
+  const { link } = await scalekit.actions.getAuthorizationLink({ connectionName: 'gmail', identifier: 'user_123' });
+  console.log('Authorize Gmail:', link);
+}
+```
+
+See [Authorize a user](/agentkit/tools/authorize/) for production auth handling.
+
+## Run the agent
+
+```typescript
+import { generateText, jsonSchema, stepCountIs, tool } from 'ai';
+import { openai } from '@ai-sdk/openai';
+
+const { tools: scopedTools } = await scalekit.tools.listScopedTools('user_123', {
+  filter: { connectionNames: ['gmail'] },
+});
+
+const tools = Object.fromEntries(
+  scopedTools.map(t => [
+    t.tool.definition.name,
+    tool({
+      description: t.tool.definition.description,
+      parameters: jsonSchema(t.tool.definition.input_schema ?? { type: 'object', properties: {} }),
+      execute: async (args) => {
+        const result = await scalekit.actions.executeTool({
+          toolName: t.tool.definition.name,
+          identifier: 'user_123',
+          toolInput: args,
+        });
+        return result.data;
+      },
+    }),
+  ]),
+);
+
+const { text } = await generateText({
+  model: openai('gpt-4o'),
+  tools,
+  stopWhen: stepCountIs(5),
+  prompt: 'Fetch my last 5 unread emails and summarize them',
+});
+console.log(text);
+```
+
+## Use MCP instead
+
+The Vercel AI SDK supports MCP via `experimental_createMCPClient`. Pass a Scalekit-generated MCP URL to connect without any tool schema setup:
+
+```typescript
+import { experimental_createMCPClient, generateText } from 'ai';
+import { openai } from '@ai-sdk/openai';
+
+const mcpClient = await experimental_createMCPClient({
+  transport: {
+    type: 'sse',
+    url: mcpUrl,  // from actions.mcp.ensure_instance()
+  },
+});
+
+const tools = await mcpClient.tools();
+
+const { text } = await generateText({
+  model: openai('gpt-4o'),
+  tools,
+  stopWhen: stepCountIs(5),
+  prompt: 'Fetch my last 5 unread emails and summarize them',
+});
+await mcpClient.close();
+console.log(text);
+```
+
+See [Generate user MCP URLs](/agentkit/mcp/generate-user-urls/) to get `mcpUrl`.

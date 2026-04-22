@@ -1,0 +1,184 @@
+---
+title: Custom tools
+description: Build tools that Scalekit does not provide out of the box by proxying provider API calls through connected accounts.
+slug: agentkit/tools/custom-tools
+sidebar:
+  label: Build custom tools
+tags: [agentkit, tools, custom-tools, api-proxy, tool-calling]
+tableOfContents: true
+prev:
+  label: "Use built-in tools"
+  link: "/agentkit/tools/scalekit-optimized-tools"
+next:
+  label: "Configure an MCP server"
+  link: "/agentkit/mcp/configure-mcp-server"
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+When you need a connector tool that Scalekit doesn't offer as a pre-built tool, use **API Proxy mode**. You define the tool contract and call the provider endpoint through `actions.request`. Scalekit injects the user's credentials from their connected account; your agent never handles raw tokens.
+
+| Option | Best for | Who defines tool schema |
+|---|---|---|
+| Scalekit optimized tools | Common connector tools | Scalekit |
+| Custom tools (API Proxy) | Unsupported or app-specific tools | Your application |
+
+This page assumes the user has an `ACTIVE` connected account. If not, see [Authorize a user](/agentkit/tools/authorize/).
+
+## Find the right endpoint
+
+The `path` you pass to `actions.request` is forwarded directly to the provider's API; Scalekit only adds authentication headers. Look up the provider's API reference to get the correct path, method, and request shape.
+
+| Connector | API reference |
+|---|---|
+| Gmail | [Google Gmail API](https://developers.google.com/gmail/api/reference/rest) |
+| Slack | [Slack API methods](https://api.slack.com/methods) |
+| GitHub | [GitHub REST API](https://docs.github.com/en/rest) |
+| Salesforce | [Salesforce REST API](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/) |
+| HubSpot | [HubSpot API](https://developers.hubspot.com/docs/api/overview) |
+
+<Aside type="note" title="Base URL is managed by Scalekit">
+  Provide only the path; Scalekit resolves the correct base URL for the connector and injects the user's credentials automatically.
+</Aside>
+
+## Define your tool contract
+
+Design the tool around your agent's intent, not the provider's API surface. For example, to list Gmail filters:
+
+- **Tool name:** `gmail_list_filters` (describes the action, not the endpoint)
+- **Input:** `identifier` (your app's user ID)
+- **Output:** `{ filters: [...], count: N }` (structured, not the raw Gmail response)
+
+Keep schemas focused on what the model needs. Strip provider-specific noise before returning data.
+
+## Proxy the API call
+
+Use `actions.request` to call any provider endpoint. Scalekit handles credential injection.
+
+**GET requests:** pass query parameters as a dict:
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+```python
+def gmail_list_filters(identifier: str):
+    response = actions.request(
+        connection_name="gmail",
+        identifier=identifier,
+        method="GET",
+        path="/gmail/v1/users/me/settings/filters",
+    )
+    data = response.json()
+    return {"filters": data.get("filter", []), "count": len(data.get("filter", []))}
+
+def gmail_list_unread(identifier: str, max_results: int = 10):
+    response = actions.request(
+        connection_name="gmail",
+        identifier=identifier,
+        method="GET",
+        path="/gmail/v1/users/me/messages",
+        query_params={"q": "is:unread", "maxResults": max_results},
+    )
+    return {"messages": response.json().get("messages", [])}
+```
+  </TabItem>
+  <TabItem label="Node.js">
+```typescript
+async function gmailListFilters(identifier: string) {
+  const response = await scalekit.actions.request({
+    connectionName: 'gmail',
+    identifier,
+    method: 'GET',
+    path: '/gmail/v1/users/me/settings/filters',
+  });
+  const filters = response.data?.filter ?? [];
+  return { filters, count: filters.length };
+}
+
+async function gmailListUnread(identifier: string, maxResults = 10) {
+  const response = await scalekit.actions.request({
+    connectionName: 'gmail',
+    identifier,
+    method: 'GET',
+    path: '/gmail/v1/users/me/messages',
+    queryParams: { q: 'is:unread', maxResults },
+  });
+  return { messages: response.data?.messages ?? [] };
+}
+```
+  </TabItem>
+</Tabs>
+
+**POST requests:** pass a body for write operations:
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+```python
+def slack_send_message(identifier: str, channel: str, text: str):
+    response = actions.request(
+        connection_name="slack",
+        identifier=identifier,
+        method="POST",
+        path="/api/chat.postMessage",
+        body={"channel": channel, "text": text},
+    )
+    data = response.json()
+    if not data.get("ok"):
+        raise ValueError(f"Slack error: {data.get('error')}")
+    return {"ts": data.get("ts"), "channel": data.get("channel")}
+```
+  </TabItem>
+  <TabItem label="Node.js">
+```typescript
+async function slackSendMessage(identifier: string, channel: string, text: string) {
+  const response = await scalekit.actions.request({
+    connectionName: 'slack',
+    identifier,
+    method: 'POST',
+    path: '/api/chat.postMessage',
+    body: { channel, text },
+  });
+  if (!response.data?.ok) throw new Error(`Slack error: ${response.data?.error}`);
+  return { ts: response.data.ts, channel: response.data.channel };
+}
+```
+  </TabItem>
+</Tabs>
+
+## Check authorization before proxy calls
+
+Verify the connected account is `ACTIVE` before making a proxy call and handle provider errors explicitly:
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+```python
+account = actions.get_or_create_connected_account(
+    connection_name="gmail",
+    identifier=identifier,
+).connected_account
+
+if account.status != "ACTIVE":
+    raise ValueError("Connected account is not ACTIVE. Re-authorize the user.")
+```
+  </TabItem>
+  <TabItem label="Node.js">
+```typescript
+import { ConnectorStatus } from '@scalekit-sdk/node/lib/pkg/grpc/scalekit/v1/connected_accounts/connected_accounts_pb';
+
+const account = (await scalekit.actions.getOrCreateConnectedAccount({
+  connectionName: 'gmail',
+  identifier,
+})).connectedAccount;
+
+if (account?.status !== ConnectorStatus.ACTIVE) {
+  throw new Error('Connected account is not ACTIVE. Re-authorize the user.');
+}
+```
+  </TabItem>
+</Tabs>
+
+## Best practices
+
+- Expose only the fields your model needs; keep schemas small
+- Validate inputs server-side; never trust model-generated parameters
+- Use predictable JSON keys; return stable output across calls
+- Map provider errors to clear tool errors; don't leak raw provider payloads to prompts

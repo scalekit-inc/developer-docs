@@ -1,0 +1,186 @@
+---
+interface Field {
+  name: string
+  type: string
+  description?: string
+}
+
+interface Props {
+  type: string
+  fields: Field[]
+}
+
+const { type, fields } = Astro.props
+
+function typeClass(t: string): string {
+  const l = t.toLowerCase()
+  if (l === 'bool' || l === 'boolean') return 'type-boolean'
+  if (l === 'int' || l === 'integer') return 'type-integer'
+  if (l === 'float' || l === 'number') return 'type-number'
+  if (l === 'dict' || l.startsWith('dict[') || l.startsWith('record<') || l === 'object')
+    return 'type-object'
+  if (l === 'list' || l.startsWith('list[') || l === 'array' || l.endsWith('[]'))
+    return 'type-array'
+  if (l === 'str' || l.includes('string')) return 'type-string'
+  if (l === 'datetime' || l === 'date') return 'type-any'
+  return 'type-any'
+}
+---
+
+<div class="method-returns not-content">
+  <div class="returns-label-row">
+    <span class="returns-label">Response schema</span>
+    <span class="returns-type">{type}</span>
+  </div>
+  <div class="fields-header">
+    <span>Field</span>
+    <span>Type</span>
+    <span>Description</span>
+  </div>
+  {
+    fields.map((f) => (
+      <div class="field-row">
+        <span class="field-name">{f.name}</span>
+        <span class={`type-chip ${typeClass(f.type)}`}>{f.type}</span>
+        <span class="field-desc">{f.description ?? ''}</span>
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  .method-returns {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    margin: 1rem 0 1.25rem;
+  }
+
+  .returns-label-row {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0 0.25rem 0.375rem;
+    border-bottom: 1px solid var(--sl-color-hairline);
+    margin-bottom: 0.125rem;
+  }
+
+  .returns-label {
+    font-family: var(--sl-font-system-mono);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--sl-color-gray-4);
+  }
+
+  .returns-type {
+    font-family: var(--sl-font-system-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--sl-color-gray-2);
+    background: var(--sl-color-bg-nav);
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 0.25rem;
+    padding: 0.1rem 0.4rem;
+  }
+
+  .fields-header {
+    display: grid;
+    grid-template-columns: 18rem 9rem 1fr;
+    gap: 0.75rem;
+    padding: 0 0.75rem 0.5rem;
+    font-family: var(--sl-font-system-mono);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--sl-color-gray-4);
+    border-bottom: 1px solid var(--sl-color-hairline);
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 18rem 9rem 1fr;
+    align-items: start;
+    gap: 0.75rem;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 0.4375rem;
+  }
+
+  .field-name {
+    font-family: var(--sl-font-system-mono);
+    font-size: var(--sl-text-xs);
+    font-weight: 600;
+    color: var(--sl-color-text);
+    border: none;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  .type-chip {
+    font-family: var(--sl-font-system-mono);
+    font-size: 0.625rem;
+    font-weight: 500;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.3125rem;
+    width: fit-content;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  .type-string {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+  }
+  .type-boolean {
+    background: rgba(168, 85, 247, 0.1);
+    color: #a855f7;
+    border: 1px solid rgba(168, 85, 247, 0.2);
+  }
+  .type-integer {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+  }
+  .type-number {
+    background: rgba(249, 115, 22, 0.1);
+    color: #f97316;
+    border: 1px solid rgba(249, 115, 22, 0.2);
+  }
+  .type-object {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+  }
+  .type-array {
+    background: rgba(20, 184, 166, 0.1);
+    color: #14b8a6;
+    border: 1px solid rgba(20, 184, 166, 0.2);
+  }
+  .type-any {
+    background: rgba(107, 114, 128, 0.1);
+    color: #6b7280;
+    border: 1px solid rgba(107, 114, 128, 0.2);
+  }
+
+  .field-desc {
+    font-size: var(--sl-text-xs);
+    color: var(--sl-color-gray-2);
+    line-height: 1.5;
+  }
+
+  @media (max-width: 52rem) {
+    .fields-header,
+    .field-row {
+      grid-template-columns: 1fr 6rem;
+    }
+    .fields-header span:last-child,
+    .field-row .field-desc {
+      display: none;
+    }
+  }
+</style>

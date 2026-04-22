@@ -1,545 +1,517 @@
 ---
-title: Implement authentication in minutes
+title: Scalekit Docs
 template: splash
-description: Secure your  MCP servers, APIs, users - in one scalable stack
+description: Auth, provider connections, and tool execution for AI agents and SaaS apps
 tableOfContents: false
-tags: [mcp-auth, agent-auth, sso, scim, full-stack-auth, modular-auth, b2b, ai-applications]
-banner:
-  content: |
-    Implement SSO, MCP auth, SCIM, and full-stack auth faster with AI coding agents. <a href="/dev-kit/build-with-ai/">Build with AI →</a>
-hero:
-  tagline: Add MCP auth, Agent Auth, or SSO as modular components - or adopt the full-stack platform for your B2B, AI application
+prev: false
+next: false
 head:
   - tag: style
     content: |
-      right-sidebar-panel {
+      body:has(.gateway) right-sidebar-panel { display: none !important; }
+      body:has(.gateway) .hero { display: none !important; }
+      body:has(.gateway) .meta.sl-flex { display: none !important; }
+      body:has(.gateway) footer.sl-flex { display: none !important; }
+      body:has(.gateway) .secondary-nav { display: none !important; }
+      body:has(.gateway) .page-title-wrapper { display: none !important; }
+      body:has(.gateway) .content-panel:has(.page-title-wrapper) {
         display: none !important;
       }
-      .hero {
+      body:has(.gateway) .feedback-section {
+        display: none !important;
+        margin-top: 0 !important;
+      }
+      body:has(.gateway) button[aria-label="Menu"].sl-flex.md\:sl-hidden {
         display: none !important;
       }
-      .platform-divider {
-        margin-top: 1rem !important;
+      body:has(.gateway) .content-panel:has(.gateway-shell) {
+        padding-top: 0 !important;
+        border-top: 0 !important;
       }
-      .platform-features-grid {
-        margin-top: 1rem !important;
+      body:has(.gateway) .content-panel:has(.gateway-shell) > .sl-container {
+        max-width: none !important;
       }
-      .platform-features-grid .responsive-card-grid {
-        margin-top: 1rem !important;
+      body:has(.gateway) .content-panel:has(.gateway-shell) > .sl-container > .sl-markdown-content {
+        margin-top: 0 !important;
       }
-      .platform-features-grid .responsive-card-grid article.fold-card {
-        margin-top: 1rem !important;
+      body:has(.gateway) starlight-image-zoom-zoomable {
+        display: contents !important;
+        pointer-events: none !important;
       }
-      .security-sections {
-        display: grid;
-        grid-template-columns: 1.2fr 1fr;
-        gap: 1.5rem;
-      }
-      @media (max-width: 768px) {
-        .security-sections {
-          grid-template-columns: 1fr;
-          gap: 1rem;
-        }
-      }
-      .meta.sl-flex {
+      body:has(.gateway) starlight-image-zoom-zoomable button {
         display: none !important;
       }
-      footer.sl-flex {
-        display: none !important;
+
+      body:has(.gateway) .gateway-shell img,
+      body:has(.gateway) .gateway-shell picture {
+        border: none !important;
+        outline: none !important;
+        box-shadow: none !important;
       }
-      .fold-section {
-        padding: 3rem 0;
-        margin: 0;
+
+      body:has(.gateway) .gateway-shell starlight-image-zoom-zoomable {
+        border: none !important;
+        box-shadow: none !important;
       }
-      .fold-section.fold--background-muted {
-        background-color: #F8F9FF !important;
-        background: #F8F9FF !important;
-      }
-      main .fold-section.fold--background-muted,
-      .sl-markdown-content .fold-section.fold--background-muted,
-      .content-panel .fold-section.fold--background-muted,
-      body .fold-section.fold--background-muted {
-        background-color: #F8F9FF !important;
-        background: #F8F9FF !important;
-      }
-      .content-panel{
-       padding-top: 0
-      }
-      .fold-full-width {
+
+      .gateway-shell {
         width: 100vw;
         margin-left: 50%;
         transform: translateX(-50%);
         position: relative;
         z-index: 1;
       }
-      main {
-        overflow-x: hidden;
+
+      .gateway-intro {
+        background: #fff;
+        border-bottom: 1px solid var(--sl-color-hairline);
       }
-      body {
-        overflow-x: hidden;
-      }
-      .fold-container {
+
+      .gateway-intro-inner {
         max-width: 1280px;
         margin: 0 auto;
-        padding: 0 4rem;
+        padding: 2rem 4rem 2rem;
       }
-      @media (max-width: 768px) {
-        .fold-section {
-          padding: 2rem 0;
-        }
-        .fold-container {
-          padding: 0 1rem;
-        }
-      }
-      .modular-auth-layout {
-        display: flex;
-        gap: 2rem;
-        align-items: top;
-      }
-      .modular-auth-left {
-        flex: 0 0 33.333%;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-      }
-      .modular-auth-icon {
-        font-size: 2rem;
-        color: var(--sl-color-accent);
-        margin-bottom: 0.5rem;
-      }
-      .modular-auth-heading {
-        font-size: 1.375rem;
-        margin: 0;
+
+      .gateway-intro-kicker {
+        margin: 0 auto 0.75rem;
+        font-size: 0.8rem;
         font-weight: 600;
-        color: var(--sl-color-text-heading);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--sl-color-text-muted);
+        text-align: center;
       }
-      .modular-auth-description {
+
+      .gateway-intro-title {
+        max-width: 42rem;
+        margin: 0 auto;
+        font-size: clamp(2rem, 1.6rem + 1.2vw, 3rem);
+        line-height: 1.08;
+        letter-spacing: -0.04em;
+        color: var(--sl-color-text-heading);
+        text-align: center;
+      }
+
+      .gateway-intro-copy {
+        max-width: 46rem;
+        margin: 1rem 0 0;
         font-size: 1.05rem;
-        margin: 0;
-        color: var(--sl-color-text-muted);
-        line-height: 1.6;
+        line-height: 1.7;
+        color: var(--sl-color-text);
       }
-      .modular-auth-cards-grid {
-        flex: 1;
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        grid-template-rows: repeat(2, auto);
-        gap: 1.5rem;
-      }
-      @media (max-width: 1024px) {
-        .modular-auth-layout {
-          flex-direction: column;
-        }
-        .modular-auth-left {
-          flex: none;
-          width: 100%;
-        }
-      }
-      @media (max-width: 768px) {
-        .modular-auth-cards-grid {
-          grid-template-columns: 1fr;
-        }
-      }
-      .full-stack-auth-layout {
+
+      .gateway {
         display: flex;
-        gap: 3rem;
-        align-items: top;
-        margin: 0;
+        flex-direction: row;
+        min-height: clamp(22rem, calc(100vh - var(--sl-nav-height) - 20rem), 35rem);
+        margin-top: 0;
+        overflow: hidden;
+        background: var(--sl-color-bg);
       }
-      .full-stack-auth-left {
-        flex: 0 0 33.333%;
+
+      .panel {
+        flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        align-items: center;
+        justify-content: center;
+        gap: 1.25rem;
+        padding: 2.5rem 3rem;
+        text-align: center;
+        text-decoration: none;
+        color: inherit;
+        transition:
+          flex 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+          opacity 0.25s ease,
+          background 0.2s ease,
+          box-shadow 0.2s ease;
+        position: relative;
+        overflow: hidden;
       }
-      .full-stack-auth-heading {
-        font-size: 1.4rem;
-        margin: 0;
+
+      .panel-agents {
+        background: linear-gradient(180deg, #ffffff 0%, #ECFDF5 100%);
+      }
+
+      .panel-saas {
+        background: linear-gradient(180deg, #ffffff 0%, #F3F4F6 100%);
+      }
+
+      .panel::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(circle at top center, color-mix(in srgb, var(--sl-color-accent) 14%, transparent) 0%, transparent 58%);
+        opacity: 0.7;
+      }
+
+      .panel-agents .panel-badge {
+        background-color: #ECFDF5;
+        border-color: #16B364;
+        color: #0E8A4A;
+      }
+
+      .panel-saas .panel-badge {
+        background-color: #F3F4F6;
+        border-color: #E5E7EB;
+        color: #6B7280;
+      }
+
+      @media (hover: hover) and (min-width: 1024px) {
+        .gateway:hover .panel:not(:hover) {
+          flex: 0.6;
+          opacity: 0.72;
+        }
+        .gateway:hover .panel:hover {
+          flex: 1.4;
+        }
+        .panel-agents:hover {
+          background: linear-gradient(180deg, #ffffff 0%, color-mix(in srgb, #ECFDF5 80%, #d1fae5) 100%);
+        }
+        .panel-saas:hover {
+          background: linear-gradient(180deg, #ffffff 0%, #E5E7EB 100%);
+        }
+      }
+
+      .panel-divider {
+        width: 1px;
+        background: var(--sl-color-hairline);
+        flex-shrink: 0;
+        align-self: stretch;
+      }
+
+      .panel-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 0 12px;
+        background-color: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 4px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 18px;
+        text-transform: uppercase;
+        color: #0e1828;
+        text-align: center;
+        white-space: nowrap;
+        font-feature-settings: 'liga' 0, 'calt' 0;
+        margin-bottom: 0;
+      }
+
+      .panel-label {
+        font-size: clamp(1.625rem, 1.2rem + 1vw, 2.2rem);
         font-weight: 600;
         color: var(--sl-color-text-heading);
-      }
-      .full-stack-auth-description {
-        font-size: 1.1rem;
+        line-height: 1.15;
+        letter-spacing: -0.03em;
+        max-width: 30rem;
         margin: 0;
+      }
+
+      /* SaaS headline: keep to two lines — wider measure + slightly smaller type than agents */
+      .panel-saas .panel-label {
+        max-width: 34rem;
+        font-size: clamp(1.45rem, 1.05rem + 1vw, 2.05rem);
+        text-wrap: pretty;
+      }
+
+      .panel-desc {
+        font-size: 1rem;
         color: var(--sl-color-text-muted);
         line-height: 1.6;
+        max-width: 24rem;
+        margin: 0;
       }
-      .full-stack-auth-card {
-        flex: 1;
+
+      .panel-visual {
+        width: min(100%, 36rem);
+        margin: 0.1rem auto 0;
+        border-radius: 1.15rem;
+        border: none;
+        background: transparent;
+        box-shadow: none;
+        overflow: hidden;
+        text-align: left;
       }
-      @media (max-width: 1024px) {
-        .full-stack-auth-layout {
-          flex-direction: column;
+
+      .panel-visual-header {
+        padding: 0.8rem 0.95rem;
+        border-bottom: 1px solid var(--sl-color-hairline);
+        background: color-mix(in srgb, var(--sl-color-accent-low) 22%, white);
+      }
+
+      .panel-visual-title {
+        display: block;
+        font-size: 0.92rem;
+        font-weight: 600;
+        line-height: 1.3;
+        color: var(--sl-color-text-heading);
+      }
+
+      .panel-visual-subtitle {
+        display: block;
+        margin-top: 0.2rem;
+        font-size: 0.76rem;
+        line-height: 1.45;
+        color: var(--sl-color-text-muted);
+      }
+
+      .panel-visual-body {
+        display: grid;
+        gap: 0.7rem;
+        padding: 0;
+      }
+
+      .panel-visual-node {
+        border-radius: 0.9rem;
+        border: 1px solid var(--sl-color-hairline);
+        background: var(--sl-color-bg-card);
+        padding: 0.8rem 0.9rem;
+      }
+
+      .panel-visual-label {
+        display: block;
+        margin-bottom: 0.25rem;
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--sl-color-text-muted);
+      }
+
+      .panel-visual-node strong {
+        display: block;
+        font-size: 0.92rem;
+        line-height: 1.3;
+        color: var(--sl-color-text-heading);
+      }
+
+      .panel-visual-node span {
+        display: block;
+        margin-top: 0.25rem;
+        font-size: 0.78rem;
+        line-height: 1.45;
+        color: var(--sl-color-text-muted);
+      }
+
+      .panel-visual-arrow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: 700;
+        line-height: 1;
+        color: var(--sl-color-text-muted);
+      }
+
+      .panel-visual-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        border-radius: 0.9rem;
+        border: 1px solid var(--sl-color-hairline);
+        background: var(--sl-color-bg-card);
+        overflow: hidden;
+      }
+
+      .panel-visual-list li {
+        padding: 0.7rem 0.9rem;
+        border-top: 1px solid var(--sl-color-hairline);
+      }
+
+      .panel-visual-list li:first-child {
+        border-top: 0;
+      }
+
+      .panel-visual-list strong {
+        display: block;
+        font-size: 0.82rem;
+        line-height: 1.3;
+        color: var(--sl-color-text-heading);
+      }
+
+      .panel-visual-list span {
+        display: block;
+        margin-top: 0.2rem;
+        font-size: 0.75rem;
+        line-height: 1.45;
+        color: var(--sl-color-text-muted);
+      }
+
+      .panel-visual-chip-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+      }
+
+      .panel-visual-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.26rem 0.56rem;
+        border-radius: 999px;
+        border: 1px solid var(--sl-color-hairline);
+        background: color-mix(in srgb, var(--sl-color-bg-card) 90%, white);
+        font-size: 0.72rem;
+        font-weight: 500;
+        color: var(--sl-color-text-muted);
+        white-space: nowrap;
+      }
+
+      .panel-visual-saas {
+        width: min(100%, 31rem);
+      }
+
+      .panel-visual-saas .panel-visual-header {
+        background: color-mix(in srgb, var(--sl-color-accent-low) 28%, white);
+      }
+
+      .saas-arch {
+        display: block;
+      }
+
+      .panel-cta {
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin-top: 0.25rem;
+        color: var(--sl-color-accent);
+      }
+
+      @media (max-width: 1023px) and (min-width: 768px) {
+        .gateway-intro-inner {
+          padding: 3rem 2rem 2.5rem;
         }
-        .full-stack-auth-left {
-          flex: none;
+        .panel {
+          padding: 3rem 2rem;
+        }
+        .panel-label {
+          max-width: 18rem;
+        }
+        /* Wider than agents column so the SaaS headline does not wrap to three lines */
+        .panel-saas .panel-label {
+          max-width: min(26rem, 100%);
+        }
+        .panel-desc {
+          font-size: 0.95rem;
+          max-width: 18rem;
+        }
+        .panel-visual {
+          width: min(100%, 22rem);
+        }
+        .panel-visual-saas {
+          width: min(100%, 25rem);
+        }
+      }
+
+      @media (max-width: 767px) {
+        .gateway-intro-inner {
+          padding: 2.5rem 1rem 2rem;
+        }
+        .gateway-intro-copy {
+          font-size: 1rem;
+          line-height: 1.65;
+        }
+        .gateway {
+          flex-direction: column;
+          min-height: auto;
+        }
+        .panel-divider {
+          width: 100%;
+          height: 1px;
+          align-self: auto;
+        }
+        .panel {
+          flex: 1;
+          padding: 2rem 1.5rem;
+        }
+        .panel-label {
+          max-width: 100%;
+        }
+        .panel-saas .panel-label {
+          font-size: clamp(1.28rem, 4.5vw + 0.65rem, 1.55rem);
+        }
+        .panel-desc {
+          max-width: 100%;
+        }
+        .panel-visual {
           width: 100%;
         }
       }
-      .feedback-section {
-        display: none !important;
-        margin-top: none !important;
+
+      @media (hover: hover) and (min-width: 1024px) {
+        .panel-agents,
+        .panel-saas {
+          justify-content: flex-start;
+        }
+
+        .panel-visual {
+          width: 70%;
+          margin-top: 0.5rem;
+        }
       }
-      button[aria-label="Menu"].sl-flex.md\:sl-hidden {
-        display: none !important;
-      }
-prev: false
-next: false
 ---
 
-import { Card, CardGrid, Badge, LinkButton, Tabs, TabItem } from '@astrojs/starlight/components'
-import FoldCard from '@components/ui/FoldCard.astro'
-import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
-import SimpleList from '@components/ui/SimpleList.astro'
-import CheckItem from '@components/ui/CheckItem.astro'
-import IconLucideKeyRound from '~icons/lucide/key-round'
-import IconLucideInfo from '~icons/lucide/info'
-import homeFsaImage from '@/assets/docs/home/image-pills.svg'
-import shieldImage from '@/assets/docs/home/shield.svg'
-import complianceImage from '@/content/docs/compliance.svg'
-
-<div class="fold-section fold-full-width">
-  <div class="fold-container" style="gap: 0.15rem;">
-  <div>
-    <h1 style="font-size: 2.2rem; margin: 0rem; text-align: left;">Implement authentication in minutes</h1>
-    <div style="font-size: 1.1rem; text-align: left;">
-      <p style="margin: 0rem;">Add auth to your B2B or AI application without building from scratch.</p>
-      <p style="margin: 0.25rem 0 0;">Drop in a modular capability — MCP Auth, Agent Auth, SSO, or SCIM — alongside your existing system, or adopt Scalekit as your full identity layer for users, sessions, organizations, and roles.</p>
-     </div>
-  </div>
-
-    {/* <p style="font-size: 1.1rem; margin: 0rem; text-align: left;"></p> */}
-
-  <div style="margin-top: 0.15rem;">
-
-<Tabs syncKey="coding-agent">
-  <TabItem label="Claude Code">
-    ```bash title="Step 1 — Add the marketplace (Claude REPL)" showLineNumbers=false
-    /plugin marketplace add scalekit-inc/claude-code-authstack
-    ```
-
-    ```bash title="Step 2 — Install your auth plugin (Claude REPL)" showLineNumbers=false
-    # options: full-stack-auth, agent-auth, mcp-auth, modular-sso, modular-scim
-    /plugin install agent-auth@scalekit-auth-stack
-    ```
-
-    Now ask your agent to implement Scalekit auth in natural language.
-  </TabItem>
-  <TabItem label="Codex">
-    ```bash title="Step 1 — Install the Scalekit Auth Stack" frame="terminal" showLineNumbers=false
-    curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash
-    ```
-
-    Step 2 — Restart Codex, open **Plugin Directory**, select **Scalekit Auth Stack**, and enable your auth plugin.
-
-    Now ask your agent to implement Scalekit auth in natural language.
-  </TabItem>
-  <TabItem label="GitHub Copilot CLI">
-    ```bash title="Step 1 — Add the marketplace" frame="terminal" showLineNumbers=false
-    copilot plugin marketplace add scalekit-inc/github-copilot-authstack
-    ```
-
-    ```bash title="Step 2 — Install your auth plugin" frame="terminal" showLineNumbers=false
-    # options: full-stack-auth, agent-auth, mcp-auth, modular-sso, modular-scim
-    copilot plugin install agent-auth@scalekit-auth-stack
-    ```
-
-    Now ask your agent to implement Scalekit auth in natural language.
-  </TabItem>
-  <TabItem label="Cursor">
-    The Scalekit Auth Stack is pending Cursor Marketplace review. Install it locally in Cursor:
-
-    ```bash title="Step 1 — Install the Scalekit Auth Stack" frame="terminal" showLineNumbers=false
-    curl -fsSL https://raw.githubusercontent.com/scalekit-inc/cursor-authstack/main/install.sh | bash
-    ```
-
-    Step 2 — Restart Cursor, open **Settings > Cursor Settings > Plugins**, and enable your auth plugin.
-
-    Now ask your agent to implement Scalekit auth in natural language.
-  </TabItem>
-  <TabItem label="40+ agents">
-    Works with OpenCode, Windsurf, Cline, Gemini CLI, Codex, and 35+ more agents via the [Vercel Skills CLI](https://vercel.com/docs/agent-resources/skills).
-
-    ```bash title="Step 1 — Browse available skills" frame="terminal" showLineNumbers=false
-    npx skills add scalekit-inc/skills --list
-    ```
-
-    ```bash title="Step 2 — Install a specific skill" frame="terminal" showLineNumbers=false
-    npx skills add scalekit-inc/skills --skill adding-mcp-oauth
-    ```
-
-    Now ask your agent to implement Scalekit auth in natural language.
-  </TabItem>
-</Tabs>
-  </div>
-
-  </div>
-</div>
+import agentkitHero from '../../assets/pages/hero/agentkit.svg'
+import authForSaasHero from '../../assets/pages/hero/auth-for-saas.svg'
 
 
-<div class="fold-section fold--background-muted fold-full-width">
-  <div class="fold-container">
-    <div class="modular-auth-layout">
-      <div class="modular-auth-left">
-        <h2 class="modular-auth-heading" style="margin-top: 1.5rem !important; text-transform: uppercase; letter-spacing: 0.05rem;">Modular Auth</h2>
-        <div class="modular-auth-description"><p>Add specific auth capabilities like MCP, SSO, SCIM, or Agent auth, without replacing your existing system</p></div>
-      </div>
-      <div class="modular-auth-cards-grid">
-        <FoldCard
-          title="MCP Auth"
-          iconKey="mcp"
-          href="/authenticate/mcp/quickstart/"
-          showCta={false}
-          clickable={true}
-        >
-          Add OAuth 2.1 authorization to your remote MCP server with Dynamic Client Registration and short-lived tokens
-        </FoldCard>
 
-        <FoldCard
-          title="Agent Auth"
-          iconKey="bot"
-          href="/agent-auth/quickstart/"
-          showCta={false}
-          clickable={true}
-        >
-          Give your AI agents a token vault so they can call Gmail, Slack, Notion, and other services on behalf of users
-        </FoldCard>
-
-        <FoldCard
-          title="Single Sign-on"
-          iconKey="sso"
-          href="/authenticate/sso/add-modular-sso/"
-          showCta={false}
-          clickable={true}
-        >
-          Let enterprise users sign in through their company's identity provider — Okta, Microsoft Entra, Google, and more
-        </FoldCard>
-
-        <FoldCard
-          title="SCIM Provisioning"
-          iconKey="scim"
-          href="/directory/scim/quickstart"
-          showCta={false}
-          clickable={true}
-        >
-          Automatically sync users, roles, and groups when IT admins add or remove people in Okta or Azure AD
-        </FoldCard>
-      </div>
+<div class="gateway-shell">
+  <section class="gateway-intro" aria-labelledby="gateway-intro-title">
+    <div class="gateway-intro-inner">
+      <h2 class="gateway-intro-title" id="gateway-intro-title">
+        What are you solving?
+      </h2>
+    <h1 class="sr-only">Choose your Scalekit documentation path</h1>
     </div>
-  </div>
-</div>
+  </section>
 
-{/* <div style="display: flex; padding: 0.5rem 1rem; align-items: center; gap: 0.625rem; border-radius: 0.375rem; border: 1px solid var(--sl-color-gray-5); background: #FCFCFC">
-Ready to build something new? <a href="https://app.scalekit.com" target="_blank" rel="noopener">Set up your account now</a>
-</div> */}
-
-
-{/* <div class="platform-divider" style="display: flex; align-items: center; gap: 1rem; color: var(--sl-color-gray-3); font-size: 0.875rem; font-weight: 500; letter-spacing: 0.05em;">
-  <div style="flex: 1; height: 1px; background: var(--sl-color-gray-5);"></div>
-  <span>OR</span>
-  <div style="flex: 1; height: 1px; background: var(--sl-color-gray-5);"></div>
-</div> */}
-
-
-<div class="fold-section fold-full-width">
-  <div class="fold-container">
-    <div class="full-stack-auth-layout">
-      <div class="full-stack-auth-left">
-
-        <h2 class="full-stack-auth-heading" style="margin-top: 2rem !important;text-transform: uppercase; letter-spacing: 0.05rem;">FULL-STACK AUTH</h2>
-        <p class="full-stack-auth-description">Use Scalekit as your full identity layer to manage users, organizations,
-sessions, and roles</p>
-        <LinkButton href="/authenticate/fsa/quickstart" variant="secondary" class="sk-secondary" icon="right-arrow" style="margin-top: 2rem; width: fit-content;">
-          Quickstart
-        </LinkButton>
-        <p style="font-size: 0.9rem; margin: -1rem 0rem; color: var(--sl-color-text-muted); ">Get production-ready auth running in minutes</p>
+  <div class="gateway">
+    <a
+      href="/agentkit/quickstart/"
+      class="panel panel-agents"
+    >
+      <span class="panel-badge">For Agent Builders</span>
+      <p class="panel-label">Connect my agents to any enterprise app</p>
+      <p class="panel-desc">Delegated auth. Scoped permissions. Tool calls.</p>
+      <span class="panel-cta">Connect my agents to apps →</span>
+      <div class="panel-visual" aria-hidden="true">
+        <div class="panel-visual-body">
+          <img
+            src={agentkitHero.src}
+            alt="Agent authentication flow diagram"
+            style="width: 100%; height: auto;"
+          />
+        </div>
       </div>
-      <div class="full-stack-auth-card">
-        <img src={homeFsaImage.src} alt="Full Stack Auth Platform" style="width: 75%; height: auto; border-radius: 0.5rem; border: none !important; margin-left: 4rem !important;" data-zoom-off />
+    </a>
+
+    <div class="panel-divider" role="separator"></div>
+
+    <a
+      href="/authenticate/fsa/quickstart/"
+      class="panel panel-saas"
+    >
+      <span class="panel-badge">For SaaS Developers</span>
+      <p class="panel-label">{`Add auth and user\u00a0management to my SaaS app`}</p>
+      <p class="panel-desc">Sessions, SSO, RBAC, SCIM - all in one stack.</p>
+      <span class="panel-cta">Add auth to my app →</span>
+      <div class="panel-visual panel-visual-saas" aria-hidden="true">
+        <div class="panel-visual-saas-body">
+          <div class="saas-arch">
+            <img
+              src={authForSaasHero.src}
+              alt="Authentication architecture overview"
+              style="width: 100%; height: auto;"
+            />
+          </div>
+        </div>
       </div>
-    </div>
+    </a>
   </div>
 </div>
-
-<div class="fold-section fold-full-width" style="padding-top: 0rem">
-  <div class="fold-container">
-    <ResponsiveCardGrid columnsDesktop={3} columnsLarge={3}>
-      <FoldCard
-        title="User lifecycle"
-        iconKey="usercheck"
-        href="/fsa/data-modelling"
-        clickable={true}
-      >
-        Create, update, and delete users with built-in lifecycle APIs
-      </FoldCard>
-      <FoldCard
-        title="Authentication methods"
-        iconKey="authmethods"
-        href="/authenticate/auth-methods/passwordless/"
-        clickable={true}
-      >
-        Support modern login flows with passkeys, magic links, OTPs, and social logins
-      </FoldCard>
-      <FoldCard
-        title="B2B-native identity"
-        iconKey="b2b"
-        href="/fsa/data-modelling"
-        clickable={true}
-      >
-        Model organizations, user memberships, and multi-tenant access for B2B SaaS apps
-      </FoldCard>
-      <FoldCard
-        title="Authorization"
-        iconKey="shield"
-        href="/authenticate/authz/overview"
-        clickable={true}
-      >
-        Define roles and permissions for human users and AI agents
-      </FoldCard>
-      <FoldCard
-        title="Enterprise identity"
-        iconKey="sso"
-        href="/authenticate/auth-methods/enterprise-sso"
-        clickable={true}
-      >
-        Add enterprise capabilities like Single Sign-On (SSO) and SCIM provisioning
-      </FoldCard>
-      <FoldCard
-        title="API & M2M auth"
-        iconKey="apiauth"
-        href="/authenticate/m2m/api-auth-quickstart"
-        clickable={true}
-      >
-        Issue and validate user-scoped and org-level tokens for APIs and services
-      </FoldCard>
-    </ResponsiveCardGrid>
-  </div>
-</div>
-
-<div class="fold-section fold--background-muted fold-full-width">
-  <div class="fold-container">
-  <div>
-    <h2 style="font-size: 1.8rem; margin: 0.5rem 0rem; text-align: left;">Extensibility & Controls</h2>
-    <p style="font-size: 1.1rem; margin: 0rem; text-align: left;">Customize identity workflows and apply your business logic</p>
-    </div>
-
-    <div class="platform-features-grid">
-      <CardGrid>
-        <FoldCard
-          title="Webhooks"
-          iconKey="webhooks"
-          href="/reference/webhooks/overview/"
-          clickable={true}
-        >
-          Receive real-time events for authentication, user lifecycle, and organizations
-        </FoldCard>
-        <FoldCard
-          title="Interceptors"
-          iconKey="workflow"
-          href="/authenticate/interceptors/auth-flow-interceptors/"
-          clickable={true}
-        >
-          Apply custom logic and policy checks during authentication & authorization flows
-        </FoldCard>
-        <FoldCard
-          title="Branding"
-          iconKey="theme"
-          href="/fsa/guides/login-page-branding/"
-          clickable={true}
-        >
-          Customize hosted login/signup pages and auth-related emails to match your app's branding
-        </FoldCard>
-        <FoldCard
-          title="Auth logs"
-          iconKey="events"
-          href="/guides/dashboard/auth-logs/"
-          clickable={true}
-        >
-          Record and inspect authentication events and user access activity for auditing purposes
-        </FoldCard>
-      </CardGrid>
-    </div>
-  </div>
-</div>
-
-<div class="fold-section  fold-full-width">
-  <div class="fold-container">
-  <div>
-    <h2 style="font-size: 1.8rem; margin: 0.5rem 0rem; text-align: left;">Developer Resources</h2>
-    <p style="font-size: 1.1rem; margin: 0rem; text-align: left;">SDKs, code samples, and community resources for building with Scalekit</p>
-  </div>
-
-<ResponsiveCardGrid>
-  <FoldCard
-    title="SDKs"
-    iconKey="sdk"
-    href="/apis/#description/sdks"
-    clickable={true}
-  >
-    Drop-in libraries to quickly integrate Scalekit into your application
-  </FoldCard>
-  <FoldCard
-    title="Code samples"
-    iconKey="github"
-    href="/resources/code-samples"
-    clickable={true}
-  >
-    Reference implementations and code examples for common auth flows
-  </FoldCard>
-  <FoldCard
-    title="Developer community"
-    iconKey="community"
-    href="https://join.slack.com/t/scalekit-community/shared_invite/zt-3gsxwr4hc-0tvhwT2b_qgVSIZQBQCWRw" target="_blank" rel="noopener"
-    clickable={true}
-  >
-    Ask questions, share feedback, and learn from other Scalekit developers
-  </FoldCard>
-  <FoldCard
-    title="SDKs & APIs"
-    iconKey="book"
-    href="/sdks/"
-    clickable={true}
-  >
-    Official SDKs and REST API reference for integrating authentication
-  </FoldCard>
-
-</ResponsiveCardGrid>
-  </div>
-</div>
-
-<div class="fold-section fold--background-muted fold-full-width">
-  <div class="fold-container">
-  <div>
-    <h2 style="font-size: 1.8rem; margin: 0.1rem 0rem; text-align: left;">Security, Compliance & Availability</h2>
-    <p style="font-size: 1.1rem; margin: 0rem; text-align: left;">Designed for production workloads with strict operational and security requirements</p>
-  </div>
-
-    {/* <p style="font-size: 1.1rem; margin: 0rem; text-align: left;"></p> */}
-
-    <div class="security-sections">
-      <div>
-        <p style="margin: 0.5rem 0;"><span style="margin-right: 0.5rem;">⊕</span><strong>Multi-region data residency</strong><br /><span style="margin-left: 1.5rem;">Dedicated regional clusters in the US and EU</span></p>
-        <p style="margin: 0.5rem 0;"><span style="margin-right: 0.5rem;">⊕</span><strong>Compliance</strong><br /><span style="margin-left: 1.5rem;">SOC 2, ISO 27001, GDPR, and CCPA compliant</span></p>
-        <p style="margin: 0.5rem 0;"><span style="margin-right: 0.5rem;">⊕</span><strong>Uptime</strong><br /><span style="margin-left: 1.5rem;">99.99% uptime with failover redundancy</span></p>
-        <p style="margin: 0.5rem 0;"><span style="margin-right: 0.5rem;">⊕</span><strong>Secure token & secret storage</strong><br /><span style="margin-left: 1.5rem;">Vault-backed storage with strong isolation for tokens and agent credentials</span></p>
-      </div>
-      <div style="display: flex; justify-content: center; align-items: center; margin-top: 0rem !important;">
-        <img src={complianceImage.src} alt="Compliance certifications" style="max-width: 110%; height: auto; border: none" data-zoom-off/>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-
-
-{/* <FoldCard
-  title="Connect with the Scalekit developer community"
-  iconKey="community"
-  showCta={false}
->
-  Join our vibrant developer community to collaborate, learn, and exchange ideas with Scalekit engineers. Get dedicated support, share feedback, and stay updated on the latest tools and best practices.
-
-  <br />
-  <a href="https://join.slack.com/t/scalekit-community/shared_invite/zt-3gsxwr4hc-0tvhwT2b_qgVSIZQBQCWRw">Join the dev community →</a>
-</FoldCard> */}

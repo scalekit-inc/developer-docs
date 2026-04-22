@@ -6,21 +6,30 @@ export const onRequest = defineRouteMiddleware((context) => {
   const ogImageUrl = new URL(`/og/${slug}.png`, context.site)
   const individualOverviewTitle = starlightRoute.entry.data.overviewTitle
 
+  const canonicalURL = new URL(context.url.pathname, context.site)
+
   // Inject the meta tags into the head array
   const { head } = context.locals.starlightRoute
-  head.push({
-    tag: 'meta',
-    attrs: { property: 'og:image', content: ogImageUrl.href },
-  })
-  head.push({
-    tag: 'meta',
-    attrs: { name: 'twitter:image', content: ogImageUrl.href },
-  })
+  const { title, description, tags } = starlightRoute.entry.data
+
+  head.push({ tag: 'meta', attrs: { property: 'og:type', content: 'website' } })
+  head.push({ tag: 'meta', attrs: { property: 'og:site_name', content: 'Scalekit Docs' } })
+  head.push({ tag: 'meta', attrs: { property: 'og:url', content: canonicalURL.href } })
+  head.push({ tag: 'meta', attrs: { property: 'og:title', content: title } })
+  if (description) {
+    head.push({ tag: 'meta', attrs: { property: 'og:description', content: description } })
+  }
+  head.push({ tag: 'meta', attrs: { property: 'og:image', content: ogImageUrl.href } })
+
+  head.push({ tag: 'meta', attrs: { name: 'twitter:card', content: 'summary_large_image' } })
+  head.push({ tag: 'meta', attrs: { name: 'twitter:title', content: title } })
+  if (description) {
+    head.push({ tag: 'meta', attrs: { name: 'twitter:description', content: description } })
+  }
+  head.push({ tag: 'meta', attrs: { name: 'twitter:image', content: ogImageUrl.href } })
 
   // JSON-LD TechArticle schema for AEO (Google AI Overviews, Perplexity, Bing Copilot)
-  const { title, description, tags } = starlightRoute.entry.data
   if (title && description) {
-    const canonicalURL = new URL(context.url.pathname, context.site)
     head.push({
       tag: 'script',
       attrs: { type: 'application/ld+json' },

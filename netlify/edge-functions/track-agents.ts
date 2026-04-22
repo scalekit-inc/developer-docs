@@ -10,6 +10,7 @@ export const config = {
     '/images/*',
     '/fonts/*',
     '/favicon*',
+    '/og/*',
     '/*.js',
     '/*.css',
     '/*.png',

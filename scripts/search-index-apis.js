@@ -24,7 +24,7 @@ function generateUrlFragment(path, method, tags) {
   return `#tag/${tag}/${lowerMethod}${path}`
 }
 
-// Extract and structure API records from Swagger
+// Extract and structure API records from Swagger (used by ApiSearchIndex.astro at build time)
 export function extractApiRecords(swagger) {
   const records = []
   const baseUrl = 'https://docs.scalekit.com/apis/'
@@ -66,7 +66,7 @@ export function extractApiRecords(swagger) {
   return records
 }
 
-// Test URL generation
+// Test URL generation (`pnpm run generate-search-index`)
 function testUrlGeneration() {
   console.log('🧪 Testing URL generation...\n')
 
@@ -137,7 +137,6 @@ function testUrlGeneration() {
   })
 }
 
-// Run the test
 if (import.meta.url === `file://${process.argv[1]}`) {
   testUrlGeneration()
 }

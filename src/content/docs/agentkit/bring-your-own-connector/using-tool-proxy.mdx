@@ -1,0 +1,133 @@
+---
+title: Use Tool Proxy
+description: Use Tool Proxy with your connector after creating a connection, authorizing a user, and setting up a connected account.
+tags: [agentauth, connectors, proxy, api, guide]
+sidebar:
+  label: "Use tool proxy"
+tableOfContents:
+  maxHeadingLevel: 3
+prev:
+  label: "Managing connectors"
+  link: "/agentkit/bring-your-own-connector/managing-connectors"
+next:
+  label: "Custom domain"
+  link: "/agentkit/advanced/custom-domain"
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+Use this page to call a custom connector through Tool Proxy after the connector, connection, and connected account are set up.
+
+The connector definition controls how Scalekit authenticates the upstream API. Your application still uses a connection, a connected account, user authorization, and `actions.request(...)`.
+
+Bring your own connector does not introduce a separate runtime model. You still use the same flow as built-in connectors:
+
+- Create a connection for the connector in Scalekit Dashboard
+- Create or fetch the connected account for the user
+- Authorize the user if the connected account is not active
+- Call the upstream API through Tool Proxy
+
+Tool Proxy uses the connected account context to inject the correct authentication details before routing the request to the upstream API.
+
+## Prerequisites
+
+Make sure:
+
+- The connector exists and is configured with the right [auth pattern](/agentkit/bring-your-own-connector/auth-types-and-patterns)
+- A [connection](/agentkit/connections) is configured for the connector
+- The [connected account](/agentkit/connected-accounts) exists
+- The user has completed [authorization](/agentkit/tools/authorize)
+
+Once these pieces are in place, you can call the upstream API through Tool Proxy.
+
+In the request examples below, `path` is relative to the connector `proxy_url`. `connectionName` must match the connection you created, and `identifier` must match the connected account you want to use for the request.
+
+After you create the connector, create a connection for it in the Scalekit Dashboard:
+
+![Connections page showing a custom connector connection alongside built-in connectors](@/assets/docs/agentkit/bring-your-own-connector/custom-provider-connection.png)
+
+After the user completes authorization, the connected account appears in the Connected Accounts tab and is ready for proxy calls:
+
+![Connected Accounts tab showing an authenticated account for a custom connector](@/assets/docs/agentkit/bring-your-own-connector/custom-provider-connected-account.png)
+
+## Proxy API calls
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js">
+
+```typescript
+import { ScalekitClient } from '@scalekit-sdk/node';
+import 'dotenv/config';
+
+const connectionName = 'your-provider-connection'; // get your connection name from connection configurations
+const identifier = 'user_123'; // your unique user identifier
+
+// Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+const scalekit = new ScalekitClient(
+  process.env.SCALEKIT_ENV_URL,
+  process.env.SCALEKIT_CLIENT_ID,
+  process.env.SCALEKIT_CLIENT_SECRET
+);
+const actions = scalekit.actions;
+
+// Authenticate the user
+const { link } = await actions.getAuthorizationLink({
+  connectionName,
+  identifier,
+});
+console.log('Authorize connector:', link);
+process.stdout.write('Press Enter after authorizing...');
+await new Promise(r => process.stdin.once('data', r));
+
+// Make a request via Scalekit proxy
+const result = await actions.request({
+  connectionName,
+  identifier,
+  path: '/v1/customers',
+  method: 'GET',
+});
+console.log(result);
+```
+
+</TabItem>
+<TabItem label="Python">
+
+```python
+import scalekit.client, os
+from dotenv import load_dotenv
+load_dotenv()
+
+connection_name = "your-provider-connection"  # get your connection name from connection configurations
+identifier = "user_123"  # your unique user identifier
+
+# Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+scalekit_client = scalekit.client.ScalekitClient(
+    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+    env_url=os.getenv("SCALEKIT_ENV_URL"),
+)
+actions = scalekit_client.actions
+
+# Authenticate the user
+link_response = actions.get_authorization_link(
+    connection_name=connection_name,
+    identifier=identifier
+)
+# present this link to your user for authorization, or click it yourself for testing
+print("Authorize connector:", link_response.link)
+input("Press Enter after authorizing...")
+
+# Make a request via Scalekit proxy
+result = actions.request(
+    connection_name=connection_name,
+    identifier=identifier,
+    path="/v1/customers",
+    method="GET"
+)
+print(result)
+```
+
+</TabItem>
+</Tabs>
+
+The request shape stays the same regardless of whether the connector uses OAUTH, BASIC, BEARER, or API_KEY. The connector definition controls how Scalekit authenticates the upstream call.

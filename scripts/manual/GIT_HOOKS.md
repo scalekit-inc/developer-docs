@@ -5,7 +5,7 @@ This project uses **pretty-quick** + **simple-git-hooks** for automated code for
 ## What the hooks do:
 
 - **Pre-commit**: Automatically formats staged files with Prettier
-- **Pre-push**: Runs the full build process (search index generation + Astro build) before allowing pushes
+- **Pre-push**: Runs the full build process (`generate-search-index` URL checks + Astro build) before allowing pushes
 
 ## Automatic Setup
 

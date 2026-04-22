@@ -18,6 +18,13 @@ export const collections = {
           .merge(z.object({ overviewTitle: z.string().optional() }))
           .merge(
             z.object({
+              connectorIcon: z.string().optional(),
+              connectorAuthType: z.string().optional(),
+              connectorCategories: z.array(z.string()).optional(),
+            }),
+          )
+          .merge(
+            z.object({
               seeAlso: z
                 .object({
                   items: z.array(

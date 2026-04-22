@@ -47,6 +47,8 @@ A few things worth knowing before you dive in:
 npm install -g pnpm
 ```
 
+Optionally, use [Volta](https://volta.sh) to manage Node and pnpm versions automatically — the project's `package.json` already has the correct versions pinned.
+
 ### Clone and run
 
 ```bash
@@ -70,16 +72,16 @@ If you edit `.d2` diagrams or need a full local build that regenerates them, ins
 
 ### Useful commands
 
-| Command                      | Description                                                      |
-| ---------------------------- | ---------------------------------------------------------------- |
-| `pnpm dev`                   | Start the site with Netlify Dev (`netlify dev`)                  |
-| `pnpm start`                 | Run `astro dev` — use to preview D2 diagram regeneration locally |
-| `pnpm build`                 | Build the production site to `./dist`                            |
-| `pnpm preview`               | Preview the production build locally                             |
-| `pnpm install:d2`            | Install D2 CLI tool for diagram rendering                        |
-| `pnpm format`                | Auto-format all `.md`, `.mdx`, `.astro`, `.ts` files             |
-| `pnpm format:check`          | Check formatting without writing changes                         |
-| `pnpm generate-search-index` | Regenerate the Algolia API search index                          |
+| Command                      | Description                                                           |
+| ---------------------------- | --------------------------------------------------------------------- |
+| `pnpm dev`                   | Start the site with Netlify Dev (`netlify dev`)                       |
+| `pnpm start`                 | Run `astro dev` — use to preview D2 diagram regeneration locally      |
+| `pnpm build`                 | Build the production site to `./dist`                                 |
+| `pnpm preview`               | Preview the production build locally                                  |
+| `pnpm install:d2`            | Install D2 CLI tool for diagram rendering                             |
+| `pnpm format`                | Auto-format all `.md`, `.mdx`, `.astro`, `.ts` files                  |
+| `pnpm format:check`          | Check formatting without writing changes                              |
+| `pnpm generate-search-index` | Validate API deep-link URL fragments (`scripts/search-index-apis.js`) |
 
 ---
 
@@ -115,22 +117,7 @@ Copy `.env.example` to `.env` before running the project. Here's what each group
 | `SCALEKIT_CLIENT_ID`     | Yes      | Identifies the docs app to Scalekit                             |
 | `SCALEKIT_REDIRECT_URI`  | Yes      | Defaults to `http://localhost:4321/auth/callback` for local dev |
 
-### Algolia Search
-
-| Variable             | Required | Description                                                          |
-| -------------------- | -------- | -------------------------------------------------------------------- |
-| `ALGOLIA_APP_ID`     | Optional | Powers the AI search Slack bot — not needed for running docs locally |
-| `ALGOLIA_API_KEY`    | Optional | Algolia API auth for the Slack bot                                   |
-| `ALGOLIA_INDEX_NAME` | Optional | Defaults to `scalekit-starlight-crawler`                             |
-
-### Slack Bot (Netlify Function)
-
-| Variable               | Required | Description                                                                 |
-| ---------------------- | -------- | --------------------------------------------------------------------------- |
-| `SLACK_BOT_TOKEN`      | Optional | OAuth token (`xoxb-*`) for the AI docs bot that responds to Slack @mentions |
-| `SLACK_SIGNING_SECRET` | Optional | Verifies incoming Slack webhook payloads                                    |
-
-> **For most doc contributions**, only `GITHUB_TOKEN` is worth setting. The rest are only needed if you're working on the Netlify functions or the auth flow.
+> **For most doc contributions**, only `GITHUB_TOKEN` is worth setting. The auth variables are only needed when you test the login flow locally.
 
 ---
 
@@ -210,7 +197,7 @@ Beyond overrides, the codebase includes reusable MDX components you can use insi
 | `RemoteFileTree` | `src/components/RemoteFileTree.astro` | Renders a GitHub repo's directory structure as an interactive file tree (uses `GITHUB_TOKEN`) |
 | `SDKCards`       | `src/components/SDKCards.astro`       | Renders a grid of SDK language cards linking to SDK-specific pages                            |
 | `SecondaryNav`   | `src/components/SecondaryNav.astro`   | Topic-level secondary navigation bar rendered within certain guide sections                   |
-| `ApiSearchIndex` | `src/components/ApiSearchIndex.astro` | Injects API endpoint metadata into the Algolia search index at build time                     |
+| `ApiSearchIndex` | `src/components/ApiSearchIndex.astro` | Hidden `/apis` markup listing operations for DocSearch indexing and deep links                |
 
 Additional component groups:
 

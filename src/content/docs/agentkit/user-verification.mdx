@@ -1,0 +1,171 @@
+---
+title: Verify user identity
+description: Confirm that the user who completed the OAuth consent is the same user your app intended to connect.
+tags: [agentauth, connectedaccounts, oauth2, security, user-verification]
+sidebar:
+  label: Verify user identity
+tableOfContents:
+  maxHeadingLevel: 3
+prev:
+  label: "Authorize a user"
+  link: "/agentkit/tools/authorize"
+next:
+  label: "Manage connected accounts"
+  link: "/agentkit/connected-accounts"
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import IconTdesignSequence from '~icons/tdesign/sequence';
+
+User verification applies to OAuth-based connectors only. For API key, basic auth, and key pair connectors, the user provides credentials directly. No OAuth flow, no verification step needed.
+
+For OAuth connectors, before activating a connected account, Scalekit confirms that the user who completed the OAuth consent is the same user your app intended to connect. This **user verification** step runs every time a connected account is authorized and prevents OAuth consent from activating on the wrong account.
+
+Choose a mode in **Agent Auth > User Verification**:
+
+- **Custom user verification**: Your server confirms the authorizing user matches the user your app intended to connect. Use in production. Without this, any user who receives an authorization link can activate a connected account (including the wrong one).
+- **Scalekit users only**: Scalekit checks that the authorizing user is signed in to your Scalekit dashboard. No code required. Use during development and internal testing when all users are already on your team.
+
+<Aside type="note" title="Scalekit users only is for testing">
+  In this mode, the user authorizing the connection must already be signed in to the Scalekit dashboard. No verify route or API calls are needed in your code. Switch to **Custom user verification** before onboarding real users.
+</Aside>
+
+![AgentKit User Verification showing Custom user verifier and Scalekit users only](@/assets/docs/agentkit/user-verification-config.png)
+
+Your application implements the verify step. End users never interact with Scalekit directly.
+
+When the user finishes OAuth, Scalekit redirects to your verify URL with `auth_request_id` and `state` params. Your route reads the user from your session, calls Scalekit's verify API with the `auth_request_id` and the original `identifier`, and if they match, the connected account activates.
+
+<details>
+<summary><IconTdesignSequence style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Review the verification sequence</summary>
+
+```d2 pad=36
+title: "Connected account user verification" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+Your app
+Scalekit
+Provider
+End user
+
+Your app -> Scalekit: POST magic link\n(identifier, user_verify_url, state)
+Scalekit -> Your app: Magic link URL
+Your app -> End user: Deliver link\n(email, in-app, …)
+
+End user -> Scalekit: Open magic link
+Scalekit -> Provider: OAuth consent screen
+Provider -> Scalekit: Authorization code
+Scalekit -> Scalekit: Store tokens\n(pending verification)
+Scalekit -> End user: Redirect to user_verify_url\n(auth_request_id, state)
+
+End user -> Your app: GET /user/verify\n(?auth_request_id, state)
+Your app -> Your app: Validate state,\nread user from session
+Your app -> Scalekit: POST verify\n(auth_request_id, identifier)
+Scalekit -> Scalekit: Match identifier,\nactivate connection
+Scalekit -> Your app: post_user_verify_redirect_url
+Your app -> End user: Redirect to your app
+```
+
+</details>
+
+## Implement verification in your app
+
+If you haven't installed the SDK yet, see the [quickstart](/agentkit/quickstart/).
+
+### Generate the authorization link
+
+Pass these fields when creating the authorization link:
+
+| Field | Description |
+|---|---|
+| `identifier` | **Required.** Your user's ID or email. Scalekit stores this and checks it matches at verify time. |
+| `user_verify_url` | **Required.** Your callback URL; Scalekit redirects the user here after OAuth completes. |
+| `state` | **Recommended.** A random value to prevent CSRF. |
+
+<Aside type="note" title="How to use state">
+  Generate a cryptographically random value per flow, store it in a secure HTTP-only cookie, and validate it against the `state` query param on callback. Discard the request if they don't match; this prevents an attacker from sending crafted verify URLs to your users.
+</Aside>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+```python
+import secrets
+
+# Generate a state value to prevent CSRF
+state = secrets.token_urlsafe(32)
+# Store state in a secure, HTTP-only cookie to validate on callback
+
+response = scalekit_client.actions.get_authorization_link(
+    connection_name=connector,
+    identifier=user_id,
+    user_verify_url="https://app.yourapp.com/user/verify",
+    state=state,
+)
+```
+  </TabItem>
+  <TabItem label="Node.js">
+```typescript
+import crypto from 'node:crypto';
+
+// Generate a state value to prevent CSRF
+const state = crypto.randomUUID();
+// Store state in a secure, HTTP-only cookie to validate on callback
+
+const { link } = await scalekit.actions.getAuthorizationLink({
+  identifier: userId,
+  connectionName: connector,
+  userVerifyUrl: 'https://app.yourapp.com/user/verify',
+  state,
+});
+```
+  </TabItem>
+</Tabs>
+
+### Handle the verification callback
+
+After OAuth completes, Scalekit redirects to your `user_verify_url`:
+
+```http
+GET https://app.yourapp.com/user/verify?auth_request_id=req_xyz&state=<your_state>
+```
+
+Validate `state` against your cookie, then call Scalekit's verify endpoint server-side.
+
+<Aside type="caution" title="Never trust query params for identity">
+  Read the user's identity from your own session, not from the URL. Use `state` for session correlation only.
+</Aside>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+```python
+# 1. Validate state from query param matches state in cookie
+# 2. Read user identity from your session, not from the URL
+
+response = scalekit_client.actions.verify_connected_account_user(
+    auth_request_id=auth_request_id,
+    identifier=user_id,    # must match what was stored at link creation
+)
+# On success: redirect to response.post_user_verify_redirect_url
+```
+  </TabItem>
+  <TabItem label="Node.js">
+```typescript
+// 1. Validate state from query param matches state in cookie
+// 2. Read user identity from your session, not from the URL
+
+const { postUserVerifyRedirectUrl } =
+  await scalekit.actions.verifyConnectedAccountUser({
+    authRequestId: auth_request_id,
+    identifier: userId,     // must match what was stored at link creation
+  });
+// On success: redirect to postUserVerifyRedirectUrl
+```
+  </TabItem>
+</Tabs>
+
+On success, the connected account is activated. Redirect the user using `post_user_verify_redirect_url`.

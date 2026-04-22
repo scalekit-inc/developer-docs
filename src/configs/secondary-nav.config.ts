@@ -1,145 +1,119 @@
 import {
   IconMcp,
-  IconLucideUsers,
-  IconLucideBot,
   IconApi,
   IconSdk,
   IconMdiCubeOutline,
   IconCodiconDebugStart,
-  IconLucideOutlineWebhook,
-  IconMingcuteUserSecurityLine,
-  IconGardenShapes26,
-  IconAntDesignUserSwitchOutlined,
-  IconLucideChevronDown as IconChevronDown,
+  IconMaterialSymbolsShieldLockOutlineRounded,
+  IconPhUsersFourLight,
   IconHugeiconsResourcesAdd,
   IconLucideBlocks,
   IconLucideCode,
   IconLucideWorkflow,
   IconRiAiGenerate2,
 } from '../utils/icon-map'
-import IconLucideRocket from '~icons/lucide/rocket'
-import IconLucideLogIn from '~icons/lucide/log-in'
-import IconLucideBuilding2 from '~icons/lucide/building-2'
-import IconLucideShieldCheck from '~icons/lucide/shield-check'
-import IconLucidePalette from '~icons/lucide/palette'
-import IconLucideCheck from '~icons/lucide/check'
 import IconLucideHome from '~icons/lucide/home'
+import IconSolarLayersOutline from '~icons/solar/layers-outline'
 import IconLucideBookOpenText from '~icons/lucide/book-open-text'
 import IconLucideServer from '~icons/lucide/server'
+import IconLucideCheck from '~icons/lucide/check'
 
 export interface NavItem {
-  id: string // Unique identifier for the nav item
+  id: string
   href: string
   label: string
-  dropdownLabel?: string // Optional label to show in dropdown (defaults to label if not provided)
+  dropdownLabel?: string
   iconComponent?: any
   children?: NavItem[]
-  keepParentLabel?: boolean // Keep parent label even when child is active
-  description?: string // Optional description for dropdown items
-  showDivider?: boolean // Show divider after this item
-  sectionLabel?: string // Optional section label for grouping items
-  sectionDescription?: string // Optional description text below section label
-  columnGroup?: 'left' | 'right' // Optional column grouping for side-by-side layout
+  keepParentLabel?: boolean
+  description?: string
+  showDivider?: boolean
+  sectionLabel?: string
+  sectionDescription?: string
+  sectionHref?: string
+  sectionCtaLabel?: string
+  columnGroup?: 'left' | 'right'
+  /** Temporary shared item — will be split into product-specific entries once the SDK docs are ready */
+  shared?: boolean
 }
 
-// Nav items - IDs must match those in sidebarToSecondaryNav mapping
-export const secondaryNavItems: NavItem[] = [
-  // Home link
-  // {
-  //   id: 'home',
-  //   href: '/',
-  //   label: 'Get started',
-  //   iconComponent: IconLucideRocket,
-  // },
-  // Authenticate dropdown with children for different auth products
+// SDKs & APIs is shared across both products until the SDK docs are split per product.
+// TODO: replace this with product-specific SDK entries when Agent Kit and SaaS Kit SDK docs are ready
+const sharedSdksItem: NavItem = {
+  id: 'api-reference',
+  href: '#sdks-apis',
+  label: 'SDKs & APIs',
+  iconComponent: IconMdiCubeOutline,
+  shared: true,
+  children: [
+    {
+      id: 'sdks',
+      href: '/sdks/',
+      label: 'SDKs',
+      iconComponent: IconSdk,
+      description: 'Ready-to-use libraries to implement auth in your app',
+    },
+    {
+      id: 'rest-apis',
+      href: '/apis/#description/overview',
+      label: 'REST APIs',
+      iconComponent: IconApi,
+      description: 'Programmatic control to manage users, orgs, sessions etc.',
+    },
+  ],
+}
+
+const agentKitItems: NavItem[] = [
   {
-    id: 'authenticate',
-    href: '#authenticate',
-    label: 'Full stack auth',
-    iconComponent: IconLucideUsers,
-    children: [
-      {
-        id: 'mcp', // Maps to sidebarToSecondaryNav['modular-auth'].pathOverrides['/mcp']
-        href: '/authenticate/mcp/quickstart/',
-        label: 'MCP Auth',
-        iconComponent: IconMcp,
-        description: 'Secure MCP servers with OAuth 2.1, CIMD, and dynamic registration',
-        sectionLabel: 'MODULAR AUTH',
-        sectionDescription: 'Add auth capabilities without replacing your system',
-        columnGroup: 'left',
-      },
-      {
-        id: 'agent-auth',
-        href: '/agent-auth/quickstart/',
-        label: 'Agent Auth',
-        iconComponent: IconLucideBot,
-        description: 'Connect AI agents to external tools with a token vault and OAuth',
-        columnGroup: 'left',
-      },
-      {
-        id: 'modular-sso', // Maps to sidebarToSecondaryNav['modular-auth'].default
-        href: '/authenticate/sso/add-modular-sso/',
-        label: 'Modular SSO',
-        iconComponent: IconMingcuteUserSecurityLine,
-        description: 'Add SAML or OIDC SSO with enterprise identity providers',
-        columnGroup: 'left',
-      },
-      {
-        id: 'modular-scim', // Maps to sidebarToSecondaryNav['modular-auth'].pathOverrides['/directory/scim']
-        href: '/directory/scim/quickstart/',
-        label: 'Modular SCIM',
-        iconComponent: IconAntDesignUserSwitchOutlined,
-        description: 'Automate user provisioning, sync roles and groups from directories',
-        columnGroup: 'left',
-      },
-      {
-        id: 'fsa-quickstart',
-        href: '/authenticate/fsa/quickstart/',
-        label: 'Full stack auth', // Use parent label for nav button
-        dropdownLabel: 'Quickstart', // Show in dropdown
-        iconComponent: IconLucideRocket, // Distinct icon for Quickstart
-        description: 'Add production-ready auth flows',
-        sectionLabel: 'FULL-STACK AUTH',
-        sectionDescription: 'Use Scalekit as your full identity layer',
-        columnGroup: 'right',
-      },
-      {
-        id: 'fsa-user-auth',
-        href: '/authenticate/auth-methods/passwordless/',
-        label: 'Full stack auth', // Use parent label for nav button
-        dropdownLabel: 'Authentication methods', // Show in dropdown
-        iconComponent: IconLucideLogIn, // Distinct icon for User Auth
-        description: 'Support modern login flows with passkeys, magic links, and more',
-        columnGroup: 'right',
-      },
-      {
-        id: 'fsa-users-orgs',
-        href: '/fsa/data-modelling/',
-        label: 'Full stack auth', // Use parent label for nav button
-        dropdownLabel: 'Users & organizations', // Show in dropdown
-        iconComponent: IconLucideBuilding2, // Distinct icon for Users & Orgs
-        description: 'Manage users, organizations, and memberships with multi-tenancy',
-        columnGroup: 'right',
-      },
-      {
-        id: 'fsa-authorization',
-        href: '/authenticate/authz/overview/',
-        label: 'Full stack auth', // Use parent label for nav button
-        dropdownLabel: 'Authorization', // Show in dropdown
-        iconComponent: IconLucideShieldCheck, // Distinct icon for Authorization
-        description: 'Define roles and permissions for human users and AI agents',
-        columnGroup: 'right',
-      },
-      {
-        id: 'fsa-customize',
-        href: '/guides/custom-domain/',
-        label: 'Full stack auth', // Use parent label for nav button
-        dropdownLabel: 'Extensibility & controls', // Show in dropdown
-        iconComponent: IconLucidePalette, // Distinct icon for Customize
-        description: 'Customize identity workflows and apply your business logic',
-        columnGroup: 'right',
-      },
-    ],
+    id: 'agentkit-quickstart',
+    href: '/agentkit/quickstart/',
+    label: 'AgentKit',
+    iconComponent: IconLucideHome,
+  },
+  {
+    id: 'agentkit-connectors',
+    href: '/agentkit/connectors/',
+    label: 'Connectors',
+    iconComponent: IconLucideBlocks,
+  },
+  {
+    id: 'agentkit-sdks',
+    href: '/agentkit/sdks/',
+    label: 'SDKs',
+    iconComponent: IconSdk,
+  },
+  {
+    id: 'agentkit-api-reference',
+    href: '/apis/?product=agentkit',
+    label: 'API reference',
+    iconComponent: IconApi,
+  },
+]
+
+const saasKitItems: NavItem[] = [
+  {
+    id: 'saaskit-user-management',
+    href: '/authenticate/fsa/quickstart/',
+    label: 'SaaSKit',
+    iconComponent: IconSolarLayersOutline,
+  },
+  {
+    id: 'saaskit-sso',
+    href: '/authenticate/sso/add-modular-sso/',
+    label: 'SSO',
+    iconComponent: IconMaterialSymbolsShieldLockOutlineRounded,
+  },
+  {
+    id: 'saaskit-scim',
+    href: '/directory/scim/quickstart/',
+    label: 'SCIM',
+    iconComponent: IconPhUsersFourLight,
+  },
+  {
+    id: 'saaskit-mcp-auth',
+    href: '/authenticate/mcp/quickstart/',
+    label: 'MCP Auth',
+    iconComponent: IconMcp,
   },
   {
     id: 'developer-resources',
@@ -147,7 +121,6 @@ export const secondaryNavItems: NavItem[] = [
     label: 'Developer Resources',
     iconComponent: IconHugeiconsResourcesAdd,
     children: [
-      // LEFT COLUMN - Developer Kit (Build with AI, SDKs & APIs, Testing Utilities)
       {
         id: 'build-with-ai',
         href: '/dev-kit/build-with-ai/',
@@ -175,7 +148,6 @@ export const secondaryNavItems: NavItem[] = [
         description: 'Test and debug auth integrations locally',
         columnGroup: 'left',
       },
-      // RIGHT COLUMN - Resources
       {
         id: 'integrations',
         href: '/guides/integrations/social-connections/',
@@ -250,6 +222,12 @@ export const secondaryNavItems: NavItem[] = [
   //   label: 'Agent Auth',
   //   iconComponent: IconLucideBot,
   // },
+  sharedSdksItem,
 ]
+
+export const secondaryNavConfig: Record<'agentkit' | 'saaskit', NavItem[]> = {
+  agentkit: agentKitItems,
+  saaskit: saasKitItems,
+}
 
 export { IconLucideCheck }
