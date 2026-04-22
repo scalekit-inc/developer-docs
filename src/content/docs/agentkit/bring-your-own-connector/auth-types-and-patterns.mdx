@@ -1,37 +1,58 @@
 ---
-title: Auth patterns
-description: Learn the supported auth types, connector payload fields, and auth pattern configuration used by bring your own connector.
+title: Create your own connector
+description: Choose an auth type, build the connector payload, and create or manage custom connectors in Scalekit.
 tags: [agentauth, connectors, auth, oauth2, proxy, guide]
 sidebar:
-  label: "Auth patterns"
+  label: "Create a connector"
 tableOfContents:
   maxHeadingLevel: 3
 prev:
-  label: "Bring your own connector"
+  label: "Add your own connector"
   link: "/agentkit/bring-your-own-connector/overview"
 next:
-  label: "Managing connectors"
-  link: "/agentkit/bring-your-own-connector/managing-connectors"
+  label: "Making tool calls"
+  link: "/agentkit/bring-your-own-connector/using-tool-proxy"
 ---
 
 import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
-Auth patterns define how Scalekit should authenticate to the upstream API or MCP server.
+This page covers everything you need to create a custom connector: building the connector payload and managing it with the API.
 
-Use this page to choose an auth type and build the connector payload for a custom connector.
+<details>
+<summary>Prerequisites</summary>
 
-## Choose an auth type
+You need three credentials from your Scalekit environment:
 
-Bring your own connector supports these auth types:
+- `SCALEKIT_ENVIRONMENT_URL` — the base URL of your Scalekit environment
+- `SCALEKIT_CLIENT_ID` — your environment's client ID
+- `SCALEKIT_CLIENT_SECRET` — your environment's client secret
 
-- OAUTH
-- BASIC
-- BEARER
-- API_KEY
+Find these in the Scalekit Dashboard under **Developers → Settings → API Credentials**.
 
-Use OAUTH when the upstream API requires a user authorization flow and token exchange. Use BASIC, BEARER, or API_KEY when the upstream API accepts static credentials or long-lived tokens that Scalekit can attach during proxy calls.
+</details>
 
-## Understand the connector payload
+## Create a connector
+
+<Aside type="tip" title="Recommended approach">
+The recommended way to manage connectors is with the <a href="https://github.com/scalekit-inc/skills/blob/main/skills/sk-actions-custom-provider/SKILL.md" target="_blank" rel="noopener noreferrer">`sk-actions-custom-provider` skill</a>.
+
+```sh frame="none" showLineNumbers=false
+npx skills add scalekit-inc/skills --skill sk-actions-custom-provider
+```
+
+It keeps payload generation, review, and promotion consistent across Dev and Production.
+</Aside>
+
+Share the connector name, Scalekit credentials, and API docs. The skill infers the auth type, generates the payload, and walks you through create, update, and promotion to Production. Always review the final payload before approving.
+
+To manage connectors directly via API, use the payloads below.
+
+<details>
+<summary>Understand the connector payload</summary>
+
+Supported auth types are `OAUTH`, `BASIC`, `BEARER`, and `API_KEY`. Use `OAUTH` when the upstream API or MCP server requires a user authorization flow and token exchange. Use `BASIC`, `BEARER`, or `API_KEY` when it accepts static credentials or long-lived tokens.
+
+MCP providers use the same four auth types as REST API providers, with `is_mcp: true` set in each `auth_patterns[]` entry. OAuth MCP connectors use a simplified `oauth_config: {"pkce_enabled": true}` — the MCP server handles authorization via Dynamic Client Registration. Non-OAuth MCP connectors omit `oauth_config` entirely.
 
 The connector payload uses these common top-level fields:
 
@@ -42,8 +63,6 @@ The connector payload uses these common top-level fields:
 - `proxy_enabled`: Whether the proxy is enabled for the connector (mandatory, should be true)
 
 `proxy_url` can also include templated fields when the upstream API requires account-specific values, for example `https://{{domain}}/api`.
-
-## Understand auth pattern fields
 
 Within `auth_patterns`, the most common fields are:
 
@@ -57,13 +76,14 @@ Within `auth_patterns`, the most common fields are:
 - `auth_field_mutations`: Value transformations applied before the credential is sent. This is useful when the upstream expects a prefix, suffix, or default companion value, such as adding a token prefix or setting a fallback password value for Basic auth.
 - `is_mcp`: Set to `true` when the upstream is an MCP server. Tells Scalekit to route the connector through MCP tool calling instead of the HTTP proxy.
 
-These fields control how Scalekit collects credentials and applies them during proxy calls.
+</details>
 
-## REST API provider payloads
+Below are example payloads for API and MCP connectors across all supported auth patterns.
 
-Use a payload like the following based on the auth pattern you need. In the management flow, you can pass these JSON bodies into the appropriate create or update request.
+<Tabs syncKey="connector-type">
+<TabItem label="API Connector">
 
-<Tabs>
+<Tabs syncKey="auth-type">
 <TabItem label="OAuth">
 
 ```json
@@ -196,16 +216,11 @@ Use a payload like the following based on the auth pattern you need. In the mana
 </TabItem>
 </Tabs>
 
-## MCP provider payloads
+</TabItem>
+<TabItem label="MCP Connector">
 
-MCP providers use the same four auth types but with three structural differences:
-
-- `is_mcp: true` is set in all `auth_patterns[]` entries
-- OAuth MCP connectors use a simplified `oauth_config: {"pkce_enabled": true}` — no `authorize_uri`, `token_uri`, or `user_info_uri` (the MCP server handles authorization via Dynamic Client Registration)
-- Non-OAuth MCP connectors omit `oauth_config` entirely
-
-<Tabs>
-<TabItem label="OAuth MCP">
+<Tabs syncKey="auth-type">
+<TabItem label="OAuth">
 
 ```json
 {
@@ -229,7 +244,7 @@ MCP providers use the same four auth types but with three structural differences
 ```
 
 </TabItem>
-<TabItem label="Bearer MCP">
+<TabItem label="Bearer">
 
 ```json
 {
@@ -258,7 +273,7 @@ MCP providers use the same four auth types but with three structural differences
 ```
 
 </TabItem>
-<TabItem label="Basic MCP">
+<TabItem label="Basic">
 
 ```json
 {
@@ -294,7 +309,7 @@ MCP providers use the same four auth types but with three structural differences
 ```
 
 </TabItem>
-<TabItem label="API Key MCP">
+<TabItem label="API Key">
 
 ```json
 {
@@ -325,9 +340,10 @@ MCP providers use the same four auth types but with three structural differences
 </TabItem>
 </Tabs>
 
-## Review the final payload carefully
+</TabItem>
+</Tabs>
 
-When you review the final payload, pay close attention to:
+**Before submitting, review the final payload carefully:**
 
 - `display_name` and `description`
 - The selected auth `type`
@@ -336,4 +352,59 @@ When you review the final payload, pay close attention to:
 - `proxy_url`
 - Whether `is_mcp` is set to `true` for MCP providers
 
-Use the payload body from this page in the create and update requests on the [Managing connectors](/agentkit/bring-your-own-connector/managing-connectors) page.
+<details>
+<summary>Generate an access token</summary>
+
+All API requests require a short-lived access token. Generate one using your `SCALEKIT_CLIENT_ID` and `SCALEKIT_CLIENT_SECRET`:
+
+```bash
+curl --location '$SCALEKIT_ENVIRONMENT_URL/oauth/token' \
+  --header 'Content-Type: application/x-www-form-urlencoded' \
+  --data-urlencode 'grant_type=client_credentials' \
+  --data-urlencode 'client_id=$SCALEKIT_CLIENT_ID' \
+  --data-urlencode 'client_secret=$SCALEKIT_CLIENT_SECRET'
+```
+
+Use the `access_token` value from the response as `$env_access_token` in the `curl` commands below.
+
+</details>
+
+Use the payload for your auth type as the request body in the create request:
+
+```bash
+curl --location "$SCALEKIT_ENVIRONMENT_URL/api/v1/custom-providers" \
+  --header "Authorization: Bearer $env_access_token" \
+  --header "Content-Type: application/json" \
+  --data '{...}'
+```
+
+After the connector is created, create a connection in the Scalekit Dashboard and continue with the standard connector flow.
+
+## List connectors
+
+List existing connectors to confirm whether to create a new one or update an existing one.
+
+```bash
+curl --location "$SCALEKIT_ENVIRONMENT_URL/api/v1/providers?filter.provider_type=CUSTOM&page_size=1000" \
+  --header "Authorization: Bearer $env_access_token"
+```
+
+## Update a connector
+
+Use the [List connectors](#list-connectors) API to get the connector `identifier`, then send the updated payload:
+
+```bash
+curl --location --request PUT "$SCALEKIT_ENVIRONMENT_URL/api/v1/custom-providers/$PROVIDER_IDENTIFIER" \
+  --header "Authorization: Bearer $env_access_token" \
+  --header "Content-Type: application/json" \
+  --data '{...}'
+```
+
+## Delete a connector
+
+Use the [List connectors](#list-connectors) API to get the connector `identifier`. If the connector is still in use, remove the related connections or connected accounts first.
+
+```bash
+curl --location --request DELETE "$SCALEKIT_ENVIRONMENT_URL/api/v1/custom-providers/$PROVIDER_IDENTIFIER" \
+  --header "Authorization: Bearer $env_access_token"
+```
