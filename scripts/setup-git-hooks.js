@@ -39,7 +39,7 @@ try {
   }
 
   // Install hooks using simple-git-hooks
-  execSync('npx simple-git-hooks', { stdio: 'ignore' })
+  execSync('pnpm exec simple-git-hooks', { stdio: 'ignore' })
 
   // Verify hooks are installed
   const hooksDir = '.git/hooks'

@@ -70,6 +70,8 @@ developer-docs/
 npm install -g pnpm
 ```
 
+Optionally, use [Volta](https://volta.sh) to manage Node and pnpm versions automatically — the project's `package.json` already has the correct versions pinned.
+
 #### Run locally
 
 ```bash
