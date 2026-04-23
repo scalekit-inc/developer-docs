@@ -1,0 +1,14 @@
+diff --git a/dist/index.js b/dist/index.js
+index 8703f1bd5f6438c61a80b9fc842722820bd9a49f..835dfa2cf82fae6eee47fb478108055d858856a3 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -1069,7 +1069,8 @@ const buildPlugin = ({ targets, silent, hook, environment }) => {
+ 			if (this.environment && this.environment.name !== environment) return;
+ 			if (output) return;
+ 			output = true;
+-			const result = await copyAll(config.root, config.build.outDir, targets, silent);
++			const outDir = this.environment?.config?.build?.outDir ?? config.build.outDir;
++			const result = await copyAll(config.root, outDir, targets, silent);
+ 			if (!silent) outputCopyLog(config.logger, result);
+ 		}
+ 	};
