@@ -1096,24 +1096,24 @@ export const tools: Tool[] = [
       },
       {
         name: 'fields',
-        type: 'string',
+        type: 'array',
         required: true,
         description:
-          'JSON array of field objects to select, e.g. `[{"fieldCaption": "Region"}, {"fieldCaption": "Sales", "function": "SUM"}]`.',
+          'Array of field objects to select, e.g. `[{"fieldCaption": "Region"}, {"fieldCaption": "Sales", "function": "SUM"}]`.',
       },
       {
         name: 'filters',
-        type: 'string',
+        type: 'array',
         required: false,
         description:
-          'JSON array of filter objects, e.g. `[{"field": {"fieldCaption": "Region"}, "filterType": "SET", "values": ["West"]}]`.',
+          'Array of filter objects, e.g. `[{"field": {"fieldCaption": "Region"}, "filterType": "SET", "values": ["West"]}]`.',
       },
       {
         name: 'sort',
-        type: 'string',
+        type: 'array',
         required: false,
         description:
-          'JSON array of sort criteria, e.g. `[{"field": {"fieldCaption": "Sales"}, "sortDirection": "DESC"}]`.',
+          'Array of sort criteria, e.g. `[{"field": {"fieldCaption": "Sales"}, "sortDirection": "DESC"}]`.',
       },
       {
         name: 'max_rows',
