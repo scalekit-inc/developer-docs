@@ -123,8 +123,9 @@ cp .env.example .env
 ```
 
 ```bash title=".env"
-# LiteLLM proxy (routes to Claude)
-LITELLM_API_KEY=your-litellm-api-key
+# LLM — any OpenAI-compatible API (LiteLLM, OpenAI, Azure OpenAI, Ollama, etc.)
+# Omit LITELLM_BASE_URL to call OpenAI directly.
+LITELLM_API_KEY=your-api-key
 LITELLM_BASE_URL=https://your-litellm-base-url
 LITELLM_MODEL=claude-haiku-4-5
 
@@ -138,6 +139,10 @@ GITHUB_CONNECTION_NAME=github-qkHFhMip
 ```
 
 Get your Scalekit credentials at **app.scalekit.com → Settings → API Credentials**.
+
+<Aside type="note" title="Any OpenAI-compatible API works">
+The agent uses the `openai` npm package with a configurable `baseURL`. The `LITELLM_*` variable names are a convention — there is no LiteLLM-specific code. You can point them at OpenAI, Azure OpenAI, Ollama, or any other OpenAI-compatible endpoint. To call OpenAI directly, omit `LITELLM_BASE_URL` entirely.
+</Aside>
 
 ## 4. Initialize the Scalekit client
 
@@ -293,7 +298,7 @@ const fetchPRDetails = task(
 
 **Task 3 — Generate the summary with Claude**
 
-A single LLM call processes all five PRs. The `openai` package points to LiteLLM via `LITELLM_BASE_URL`, which routes to Claude.
+A single LLM call processes all five PRs. The `openai` package is used here because it supports any OpenAI-compatible API — point `LITELLM_BASE_URL` at LiteLLM, OpenAI, Azure OpenAI, or Ollama and it works without code changes. Omit `LITELLM_BASE_URL` entirely to call OpenAI directly.
 
 ```typescript title="src/tasks.ts"
 const generateSummary = task(
