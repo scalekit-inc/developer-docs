@@ -1,0 +1,304 @@
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+Once a connected account is set up with a valid session token, your agent can call Tableau tools through Scalekit. The session token is injected automatically as the `X-Tableau-Auth` header — your code never handles it directly.
+
+<Aside type="note" title="site_id is required for every tool">
+  Nearly every Tableau tool requires a `site_id` — the LUID of the Tableau site. Retrieve it once by calling `tableau_session_get` and cache it for the session. It does not change unless the user switches sites.
+</Aside>
+
+## Get your site ID
+
+Call `tableau_session_get` at the start of each agent session to retrieve the site LUID:
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    const actions = scalekit.actions;
+
+    const connectionName = 'tableau';
+    const identifier = 'user_123';
+
+    // Step 1 — get connected account (needed for connectedAccountId)
+    const { connectedAccount } = await actions.getConnectedAccount({
+      connectionName,
+      identifier,
+    });
+
+    // Step 2 — get site ID (needed for every subsequent tool call)
+    const session = await actions.executeTool({
+      toolName: 'tableau_session_get',
+      connectedAccountId: connectedAccount.id,
+      toolInput: {},
+    });
+    const siteId = session.session.site.id;
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    from scalekit.client import ScalekitClient
+    import os
+
+    scalekit_client = ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+    actions = scalekit_client.actions
+
+    connection_name = "tableau"
+    identifier = "user_123"
+
+    # Step 1 — get connected account (needed for connected_account_id)
+    connected_account = actions.get_connected_account(
+        connection_name=connection_name, identifier=identifier
+    ).connected_account
+
+    # Step 2 — get site ID (needed for every subsequent tool call)
+    session = actions.execute_tool(
+        tool_name="tableau_session_get",
+        connected_account_id=connected_account.id,
+        tool_input={},
+    )
+    site_id = session["session"]["site"]["id"]
+    ```
+  </TabItem>
+</Tabs>
+
+## Proxy API calls
+
+Use the Scalekit proxy to call any Tableau REST API endpoint directly. This is useful for endpoints not covered by the built-in tools:
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // List all workbooks on the site
+    const result = await actions.request({
+      connectionName,
+      identifier,
+      path: `/api/3.28/sites/${siteId}/workbooks`,
+      method: 'GET',
+    });
+    console.log(result.workbooks);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    # List all workbooks on the site
+    result = actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path=f"/api/3.28/sites/{site_id}/workbooks",
+        method="GET",
+    )
+    print(result["workbooks"])
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="tip" title="No auth header needed">
+  The Scalekit proxy automatically injects the `X-Tableau-Auth` session token header. You only provide the path and method.
+</Aside>
+
+## Use Scalekit tools
+
+### Browse workbooks and views
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // List all workbooks on the site
+    const workbooks = await actions.executeTool({
+      toolName: 'tableau_workbooks_list',
+      connectedAccountId: connectedAccount.id,
+      toolInput: { site_id: siteId },
+    });
+    // workbooks.workbooks.workbook[] — each has id, name, contentUrl, project
+
+    // List all views within a workbook
+    const views = await actions.executeTool({
+      toolName: 'tableau_list_views',
+      connectedAccountId: connectedAccount.id,
+      toolInput: {
+        site_id: siteId,
+        workbook_id: workbooks.workbooks.workbook[0].id,
+      },
+    });
+    // views.views.view[] — each has id, name, contentUrl
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    # List all workbooks on the site
+    workbooks = actions.execute_tool(
+        tool_name="tableau_workbooks_list",
+        connected_account_id=connected_account.id,
+        tool_input={"site_id": site_id},
+    )
+    # workbooks["workbooks"]["workbook"] — each has id, name, contentUrl, project
+
+    # List all views within a workbook
+    workbook_id = workbooks["workbooks"]["workbook"][0]["id"]
+    views = actions.execute_tool(
+        tool_name="tableau_list_views",
+        connected_account_id=connected_account.id,
+        tool_input={"site_id": site_id, "workbook_id": workbook_id},
+    )
+    # views["views"]["view"] — each has id, name, contentUrl
+    ```
+  </TabItem>
+</Tabs>
+
+### Export a view as PNG image
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // Export a dashboard or sheet as a PNG image
+    // Use the Scalekit proxy (not executeTool) for binary responses
+    const imageBytes = await actions.request({
+      connectionName,
+      identifier,
+      path: `/api/3.28/sites/${siteId}/views/${viewId}/image`,
+      method: 'GET',
+      queryParams: { resolution: 'high' }, // optional: 'high' or 'standard'
+    });
+    // imageBytes is the raw PNG binary — write to file or send in response
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    # Export a dashboard or sheet as a PNG image
+    # Use the proxy (not execute_tool) for binary responses
+    image_bytes = actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path=f"/api/3.28/sites/{site_id}/views/{view_id}/image",
+        method="GET",
+        params={"resolution": "high"},  # optional: 'high' or 'standard'
+    )
+    with open("dashboard.png", "wb") as f:
+        f.write(image_bytes)
+    ```
+  </TabItem>
+</Tabs>
+
+### Export a view as PDF
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const pdfBytes = await actions.request({
+      connectionName,
+      identifier,
+      path: `/api/3.28/sites/${siteId}/views/${viewId}/pdf`,
+      method: 'GET',
+      queryParams: { type: 'a4', orientation: 'landscape' },
+    });
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    pdf_bytes = actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path=f"/api/3.28/sites/{site_id}/views/{view_id}/pdf",
+        method="GET",
+        params={"type": "a4", "orientation": "landscape"},
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="note" title="Binary exports use the proxy, not execute_tool">
+  Tools that return binary files (PNG, PDF, Excel, .twbx, .tdsx) must be called via `actions.request()` (the proxy method), not `actions.executeTool()`. The tool definitions are provided for reference and LLM tool-calling — use the proxy for file downloads in your application code.
+</Aside>
+
+### Trigger a data source refresh and poll the job
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // Trigger an extract refresh
+    const refresh = await actions.executeTool({
+      toolName: 'tableau_datasource_refresh',
+      connectedAccountId: connectedAccount.id,
+      toolInput: { site_id: siteId, datasource_id: datasourceId },
+    });
+    const jobId = refresh.job.id;
+
+    // Poll until the job completes
+    let job;
+    do {
+      await new Promise(r => setTimeout(r, 10_000)); // wait 10 seconds
+      job = await actions.executeTool({
+        toolName: 'tableau_job_get',
+        connectedAccountId: connectedAccount.id,
+        toolInput: { site_id: siteId, job_id: jobId },
+      });
+    } while (job.job.status === 'InProgress');
+
+    console.log('Refresh completed:', job.job.status); // 'Success' or 'Failed'
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import time
+
+    # Trigger an extract refresh
+    refresh = actions.execute_tool(
+        tool_name="tableau_datasource_refresh",
+        connected_account_id=connected_account.id,
+        tool_input={"site_id": site_id, "datasource_id": datasource_id},
+    )
+    job_id = refresh["job"]["id"]
+
+    # Poll until the job completes
+    while True:
+        time.sleep(10)  # wait 10 seconds between polls
+        job = actions.execute_tool(
+            tool_name="tableau_job_get",
+            connected_account_id=connected_account.id,
+            tool_input={"site_id": site_id, "job_id": job_id},
+        )
+        if job["job"]["status"] != "InProgress":
+            break
+
+    print("Refresh completed:", job["job"]["status"])  # 'Success' or 'Failed'
+    ```
+  </TabItem>
+</Tabs>
+
+### Sign out
+
+Call `tableau_auth_signout` to invalidate the session token when the agent session ends:
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    await actions.executeTool({
+      toolName: 'tableau_auth_signout',
+      connectedAccountId: connectedAccount.id,
+      toolInput: {},
+    });
+    // The stored session token is now invalid — refresh before next use
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    actions.execute_tool(
+        tool_name="tableau_auth_signout",
+        connected_account_id=connected_account.id,
+        tool_input={},
+    )
+    # The stored session token is now invalid — refresh before next use
+    ```
+  </TabItem>
+</Tabs>

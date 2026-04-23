@@ -1,0 +1,1152 @@
+import type { Tool } from '../../types/agent-connectors'
+
+export const tools: Tool[] = [
+  // ─── Auth ───────────────────────────────────────────────────────────────────
+  {
+    name: 'tableau_auth_signin',
+    description:
+      'Sign in to Tableau Server or Tableau Cloud using a Personal Access Token (PAT). Returns a session token and site ID. Call this to obtain the session token you store as the connected account credential, and to refresh it before it expires.',
+    params: [
+      {
+        name: 'pat_name',
+        type: 'string',
+        required: true,
+        description: 'Name of the Personal Access Token (created in My Account Settings).',
+      },
+      {
+        name: 'pat_secret',
+        type: 'string',
+        required: true,
+        description: 'Secret value of the PAT, shown only once at creation time.',
+      },
+      {
+        name: 'site_content_url',
+        type: 'string',
+        required: false,
+        description:
+          'The site contentUrl (subdomain). Use an empty string `""` for the Default site.',
+      },
+    ],
+  },
+  {
+    name: 'tableau_auth_signout',
+    description:
+      'Sign out of Tableau, invalidating the current session token. Call this at the end of an agent session. After signing out, call `tableau_auth_signin` again to get a new token before making further API calls.',
+    params: [],
+  },
+  {
+    name: 'tableau_session_get',
+    description:
+      'Returns information about the current authenticated session, including the site LUID (`session.site.id`), site name, and the authenticated user. Call this at the start of each agent session to retrieve the `site_id` required for all other tools.',
+    params: [],
+  },
+
+  // ─── Site ───────────────────────────────────────────────────────────────────
+  {
+    name: 'tableau_site_get',
+    description:
+      'Retrieve information about a Tableau site: name, content URL, storage quota, user quota, and status. Optionally include usage statistics.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get` → `session.site.id`.',
+      },
+      {
+        name: 'include_usage_statistics',
+        type: 'boolean',
+        required: false,
+        description: 'Set to `true` to include storage and user count statistics.',
+      },
+    ],
+  },
+  {
+    name: 'tableau_site_update',
+    description:
+      'Update site settings: name, content URL, state (Active/Suspended), storage quota, user quota, and admin mode. Requires system administrator privileges.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get` → `session.site.id`.',
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: 'New display name for the site.',
+      },
+      {
+        name: 'content_url',
+        type: 'string',
+        required: false,
+        description: 'New URL subdomain for the site.',
+      },
+      {
+        name: 'state',
+        type: 'string',
+        required: false,
+        description: '`Active` or `Suspended`.',
+      },
+      {
+        name: 'storage_quota',
+        type: 'integer',
+        required: false,
+        description: 'Storage limit in MB. Use `-1` for unlimited.',
+      },
+      {
+        name: 'user_quota',
+        type: 'integer',
+        required: false,
+        description: 'Maximum number of users. Use `-1` for unlimited.',
+      },
+      {
+        name: 'admin_mode',
+        type: 'string',
+        required: false,
+        description: '`ContentAndUsers` or `ContentOnly`.',
+      },
+    ],
+  },
+
+  // ─── Workbooks ──────────────────────────────────────────────────────────────
+  {
+    name: 'tableau_workbooks_list',
+    description:
+      'List published workbooks on a Tableau site. Supports filtering (e.g., `name:eq:SalesReport`, `ownerName:eq:jane`), sorting (`name:asc`, `updatedAt:desc`), and pagination.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'filter',
+        type: 'string',
+        required: false,
+        description: 'Filter expression, e.g. `name:eq:SalesReport` or `ownerName:eq:jane`.',
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: 'Sort expression, e.g. `name:asc` or `updatedAt:desc`.',
+      },
+      {
+        name: 'page_number',
+        type: 'integer',
+        required: false,
+        description: 'Page number (starts at 1).',
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: 'Items per page (max 1000).',
+      },
+    ],
+  },
+  {
+    name: 'tableau_workbook_get',
+    description:
+      'Retrieve detailed information about a specific workbook: name, owner, project, tags, views, and data connections. Optionally include view count statistics.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'workbook_id',
+        type: 'string',
+        required: true,
+        description:
+          'Workbook LUID. Get it from `tableau_workbooks_list` → `workbooks.workbook[].id`.',
+      },
+      {
+        name: 'include_usage_statistics',
+        type: 'boolean',
+        required: false,
+        description: 'Set to `true` to include view count and high-water-mark statistics.',
+      },
+    ],
+  },
+  {
+    name: 'tableau_workbook_delete',
+    description:
+      'Permanently delete a workbook and all of its views from the Tableau site. This action cannot be undone.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'workbook_id',
+        type: 'string',
+        required: true,
+        description:
+          'Workbook LUID. Get it from `tableau_workbooks_list`. WARNING: This is permanent.',
+      },
+    ],
+  },
+  {
+    name: 'tableau_workbook_download',
+    description:
+      'Download a workbook as a `.twbx` file (Tableau Packaged Workbook). Returns binary file content. Use the Scalekit proxy (`actions.request`) to retrieve the file bytes.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'workbook_id',
+        type: 'string',
+        required: true,
+        description: 'Workbook LUID. Get it from `tableau_workbooks_list`.',
+      },
+    ],
+  },
+  {
+    name: 'tableau_workbook_refresh',
+    description:
+      'Trigger an on-demand extract refresh for a workbook. Returns a job ID. Poll `tableau_job_get` to check completion. Only works for workbooks with extract data sources.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'workbook_id',
+        type: 'string',
+        required: true,
+        description: 'Workbook LUID. Get it from `tableau_workbooks_list`.',
+      },
+      {
+        name: 'incremental_extract',
+        type: 'boolean',
+        required: false,
+        description: 'Set to `true` for incremental refresh. Default is full refresh.',
+      },
+    ],
+  },
+  {
+    name: 'tableau_workbook_connections_list',
+    description:
+      'List the data connections used by a workbook: connection type, server address, username, and whether the connection is embedded.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'workbook_id',
+        type: 'string',
+        required: true,
+        description: 'Workbook LUID. Get it from `tableau_workbooks_list`.',
+      },
+    ],
+  },
+
+  // ─── Views ──────────────────────────────────────────────────────────────────
+  {
+    name: 'tableau_views_list',
+    description:
+      'List all views (sheets and dashboards) across the entire site. Supports filtering, sorting, and pagination. Use `tableau_list_views` to scope to a single workbook.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'filter',
+        type: 'string',
+        required: false,
+        description: 'Filter expression, e.g. `name:eq:SalesDashboard`.',
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: 'Sort expression, e.g. `name:asc` or `viewCount:desc`.',
+      },
+      {
+        name: 'include_usage_statistics',
+        type: 'boolean',
+        required: false,
+        description: 'Set to `true` to include view count statistics.',
+      },
+      {
+        name: 'page_number',
+        type: 'integer',
+        required: false,
+        description: 'Page number (starts at 1).',
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: 'Items per page (max 1000).',
+      },
+    ],
+  },
+  {
+    name: 'tableau_list_views',
+    description:
+      "List all views (sheets and dashboards) within a specific workbook. Returns each view's LUID, name, content URL, and owner.",
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'workbook_id',
+        type: 'string',
+        required: true,
+        description: 'Workbook LUID. Get it from `tableau_workbooks_list`.',
+      },
+      {
+        name: 'include_usage_statistics',
+        type: 'boolean',
+        required: false,
+        description: 'Set to `true` to include view count for each view.',
+      },
+      {
+        name: 'filter',
+        type: 'string',
+        required: false,
+        description: 'Filter expression, e.g. `name:eq:Overview`.',
+      },
+      {
+        name: 'page_number',
+        type: 'integer',
+        required: false,
+        description: 'Page number (starts at 1).',
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: 'Items per page.',
+      },
+    ],
+  },
+  {
+    name: 'tableau_view_get',
+    description:
+      'Retrieve detailed information about a specific view: name, owner, workbook, content URL, tags, and creation date.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'view_id',
+        type: 'string',
+        required: true,
+        description:
+          'View LUID. Get it from `tableau_views_list` or `tableau_list_views` → `views.view[].id`.',
+      },
+      {
+        name: 'include_usage_statistics',
+        type: 'boolean',
+        required: false,
+        description: 'Set to `true` to include total view count.',
+      },
+    ],
+  },
+  {
+    name: 'tableau_get_view_image',
+    description:
+      'Export a view (sheet or dashboard) as a PNG image. Returns binary image content — use the Scalekit proxy (`actions.request`) to retrieve the bytes. Optionally set image resolution and apply filters.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'view_id',
+        type: 'string',
+        required: true,
+        description: 'View LUID. Get it from `tableau_views_list` or `tableau_list_views`.',
+      },
+      {
+        name: 'resolution',
+        type: 'string',
+        required: false,
+        description: '`high` for print-quality (192 DPI) or `standard` (96 DPI, default).',
+      },
+      {
+        name: 'max_age',
+        type: 'integer',
+        required: false,
+        description:
+          'Maximum age in minutes of a cached image to accept. Set to `0` for a fresh render.',
+      },
+      {
+        name: 'view_filters',
+        type: 'string',
+        required: false,
+        description: 'Tableau URL filter syntax to scope the image, e.g. `Region=West`.',
+      },
+    ],
+  },
+  {
+    name: 'tableau_view_pdf_export',
+    description:
+      'Export a view as a PDF file. Returns binary PDF content — use the Scalekit proxy (`actions.request`) to retrieve the bytes. Control paper size and orientation.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'view_id',
+        type: 'string',
+        required: true,
+        description: 'View LUID. Get it from `tableau_views_list` or `tableau_list_views`.',
+      },
+      {
+        name: 'page_type',
+        type: 'string',
+        required: false,
+        description: 'Paper size: `letter`, `a4`, `a3`, `legal`, `tabloid`, etc.',
+      },
+      {
+        name: 'orientation',
+        type: 'string',
+        required: false,
+        description: '`portrait` or `landscape`.',
+      },
+      {
+        name: 'max_age',
+        type: 'integer',
+        required: false,
+        description: 'Maximum age in minutes of a cached PDF. Set to `0` to force a fresh export.',
+      },
+    ],
+  },
+  {
+    name: 'tableau_view_crosstab_export',
+    description:
+      'Export the crosstab (summary) data from a view as an Excel `.xlsx` file. Returns binary content — use the Scalekit proxy (`actions.request`) to retrieve the bytes.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'view_id',
+        type: 'string',
+        required: true,
+        description: 'View LUID. Get it from `tableau_views_list` or `tableau_list_views`.',
+      },
+      {
+        name: 'max_age',
+        type: 'integer',
+        required: false,
+        description: 'Maximum age in minutes of a cached export. Set to `0` for a fresh export.',
+      },
+    ],
+  },
+  {
+    name: 'tableau_get_view_data',
+    description:
+      'Export the underlying summary data for a view as CSV text. Supports pagination and view-level filters. Useful for extracting structured data from a dashboard without downloading the full workbook.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'view_id',
+        type: 'string',
+        required: true,
+        description: 'View LUID. Get it from `tableau_views_list` or `tableau_list_views`.',
+      },
+      {
+        name: 'max_age',
+        type: 'integer',
+        required: false,
+        description: 'Maximum cache age in minutes. Set to `0` for fresh data.',
+      },
+      {
+        name: 'page_number',
+        type: 'integer',
+        required: false,
+        description: 'Page number for large data sets.',
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: 'Rows per page.',
+      },
+      {
+        name: 'view_filters',
+        type: 'string',
+        required: false,
+        description: 'Tableau URL filter syntax to scope the data, e.g. `Region=West`.',
+      },
+    ],
+  },
+
+  // ─── Data Sources ────────────────────────────────────────────────────────────
+  {
+    name: 'tableau_datasources_list',
+    description:
+      'List published data sources on a Tableau site. Supports filtering (e.g., `name:eq:SalesData`, `type:eq:excel`), sorting, and pagination.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'filter',
+        type: 'string',
+        required: false,
+        description: 'Filter expression, e.g. `name:eq:SalesData` or `type:eq:excel`.',
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: 'Sort expression, e.g. `name:asc` or `updatedAt:desc`.',
+      },
+      {
+        name: 'page_number',
+        type: 'integer',
+        required: false,
+        description: 'Page number (starts at 1).',
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: 'Items per page (max 1000).',
+      },
+    ],
+  },
+  {
+    name: 'tableau_datasource_get',
+    description:
+      'Retrieve detailed information about a specific published data source: name, type, owner, project, tags, and connection details.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'datasource_id',
+        type: 'string',
+        required: true,
+        description:
+          'Data source LUID. Get it from `tableau_datasources_list` → `datasources.datasource[].id`.',
+      },
+    ],
+  },
+  {
+    name: 'tableau_datasource_refresh',
+    description:
+      'Trigger an on-demand extract refresh for a published data source. Returns a job object with a `job.id`. Poll `tableau_job_get` to track completion. Only works for data sources with an extract.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'datasource_id',
+        type: 'string',
+        required: true,
+        description: 'Data source LUID. Get it from `tableau_datasources_list`.',
+      },
+      {
+        name: 'incremental_extract',
+        type: 'boolean',
+        required: false,
+        description: 'Set to `true` for incremental refresh. Default is full refresh.',
+      },
+    ],
+  },
+  {
+    name: 'tableau_datasource_download',
+    description:
+      'Download a published data source as a `.tdsx` file (Tableau Packaged Data Source). Returns binary file content — use the Scalekit proxy (`actions.request`) to retrieve the bytes.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'datasource_id',
+        type: 'string',
+        required: true,
+        description: 'Data source LUID. Get it from `tableau_datasources_list`.',
+      },
+    ],
+  },
+  {
+    name: 'tableau_datasource_delete',
+    description:
+      'Permanently delete a published data source from the Tableau site. This action cannot be undone and will break any workbooks that depend on this data source.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'datasource_id',
+        type: 'string',
+        required: true,
+        description:
+          'Data source LUID. Get it from `tableau_datasources_list`. WARNING: This is permanent.',
+      },
+    ],
+  },
+
+  // ─── Projects ────────────────────────────────────────────────────────────────
+  {
+    name: 'tableau_projects_list',
+    description:
+      'List projects on a Tableau site. Projects organize workbooks and data sources. Supports filtering (e.g., `name:eq:Marketing`), sorting, and pagination.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'filter',
+        type: 'string',
+        required: false,
+        description: 'Filter expression, e.g. `name:eq:Marketing`.',
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: 'Sort expression, e.g. `name:asc`.',
+      },
+      {
+        name: 'page_number',
+        type: 'integer',
+        required: false,
+        description: 'Page number (starts at 1).',
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: 'Items per page (max 1000).',
+      },
+    ],
+  },
+  {
+    name: 'tableau_project_create',
+    description:
+      'Create a new project on a Tableau site. Optionally nest it under a parent project and set content permission behavior.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: 'Display name for the new project.',
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: 'Optional description.',
+      },
+      {
+        name: 'parent_project_id',
+        type: 'string',
+        required: false,
+        description:
+          'Parent project LUID to create a sub-project. Get it from `tableau_projects_list`.',
+      },
+      {
+        name: 'content_permissions',
+        type: 'string',
+        required: false,
+        description: '`ManagedByOwner` (default) or `LockedToProject`.',
+      },
+    ],
+  },
+  {
+    name: 'tableau_project_update',
+    description:
+      "Update a project's name, description, parent project, or content permission behavior.",
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'project_id',
+        type: 'string',
+        required: true,
+        description: 'Project LUID. Get it from `tableau_projects_list` → `projects.project[].id`.',
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: 'New display name.',
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: 'New description.',
+      },
+      {
+        name: 'parent_project_id',
+        type: 'string',
+        required: false,
+        description: 'New parent project LUID to move the project.',
+      },
+      {
+        name: 'content_permissions',
+        type: 'string',
+        required: false,
+        description: '`ManagedByOwner` or `LockedToProject`.',
+      },
+    ],
+  },
+  {
+    name: 'tableau_project_delete',
+    description:
+      'Permanently delete a project from the Tableau site. Content within the project is moved to the default project (not deleted). This action cannot be undone.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'project_id',
+        type: 'string',
+        required: true,
+        description:
+          'Project LUID. Get it from `tableau_projects_list`. WARNING: This is permanent.',
+      },
+    ],
+  },
+
+  // ─── Users ───────────────────────────────────────────────────────────────────
+  {
+    name: 'tableau_users_list',
+    description:
+      'List users on a Tableau site. Supports filtering (e.g., `siteRole:eq:SiteAdministratorCreator`), sorting (`name:asc`, `lastLogin:desc`), and pagination.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'filter',
+        type: 'string',
+        required: false,
+        description: 'Filter expression, e.g. `siteRole:eq:Viewer` or `name:eq:jane`.',
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: 'Sort expression, e.g. `name:asc` or `lastLogin:desc`.',
+      },
+      {
+        name: 'page_number',
+        type: 'integer',
+        required: false,
+        description: 'Page number (starts at 1).',
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: 'Items per page (max 1000).',
+      },
+    ],
+  },
+  {
+    name: 'tableau_user_get',
+    description:
+      'Retrieve information about a specific user: name, email, site role, last login, and authentication type.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: 'User LUID. Get it from `tableau_users_list` → `users.user[].id`.',
+      },
+    ],
+  },
+  {
+    name: 'tableau_user_add_to_site',
+    description:
+      'Add a user to the Tableau site with a specified role. If the user account does not exist, it is created. The `site_role` field controls what the user can do.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: 'Username or email address of the user to add.',
+      },
+      {
+        name: 'site_role',
+        type: 'string',
+        required: true,
+        description:
+          'Role to assign: `SiteAdministratorCreator`, `SiteAdministratorExplorer`, `Creator`, `ExplorerCanPublish`, `Explorer`, `Viewer`, or `Unlicensed`.',
+      },
+      {
+        name: 'auth_setting',
+        type: 'string',
+        required: false,
+        description: 'Authentication type: `ServerDefault`, `SAML`, or `OpenIDConnect`.',
+      },
+    ],
+  },
+  {
+    name: 'tableau_user_remove_from_site',
+    description:
+      "Remove a user from the Tableau site. The user's content (workbooks, data sources) is transferred to the site admin. The user account itself is not deleted from the server.",
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: 'User LUID. Get it from `tableau_users_list`.',
+      },
+    ],
+  },
+
+  // ─── Groups ──────────────────────────────────────────────────────────────────
+  {
+    name: 'tableau_groups_list',
+    description:
+      'List groups on a Tableau site. Groups simplify permission management — you assign permissions once to a group and they apply to all members.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'filter',
+        type: 'string',
+        required: false,
+        description: 'Filter expression, e.g. `name:eq:Analytics`.',
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: 'Sort expression, e.g. `name:asc`.',
+      },
+      {
+        name: 'page_number',
+        type: 'integer',
+        required: false,
+        description: 'Page number (starts at 1).',
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: 'Items per page (max 1000).',
+      },
+    ],
+  },
+  {
+    name: 'tableau_group_create',
+    description:
+      'Create a new local group on a Tableau site. Optionally set a minimum site role for all group members.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: 'Display name for the new group.',
+      },
+      {
+        name: 'minimum_site_role',
+        type: 'string',
+        required: false,
+        description: 'Minimum site role for members: `Viewer`, `Explorer`, `Creator`, etc.',
+      },
+    ],
+  },
+  {
+    name: 'tableau_group_add_user',
+    description:
+      'Add a user to a group on a Tableau site. The user must already be a site member. Use this to manage group-based permissions.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'group_id',
+        type: 'string',
+        required: true,
+        description: 'Group LUID. Get it from `tableau_groups_list` → `groups.group[].id`.',
+      },
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: 'User LUID. Get it from `tableau_users_list` → `users.user[].id`.',
+      },
+    ],
+  },
+  {
+    name: 'tableau_group_remove_user',
+    description:
+      'Remove a user from a group. The user remains a site member — only group membership is changed.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'group_id',
+        type: 'string',
+        required: true,
+        description: 'Group LUID. Get it from `tableau_groups_list`.',
+      },
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: 'User LUID. Get it from `tableau_users_list`.',
+      },
+    ],
+  },
+
+  // ─── Jobs ────────────────────────────────────────────────────────────────────
+  {
+    name: 'tableau_jobs_list',
+    description:
+      'List background jobs on a Tableau site. Jobs include extract refreshes, data source imports, and workbook publishes. Filter by status: `InProgress`, `Success`, `Failed`, or `Cancelled`.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'filter',
+        type: 'string',
+        required: false,
+        description: 'Filter expression, e.g. `status:eq:Failed`.',
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: 'Sort expression, e.g. `createdAt:desc`.',
+      },
+      {
+        name: 'page_number',
+        type: 'integer',
+        required: false,
+        description: 'Page number (starts at 1).',
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: 'Items per page (max 1000).',
+      },
+    ],
+  },
+  {
+    name: 'tableau_job_get',
+    description:
+      'Retrieve the current status and details of a background job: type, status (`InProgress`, `Success`, `Failed`, `Cancelled`), progress percentage, and error details if failed. Use this to poll after triggering a refresh.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'job_id',
+        type: 'string',
+        required: true,
+        description:
+          'Job LUID returned from async operations like `tableau_datasource_refresh` → `job.id`.',
+      },
+    ],
+  },
+  {
+    name: 'tableau_job_cancel',
+    description:
+      'Cancel a background job that is currently queued or in progress. Already completed, failed, or cancelled jobs cannot be cancelled.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'job_id',
+        type: 'string',
+        required: true,
+        description:
+          'Job LUID. Get it from `tableau_jobs_list` or from a refresh response. Only queued/in-progress jobs can be cancelled.',
+      },
+    ],
+  },
+
+  // ─── Schedules ───────────────────────────────────────────────────────────────
+  {
+    name: 'tableau_schedules_list',
+    description:
+      'List extract refresh schedules defined on a Tableau Server. Returns schedule name, frequency, and next run time. Available on Tableau Server only (not Tableau Cloud).',
+    params: [
+      {
+        name: 'page_number',
+        type: 'integer',
+        required: false,
+        description: 'Page number (starts at 1).',
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: 'Items per page (max 1000).',
+      },
+    ],
+  },
+
+  // ─── VizQL Query (Tableau Cloud 2024.1+) ────────────────────────────────────
+  {
+    name: 'tableau_query_view',
+    description:
+      'Run a structured query against a published data source using the Tableau VizQL Data Service API. Returns JSON data — select fields, apply filters, sort, and limit rows. Requires Tableau Cloud (2024.1+) or Tableau Server (2023.1+) with the VizQL Data Service enabled.',
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: 'Site LUID. Get it from `tableau_session_get`.',
+      },
+      {
+        name: 'datasource_luid',
+        type: 'string',
+        required: true,
+        description: 'Data source LUID. Get it from `tableau_datasources_list`.',
+      },
+      {
+        name: 'fields',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of field objects to select, e.g. `[{"fieldCaption": "Region"}, {"fieldCaption": "Sales", "function": "SUM"}]`.',
+      },
+      {
+        name: 'filters',
+        type: 'string',
+        required: false,
+        description:
+          'JSON array of filter objects, e.g. `[{"field": {"fieldCaption": "Region"}, "filterType": "SET", "values": ["West"]}]`.',
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description:
+          'JSON array of sort criteria, e.g. `[{"field": {"fieldCaption": "Sales"}, "sortDirection": "DESC"}]`.',
+      },
+      {
+        name: 'max_rows',
+        type: 'integer',
+        required: false,
+        description: 'Maximum rows to return (1–10000). Default is 1000.',
+      },
+    ],
+  },
+]

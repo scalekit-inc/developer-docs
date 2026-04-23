@@ -1,0 +1,82 @@
+---
+title: Tableau
+tableOfContents: true
+connectorIcon: https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/tableau.svg
+connectorAuthType: API Key
+connectorCategories: [analytics, business_intelligence, data_visualization]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/tableau'
+import { SetupTableauSection } from '@components/templates'
+import { UsageTableauSection } from '@components/templates'
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Browse workbooks and views** — List, search, and retrieve detailed metadata for workbooks, views (sheets and dashboards), and data sources published on a Tableau site
+- **Export visualizations** — Download dashboards as PNG images, PDF documents, or Excel crosstab files; download full workbooks as `.twbx` files
+- **Query underlying data** — Export view summary data as CSV, or run structured queries against published data sources using the VizQL Data Service API (Tableau Cloud 2024.1+)
+- **Trigger and monitor refreshes** — Kick off on-demand extract refreshes for workbooks and data sources, then poll the job status until completion
+- **Manage the site** — Create and update projects; add, update, and remove users and groups; update site settings
+
+## Authentication
+
+Tableau uses **session token** authentication. Your users sign in once using a Personal Access Token (PAT) or username/password, receive a 120-minute session token, and Scalekit stores that token securely. Your agent code never handles the token directly — Scalekit injects it as the `X-Tableau-Auth` header on every request.
+
+**How session tokens work:**
+
+1. Call `tableau_auth_signin` (or the Tableau `/auth/signin` endpoint directly) with a PAT or credentials
+2. Receive a session token valid for **120 minutes** (Tableau Cloud) or **240 minutes** (Tableau Server)
+3. Store the token as `api_key` in the Scalekit connected account
+4. Call any tool — Scalekit injects the token automatically
+5. Before expiry, repeat from step 1 to get a fresh token
+
+<details>
+<summary>Set up the connector</summary>
+
+<SetupTableauSection />
+
+</details>
+
+<details>
+<summary>Code examples</summary>
+
+<UsageTableauSection />
+
+</details>
+
+## Getting resource IDs
+
+Most Tableau tools require a `site_id` plus one or more resource LUIDs. Always fetch them from the API — never guess or hard-code them.
+
+| Resource | Tool to get ID | Field in response |
+|----------|---------------|-------------------|
+| Site ID | `tableau_session_get` | `session.site.id` |
+| Workbook ID | `tableau_workbooks_list` | `workbooks.workbook[].id` |
+| View ID | `tableau_views_list` or `tableau_list_views` | `views.view[].id` |
+| Data Source ID | `tableau_datasources_list` | `datasources.datasource[].id` |
+| Project ID | `tableau_projects_list` | `projects.project[].id` |
+| User ID | `tableau_users_list` | `users.user[].id` |
+| Group ID | `tableau_groups_list` | `groups.group[].id` |
+| Job ID | `tableau_datasource_refresh` or `tableau_workbook_refresh` response | `job.id` |
+
+**Recommended start sequence for any agent session:**
+
+```
+1. tableau_session_get          → cache site_id
+2. tableau_workbooks_list       → discover workbooks
+3. tableau_list_views           → discover views within a workbook
+4. tableau_datasources_list     → discover data sources
+```
+
+## Tool list
+
+<ToolList tools={tools} />
