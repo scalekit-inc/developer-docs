@@ -80,7 +80,7 @@ This is a one-time setup per Scalekit environment. It creates the GitHub OAuth a
 1. Go to [app.scalekit.com](https://app.scalekit.com) → **Agent Auth** → **Connectors**
 2. Click **Add connector** and select **GitHub**
 3. Follow the setup — Scalekit creates and manages the GitHub OAuth app for you
-4. Note the **connection name** assigned (e.g. `github-qkHFhMip`) — you'll set this as `GITHUB_CONNECTION_NAME` in your environment
+4. Note the **connection name** assigned — Scalekit generates a unique name per environment (e.g. `github-abc12345`). Set it as `GITHUB_CONNECTION_NAME`. Every Scalekit environment gets a different name, so do not copy one from a tutorial or another project.
 </Steps>
 
 ## 2. Create the project
@@ -134,8 +134,8 @@ SCALEKIT_ENVIRONMENT_URL=https://your-env.scalekit.com
 SCALEKIT_CLIENT_ID=your-scalekit-client-id
 SCALEKIT_CLIENT_SECRET=your-scalekit-client-secret
 
-# Connection name from Step 1
-GITHUB_CONNECTION_NAME=github-qkHFhMip
+# Connection name from Step 1 — unique to your Scalekit environment
+GITHUB_CONNECTION_NAME=your-github-connection-name
 ```
 
 Get your Scalekit credentials at **app.scalekit.com → Settings → API Credentials**.
@@ -172,7 +172,8 @@ export const scalekit = new Proxy({} as ScalekitClient, {
   },
 });
 
-const GITHUB_CONNECTION_NAME = process.env.GITHUB_CONNECTION_NAME ?? "github-qkHFhMip";
+const GITHUB_CONNECTION_NAME = process.env.GITHUB_CONNECTION_NAME;
+if (!GITHUB_CONNECTION_NAME) throw new Error("GITHUB_CONNECTION_NAME is required — copy from Scalekit Dashboard → Agent Auth → Connectors.");
 
 /**
  * Execute a pre-built GitHub tool via Scalekit on behalf of a user.
@@ -209,8 +210,8 @@ export async function getGitHubAuthLink(identifier: string): Promise<string> {
 }
 ```
 
-<Aside type="caution" title="Use the full connection name">
-The `connector` field in `executeTool` must be the full connection name from the Scalekit Dashboard (e.g. `github-qkHFhMip`), not the generic provider string `"github"`. Store it in `GITHUB_CONNECTION_NAME` and reference that variable everywhere.
+<Aside type="caution" title="Connection name is unique to your environment">
+The `connector` field in `executeTool` must be the exact connection name from your Scalekit Dashboard — not the generic string `"github"` and not a name copied from a tutorial. Scalekit generates a unique name per environment (e.g. `github-abc12345`). Copy yours from **Agent Auth → Connectors**, set it as `GITHUB_CONNECTION_NAME`, and reference that variable everywhere.
 </Aside>
 
 ## 5. Write the agent tasks
@@ -543,8 +544,8 @@ curl -X POST https://your-service.onrender.com/api/summarize \
 <summary>Wrong connection name in executeTool</summary>
 
 - **Symptom**: `[not_found] connection not found for the given key`
-- **Cause**: The `connector` field in `executeTool` is set to the generic provider type (e.g. `"github"`) instead of the actual connection name from the Scalekit Dashboard
-- **Fix**: Set `connector` to the full connection name (e.g. `github-qkHFhMip`). Store it in `GITHUB_CONNECTION_NAME` and reference that variable everywhere.
+- **Cause**: The `connector` field in `executeTool` is set to the generic provider string `"github"` instead of the actual connection name, or is set to a connection name copied from a tutorial that belongs to a different Scalekit environment.
+- **Fix**: Copy your connection name from **Scalekit Dashboard → Agent Auth → Connectors**. It is unique to your environment (e.g. `github-abc12345`). Set it as `GITHUB_CONNECTION_NAME` and reference that variable everywhere.
 
 </details>
 
