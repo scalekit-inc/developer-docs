@@ -394,6 +394,10 @@ export function consumePendingState(entry: SessionEntry, incoming: string): bool
 export function markConnected(entry: SessionEntry): void {
   entry.connectedAt = Date.now();
 }
+
+export function isConnected(entry: SessionEntry): boolean {
+  return entry.connectedAt !== undefined;
+}
 ```
 
 <Aside type="caution" title="Never trust query params for identity">
@@ -607,6 +611,7 @@ export function renderHomePage({ connected }: { connected: boolean }): string {
       <input id="sum-owner" />
       <input id="sum-repo" />
       <button id="sum-btn" onclick="summarize()">Summarize</button>
+      <pre id="summary-output"></pre>
       <script>
         async function connectGitHub() {
           const res = await fetch('/api/auth', { method: 'POST' });
@@ -617,11 +622,22 @@ export function renderHomePage({ connected }: { connected: boolean }): string {
         async function summarize() {
           const owner = document.getElementById('sum-owner').value.trim();
           const repo = document.getElementById('sum-repo').value.trim();
-          await fetch('/api/summarize', {
+          const output = document.getElementById('summary-output');
+          output.textContent = 'Loading summary...';
+
+          const res = await fetch('/api/summarize', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ owner, repo }),
           });
+          const data = await res.json();
+
+          if (!res.ok) {
+            output.textContent = data.error ?? 'Request failed';
+            return;
+          }
+
+          output.textContent = data.summary;
         }
       </script>
     </body>
