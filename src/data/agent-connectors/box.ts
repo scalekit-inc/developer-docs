@@ -390,6 +390,24 @@ export const tools: Tool[] = [
     params: [{ name: 'file_id', type: 'string', required: true, description: `ID of the file.` }],
   },
   {
+    name: 'box_file_representations_get',
+    description: `Retrieves available representations for a file, such as PDFs, extracted text, or image thumbnails. Box generates representations on demand — poll until status is success before downloading.`,
+    params: [
+      {
+        name: 'file_id',
+        type: 'string',
+        required: true,
+        description: `ID of the file. Get it from box_folder_items_list.`,
+      },
+      {
+        name: 'x_rep_hints',
+        type: 'string',
+        required: true,
+        description: `Representation formats to request, e.g. [pdf][extracted_text] or [jpg?dimensions=320x320]. Multiple formats can be combined.`,
+      },
+    ],
+  },
+  {
     name: 'box_file_thumbnail_get',
     description: `Retrieves a thumbnail image for a file.`,
     params: [
