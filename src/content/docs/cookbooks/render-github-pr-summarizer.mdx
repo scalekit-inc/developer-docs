@@ -79,9 +79,9 @@ This recipe uses Scalekit's connected-account verification callback. Without tha
 <Steps>
 1. Open the GitHub connector you created in the previous step.
 2. In the Scalekit Dashboard, go to **AgentKit > Settings > User verification** and set it to **Custom user verification**.
-3. Set `PUBLIC_BASE_URL` to `http://localhost:3000` while developing locally.
-4. Set `PUBLIC_BASE_URL` to your Render service URL after deployment.
-5. The app sends `${PUBLIC_BASE_URL}/user/verify` as `userVerifyUrl` when it generates the GitHub auth link.
+3. Set `PUBLIC_BASE_URL` if you want to pin the callback origin explicitly.
+4. If `PUBLIC_BASE_URL` is unset, the app falls back to the incoming request origin.
+5. When `PUBLIC_BASE_URL` is set, the app sends `${PUBLIC_BASE_URL}/user/verify` as `userVerifyUrl`.
 </Steps>
 
 ## 3. Create the project
@@ -125,6 +125,7 @@ cp .env.example .env
 
 ```bash title=".env"
 PORT=3000
+# Optional callback-origin override. If omitted, the app uses the incoming request origin.
 PUBLIC_BASE_URL=http://localhost:3000
 SESSION_SECRET=replace-with-openssl-rand-hex-32
 
@@ -144,7 +145,7 @@ Generate `SESSION_SECRET` with:
 openssl rand -hex 32
 ```
 
-`PUBLIC_BASE_URL` must match the public origin where the app is running because the server uses it to construct `userVerifyUrl`.
+If `PUBLIC_BASE_URL` is set, it must match the public origin where the app is running because the server uses it to construct `userVerifyUrl`. If it is omitted, the app falls back to the incoming request origin.
 
 <Aside type="note" title="Any OpenAI-compatible API works">
 The sample uses the `openai` npm package with a configurable `baseURL`. The `LITELLM_*` variable names are only a convention. You can point them at LiteLLM, OpenAI, Azure OpenAI, Ollama, or any other OpenAI-compatible endpoint.
@@ -203,7 +204,13 @@ export async function getGitHubAuthLink(
     userVerifyUrl: opts.userVerifyUrl,
   });
 
-  return res.link ?? "";
+  if (!res.link) {
+    throw new Error(
+      `Scalekit did not return a GitHub authorization link for '${GITHUB_CONNECTION_NAME}' and identifier '${identifier}'`,
+    );
+  }
+
+  return res.link;
 }
 
 export async function verifyUser(params: {
@@ -318,7 +325,11 @@ export function requireSession(req: Request, res: Response) {
       .flatMap((pair) => {
         const eq = pair.indexOf("=");
         if (eq < 0) return [];
-        return [[pair.slice(0, eq).trim(), decodeURIComponent(pair.slice(eq + 1).trim())]];
+        try {
+          return [[pair.slice(0, eq).trim(), decodeURIComponent(pair.slice(eq + 1).trim())]];
+        } catch {
+          return [];
+        }
       }),
   );
 
@@ -334,7 +345,12 @@ export function requireSession(req: Request, res: Response) {
 
   // The cookie only carries a random opaque session id. HMAC signing is enough
   // to detect tampering because the sensitive identifier stays server-side.
-  const secure = process.env.NODE_ENV === "production";
+  const protoHeader = req.get("x-forwarded-proto");
+  const requestIsSecure = req.secure || protoHeader?.split(",")[0]?.trim() === "https";
+  const secure =
+    process.env.NODE_ENV === "production" ||
+    process.env.PUBLIC_BASE_URL?.startsWith("https://") === true ||
+    requestIsSecure;
   const parts = [
     `${COOKIE_NAME}=${sign(sessionId)}`,
     "HttpOnly",
@@ -479,15 +495,29 @@ import {
   setPendingState,
 } from "./session.js";
 import { renderHomePage } from "./views.js";
+import type { Request } from "express";
 
-function getPublicBaseUrl(): string {
+function getConfiguredPublicBaseUrl(): string | null {
   const value = process.env.PUBLIC_BASE_URL;
-  if (!value) throw new Error("PUBLIC_BASE_URL is required");
-  return value.replace(/\/$/, "");
+  return value ? value.replace(/\/$/, "") : null;
+}
+
+function getRequestOrigin(req: Request): string {
+  const configured = getConfiguredPublicBaseUrl();
+  if (configured) return configured;
+
+  const protoHeader = req.get("x-forwarded-proto");
+  const proto = protoHeader?.split(",")[0]?.trim() || req.protocol || "http";
+  const host = req.get("x-forwarded-host") || req.get("host");
+  if (!host) {
+    throw new Error("Could not determine the public origin for this request");
+  }
+  return `${proto}://${host}`;
 }
 
 export function startServer(): void {
   const app = express();
+  app.set("trust proxy", true);
   app.use(express.json());
 
   app.get("/", (req, res) => {
@@ -505,7 +535,7 @@ export function startServer(): void {
     const result = await setupGitHubAuthTask({
       identifier,
       state,
-      userVerifyUrl: `${getPublicBaseUrl()}/user/verify`,
+      userVerifyUrl: `${getRequestOrigin(req)}/user/verify`,
     });
 
     res.json({ authLink: result.authLink });
@@ -632,9 +662,9 @@ Set these environment variables in Render:
 - `SESSION_SECRET`
 - `PUBLIC_BASE_URL`
 
-Set `PUBLIC_BASE_URL` to the deployed service origin, for example `https://your-service.onrender.com`.
+When `PUBLIC_BASE_URL` is set, use the deployed service origin, for example `https://your-service.onrender.com`.
 
-After deployment, set `PUBLIC_BASE_URL` to the exact service origin so the app generates `https://your-service.onrender.com/user/verify` as `userVerifyUrl`.
+If `PUBLIC_BASE_URL` is omitted, the app falls back to the incoming request origin for the OAuth callback URL. When you deploy from the included `render.yaml`, Render auto-generates `SESSION_SECRET` for you.
 
 ## Production notes
 
