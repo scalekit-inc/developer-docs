@@ -1,12 +1,12 @@
 ---
-title: 'Summarize GitHub PRs with Render Workflows'
-description: "Build a Render Workflow that summarizes top open PRs per user with Scalekit Agent Auth and each team member's own GitHub OAuth token."
+title: 'Build a multi-user GitHub PR summarizer agent'
+description: "Build a GitHub PR summarizer agent where every team member connects their own GitHub account once — Scalekit's token vault handles per-user OAuth so the same deployed service works for everyone."
 date: 2026-04-11
-tags: ['Agent auth', 'GitHub', 'Render']
+tags: ['Agent auth', 'GitHub']
 sidebar:
-  label: 'PR summarizer (Render)'
+  label: 'GitHub PR summarizer'
 excerpt: >
-  As AI agents raise the velocity of code changes, the volume of open PRs on any team keeps growing. This recipe builds a Render Workflow that finds the five most-discussed open PRs in a repository, reads their diffs and comment threads, and generates a plain-language paragraph per PR — written for a team lead or manager. Each team member runs the same workflow with their own user ID; Scalekit's token vault handles per-user GitHub OAuth so the agent acts as the right person every time.
+  As AI agents raise the velocity of code changes, the volume of open PRs on any team keeps growing. This recipe builds a GitHub PR summarizer agent that finds the five most-discussed open PRs in a repository, reads their diffs and comment threads, and generates a plain-language paragraph per PR — written for a team lead or manager. Each team member uses the same deployed service with their own user ID; Scalekit's token vault handles per-user GitHub OAuth so the agent acts as the right person every time.
 featured: false
 authors:
   - name: 'Saif'
@@ -19,16 +19,16 @@ import { Aside, Steps, TabItem, Tabs } from '@astrojs/starlight/components';
 
 Every engineering team has open PRs that sit in review longer than they should. Before a standup, someone has to open GitHub, scan the list, read comments, and figure out what's actually blocking. This recipe automates that briefing.
 
-The workflow finds the five most-discussed open PRs in any repository, reads the raw code diff and comment thread for each one, and calls Claude to write one paragraph per PR in plain language — covering what the change does, how much review activity it has, and whether it looks close to merging.
+The agent finds the five most-discussed open PRs in any repository, reads the raw code diff and comment thread for each one, and calls Claude to write one paragraph per PR in plain language — covering what the change does, how much review activity it has, and whether it looks close to merging.
 
-**What makes it multi-user:** every team member runs the same deployed workflow with their own `userId`. Scalekit's token vault stores a separate GitHub OAuth token per user and injects the right one automatically. The agent acts as each person — not a shared service account.
+**What makes it multi-user:** every team member uses the same deployed service with their own `userId`. Scalekit's token vault stores a separate GitHub OAuth token per user and injects the right one automatically. The agent acts as each person — not a shared service account.
 
 **What this recipe covers:**
 
 - Setting up the Scalekit GitHub connector (one-time, per environment)
-- Writing four durable tasks with the Render Workflows SDK: list PRs, fetch details, generate summaries, root orchestrator
+- Writing four durable tasks: list PRs, fetch details, generate summaries, root orchestrator
 - Connecting each user's GitHub account via a one-time OAuth flow
-- Running locally and triggering the deployed workflow via CLI
+- Running locally via the web UI and deploying to Render as a web service
 
 The complete source is available in the [render-ai-agent-deploykit](https://github.com/scalekit-developers/render-ai-agent-deploykit) repository.
 
@@ -45,7 +45,7 @@ shape: sequence_diagram
   style.fill: "#dbeafe"
   style.font-size: 14
 }
-"Render Workflow": {
+"PR Summarizer": {
   style.fill: "#dcfce7"
   style.font-size: 14
 }
@@ -62,15 +62,15 @@ shape: sequence_diagram
   style.font-size: 14
 }
 
-"Team member" -> "Render Workflow": trigger summarizePRs\n(userId, owner, repo)
-"Render Workflow" -> "Scalekit": list open PRs for userId
+"Team member" -> "PR Summarizer": POST /api/summarize\n(userId, owner, repo)
+"PR Summarizer" -> "Scalekit": list open PRs for userId
 "Scalekit" -> "GitHub": fetch PRs with user's OAuth token\n+ diffs & comments
-"GitHub" -> "Render Workflow": top 5 PRs, diffs, threads
-"Render Workflow" -> "Claude": summarize 5 PRs
+"GitHub" -> "PR Summarizer": top 5 PRs, diffs, threads
+"PR Summarizer" -> "Claude": summarize 5 PRs
 "Claude" -> "Team member": plain-language summary
 ```
 
-> Each team member connects their GitHub account once via `setupGitHubAuth`. Scalekit stores the token — at runtime it's injected automatically based on `userId`.
+> Each team member connects their GitHub account once via the **Connect GitHub** form. Scalekit stores the token — at runtime it's injected automatically based on `userId`.
 
 ## 1. Set up the Scalekit GitHub connector
 
@@ -88,8 +88,8 @@ This is a one-time setup per Scalekit environment. It creates the GitHub OAuth a
 ```bash title="Terminal"
 mkdir render-pr-summarizer && cd render-pr-summarizer
 npm init -y    # or: pnpm init
-npm install @renderinc/sdk @scalekit-sdk/node openai dotenv
-npm install -D typescript tsx @types/node
+npm install @renderinc/sdk @scalekit-sdk/node openai dotenv express
+npm install -D typescript tsx @types/node @types/express
 ```
 
 ```json title="tsconfig.json"
@@ -208,12 +208,11 @@ export async function getGitHubAuthLink(identifier: string): Promise<string> {
 The `connector` field in `executeTool` must be the full connection name from the Scalekit Dashboard (e.g. `github-qkHFhMip`), not the generic provider string `"github"`. Store it in `GITHUB_CONNECTION_NAME` and reference that variable everywhere.
 </Aside>
 
-## 5. Write the workflow tasks
+## 5. Write the agent tasks
 
-Render Workflows are built from `task()` functions. Each task is independently retried, tracked, and visible in the Render Dashboard.
+The agent is built from `task()` functions. Each task is independently retried and tracked — Render's SDK handles orchestration.
 
-```typescript title="src/main.ts"
-import "dotenv/config";
+```typescript title="src/tasks.ts"
 import { task } from "@renderinc/sdk/workflows";
 import OpenAI from "openai";
 import { githubTool, getGitHubAuthLink } from "./scalekit.js";
@@ -229,7 +228,7 @@ interface PRDetail {
 
 `executeTool` with `github_pull_requests_list` returns `{ array: [...] }` — Scalekit wraps array responses in an envelope. The code handles all known shapes gracefully.
 
-```typescript title="src/main.ts"
+```typescript title="src/tasks.ts"
 const fetchOpenPRs = task(
   { name: "fetchOpenPRs", retry: { maxRetries: 3, waitDurationMs: 1000 } },
   async function fetchOpenPRs(userId: string, owner: string, repo: string) {
@@ -264,7 +263,7 @@ const fetchOpenPRs = task(
 
 GitHub's public API is called directly for the diff (`Accept: application/vnd.github.diff`) and the issue comments list. Diffs are truncated to 3000 characters to keep LLM context manageable. Both requests fire in parallel per PR.
 
-```typescript title="src/main.ts"
+```typescript title="src/tasks.ts"
 const fetchPRDetails = task(
   { name: "fetchPRDetails", retry: { maxRetries: 3, waitDurationMs: 1000 } },
   async function fetchPRDetails(
@@ -296,7 +295,7 @@ const fetchPRDetails = task(
 
 A single LLM call processes all five PRs. The `openai` package points to LiteLLM via `LITELLM_BASE_URL`, which routes to Claude.
 
-```typescript title="src/main.ts"
+```typescript title="src/tasks.ts"
 const generateSummary = task(
   { name: "generateSummary", retry: { maxRetries: 3, waitDurationMs: 2000 } },
   async function generateSummary(prs: PRDetail[], owner: string, repo: string): Promise<string> {
@@ -350,8 +349,8 @@ const generateSummary = task(
 
 `fetchPRDetails` calls for all five PRs fire in parallel with `Promise.all`.
 
-```typescript title="src/main.ts"
-task(
+```typescript title="src/tasks.ts"
+export const summarizePRsTask = task(
   { name: "summarizePRs", timeoutSeconds: 120 },
   async function summarizePRs(input: PRSummaryInput) {
     const { userId, owner, repo } = input;
@@ -380,14 +379,13 @@ task(
 
 ## 6. Add the one-time auth setup task
 
-Each team member runs this once to connect their GitHub account. The task prints an authorization URL; the user opens it in a browser, completes OAuth, and Scalekit stores the token.
+Each team member runs this once to connect their GitHub account. The task returns an authorization URL; the user opens it in a browser, completes OAuth, and Scalekit stores the token.
 
-```typescript title="src/main.ts"
-task(
+```typescript title="src/tasks.ts"
+export const setupGitHubAuthTask = task(
   { name: "setupGitHubAuth" },
   async function setupGitHubAuth(userId: string) {
     const link = await getGitHubAuthLink(userId);
-    console.log(`[setupGitHubAuth] Auth link: ${link}`);
     return {
       userId,
       authLink: link,
@@ -397,27 +395,87 @@ task(
 );
 ```
 
-## 7. Run locally
+## 7. Add the HTTP server
 
-**Terminal 1 — start the workflow server**
+The agent exposes two endpoints: `POST /api/auth` to get a GitHub OAuth link and `POST /api/summarize` to run the summarizer. A browser UI at `/` wraps both.
 
-```bash title="Terminal"
-render workflows dev -- npm run dev
-# or with pnpm:
-render workflows dev -- pnpm dev
+```typescript title="src/server.ts"
+import express from "express";
+import { setupGitHubAuthTask, summarizePRsTask } from "./tasks.js";
+
+export function startServer(): void {
+  const app = express();
+  const PORT = parseInt(process.env.PORT ?? "3000", 10);
+
+  app.use(express.json());
+
+  app.get("/", (_req, res) => {
+    // serve your HTML UI here
+    res.type("html").send("<h1>PR Summarizer</h1>");
+  });
+
+  app.post("/api/auth", async (req, res) => {
+    const { userId } = req.body as { userId?: string };
+    if (!userId) { res.status(400).json({ error: "userId is required" }); return; }
+    const result = await setupGitHubAuthTask(userId);
+    res.json(result);
+  });
+
+  app.post("/api/summarize", async (req, res) => {
+    const { userId, owner, repo } = req.body as { userId?: string; owner?: string; repo?: string };
+    if (!userId || !owner || !repo) {
+      res.status(400).json({ error: "userId, owner, and repo are required" });
+      return;
+    }
+    req.setTimeout(150_000);
+    res.setTimeout(150_000);
+    const result = await summarizePRsTask({ userId, owner, repo });
+    res.json(result);
+  });
+
+  app.listen(PORT, () => console.log(`Listening on http://localhost:${PORT}`));
+}
 ```
 
-**Terminal 2 — connect GitHub (once per user)**
+```typescript title="src/main.ts"
+import "dotenv/config";
+import "./tasks.js";  // register all tasks
+
+// RENDER_SDK_SOCKET_PATH is set during Render's task registration phase
+if (!process.env.RENDER_SDK_SOCKET_PATH) {
+  const { startServer } = await import("./server.js");
+  startServer();
+}
+```
+
+## 8. Run locally
+
+**Terminal 1 — start the server**
 
 ```bash title="Terminal"
+npm run dev
+```
+
+The server starts at `http://localhost:3000`. Open it in your browser — you'll see two forms:
+
+1. **Connect GitHub** — enter a user ID to generate an OAuth authorization link. Open the link, authorize GitHub access, then come back.
+2. **Summarize Pull Requests** — enter the same user ID, a GitHub owner, and a repo name. The agent returns summaries for the top 5 most-discussed open PRs.
+
+**Alternative: trigger via CLI (local only)**
+
+You can also trigger tasks from the terminal while the server is running with the Render Workflows dev server:
+
+```bash title="Terminal 1"
+render workflows dev -- npm run dev
+```
+
+```bash title="Terminal 2 — connect GitHub (once per user)"
 render workflows tasks start setupGitHubAuth --local --input='["your-user-id"]'
 ```
 
-Open the printed `authLink` in your browser and authorize GitHub access. Scalekit stores the token — this step is not needed again.
+Open the printed `authLink` in your browser and authorize GitHub access.
 
-**Terminal 2 — run the summarizer**
-
-```bash title="Terminal"
+```bash title="Terminal 2 — run the summarizer"
 render workflows tasks start summarizePRs \
   --local \
   --input='[{"userId":"your-user-id","owner":"octocat","repo":"Hello-World"}]'
@@ -427,35 +485,38 @@ render workflows tasks start summarizePRs \
 The input must be a JSON array (`[{...}]`), not a bare object (`{...}`). Render's SDK spreads the array as positional arguments; a bare object causes a "spread syntax requires iterable" error.
 </Aside>
 
-## 8. Deploy and trigger on Render
+## 9. Deploy to Render
 
-![Render Dashboard showing workflow service with Tasks tab displaying setupGitHubAuth and summarizePRs tasks](@/assets/docs/render-github-pr-summarizer/render-dash.png)
+![Render Dashboard showing web service with environment variables configured](@/assets/docs/render-github-pr-summarizer/render-dash.png)
+
+The repository includes a `render.yaml` blueprint that deploys the agent as a **web service**. Click **Deploy to Render** in the repository README, or follow these steps:
 
 <Steps>
 1. [Sign up on Render](https://render.com) if you haven't already
 2. Push this repo to GitHub (or GitLab / Bitbucket)
-3. In the Render Dashboard, click **New → Workflow**
-4. Connect your repo
-5. Set **Build command**: `npm install && npm run build`
-6. Set **Start command**: `node dist/main.js`
-7. Add the environment variables from Step 3
-8. Deploy — `summarizePRs` and `setupGitHubAuth` will appear in the Render Dashboard under **Tasks**
+3. In the Render Dashboard, click **New → Web Service**
+4. Connect your repo — Render detects `render.yaml` automatically
+5. Fill in the secret environment variables (`LITELLM_API_KEY`, `SCALEKIT_CLIENT_ID`, `SCALEKIT_CLIENT_SECRET`, `SCALEKIT_ENVIRONMENT_URL`) when prompted
+6. Deploy — the service URL appears in the dashboard once the deploy completes
 </Steps>
 
-Once deployed, trigger via CLI using the full `workflow-slug/task-name` format:
+Once deployed, team members open the service URL in their browser to connect their GitHub account and generate summaries.
+
+**Trigger via HTTP API (after deploy)**
 
 ```bash title="Terminal"
-render workflows tasks start <your-workflow-slug>/summarizePRs \
-  --input='[{"userId":"alice","owner":"octocat","repo":"Hello-World"}]'
+# Connect a user's GitHub account
+curl -X POST https://your-service.onrender.com/api/auth \
+  -H "Content-Type: application/json" \
+  -d '{"userId":"alice"}'
+
+# Summarize PRs
+curl -X POST https://your-service.onrender.com/api/summarize \
+  -H "Content-Type: application/json" \
+  -d '{"userId":"alice","owner":"octocat","repo":"Hello-World"}'
 ```
 
-You can also trigger tasks from the **Render Dashboard → your workflow service → Tasks**.
-
-<Aside type="note" title="Check task run status in the dashboard">
-The `render workflows tasks` CLI only supports `list` and `start`. To check the status or output of a running task, open the Render Dashboard → your workflow service → Task runs.
-</Aside>
-
-## 9. Sample output
+## 10. Sample output
 
 ```json title="Output"
 {
@@ -483,7 +544,7 @@ The `render workflows tasks` CLI only supports `list` and `start`. To check the 
 </details>
 
 <details>
-<summary>Bare object input instead of array</summary>
+<summary>Bare object input instead of array (CLI only)</summary>
 
 - **Symptom**: `Spread syntax requires ...iterable[Symbol.iterator] to be a function`
 - **Cause**: Render's SDK spreads the `--input` value as positional arguments. A bare JSON object (`{...}`) is not iterable.
@@ -503,7 +564,7 @@ The `render workflows tasks` CLI only supports `list` and `start`. To check the 
 <details>
 <summary>Auth link appears expired immediately</summary>
 
-- **Symptom**: The link from `setupGitHubAuth` says it's already expired when opened
+- **Symptom**: The link from the auth step says it's already expired when opened
 - **Cause**: Clock drift between the Scalekit dev environment and the local machine can make newly generated links appear expired
 - **Fix**: Use the `getOrCreateConnectedAccount` + `getAuthorizationLink` SDK methods (as shown in `scalekit.ts`) rather than the Scalekit Dashboard's magic link generator
 
@@ -517,18 +578,15 @@ The `render workflows tasks` CLI only supports `list` and `start`. To check the 
 
 **Token freshness** — Scalekit refreshes expired tokens automatically when `getOrCreateConnectedAccount` or `getAuthorizationLink` is called. You do not need to track expiry or call a refresh endpoint.
 
-**Wiring to a standup bot** — Once deployed, `summarizePRs` is a standard HTTP-triggerable task. Wire it to a Slack slash command or cron job using the Render SDK:
+**Wiring to a standup bot** — Once deployed, call `POST /api/summarize` from any system — a Slack slash command handler, a cron job, or a GitHub Action:
 
 ```typescript
-import { WorkflowsClient } from "@renderinc/sdk";
-
-const client = new WorkflowsClient({ apiKey: process.env.RENDER_API_KEY });
-
-await client.startTask("<your-workflow-slug>/summarizePRs", {
-  userId: "alice",
-  owner: "octocat",
-  repo: "Hello-World",
+const res = await fetch("https://your-service.onrender.com/api/summarize", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ userId: "alice", owner: "octocat", repo: "Hello-World" }),
 });
+const { summary } = await res.json();
 ```
 
 ## Next steps
