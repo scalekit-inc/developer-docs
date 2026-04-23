@@ -1,19 +1,15 @@
 import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components'
 
-Connect your Tableau Cloud or Tableau Server site to Scalekit so your agent can browse workbooks, query views, export dashboards, and manage users — all without handling credentials directly.
+Connect your Tableau Cloud or Tableau Server site to Scalekit so your agent can browse workbooks, query views, export dashboards, and manage users.
 
-Tableau uses a **session token** for API calls. You sign in once with a Personal Access Token (PAT) or username/password, receive a session token, and store that token in Scalekit. Your agent then uses it automatically on every tool call.
-
-<Aside type="note" title="Session token expiry">
-  Tableau session tokens expire after **120 minutes** on Tableau Cloud and **240 minutes** on Tableau Server. You must refresh them before they expire. See [Refreshing the session token](#refreshing-the-session-token) below.
-</Aside>
+Scalekit handles session token management automatically. You store your Personal Access Token (PAT) credentials once, and Scalekit signs in and refreshes the session token before it expires — your code never calls the sign-in endpoint directly.
 
 <Steps>
 1. ### Create a Personal Access Token in Tableau
 
-   A Personal Access Token (PAT) lets you sign in without a password. It is more secure than username/password and is the recommended approach for API integrations.
+   A Personal Access Token (PAT) is used by Scalekit to sign in on your behalf and keep the session alive automatically.
 
-   - Sign in to your Tableau site (e.g., `https://prod-us-east-1.online.tableau.com`).
+   - Sign in to your Tableau site.
    - Click your avatar in the top-right corner → **My Account Settings**.
    - Scroll to the **Personal Access Tokens** section.
    - Click **+ Create new token**, give it a name (e.g., `scalekit-agent`), and click **Create**.
@@ -21,100 +17,12 @@ Tableau uses a **session token** for API calls. You sign in once with a Personal
 
    ![](@/assets/docs/agent-connectors/tableau/create-pat.png)
 
-   <Aside type="note" title="Token validity">
-     PATs are valid for up to 15 days of inactivity (Tableau Cloud) or until manually revoked. They are different from session tokens — the PAT is used only to sign in and get a session token.
+   <Aside type="note" title="Find your site content URL">
+     Your site content URL is the identifier in your Tableau browser URL. For
+     `https://prod-in-a.online.tableau.com/#/site/mycompany-1234567`, the site content URL is `mycompany-1234567`. Leave it blank if you use the Default site.
    </Aside>
 
-2. ### Sign in to Tableau and get a session token
-
-   Exchange your PAT (or username/password) for a session token. The session token goes into the Scalekit connected account as the credential.
-
-   <Tabs syncKey="tech-stack">
-     <TabItem label="cURL">
-       ```bash
-       # Replace placeholders with your actual values
-       DOMAIN="prod-us-east-1.online.tableau.com"
-       PAT_NAME="scalekit-agent"
-       PAT_SECRET="your-pat-secret"
-       SITE_CONTENT_URL="your-site-name"   # empty string for the Default site
-
-       curl -s -X POST "https://$DOMAIN/api/3.28/auth/signin" \
-         -H "Content-Type: application/json" \
-         -H "Accept: application/json" \
-         -d "{
-           \"credentials\": {
-             \"personalAccessTokenName\": \"$PAT_NAME\",
-             \"personalAccessTokenSecret\": \"$PAT_SECRET\",
-             \"site\": { \"contentUrl\": \"$SITE_CONTENT_URL\" }
-           }
-         }"
-       ```
-       The response contains:
-       ```json
-       {
-         "credentials": {
-           "token": "gyJ5Vem...",
-           "site": { "id": "5440c5af-...", "contentUrl": "your-site-name" },
-           "user": { "id": "2e7fe0db-..." }
-         }
-       }
-       ```
-       Copy `credentials.token` — this is your **session token**.
-       Copy `credentials.site.id` — this is your **site ID (LUID)**, needed for every tool call.
-     </TabItem>
-     <TabItem label="Python">
-       ```python
-       import urllib.request, json
-
-       domain = "prod-us-east-1.online.tableau.com"
-       payload = json.dumps({
-           "credentials": {
-               "personalAccessTokenName": "scalekit-agent",
-               "personalAccessTokenSecret": "your-pat-secret",
-               "site": {"contentUrl": "your-site-name"},  # "" for Default site
-           }
-       }).encode()
-
-       req = urllib.request.Request(
-           f"https://{domain}/api/3.28/auth/signin",
-           data=payload,
-           headers={"Content-Type": "application/json", "Accept": "application/json"},
-       )
-       with urllib.request.urlopen(req) as resp:
-           result = json.load(resp)
-
-       session_token = result["credentials"]["token"]
-       site_id = result["credentials"]["site"]["id"]
-       print("Session token:", session_token)
-       print("Site ID:", site_id)
-       ```
-     </TabItem>
-     <TabItem label="Node.js">
-       ```typescript
-       const domain = 'prod-us-east-1.online.tableau.com';
-
-       const resp = await fetch(`https://${domain}/api/3.28/auth/signin`, {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-         body: JSON.stringify({
-           credentials: {
-             personalAccessTokenName: 'scalekit-agent',
-             personalAccessTokenSecret: 'your-pat-secret',
-             site: { contentUrl: 'your-site-name' }, // '' for Default site
-           },
-         }),
-       });
-
-       const { credentials } = await resp.json();
-       const sessionToken = credentials.token;
-       const siteId = credentials.site.id;
-       console.log('Session token:', sessionToken);
-       console.log('Site ID:', siteId);
-       ```
-     </TabItem>
-   </Tabs>
-
-3. ### Create a connection in Scalekit
+2. ### Create a connection in Scalekit
 
    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**.
    - Search for **Tableau** and click **Create**.
@@ -123,18 +31,19 @@ Tableau uses a **session token** for API calls. You sign in once with a Personal
 
    ![](@/assets/docs/agent-connectors/tableau/add-credentials.png)
 
-4. ### Add a connected account
+3. ### Add a connected account
 
-   A connected account links a user identifier in your system to their Tableau session token. Add one for testing via the dashboard, and add them programmatically in production.
+   A connected account links a user in your system to their Tableau PAT credentials. Scalekit uses these to sign in and refresh the session automatically.
 
    **Via dashboard (for testing)**
 
    - Open the connection → **Connected Accounts** tab → **Add account**.
    - Fill in:
      - **Your User's ID** — any identifier for this user (e.g., `user_123`)
-     - **Server Domain** — your Tableau hostname without `https://` (e.g., `prod-us-east-1.online.tableau.com`)
-     - **Session Token** — the `credentials.token` value from step 2
-
+     - **Server Domain** — your Tableau hostname without `https://` (e.g., `prod-in-a.online.tableau.com`)
+     - **PAT Name** — the token name from step 1
+     - **PAT Secret** — the token secret from step 1
+     - **Site Content URL** — the site identifier from your Tableau URL (leave blank for the Default site)
    - Click **Save**.
 
    ![](@/assets/docs/agent-connectors/tableau/add-connected-account.png)
@@ -144,105 +53,35 @@ Tableau uses a **session token** for API calls. You sign in once with a Personal
    <Tabs syncKey="tech-stack">
      <TabItem label="Node.js">
        ```typescript
-       // Call tableau_auth_signin first to get a fresh session token, then store it
        await scalekit.actions.upsertConnectedAccount({
          connectionName: 'tableau',
          identifier: 'user_123',
          credentials: {
-           api_key: sessionToken,   // from credentials.token in auth/signin response
-           domain: 'prod-us-east-1.online.tableau.com',
+           domain: 'prod-in-a.online.tableau.com',
+           pat_name: 'scalekit-agent',
+           pat_secret: process.env.TABLEAU_PAT_SECRET,
+           site_content_url: 'mycompany-1234567', // omit for Default site
          },
        });
        ```
      </TabItem>
      <TabItem label="Python">
        ```python
-       # Call tableau_auth_signin first to get a fresh session token, then store it
        scalekit_client.actions.upsert_connected_account(
            connection_name="tableau",
            identifier="user_123",
            credentials={
-               "api_key": session_token,   # from credentials.token in auth/signin response
-               "domain": "prod-us-east-1.online.tableau.com",
+               "domain": "prod-in-a.online.tableau.com",
+               "pat_name": "scalekit-agent",
+               "pat_secret": os.getenv("TABLEAU_PAT_SECRET"),
+               "site_content_url": "mycompany-1234567",  # omit for Default site
            },
        )
        ```
      </TabItem>
    </Tabs>
 
-   <Aside type="tip" title="What to store">
-     Store only the **session token** (`api_key`) and **domain**. The site ID (`site_id`) is retrieved per-call using `tableau_session_get` and passed as a tool input — it does not need to be stored as a credential.
+   <Aside type="tip" title="Automatic token refresh">
+     Scalekit refreshes the session token before every tool call using the stored PAT credentials. Tokens are renewed automatically when they are within 5 minutes of expiry — you do not need to manage refresh logic in your code.
    </Aside>
 </Steps>
-
-## Refreshing the session token
-
-Session tokens expire after 120 minutes (Tableau Cloud) or 240 minutes (Tableau Server). Build a refresh flow into your agent:
-
-<Tabs syncKey="tech-stack">
-  <TabItem label="Node.js">
-    ```typescript
-    async function refreshTableauToken(identifier: string) {
-      // Sign in again with PAT to get a fresh session token
-      const resp = await fetch(`https://${domain}/api/3.28/auth/signin`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
-          credentials: {
-            personalAccessTokenName: process.env.TABLEAU_PAT_NAME,
-            personalAccessTokenSecret: process.env.TABLEAU_PAT_SECRET,
-            site: { contentUrl: process.env.TABLEAU_SITE_CONTENT_URL },
-          },
-        }),
-      });
-      const { credentials } = await resp.json();
-
-      // Update the connected account with the new token
-      await scalekit.actions.upsertConnectedAccount({
-        connectionName: 'tableau',
-        identifier,
-        credentials: {
-          api_key: credentials.token,
-          domain: process.env.TABLEAU_DOMAIN,
-        },
-      });
-    }
-    ```
-  </TabItem>
-  <TabItem label="Python">
-    ```python
-    import urllib.request, json, os
-
-    def refresh_tableau_token(identifier: str):
-        # Sign in again with PAT to get a fresh session token
-        payload = json.dumps({
-            "credentials": {
-                "personalAccessTokenName": os.getenv("TABLEAU_PAT_NAME"),
-                "personalAccessTokenSecret": os.getenv("TABLEAU_PAT_SECRET"),
-                "site": {"contentUrl": os.getenv("TABLEAU_SITE_CONTENT_URL")},
-            }
-        }).encode()
-        req = urllib.request.Request(
-            f"https://{os.getenv('TABLEAU_DOMAIN')}/api/3.28/auth/signin",
-            data=payload,
-            headers={"Content-Type": "application/json", "Accept": "application/json"},
-        )
-        with urllib.request.urlopen(req) as resp:
-            result = json.load(resp)
-
-        # Update the connected account with the new token
-        scalekit_client.actions.upsert_connected_account(
-            connection_name="tableau",
-            identifier=identifier,
-            credentials={
-                "api_key": result["credentials"]["token"],
-                "domain": os.getenv("TABLEAU_DOMAIN"),
-            },
-        )
-    ```
-  </TabItem>
-</Tabs>
-
-<Aside type="tip" title="When to refresh">
-  Call `refresh_tableau_token` before making tool calls if the last sign-in was more than 100 minutes ago. Store the sign-in timestamp in your database alongside the user's connected account identifier.
-</Aside>

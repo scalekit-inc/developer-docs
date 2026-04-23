@@ -3,35 +3,9 @@ import type { Tool } from '../../types/agent-connectors'
 export const tools: Tool[] = [
   // ─── Auth ───────────────────────────────────────────────────────────────────
   {
-    name: 'tableau_auth_signin',
-    description:
-      'Sign in to Tableau Server or Tableau Cloud using a Personal Access Token (PAT). Returns a session token and site ID. Call this to obtain the session token you store as the connected account credential, and to refresh it before it expires.',
-    params: [
-      {
-        name: 'pat_name',
-        type: 'string',
-        required: true,
-        description: 'Name of the Personal Access Token (created in My Account Settings).',
-      },
-      {
-        name: 'pat_secret',
-        type: 'string',
-        required: true,
-        description: 'Secret value of the PAT, shown only once at creation time.',
-      },
-      {
-        name: 'site_content_url',
-        type: 'string',
-        required: false,
-        description:
-          'The site contentUrl (subdomain). Use an empty string `""` for the Default site.',
-      },
-    ],
-  },
-  {
     name: 'tableau_auth_signout',
     description:
-      'Sign out of Tableau, invalidating the current session token. Call this at the end of an agent session. After signing out, call `tableau_auth_signin` again to get a new token before making further API calls.',
+      'Sign out of Tableau, invalidating the current session token. Call this at the end of an agent session. Scalekit will obtain a fresh token automatically on the next tool call.',
     params: [],
   },
   {
