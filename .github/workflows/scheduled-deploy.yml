@@ -1,0 +1,45 @@
+name: Scheduled Netlify Deploy
+
+on:
+  schedule:
+    - cron: '30 10 * * *' # 4:00 PM IST (UTC+5:30) daily
+  workflow_dispatch: # allows manual trigger for testing
+
+jobs:
+  check_and_deploy:
+    runs-on: ubuntu-latest
+    name: Deploy if new commits on main
+
+    steps:
+      - name: Get last deployed commit on Netlify
+        id: netlify
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          LAST_DEPLOYED=$(curl -s \
+            -H "Authorization: Bearer $NETLIFY_AUTH_TOKEN" \
+            "https://api.netlify.com/api/v1/sites/$NETLIFY_SITE_ID/deploys?branch=main&per_page=1" \
+            | jq -r '[.[] | select(.state == "ready")][0].commit_ref')
+          echo "Last deployed SHA: $LAST_DEPLOYED"
+          echo "last_deployed=$LAST_DEPLOYED" >> $GITHUB_OUTPUT
+
+      - name: Get current HEAD of main
+        id: github
+        run: |
+          CURRENT_HEAD=$(curl -s \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/git/ref/heads/main" \
+            | jq -r '.object.sha')
+          echo "Current HEAD SHA: $CURRENT_HEAD"
+          echo "current_head=$CURRENT_HEAD" >> $GITHUB_OUTPUT
+
+      - name: Trigger Netlify deploy
+        if: steps.netlify.outputs.last_deployed != steps.github.outputs.current_head
+        run: |
+          curl -s -X POST -d '{}' "${{ secrets.NETLIFY_BUILD_HOOK }}"
+          echo "Deploy triggered — new commits detected."
+
+      - name: Skip deploy
+        if: steps.netlify.outputs.last_deployed == steps.github.outputs.current_head
+        run: echo "Already up to date. Skipping deploy."
