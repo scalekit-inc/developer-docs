@@ -1,0 +1,410 @@
+---
+title: Create your own connector
+description: Choose an auth type, build the connector payload, and create or manage custom connectors in Scalekit.
+tags: [agentauth, connectors, auth, oauth2, proxy, guide]
+sidebar:
+  label: "Create a connector"
+tableOfContents:
+  maxHeadingLevel: 3
+prev:
+  label: "Add your own connector"
+  link: "/agentkit/bring-your-own-connector/overview"
+next:
+  label: "Making tool calls"
+  link: "/agentkit/bring-your-own-connector/making-tool-calls"
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+This page covers everything you need to create a custom connector: building the connector payload and managing it with the API.
+
+<details>
+<summary>Prerequisites</summary>
+
+You need three credentials from your Scalekit environment:
+
+- `SCALEKIT_ENVIRONMENT_URL` — the base URL of your Scalekit environment
+- `SCALEKIT_CLIENT_ID` — your environment's client ID
+- `SCALEKIT_CLIENT_SECRET` — your environment's client secret
+
+Find these in the Scalekit Dashboard under **Developers → Settings → API Credentials**.
+
+</details>
+
+## Create a connector
+
+<Aside type="tip" title="Recommended approach">
+The recommended way to manage connectors is with the <a href="https://github.com/scalekit-inc/skills/blob/main/skills/sk-actions-custom-provider/SKILL.md" target="_blank" rel="noopener noreferrer">`sk-actions-custom-provider` skill</a>.
+
+```sh frame="none" showLineNumbers=false
+npx skills add scalekit-inc/skills --skill sk-actions-custom-provider
+```
+
+It keeps payload generation, review, and promotion consistent across Dev and Production.
+</Aside>
+
+Share the connector name, Scalekit credentials, and API docs. The skill infers the auth type, generates the payload, and walks you through create, update, and promotion to Production. Always review the final payload before approving.
+
+To manage connectors directly via API, use the payloads below.
+
+<details>
+<summary>Understand the connector payload</summary>
+
+Supported auth types are `OAUTH`, `BASIC`, `BEARER`, and `API_KEY`. Use `OAUTH` when the upstream API or MCP server requires a user authorization flow and token exchange. Use `BASIC`, `BEARER`, or `API_KEY` when it accepts static credentials or long-lived tokens.
+
+MCP providers use the same four auth types as REST API providers, with `is_mcp: true` set in each `auth_patterns[]` entry. OAuth MCP connectors use a simplified `oauth_config: {"pkce_enabled": true}` — the MCP server handles authorization via Dynamic Client Registration. Non-OAuth MCP connectors omit `oauth_config` entirely.
+
+The connector payload uses these common top-level fields:
+
+- `display_name`: Human-readable name for the custom connector
+- `description`: Short description of what the connector connects to
+- `auth_patterns`: Authentication options supported by the connector
+- `proxy_url`: Base URL the proxy should call for the upstream API (mandatory)
+- `proxy_enabled`: Whether the proxy is enabled for the connector (mandatory, should be true)
+
+`proxy_url` can also include templated fields when the upstream API requires account-specific values, for example `https://{{domain}}/api`.
+
+Within `auth_patterns`, the most common fields are:
+
+- `type`: The auth type, such as OAUTH, BASIC, BEARER, or API_KEY
+- `display_name`: Label shown for that auth option
+- `description`: Short explanation of the auth method
+- `fields`: Inputs collected for static auth providers such as BASIC, BEARER, and API_KEY. These usually store values such as `username`, `password`, `token`, `api_key`, `domain`, or `version`.
+- `account_fields`: Inputs collected for OAUTH connectors when account-scoped values are needed. This is typically used for values tied to a connected account, such as named path parameters.
+- `oauth_config`: OAuth-specific configuration, such as authorize and token endpoints
+- `auth_header_key_override`: Custom header name when the upstream does not use `Authorization`. For example, some APIs expect auth in a header such as `X-API-Key` instead of the standard `Authorization` header.
+- `auth_field_mutations`: Value transformations applied before the credential is sent. This is useful when the upstream expects a prefix, suffix, or default companion value, such as adding a token prefix or setting a fallback password value for Basic auth.
+- `is_mcp`: Set to `true` when the upstream is an MCP server. Tells Scalekit to route the connector through MCP tool calling instead of the HTTP proxy.
+
+</details>
+
+Below are example payloads for API and MCP connectors across all supported auth patterns.
+
+<Tabs syncKey="connector-type">
+<TabItem label="API Connector">
+
+<Tabs syncKey="auth-type">
+<TabItem label="OAuth">
+
+```json
+{
+  "display_name": "My Asana",
+  "description": "Connect to Asana. Manage tasks, projects, teams, and workflow automation",
+  "auth_patterns": [
+    {
+      "type": "OAUTH",
+      "display_name": "OAuth 2.0",
+      "description": "Authenticate with Asana using OAuth 2.0 for comprehensive project management",
+      "fields": [],
+      "oauth_config": {
+        "authorize_uri": "https://app.asana.com/-/oauth_authorize",
+        "token_uri": "https://app.asana.com/-/oauth_token",
+        "user_info_uri": "https://app.asana.com/api/1.0/users/me",
+        "available_scopes": [
+          {
+            "scope": "profile",
+            "display_name": "Profile",
+            "description": "Access user profile information",
+            "required": true
+          },
+          {
+            "scope": "email",
+            "display_name": "Email",
+            "description": "Access user email address",
+            "required": true
+          }
+        ]
+      }
+    }
+  ],
+  "proxy_url": "https://app.asana.com/api",
+  "proxy_enabled": true
+}
+```
+
+</TabItem>
+<TabItem label="Bearer">
+
+```json
+{
+  "display_name": "My Bearer Token Provider",
+  "description": "Connect to an API that accepts a static bearer token",
+  "auth_patterns": [
+    {
+      "type": "BEARER",
+      "display_name": "Bearer Token",
+      "description": "Authenticate with a static bearer token",
+      "fields": [
+        {
+          "field_name": "token",
+          "label": "Bearer Token",
+          "input_type": "password",
+          "hint": "Your long-lived bearer token",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "proxy_url": "https://api.example.com",
+  "proxy_enabled": true
+}
+```
+
+</TabItem>
+<TabItem label="Basic">
+
+```json
+{
+  "display_name": "My Freshdesk",
+  "description": "Connect to Freshdesk. Manage tickets, contacts, companies, and customer support workflows",
+  "auth_patterns": [
+    {
+      "type": "BASIC",
+      "display_name": "Basic Auth",
+      "description": "Authenticate with Freshdesk using Basic Auth with username and password for comprehensive helpdesk management",
+      "fields": [
+        {
+          "field_name": "domain",
+          "label": "Freshdesk Domain",
+          "input_type": "text",
+          "hint": "Your Freshdesk domain (e.g., yourcompany.freshdesk.com)",
+          "required": true
+        },
+        {
+          "field_name": "username",
+          "label": "API Key",
+          "input_type": "text",
+          "hint": "Your Freshdesk API Key",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "proxy_url": "https://{{domain}}/api",
+  "proxy_enabled": true
+}
+```
+
+</TabItem>
+<TabItem label="API Key">
+
+```json
+{
+  "display_name": "My Attention",
+  "description": "Connect to Attention for AI insights, conversations, teams, and workflows",
+  "auth_patterns": [
+    {
+      "type": "API_KEY",
+      "display_name": "API Key",
+      "description": "Authenticate with Attention using an API Key",
+      "fields": [
+        {
+          "field_name": "api_key",
+          "label": "Integration Token",
+          "input_type": "password",
+          "hint": "Your Attention API Key",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "proxy_url": "https://api.attention.tech",
+  "proxy_enabled": true
+}
+```
+
+</TabItem>
+</Tabs>
+
+</TabItem>
+<TabItem label="MCP Connector">
+
+<Tabs syncKey="auth-type">
+<TabItem label="OAuth">
+
+```json
+{
+  "display_name": "Github MCP",
+  "description": "Connect to Github MCP",
+  "auth_patterns": [
+    {
+      "description": "Authenticate with Github MCP using browser OAuth.",
+      "display_name": "OAuth 2.1/DCR",
+      "fields": [],
+      "is_mcp": true,
+      "oauth_config": {
+        "pkce_enabled": true
+      },
+      "type": "OAUTH"
+    }
+  ],
+  "proxy_url": "https://api.githubcopilot.com/mcp/",
+  "proxy_enabled": true
+}
+```
+
+</TabItem>
+<TabItem label="Bearer">
+
+```json
+{
+  "display_name": "Apify MCP",
+  "description": "Connect to Apify MCP to run web scraping, browser automation, and data extraction Actors directly from your AI workflows.",
+  "auth_patterns": [
+    {
+      "description": "Authenticate with Apify using your API Token.",
+      "display_name": "Apify Token",
+      "fields": [
+        {
+          "field_name": "token",
+          "hint": "Your Apify API Token",
+          "input_type": "password",
+          "label": "Apify Token",
+          "required": true
+        }
+      ],
+      "is_mcp": true,
+      "type": "BEARER"
+    }
+  ],
+  "proxy_url": "https://mcp.apify.com",
+  "proxy_enabled": true
+}
+```
+
+</TabItem>
+<TabItem label="Basic">
+
+```json
+{
+  "display_name": "My Internal MCP",
+  "description": "Connect to an internal MCP server that authenticates with a username and password",
+  "auth_patterns": [
+    {
+      "type": "BASIC",
+      "display_name": "Basic Auth",
+      "description": "Authenticate with a username and password",
+      "is_mcp": true,
+      "fields": [
+        {
+          "field_name": "username",
+          "label": "Username",
+          "input_type": "text",
+          "hint": "Your username",
+          "required": true
+        },
+        {
+          "field_name": "password",
+          "label": "Password",
+          "input_type": "password",
+          "hint": "Your password",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "proxy_url": "https://mcp.internal.example.com",
+  "proxy_enabled": true
+}
+```
+
+</TabItem>
+<TabItem label="API Key">
+
+```json
+{
+  "display_name": "My API Key MCP",
+  "description": "Connect to an MCP server that authenticates with a static API key",
+  "auth_patterns": [
+    {
+      "type": "API_KEY",
+      "display_name": "API Key",
+      "description": "Authenticate with a static API key",
+      "is_mcp": true,
+      "fields": [
+        {
+          "field_name": "api_key",
+          "label": "API Key",
+          "input_type": "password",
+          "hint": "Your API key",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "proxy_url": "https://mcp.example.com",
+  "proxy_enabled": true
+}
+```
+
+</TabItem>
+</Tabs>
+
+</TabItem>
+</Tabs>
+
+**Before submitting, review the final payload carefully:**
+
+- `display_name` and `description`
+- The selected auth `type`
+- Required `fields` and `account_fields`
+- OAuth endpoints and scopes, if the connector uses OAuth
+- `proxy_url`
+- Whether `is_mcp` is set to `true` for MCP providers
+
+<details>
+<summary>Generate an access token</summary>
+
+All API requests require a short-lived access token. Generate one using your `SCALEKIT_CLIENT_ID` and `SCALEKIT_CLIENT_SECRET`:
+
+```bash
+curl --location '$SCALEKIT_ENVIRONMENT_URL/oauth/token' \
+  --header 'Content-Type: application/x-www-form-urlencoded' \
+  --data-urlencode 'grant_type=client_credentials' \
+  --data-urlencode 'client_id=$SCALEKIT_CLIENT_ID' \
+  --data-urlencode 'client_secret=$SCALEKIT_CLIENT_SECRET'
+```
+
+Use the `access_token` value from the response as `$env_access_token` in the `curl` commands below.
+
+</details>
+
+Use the payload for your auth type as the request body in the create request:
+
+```bash
+curl --location "$SCALEKIT_ENVIRONMENT_URL/api/v1/custom-providers" \
+  --header "Authorization: Bearer $env_access_token" \
+  --header "Content-Type: application/json" \
+  --data '{...}'
+```
+
+After the connector is created, create a connection in the Scalekit Dashboard and continue with the standard connector flow.
+
+## List connectors
+
+List existing connectors to confirm whether to create a new one or update an existing one.
+
+```bash
+curl --location "$SCALEKIT_ENVIRONMENT_URL/api/v1/providers?filter.provider_type=CUSTOM&page_size=1000" \
+  --header "Authorization: Bearer $env_access_token"
+```
+
+## Update a connector
+
+Use the [List connectors](#list-connectors) API to get the connector `identifier`, then send the updated payload:
+
+```bash
+curl --location --request PUT "$SCALEKIT_ENVIRONMENT_URL/api/v1/custom-providers/$PROVIDER_IDENTIFIER" \
+  --header "Authorization: Bearer $env_access_token" \
+  --header "Content-Type: application/json" \
+  --data '{...}'
+```
+
+## Delete a connector
+
+Use the [List connectors](#list-connectors) API to get the connector `identifier`. If the connector is still in use, remove the related connections or connected accounts first.
+
+```bash
+curl --location --request DELETE "$SCALEKIT_ENVIRONMENT_URL/api/v1/custom-providers/$PROVIDER_IDENTIFIER" \
+  --header "Authorization: Bearer $env_access_token"
+```
