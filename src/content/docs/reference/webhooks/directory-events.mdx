@@ -28,6 +28,12 @@ head:
 
 This webhook is triggered when a directory sync is enabled. The event type is `organization.directory_enabled`
 
+For most SCIM providers, `organization.directory_enabled` is emitted as soon as an admin selects the identity provider in the Scalekit admin panel. Scalekit can begin listening for directory events immediately, so customers often see `organization.directory_created` and `organization.directory_enabled` before the admin finishes configuration on the provider side.
+
+Google SCIM is the main exception. Because it requires an additional OAuth authorization step, `organization.directory_enabled` is emitted only after that authorization is completed.
+
+This differs from [`organization.sso_enabled`](/reference/webhooks/sso-events/#organizationsso_enabled), which is emitted only after the admin finishes the full SSO configuration.
+
 ```json title="organization.directory_enabled"
 {
   "environment_id": "env_27758032200925221",
