@@ -66,7 +66,7 @@ const CUSTOM_SETS = [
 
 /**
  * Parse YAML frontmatter from a markdown/mdx file.
- * Returns { title, description, draft } — all other fields ignored.
+ * Returns { title, description, draft, sidebarHidden } — all other fields ignored.
  */
 function parseFrontmatter(content) {
   const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/)
@@ -76,10 +76,13 @@ function parseFrontmatter(content) {
     const m = fm.match(new RegExp(`^${key}:\\s*['"]?(.+?)['"]?\\s*$`, 'm'))
     return m ? m[1].trim() : undefined
   }
+  // Detect sidebar: { hidden: true } — multi-line YAML: "sidebar:\n  hidden: true"
+  const sidebarHidden = /^sidebar:\s*\n(?:[ \t]+\S[^\n]*\n)*?[ \t]+hidden:\s*true/m.test(fm)
   return {
     title: get('title'),
     description: get('description'),
     draft: get('draft') === 'true',
+    sidebarHidden,
   }
 }
 
@@ -131,8 +134,8 @@ const allFiles = await Promise.all(reads)
 
 const pages = []
 for (const { file, content } of allFiles) {
-  const { title, description, draft } = parseFrontmatter(content)
-  if (draft) continue
+  const { title, description, draft, sidebarHidden } = parseFrontmatter(content)
+  if (draft || sidebarHidden) continue
   const urlPath = fileToUrlPath(file)
   pages.push({ file, urlPath, title: title || basename(file), description: description || '' })
 }

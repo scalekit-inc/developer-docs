@@ -94,7 +94,7 @@ Start with the Quickstart Collection, then follow the developer's question to th
         'sso/**',
         'directory/**',
         'authenticate/manage-organizations/**',
-        'guides/sso/**',
+        // guides/sso/ contains only sso-migration-strategy (sidebar hidden) — omitted intentionally
       ],
     },
     {
@@ -175,6 +175,9 @@ Start with the Quickstart Collection, then follow the developer's question to th
     '**/migration-guide',
     'authenticate/mcp/troubleshooting',
     'dev-kit/resources/**',
+    // Pages with sidebar.hidden: true — not navigable, noindex, should not appear in any LLM set
+    '404',
+    'guides/sso/sso-migration-strategy',
   ],
 
   // Minify settings to reduce file size while preserving critical content
