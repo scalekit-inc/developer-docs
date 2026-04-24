@@ -28,17 +28,15 @@ for in-depth answers. Load \`llms-full.txt\` only when exhaustive context is nee
 
 When a developer mentions a specific AI framework, fetch that page directly:
 
-- LangChain → https://docs.scalekit.com/agentkit/frameworks/langchain.md
-- Vercel AI SDK → https://docs.scalekit.com/agentkit/frameworks/vercel-ai.md
-- Anthropic SDK → https://docs.scalekit.com/agentkit/frameworks/anthropic.md
-- OpenAI Agents SDK → https://docs.scalekit.com/agentkit/frameworks/openai.md
-- Google ADK → https://docs.scalekit.com/agentkit/frameworks/google-adk.md
-- Google GenAI → https://docs.scalekit.com/agentkit/frameworks/google-genai.md
-- Mastra → https://docs.scalekit.com/agentkit/frameworks/mastra.md
-- Agno → https://docs.scalekit.com/agentkit/frameworks/agno.md
-- MCP (Model Context Protocol) → https://docs.scalekit.com/agentkit/frameworks/mcp.md
+- LangChain → https://docs.scalekit.com/agentkit/examples/langchain.md
+- Vercel AI SDK → https://docs.scalekit.com/agentkit/examples/vercel-ai.md
+- Anthropic SDK → https://docs.scalekit.com/agentkit/examples/anthropic.md
+- OpenAI Agents SDK → https://docs.scalekit.com/agentkit/examples/openai.md
+- Google ADK → https://docs.scalekit.com/agentkit/examples/google-adk.md
+- Mastra → https://docs.scalekit.com/agentkit/examples/mastra.md
+- Claude Managed Agents → https://docs.scalekit.com/agentkit/examples/claude-managed-agents.md
 
-For working examples per framework: https://docs.scalekit.com/agentkit/examples.md
+For all framework examples: https://docs.scalekit.com/agentkit/examples.md
 
 ## If unsure which product applies
 Start with the Quickstart Collection, then follow the developer's question to the relevant product set.
@@ -70,11 +68,10 @@ Start with the Quickstart Collection, then follow the developer's question to th
     {
       label: 'AgentKit Frameworks',
       description:
-        'Framework-specific AgentKit integration guides — LangChain, Vercel AI, Anthropic, OpenAI, Google ADK, Mastra, Agno, MCP',
+        'Framework-specific AgentKit examples — LangChain, Vercel AI, Anthropic, OpenAI, Google ADK, Mastra, Claude Managed Agents',
       paths: [
         'agentkit/overview',
         'agentkit/quickstart',
-        'agentkit/frameworks/**',
         'agentkit/examples/**',
         'agentkit/sdks/**',
       ],
@@ -141,8 +138,7 @@ Start with the Quickstart Collection, then follow the developer's question to th
     'index*', // Homepage
     '**/overview', // All overview pages
     '**/quickstart', // All quickstart guides
-    'agentkit/frameworks/**', // Framework-specific guides (high value for agent queries)
-    'agentkit/examples/**', // Working examples
+    'agentkit/examples/**', // Framework examples (high value for agent queries)
     'cookbooks/**', // Practical cookbooks
     'fsa/data-modelling', // Critical data modeling guide
     'authenticate/set-up-scalekit', // Initial setup
