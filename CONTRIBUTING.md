@@ -18,6 +18,7 @@ This guide covers everything you need to go from zero to a merged pull request.
   - [Describe overridden components](#describe-overridden-components)
   - [Describe custom components](#describe-custom-components)
 - [Write and edit docs](#write-and-edit-docs)
+  - [Maintain Agent connector docs](#maintain-agent-connector-docs)
 - [Raise a pull request](#raise-a-pull-request)
 - [Report an issue](#report-an-issue)
 - [Get help](#get-help)
@@ -209,6 +210,17 @@ Additional component groups:
 ## Writing & Editing Docs
 
 All documentation pages live in `src/content/`. They are `.mdx` files (Markdown + JSX).
+
+### Maintain Agent connector docs
+
+Agent connector docs use a generated workflow, not fully hand-written pages.
+
+- `pnpm run sync-agent-connectors` fetches production connector metadata and regenerates the connector docs under `src/content/docs/agentkit/connectors/`
+- Add setup instructions through `src/components/templates/agent-connectors/_setup-<slug>.mdx`
+- Add optional code examples through `src/components/templates/agent-connectors/_usage-<slug>.mdx`
+- Read `project-docs/SYNC_AGENT_CONNECTORS.md` before running the sync or reviewing the generated diff
+
+The long-form guide explains prerequisites, required `PROD_*` env vars, expected diffs, and what to do when generated connector content disappears.
 
 ### Frontmatter
 
