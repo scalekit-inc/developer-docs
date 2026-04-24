@@ -105,10 +105,9 @@ export default defineConfig({
           askAi: '8jKZkVuXS0hG',
         }),
         starlightVideos(),
-        // Links validator: enabled locally and on deploy previews; skipped on production
-        // Netlify builds to reduce peak memory usage.
-        // CONTEXT is set by Netlify: 'production' | 'deploy-preview' | 'branch-deploy'
-        ...(!process.env.NETLIFY || process.env.CONTEXT !== 'production'
+        // Links validator disabled in CI to reduce build memory usage.
+        // Run locally with: pnpm astro build (without NETLIFY env var)
+        ...(!process.env.NETLIFY
           ? [
               starlightLinksValidator({
                 exclude: ['/apis/**'],
@@ -411,8 +410,6 @@ export default defineConfig({
       // Disable gzip size reporting to save memory on large builds
       reportCompressedSize: false,
       rollupOptions: {
-        // Limit parallel file I/O to reduce memory spikes during bundling.
-        // 8 caps concurrency well below unlimited while reducing serialization vs. the prior value of 2.
         maxParallelFileOps: 8,
         output: {
           manualChunks(id) {
