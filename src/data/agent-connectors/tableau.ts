@@ -122,25 +122,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'tableau_workbook_refresh',
-    description:
-      'Trigger an on-demand extract refresh for a workbook. Returns a job ID. Poll `tableau_job_get` to check completion. Only works for workbooks with extract data sources.',
-    params: [
-      {
-        name: 'workbook_id',
-        type: 'string',
-        required: true,
-        description: 'Workbook LUID. Get it from `tableau_workbooks_list`.',
-      },
-      {
-        name: 'incremental_extract',
-        type: 'boolean',
-        required: false,
-        description: 'Set to `true` for incremental refresh. Default is full refresh.',
-      },
-    ],
-  },
-  {
     name: 'tableau_workbook_connections_list',
     description:
       'List the data connections used by a workbook: connection type, server address, username, and whether the connection is embedded.',
@@ -293,25 +274,6 @@ export const tools: Tool[] = [
         required: true,
         description:
           'Data source LUID. Get it from `tableau_datasources_list` → `datasources.datasource[].id`.',
-      },
-    ],
-  },
-  {
-    name: 'tableau_datasource_refresh',
-    description:
-      'Trigger an on-demand extract refresh for a published data source. Returns a job object with a `job.id`. Poll `tableau_job_get` to track completion. Only works for data sources with an extract.',
-    params: [
-      {
-        name: 'datasource_id',
-        type: 'string',
-        required: true,
-        description: 'Data source LUID. Get it from `tableau_datasources_list`.',
-      },
-      {
-        name: 'incremental_extract',
-        type: 'boolean',
-        required: false,
-        description: 'Set to `true` for incremental refresh. Default is full refresh.',
       },
     ],
   },
@@ -663,7 +625,7 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description:
-          'Job LUID returned from async operations like `tableau_datasource_refresh` → `job.id`.',
+          'Job LUID returned from async operations like workbook or data source refreshes → `job.id`.',
       },
     ],
   },

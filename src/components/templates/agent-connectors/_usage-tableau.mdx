@@ -214,61 +214,6 @@ Use the Scalekit proxy to call any Tableau REST API endpoint directly. Binary do
   </TabItem>
 </Tabs>
 
-### Trigger a data source refresh and poll the job
-
-<Tabs syncKey="tech-stack">
-  <TabItem label="Node.js">
-    ```typescript
-    // Trigger an extract refresh
-    const refresh = await actions.executeTool({
-      toolName: 'tableau_datasource_refresh',
-      connectedAccountId: connectedAccount.id,
-      toolInput: { datasource_id: datasourceId },
-    });
-    const jobId = refresh.job.id;
-
-    // Poll until the job completes
-    let job;
-    do {
-      await new Promise(r => setTimeout(r, 10_000)); // wait 10 seconds
-      job = await actions.executeTool({
-        toolName: 'tableau_job_get',
-        connectedAccountId: connectedAccount.id,
-        toolInput: { job_id: jobId },
-      });
-    } while (job.job.status === 'InProgress');
-
-    console.log('Refresh completed:', job.job.status); // 'Success' or 'Failed'
-    ```
-  </TabItem>
-  <TabItem label="Python">
-    ```python
-    import time
-
-    # Trigger an extract refresh
-    refresh = actions.execute_tool(
-        tool_name="tableau_datasource_refresh",
-        connected_account_id=connected_account.id,
-        tool_input={"datasource_id": datasource_id},
-    )
-    job_id = refresh["job"]["id"]
-
-    # Poll until the job completes
-    while True:
-        time.sleep(10)  # wait 10 seconds between polls
-        job = actions.execute_tool(
-            tool_name="tableau_job_get",
-            connected_account_id=connected_account.id,
-            tool_input={"job_id": job_id},
-        )
-        if job["job"]["status"] != "InProgress":
-            break
-
-    print("Refresh completed:", job["job"]["status"])  # 'Success' or 'Failed'
-    ```
-  </TabItem>
-</Tabs>
-
 ### Sign out
 
 Call `tableau_auth_signout` to invalidate the session token when the agent session ends:
