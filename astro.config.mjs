@@ -31,10 +31,9 @@ import { injectAgentHeader } from './src/integrations/inject-agent-header.ts'
 
 // https://astro.build/config
 export default defineConfig({
-  // Switched from 'server' to default (static) to drastically reduce build memory.
-  // Astro 6's Vite Environments API creates separate build contexts per output mode;
-  // 'server' mode processes all 300+ pages through a heavy SSR pipeline.
-  // The few SSR pages (auth, health, admin) already have `prerender = false`.
+  // SSR mode: the Netlify adapter prerendering per-page via `prerender` exports.
+  // Pages without `prerender = false` are statically generated at build time.
+  // Memory-intensive builds: see vite.build settings below.
   output: 'server',
   site: 'https://docs.scalekit.com',
   server: {
@@ -106,9 +105,10 @@ export default defineConfig({
           askAi: '8jKZkVuXS0hG',
         }),
         starlightVideos(),
-        // Links validator disabled in CI to reduce build memory usage.
-        // Run locally with: pnpm astro build (without NETLIFY env var)
-        ...(!process.env.NETLIFY
+        // Links validator: enabled locally and on deploy previews; skipped on production
+        // Netlify builds to reduce peak memory usage.
+        // CONTEXT is set by Netlify: 'production' | 'deploy-preview' | 'branch-deploy'
+        ...(!process.env.NETLIFY || process.env.CONTEXT !== 'production'
           ? [
               starlightLinksValidator({
                 exclude: ['/apis/**'],
@@ -411,8 +411,9 @@ export default defineConfig({
       // Disable gzip size reporting to save memory on large builds
       reportCompressedSize: false,
       rollupOptions: {
-        // Limit parallel file I/O to reduce memory spikes during bundling
-        maxParallelFileOps: 2,
+        // Limit parallel file I/O to reduce memory spikes during bundling.
+        // 8 caps concurrency well below unlimited while reducing serialization vs. the prior value of 2.
+        maxParallelFileOps: 8,
         output: {
           manualChunks(id) {
             if (id.includes('@scalar')) return 'scalar'

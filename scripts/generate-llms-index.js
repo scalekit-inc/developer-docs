@@ -8,7 +8,7 @@
  * Usage: node scripts/generate-llms-index.js
  */
 
-import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs'
+import { readFile, writeFile, readdir, stat } from 'node:fs/promises'
 import { join, relative, extname, basename } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -78,21 +78,18 @@ function parseFrontmatter(content) {
 }
 
 /**
- * Walk a directory recursively and return all .md/.mdx file paths.
+ * Walk a directory recursively and yield all .md/.mdx file paths.
  */
-function walk(dir) {
-  const results = []
-  for (const entry of readdirSync(dir)) {
+async function* walk(dir) {
+  for (const entry of await readdir(dir)) {
     const full = join(dir, entry)
-    const stat = statSync(full)
-    if (stat.isDirectory()) {
-      results.push(...walk(full))
+    if ((await stat(full)).isDirectory()) {
+      yield* walk(full)
     } else {
       const ext = extname(entry)
-      if (ext === '.md' || ext === '.mdx') results.push(full)
+      if (ext === '.md' || ext === '.mdx') yield full
     }
   }
-  return results
 }
 
 /**
@@ -113,11 +110,14 @@ function fileToUrlPath(filePath) {
 }
 
 // --- Collect all docs ---
-const allFiles = walk(DOCS_DIR)
+const reads = []
+for await (const file of walk(DOCS_DIR)) {
+  reads.push(readFile(file, 'utf8').then((content) => ({ file, content })))
+}
+const allFiles = await Promise.all(reads)
 
 const pages = []
-for (const file of allFiles) {
-  const content = readFileSync(file, 'utf8')
+for (const { file, content } of allFiles) {
   const { title, description, draft } = parseFrontmatter(content)
   if (draft) continue
   const urlPath = fileToUrlPath(file)
@@ -165,7 +165,7 @@ for (const { urlPath, title, description } of pages) {
 }
 
 const output = lines.join('\n') + '\n'
-writeFileSync(OUT_FILE, output, 'utf8')
+await writeFile(OUT_FILE, output, 'utf8')
 
 console.log(
   `[generate-llms-index] Wrote ${pages.length} pages to dist/llms.txt (${output.length} bytes)`,
