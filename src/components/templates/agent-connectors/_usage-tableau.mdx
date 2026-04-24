@@ -2,13 +2,9 @@ import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
 
 Once a connected account is set up with PAT credentials, your agent can call Tableau tools through Scalekit. The session token is managed and injected automatically as the `X-Tableau-Auth` header — your code never handles it directly.
 
-<Aside type="note" title="site_id is required for every tool">
-  Nearly every Tableau tool requires a `site_id` — the LUID of the Tableau site. Retrieve it once by calling `tableau_session_get` and cache it for the session. It does not change unless the user switches sites.
-</Aside>
+The **site ID** (site LUID) is resolved automatically from the connected account after sign-in. You do not pass `site_id` to tool calls. For proxy API calls that require a site ID in the URL path, call `tableau_session_get` once to retrieve it.
 
-## Get your site ID
-
-Call `tableau_session_get` at the start of each agent session to retrieve the site LUID:
+## Get the connected account
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Node.js">
@@ -26,19 +22,10 @@ Call `tableau_session_get` at the start of each agent session to retrieve the si
     const connectionName = 'tableau';
     const identifier = 'user_123';
 
-    // Step 1 — get connected account (needed for connectedAccountId)
     const { connectedAccount } = await actions.getConnectedAccount({
       connectionName,
       identifier,
     });
-
-    // Step 2 — get site ID (needed for every subsequent tool call)
-    const session = await actions.executeTool({
-      toolName: 'tableau_session_get',
-      connectedAccountId: connectedAccount.id,
-      toolInput: {},
-    });
-    const siteId = session.session.site.id;
     ```
   </TabItem>
   <TabItem label="Python">
@@ -56,49 +43,108 @@ Call `tableau_session_get` at the start of each agent session to retrieve the si
     connection_name = "tableau"
     identifier = "user_123"
 
-    # Step 1 — get connected account (needed for connected_account_id)
     connected_account = actions.get_connected_account(
         connection_name=connection_name, identifier=identifier
     ).connected_account
-
-    # Step 2 — get site ID (needed for every subsequent tool call)
-    session = actions.execute_tool(
-        tool_name="tableau_session_get",
-        connected_account_id=connected_account.id,
-        tool_input={},
-    )
-    site_id = session["session"]["site"]["id"]
     ```
   </TabItem>
 </Tabs>
 
 ## Proxy API calls
 
-Use the Scalekit proxy to call any Tableau REST API endpoint directly. This is useful for endpoints not covered by the built-in tools:
+Use the Scalekit proxy to call any Tableau REST API endpoint directly. Binary downloads (PNG, PDF, Excel, `.twbx`, `.tdsx`) must use the proxy — use `tableau_session_get` to retrieve the site ID for the URL path:
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Node.js">
     ```typescript
-    // List all workbooks on the site
-    const result = await actions.request({
+    // Get site ID once (needed for proxy URL construction)
+    const session = await actions.executeTool({
+      toolName: 'tableau_session_get',
+      connectedAccountId: connectedAccount.id,
+      toolInput: {},
+    });
+    const siteId = session.session.site.id;
+
+    // Export a view as PNG
+    const imageBytes = await actions.request({
       connectionName,
       identifier,
-      path: `/api/3.28/sites/${siteId}/workbooks`,
+      path: `/api/3.28/sites/${siteId}/views/${viewId}/image`,
+      method: 'GET',
+      queryParams: { resolution: 'high' },
+    });
+
+    // Export a view as PDF
+    const pdfBytes = await actions.request({
+      connectionName,
+      identifier,
+      path: `/api/3.28/sites/${siteId}/views/${viewId}/pdf`,
+      method: 'GET',
+      queryParams: { type: 'a4', orientation: 'landscape' },
+    });
+
+    // Download a workbook (.twbx)
+    const workbookBytes = await actions.request({
+      connectionName,
+      identifier,
+      path: `/api/3.28/sites/${siteId}/workbooks/${workbookId}/content`,
       method: 'GET',
     });
-    console.log(result.workbooks);
+
+    // Download a data source (.tdsx)
+    const datasourceBytes = await actions.request({
+      connectionName,
+      identifier,
+      path: `/api/3.28/sites/${siteId}/datasources/${datasourceId}/content`,
+      method: 'GET',
+    });
     ```
   </TabItem>
   <TabItem label="Python">
     ```python
-    # List all workbooks on the site
-    result = actions.request(
+    # Get site ID once (needed for proxy URL construction)
+    session = actions.execute_tool(
+        tool_name="tableau_session_get",
+        connected_account_id=connected_account.id,
+        tool_input={},
+    )
+    site_id = session["session"]["site"]["id"]
+
+    # Export a view as PNG
+    image_bytes = actions.request(
         connection_name=connection_name,
         identifier=identifier,
-        path=f"/api/3.28/sites/{site_id}/workbooks",
+        path=f"/api/3.28/sites/{site_id}/views/{view_id}/image",
+        method="GET",
+        params={"resolution": "high"},
+    )
+    with open("dashboard.png", "wb") as f:
+        f.write(image_bytes)
+
+    # Export a view as PDF
+    pdf_bytes = actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path=f"/api/3.28/sites/{site_id}/views/{view_id}/pdf",
+        method="GET",
+        params={"type": "a4", "orientation": "landscape"},
+    )
+
+    # Download a workbook (.twbx)
+    workbook_bytes = actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path=f"/api/3.28/sites/{site_id}/workbooks/{workbook_id}/content",
         method="GET",
     )
-    print(result["workbooks"])
+
+    # Download a data source (.tdsx)
+    datasource_bytes = actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path=f"/api/3.28/sites/{site_id}/datasources/{datasource_id}/content",
+        method="GET",
+    )
     ```
   </TabItem>
 </Tabs>
@@ -118,18 +164,23 @@ Use the Scalekit proxy to call any Tableau REST API endpoint directly. This is u
     const workbooks = await actions.executeTool({
       toolName: 'tableau_workbooks_list',
       connectedAccountId: connectedAccount.id,
-      toolInput: { site_id: siteId },
+      toolInput: {},
     });
     // workbooks.workbooks.workbook[] — each has id, name, contentUrl, project
 
+    // Search for a workbook by name
+    const found = await actions.executeTool({
+      toolName: 'tableau_workbook_search',
+      connectedAccountId: connectedAccount.id,
+      toolInput: { name: 'SalesReport' },
+    });
+
     // List all views within a workbook
+    const workbookId = workbooks.workbooks.workbook[0].id;
     const views = await actions.executeTool({
       toolName: 'tableau_list_views',
       connectedAccountId: connectedAccount.id,
-      toolInput: {
-        site_id: siteId,
-        workbook_id: workbooks.workbooks.workbook[0].id,
-      },
+      toolInput: { workbook_id: workbookId },
     });
     // views.views.view[] — each has id, name, contentUrl
     ```
@@ -140,86 +191,28 @@ Use the Scalekit proxy to call any Tableau REST API endpoint directly. This is u
     workbooks = actions.execute_tool(
         tool_name="tableau_workbooks_list",
         connected_account_id=connected_account.id,
-        tool_input={"site_id": site_id},
+        tool_input={},
     )
     # workbooks["workbooks"]["workbook"] — each has id, name, contentUrl, project
+
+    # Search for a workbook by name
+    found = actions.execute_tool(
+        tool_name="tableau_workbook_search",
+        connected_account_id=connected_account.id,
+        tool_input={"name": "SalesReport"},
+    )
 
     # List all views within a workbook
     workbook_id = workbooks["workbooks"]["workbook"][0]["id"]
     views = actions.execute_tool(
         tool_name="tableau_list_views",
         connected_account_id=connected_account.id,
-        tool_input={"site_id": site_id, "workbook_id": workbook_id},
+        tool_input={"workbook_id": workbook_id},
     )
     # views["views"]["view"] — each has id, name, contentUrl
     ```
   </TabItem>
 </Tabs>
-
-### Export a view as PNG image
-
-<Tabs syncKey="tech-stack">
-  <TabItem label="Node.js">
-    ```typescript
-    // Export a dashboard or sheet as a PNG image
-    // Use the Scalekit proxy (not executeTool) for binary responses
-    const imageBytes = await actions.request({
-      connectionName,
-      identifier,
-      path: `/api/3.28/sites/${siteId}/views/${viewId}/image`,
-      method: 'GET',
-      queryParams: { resolution: 'high' }, // optional: 'high' or 'standard'
-    });
-    // imageBytes is the raw PNG binary — write to file or send in response
-    ```
-  </TabItem>
-  <TabItem label="Python">
-    ```python
-    # Export a dashboard or sheet as a PNG image
-    # Use the proxy (not execute_tool) for binary responses
-    image_bytes = actions.request(
-        connection_name=connection_name,
-        identifier=identifier,
-        path=f"/api/3.28/sites/{site_id}/views/{view_id}/image",
-        method="GET",
-        params={"resolution": "high"},  # optional: 'high' or 'standard'
-    )
-    with open("dashboard.png", "wb") as f:
-        f.write(image_bytes)
-    ```
-  </TabItem>
-</Tabs>
-
-### Export a view as PDF
-
-<Tabs syncKey="tech-stack">
-  <TabItem label="Node.js">
-    ```typescript
-    const pdfBytes = await actions.request({
-      connectionName,
-      identifier,
-      path: `/api/3.28/sites/${siteId}/views/${viewId}/pdf`,
-      method: 'GET',
-      queryParams: { type: 'a4', orientation: 'landscape' },
-    });
-    ```
-  </TabItem>
-  <TabItem label="Python">
-    ```python
-    pdf_bytes = actions.request(
-        connection_name=connection_name,
-        identifier=identifier,
-        path=f"/api/3.28/sites/{site_id}/views/{view_id}/pdf",
-        method="GET",
-        params={"type": "a4", "orientation": "landscape"},
-    )
-    ```
-  </TabItem>
-</Tabs>
-
-<Aside type="note" title="Binary exports use the proxy, not execute_tool">
-  Tools that return binary files (PNG, PDF, Excel, .twbx, .tdsx) must be called via `actions.request()` (the proxy method), not `actions.executeTool()`. The tool definitions are provided for reference and LLM tool-calling — use the proxy for file downloads in your application code.
-</Aside>
 
 ### Trigger a data source refresh and poll the job
 
@@ -230,7 +223,7 @@ Use the Scalekit proxy to call any Tableau REST API endpoint directly. This is u
     const refresh = await actions.executeTool({
       toolName: 'tableau_datasource_refresh',
       connectedAccountId: connectedAccount.id,
-      toolInput: { site_id: siteId, datasource_id: datasourceId },
+      toolInput: { datasource_id: datasourceId },
     });
     const jobId = refresh.job.id;
 
@@ -241,7 +234,7 @@ Use the Scalekit proxy to call any Tableau REST API endpoint directly. This is u
       job = await actions.executeTool({
         toolName: 'tableau_job_get',
         connectedAccountId: connectedAccount.id,
-        toolInput: { site_id: siteId, job_id: jobId },
+        toolInput: { job_id: jobId },
       });
     } while (job.job.status === 'InProgress');
 
@@ -256,7 +249,7 @@ Use the Scalekit proxy to call any Tableau REST API endpoint directly. This is u
     refresh = actions.execute_tool(
         tool_name="tableau_datasource_refresh",
         connected_account_id=connected_account.id,
-        tool_input={"site_id": site_id, "datasource_id": datasource_id},
+        tool_input={"datasource_id": datasource_id},
     )
     job_id = refresh["job"]["id"]
 
@@ -266,7 +259,7 @@ Use the Scalekit proxy to call any Tableau REST API endpoint directly. This is u
         job = actions.execute_tool(
             tool_name="tableau_job_get",
             connected_account_id=connected_account.id,
-            tool_input={"site_id": site_id, "job_id": job_id},
+            tool_input={"job_id": job_id},
         )
         if job["job"]["status"] != "InProgress":
             break
@@ -288,7 +281,7 @@ Call `tableau_auth_signout` to invalidate the session token when the agent sessi
       connectedAccountId: connectedAccount.id,
       toolInput: {},
     });
-    // The stored session token is now invalid — refresh before next use
+    // The stored session token is now invalid — Scalekit will refresh on next call
     ```
   </TabItem>
   <TabItem label="Python">
@@ -298,7 +291,7 @@ Call `tableau_auth_signout` to invalidate the session token when the agent sessi
         connected_account_id=connected_account.id,
         tool_input={},
     )
-    # The stored session token is now invalid — refresh before next use
+    # The stored session token is now invalid — Scalekit will refresh on next call
     ```
   </TabItem>
 </Tabs>

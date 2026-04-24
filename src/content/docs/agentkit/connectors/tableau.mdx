@@ -37,6 +37,7 @@ Tableau uses **session token** authentication. You store your Personal Access To
 2. Before each tool call, Scalekit checks if the session token is still valid (with a 5-minute buffer)
 3. If the token has expired or is about to expire, Scalekit signs in automatically using the stored PAT credentials
 4. The fresh session token is injected as `X-Tableau-Auth` — your code does nothing
+5. After sign-in, the **site ID** (site LUID) is stored automatically in the connected account — you do not pass `site_id` to tool calls
 
 <details>
 <summary>Set up the connector</summary>
@@ -54,26 +55,25 @@ Tableau uses **session token** authentication. You store your Personal Access To
 
 ## Getting resource IDs
 
-Most Tableau tools require a `site_id` plus one or more resource LUIDs. Always fetch them from the API — never guess or hard-code them.
+Most Tableau tools require one or more resource LUIDs. The **site ID is resolved automatically** by Scalekit after sign-in — you do not pass it to tool calls. Always fetch other IDs from the API — never guess or hard-code them.
 
 | Resource | Tool to get ID | Field in response |
 |----------|---------------|-------------------|
-| Site ID | `tableau_session_get` | `session.site.id` |
-| Workbook ID | `tableau_workbooks_list` | `workbooks.workbook[].id` |
+| Workbook ID | `tableau_workbooks_list` or `tableau_workbook_search` | `workbooks.workbook[].id` |
 | View ID | `tableau_views_list` or `tableau_list_views` | `views.view[].id` |
 | Data Source ID | `tableau_datasources_list` | `datasources.datasource[].id` |
 | Project ID | `tableau_projects_list` | `projects.project[].id` |
 | User ID | `tableau_users_list` | `users.user[].id` |
 | Group ID | `tableau_groups_list` | `groups.group[].id` |
 | Job ID | `tableau_datasource_refresh` or `tableau_workbook_refresh` response | `job.id` |
+| Site ID (proxy only) | `tableau_session_get` | `session.site.id` |
 
 **Recommended start sequence for any agent session:**
 
 ```
-1. tableau_session_get          → cache site_id
-2. tableau_workbooks_list       → discover workbooks
-3. tableau_list_views           → discover views within a workbook
-4. tableau_datasources_list     → discover data sources
+1. tableau_workbooks_list       → discover workbooks
+2. tableau_list_views           → discover views within a workbook
+3. tableau_datasources_list     → discover data sources
 ```
 
 ## Tool list
