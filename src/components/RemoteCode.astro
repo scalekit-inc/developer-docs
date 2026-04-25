@@ -79,7 +79,23 @@ const extractCode = async (url: string, tags?: string): Promise<string> => {
   throw new Error('Unexpected error in extractCode')
 }
 
-const remoteSelectedCode = await extractCode(url, tags)
+let remoteSelectedCode = ''
+let renderLang = lang
+
+try {
+  remoteSelectedCode = await extractCode(url, tags)
+} catch (error) {
+  renderLang = 'plaintext'
+  remoteSelectedCode = [
+    `Unable to fetch remote code during this build.`,
+    `Source: ${url}`,
+    ``,
+    `Build note: check network access or replace this RemoteCode usage with a local source.`,
+  ].join('\n')
+  console.warn(
+    `[RemoteCode] Falling back to placeholder content for ${title ?? url}: ${(error as Error).message}`,
+  )
+}
 
 function selectTagged(content: string, tags: string): string {
   let lines = content.split('\n')
@@ -129,4 +145,4 @@ function prefixSpaces(str: string): number {
     </p>
   )
 }
-<Code code={remoteSelectedCode} lang={lang} {...rest} />
+<Code code={remoteSelectedCode} lang={renderLang} {...rest} />
