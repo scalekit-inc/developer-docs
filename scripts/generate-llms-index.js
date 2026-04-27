@@ -9,7 +9,7 @@
  * Usage: node scripts/generate-llms-index.js
  */
 
-import { readFile, writeFile, readdir, stat } from 'node:fs/promises'
+import { readFile, writeFile, readdir } from 'node:fs/promises'
 import { join, relative, extname, basename } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -34,7 +34,7 @@ const CUSTOM_SETS = [
   {
     label: 'AgentKit Frameworks',
     slug: 'agentkit-frameworks',
-    desc: 'framework-specific integration guides — LangChain, Vercel AI, Anthropic, OpenAI, Google ADK, Mastra, Agno, MCP',
+    desc: 'framework-specific integration guides — LangChain, Vercel AI, Anthropic, OpenAI, Google ADK, Mastra, Claude Managed Agents',
   },
   {
     label: 'MCP Authentication',
@@ -90,12 +90,12 @@ function parseFrontmatter(content) {
  * Walk a directory recursively and yield all .md/.mdx file paths.
  */
 async function* walk(dir) {
-  for (const entry of await readdir(dir)) {
-    const full = join(dir, entry)
-    if ((await stat(full)).isDirectory()) {
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name)
+    if (entry.isDirectory()) {
       yield* walk(full)
-    } else {
-      const ext = extname(entry)
+    } else if (entry.isFile()) {
+      const ext = extname(entry.name)
       if (ext === '.md' || ext === '.mdx') yield full
     }
   }
@@ -183,8 +183,7 @@ const AGENTKIT_SECTIONS = [
 const OTHER_SECTIONS = [
   {
     heading: 'MCP Authentication',
-    match: (p) =>
-      p.startsWith('/authenticate/mcp/') || p.startsWith('/agentkit/mcp/') || p.startsWith('/mcp/'),
+    match: (p) => p.startsWith('/authenticate/mcp/') || p.startsWith('/mcp/'),
   },
   {
     heading: 'SaaSKit / Full Stack Auth',
