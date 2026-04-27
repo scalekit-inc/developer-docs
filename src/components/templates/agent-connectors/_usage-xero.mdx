@@ -1,0 +1,129 @@
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+Once a connected account is set up, call the Xero API through the Scalekit proxy. Scalekit injects the OAuth token automatically — you never handle tokens in your application code.
+
+## Proxy API calls
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const connectionName = 'xero';   // connection name from your Scalekit dashboard
+    const identifier = 'user_123';   // your user's unique identifier
+
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    const actions = scalekit.actions;
+
+    // List invoices via proxy
+    const result = await actions.request({
+      connectionName,
+      identifier,
+      path: '/Invoices',
+      method: 'GET',
+      headers: { 'Xero-Tenant-Id': '<xero_tenant_id>' },
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    connection_name = "xero"   # connection name from your Scalekit dashboard
+    identifier = "user_123"    # your user's unique identifier
+
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+    actions = scalekit_client.actions
+
+    # List invoices via proxy
+    result = actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/Invoices",
+        method="GET",
+        headers={"Xero-Tenant-Id": "<xero_tenant_id>"},
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+## Scalekit tools
+
+Use `execute_tool` to call Xero tools directly. Scalekit resolves the connected account, injects the OAuth token, and returns a structured response.
+
+### List invoices and create a new one
+
+```python title="examples/xero_invoices.py"
+import scalekit.client, os
+from dotenv import load_dotenv
+load_dotenv()
+
+scalekit_client = scalekit.client.ScalekitClient(
+    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+    env_url=os.getenv("SCALEKIT_ENV_URL"),
+)
+actions = scalekit_client.actions
+
+response = actions.get_or_create_connected_account(
+    connection_name="xero",
+    identifier="user_123"
+)
+connected_account = response.connected_account
+
+# Step 1: List existing invoices
+invoices = actions.execute_tool(
+    tool_name="xero_invoices_list",
+    connected_account_id=connected_account.id,
+    tool_input={
+        "xero_tenant_id": "<your-tenant-id>",
+        "Statuses": "AUTHORISED",
+        "page": 1
+    }
+)
+print(invoices.result)
+
+# Step 2: Get a contact to bill
+contacts = actions.execute_tool(
+    tool_name="xero_contacts_list",
+    connected_account_id=connected_account.id,
+    tool_input={
+        "xero_tenant_id": "<your-tenant-id>",
+        "searchTerm": "Acme"
+    }
+)
+contact_id = contacts.result["Contacts"][0]["ContactID"]
+
+# Step 3: Create a new invoice
+new_invoice = actions.execute_tool(
+    tool_name="xero_invoice_create",
+    connected_account_id=connected_account.id,
+    tool_input={
+        "xero_tenant_id": "<your-tenant-id>",
+        "Type": "ACCREC",
+        "Contact": {"ContactID": contact_id},
+        "LineItems": [
+            {"Description": "Consulting services", "Quantity": 1, "UnitAmount": 500.00, "AccountCode": "200"}
+        ],
+        "Status": "DRAFT"
+    }
+)
+print("Created invoice:", new_invoice.result["Invoices"][0]["InvoiceID"])
+```
+
+<Aside type="note" title="Xero tenant ID">
+  Every tool call requires a `xero_tenant_id`. Fetch your tenant ID from `https://api.xero.com/connections` using the stored OAuth token, or retrieve it from `xero_accounts_list` and note the value your user selected during authorization.
+</Aside>

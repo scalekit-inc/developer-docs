@@ -1,0 +1,77 @@
+---
+title: Xero
+tableOfContents: true
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/xero.svg
+connectorAuthType: OAuth 2.0
+connectorCategories: [accounting, finance, invoicing]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/xero'
+import { SetupXeroSection } from '@components/templates'
+import { UsageXeroSection } from '@components/templates'
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Manage the chart of accounts** — list, create, update, and archive accounts
+- **Work with contacts** — create and update customers and suppliers, manage contact groups
+- **Create and manage invoices** — draft, authorise, update, and void invoices and bills
+- **Handle payments and credit notes** — list payments, overpayments, prepayments, batch payments, and credit notes
+- **Manage inventory** — create, update, and delete inventory items
+- **Process purchase orders and quotes** — create, update, and track purchase orders and quotes
+- **Record manual journals** — create and post manual journal entries
+- **Manage employees** — create and update employee records
+- **Run financial reports** — generate Balance Sheet, Profit & Loss, Trial Balance, Aged Payables/Receivables, Bank Summary, and Executive Summary reports
+- **Access organisation settings** — list currencies, tax rates, tracking categories, and users
+
+## Authentication
+
+This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to Xero, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
+
+You supply your Xero **app credentials** (Client ID + Secret) once per environment in the Scalekit dashboard.
+
+<details>
+<summary>Set up the connector</summary>
+
+<SetupXeroSection />
+
+</details>
+
+<details>
+<summary>Code examples</summary>
+
+<UsageXeroSection />
+
+</details>
+
+## Getting resource IDs
+
+Every tool call requires a `xero_tenant_id`. All other IDs must be fetched from the API — never guess or hard-code them.
+
+| Resource | Tool to get ID | Field in response |
+|----------|---------------|-------------------|
+| Tenant ID | Fetch from `https://api.xero.com/connections` after OAuth | `tenantId` |
+| Account ID | `xero_accounts_list` | `Accounts[].AccountID` |
+| Contact ID | `xero_contacts_list` | `Contacts[].ContactID` |
+| Invoice ID | `xero_invoices_list` | `Invoices[].InvoiceID` |
+| Credit Note ID | `xero_credit_notes_list` | `CreditNotes[].CreditNoteID` |
+| Purchase Order ID | `xero_purchase_orders_list` | `PurchaseOrders[].PurchaseOrderID` |
+| Quote ID | `xero_quotes_list` | `Quotes[].QuoteID` |
+| Item ID | `xero_items_list` | `Items[].ItemID` |
+| Manual Journal ID | `xero_manual_journals_list` | `ManualJournals[].ManualJournalID` |
+| Employee ID | `xero_employees_list` | `Employees[].EmployeeID` |
+| Contact Group ID | `xero_contact_groups_list` | `ContactGroups[].ContactGroupID` |
+| Tracking Category ID | `xero_tracking_categories_list` | `TrackingCategories[].TrackingCategoryID` |
+| User ID | `xero_users_list` | `Users[].UserID` |
+
+## Tool list
+
+<ToolList tools={tools} />
