@@ -290,6 +290,16 @@ export const redirects = {
     '/guides/integrations/social-connections/salesforce/',
 
   // =============================================================================
+  // OAUTH / OIDC DISCOVERY REDIRECTS
+  // =============================================================================
+
+  // Publish discovery endpoints so agents can find auth metadata programmatically.
+  // Both paths point to the same OIDC document (superset of OAuth AS metadata).
+  '/.well-known/openid-configuration': 'https://auth.scalekit.com/.well-known/openid-configuration',
+  '/.well-known/oauth-authorization-server':
+    'https://auth.scalekit.com/.well-known/openid-configuration',
+
+  // =============================================================================
   // GENERAL / OTHER REDIRECTS
   // =============================================================================
 
