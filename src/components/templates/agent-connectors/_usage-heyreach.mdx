@@ -1,0 +1,267 @@
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+Once a connected account is set up, call the HeyReach API through the Scalekit proxy. Scalekit injects the API key automatically — you never handle credentials in your application code.
+
+## Proxy API calls
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const connectionName = 'heyreach';   // connection name from your Scalekit dashboard
+    const identifier = 'user_123';       // your user's unique identifier
+
+    // Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    const actions = scalekit.actions;
+
+    // Verify the connected API key works — no key needed in your code
+    const result = await actions.request({
+      connectionName,
+      identifier,
+      path: '/auth/CheckApiKey',
+      method: 'GET',
+    });
+    console.log('API key valid:', result.status === 200);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    connection_name = "heyreach"   # connection name from your Scalekit dashboard
+    identifier = "user_123"        # your user's unique identifier
+
+    # Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+    actions = scalekit_client.actions
+
+    # Verify the connected API key works — no key needed in your code
+    result = actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/auth/CheckApiKey",
+        method="GET"
+    )
+    print("API key valid:", result.status_code == 200)
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="tip" title="No OAuth flow needed">
+  HeyReach uses API key auth — unlike OAuth connectors, there is no authorization link or redirect flow. Once you call `upsertConnectedAccount` (or add an account via the dashboard), your users can make requests immediately.
+</Aside>
+
+## Scalekit tools
+
+Use `execute_tool` to call HeyReach tools directly from your code. Scalekit resolves the connected account, injects the API key, and returns a structured response — no raw HTTP needed.
+
+### Add leads to a campaign
+
+The most common HeyReach workflow: pick an active campaign, choose a LinkedIn sender account to send from, and add up to 100 leads in a single call. Each lead is bound to a specific sender — so a campaign with multiple senders can round-robin or be sharded by your code.
+
+```python title="examples/heyreach_add_leads.py"
+import scalekit.client, os
+from dotenv import load_dotenv
+load_dotenv()
+
+scalekit_client = scalekit.client.ScalekitClient(
+    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+    env_url=os.getenv("SCALEKIT_ENV_URL"),
+)
+actions = scalekit_client.actions
+
+# Resolve connected account (API key auth — no OAuth redirect needed)
+response = actions.get_or_create_connected_account(
+    connection_name="heyreach",
+    identifier="user_123"
+)
+connected_account = response.connected_account
+
+# Step 1: Pick a campaign and one of its sender accounts
+campaigns = actions.execute_tool(
+    tool_name="heyreach_get_all_campaigns",
+    connected_account_id=connected_account.id,
+    tool_input={"limit": 25}
+)
+campaign = campaigns.result["items"][0]              # or filter by name/status
+sender_account_id = campaign["campaignAccountIds"][0]
+print(f"Adding leads to campaign {campaign['id']} via sender {sender_account_id}")
+
+# Step 2: Add up to 100 leads bound to that sender account
+new_leads = [
+    {"profileUrl": "https://www.linkedin.com/in/jane-doe"},
+    {"profileUrl": "https://www.linkedin.com/in/john-smith"},
+]
+result = actions.execute_tool(
+    tool_name="heyreach_add_leads_to_campaign",
+    connected_account_id=connected_account.id,
+    tool_input={
+        "campaignId": campaign["id"],
+        "accountLeadPairs": [
+            {"linkedInAccountId": sender_account_id, "lead": lead}
+            for lead in new_leads
+        ],
+        # Auto-resume the campaign if it's paused or already finished
+        "resumePausedCampaign": True,
+        "resumeFinishedCampaign": True,
+    }
+)
+print(f"Added {len(new_leads)} leads:", result.result)
+```
+
+### Look up a lead before reaching out
+
+Verify a lead already exists in HeyReach (and check their tags or enrichment status) before adding them to a campaign — this avoids duplicate outreach and lets you skip leads that are already engaged.
+
+```python title="examples/heyreach_get_lead.py"
+result = actions.execute_tool(
+    tool_name="heyreach_get_lead",
+    connected_account_id=connected_account.id,
+    tool_input={
+        "profileUrl": "https://www.linkedin.com/in/jane-doe"
+    }
+)
+
+lead = result.result
+if lead:
+    print(f"{lead['fullName']} — {lead.get('position') or lead.get('summary')}")
+    print(f"  Company:  {lead.get('companyName')}")
+    print(f"  Location: {lead.get('location')}")
+    print(f"  Email:    {lead.get('emailAddress') or lead.get('enrichedEmailAddress')}")
+else:
+    print("Lead not found — safe to add to a new campaign.")
+```
+
+### Monitor inbox replies
+
+After outreach goes out, poll the unified LinkedIn inbox for unseen replies. Filter by campaign or sender account so you only surface conversations relevant to your agent's workflow.
+
+<Aside type="note" title="Default cap on conversations">
+  `heyreach_get_conversations` defaults to `limit: 10` to protect LLM context — HeyReach's own default can return 400 KB+ payloads. Pass a larger `limit` explicitly only when you need more.
+</Aside>
+
+```python title="examples/heyreach_inbox.py"
+result = actions.execute_tool(
+    tool_name="heyreach_get_conversations",
+    connected_account_id=connected_account.id,
+    tool_input={
+        "campaignIds": [campaign["id"]],   # filter to one campaign
+        "seen": False,                      # only unseen conversations
+        "limit": 25,
+    }
+)
+
+for convo in result.result.get("items", []):
+    profile = convo.get("correspondentProfile", {})
+    messages = convo.get("messages", [])
+    last_msg = messages[-1] if messages else {}
+    print(f"📬 {profile.get('fullName')} — {profile.get('profileUrl')}")
+    print(f"   {last_msg.get('createdAt')} ({last_msg.get('sender')}): "
+          f"{(last_msg.get('body') or '')[:120]}")
+```
+
+### Track campaign performance
+
+Pull aggregate metrics for one or more campaigns — connection acceptance rate, message reply rate, InMail performance — to power dashboards or trigger follow-up actions when a campaign underperforms.
+
+```python title="examples/heyreach_stats.py"
+# Get all sender accounts associated with the campaign
+sender_accounts = campaign["campaignAccountIds"]
+
+stats = actions.execute_tool(
+    tool_name="heyreach_get_overall_stats",
+    connected_account_id=connected_account.id,
+    tool_input={
+        "CampaignIds": [campaign["id"]],
+        "AccountIds": sender_accounts,
+    }
+)
+
+# Response wraps aggregates under `overallStats` and a per-day breakdown
+# under `byDayStats` — use `overallStats` for top-line numbers.
+s = stats.result["overallStats"]
+print(f"Campaign {campaign['id']} — '{campaign['name']}'")
+print(f"  Connection requests: {s['connectionsSent']} sent / {s['connectionsAccepted']} accepted")
+print(f"  Acceptance rate:     {s['connectionAcceptanceRate']:.1%}")
+print(f"  Messages:            {s['messagesSent']} sent / {s['totalMessageReplies']} replied")
+print(f"  Reply rate:          {s['messageReplyRate']:.1%}")
+```
+
+### LangChain integration
+
+Let an LLM decide which HeyReach tool to call based on natural language. This example builds an agent that can list campaigns, add leads, and surface inbox replies on demand.
+
+```python title="examples/heyreach_langchain.py"
+import scalekit.client, os
+from dotenv import load_dotenv
+from langchain_openai import ChatOpenAI
+from langchain.agents import AgentExecutor, create_openai_tools_agent
+from langchain_core.prompts import (
+    ChatPromptTemplate, SystemMessagePromptTemplate,
+    HumanMessagePromptTemplate, MessagesPlaceholder, PromptTemplate
+)
+load_dotenv()
+
+scalekit_client = scalekit.client.ScalekitClient(
+    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+    env_url=os.getenv("SCALEKIT_ENV_URL"),
+)
+actions = scalekit_client.actions
+
+identifier = "user_123"
+
+# Resolve connected account (API key auth — no OAuth redirect needed)
+actions.get_or_create_connected_account(
+    connection_name="heyreach",
+    identifier=identifier
+)
+
+# Load all HeyReach tools in LangChain format
+tools = actions.langchain.get_tools(
+    identifier=identifier,
+    providers=["HEYREACH"],
+    page_size=100
+)
+
+prompt = ChatPromptTemplate.from_messages([
+    SystemMessagePromptTemplate(prompt=PromptTemplate(
+        input_variables=[],
+        template=(
+            "You are a LinkedIn outreach assistant with access to HeyReach tools. "
+            "Use heyreach_get_all_campaigns to find campaigns, heyreach_add_leads_to_campaign "
+            "to enroll new prospects, heyreach_get_conversations to monitor replies, and "
+            "heyreach_get_overall_stats to report on performance. Always confirm the campaign "
+            "and sender account before adding leads."
+        )
+    )),
+    MessagesPlaceholder(variable_name="chat_history", optional=True),
+    HumanMessagePromptTemplate(prompt=PromptTemplate(
+        input_variables=["input"], template="{input}"
+    )),
+    MessagesPlaceholder(variable_name="agent_scratchpad")
+])
+
+llm = ChatOpenAI(model="gpt-4o")
+agent = create_openai_tools_agent(llm, tools, prompt)
+agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+
+result = agent_executor.invoke({
+    "input": "Show me unread replies from my active LinkedIn campaigns in the last 24 hours, and tell me which campaign has the highest acceptance rate."
+})
+print(result["output"])
+```
