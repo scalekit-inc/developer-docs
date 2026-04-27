@@ -42,6 +42,16 @@ const MAX_RETRIES = 5
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
+/** Origin + path only; strips query and hash so tokens are not echoed in logs or placeholders. */
+function redactUrlForDisplay(raw: string): string {
+  try {
+    const parsed = new URL(raw)
+    return `${parsed.origin}${parsed.pathname}`
+  } catch {
+    return raw.split('?')[0]?.split('#')[0] ?? raw
+  }
+}
+
 const extractCode = async (url: string, tags?: string): Promise<string> => {
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
@@ -69,7 +79,7 @@ const extractCode = async (url: string, tags?: string): Promise<string> => {
         await sleep(delay)
       } else {
         throw new Error(
-          `Failed to fetch remote code at [${url}] after ${MAX_RETRIES} attempts. Last error: ${(err as Error).message}`,
+          `Failed to fetch remote code at [${redactUrlForDisplay(url)}] after ${MAX_RETRIES} attempts. Last error: ${(err as Error).message}`,
         )
       }
     }
@@ -81,19 +91,25 @@ const extractCode = async (url: string, tags?: string): Promise<string> => {
 
 let remoteSelectedCode = ''
 let renderLang = lang
+const sourceHint = redactUrlForDisplay(url)
 
 try {
   remoteSelectedCode = await extractCode(url, tags)
 } catch (error) {
+  const errorMessage = error instanceof Error ? error.message : String(error)
+  if (import.meta.env.PROD) {
+    throw new Error(`[RemoteCode] Failed to fetch ${sourceHint}: ${errorMessage}`)
+  }
+
   renderLang = 'plaintext'
   remoteSelectedCode = [
     `Unable to fetch remote code during this build.`,
-    `Source: ${url}`,
+    `Source: ${sourceHint}`,
     ``,
     `Build note: check network access or replace this RemoteCode usage with a local source.`,
   ].join('\n')
   console.warn(
-    `[RemoteCode] Falling back to placeholder content for ${title ?? url}: ${(error as Error).message}`,
+    `[RemoteCode] Falling back to placeholder content for ${title ?? sourceHint}: ${errorMessage}`,
   )
 }
 
