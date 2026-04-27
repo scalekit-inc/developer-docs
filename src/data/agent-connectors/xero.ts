@@ -453,7 +453,7 @@ export const tools: Tool[] = [
         name: 'Contact',
         type: 'string',
         required: true,
-        description: 'Contact object with ContactID.',
+        description: 'Contact object as JSON string with ContactID.',
       },
       {
         name: 'LineItems',
@@ -604,7 +604,7 @@ export const tools: Tool[] = [
         name: 'Contact',
         type: 'string',
         required: true,
-        description: 'Contact object with ContactID.',
+        description: 'Contact object as JSON string with ContactID.',
       },
       {
         name: 'LineItems',
@@ -1057,7 +1057,7 @@ export const tools: Tool[] = [
         name: 'Contact',
         type: 'string',
         required: true,
-        description: 'Contact object with ContactID.',
+        description: 'Contact object as JSON string with ContactID.',
       },
       {
         name: 'LineItems',
@@ -1190,7 +1190,7 @@ export const tools: Tool[] = [
         name: 'Contact',
         type: 'string',
         required: true,
-        description: 'Contact object with ContactID.',
+        description: 'Contact object as JSON string with ContactID.',
       },
       { name: 'Date', type: 'string', required: true, description: 'Quote date (YYYY-MM-DD).' },
       {
@@ -1248,7 +1248,7 @@ export const tools: Tool[] = [
         name: 'Contact',
         type: 'string',
         required: true,
-        description: 'Contact object with ContactID.',
+        description: 'Contact object as JSON string with ContactID.',
       },
       { name: 'Date', type: 'string', required: true, description: 'Quote date (YYYY-MM-DD).' },
       {
