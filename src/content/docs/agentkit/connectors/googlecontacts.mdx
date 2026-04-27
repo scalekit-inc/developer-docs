@@ -1,0 +1,65 @@
+---
+title: Google Contacts
+tableOfContents: true
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/googlecontacts.svg
+connectorAuthType: OAuth 2.0
+connectorCategories: [productivity]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/googlecontacts'
+import { SetupGooglecontactsSection } from '@components/templates'
+import { UsageGooglecontactsSection } from '@components/templates'
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Manage contacts** — create, read, update, and delete contacts; batch create, update, and delete up to 200–500 contacts in a single request
+- **Search contacts** — search across names, emails, and phone numbers in the main contacts list or "Other contacts"
+- **Handle contact groups** — create, update, delete, and modify membership of contact groups
+- **Work with other contacts** — list and search auto-generated contacts from email history, and copy them into the main contacts list
+- **Access directory** — list and search people in a Google Workspace domain directory (requires Workspace account)
+- **Manage photos** — upload or remove contact profile photos
+
+## Authentication
+
+This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to Google, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
+
+You supply your Google **OAuth app credentials** (Client ID + Secret) once per environment in the Scalekit dashboard.
+
+<details>
+<summary>Set up the connector</summary>
+
+<SetupGooglecontactsSection />
+
+</details>
+
+<details>
+<summary>Code examples</summary>
+
+<UsageGooglecontactsSection />
+
+</details>
+
+## Getting resource IDs
+
+Most tools require IDs that must be fetched from the API — never guess or hard-code them.
+
+| Resource | Tool to get ID | Field in response |
+|----------|---------------|-------------------|
+| Person ID | `googlecontacts_contacts_list` | `connections[].resourceName` (part after `people/`) |
+| Contact etag | `googlecontacts_contact_get` | `etag` |
+| Group ID | `googlecontacts_groups_list` | `contactGroups[].resourceName` (part after `contactGroups/`) |
+| Group etag | `googlecontacts_group_get` | `etag` |
+| Other contact person ID | `googlecontacts_other_contacts_list` | `otherContacts[].resourceName` (part after `people/`) |
+
+## Tool list
+
+<ToolList tools={tools} />
