@@ -10,20 +10,33 @@ export const llmsConfig: LlmsTxtConfig = {
     AGENT_PLUGIN_DETAILS_MD +
     `## How to use Scalekit documentation
 
-When a developer asks about Scalekit, use the section links below to route them 
-to the most relevant documentation. Load topic-specific files from "Documentation Sets" 
+When a developer asks about Scalekit, use the section links below to route them
+to the most relevant documentation. Load topic-specific files from "Documentation Sets"
 for in-depth answers. Load \`llms-full.txt\` only when exhaustive context is needed.
 
 ## Product → Documentation routing
 
-- **SaaSKit (FSA/SSO/SCIM)**: users, orgs, sessions, RBAC, login flows, SSO, provisioning → load SaaSKit Complete set
-- **AgentKit**: AI agents, OAuth token vault, tool calling, connectors → load AgentKit set
-- **MCP Authentication**: remote MCP servers, OAuth 2.1, Dynamic Client Registration → load MCP Authentication set
-- **Enterprise SSO**: SAML/OIDC, Intra setup, SSO portal → load Enterprise SSO & SCIM set
-- **SCIM Provisioning**: user sync, directory provisioning, deprovisioning → load Enterprise SSO & SCIM set
-- **M2M / API Auth**: service-to-service, client credentials, API keys → load Machine-to-Machine Auth set
-- **SDK / API Reference**: endpoints, SDK methods, webhooks → load API & SDK Reference set
-- **Quickstarts**: getting started, initial setup → load Quickstart Collection set
+- **AgentKit** (AI agents, tool calling, connectors) → load Agent Authentication set
+- **AgentKit + specific framework** → fetch the framework page directly (see Framework routing below)
+- **SaaSKit / FSA** (login, sessions, RBAC) → load SaaSKit Complete set
+- **MCP Authentication** (OAuth 2.1 for MCP servers) → load MCP Authentication set
+- **Enterprise SSO / SCIM** → load Enterprise SSO & SCIM set
+- **M2M / API auth** → load Machine-to-Machine Auth set
+- **Quickstarts** → load Quickstart Collection set
+
+## Framework routing (AgentKit)
+
+When a developer mentions a specific AI framework, fetch that page directly:
+
+- LangChain → https://docs.scalekit.com/agentkit/examples/langchain.md
+- Vercel AI SDK → https://docs.scalekit.com/agentkit/examples/vercel-ai.md
+- Anthropic SDK → https://docs.scalekit.com/agentkit/examples/anthropic.md
+- OpenAI Agents SDK → https://docs.scalekit.com/agentkit/examples/openai.md
+- Google ADK → https://docs.scalekit.com/agentkit/examples/google-adk.md
+- Mastra → https://docs.scalekit.com/agentkit/examples/mastra.md
+- Claude Managed Agents → https://docs.scalekit.com/agentkit/examples/claude-managed-agents.md
+
+For all framework examples: https://docs.scalekit.com/agentkit/examples.md
 
 ## If unsure which product applies
 Start with the Quickstart Collection, then follow the developer's question to the relevant product set.
@@ -37,7 +50,7 @@ Start with the Quickstart Collection, then follow the developer's question to th
         'Complete SaaSKit documentation including FSA, SSO, SCIM, user management, and authorization',
       paths: [
         'authenticate/fsa/**',
-        'fsa/data-modelling.mdx',
+        'fsa/data-modelling',
         'authenticate/manage-users-orgs/**',
         'authenticate/authz/**',
         'authenticate/sso/**',
@@ -50,7 +63,18 @@ Start with the Quickstart Collection, then follow the developer's question to th
       label: 'AgentKit',
       description:
         'Complete AgentKit documentation with connectors, frameworks, and tool calling for AI agents',
-      paths: ['agentkit/**', 'dev-kit/ai-assisted-development/**'],
+      paths: ['agentkit/**', 'dev-kit/ai-assisted-development/**', 'cookbooks/**'],
+    },
+    {
+      label: 'AgentKit Frameworks',
+      description:
+        'Framework-specific AgentKit examples — LangChain, Vercel AI, Anthropic, OpenAI, Google ADK, Mastra, Claude Managed Agents',
+      paths: [
+        'agentkit/overview',
+        'agentkit/quickstart',
+        'agentkit/examples/**',
+        'agentkit/sdks/**',
+      ],
     },
     {
       label: 'MCP Authentication',
@@ -67,17 +91,17 @@ Start with the Quickstart Collection, then follow the developer's question to th
         'sso/**',
         'directory/**',
         'authenticate/manage-organizations/**',
-        'guides/sso/**',
+        // guides/sso/ contains only sso-migration-strategy (sidebar hidden) — omitted intentionally
       ],
     },
     {
       label: 'Quickstart Collection',
       description: 'All quickstart guides and getting started paths across all Scalekit products',
       paths: [
-        'index.mdx',
-        '**/quickstart.mdx',
-        'authenticate/fsa/implement-login.mdx',
-        'authenticate/set-up-scalekit.mdx',
+        'index',
+        '**/quickstart',
+        'authenticate/fsa/implement-login',
+        'authenticate/set-up-scalekit',
       ],
     },
     {
@@ -87,7 +111,7 @@ Start with the Quickstart Collection, then follow the developer's question to th
         'reference/**',
         'authenticate/auth-methods/**',
         'dev-kit/sdks/**',
-        'guides/authenticate-scalekit-api.mdx',
+        'guides/authenticate-scalekit-api',
       ],
     },
     {
@@ -95,8 +119,8 @@ Start with the Quickstart Collection, then follow the developer's question to th
       description:
         'Provider-specific integration guides overview and dashboard usage without individual provider details',
       paths: [
-        'guides/integrations/index.mdx',
-        'guides/integrations/*/index.mdx',
+        'guides/integrations/index',
+        'guides/integrations/*/index',
         'guides/dashboard/**',
         'dev-kit/api-collections/**',
       ],
@@ -112,13 +136,14 @@ Start with the Quickstart Collection, then follow the developer's question to th
   // Promote high-value pages to appear first in generated documentation
   promote: [
     'index*', // Homepage
-    '**/overview.mdx', // All overview pages
-    '**/quickstart.mdx', // All quickstart guides
+    '**/overview', // All overview pages
+    '**/quickstart', // All quickstart guides
+    'agentkit/examples/**', // Framework examples (high value for agent queries)
+    'cookbooks/**', // Practical cookbooks
     'fsa/data-modelling', // Critical data modeling guide
     'authenticate/set-up-scalekit', // Initial setup
     'authenticate/fsa/complete-login', // Core FSA flow
     'authenticate/fsa/implement-login', // Implementation guide
-    'agent-auth/quickstart', // Agent auth entry
     'authenticate/mcp/quickstart', // MCP entry
     'directory/scim/quickstart', // SCIM entry
     'sso/quickstart', // SSO entry
@@ -130,9 +155,10 @@ Start with the Quickstart Collection, then follow the developer's question to th
     'guides/integrations/sso-integrations/**', // Provider-specific SSO (12 files)
     'guides/integrations/scim-integrations/**', // Provider-specific SCIM (8 files)
     'guides/integrations/social-connections/**', // Social login providers (7 files)
-    '**/migration*.mdx', // Migration guides (3 files)
+    '**/migration*', // Migration guides (3 files)
     'browse/vids/**', // Video descriptions
     'browse/code-samples/**', // GitHub sample links
+    'agentkit/connectors/**', // 100+ connector pages — load only when connector-specific
   ],
 
   // Exclude verbose content from llms-small.txt to optimize for smaller context windows
@@ -142,9 +168,12 @@ Start with the Quickstart Collection, then follow the developer's question to th
     'guides/integrations/social-connections/**',
     'browse/vids/**',
     'browse/code-samples/**',
-    '**/migration-guide.mdx',
+    '**/migration-guide',
     'authenticate/mcp/troubleshooting',
     'dev-kit/resources/**',
+    // Pages with sidebar.hidden: true — not navigable, noindex, should not appear in any LLM set
+    '404',
+    'guides/sso/sso-migration-strategy',
   ],
 
   // Minify settings to reduce file size while preserving critical content
