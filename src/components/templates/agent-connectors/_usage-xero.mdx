@@ -89,7 +89,6 @@ invoices = actions.execute_tool(
     tool_name="xero_invoices_list",
     connected_account_id=connected_account.id,
     tool_input={
-        "xero_tenant_id": "<your-tenant-id>",
         "Statuses": "AUTHORISED",
         "page": 1
     }
@@ -101,7 +100,6 @@ contacts = actions.execute_tool(
     tool_name="xero_contacts_list",
     connected_account_id=connected_account.id,
     tool_input={
-        "xero_tenant_id": "<your-tenant-id>",
         "searchTerm": "Acme"
     }
 )
@@ -112,7 +110,6 @@ new_invoice = actions.execute_tool(
     tool_name="xero_invoice_create",
     connected_account_id=connected_account.id,
     tool_input={
-        "xero_tenant_id": "<your-tenant-id>",
         "Type": "ACCREC",
         "Contact": {"ContactID": contact_id},
         "LineItems": [
@@ -124,6 +121,6 @@ new_invoice = actions.execute_tool(
 print("Created invoice:", new_invoice.result["Invoices"][0]["InvoiceID"])
 ```
 
-<Aside type="note" title="Xero tenant ID">
-  Every tool call requires a `xero_tenant_id`. Fetch your tenant ID from `https://api.xero.com/connections` using the stored OAuth token, or retrieve it from `xero_accounts_list` and note the value your user selected during authorization.
+<Aside type="tip" title="Tenant ID is injected automatically">
+  When using `execute_tool`, you do not need to pass `xero_tenant_id`. Scalekit fetches the tenant ID automatically on the first tool call and caches it for subsequent calls. For raw proxy requests, you still need to supply the `Xero-Tenant-Id` header manually.
 </Aside>
