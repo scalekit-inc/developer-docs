@@ -78,8 +78,9 @@ const extractCode = async (url: string, tags?: string): Promise<string> => {
         const delay = 100 * Math.pow(2, attempt) // 100ms, 200ms, 400ms, ...
         await sleep(delay)
       } else {
+        const lastErrorMessage = err instanceof Error ? err.message : String(err)
         throw new Error(
-          `Failed to fetch remote code at [${redactUrlForDisplay(url)}] after ${MAX_RETRIES} attempts. Last error: ${(err as Error).message}`,
+          `Failed to fetch remote code at [${redactUrlForDisplay(url)}] after ${MAX_RETRIES} attempts. Last error: ${lastErrorMessage}`,
         )
       }
     }
