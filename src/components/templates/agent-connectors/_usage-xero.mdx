@@ -2,6 +2,10 @@ import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
 
 Once a connected account is set up, call the Xero API through the Scalekit proxy. Scalekit injects the OAuth token automatically — you never handle tokens in your application code.
 
+When you call any Xero tool via `execute_tool`, Scalekit automatically fetches the tenant ID from `https://api.xero.com/connections` on the first call and caches it. **You never need to pass `xero_tenant_id` in your tool inputs.**
+
+For raw proxy requests, you must supply the `Xero-Tenant-Id` header yourself. Trigger any tool call first (e.g. `xero_accounts_list`) so Scalekit caches the tenant ID, then retrieve it from the connected account's `api_config.path_variables`.
+
 ## Proxy API calls
 
 <Tabs syncKey="tech-stack">
@@ -20,13 +24,17 @@ Once a connected account is set up, call the Xero API through the Scalekit proxy
     );
     const actions = scalekit.actions;
 
+    // Fetch the connected account to read the cached tenant ID
+    const { connectedAccount } = await actions.getConnectedAccount({ connectionName, identifier });
+    const xeroTenantId = connectedAccount.apiConfig?.pathVariables?.xero_tenant_id;
+
     // List invoices via proxy
     const result = await actions.request({
       connectionName,
       identifier,
       path: '/Invoices',
       method: 'GET',
-      headers: { 'Xero-Tenant-Id': '<xero_tenant_id>' },
+      headers: { 'Xero-Tenant-Id': xeroTenantId },
     });
     console.log(result);
     ```
@@ -47,13 +55,19 @@ Once a connected account is set up, call the Xero API through the Scalekit proxy
     )
     actions = scalekit_client.actions
 
+    # Fetch the connected account to read the cached tenant ID
+    connected_account = actions.get_connected_account(
+        connection_name=connection_name, identifier=identifier
+    ).connected_account
+    xero_tenant_id = connected_account.api_config["path_variables"]["xero_tenant_id"]
+
     # List invoices via proxy
     result = actions.request(
         connection_name=connection_name,
         identifier=identifier,
         path="/Invoices",
         method="GET",
-        headers={"Xero-Tenant-Id": "<xero_tenant_id>"},
+        headers={"Xero-Tenant-Id": xero_tenant_id},
     )
     print(result)
     ```

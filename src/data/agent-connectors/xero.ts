@@ -8,8 +8,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID. Fetch from https://api.xero.com/connections.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'modified_after',
@@ -39,8 +39,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'account_id',
@@ -57,8 +57,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'Code',
@@ -102,8 +102,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'account_id',
@@ -131,8 +131,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'account_id',
@@ -149,8 +149,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'modified_after',
@@ -192,8 +192,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'contact_id',
@@ -210,8 +210,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       { name: 'Name', type: 'string', required: true, description: 'Contact name. e.g. Acme Corp' },
       {
@@ -252,8 +252,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'contact_id',
@@ -282,8 +282,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'order',
@@ -306,8 +306,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'contact_group_id',
@@ -324,8 +324,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'Name',
@@ -342,8 +342,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'contact_group_id',
@@ -361,8 +361,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'contact_group_id',
@@ -379,8 +379,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'ContactIDs',
@@ -428,8 +428,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'invoice_id',
@@ -446,8 +446,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'Contact',
@@ -497,8 +497,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'invoice_id',
@@ -530,8 +530,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'invoice_id',
@@ -548,8 +548,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'modified_after',
@@ -579,8 +579,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'credit_note_id',
@@ -597,8 +597,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'Contact',
@@ -641,8 +641,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'credit_note_id',
@@ -661,8 +661,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'modified_after',
@@ -692,8 +692,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'modified_after',
@@ -723,8 +723,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'modified_after',
@@ -754,8 +754,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'modified_after',
@@ -784,8 +784,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'modified_after',
@@ -815,8 +815,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'modified_after',
@@ -845,8 +845,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'modified_after',
@@ -875,8 +875,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'item_id',
@@ -893,8 +893,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'Code',
@@ -948,8 +948,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'item_id',
@@ -982,8 +982,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'item_id',
@@ -1000,8 +1000,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'DateFrom',
@@ -1032,8 +1032,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'purchase_order_id',
@@ -1050,8 +1050,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'Contact',
@@ -1100,8 +1100,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'purchase_order_id',
@@ -1132,8 +1132,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'ContactID',
@@ -1165,8 +1165,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'quote_id',
@@ -1183,8 +1183,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'Contact',
@@ -1235,8 +1235,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'quote_id',
@@ -1274,8 +1274,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'order',
@@ -1298,8 +1298,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'modified_after',
@@ -1329,8 +1329,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'manual_journal_id',
@@ -1347,8 +1347,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'JournalLines',
@@ -1374,8 +1374,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'manual_journal_id',
@@ -1401,8 +1401,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'modified_after',
@@ -1431,8 +1431,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'employee_id',
@@ -1449,8 +1449,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       { name: 'FirstName', type: 'string', required: true, description: 'First name. e.g. Jane' },
       { name: 'LastName', type: 'string', required: true, description: 'Last name. e.g. Doe' },
@@ -1465,8 +1465,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'employee_id',
@@ -1486,8 +1486,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'order',
@@ -1510,8 +1510,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'TaxType',
@@ -1540,8 +1540,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'Name',
@@ -1564,8 +1564,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'TaxComponents',
@@ -1596,8 +1596,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'order',
@@ -1620,8 +1620,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'tracking_category_id',
@@ -1645,8 +1645,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'tracking_category_id',
@@ -1663,8 +1663,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'tracking_category_id',
@@ -1682,8 +1682,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'modified_after',
@@ -1712,8 +1712,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'user_id',
@@ -1730,8 +1730,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'date',
@@ -1772,8 +1772,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'fromDate',
@@ -1820,8 +1820,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'date',
@@ -1844,8 +1844,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'contactID',
@@ -1875,8 +1875,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'contactID',
@@ -1906,8 +1906,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'fromDate',
@@ -1930,8 +1930,8 @@ export const tools: Tool[] = [
       {
         name: 'xero_tenant_id',
         type: 'string',
-        required: true,
-        description: 'Xero tenant (organisation) ID.',
+        required: false,
+        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
       },
       {
         name: 'date',
