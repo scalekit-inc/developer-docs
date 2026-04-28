@@ -68,6 +68,20 @@ Here's an example of the payload. Note this is formatted for readability and the
 | `permissions` | Optional | Array of permissions in `resource:action` format                 |
 | `scope`       | Optional | Space-separated list of OAuth scopes granted                     |
 
+## Include metadata claims in access tokens
+
+You can configure an access token template in the Scalekit Dashboard to embed custom metadata directly in the access token. When a template is active, Scalekit can include the following additional claims:
+
+| Claim | Source | Description |
+|-------|--------|-------------|
+| `user_metadata` | User record | Custom key-value pairs attached to the user |
+| `membership_metadata` | User's org membership | Custom key-value pairs attached to the user's membership in the organization |
+| `org_metadata` | Organization record | Custom key-value pairs attached to the organization |
+
+**Empty metadata is omitted**: If a metadata object contains no data, Scalekit does not add that claim to the token. Only non-empty metadata objects appear as claims.
+
+To configure a token template, go to **Dashboard → Developers → Token Templates**.
+
 ## Using access tokens for authorization
 
 After users authenticate through Scalekit, your application receives an access token containing their roles and permissions. Use this token to make authorization decisions and control access to features and resources.
