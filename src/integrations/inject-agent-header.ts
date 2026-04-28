@@ -1,6 +1,6 @@
 import { AGENT_PLUGIN_VISIBLE_MD, AGENT_DOCS_FOOTER } from '../configs/agent-instructions'
 import type { AstroIntegration } from 'astro'
-import { readdir, readFile, writeFile } from 'node:fs/promises'
+import { access, readdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -38,12 +38,14 @@ export function injectAgentHeader(): AstroIntegration {
         for await (const agentFile of walkAgentMdFiles(distPath)) {
           const mdFile = agentFile.replace(/\.agent\.md$/, '.md')
           try {
-            const content = await readFile(agentFile, 'utf-8')
-            await writeFile(mdFile, content)
-            overrides++
-          } catch {
-            // .md sibling may not exist for pages page-actions skipped — fine to ignore
+            await access(mdFile)
+          } catch (err) {
+            if ((err as NodeJS.ErrnoException).code === 'ENOENT') continue
+            throw err
           }
+          const content = await readFile(agentFile, 'utf-8')
+          await writeFile(mdFile, content)
+          overrides++
         }
         logger.info(`Overrode ${overrides} .md files with rendered .agent.md content`)
 
