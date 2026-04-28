@@ -13,12 +13,41 @@ async function* walkMdFiles(dir: string): AsyncGenerator<string> {
   }
 }
 
+async function* walkAgentMdFiles(dir: string): AsyncGenerator<string> {
+  const entries = await readdir(dir, { withFileTypes: true })
+  for (const entry of entries) {
+    const full = join(dir, entry.name)
+    if (entry.isDirectory()) yield* walkAgentMdFiles(full)
+    else if (entry.name.endsWith('.agent.md')) yield full
+  }
+}
+
 export function injectAgentHeader(): AstroIntegration {
   return {
     name: 'inject-agent-header',
     hooks: {
       'astro:build:done': async ({ dir, logger }) => {
         const distPath = fileURLToPath(dir)
+
+        // Override .md with .agent.md where both exist.
+        // starlight-page-actions copies raw .mdx source as .md but can't render custom
+        // components like <ProviderCatalog /> or <ToolList />. The agent-markdown system
+        // produces fully rendered .agent.md counterparts — copy those over the raw .md so
+        // the public .md URL returns the same high-quality content.
+        let overrides = 0
+        for await (const agentFile of walkAgentMdFiles(distPath)) {
+          const mdFile = agentFile.replace(/\.agent\.md$/, '.md')
+          try {
+            const content = await readFile(agentFile, 'utf-8')
+            await writeFile(mdFile, content)
+            overrides++
+          } catch {
+            // .md sibling may not exist for pages page-actions skipped — fine to ignore
+          }
+        }
+        logger.info(`Overrode ${overrides} .md files with rendered .agent.md content`)
+
+        // Inject the agent plugin discovery header into every .md file that doesn't have it yet.
         let count = 0
         for await (const file of walkMdFiles(distPath)) {
           const content = await readFile(file, 'utf-8')
