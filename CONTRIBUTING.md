@@ -18,7 +18,7 @@ This guide covers everything you need to go from zero to a merged pull request.
   - [Describe overridden components](#describe-overridden-components)
   - [Describe custom components](#describe-custom-components)
 - [Write and edit docs](#write-and-edit-docs)
-  - [Maintain Agent connector docs](#maintain-agent-connector-docs)
+  - [Maintain agent connector docs](#maintain-agent-connector-docs)
 - [Raise a pull request](#raise-a-pull-request)
 - [Report an issue](#report-an-issue)
 - [Get help](#get-help)
@@ -211,7 +211,7 @@ Additional component groups:
 
 All documentation pages live in `src/content/`. They are `.mdx` files (Markdown + JSX).
 
-### Maintain Agent connector docs
+### Maintain agent connector docs
 
 Agent connector docs use a generated workflow, not fully hand-written pages.
 
