@@ -2,7 +2,9 @@ import { Tabs, TabItem } from '@astrojs/starlight/components'
 
 Connect a user's HubSpot account and make API calls on their behalf — Scalekit handles OAuth and token management automatically.
 
-## Proxy API Calls
+## Proxy API calls
+
+Make authenticated requests to any HubSpot API endpoint through the Scalekit proxy.
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Node.js">
@@ -10,10 +12,10 @@ Connect a user's HubSpot account and make API calls on their behalf — Scalekit
     import { ScalekitClient } from '@scalekit-sdk/node';
     import 'dotenv/config';
 
-    const connectionName = 'hubspot'; // get your connection name from connection configurations
-    const identifier = 'user_123';  // your unique user identifier
+    const connectionName = 'hubspot'; // your connection name from Scalekit dashboard
+    const identifier = 'user_123';   // your unique user identifier
 
-    // Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+    // Get credentials from app.scalekit.com → Developers → Settings → API Credentials
     const scalekit = new ScalekitClient(
       process.env.SCALEKIT_ENV_URL,
       process.env.SCALEKIT_CLIENT_ID,
@@ -21,16 +23,16 @@ Connect a user's HubSpot account and make API calls on their behalf — Scalekit
     );
     const actions = scalekit.actions;
 
-    // Authenticate the user
+    // Authenticate the user (first time only)
     const { link } = await actions.getAuthorizationLink({
       connectionName,
       identifier,
     });
-    console.log('🔗 Authorize HubSpot:', link);
+    console.log('Authorize HubSpot:', link);
     process.stdout.write('Press Enter after authorizing...');
     await new Promise(r => process.stdin.once('data', r));
 
-    // Make a request via Scalekit proxy
+    // Make a request through the Scalekit proxy
     const result = await actions.request({
       connectionName,
       identifier,
@@ -46,10 +48,10 @@ Connect a user's HubSpot account and make API calls on their behalf — Scalekit
     from dotenv import load_dotenv
     load_dotenv()
 
-    connection_name = "hubspot"  # get your connection name from connection configurations
-    identifier = "user_123"     # your unique user identifier
+    connection_name = "hubspot"  # your connection name from Scalekit dashboard
+    identifier = "user_123"      # your unique user identifier
 
-    # Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+    # Get credentials from app.scalekit.com → Developers → Settings → API Credentials
     scalekit_client = scalekit.client.ScalekitClient(
         client_id=os.getenv("SCALEKIT_CLIENT_ID"),
         client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
@@ -57,16 +59,15 @@ Connect a user's HubSpot account and make API calls on their behalf — Scalekit
     )
     actions = scalekit_client.actions
 
-    # Authenticate the user
+    # Authenticate the user (first time only)
     link_response = actions.get_authorization_link(
         connection_name=connection_name,
         identifier=identifier
     )
-    # present this link to your user for authorization, or click it yourself for testing
-    print("🔗 Authorize HubSpot:", link_response.link)
+    print("Authorize HubSpot:", link_response.link)
     input("Press Enter after authorizing...")
 
-    # Make a request via Scalekit proxy
+    # Make a request through the Scalekit proxy
     result = actions.request(
         connection_name=connection_name,
         identifier=identifier,
@@ -78,3 +79,198 @@ Connect a user's HubSpot account and make API calls on their behalf — Scalekit
   </TabItem>
 </Tabs>
 
+## Execute tools
+
+Use `execute_tool` to call any HubSpot tool by name with typed parameters.
+
+### Create a contact
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const contact = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'hubspot_contact_create',
+      parameters: {
+        email: 'jane.smith@acme.com',
+        firstname: 'Jane',
+        lastname: 'Smith',
+        jobtitle: 'VP of Engineering',
+        company: 'Acme Corp',
+        lifecyclestage: 'lead',
+      },
+    });
+    console.log('Created contact ID:', contact.id);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    contact = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="hubspot_contact_create",
+        parameters={
+            "email": "jane.smith@acme.com",
+            "firstname": "Jane",
+            "lastname": "Smith",
+            "jobtitle": "VP of Engineering",
+            "company": "Acme Corp",
+            "lifecyclestage": "lead",
+        },
+    )
+    print("Created contact ID:", contact["id"])
+    ```
+  </TabItem>
+</Tabs>
+
+### Search deals
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const deals = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'hubspot_deals_search',
+      parameters: {
+        query: 'enterprise',
+        filterGroups: JSON.stringify([{
+          filters: [{ propertyName: 'dealstage', operator: 'EQ', value: 'qualifiedtobuy' }]
+        }]),
+        properties: 'dealname,amount,dealstage,closedate',
+        limit: 10,
+      },
+    });
+    console.log('Found deals:', deals.results);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import json
+
+    deals = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="hubspot_deals_search",
+        parameters={
+            "query": "enterprise",
+            "filterGroups": json.dumps([{
+                "filters": [{"propertyName": "dealstage", "operator": "EQ", "value": "qualifiedtobuy"}]
+            }]),
+            "properties": "dealname,amount,dealstage,closedate",
+            "limit": 10,
+        },
+    )
+    print("Found deals:", deals["results"])
+    ```
+  </TabItem>
+</Tabs>
+
+### Log a call
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const call = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'hubspot_call_log',
+      parameters: {
+        hs_call_title: 'Q4 Renewal Discussion',
+        hs_timestamp: new Date().toISOString(),
+        hs_call_body: 'Discussed renewal terms. Customer is interested in the enterprise plan.',
+        hs_call_direction: 'OUTBOUND',
+        hs_call_duration: 900000, // 15 minutes in ms
+        hs_call_status: 'COMPLETED',
+      },
+    });
+    console.log('Logged call ID:', call.id);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    from datetime import datetime, timezone
+
+    call = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="hubspot_call_log",
+        parameters={
+            "hs_call_title": "Q4 Renewal Discussion",
+            "hs_timestamp": datetime.now(timezone.utc).isoformat(),
+            "hs_call_body": "Discussed renewal terms. Customer is interested in the enterprise plan.",
+            "hs_call_direction": "OUTBOUND",
+            "hs_call_duration": 900000,  # 15 minutes in ms
+            "hs_call_status": "COMPLETED",
+        },
+    )
+    print("Logged call ID:", call["id"])
+    ```
+  </TabItem>
+</Tabs>
+
+### Create and associate a ticket
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // Create the ticket
+    const ticket = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'hubspot_ticket_create',
+      parameters: {
+        subject: 'Cannot export data to CSV',
+        hs_pipeline_stage: '1', // "New" stage
+        content: 'Customer reports that the CSV export button is unresponsive on the Reports page.',
+        hs_ticket_priority: 'HIGH',
+      },
+    });
+
+    // Associate with a contact
+    await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'hubspot_association_create',
+      parameters: {
+        from_object_type: 'tickets',
+        from_object_id: ticket.id,
+        to_object_type: 'contacts',
+        to_object_id: '12345',
+      },
+    });
+    console.log('Ticket created and associated:', ticket.id);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    # Create the ticket
+    ticket = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="hubspot_ticket_create",
+        parameters={
+            "subject": "Cannot export data to CSV",
+            "hs_pipeline_stage": "1",  # "New" stage
+            "content": "Customer reports that the CSV export button is unresponsive on the Reports page.",
+            "hs_ticket_priority": "HIGH",
+        },
+    )
+
+    # Associate with a contact
+    actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="hubspot_association_create",
+        parameters={
+            "from_object_type": "tickets",
+            "from_object_id": ticket["id"],
+            "to_object_type": "contacts",
+            "to_object_id": "12345",
+        },
+    )
+    print("Ticket created and associated:", ticket["id"])
+    ```
+  </TabItem>
+</Tabs>
