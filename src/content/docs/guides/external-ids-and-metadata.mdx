@@ -99,3 +99,32 @@ curl 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/{id}' \
 ### View external IDs and metadata
 
 All organization endpoints that return organization details will include the external ID and metadata in their responses. This makes it easy to access your custom data when working with organizations.
+
+### External ID constraints
+
+External IDs have the following constraints:
+
+- **Unique per environment**: Each external ID must be unique across all organizations in the same Scalekit environment, regardless of region.
+- **Maximum length**: 255 characters.
+- **Searchable by `external_id`**: You can look up organizations by `external_id` using the `list organizations` endpoint. You cannot search organizations by a metadata field.
+
+#### Multi-region external ID pattern
+
+If your application operates across multiple regions and your internal account IDs are unique only within a region, prefix each external ID with the region name to ensure uniqueness across your Scalekit environment:
+
+```text
+us-east-CUST-12345   # US East account
+eu-west-CUST-12345   # EU West account with the same internal ID
+```
+
+This pattern keeps the region and account identifier in a single field and stays within the 255-character limit.
+
+### Organization deletion and SCIM
+
+When you delete an organization in Scalekit, Scalekit automatically deletes all associated connections and SCIM configurations. No charges apply after deletion.
+
+However, if your customer's identity provider has SCIM provisioning enabled, the IdP will continue attempting to send SCIM events after the organization is deleted. Because there is no active SCIM endpoint to receive those events, the IdP will log errors for each attempt.
+
+<Aside type="tip" title="Disable SCIM before deleting">
+  Before deleting an organization, ask your customer to disable SCIM provisioning in their identity provider. This prevents error logs on their side after the organization is removed.
+</Aside>
