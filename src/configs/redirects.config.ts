@@ -311,6 +311,7 @@ export const redirects = {
   '/authenticate/quickstart': '/authenticate/fsa/quickstart/',
   '/authenticate/oauth': '/authenticate/fsa/quickstart/',
   '/authenticate/fsa/redirect-url': '/guides/dashboard/redirects/',
+  '/guides/accesstoken-claims/': '/authenticate/fsa/complete-login/#decoding-token-claims',
 
   '/examples': '/scenarios/',
   '/dev-kit/sdks/overview': '/authenticate/set-up-scalekit/',
