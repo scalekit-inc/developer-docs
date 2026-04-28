@@ -139,7 +139,7 @@ export const tools: Tool[] = [
   {
     name: 'tableau_views_list',
     description:
-      'List all views (sheets and dashboards) across the entire site. Supports filtering, sorting, and pagination. Use `tableau_list_views` to scope to a single workbook.',
+      'List all views (sheets and dashboards) across the entire site. Supports filtering, sorting, and pagination. Use `tableau_workbook_views_list` to scope to a single workbook.',
     params: [
       {
         name: 'filter',
@@ -174,7 +174,7 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'tableau_list_views',
+    name: 'tableau_workbook_views_list',
     description:
       "List all views (sheets and dashboards) within a specific workbook. Returns each view's LUID, name, content URL, and owner.",
     params: [
@@ -220,7 +220,7 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description:
-          'View LUID. Get it from `tableau_views_list` or `tableau_list_views` → `views.view[].id`.',
+          'View LUID. Get it from `tableau_views_list` or `tableau_workbook_views_list` → `views.view[].id`.',
       },
       {
         name: 'include_usage_statistics',
