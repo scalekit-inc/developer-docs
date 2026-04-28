@@ -111,40 +111,46 @@ Use the Scalekit proxy to call any Tableau REST API endpoint directly. Binary do
     site_id = session["session"]["site"]["id"]
 
     # Export a view as PNG
-    image_bytes = actions.request(
+    image_response = actions.request(
         connection_name=connection_name,
         identifier=identifier,
         path=f"/api/3.28/sites/{site_id}/views/{view_id}/image",
         method="GET",
-        params={"resolution": "high"},
+        query_params={"resolution": "high"},
     )
     with open("dashboard.png", "wb") as f:
-        f.write(image_bytes)
+        f.write(image_response.content)
 
     # Export a view as PDF
-    pdf_bytes = actions.request(
+    pdf_response = actions.request(
         connection_name=connection_name,
         identifier=identifier,
         path=f"/api/3.28/sites/{site_id}/views/{view_id}/pdf",
         method="GET",
-        params={"type": "a4", "orientation": "landscape"},
+        query_params={"type": "a4", "orientation": "landscape"},
     )
+    with open("dashboard.pdf", "wb") as f:
+        f.write(pdf_response.content)
 
     # Download a workbook (.twbx)
-    workbook_bytes = actions.request(
+    workbook_response = actions.request(
         connection_name=connection_name,
         identifier=identifier,
         path=f"/api/3.28/sites/{site_id}/workbooks/{workbook_id}/content",
         method="GET",
     )
+    with open("workbook.twbx", "wb") as f:
+        f.write(workbook_response.content)
 
     # Download a data source (.tdsx)
-    datasource_bytes = actions.request(
+    datasource_response = actions.request(
         connection_name=connection_name,
         identifier=identifier,
         path=f"/api/3.28/sites/{site_id}/datasources/{datasource_id}/content",
         method="GET",
     )
+    with open("datasource.tdsx", "wb") as f:
+        f.write(datasource_response.content)
     ```
   </TabItem>
 </Tabs>
