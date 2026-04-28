@@ -66,7 +66,7 @@ Enable the corresponding Box app scopes before calling tools that need them:
 
 | Tools | Required scope |
 |-------|---------------|
-| All file/folder read tools | `root_readonly` |
+| All file/folder read tools, `box_file_representations_get` | `root_readonly` |
 | File/folder create, update, delete | `root_readwrite` |
 | `box_group_*`, `box_user_memberships_list` | `manage_groups` |
 | `box_webhook_*`, `box_webhooks_list` | `manage_webhook` |
@@ -134,6 +134,24 @@ Retrieves a thumbnail image for a file.
 | `extension` | string | Yes | Thumbnail format: `jpg` or `png`. |
 | `min_width` | integer | No | Minimum width of the thumbnail in pixels. |
 | `min_height` | integer | No | Minimum height of the thumbnail in pixels. |
+
+## `box_file_representations_get`
+
+Retrieves available representations for a file, such as PDFs, extracted text, or image thumbnails. Box generates representations on demand — poll until the `status` is `success` before downloading.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file_id` | string | Yes | ID of the file. Get it from `box_folder_items_list`. |
+| `x_rep_hints` | string | Yes | Representation formats to request, e.g. `[pdf][extracted_text]` or `[jpg?dimensions=320x320]`. Multiple formats can be combined. |
+
+<Aside type="tip" title="Common x_rep_hints values">
+  | Value | Description |
+  |-------|-------------|
+  | `[pdf]` | PDF version of the file |
+  | `[extracted_text]` | Plain text extracted from the file |
+  | `[jpg?dimensions=320x320]` | JPEG thumbnail at 320×320 pixels |
+  | `[pdf][extracted_text]` | Request multiple representations at once |
+</Aside>
 
 ### Folders
 

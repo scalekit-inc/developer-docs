@@ -190,9 +190,8 @@ export const sidebar = [
         label: 'Add your own connector',
         items: [
           'agentkit/bring-your-own-connector/overview',
-          'agentkit/bring-your-own-connector/auth-types-and-patterns',
-          'agentkit/bring-your-own-connector/managing-connectors',
-          'agentkit/bring-your-own-connector/using-tool-proxy',
+          'agentkit/bring-your-own-connector/create-connector',
+          'agentkit/bring-your-own-connector/making-tool-calls',
         ],
       },
       {
