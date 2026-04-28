@@ -1,0 +1,412 @@
+---
+title: 'Build an Apify Actor with per-user OAuth using Scalekit Agent Auth'
+description: 'Deploy a serverless Apify Actor that authenticates each user against their own OAuth-protected APIs, using Apify user identity to key Scalekit connected accounts.'
+date: 2026-04-21
+tags: ['Agent auth']
+sidebar:
+  label: 'Apify Actor with per-user OAuth'
+excerpt: >
+  Apify Actors run in isolated containers with no persistent session — there is no concept of "who is logged in." This recipe shows how to use Apify's built-in user identity as the key into Scalekit's OAuth token vault, so each user who runs your Actor connects their own third-party accounts, and tokens survive across runs without any user-managed input fields.
+featured: false
+authors:
+  - name: 'Saif'
+    title: 'Developer Advocate'
+    url: 'https://www.linkedin.com/in/saif-shines/'
+    picture: '/images/blog/authors/saif.png'
+---
+
+import { TabItem, Tabs } from '@astrojs/starlight/components';
+
+An Apify Actor is a stateless serverless container. Every run starts cold — no session, no cookies, no "current user." When you want each person who runs your Actor to access their own Notion workspace, their own Gmail, or their own GitHub account, you need to map Apify's identity model onto an OAuth token store that persists across runs.
+
+Scalekit solves this with a connected-accounts model: for each `(connector, identifier)` pair, it stores one OAuth session and refreshes it automatically. This recipe builds an Actor that connects to Notion per-user and to YouTube via a shared account, using Apify's native `userId` as the per-user identifier. It also shows how to surface the OAuth consent step as a live interactive page inside the Actor run, instead of a raw link buried in JSON output.
+
+**What this recipe covers:**
+
+- **Per-user identity without input fields** — derive the connected-account identifier from `Actor.getEnv().userId` so users never type an email or ID
+- **Shared vs per-user connectors** — hardcode a single identifier for connectors shared across all users; derive one per user for private accounts
+- **Interactive auth UX** — serve a branded OAuth consent page on Apify's live-view port so users click a button rather than hunting for a raw URL
+- **Input schema design** — expose only the `task` field to end users; keep all auth and config internal
+
+The complete source is available in the [notion-youtube-agent](https://github.com/scalekit-developers/agentkit-apify-actor-example) repository.
+
+### 1. Set up connections in Scalekit
+
+In the [Scalekit Dashboard](https://app.scalekit.com), create two connections under **Agent Auth → Connections**:
+
+- `notion` — Notion OAuth connection (per-user)
+- `youtube` — YouTube OAuth connection (shared)
+
+The connection names are identifiers your code references directly. They must match exactly.
+
+### 2. Create the Apify Actor project
+
+```bash
+apify create notion-youtube-agent -t project_empty
+cd notion-youtube-agent
+npm install @scalekit-sdk/node openai apify
+```
+
+Set your Scalekit credentials as Actor environment variables in the Apify Console under **Settings → Environment variables**:
+
+```
+SCALEKIT_ENV_URL=https://your-env.scalekit.dev
+SCALEKIT_CLIENT_ID=skc_...
+SCALEKIT_CLIENT_SECRET=your-secret
+```
+
+### 3. Derive user identity from Apify's runtime
+
+Apify exposes the identity of the account running the Actor through `Actor.getEnv()`. Use `userId` directly as the Scalekit connected-account identifier — no email field, no manual input.
+
+```js title="src/main.js"
+import { Actor } from 'apify';
+
+await Actor.init();
+
+const { userId } = Actor.getEnv();
+
+// userId is stable per Apify account — the same user always gets the same token.
+const notionIdentifier = userId;
+```
+
+`userId` is a stable opaque string that Apify sets for the account running the Actor. It persists across runs, so the first run that completes OAuth will find an active token on every subsequent run.
+
+:::caution
+`Actor.getEnv().userId` is `undefined` when you run the Actor locally with `apify run`. Use a hardcoded fallback for local development:
+
+```js
+const { userId } = Actor.getEnv();
+const notionIdentifier = userId ?? 'local-dev-user';
+```
+:::
+
+### 4. Choose shared vs per-user identifiers
+
+Not every connector needs per-user isolation. A YouTube data connection used for research can be shared across all Actor runs with a hardcoded identifier. Only connectors that access private user data need per-user identifiers.
+
+```js title="src/main.js"
+// Per-user: each Apify account connects their own Notion workspace.
+const notionIdentifier = userId;
+
+// Shared: one YouTube OAuth session used by all runs.
+const youtubeIdentifier = 'shared-youtube';
+```
+
+Hardcode the shared identifier in code — do not expose it as an input field. End users should not need to know it exists.
+
+### 5. Ensure each connector is authorized
+
+Before calling any API, check whether the connected account is active. If not, generate a magic link and wait for the user to complete the OAuth flow.
+
+```js title="src/notionAuth.js"
+import { Actor } from 'apify';
+
+const ACTIVE = 1;
+
+export async function ensureNotionConnected(scalekitActions, identifier, {
+  pollIntervalMs = 5_000,
+  timeoutMs = 300_000,
+  onMagicLink = async () => {},
+} = {}) {
+  const resp = await scalekitActions.getOrCreateConnectedAccount({
+    connectionName: 'notion',
+    identifier,
+  });
+  const account = resp.connectedAccount ?? resp;
+
+  if (account.status === ACTIVE) {
+    return account.id;
+  }
+
+  const { link } = await scalekitActions.getAuthorizationLink({
+    connectionName: 'notion',
+    identifier,
+  });
+
+  const markDone = await onMagicLink(link);
+
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() < deadline) {
+    await sleep(pollIntervalMs);
+
+    const pollResp = await scalekitActions.getOrCreateConnectedAccount({
+      connectionName: 'notion',
+      identifier,
+    });
+    const polled = pollResp.connectedAccount ?? pollResp;
+
+    if (polled.status === ACTIVE) {
+      markDone?.();
+      await Actor.setStatusMessage('Notion authorized — proceeding.');
+      return polled.id;
+    }
+  }
+
+  throw new Error(`Timed out waiting for Notion authorization.`);
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+```
+
+The same pattern applies to every connector. Copy the function, change `connectionName`, and pass in the appropriate identifier.
+
+### 6. Surface auth as a live interactive page
+
+Printing a raw magic link to the console or burying it in JSON output creates a poor experience. Apify Actors can start an HTTP server on `ACTOR_WEB_SERVER_PORT` (default `4321`), and Apify automatically exposes it as a public URL while the run is active. Use this to serve a branded OAuth consent page.
+
+```js title="src/authServer.js"
+import http from 'http';
+import { Actor } from 'apify';
+
+const PORT = parseInt(process.env.ACTOR_WEB_SERVER_PORT ?? '4321', 10);
+
+let server = null;
+
+export function getLiveViewUrl() {
+  const { actorId, actorRunId } = Actor.getEnv();
+  return `https://${actorId}--${actorRunId}-${PORT}.runs.apify.net`;
+}
+
+export async function serveAuthPage(link, serviceName) {
+  let html = buildAuthPage(link, serviceName);
+
+  if (server) server.close();
+  server = http.createServer((_req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end(html);
+  });
+  server.listen(PORT);
+
+  return {
+    liveViewUrl: getLiveViewUrl(),
+    markDone: () => { html = buildDonePage(serviceName); },
+  };
+}
+
+function buildAuthPage(link, serviceName) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Authorize ${serviceName}</title>
+  <style>
+    body { font-family: system-ui, sans-serif; display: flex; align-items: center;
+           justify-content: center; min-height: 100vh; margin: 0; background: #f5f5f5; }
+    .card { background: white; padding: 2rem; border-radius: 12px; text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 480px; width: 100%; }
+    a.btn { display: inline-block; background: #0a6b50; color: white; padding: 0.75rem 1.5rem;
+            border-radius: 8px; text-decoration: none; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🔐 Connect ${serviceName}</h1>
+    <p>Click below to authorize access to your ${serviceName} account.
+       The actor will continue automatically once you complete authorization.</p>
+    <a class="btn" href="${link}" target="_blank" rel="noopener">Authorize ${serviceName} →</a>
+  </div>
+</body>
+</html>`;
+}
+
+function buildDonePage(serviceName) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8" /><title>${serviceName} Authorized</title></head>
+<body style="font-family:system-ui;text-align:center;padding:3rem">
+  <h1>✅ ${serviceName} Authorized</h1>
+  <p>Returning to task — you can close this tab.</p>
+</body>
+</html>`;
+}
+```
+
+The live view URL follows this pattern:
+
+```
+https://{actorId}--{actorRunId}-{PORT}.runs.apify.net
+```
+
+Both `actorId` and `actorRunId` come from `Actor.getEnv()` — the same call that gives you `userId`.
+
+### 7. Wire auth into the Actor entry point
+
+Pass the live view callback into `ensureNotionConnected`. The callback starts the HTTP server, stores the `markDone` function, and returns it so the polling loop can update the page when auth completes.
+
+```js title="src/main.js"
+import { Actor } from 'apify';
+import { ScalekitClient } from '@scalekit-sdk/node';
+import { ensureNotionConnected } from './notionAuth.js';
+import { serveAuthPage } from './authServer.js';
+
+await Actor.init();
+
+const input = await Actor.getInput();
+const { task, llmApiKey } = input;
+
+const { userId } = Actor.getEnv();
+const notionIdentifier = userId;
+const youtubeIdentifier = 'shared-youtube';
+
+const scalekit = new ScalekitClient(
+  process.env.SCALEKIT_ENV_URL,
+  process.env.SCALEKIT_CLIENT_ID,
+  process.env.SCALEKIT_CLIENT_SECRET,
+);
+
+await ensureNotionConnected(scalekit.actions, notionIdentifier, {
+  onMagicLink: async (link) => {
+    const { liveViewUrl, markDone } = await serveAuthPage(link, 'Notion');
+
+    // Store the live view URL in OUTPUT so the Apify UI shows a clickable link.
+    await Actor.setValue('OUTPUT', {
+      status: 'AWAITING_NOTION_AUTH',
+      authPageUrl: liveViewUrl,
+      message: 'Open authPageUrl in your browser to authorize Notion.',
+    });
+
+    await Actor.setStatusMessage(`ACTION REQUIRED: Authorize Notion → ${liveViewUrl}`);
+
+    return markDone;
+  },
+});
+
+// ... run the agent, push results
+```
+
+End-user experience after this change:
+
+1. User starts the Actor run and types their task
+2. **Output** panel immediately shows a clickable `authPageUrl`
+3. User opens the URL and sees a branded "Authorize Notion →" button
+4. After completing OAuth, the page updates to "✅ Notion Authorized"
+5. The Actor continues automatically — no re-run needed
+
+### 8. Design the input schema for end users
+
+The Actor's input form should show only what the end user actually needs to provide. All auth identifiers, LLM config, and internal settings stay out of the form.
+
+```json title=".actor/input_schema.json"
+{
+  "title": "Notion + YouTube AI Agent",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "task": {
+      "title": "Task",
+      "type": "string",
+      "description": "Natural language task for the agent. Examples: 'List the 5 most recently edited pages in my Notion workspace' or 'Search YouTube for React tutorial channels and append the top 10 to my Research page'.",
+      "editor": "textarea"
+    },
+    "llmApiKey": {
+      "title": "LLM API Key",
+      "type": "string",
+      "description": "API key for the LLM endpoint.",
+      "isSecret": true,
+      "editor": "textfield"
+    }
+  },
+  "required": ["task", "llmApiKey"]
+}
+```
+
+Everything else — `notionIdentifier`, `youtubeIdentifier`, timeouts, model name, base URL — is either derived at runtime (`userId`) or hardcoded and deployed as an Actor environment variable.
+
+:::note[Apify input schema does not support `placeholder`]
+The Apify input schema spec does not allow a `placeholder` property on fields. Put example values in `description` instead — they appear as helper text below the field label in the Console.
+:::
+
+### 9. Testing
+
+Run locally:
+
+```bash
+apify run
+```
+
+Provide input in `storage/key_value_stores/default/INPUT.json`:
+
+```json
+{
+  "task": "List the 5 most recently edited pages in my Notion workspace",
+  "llmApiKey": "sk-..."
+}
+```
+
+Because `Actor.getEnv().userId` is `undefined` locally, the `notionIdentifier` falls back to your local development value. After you confirm the flow works, deploy to Apify:
+
+```bash
+apify push
+```
+
+On the first cloud run, the Actor outputs an `authPageUrl`. Open it, click **Authorize Notion**, and complete the OAuth flow. The Actor polls and continues automatically. On every subsequent run for the same Apify account, the token is already active and the auth step is skipped entirely.
+
+## Common mistakes
+
+<details>
+<summary>Using email as the identifier</summary>
+
+- **Symptom**: Input form asks for user email, or the identifier is passed in as an input field
+- **Cause**: Treating the connected-account identifier as a user-facing concept
+- **Fix**: Use `Actor.getEnv().userId` as the identifier. It is stable, unique per Apify account, and requires no input from the user. Scalekit does not require an email — it accepts any unique string as an identifier.
+
+</details>
+
+<details>
+<summary>`placeholder` property causes build failure</summary>
+
+- **Symptom**: `apify push` fails with `Property schema.properties.task.placeholder is not allowed.`
+- **Cause**: `placeholder` is not part of the Apify input schema specification
+- **Fix**: Move example text into the `description` field. It appears as helper text in the Apify Console input form.
+
+</details>
+
+<details>
+<summary>`userId` is `undefined` locally</summary>
+
+- **Symptom**: Actor crashes with `Could not determine Apify user ID` during `apify run`
+- **Cause**: `Actor.getEnv()` does not populate `userId` in local runs
+- **Fix**: Fall back to a local dev value: `const notionIdentifier = userId ?? 'local-dev-user'`
+
+</details>
+
+<details>
+<summary>Stale variable name causes `ReferenceError` at runtime</summary>
+
+- **Symptom**: Actor fails with `notionUserEmail is not defined` even though you removed that field
+- **Cause**: The variable was renamed in some places but left in others — console logs, OUTPUT payloads, or `runAgent` arguments
+- **Fix**: Search the entire codebase for the old variable name before deploying. One missed reference fails at runtime, not at build time.
+
+</details>
+
+<details>
+<summary>Live view URL not available in local runs</summary>
+
+- **Symptom**: `getLiveViewUrl()` returns a broken URL during `apify run`
+- **Cause**: `actorId` and `actorRunId` are also `undefined` locally
+- **Fix**: Guard the live view server behind a check: `if (actorId && actorRunId) { ... }`. Fall back to logging the raw magic link to the console for local development.
+
+</details>
+
+## Production notes
+
+**Token persistence across runs** — Scalekit stores the OAuth token server-side keyed by `(connectionName, identifier)`. As long as `userId` is stable (it is), the user only completes the OAuth flow once. Subsequent runs call `getOrCreateConnectedAccount` and get an active account back immediately.
+
+**Token refresh** — Scalekit refreshes expired tokens automatically before returning them. You do not need to track expiry or call a refresh endpoint.
+
+**Re-authorization** — If a user revokes access in Notion's settings, `getOrCreateConnectedAccount` returns a non-active account. The Actor generates a new magic link automatically. No code change required — the polling loop handles it the same way as a first-time auth.
+
+**Shared connectors** — The `shared-youtube` identifier works because YouTube access is the same for all users (e.g., read-only public data). Any connector where all users share the same OAuth session can use a hardcoded identifier. Private data connectors — Notion, Gmail, GitHub — should always use a per-user identifier.
+
+**Input schema changes require a redeploy** — The Apify Console reads the input schema from the deployed build. Changes to `.actor/input_schema.json` only take effect after `apify push`.
+
+## Next steps
+
+- **Add more per-user connectors** — The same `ensureConnected` + `onMagicLink` pattern works for any Scalekit connector. Add a `src/githubAuth.js` following the same structure as `notionAuth.js`.
+- **Use built-in actions** — For connectors with Scalekit built-in tools, replace manual API calls with `scalekit.actions.executeTool`. See [all supported connectors](/agentkit/connectors/).
+- **Extend the input schema** — Add optional fields like `maxIterations` or `llmModel` with defaults, so power users can tune the Actor without the defaults getting in the way for casual users.
+- **Review the agent auth quickstart** — For a broader overview of the connected-accounts model, see the [agent auth quickstart](/agentkit/quickstart/).
