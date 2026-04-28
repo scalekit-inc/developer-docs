@@ -13,6 +13,7 @@ head:
 ---
 
 import ToolList from '@/components/ToolList.astro'
+import { Aside } from '@astrojs/starlight/components'
 import { tools } from '@/data/agent-connectors/salesforce'
 import { SetupSalesforceSection } from '@components/templates'
 import { UsageSalesforceSection } from '@components/templates'
@@ -50,3 +51,81 @@ You supply your Salesforce **Connected App** credentials (Client ID + Secret) on
 ## Tool list
 
 <ToolList tools={tools} />
+
+## Metadata API SOAP proxy calls
+
+<Aside type="note" title="Exclusive availability">
+  SOAP proxy support is only available for the Salesforce Metadata API. To enable it for your
+  environment, contact [support@scalekit.com](mailto:support@scalekit.com).
+</Aside>
+
+The [Salesforce Metadata API](https://developer.salesforce.com/docs/atlas.en-us.api_meta.meta/api_meta/meta_intro.htm) is a SOAP-based API for reading and modifying your Salesforce org's configuration — not its data. Use it to inspect or deploy custom objects, page layouts, validation rules, Apex classes, permission sets, profiles, and other org metadata. It's the right tool when your agent needs to understand or automate how a Salesforce org is set up, rather than the records it contains.
+
+This guide assumes you already have a Salesforce connection configured in Scalekit and a connected account with an authorized user.
+
+**1. Get the API version for the connected account**
+
+The Metadata API SOAP endpoint URL requires a version number. Retrieve it from the connected account's `api_config`.
+
+```python collapse={1-13}
+import scalekit.client, os
+from dotenv import load_dotenv
+load_dotenv()
+
+connection_name = "salesforce-1hpnGzcD"  # connection name from Scalekit dashboard
+identifier = "john.doe"                   # your app's user ID
+
+scalekit_client = scalekit.client.ScalekitClient(
+    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+    env_url=os.getenv("SCALEKIT_ENV_URL"),
+)
+actions = scalekit_client.actions
+
+result = actions.get_connected_account_details(
+    connection_name=connection_name,
+    identifier=identifier,
+)
+
+# Returns a version like "v66.0" — strip the "v" prefix for use in the SOAP URL
+raw_version = result.connected_account.api_config.get("version")
+api_version = raw_version.lstrip("v")  # e.g. "66.0"
+```
+
+**2. Build the SOAP body**
+
+Construct the SOAP envelope for the operation you want to call. **Do not include a `<SessionHeader>` element** — Scalekit injects it automatically using the connected account's access token.
+
+```python
+soap_body = f"""<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope
+    xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+    xmlns:met="http://soap.sforce.com/2006/04/metadata">
+  <soapenv:Header/>
+  <soapenv:Body>
+    <met:describeMetadata>
+      <met:asOfVersion>{api_version}</met:asOfVersion>
+    </met:describeMetadata>
+  </soapenv:Body>
+</soapenv:Envelope>"""
+```
+
+**3. Send the request through the Scalekit proxy**
+
+Pass the SOAP body as `raw_body`. Set `Content-Type` to `text/xml; charset=UTF-8` and `SOAPAction` to the operation name. Scalekit resolves the user's Salesforce instance URL, so you only write the path.
+
+```python
+response = actions.request(
+    connection_name=connection_name,
+    identifier=identifier,
+    path=f"/services/Soap/m/{api_version}",
+    method="POST",
+    raw_body=soap_body,
+    headers={
+        "Content-Type": "text/xml; charset=UTF-8",  # text/xml or application/xml; text/xml preferred
+        "SOAPAction": "describeMetadata",
+    },
+)
+
+print(response.content)
+```
