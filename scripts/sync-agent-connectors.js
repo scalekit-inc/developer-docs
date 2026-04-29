@@ -531,6 +531,18 @@ function toPascalCase(stem) {
     .join('')
 }
 
+function readSectionTitle(filePath) {
+  let raw
+  try {
+    raw = fs.readFileSync(filePath, 'utf8')
+  } catch {
+    return null
+  }
+
+  const match = raw.match(/^\s*export\s+const\s+sectionTitle\s*=\s*(['"`])([\s\S]*?)\1/m)
+  return match?.[2]?.trim() || null
+}
+
 function buildSectionEntries() {
   const templatesDir = path.join(__dirname, '../src/components/templates/agent-connectors')
   let files
@@ -561,6 +573,7 @@ function buildSectionEntries() {
       stem,
       hook,
       tail,
+      title: readSectionTitle(path.join(templatesDir, file)),
       componentName: `Section${toPascalCase(stem)}`,
     })
   }
@@ -569,20 +582,26 @@ function buildSectionEntries() {
 }
 
 function getSectionComponents(sectionEntries, providerSlug, hook = null) {
+  return getSectionEntries(sectionEntries, providerSlug, hook).map((entry) => entry.componentName)
+}
+
+function getSectionEntries(sectionEntries, providerSlug, hook = null) {
   if (!providerSlug) return []
 
-  return sectionEntries
-    .filter((entry) => {
-      if (hook && entry.hook !== hook) return false
-      return entry.tail === providerSlug || entry.tail.startsWith(`${providerSlug}-`)
-    })
-    .map((entry) => entry.componentName)
+  return sectionEntries.filter((entry) => {
+    if (hook && entry.hook !== hook) return false
+    return entry.tail === providerSlug || entry.tail.startsWith(`${providerSlug}-`)
+  })
 }
 
 function appendSectionComponents(lines, sectionEntries, providerSlug, hook) {
-  const components = getSectionComponents(sectionEntries, providerSlug, hook)
-  for (const componentName of components) {
-    lines.push(`<${componentName} />`)
+  const entries = getSectionEntries(sectionEntries, providerSlug, hook)
+  for (const entry of entries) {
+    if (entry.title) {
+      lines.push(`## ${entry.title}`)
+      lines.push('')
+    }
+    lines.push(`<${entry.componentName} />`)
     lines.push('')
   }
 }

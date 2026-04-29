@@ -44,7 +44,7 @@ Examples:
 
 - `src/components/templates/agent-connectors/_setup-github.mdx`
 - `src/components/templates/agent-connectors/_usage-github.mdx`
-- `src/components/templates/agent-connectors/_section-after-usage-salesforce-metadata-api-soap.mdx`
+- `src/components/templates/agent-connectors/_section-after-tool-list-salesforce-metadata-api-soap.mdx`
 
 The sync script does not infer setup instructions from API metadata. If a matching `_setup-<slug>.mdx` file does not exist, the generated connector page will still include the latest tool information, but it will not include setup instructions.
 
@@ -95,15 +95,17 @@ Supported hooks:
 
 Example:
 
-1. Create `src/components/templates/agent-connectors/_section-after-usage-salesforce-metadata-api-soap.mdx`.
-2. Add the section heading and content inside the template.
-3. Run the sync script.
+1. Create `src/components/templates/agent-connectors/_section-after-tool-list-salesforce-metadata-api-soap.mdx`.
+2. Add `export const sectionTitle = 'Call the Metadata API through SOAP proxy'` at the top of the template.
+3. Add the section body below the exported title. Do not include the same `##` heading in the template body.
+4. Run the sync script.
 
 The script will:
 
 - discover the custom section template
 - regenerate `src/components/templates/agent-connectors/index.ts`
-- inject `<SectionAfterUsageSalesforceMetadataApiSoap />` into the generated Salesforce connector page after the code examples block
+- emit the exported section title as a real `##` heading in the generated connector page so Starlight can include it in the table of contents
+- inject `<SectionAfterToolListSalesforceMetadataApiSoap />` into the generated Salesforce connector page after the tool list
 
 ## Run the sync
 
@@ -158,13 +160,13 @@ After the sync finishes, verify these points:
 
 The script derives component names from the template filename.
 
-| Template file                                           | Component name                               |
-| ------------------------------------------------------- | -------------------------------------------- |
-| `_setup-google-ads.mdx`                                 | `SetupGoogleAdsSection`                      |
-| `_setup-googlecalendar.mdx`                             | `SetupGooglecalendarSection`                 |
-| `_setup-microsoft-excel.mdx`                            | `SetupMicrosoftExcelSection`                 |
-| `_section-after-usage-salesforce-metadata-api-soap.mdx` | `SectionAfterUsageSalesforceMetadataApiSoap` |
-| `_usage-google_ads.mdx`                                 | `UsageGoogleAdsSection`                      |
+| Template file                                               | Component name                                  |
+| ----------------------------------------------------------- | ----------------------------------------------- |
+| `_setup-google-ads.mdx`                                     | `SetupGoogleAdsSection`                         |
+| `_setup-googlecalendar.mdx`                                 | `SetupGooglecalendarSection`                    |
+| `_setup-microsoft-excel.mdx`                                | `SetupMicrosoftExcelSection`                    |
+| `_section-after-tool-list-salesforce-metadata-api-soap.mdx` | `SectionAfterToolListSalesforceMetadataApiSoap` |
+| `_usage-google_ads.mdx`                                     | `UsageGoogleAdsSection`                         |
 
 Provider API slugs often use underscores. Setup and usage template lookup currently tries these forms:
 

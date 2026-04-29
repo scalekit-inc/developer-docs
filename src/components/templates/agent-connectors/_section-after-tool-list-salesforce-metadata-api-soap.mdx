@@ -1,0 +1,92 @@
+import { Aside, Steps } from '@astrojs/starlight/components'
+
+export const sectionTitle = 'Call the Metadata API through SOAP proxy'
+
+The [Salesforce Metadata API](https://developer.salesforce.com/docs/atlas.en-us.api_meta.meta/api_meta/meta_intro.htm) is a SOAP-based API for reading and modifying your Salesforce org's configuration, not its data. Use it to inspect or deploy custom objects, page layouts, validation rules, Apex classes, permission sets, profiles, and other org metadata.
+
+Salesforce SOAP APIs only accept opaque access tokens, not JSON Web Token (JWT) access tokens. In your Salesforce Connected App, make sure **Issue JSON Web Token (JWT)-based access tokens for named users** is unchecked. If you disable this option after users have already authenticated, users must re-authenticate before SOAP proxy calls work.
+
+### Get the API version for the connected account
+
+The Metadata API SOAP endpoint URL requires a version number. Retrieve the version from the connected account's `api_config`.
+
+```python collapse={1-15}
+import os
+
+import scalekit.client
+from dotenv import load_dotenv
+
+load_dotenv()
+
+connection_name = "salesforce"  # Connection name from the Scalekit dashboard
+identifier = "user_123"  # Your app's user ID
+
+scalekit_client = scalekit.client.ScalekitClient(
+    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+    env_url=os.getenv("SCALEKIT_ENV_URL"),
+)
+actions = scalekit_client.actions
+
+result = actions.get_connected_account(
+    connection_name=connection_name,
+    identifier=identifier,
+)
+
+raw_version = result.connected_account.api_config.get("version")
+if not raw_version:
+    raise ValueError("Salesforce connected account is missing api_config.version")
+
+api_version = raw_version[1:] if raw_version.startswith("v") else raw_version
+```
+
+<Steps>
+1. ## Build the SOAP body
+
+   Construct the SOAP envelope for the operation you want to call. Do not include a `<SessionHeader>` element. Scalekit injects the session header with the connected account's access token.
+
+   The `soap_body` string uses the `api_version` value from the previous section.
+
+   ```python
+   soap_body = f"""<?xml version="1.0" encoding="UTF-8"?>
+   <soapenv:Envelope
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:met="http://soap.sforce.com/2006/04/metadata">
+     <soapenv:Body>
+       <met:describeMetadata>
+         <met:asOfVersion>{api_version}</met:asOfVersion>
+       </met:describeMetadata>
+     </soapenv:Body>
+   </soapenv:Envelope>"""
+   ```
+
+2. ## Send the SOAP request through Scalekit
+
+   Pass the SOAP body as `raw_body`. Set `Content-Type` to `text/xml; charset=UTF-8` and `SOAPAction` to the operation name. Scalekit resolves the user's Salesforce instance URL, so the request only needs the Metadata API path.
+
+   ```python
+   try:
+       response = actions.request(
+           connection_name=connection_name,
+           identifier=identifier,
+           path=f"/services/Soap/m/{api_version}",
+           method="POST",
+           raw_body=soap_body,
+           headers={
+               "Content-Type": "text/xml; charset=UTF-8",
+               "SOAPAction": "describeMetadata",
+           },
+       )
+   except Exception as exc:
+       raise RuntimeError("Salesforce Metadata API SOAP proxy request failed") from exc
+
+   print(response.content)
+   ```
+
+</Steps>
+
+<Aside type="note" title="Exclusive availability">
+  SOAP proxy support is available on the **Enterprise plan** and is limited to the Salesforce
+  Metadata API. To enable it for your workspace, contact
+  [support@scalekit.com](mailto:support@scalekit.com).
+</Aside>

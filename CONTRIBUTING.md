@@ -223,6 +223,8 @@ Agent connector docs use a generated workflow, not fully hand-written pages.
 
 Use custom sections only when authored content does not fit setup instructions or code examples. Supported hooks include `after-authentication`, `after-setup`, `after-usage`, `before-tool-list`, and `after-tool-list`.
 
+If a custom section needs a table-of-contents entry, export `sectionTitle` from the section template and omit the duplicate `##` heading from the component body. The sync script emits that title as a real heading in the generated connector page.
+
 The long-form guide explains prerequisites, required `PROD_*` env vars, supported custom section hooks, expected diffs, and what to do when generated connector content disappears.
 
 ### Frontmatter
