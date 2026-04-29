@@ -1112,11 +1112,16 @@ export const tools: Tool[] = [
       'Create a note in HubSpot CRM to log interactions, meeting summaries, or important information. Notes can be associated with contacts, companies, or deals.',
     params: [
       {
-        name: 'props',
-        type: 'object',
+        name: 'hs_note_body',
+        type: 'string',
         required: true,
-        description:
-          'Note properties object. Requires `hs_note_body` (note content) and `hs_timestamp` (Unix ms timestamp, e.g. `1700000000000`).',
+        description: 'Content of the note. Supports HTML.',
+      },
+      {
+        name: 'hs_timestamp',
+        type: 'string',
+        required: true,
+        description: 'Timestamp for the note in ISO 8601 format (e.g. `2024-01-15T10:30:00Z`).',
       },
     ],
   },
@@ -1499,6 +1504,12 @@ export const tools: Tool[] = [
         description: 'The display title for the quote.',
       },
       {
+        name: 'hs_language',
+        type: 'string',
+        required: true,
+        description: 'Language of the quote as an ISO 639-1 code (e.g. `en`, `de`, `fr`). Required by HubSpot.',
+      },
+      {
         name: 'deal_id',
         type: 'string',
         required: false,
@@ -1566,10 +1577,10 @@ export const tools: Tool[] = [
       },
       {
         name: 'properties',
-        type: 'string',
+        type: 'object',
         required: true,
         description:
-          'JSON string of key-value pairs for the new record (e.g. `{"name": "Example Record"}`).',
+          'Key-value pairs for the new record (e.g. `{"name": "Example Record"}`). Use `hubspot_schemas_list` to discover valid property names.',
       },
     ],
   },
