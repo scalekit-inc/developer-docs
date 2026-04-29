@@ -511,16 +511,143 @@ function getUsageComponent(stemMap, providerSlug) {
 
 const USAGE_STEM_MAP = buildUsageStemMap()
 
-function syncTemplateIndex(setupMap, usageMap) {
+// ---------------------------------------------------------------------------
+// Custom section map — auto-discovered from src/components/templates/agent-connectors/
+// ---------------------------------------------------------------------------
+
+const SECTION_HOOKS = [
+  'after-authentication',
+  'after-setup',
+  'after-usage',
+  'before-tool-list',
+  'after-tool-list',
+]
+
+function toPascalCase(stem) {
+  return stem
+    .split(/[-_]/)
+    .filter((w) => w.length > 0)
+    .map((w) => w[0].toUpperCase() + w.slice(1))
+    .join('')
+}
+
+function readSectionTitle(filePath) {
+  let raw
+  try {
+    raw = fs.readFileSync(filePath, 'utf8')
+  } catch {
+    return null
+  }
+
+  const match = raw.match(/^\s*export\s+const\s+sectionTitle\s*=\s*(['"`])([\s\S]*?)\1/m)
+  return match?.[2]?.trim() || null
+}
+
+function buildSectionEntries() {
+  const templatesDir = path.join(__dirname, '../src/components/templates/agent-connectors')
+  let files
+  try {
+    files = fs.readdirSync(templatesDir)
+  } catch {
+    return []
+  }
+
+  const entries = []
+  for (const file of files) {
+    if (!file.startsWith('_section-') || !file.endsWith('.mdx')) continue
+
+    const stem = file.replace('_section-', '').replace('.mdx', '')
+    const hook = SECTION_HOOKS.find((candidate) => stem.startsWith(`${candidate}-`))
+    if (!hook) {
+      console.warn(`  ⚠ Ignoring "${file}" — expected _section-<hook>-<connector-slug>-<topic>.mdx`)
+      continue
+    }
+
+    const tail = stem.slice(hook.length + 1)
+    if (!tail) {
+      console.warn(`  ⚠ Ignoring "${file}" — missing connector slug and topic`)
+      continue
+    }
+
+    entries.push({
+      stem,
+      hook,
+      tail,
+      title: readSectionTitle(path.join(templatesDir, file)),
+      componentName: `Section${toPascalCase(stem)}`,
+    })
+  }
+
+  return entries.sort((a, b) => a.stem.localeCompare(b.stem))
+}
+
+function getSectionComponents(sectionEntries, providerSlug, hook = null) {
+  return getSectionEntries(sectionEntries, providerSlug, hook).map((entry) => entry.componentName)
+}
+
+function getSectionEntries(sectionEntries, providerSlug, hook = null) {
+  if (!providerSlug) return []
+
+  return sectionEntries.filter((entry) => {
+    if (hook && entry.hook !== hook) return false
+    return entry.tail === providerSlug || entry.tail.startsWith(`${providerSlug}-`)
+  })
+}
+
+function appendSectionComponents(lines, sectionEntries, providerSlug, hook) {
+  const entries = getSectionEntries(sectionEntries, providerSlug, hook)
+  for (const entry of entries) {
+    if (entry.title) {
+      lines.push(`## ${entry.title}`)
+      lines.push('')
+    }
+    lines.push(`<${entry.componentName} />`)
+    lines.push('')
+  }
+}
+
+const SECTION_ENTRIES = buildSectionEntries()
+
+// ---------------------------------------------------------------------------
+// Connected account template map — legacy exports consumed by reference pages
+// ---------------------------------------------------------------------------
+
+function buildConnectedAccountStemMap() {
+  const templatesDir = path.join(__dirname, '../src/components/templates/agent-connectors')
+  let files
+  try {
+    files = fs.readdirSync(templatesDir)
+  } catch {
+    return {}
+  }
+  const map = {}
+  for (const file of files) {
+    if (!file.startsWith('_connected-account-') || !file.endsWith('.mdx')) continue
+    const stem = file.replace('_connected-account-', '').replace('.mdx', '')
+    map[stem] = 'ConnectedAccount' + toPascalCase(stem) + 'Section'
+  }
+  return map
+}
+
+const CONNECTED_ACCOUNT_STEM_MAP = buildConnectedAccountStemMap()
+
+function syncTemplateIndex(setupMap, usageMap, sectionEntries, connectedAccountMap) {
   const templatesDir = path.join(__dirname, '../src/components/templates/agent-connectors')
   const indexPath = path.join(templatesDir, 'index.ts')
   const setupLines = Object.entries(setupMap)
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([stem, name]) => `export { default as ${name} } from './_setup-${stem}.mdx'`)
+  const connectedAccountLines = Object.entries(connectedAccountMap)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([stem, name]) => `export { default as ${name} } from './_connected-account-${stem}.mdx'`)
+  const sectionLines = sectionEntries.map(
+    ({ stem, componentName }) =>
+      `export { default as ${componentName} } from './_section-${stem}.mdx'`,
+  )
   const usageLines = Object.entries(usageMap)
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([stem, name]) => `export { default as ${name} } from './_usage-${stem}.mdx'`)
-  const lines = [...setupLines, ...usageLines]
+  const lines = [...setupLines, ...connectedAccountLines, ...sectionLines, ...usageLines]
   fs.writeFileSync(indexPath, lines.join('\n') + '\n', 'utf8')
 }
 
@@ -775,11 +902,15 @@ function generateMdxContent(provider, tools) {
   lines.push(`import { tools } from '@/data/agent-connectors/${providerSlug}'`)
   const setupComponentName = getSetupComponent(SETUP_STEM_MAP, providerSlug)
   const usageComponentName = getUsageComponent(USAGE_STEM_MAP, providerSlug)
+  const sectionComponentNames = getSectionComponents(SECTION_ENTRIES, providerSlug)
   if (setupComponentName) {
     lines.push(`import { ${setupComponentName} } from '@components/templates'`)
   }
   if (usageComponentName) {
     lines.push(`import { ${usageComponentName} } from '@components/templates'`)
+  }
+  for (const sectionComponentName of sectionComponentNames) {
+    lines.push(`import { ${sectionComponentName} } from '@components/templates'`)
   }
   lines.push('')
 
@@ -808,6 +939,7 @@ function generateMdxContent(provider, tools) {
     lines.push(generateAuthSection(primaryAuth, providerName))
     lines.push('')
   }
+  appendSectionComponents(lines, SECTION_ENTRIES, providerSlug, 'after-authentication')
 
   // Setup section (collapsible)
   if (setupComponentName) {
@@ -819,6 +951,7 @@ function generateMdxContent(provider, tools) {
     lines.push('</details>')
     lines.push('')
   }
+  appendSectionComponents(lines, SECTION_ENTRIES, providerSlug, 'after-setup')
 
   // Usage section (collapsible)
   if (usageComponentName) {
@@ -830,14 +963,17 @@ function generateMdxContent(provider, tools) {
     lines.push('</details>')
     lines.push('')
   }
+  appendSectionComponents(lines, SECTION_ENTRIES, providerSlug, 'after-usage')
 
   // Tool list
+  appendSectionComponents(lines, SECTION_ENTRIES, providerSlug, 'before-tool-list')
   if (tools.length > 0) {
     lines.push('## Tool list')
     lines.push('')
     lines.push('<ToolList tools={tools} />')
     lines.push('')
   }
+  appendSectionComponents(lines, SECTION_ENTRIES, providerSlug, 'after-tool-list')
 
   return lines.join('\n')
 }
@@ -860,9 +996,9 @@ async function main() {
     process.exit(1)
   }
 
-  syncTemplateIndex(SETUP_STEM_MAP, USAGE_STEM_MAP)
+  syncTemplateIndex(SETUP_STEM_MAP, USAGE_STEM_MAP, SECTION_ENTRIES, CONNECTED_ACCOUNT_STEM_MAP)
   console.log(
-    `✓ Synced index.ts (${Object.keys(SETUP_STEM_MAP).length} setup + ${Object.keys(USAGE_STEM_MAP).length} usage templates)`,
+    `✓ Synced index.ts (${Object.keys(SETUP_STEM_MAP).length} setup + ${SECTION_ENTRIES.length} section + ${Object.keys(USAGE_STEM_MAP).length} usage templates)`,
   )
 
   const outputDir = path.join(__dirname, '../src/content/docs/agentkit/connectors')
