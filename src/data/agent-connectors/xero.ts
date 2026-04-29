@@ -1,16 +1,18 @@
 import type { Tool } from '../../types/agent-connectors'
 
+const XERO_TENANT_PARAM: Tool['params'][number] = {
+  name: 'xero_tenant_id',
+  type: 'string',
+  required: false,
+  description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
+}
+
 export const tools: Tool[] = [
   {
     name: 'xero_accounts_list',
     description: 'Retrieve the full chart of accounts for a Xero organisation.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'modified_after',
         type: 'string',
@@ -36,12 +38,7 @@ export const tools: Tool[] = [
     name: 'xero_account_get',
     description: 'Retrieve a single account by its AccountID.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'account_id',
         type: 'string',
@@ -54,12 +51,7 @@ export const tools: Tool[] = [
     name: 'xero_account_create',
     description: 'Create a new account in the Xero chart of accounts.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'Code',
         type: 'string',
@@ -99,12 +91,7 @@ export const tools: Tool[] = [
     name: 'xero_account_update',
     description: 'Update an existing account in the Xero chart of accounts.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'account_id',
         type: 'string',
@@ -128,12 +115,7 @@ export const tools: Tool[] = [
     description:
       'Archive (soft-delete) an account from the Xero chart of accounts by setting its status to ARCHIVED.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'account_id',
         type: 'string',
@@ -146,12 +128,7 @@ export const tools: Tool[] = [
     name: 'xero_contacts_list',
     description: 'Retrieve contacts (customers and suppliers) from a Xero organisation.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'modified_after',
         type: 'string',
@@ -164,10 +141,10 @@ export const tools: Tool[] = [
         required: false,
         description: 'Order results. e.g. Name ASC',
       },
-      { name: 'page', type: 'number', required: false, description: 'Page number. e.g. 1' },
+      { name: 'page', type: 'integer', required: false, description: 'Page number. e.g. 1' },
       {
         name: 'pageSize',
-        type: 'number',
+        type: 'integer',
         required: false,
         description: 'Records per page. e.g. 100',
       },
@@ -189,12 +166,7 @@ export const tools: Tool[] = [
     name: 'xero_contact_get',
     description: 'Retrieve a single contact by its ContactID.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'contact_id',
         type: 'string',
@@ -207,12 +179,7 @@ export const tools: Tool[] = [
     name: 'xero_contact_create',
     description: 'Create a new contact (customer or supplier) in Xero.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       { name: 'Name', type: 'string', required: true, description: 'Contact name. e.g. Acme Corp' },
       {
         name: 'AccountNumber',
@@ -249,12 +216,7 @@ export const tools: Tool[] = [
     name: 'xero_contact_update',
     description: 'Update an existing contact in Xero.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'contact_id',
         type: 'string',
@@ -279,12 +241,7 @@ export const tools: Tool[] = [
     name: 'xero_contact_groups_list',
     description: 'Retrieve all contact groups in a Xero organisation.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'order',
         type: 'string',
@@ -303,12 +260,7 @@ export const tools: Tool[] = [
     name: 'xero_contact_group_get',
     description: 'Retrieve a single contact group by its ContactGroupID.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'contact_group_id',
         type: 'string',
@@ -321,12 +273,7 @@ export const tools: Tool[] = [
     name: 'xero_contact_group_create',
     description: 'Create a new contact group in Xero.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'Name',
         type: 'string',
@@ -339,12 +286,7 @@ export const tools: Tool[] = [
     name: 'xero_contact_group_update',
     description: 'Update a contact group name in Xero.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'contact_group_id',
         type: 'string',
@@ -358,12 +300,7 @@ export const tools: Tool[] = [
     name: 'xero_contact_group_delete',
     description: 'Delete (soft-delete) a contact group in Xero by setting its status to DELETED.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'contact_group_id',
         type: 'string',
@@ -376,12 +313,7 @@ export const tools: Tool[] = [
     name: 'xero_invoices_list',
     description: 'Retrieve sales invoices and bills from a Xero organisation.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'ContactIDs',
         type: 'string',
@@ -406,10 +338,10 @@ export const tools: Tool[] = [
         required: false,
         description: 'Order results. e.g. DueDate ASC',
       },
-      { name: 'page', type: 'number', required: false, description: 'Page number. e.g. 1' },
+      { name: 'page', type: 'integer', required: false, description: 'Page number. e.g. 1' },
       {
         name: 'pageSize',
-        type: 'number',
+        type: 'integer',
         required: false,
         description: 'Records per page. e.g. 100',
       },
@@ -425,12 +357,7 @@ export const tools: Tool[] = [
     name: 'xero_invoice_get',
     description: 'Retrieve a single invoice or bill by its InvoiceID.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'invoice_id',
         type: 'string',
@@ -443,12 +370,7 @@ export const tools: Tool[] = [
     name: 'xero_invoice_create',
     description: 'Create a new invoice (ACCREC) or bill (ACCPAY) in Xero.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'Contact',
         type: 'string',
@@ -494,12 +416,7 @@ export const tools: Tool[] = [
     description:
       'Update an existing invoice or bill in Xero. DueDate is required when setting Status to AUTHORISED.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'invoice_id',
         type: 'string',
@@ -527,12 +444,7 @@ export const tools: Tool[] = [
     description:
       'Void (soft-delete) an invoice or bill in Xero by setting its status to VOIDED. Only works on AUTHORISED or SUBMITTED invoices.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'invoice_id',
         type: 'string',
@@ -545,12 +457,7 @@ export const tools: Tool[] = [
     name: 'xero_credit_notes_list',
     description: 'Retrieve credit notes from a Xero organisation.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'modified_after',
         type: 'string',
@@ -563,7 +470,7 @@ export const tools: Tool[] = [
         required: false,
         description: 'Order results. e.g. Date DESC',
       },
-      { name: 'page', type: 'number', required: false, description: 'Page number. e.g. 1' },
+      { name: 'page', type: 'integer', required: false, description: 'Page number. e.g. 1' },
       {
         name: 'where',
         type: 'string',
@@ -576,12 +483,7 @@ export const tools: Tool[] = [
     name: 'xero_credit_note_get',
     description: 'Retrieve a single credit note by its CreditNoteID.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'credit_note_id',
         type: 'string',
@@ -594,12 +496,7 @@ export const tools: Tool[] = [
     name: 'xero_credit_note_create',
     description: 'Create a new credit note in Xero.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'Contact',
         type: 'string',
@@ -638,12 +535,7 @@ export const tools: Tool[] = [
     name: 'xero_credit_note_update',
     description: 'Update an existing credit note in Xero.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'credit_note_id',
         type: 'string',
@@ -658,12 +550,7 @@ export const tools: Tool[] = [
     name: 'xero_payments_list',
     description: 'Retrieve payments applied to invoices, credit notes, or prepayments in Xero.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'modified_after',
         type: 'string',
@@ -676,7 +563,7 @@ export const tools: Tool[] = [
         required: false,
         description: 'Order results. e.g. Date DESC',
       },
-      { name: 'page', type: 'number', required: false, description: 'Page number. e.g. 1' },
+      { name: 'page', type: 'integer', required: false, description: 'Page number. e.g. 1' },
       {
         name: 'where',
         type: 'string',
@@ -689,12 +576,7 @@ export const tools: Tool[] = [
     name: 'xero_overpayments_list',
     description: 'Retrieve overpayments from a Xero organisation.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'modified_after',
         type: 'string',
@@ -707,7 +589,7 @@ export const tools: Tool[] = [
         required: false,
         description: 'Order results. e.g. Date DESC',
       },
-      { name: 'page', type: 'number', required: false, description: 'Page number. e.g. 1' },
+      { name: 'page', type: 'integer', required: false, description: 'Page number. e.g. 1' },
       {
         name: 'where',
         type: 'string',
@@ -720,12 +602,7 @@ export const tools: Tool[] = [
     name: 'xero_prepayments_list',
     description: 'Retrieve prepayments from a Xero organisation.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'modified_after',
         type: 'string',
@@ -738,7 +615,7 @@ export const tools: Tool[] = [
         required: false,
         description: 'Order results. e.g. Date DESC',
       },
-      { name: 'page', type: 'number', required: false, description: 'Page number. e.g. 1' },
+      { name: 'page', type: 'integer', required: false, description: 'Page number. e.g. 1' },
       {
         name: 'where',
         type: 'string',
@@ -751,12 +628,7 @@ export const tools: Tool[] = [
     name: 'xero_batch_payments_list',
     description: 'Retrieve batch payments from a Xero organisation.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'modified_after',
         type: 'string',
@@ -781,12 +653,7 @@ export const tools: Tool[] = [
     name: 'xero_bank_transactions_list',
     description: 'Retrieve spend or receive money bank transactions from Xero.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'modified_after',
         type: 'string',
@@ -799,7 +666,7 @@ export const tools: Tool[] = [
         required: false,
         description: 'Order results. e.g. Date DESC',
       },
-      { name: 'page', type: 'number', required: false, description: 'Page number. e.g. 1' },
+      { name: 'page', type: 'integer', required: false, description: 'Page number. e.g. 1' },
       {
         name: 'where',
         type: 'string',
@@ -812,12 +679,7 @@ export const tools: Tool[] = [
     name: 'xero_bank_transfers_list',
     description: 'Retrieve bank transfers between accounts in Xero.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'modified_after',
         type: 'string',
@@ -842,12 +704,7 @@ export const tools: Tool[] = [
     name: 'xero_items_list',
     description: 'Retrieve inventory items from a Xero organisation.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'modified_after',
         type: 'string',
@@ -872,12 +729,7 @@ export const tools: Tool[] = [
     name: 'xero_item_get',
     description: 'Retrieve a single item by its ItemID or Code.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'item_id',
         type: 'string',
@@ -890,12 +742,7 @@ export const tools: Tool[] = [
     name: 'xero_item_create',
     description: 'Create a new inventory item in Xero.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'Code',
         type: 'string',
@@ -945,12 +792,7 @@ export const tools: Tool[] = [
     name: 'xero_item_update',
     description: 'Update an existing inventory item in Xero.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'item_id',
         type: 'string',
@@ -979,12 +821,7 @@ export const tools: Tool[] = [
     name: 'xero_item_delete',
     description: 'Delete an inventory item from Xero.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'item_id',
         type: 'string',
@@ -997,12 +834,7 @@ export const tools: Tool[] = [
     name: 'xero_purchase_orders_list',
     description: 'Retrieve purchase orders from a Xero organisation.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'DateFrom',
         type: 'string',
@@ -1022,19 +854,14 @@ export const tools: Tool[] = [
         required: false,
         description: 'Order results. e.g. PurchaseOrderNumber ASC',
       },
-      { name: 'page', type: 'number', required: false, description: 'Page number. e.g. 1' },
+      { name: 'page', type: 'integer', required: false, description: 'Page number. e.g. 1' },
     ],
   },
   {
     name: 'xero_purchase_order_get',
     description: 'Retrieve a single purchase order by its PurchaseOrderID.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'purchase_order_id',
         type: 'string',
@@ -1047,12 +874,7 @@ export const tools: Tool[] = [
     name: 'xero_purchase_order_create',
     description: 'Create a new purchase order in Xero.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'Contact',
         type: 'string',
@@ -1097,12 +919,7 @@ export const tools: Tool[] = [
     name: 'xero_purchase_order_update',
     description: 'Update an existing purchase order in Xero.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'purchase_order_id',
         type: 'string',
@@ -1129,12 +946,7 @@ export const tools: Tool[] = [
     name: 'xero_quotes_list',
     description: 'Retrieve quotes from a Xero organisation.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'ContactID',
         type: 'string',
@@ -1155,19 +967,14 @@ export const tools: Tool[] = [
         required: false,
         description: 'Order results. e.g. Date DESC',
       },
-      { name: 'page', type: 'number', required: false, description: 'Page number. e.g. 1' },
+      { name: 'page', type: 'integer', required: false, description: 'Page number. e.g. 1' },
     ],
   },
   {
     name: 'xero_quote_get',
     description: 'Retrieve a single quote by its QuoteID.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'quote_id',
         type: 'string',
@@ -1180,12 +987,7 @@ export const tools: Tool[] = [
     name: 'xero_quote_create',
     description: 'Create a new quote in Xero.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'Contact',
         type: 'string',
@@ -1232,12 +1034,7 @@ export const tools: Tool[] = [
     name: 'xero_quote_update',
     description: 'Update an existing quote in Xero.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'quote_id',
         type: 'string',
@@ -1271,12 +1068,7 @@ export const tools: Tool[] = [
     name: 'xero_repeating_invoices_list',
     description: 'Retrieve repeating invoice templates from a Xero organisation.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'order',
         type: 'string',
@@ -1295,12 +1087,7 @@ export const tools: Tool[] = [
     name: 'xero_manual_journals_list',
     description: 'Retrieve manual journals from a Xero organisation.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'modified_after',
         type: 'string',
@@ -1313,7 +1100,7 @@ export const tools: Tool[] = [
         required: false,
         description: 'Order results. e.g. Date DESC',
       },
-      { name: 'page', type: 'number', required: false, description: 'Page number. e.g. 1' },
+      { name: 'page', type: 'integer', required: false, description: 'Page number. e.g. 1' },
       {
         name: 'where',
         type: 'string',
@@ -1326,12 +1113,7 @@ export const tools: Tool[] = [
     name: 'xero_manual_journal_get',
     description: 'Retrieve a single manual journal by its ManualJournalID.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'manual_journal_id',
         type: 'string',
@@ -1344,12 +1126,7 @@ export const tools: Tool[] = [
     name: 'xero_manual_journal_create',
     description: 'Create a new manual journal entry in Xero.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'JournalLines',
         type: 'array',
@@ -1371,12 +1148,7 @@ export const tools: Tool[] = [
     description:
       'Update an existing manual journal in Xero. JournalLines are required when setting Status to POSTED.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'manual_journal_id',
         type: 'string',
@@ -1398,12 +1170,7 @@ export const tools: Tool[] = [
     name: 'xero_employees_list',
     description: 'Retrieve employees from a Xero organisation.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'modified_after',
         type: 'string',
@@ -1428,12 +1195,7 @@ export const tools: Tool[] = [
     name: 'xero_employee_get',
     description: 'Retrieve a single employee by their EmployeeID.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'employee_id',
         type: 'string',
@@ -1446,12 +1208,7 @@ export const tools: Tool[] = [
     name: 'xero_employee_create',
     description: 'Create a new employee record in Xero.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       { name: 'FirstName', type: 'string', required: true, description: 'First name. e.g. Jane' },
       { name: 'LastName', type: 'string', required: true, description: 'Last name. e.g. Doe' },
       { name: 'ExternalLink', type: 'string', required: false, description: 'External link URL.' },
@@ -1462,12 +1219,7 @@ export const tools: Tool[] = [
     name: 'xero_employee_update',
     description: 'Update an existing employee in Xero.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'employee_id',
         type: 'string',
@@ -1483,12 +1235,7 @@ export const tools: Tool[] = [
     name: 'xero_currencies_list',
     description: 'Retrieve enabled currencies for a Xero organisation.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'order',
         type: 'string',
@@ -1507,12 +1254,7 @@ export const tools: Tool[] = [
     name: 'xero_tax_rates_list',
     description: 'Retrieve tax rates from a Xero organisation.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'TaxType',
         type: 'string',
@@ -1537,12 +1279,7 @@ export const tools: Tool[] = [
     name: 'xero_tax_rate_create',
     description: 'Create a new tax rate in Xero.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'Name',
         type: 'string',
@@ -1561,12 +1298,7 @@ export const tools: Tool[] = [
     name: 'xero_tax_rate_update',
     description: 'Update an existing tax rate in Xero.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'TaxComponents',
         type: 'array',
@@ -1593,12 +1325,7 @@ export const tools: Tool[] = [
     name: 'xero_tracking_categories_list',
     description: 'Retrieve tracking categories and their options from Xero.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'order',
         type: 'string',
@@ -1617,12 +1344,7 @@ export const tools: Tool[] = [
     name: 'xero_tracking_category_update',
     description: 'Update a tracking category name or status in Xero.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'tracking_category_id',
         type: 'string',
@@ -1642,12 +1364,7 @@ export const tools: Tool[] = [
     name: 'xero_tracking_category_delete',
     description: 'Delete a tracking category from Xero.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'tracking_category_id',
         type: 'string',
@@ -1660,12 +1377,7 @@ export const tools: Tool[] = [
     name: 'xero_tracking_option_create',
     description: 'Create a new option within a tracking category in Xero.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'tracking_category_id',
         type: 'string',
@@ -1679,12 +1391,7 @@ export const tools: Tool[] = [
     name: 'xero_users_list',
     description: 'Retrieve users of a Xero organisation.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'modified_after',
         type: 'string',
@@ -1709,12 +1416,7 @@ export const tools: Tool[] = [
     name: 'xero_user_get',
     description: 'Retrieve a single Xero organisation user by their UserID.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'user_id',
         type: 'string',
@@ -1727,12 +1429,7 @@ export const tools: Tool[] = [
     name: 'xero_report_balance_sheet',
     description: 'Retrieve the Balance Sheet report for a Xero organisation.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'date',
         type: 'string',
@@ -1741,7 +1438,7 @@ export const tools: Tool[] = [
       },
       {
         name: 'periods',
-        type: 'number',
+        type: 'integer',
         required: false,
         description: 'Number of comparison periods. e.g. 3',
       },
@@ -1769,12 +1466,7 @@ export const tools: Tool[] = [
     name: 'xero_report_profit_and_loss',
     description: 'Retrieve the Profit and Loss report for a Xero organisation.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'fromDate',
         type: 'string',
@@ -1783,7 +1475,7 @@ export const tools: Tool[] = [
       },
       {
         name: 'periods',
-        type: 'number',
+        type: 'integer',
         required: false,
         description: 'Number of comparison periods. e.g. 3',
       },
@@ -1817,12 +1509,7 @@ export const tools: Tool[] = [
     name: 'xero_report_trial_balance',
     description: 'Retrieve the Trial Balance report for a Xero organisation.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'date',
         type: 'string',
@@ -1841,12 +1528,7 @@ export const tools: Tool[] = [
     name: 'xero_report_aged_payables',
     description: 'Retrieve the Aged Payables Outstanding report for a Xero organisation.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'contactID',
         type: 'string',
@@ -1872,12 +1554,7 @@ export const tools: Tool[] = [
     name: 'xero_report_aged_receivables',
     description: 'Retrieve the Aged Receivables Outstanding report for a Xero organisation.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'contactID',
         type: 'string',
@@ -1903,12 +1580,7 @@ export const tools: Tool[] = [
     name: 'xero_report_bank_summary',
     description: 'Retrieve the Bank Summary report for a Xero organisation.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'fromDate',
         type: 'string',
@@ -1927,12 +1599,7 @@ export const tools: Tool[] = [
     name: 'xero_report_executive_summary',
     description: 'Retrieve the Executive Summary report for a Xero organisation.',
     params: [
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
-      },
+      XERO_TENANT_PARAM,
       {
         name: 'date',
         type: 'string',
