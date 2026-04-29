@@ -211,3 +211,199 @@ Use `executeTool` (Node.js) or `execute_tool` (Python) to call any Datadog tool 
     ```
   </TabItem>
 </Tabs>
+
+### Create a scheduled downtime
+
+The `start` and `end` fields use **ISO 8601 format**, not Unix timestamps.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const downtime = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'datadog_downtime_create',
+      parameters: {
+        scope: 'env:production',
+        start: '2026-06-01T02:00:00Z',
+        end: '2026-06-01T04:00:00Z',
+        message: 'Scheduled maintenance window',
+      },
+    });
+    // Use data.id (UUID), not included[].id (user UUID)
+    const downtimeId = downtime.data?.id;
+    console.log('Downtime ID:', downtimeId);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    downtime = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="datadog_downtime_create",
+        parameters={
+            "scope": "env:production",
+            "start": "2026-06-01T02:00:00Z",
+            "end": "2026-06-01T04:00:00Z",
+            "message": "Scheduled maintenance window",
+        },
+    )
+    # Use data["id"] (UUID), not included[0]["id"] (user UUID)
+    downtime_id = downtime["data"]["id"]
+    print("Downtime ID:", downtime_id)
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="caution" title="Downtime response includes two IDs">
+  The `downtime_create` response contains both `data.id` (the downtime UUID) and `included[].id` (the creator's user UUID). Always use `data.id` for subsequent `downtime_get`, `downtime_update`, and `downtime_cancel` calls.
+</Aside>
+
+### Create a metric SLO
+
+The `query` field must be a **JSON string** containing `numerator` and `denominator` metric queries. Pass `thresholds` as a JSON string too.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const slo = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'datadog_slo_create',
+      parameters: {
+        name: 'API Success Rate',
+        type: 'metric',
+        query: JSON.stringify({
+          numerator: 'sum:requests.success{*}.as_count()',
+          denominator: 'sum:requests.total{*}.as_count()',
+        }),
+        thresholds: JSON.stringify([{ target: 99.5, timeframe: '30d' }]),
+      },
+    });
+    const sloId = slo.data?.[0]?.id;
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import json
+
+    slo = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="datadog_slo_create",
+        parameters={
+            "name": "API Success Rate",
+            "type": "metric",
+            "query": json.dumps({
+                "numerator": "sum:requests.success{*}.as_count()",
+                "denominator": "sum:requests.total{*}.as_count()",
+            }),
+            "thresholds": json.dumps([{"target": 99.5, "timeframe": "30d"}]),
+        },
+    )
+    slo_id = slo["data"][0]["id"]
+    ```
+  </TabItem>
+</Tabs>
+
+### Retrieve an event
+
+Datadog event IDs are 64-bit integers that exceed the float64 precision limit. Always use the `id_str` field from `event_create` or `events_list_v2` — not the numeric `id` field — to avoid silent precision loss.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // Create an event and capture its string ID
+    const created = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'datadog_event_create',
+      parameters: {
+        title: 'Deployment completed',
+        text: 'v2.3.1 deployed to production',
+        date_happened: Math.floor(Date.now() / 1000),
+      },
+    });
+    const eventId = created.event?.id_str; // use id_str, not id
+
+    // Retrieve it
+    const event = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'datadog_event_get',
+      parameters: { event_id: eventId },
+    });
+    console.log(event.event?.title);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import time
+
+    created = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="datadog_event_create",
+        parameters={
+            "title": "Deployment completed",
+            "text": "v2.3.1 deployed to production",
+            "date_happened": int(time.time()),
+        },
+    )
+    event_id = created["event"]["id_str"]  # use id_str, not id
+
+    event = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="datadog_event_get",
+        parameters={"event_id": event_id},
+    )
+    print(event["event"]["title"])
+    ```
+  </TabItem>
+</Tabs>
+
+### Submit custom metrics
+
+`datadog_metrics_submit` takes separate array parameters for timestamps and values — not a serialized `series` object.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'datadog_metrics_submit',
+      parameters: {
+        metric_name: 'app.request.duration',
+        metric_type: 3,                              // 3 = gauge
+        points_timestamps: JSON.stringify([Math.floor(Date.now() / 1000)]),
+        points_values: JSON.stringify([142.5]),
+        tags: JSON.stringify(['env:production', 'service:api']),
+      },
+    });
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import time, json
+
+    actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="datadog_metrics_submit",
+        parameters={
+            "metric_name": "app.request.duration",
+            "metric_type": 3,                         # 3 = gauge
+            "points_timestamps": json.dumps([int(time.time())]),
+            "points_values": json.dumps([142.5]),
+            "tags": json.dumps(["env:production", "service:api"]),
+        },
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="tip" title="metric_type values">
+  `0` = unspecified, `1` = count, `2` = rate, `3` = gauge. Use `3` (gauge) for point-in-time measurements.
+</Aside>
