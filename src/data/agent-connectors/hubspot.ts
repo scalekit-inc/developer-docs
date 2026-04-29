@@ -156,7 +156,7 @@ export const tools: Tool[] = [
       },
       {
         name: 'annualrevenue',
-        type: 'string',
+        type: 'number',
         required: false,
         description: 'Updated annual revenue.',
       },
@@ -434,7 +434,7 @@ export const tools: Tool[] = [
     params: [
       {
         name: 'contacts',
-        type: 'object',
+        type: 'array',
         required: true,
         description:
           'Array of contact objects to create. Each object supports: `email` (required), `firstname`, `lastname`, `phone`, `company`, `jobtitle`, `website`, `lifecyclestage`. Max 100 contacts.',
@@ -665,11 +665,11 @@ export const tools: Tool[] = [
   {
     name: 'hubspot_deal_pipelines_list',
     description:
-      'Retrieve all deal pipelines in HubSpot, including pipeline stages. Use this to get valid pipeline IDs and stage IDs for creating or updating deals.',
+      'Retrieve all pipelines for a HubSpot CRM object type (e.g. `deals` or `tickets`), including pipeline stages. Use this to get valid pipeline IDs and stage IDs for creating or updating deals and tickets.',
     params: [
       {
         name: 'archived',
-        type: 'string',
+        type: 'boolean',
         required: false,
         description: 'Set to `true` to include archived pipelines.',
       },
@@ -692,7 +692,7 @@ export const tools: Tool[] = [
   {
     name: 'hubspot_ticket_create',
     description:
-      "Create a new support ticket in HubSpot. Use `hubspot_deal_pipelines_list` with object type `tickets` to find valid pipeline and stage IDs.",
+      "Create a new support ticket in HubSpot. Use `hubspot_deal_pipelines_list` with `object_type: tickets` to find valid pipeline and stage IDs.",
     params: [
       {
         name: 'subject',
@@ -1547,7 +1547,7 @@ export const tools: Tool[] = [
     params: [
       {
         name: 'archived',
-        type: 'string',
+        type: 'boolean',
         required: false,
         description: 'Set to `true` to include archived custom object schemas.',
       },
@@ -1682,7 +1682,7 @@ export const tools: Tool[] = [
       },
       {
         name: 'archived',
-        type: 'string',
+        type: 'boolean',
         required: false,
         description: 'Set to `true` to include archived properties.',
       },
