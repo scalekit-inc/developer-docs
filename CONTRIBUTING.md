@@ -218,9 +218,12 @@ Agent connector docs use a generated workflow, not fully hand-written pages.
 - `pnpm run sync-agent-connectors` fetches production connector metadata and regenerates the connector docs under `src/content/docs/agentkit/connectors/`
 - Add setup instructions through `src/components/templates/agent-connectors/_setup-<slug>.mdx`
 - Add optional code examples through `src/components/templates/agent-connectors/_usage-<slug>.mdx`
+- Add custom connector sections through `src/components/templates/agent-connectors/_section-<hook>-<slug>-<topic>.mdx`
 - Read the [Sync agent connectors guide](project-docs/SYNC_AGENT_CONNECTORS.md) before running the sync or reviewing the generated diff
 
-The long-form guide explains prerequisites, required `PROD_*` env vars, expected diffs, and what to do when generated connector content disappears.
+Use custom sections only when authored content does not fit setup instructions or code examples. Supported hooks include `after-authentication`, `after-setup`, `after-usage`, `before-tool-list`, and `after-tool-list`.
+
+The long-form guide explains prerequisites, required `PROD_*` env vars, supported custom section hooks, expected diffs, and what to do when generated connector content disappears.
 
 ### Frontmatter
 

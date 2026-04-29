@@ -38,11 +38,13 @@ Supported template families in the current sync flow:
 
 - `_setup-<slug>.mdx` adds the optional **Set up the connector** section
 - `_usage-<slug>.mdx` adds the optional **Code examples** section
+- `_section-<hook>-<slug>-<topic>.mdx` adds an optional custom section at a supported generated-page hook
 
 Examples:
 
 - `src/components/templates/agent-connectors/_setup-github.mdx`
 - `src/components/templates/agent-connectors/_usage-github.mdx`
+- `src/components/templates/agent-connectors/_section-after-usage-salesforce-metadata-api-soap.mdx`
 
 The sync script does not infer setup instructions from API metadata. If a matching `_setup-<slug>.mdx` file does not exist, the generated connector page will still include the latest tool information, but it will not include setup instructions.
 
@@ -68,6 +70,40 @@ The script will:
 - discover `_setup-fathom.mdx`
 - regenerate `src/components/templates/agent-connectors/index.ts`
 - inject `<SetupFathomSection />` into the generated `src/content/docs/agentkit/connectors/fathom.mdx` page
+
+## Add a custom connector section
+
+Create a custom section template when a generated connector page needs authored content that does not fit setup instructions or code examples.
+
+Use this filename pattern:
+
+```text
+_section-<hook>-<slug>-<topic>.mdx
+```
+
+The `<slug>` must match the generated connector page filename stem. For example, use `salesforce` for `salesforce.mdx` and `google_ads` for `google_ads.mdx`.
+
+Supported hooks:
+
+| Hook                   | Placement                                                 |
+| ---------------------- | --------------------------------------------------------- |
+| `after-authentication` | After the generated **Authentication** section            |
+| `after-setup`          | After the optional **Set up the connector** details block |
+| `after-usage`          | After the optional **Code examples** details block        |
+| `before-tool-list`     | Immediately before the generated **Tool list** section    |
+| `after-tool-list`      | Immediately after the generated **Tool list** section     |
+
+Example:
+
+1. Create `src/components/templates/agent-connectors/_section-after-usage-salesforce-metadata-api-soap.mdx`.
+2. Add the section heading and content inside the template.
+3. Run the sync script.
+
+The script will:
+
+- discover the custom section template
+- regenerate `src/components/templates/agent-connectors/index.ts`
+- inject `<SectionAfterUsageSalesforceMetadataApiSoap />` into the generated Salesforce connector page after the code examples block
 
 ## Run the sync
 
@@ -96,7 +132,7 @@ These diffs are usually expected:
 - new connectors published to production
 - new tools added to existing connectors
 - metadata refreshes on existing connectors
-- updates caused by a new `_setup-*` or `_usage-*` template you added
+- updates caused by a new `_setup-*`, `_usage-*`, or `_section-*` template you added
 
 These diffs should make you stop and look carefully:
 
@@ -115,24 +151,28 @@ After the sync finishes, verify these points:
 - the expected generated tool data file exists under `src/data/agent-connectors/`
 - the setup section appears only for connectors with a matching `_setup-*` template
 - the usage section appears only for connectors with a matching `_usage-*` template
+- custom sections appear at the hook declared in matching `_section-*` templates
 - the generated page reflects the latest tool information from production
 
 ## Slug to component name mapping
 
 The script derives component names from the template filename.
 
-| Template file                | Component name               |
-| ---------------------------- | ---------------------------- |
-| `_setup-google-ads.mdx`      | `SetupGoogleAdsSection`      |
-| `_setup-googlecalendar.mdx`  | `SetupGooglecalendarSection` |
-| `_setup-microsoft-excel.mdx` | `SetupMicrosoftExcelSection` |
-| `_usage-google_ads.mdx`      | `UsageGoogleAdsSection`      |
+| Template file                                           | Component name                               |
+| ------------------------------------------------------- | -------------------------------------------- |
+| `_setup-google-ads.mdx`                                 | `SetupGoogleAdsSection`                      |
+| `_setup-googlecalendar.mdx`                             | `SetupGooglecalendarSection`                 |
+| `_setup-microsoft-excel.mdx`                            | `SetupMicrosoftExcelSection`                 |
+| `_section-after-usage-salesforce-metadata-api-soap.mdx` | `SectionAfterUsageSalesforceMetadataApiSoap` |
+| `_usage-google_ads.mdx`                                 | `UsageGoogleAdsSection`                      |
 
-Provider API slugs often use underscores. The lookup currently tries these forms:
+Provider API slugs often use underscores. Setup and usage template lookup currently tries these forms:
 
 1. Exact slug match
 2. Underscore to hyphen fallback, such as `google_ads` -> `google-ads`
 3. Underscore removal fallback, such as `google_calendar` -> `googlecalendar`
+
+Custom section templates use the exact generated page filename stem for `<slug>`.
 
 ## Troubleshooting missing setup content
 
