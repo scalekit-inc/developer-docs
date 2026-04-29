@@ -128,3 +128,38 @@ actions.execute_tool(
 <Aside type="tip" title="person_fields is required">
   Most read tools require a `person_fields` or `read_mask` parameter. Pass a comma-separated list such as `names,emailAddresses,phoneNumbers,organizations`.
 </Aside>
+
+### Update a contact
+
+`googlecontacts_contact_update` and `googlecontacts_group_update` require a current `etag`. Google uses the etag as optimistic concurrency control — if the resource was modified since you last read it, the update is rejected to prevent silent overwrites.
+
+In agentic workflows, your agent will typically call `googlecontacts_contact_get` first to read the current state of the contact, and the etag from that response is passed directly into the update call.
+
+```python
+# 1. Get contact — etag is included in the response
+contact = actions.execute_tool(
+    tool_name="googlecontacts_contact_get",
+    connected_account_id=connected_account.id,
+    tool_input={
+        "person_id": "c8901234567",
+        "person_fields": "names,emailAddresses",
+    }
+)
+
+# 2. Pass the etag from the get response into the update
+actions.execute_tool(
+    tool_name="googlecontacts_contact_update",
+    connected_account_id=connected_account.id,
+    tool_input={
+        "person_id": "c8901234567",
+        "etag": contact["etag"],
+        "update_person_fields": "names",
+        "given_name": "Jane",
+        "family_name": "Smith",
+    }
+)
+```
+
+<Aside type="caution" title="Do not cache etags">
+  Always use the etag from the most recent `contact_get` or `group_get` response. A stale etag causes the API to reject the update.
+</Aside>
