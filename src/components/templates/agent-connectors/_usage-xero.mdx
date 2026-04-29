@@ -78,63 +78,190 @@ For raw proxy requests, you must supply the `Xero-Tenant-Id` header yourself. Tr
 
 Use `execute_tool` to call Xero tools directly. Scalekit resolves the connected account, injects the OAuth token, and returns a structured response.
 
-### List invoices and create a new one
+### Create and authorise an invoice
 
-```python title="examples/xero_invoices.py"
-import scalekit.client, os
-from dotenv import load_dotenv
-load_dotenv()
+The `Contact` field must be a **JSON string** and `LineItems` must be a **JSON array**. Include `AccountCode` in each line item — Xero requires it when authorising or voiding the invoice.
 
-scalekit_client = scalekit.client.ScalekitClient(
-    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
-    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
-    env_url=os.getenv("SCALEKIT_ENV_URL"),
-)
-actions = scalekit_client.actions
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // Get contact ID
+    const contacts = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'xero_contacts_list',
+      parameters: {},
+    });
+    const contactId = contacts.Contacts[0].ContactID;
 
-response = actions.get_or_create_connected_account(
-    connection_name="xero",
-    identifier="user_123"
-)
-connected_account = response.connected_account
-
-# Step 1: List existing invoices
-invoices = actions.execute_tool(
-    tool_name="xero_invoices_list",
-    connected_account_id=connected_account.id,
-    tool_input={
-        "Statuses": "AUTHORISED",
-        "page": 1
-    }
-)
-print(invoices.result)
-
-# Step 2: Get a contact to bill
-contacts = actions.execute_tool(
-    tool_name="xero_contacts_list",
-    connected_account_id=connected_account.id,
-    tool_input={
-        "searchTerm": "Acme"
-    }
-)
-contact_id = contacts.result["Contacts"][0]["ContactID"]
-
-# Step 3: Create a new invoice
-new_invoice = actions.execute_tool(
-    tool_name="xero_invoice_create",
-    connected_account_id=connected_account.id,
-    tool_input={
-        "Type": "ACCREC",
-        "Contact": {"ContactID": contact_id},
-        "LineItems": [
-            {"Description": "Consulting services", "Quantity": 1, "UnitAmount": 500.00, "AccountCode": "200"}
+    // Create a DRAFT invoice
+    const invoice = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'xero_invoice_create',
+      parameters: {
+        Type: 'ACCREC',
+        Contact: JSON.stringify({ ContactID: contactId }),
+        LineItems: [
+          { Description: 'Consulting services', Quantity: 1, UnitAmount: 500, AccountCode: '200' },
         ],
-        "Status": "DRAFT"
-    }
-)
-print("Created invoice:", new_invoice.result["Invoices"][0]["InvoiceID"])
-```
+      },
+    });
+    const invoiceId = invoice.Invoices[0].InvoiceID;
+
+    // Authorise it
+    await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'xero_invoice_update',
+      parameters: {
+        invoice_id: invoiceId,
+        Status: 'AUTHORISED',
+        DueDate: '2026-06-30',
+      },
+    });
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import json
+
+    # Get contact ID
+    contacts = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="xero_contacts_list",
+        parameters={},
+    )
+    contact_id = contacts["Contacts"][0]["ContactID"]
+
+    # Create a DRAFT invoice
+    invoice = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="xero_invoice_create",
+        parameters={
+            "Type": "ACCREC",
+            "Contact": json.dumps({"ContactID": contact_id}),
+            "LineItems": [
+                {"Description": "Consulting services", "Quantity": 1, "UnitAmount": 500, "AccountCode": "200"},
+            ],
+        },
+    )
+    invoice_id = invoice["Invoices"][0]["InvoiceID"]
+
+    # Authorise it
+    actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="xero_invoice_update",
+        parameters={
+            "invoice_id": invoice_id,
+            "Status": "AUTHORISED",
+            "DueDate": "2026-06-30",
+        },
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+### Void an invoice
+
+`xero_invoice_delete` voids an invoice by setting its status to `VOIDED`. Xero only permits voiding `AUTHORISED` invoices — calling it on a `DRAFT` invoice returns a validation error. Authorise the invoice first (see above), then call delete.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'xero_invoice_delete',
+      parameters: { invoice_id: invoiceId },
+    });
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="xero_invoice_delete",
+        parameters={"invoice_id": invoice_id},
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+### Create a quote
+
+`xero_quote_create` requires `Contact` (JSON string), `LineItems` (array), and `Date` (ISO 8601). Without `Date`, Xero returns `"Date cannot be empty"`.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const quote = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'xero_quote_create',
+      parameters: {
+        Contact: JSON.stringify({ ContactID: contactId }),
+        LineItems: [{ Description: 'Project estimate', Quantity: 1, UnitAmount: 2000 }],
+        Date: '2026-04-29',
+      },
+    });
+    const quoteId = quote.Quotes[0].QuoteID;
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import json
+
+    quote = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="xero_quote_create",
+        parameters={
+            "Contact": json.dumps({"ContactID": contact_id}),
+            "LineItems": [{"Description": "Project estimate", "Quantity": 1, "UnitAmount": 2000}],
+            "Date": "2026-04-29",
+        },
+    )
+    quote_id = quote["Quotes"][0]["QuoteID"]
+    ```
+  </TabItem>
+</Tabs>
+
+### Run aged payables or receivables report
+
+The aged report tools require a `contactID` parameter. The other reports (Balance Sheet, Profit & Loss, Trial Balance, Bank Summary, Executive Summary) need no inputs beyond the auto-injected tenant ID.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const report = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'xero_report_aged_receivables',
+      parameters: { contactID: contactId },
+    });
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    report = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="xero_report_aged_receivables",
+        parameters={"contactID": contact_id},
+    )
+    ```
+  </TabItem>
+</Tabs>
 
 <Aside type="tip" title="Tenant ID is injected automatically">
   When using `execute_tool`, you do not need to pass `xero_tenant_id`. Scalekit fetches the tenant ID automatically on the first tool call and caches it for subsequent calls. For raw proxy requests, you still need to supply the `Xero-Tenant-Id` header manually.
+</Aside>
+
+<Aside type="caution" title="Contact field must be a JSON string">
+  The `Contact` parameter in `xero_invoice_create`, `xero_credit_note_create`, `xero_purchase_order_create`, and `xero_quote_create` must be passed as a JSON **string**, not an object: `'{"ContactID": "abc123..."}'`. Pass the result of `JSON.stringify({ContactID: id})` in Node.js or `json.dumps({"ContactID": id})` in Python.
 </Aside>

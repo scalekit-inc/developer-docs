@@ -63,6 +63,7 @@ Scalekit automatically fetches and injects `xero_tenant_id` on the first tool ca
 |----------|---------------|-------------------|
 | Account ID | `xero_accounts_list` | `Accounts[].AccountID` |
 | Contact ID | `xero_contacts_list` | `Contacts[].ContactID` |
+| Contact Group ID | `xero_contact_groups_list` | `ContactGroups[].ContactGroupID` |
 | Invoice ID | `xero_invoices_list` | `Invoices[].InvoiceID` |
 | Credit Note ID | `xero_credit_notes_list` | `CreditNotes[].CreditNoteID` |
 | Purchase Order ID | `xero_purchase_orders_list` | `PurchaseOrders[].PurchaseOrderID` |
@@ -70,9 +71,97 @@ Scalekit automatically fetches and injects `xero_tenant_id` on the first tool ca
 | Item ID | `xero_items_list` | `Items[].ItemID` |
 | Manual Journal ID | `xero_manual_journals_list` | `ManualJournals[].ManualJournalID` |
 | Employee ID | `xero_employees_list` | `Employees[].EmployeeID` |
-| Contact Group ID | `xero_contact_groups_list` | `ContactGroups[].ContactGroupID` |
 | Tracking Category ID | `xero_tracking_categories_list` | `TrackingCategories[].TrackingCategoryID` |
+| Tax Type | `xero_tax_rates_list` | `TaxRates[].TaxType` |
 | User ID | `xero_users_list` | `Users[].UserID` |
+
+## Common patterns
+
+### Void (delete) an invoice
+
+`xero_invoice_delete` voids an invoice by setting its status to `VOIDED`. Xero only allows voiding invoices that are in `AUTHORISED` status — calling it on a `DRAFT` invoice returns a validation error.
+
+The correct sequence is:
+
+1. Authorise the invoice with `xero_invoice_update`, passing `Status: "AUTHORISED"` and a `DueDate`.
+2. Call `xero_invoice_delete` with the same `invoice_id`.
+
+<details>
+<summary>Node.js example</summary>
+
+```typescript
+// Step 1 — authorise the invoice
+await actions.executeTool({
+  connectionName,
+  identifier,
+  toolName: 'xero_invoice_update',
+  parameters: {
+    invoice_id: invoiceId,
+    Status: 'AUTHORISED',
+    DueDate: '2026-06-30',
+  },
+});
+
+// Step 2 — void it
+await actions.executeTool({
+  connectionName,
+  identifier,
+  toolName: 'xero_invoice_delete',
+  parameters: { invoice_id: invoiceId },
+});
+```
+
+</details>
+
+<details>
+<summary>Python example</summary>
+
+```python
+# Step 1 — authorise the invoice
+actions.execute_tool(
+    connection_name=connection_name,
+    identifier=identifier,
+    tool_name="xero_invoice_update",
+    parameters={
+        "invoice_id": invoice_id,
+        "Status": "AUTHORISED",
+        "DueDate": "2026-06-30",
+    },
+)
+
+# Step 2 — void it
+actions.execute_tool(
+    connection_name=connection_name,
+    identifier=identifier,
+    tool_name="xero_invoice_delete",
+    parameters={"invoice_id": invoice_id},
+)
+```
+
+</details>
+
+### Pass Contact and LineItems correctly
+
+Several tools (`xero_invoice_create`, `xero_credit_note_create`, `xero_purchase_order_create`, `xero_quote_create`) take a `Contact` field and a `LineItems` field.
+
+- `Contact` — pass as a **JSON string**: `'{"ContactID": "abc123..."}'`
+- `LineItems` — pass as a **JSON array** (not a string): `[{"Description": "...", "Quantity": 1, "UnitAmount": 100, "AccountCode": "200"}]`
+
+Include `AccountCode` in each line item whenever the invoice may later be authorised or voided.
+
+### Quotes require a Date
+
+`xero_quote_create` and `xero_quote_update` both require a `Date` field (ISO 8601, e.g. `"2026-04-29"`). Xero returns a validation error `"Date cannot be empty"` without it.
+
+`xero_quote_update` also requires `Contact` (JSON string) in addition to `Date`.
+
+### Aged reports require a contactID
+
+`xero_report_aged_payables` and `xero_report_aged_receivables` require a `contactID` parameter. The other five report tools (`xero_report_balance_sheet`, `xero_report_profit_and_loss`, `xero_report_trial_balance`, `xero_report_bank_summary`, `xero_report_executive_summary`) require no inputs beyond the auto-injected tenant ID.
+
+### Update an item
+
+`xero_item_update` requires `Code` in the request body (in addition to `item_id` in the path). Pass the item's existing code or a new one — Xero uses it to identify the item being updated.
 
 ## Tool list
 
