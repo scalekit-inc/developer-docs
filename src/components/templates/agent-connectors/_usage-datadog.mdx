@@ -1,0 +1,213 @@
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+Once a connected account is set up, make API calls through the Scalekit proxy. Scalekit injects the Datadog API key and Application key automatically — you never handle credentials in your application code.
+
+## Proxy API calls
+
+Make authenticated requests to any Datadog API endpoint through the Scalekit proxy.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const connectionName = 'datadog'; // connection name from your Scalekit dashboard
+    const identifier = 'user_123';   // your user's unique identifier
+
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    const actions = scalekit.actions;
+
+    // Fetch all monitors via Scalekit proxy — no API key needed here
+    const result = await actions.request({
+      connectionName,
+      identifier,
+      path: '/api/v1/monitor',
+      method: 'GET',
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    connection_name = "datadog"  # connection name from your Scalekit dashboard
+    identifier = "user_123"      # your user's unique identifier
+
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+    actions = scalekit_client.actions
+
+    # Fetch all monitors via Scalekit proxy — no API key needed here
+    result = actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/api/v1/monitor",
+        method="GET"
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="tip" title="No OAuth flow needed">
+  Datadog uses API key auth — unlike OAuth connectors, there is no authorization link or redirect flow. Once you call `upsertConnectedAccount` (Node.js) / `upsert_connected_account` (Python), or add an account via the dashboard, your users can make requests immediately.
+</Aside>
+
+## Execute tools
+
+Use `executeTool` (Node.js) or `execute_tool` (Python) to call any Datadog tool by name with typed parameters.
+
+### Create a monitor
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const monitor = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'datadog_monitor_create',
+      parameters: {
+        name: 'High CPU Usage',
+        type: 'metric alert',
+        query: 'avg(last_5m):avg:system.cpu.user{*} > 90',
+        message: 'CPU usage is high on {{host.name}}. @slack-alerts',
+      },
+    });
+    console.log('Monitor created:', monitor.id);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    monitor = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="datadog_monitor_create",
+        parameters={
+            "name": "High CPU Usage",
+            "type": "metric alert",
+            "query": "avg(last_5m):avg:system.cpu.user{*} > 90",
+            "message": "CPU usage is high on {{host.name}}. @slack-alerts",
+        },
+    )
+    print("Monitor created:", monitor["id"])
+    ```
+  </TabItem>
+</Tabs>
+
+### Search logs
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const logs = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'datadog_logs_search',
+      parameters: {
+        query: 'service:web status:error',
+        from: '2024-01-01T00:00:00Z',
+        to: '2024-01-02T00:00:00Z',
+        limit: 50,
+      },
+    });
+    console.log('Log count:', logs.data?.length);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    logs = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="datadog_logs_search",
+        parameters={
+            "query": "service:web status:error",
+            "from": "2024-01-01T00:00:00Z",
+            "to": "2024-01-02T00:00:00Z",
+            "limit": 50,
+        },
+    )
+    print("Log count:", len(logs.get("data", [])))
+    ```
+  </TabItem>
+</Tabs>
+
+### Query metrics
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const metrics = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'datadog_metrics_query',
+      parameters: {
+        query: 'avg:system.cpu.user{*}',
+        from: 1704067200,  // Unix timestamp
+        to: 1704153600,
+      },
+    });
+    console.log('Series:', metrics.series);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    metrics = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="datadog_metrics_query",
+        parameters={
+            "query": "avg:system.cpu.user{*}",
+            "from": 1704067200,
+            "to": 1704153600,
+        },
+    )
+    print("Series:", metrics.get("series"))
+    ```
+  </TabItem>
+</Tabs>
+
+### Create an incident
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const incident = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'datadog_incident_create',
+      parameters: {
+        title: 'Database connection failures',
+        customer_impacted: 'true',
+        severity: 'SEV-2',
+      },
+    });
+    console.log('Incident ID:', incident.data?.id);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    incident = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="datadog_incident_create",
+        parameters={
+            "title": "Database connection failures",
+            "customer_impacted": "true",
+            "severity": "SEV-2",
+        },
+    )
+    print("Incident ID:", incident.get("data", {}).get("id"))
+    ```
+  </TabItem>
+</Tabs>
