@@ -2,16 +2,19 @@ import { Tabs, TabItem } from '@astrojs/starlight/components'
 
 Connect a user's Google Calendar account and make API calls on their behalf — Scalekit handles OAuth and token management automatically.
 
+Before running this code, create the Google Calendar connection in **AgentKit** > **Connections** in the Scalekit dashboard and copy its exact **Connection name** into the `connection_name` or `connectionName` variable below.
+
 ## Proxy API Calls
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Node.js">
     ```typescript
     import { ScalekitClient } from '@scalekit-sdk/node';
+    import { ConnectorStatus } from '@scalekit-sdk/node/lib/pkg/grpc/scalekit/v1/connected_accounts/connected_accounts_pb';
     import 'dotenv/config';
 
-    const connectionName = 'googlecalendar'; // get your connection name from connection configurations
-    const identifier = 'user_123';           // your unique user identifier
+    const connectionName = 'meeting-prep-agent-googlecalendar'; // copy the exact Connection name from AgentKit > Connections
+    const identifier = 'user_123'; // your unique user identifier
 
     // Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
     const scalekit = new ScalekitClient(
@@ -21,14 +24,22 @@ Connect a user's Google Calendar account and make API calls on their behalf — 
     );
     const actions = scalekit.actions;
 
-    // Authenticate the user
-    const { link } = await actions.getAuthorizationLink({
+    // Create or fetch the connected account first
+    const response = await actions.getOrCreateConnectedAccount({
       connectionName,
       identifier,
     });
-    console.log('🔗 Authorize Google Calendar:', link); // present this link to your user for authorization, or click it yourself for testing
-    process.stdout.write('Press Enter after authorizing...');
-    await new Promise(r => process.stdin.once('data', r));
+    const connectedAccount = response.connectedAccount;
+
+    if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
+      const { link } = await actions.getAuthorizationLink({
+        connectionName,
+        identifier,
+      });
+      console.log('🔗 Authorize Google Calendar:', link); // present this link to your user for authorization, or click it yourself for testing
+      process.stdout.write('Press Enter after authorizing...');
+      await new Promise(r => process.stdin.once('data', r));
+    }
 
     // Make a request via Scalekit proxy
     const result = await actions.request({
@@ -46,8 +57,8 @@ Connect a user's Google Calendar account and make API calls on their behalf — 
     from dotenv import load_dotenv
     load_dotenv()
 
-    connection_name = "googlecalendar"  # get your connection name from connection configurations
-    identifier = "user_123"             # your unique user identifier
+    connection_name = "meeting-prep-agent-googlecalendar"  # copy the exact Connection name from AgentKit > Connections
+    identifier = "user_123"  # your unique user identifier
 
     # Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
     scalekit_client = scalekit.client.ScalekitClient(
@@ -57,14 +68,21 @@ Connect a user's Google Calendar account and make API calls on their behalf — 
     )
     actions = scalekit_client.actions
 
-    # Authenticate the user
-    link_response = actions.get_authorization_link(
+    # Create or fetch the connected account first
+    response = actions.get_or_create_connected_account(
         connection_name=connection_name,
         identifier=identifier
     )
-    # present this link to your user for authorization, or click it yourself for testing
-    print("🔗 Authorize Google Calendar:", link_response.link)
-    input("Press Enter after authorizing...")
+    connected_account = response.connected_account
+
+    if connected_account.status != "ACTIVE":
+        link_response = actions.get_authorization_link(
+            connection_name=connection_name,
+            identifier=identifier
+        )
+        # present this link to your user for authorization, or click it yourself for testing
+        print("🔗 Authorize Google Calendar:", link_response.link)
+        input("Press Enter after authorizing...")
 
     # Make a request via Scalekit proxy
     result = actions.request(
@@ -77,4 +95,3 @@ Connect a user's Google Calendar account and make API calls on their behalf — 
     ```
   </TabItem>
 </Tabs>
-
