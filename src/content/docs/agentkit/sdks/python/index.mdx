@@ -464,7 +464,7 @@ pip install langchain
   { name: 'providers', type: 'list', required: false, description: 'Filter by provider (e.g. ["google"])' },
   { name: 'tool_names', type: 'list', required: false, description: 'Filter by tool name' },
   { name: 'connection_names', type: 'list', required: false, description: 'Filter by connection name' },
-  { name: 'page_size', type: 'int', required: false, description: 'Maximum tools per page (server default if omitted)' },
+  { name: 'page_size', type: 'int', required: false, description: 'Maximum tools per page. Use 100 for discovery so connectors with more than the default page are not truncated.' },
   { name: 'page_token', type: 'str', required: false, description: 'Opaque cursor from a previous list response' },
 ]} />
 
@@ -477,7 +477,10 @@ pip install langchain
 ```python title="Example"
 from langchain.agents import create_react_agent
 
-tools = actions.langchain.get_tools(identifier="user@example.com")
+tools = actions.langchain.get_tools(
+    identifier="user@example.com",
+    page_size=100,  # avoid missing tools when a connector has more than the default page
+)
 agent = create_react_agent(llm=llm, tools=tools, prompt=prompt)
 ```
 
@@ -494,7 +497,10 @@ Same parameters as `actions.langchain.get_tools`.
 Returns `List[ScalekitGoogleAdkTool]`. Pass it directly to a Google ADK agent.
 
 ```python title="Example"
-tools = actions.google.get_tools(identifier="user@example.com")
+tools = actions.google.get_tools(
+    identifier="user@example.com",
+    page_size=100,  # avoid missing tools when a connector has more than the default page
+)
 ```
 
 ---
@@ -507,7 +513,7 @@ tools = actions.google.get_tools(identifier="user@example.com")
 
 <MethodParams label="Input schema" params={[
   { name: 'filter', type: 'Filter', required: false, description: 'Filter by provider, identifier, or tool name' },
-  { name: 'page_size', type: 'int', required: false, description: 'Maximum tools per page (server default if omitted)' },
+  { name: 'page_size', type: 'int', required: false, description: 'Maximum tools per page. Use 100 for discovery so connectors with more than the default page are not truncated.' },
   { name: 'page_token', type: 'str', required: false, description: 'Opaque cursor from a previous list response' },
 ]} />
 
@@ -518,12 +524,12 @@ tools = actions.google.get_tools(identifier="user@example.com")
 
 #### actions.tools.list_scoped_tools
 
-Lists tools scoped to a specific user. This is what framework adapters use internally to fetch per-user tool schemas.
+Lists tools scoped to a specific user. Use this method for tool discovery because it returns pagination metadata such as `next_page_token` and `total_size`; framework `get_tools()` helpers return framework-ready tool objects and do not expose that metadata.
 
 <MethodParams label="Input schema" params={[
   { name: 'identifier', type: 'str', required: true, description: 'User connected account identifier' },
   { name: 'filter', type: 'ScopedToolFilter', required: false, description: 'Filter by providers, tool names, or connection names' },
-  { name: 'page_size', type: 'int', required: false, description: 'Maximum tools per page (server default if omitted)' },
+  { name: 'page_size', type: 'int', required: false, description: 'Maximum tools per page. Use 100 for discovery so connectors with more than the default page are not truncated.' },
   { name: 'page_token', type: 'str', required: false, description: 'Opaque cursor from a previous list response' },
 ]} />
 
@@ -538,6 +544,7 @@ Lists tools scoped to a specific user. This is what framework adapters use inter
 ```python title="Example"
 tools_response = scalekit_client.actions.tools.list_scoped_tools(
     identifier="user@example.com",
+    page_size=100,
 )
 # Pass tools_response.tools to your LLM's tool call API
 ```

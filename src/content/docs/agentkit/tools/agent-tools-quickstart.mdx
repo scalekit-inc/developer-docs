@@ -31,7 +31,7 @@ connection_name = "your-connection-name"  # copy the exact Connection name from 
 scoped_response, _ = actions.tools.list_scoped_tools(
     identifier="user_123",
     filter=ScopedToolFilter(connection_names=[connection_name]),
-    page_size=100,
+    page_size=100,  # fetch beyond the default page so no connector tools are missed
 )
 
 for scoped_tool in scoped_response.tools:
@@ -49,7 +49,7 @@ const connectionName = 'your-connection-name'; // copy the exact Connection name
 
 const { tools } = await scalekit.tools.listScopedTools('user_123', {
   filter: { connectionNames: [connectionName] }, // use filter: {} to list every connector
-  pageSize: 100,
+  pageSize: 100, // fetch beyond the default page so no connector tools are missed
 });
 
 for (const scopedTool of tools) {
@@ -264,7 +264,7 @@ Let an LLM determine which tool to call and with what parameters based on user i
    tools =  actions.langchain.get_tools(
        identifier=identifier,
         providers = ["GMAIL"], # all tools for connector used by default
-        page_size=100
+        page_size=100  # avoid missing tools when a connector has more than the default page
    )
 
    prompt = ChatPromptTemplate.from_messages([
