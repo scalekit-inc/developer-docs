@@ -1,0 +1,38 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your Mailchimp account with Scalekit so Scalekit handles the OAuth flow and token refresh automatically. The connection name you create is used to identify and invoke the connection in your code.
+
+<Steps>
+1. ### Set up auth redirects
+
+   - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **Mailchimp** and click **Create**. Copy the redirect URI — it looks like `https://<SCALEKIT_ENV_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+   - Log in to your [Mailchimp account](https://mailchimp.com) and go to **Account & Billing** > **Extras** > **API keys** > **OAuth apps**.
+
+   - Register a new OAuth app and paste the redirect URI from Scalekit.
+
+2. ### Get client credentials
+
+   - In your Mailchimp OAuth app, copy the **Client ID** and **Client Secret**.
+
+3. ### Add credentials in Scalekit
+
+   - In [Scalekit dashboard](https://app.scalekit.com), open the Mailchimp connection you created and enter:
+     - **Client ID**
+     - **Client Secret**
+
+   ![](@/assets/docs/agent-connectors/mailchimp/add-credentials.png)
+
+   <Aside type="note" title="No scopes required">
+     Mailchimp OAuth does not use scopes — all authenticated users get access to all API endpoints their plan supports.
+   </Aside>
+
+   - Click **Save**.
+
+4. ### Connect a user account
+
+   - Click the **Connected Accounts** tab, then **Add Account**.
+   - Enter your user's ID and click **Create Account** — you'll be redirected to Mailchimp to authorize access.
+
+   ![](@/assets/docs/agent-connectors/mailchimp/add-connected-account.png)
+</Steps>

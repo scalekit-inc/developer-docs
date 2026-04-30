@@ -1,0 +1,221 @@
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+Connect a user's Mailchimp account and make API calls on their behalf — Scalekit handles OAuth and token management automatically.
+
+## Proxy API calls
+
+Make authenticated requests to any Mailchimp API endpoint through the Scalekit proxy.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const connectionName = 'mailchimp'; // your connection name from Scalekit dashboard
+    const identifier = 'user_123';      // your unique user identifier
+
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    const actions = scalekit.actions;
+
+    // Authenticate the user (first time only)
+    const { link } = await actions.getAuthorizationLink({ connectionName, identifier });
+    console.log('Authorize Mailchimp:', link);
+
+    // Make a request through the Scalekit proxy
+    const result = await actions.request({
+      connectionName,
+      identifier,
+      path: '/ping',
+      method: 'GET',
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    connection_name = "mailchimp"
+    identifier = "user_123"
+
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+    actions = scalekit_client.actions
+
+    # Authenticate the user (first time only)
+    link_response = actions.get_authorization_link(
+        connection_name=connection_name,
+        identifier=identifier
+    )
+    print("Authorize Mailchimp:", link_response.link)
+
+    # Make a request through the Scalekit proxy
+    result = actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/ping",
+        method="GET"
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+## Execute tools
+
+Use `executeTool` (Node.js) or `execute_tool` (Python) to call any Mailchimp tool by name with typed parameters.
+
+### Add a subscriber
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const member = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'mailchimp_list_member_add',
+      parameters: {
+        list_id: 'abc123def',
+        email_address: 'jane.smith@example.com',
+        status: 'subscribed',
+        first_name: 'Jane',
+        last_name: 'Smith',
+      },
+    });
+    console.log('Added member:', member.id);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    member = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="mailchimp_list_member_add",
+        parameters={
+            "list_id": "abc123def",
+            "email_address": "jane.smith@example.com",
+            "status": "subscribed",
+            "first_name": "Jane",
+            "last_name": "Smith",
+        },
+    )
+    print("Added member:", member["id"])
+    ```
+  </TabItem>
+</Tabs>
+
+### Create and send a campaign
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // Create the campaign
+    const campaign = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'mailchimp_campaign_create',
+      parameters: {
+        type: 'regular',
+        list_id: 'abc123def',
+        subject_line: 'Your April newsletter',
+        from_name: 'Acme Corp',
+        reply_to: 'hello@acme.com',
+      },
+    });
+
+    // Set HTML content
+    await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'mailchimp_campaign_content_set',
+      parameters: {
+        campaign_id: campaign.id,
+        html: '<h1>Hello!</h1><p>Here is your monthly update.</p>',
+      },
+    });
+
+    // Send the campaign
+    await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'mailchimp_campaign_send',
+      parameters: { campaign_id: campaign.id },
+    });
+    console.log('Campaign sent:', campaign.id);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    # Create the campaign
+    campaign = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="mailchimp_campaign_create",
+        parameters={
+            "type": "regular",
+            "list_id": "abc123def",
+            "subject_line": "Your April newsletter",
+            "from_name": "Acme Corp",
+            "reply_to": "hello@acme.com",
+        },
+    )
+
+    # Set HTML content
+    actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="mailchimp_campaign_content_set",
+        parameters={
+            "campaign_id": campaign["id"],
+            "html": "<h1>Hello!</h1><p>Here is your monthly update.</p>",
+        },
+    )
+
+    # Send the campaign
+    actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="mailchimp_campaign_send",
+        parameters={"campaign_id": campaign["id"]},
+    )
+    print("Campaign sent:", campaign["id"])
+    ```
+  </TabItem>
+</Tabs>
+
+### Get campaign report
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const report = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'mailchimp_report_get',
+      parameters: { campaign_id: 'abc123' },
+    });
+    console.log(`Opens: ${report.opens.open_rate}, Clicks: ${report.clicks.click_rate}`);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    report = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="mailchimp_report_get",
+        parameters={"campaign_id": "abc123"},
+    )
+    print(f"Opens: {report['opens']['open_rate']}, Clicks: {report['clicks']['click_rate']}")
+    ```
+  </TabItem>
+</Tabs>
