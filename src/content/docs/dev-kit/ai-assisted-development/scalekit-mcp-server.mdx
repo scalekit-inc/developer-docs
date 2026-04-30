@@ -54,11 +54,34 @@ This MCP server enables AI assistants to interact with Scalekit's identity and a
 
 ## Configuration
 
-The Scalekit MCP server can be configured to support OAuth for compatible clients.
+Connect the Scalekit MCP server to your AI coding tool. Find your tool below, paste the config, and restart the client — it will prompt you to sign in via OAuth on first use.
 
-If your MCP Client doesn't support OAuth based authorization for MCP Servers, you can still use the Scalekit MCP server with the mcp-remote acting as a local proxy to add OAuth support.
+### Claude Code
 
-### Using OAuth (VS Code version 1.101 or greater)
+Run this command in your terminal:
+
+```bash
+claude mcp add --transport http scalekit https://mcp.scalekit.com/
+```
+
+### Claude Desktop
+
+Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows), then restart Claude Desktop:
+
+```json
+{
+  "mcpServers": {
+    "scalekit": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.scalekit.com/"]
+    }
+  }
+}
+```
+
+### VS Code
+
+Edit `.vscode/mcp.json` in your project (requires VS Code 1.101 or later):
 
 ```json
 {
@@ -71,58 +94,15 @@ If your MCP Client doesn't support OAuth based authorization for MCP Servers, yo
 }
 ```
 
-### Using mcp-remote proxy
-
-```json
-{
-  "mcpServers": {
-    "scalekit": {
-      "command": "npx",
-      "args": ["-y", "mcp-remote", "https://mcp.scalekit.com/"]
-    }
-  }
-}
-```
-
-Based on your MCP Host, configuration instructions to add Scalekit as an MCP Server can be found below:
-
-### Claude Desktop
-
-Configure the Claude app to use the MCP server:
-
-1. Open the Claude Desktop app, go to Settings, then Developer
-2. Click Edit Config
-3. Open the claude_desktop_config.json file
-4. Copy and paste the server config to your existing file, then save
-5. Restart Claude
-
-```json
-{
-  "mcpServers": {
-    "scalekit": {
-      "command": "npx",
-      "args": ["-y", "mcp-remote", "https://mcp.scalekit.com/"]
-    }
-  }
-}
-```
-
 ### Cursor
 
-Configure Cursor to use the MCP server:
-
-1. Open Cursor, go to Settings, then Cursor Settings
-2. Select MCP on the left
-3. Click Add "New Global MCP Server" at the top right
-4. Copy and paste the server config to your existing file, then save
-5. Restart Cursor
+Edit `~/.cursor/mcp.json`, or open **Cursor Settings → MCP → Add New Global MCP Server** and paste the config:
 
 ```json
 {
   "mcpServers": {
     "scalekit": {
-      "command": "npx",
-      "args": ["-y", "mcp-remote", "https://mcp.scalekit.com/"]
+      "url": "https://mcp.scalekit.com/"
     }
   }
 }
@@ -130,13 +110,110 @@ Configure Cursor to use the MCP server:
 
 ### Windsurf
 
-Configure Windsurf to use the MCP server:
+Edit `~/.codeium/windsurf/mcp_config.json`:
 
-1. Open Windsurf, go to Settings, then Developer
-2. Click Edit Config
-3. Open the windsurf_config.json file
-4. Copy and paste the server config to your existing file, then save
-5. Restart Windsurf
+```json
+{
+  "mcpServers": {
+    "scalekit": {
+      "serverUrl": "https://mcp.scalekit.com/"
+    }
+  }
+}
+```
+
+### Gemini CLI
+
+Edit `~/.gemini/settings.json`:
+
+```json
+{
+  "mcpServers": {
+    "scalekit": {
+      "httpUrl": "https://mcp.scalekit.com/"
+    }
+  }
+}
+```
+
+### Codex
+
+Run this command in your terminal:
+
+```bash
+codex mcp add scalekit --url https://mcp.scalekit.com/
+```
+
+### OpenCode
+
+Edit `opencode.json` in your project root:
+
+```json
+{
+  "mcp": {
+    "scalekit": {
+      "type": "remote",
+      "url": "https://mcp.scalekit.com/",
+      "enabled": true
+    }
+  }
+}
+```
+
+### Roo Code
+
+Add to your MCP configuration:
+
+```json
+{
+  "mcpServers": {
+    "scalekit": {
+      "type": "streamable-http",
+      "url": "https://mcp.scalekit.com/"
+    }
+  }
+}
+```
+
+### Zed
+
+Add to your Zed `settings.json`:
+
+```json
+{
+  "context_servers": {
+    "scalekit": {
+      "url": "https://mcp.scalekit.com/"
+    }
+  }
+}
+```
+
+### Kiro
+
+Edit `~/.kiro/settings/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "scalekit": {
+      "url": "https://mcp.scalekit.com/"
+    }
+  }
+}
+```
+
+### Warp
+
+Go to **Settings → MCP Servers → Add MCP Server** and enter `https://mcp.scalekit.com/`.
+
+### v0 by Vercel
+
+Go to **Prompt Tools → Add MCP** and enter `https://mcp.scalekit.com/`.
+
+### If the native config doesn't work
+
+The Scalekit MCP server requires OAuth 2.1 authentication. If your client does not complete the OAuth flow with the native config above, use `mcp-remote` as a local proxy — it handles the OAuth handshake for any client. Replace your platform's native config with this:
 
 ```json
 {
@@ -148,6 +225,8 @@ Configure Windsurf to use the MCP server:
   }
 }
 ```
+
+Restart your client after updating the config. See [how mcp-remote works](https://exa.ai/docs/reference/exa-mcp#web-search-mcp) for more context on when this fallback applies.
 
 ## Authentication for MCP Server
 
