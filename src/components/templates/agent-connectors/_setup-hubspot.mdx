@@ -1,6 +1,16 @@
-import { Steps, Aside } from '@astrojs/starlight/components'
+import { Steps } from '@astrojs/starlight/components'
 
 Register your Scalekit environment with the HubSpot connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. Then complete the configuration in your application as follows:
+
+Use a HubSpot **Public App**, not a Private App. Private Apps use static API tokens and do not support OAuth redirect flows, so they do not show the Redirect URL field Scalekit needs.
+
+For a read-only CRM enrichment flow that looks up contacts, companies, and deals, configure the same scope strings in both your HubSpot Public App and the Scalekit connection:
+
+```text
+crm.objects.contacts.read
+crm.objects.companies.read
+crm.objects.deals.read
+```
 
 <Steps>
 1. ### Set up auth redirects
@@ -9,7 +19,7 @@ Register your Scalekit environment with the HubSpot connector so Scalekit handle
 
       ![Copy redirect URI from Scalekit dashboard](@/assets/docs/agent-connectors/hubspot/use-own-credentials-redirect-uri.png)
 
-    - Log in to your [HubSpot developer dashboard](https://developers.hubspot.com/), click **Manage apps**, and open your app (or create one if you have not already).
+    - Log in to your [HubSpot developer dashboard](https://developers.hubspot.com/), click **Manage apps**, click **Create app**, and select **Public app**. If you already have a HubSpot Public App, open that app instead.
 
     - Go to **Auth** > **Auth settings** > **Redirect URL**, paste the redirect URI from Scalekit, and click **Save**.
 
@@ -30,11 +40,7 @@ Register your Scalekit environment with the HubSpot connector so Scalekit handle
     - Enter your credentials:
       - **Client ID** (from your HubSpot app)
       - **Client Secret** (from your HubSpot app)
-      - **Permissions** (OAuth scopes — see [HubSpot scopes reference](https://developers.hubspot.com/docs/api/overview))
-
-      <Aside type="caution" title="Scopes must match exactly">
-        The scopes selected in your HubSpot app must exactly match the scopes you enter in Scalekit. A mismatch breaks the OAuth flow.
-      </Aside>
+      - **Permissions** (OAuth scope strings such as `crm.objects.contacts.read`, entered exactly as configured in the HubSpot app)
 
       ![Add credentials in Scalekit dashboard](@/assets/docs/agent-connectors/hubspot/add-credentials.png)
 
