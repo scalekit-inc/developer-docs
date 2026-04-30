@@ -379,9 +379,7 @@ export const redirects = {
 
   // Legacy framework pages moved to /agentkit/examples/
   '/agentkit/frameworks/langchain': '/agentkit/examples/langchain/',
-  '/agentkit/frameworks/langchain/': '/agentkit/examples/langchain/',
   '/agentkit/frameworks/google-adk': '/agentkit/examples/google-adk/',
-  '/agentkit/frameworks/google-adk/': '/agentkit/examples/google-adk/',
 
   // Agent connectors redirects
   '/reference/agent-connectors/[...slug]': '/agentkit/connectors/[...slug]',
