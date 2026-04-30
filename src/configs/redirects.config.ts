@@ -379,8 +379,12 @@ export const redirects = {
 
   // Legacy framework pages moved to /agentkit/examples/
   '/agentkit/frameworks': '/agentkit/examples/',
+  '/agentkit/frameworks/anthropic': '/agentkit/examples/anthropic/',
   '/agentkit/frameworks/langchain': '/agentkit/examples/langchain/',
   '/agentkit/frameworks/google-adk': '/agentkit/examples/google-adk/',
+  '/agentkit/frameworks/mastra': '/agentkit/examples/mastra/',
+  '/agentkit/frameworks/openai': '/agentkit/examples/openai/',
+  '/agentkit/frameworks/vercel-ai': '/agentkit/examples/vercel-ai/',
 
   // Agent connectors redirects
   '/reference/agent-connectors/[...slug]': '/agentkit/connectors/[...slug]',
