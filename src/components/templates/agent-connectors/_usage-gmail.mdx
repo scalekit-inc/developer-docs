@@ -64,6 +64,66 @@ Use the exact tool names from the **Tool list** below when you call `execute_too
   </TabItem>
 </Tabs>
 
+## Use Gmail response fields as returned
+
+Response fields from Gmail tools use camelCase, such as `threadId`, `messageId`, and `internalDate`. Tool input parameters use the snake_case names shown in the Tool list, such as `thread_id` and `message_id`. Extract values with camelCase, then pass them with snake_case. The snippets below assume you already have an active connected account ID for the user.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const fetchResponse = await actions.executeTool({
+      toolName: 'gmail_fetch_mails',
+      connectedAccountId,
+      toolInput: {
+        query: 'is:unread',
+        max_results: 5,
+      },
+    });
+
+    const messages = Array.isArray(fetchResponse.data?.messages)
+      ? fetchResponse.data.messages
+      : [];
+    const threadId = typeof messages[0]?.threadId === 'string' ? messages[0].threadId : '';
+
+    const threadResponse = await actions.executeTool({
+      toolName: 'gmail_get_thread_by_id',
+      connectedAccountId,
+      toolInput: {
+        thread_id: threadId,
+      },
+    });
+
+    console.log(threadResponse.data);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    fetch_response = actions.execute_tool(
+        tool_name="gmail_fetch_mails",
+        connected_account_id=connected_account.id,
+        tool_input={
+            "query": "is:unread",
+            "max_results": 5,
+        },
+    )
+
+    data = fetch_response.data or {}
+    messages = data.get("messages", [])
+    thread_id = messages[0].get("threadId", "") if messages else ""
+
+    thread_response = actions.execute_tool(
+        tool_name="gmail_get_thread_by_id",
+        connected_account_id=connected_account.id,
+        tool_input={
+            "thread_id": thread_id,
+        },
+    )
+
+    print(thread_response.data)
+    ```
+  </TabItem>
+</Tabs>
+
 ## Proxy API Calls
 
 <Tabs syncKey="tech-stack">
