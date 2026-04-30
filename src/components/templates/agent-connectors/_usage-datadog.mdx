@@ -1,0 +1,409 @@
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+Once a connected account is set up, make API calls through the Scalekit proxy. Scalekit injects the Datadog API key and Application key automatically — you never handle credentials in your application code.
+
+## Proxy API calls
+
+Make authenticated requests to any Datadog API endpoint through the Scalekit proxy.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const connectionName = 'datadog'; // connection name from your Scalekit dashboard
+    const identifier = 'user_123';   // your user's unique identifier
+
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    const actions = scalekit.actions;
+
+    // Fetch all monitors via Scalekit proxy — no API key needed here
+    const result = await actions.request({
+      connectionName,
+      identifier,
+      path: '/api/v1/monitor',
+      method: 'GET',
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    connection_name = "datadog"  # connection name from your Scalekit dashboard
+    identifier = "user_123"      # your user's unique identifier
+
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+    actions = scalekit_client.actions
+
+    # Fetch all monitors via Scalekit proxy — no API key needed here
+    result = actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/api/v1/monitor",
+        method="GET"
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="tip" title="No OAuth flow needed">
+  Datadog uses API key auth — unlike OAuth connectors, there is no authorization link or redirect flow. Once you call `upsertConnectedAccount` (Node.js) / `upsert_connected_account` (Python), or add an account via the dashboard, your users can make requests immediately.
+</Aside>
+
+## Execute tools
+
+Use `executeTool` (Node.js) or `execute_tool` (Python) to call any Datadog tool by name with typed parameters.
+
+### Create a monitor
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const monitor = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'datadog_monitor_create',
+      parameters: {
+        name: 'High CPU Usage',
+        type: 'metric alert',
+        query: 'avg(last_5m):avg:system.cpu.user{*} > 90',
+        message: 'CPU usage is high on {{host.name}}. @slack-alerts',
+      },
+    });
+    console.log('Monitor created:', monitor.id);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    monitor = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="datadog_monitor_create",
+        parameters={
+            "name": "High CPU Usage",
+            "type": "metric alert",
+            "query": "avg(last_5m):avg:system.cpu.user{*} > 90",
+            "message": "CPU usage is high on {{host.name}}. @slack-alerts",
+        },
+    )
+    print("Monitor created:", monitor["id"])
+    ```
+  </TabItem>
+</Tabs>
+
+### Search logs
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const logs = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'datadog_logs_search',
+      parameters: {
+        query: 'service:web status:error',
+        from: '2024-01-01T00:00:00Z',
+        to: '2024-01-02T00:00:00Z',
+        limit: 50,
+      },
+    });
+    console.log('Log count:', logs.data?.length);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    logs = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="datadog_logs_search",
+        parameters={
+            "query": "service:web status:error",
+            "from": "2024-01-01T00:00:00Z",
+            "to": "2024-01-02T00:00:00Z",
+            "limit": 50,
+        },
+    )
+    print("Log count:", len(logs.get("data", [])))
+    ```
+  </TabItem>
+</Tabs>
+
+### Query metrics
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const metrics = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'datadog_metrics_query',
+      parameters: {
+        query: 'avg:system.cpu.user{*}',
+        from: 1704067200,  // Unix timestamp
+        to: 1704153600,
+      },
+    });
+    console.log('Series:', metrics.series);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    metrics = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="datadog_metrics_query",
+        parameters={
+            "query": "avg:system.cpu.user{*}",
+            "from": 1704067200,
+            "to": 1704153600,
+        },
+    )
+    print("Series:", metrics.get("series"))
+    ```
+  </TabItem>
+</Tabs>
+
+### Create an incident
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const incident = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'datadog_incident_create',
+      parameters: {
+        title: 'Database connection failures',
+        customer_impacted: 'true',
+        severity: 'SEV-2',
+      },
+    });
+    console.log('Incident ID:', incident.data?.id);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    incident = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="datadog_incident_create",
+        parameters={
+            "title": "Database connection failures",
+            "customer_impacted": "true",
+            "severity": "SEV-2",
+        },
+    )
+    print("Incident ID:", incident.get("data", {}).get("id"))
+    ```
+  </TabItem>
+</Tabs>
+
+### Create a scheduled downtime
+
+The `start` and `end` fields use **ISO 8601 format**, not Unix timestamps.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const downtime = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'datadog_downtime_create',
+      parameters: {
+        scope: 'env:production',
+        start: '2026-06-01T02:00:00Z',
+        end: '2026-06-01T04:00:00Z',
+        message: 'Scheduled maintenance window',
+      },
+    });
+    // Use data.id (UUID), not included[].id (user UUID)
+    const downtimeId = downtime.data?.id;
+    console.log('Downtime ID:', downtimeId);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    downtime = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="datadog_downtime_create",
+        parameters={
+            "scope": "env:production",
+            "start": "2026-06-01T02:00:00Z",
+            "end": "2026-06-01T04:00:00Z",
+            "message": "Scheduled maintenance window",
+        },
+    )
+    # Use data["id"] (UUID), not included[0]["id"] (user UUID)
+    downtime_id = downtime["data"]["id"]
+    print("Downtime ID:", downtime_id)
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="caution" title="Downtime response includes two IDs">
+  The `downtime_create` response contains both `data.id` (the downtime UUID) and `included[].id` (the creator's user UUID). Always use `data.id` for subsequent `downtime_get`, `downtime_update`, and `downtime_cancel` calls.
+</Aside>
+
+### Create a metric SLO
+
+The `query` field must be a **JSON string** containing `numerator` and `denominator` metric queries. Pass `thresholds` as a JSON string too.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const slo = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'datadog_slo_create',
+      parameters: {
+        name: 'API Success Rate',
+        type: 'metric',
+        query: JSON.stringify({
+          numerator: 'sum:requests.success{*}.as_count()',
+          denominator: 'sum:requests.total{*}.as_count()',
+        }),
+        thresholds: JSON.stringify([{ target: 99.5, timeframe: '30d' }]),
+      },
+    });
+    const sloId = slo.data?.[0]?.id;
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import json
+
+    slo = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="datadog_slo_create",
+        parameters={
+            "name": "API Success Rate",
+            "type": "metric",
+            "query": json.dumps({
+                "numerator": "sum:requests.success{*}.as_count()",
+                "denominator": "sum:requests.total{*}.as_count()",
+            }),
+            "thresholds": json.dumps([{"target": 99.5, "timeframe": "30d"}]),
+        },
+    )
+    slo_id = slo["data"][0]["id"]
+    ```
+  </TabItem>
+</Tabs>
+
+### Retrieve an event
+
+Datadog event IDs are 64-bit integers that exceed the float64 precision limit. Always use the `id_str` field from `event_create` or `events_list_v2` — not the numeric `id` field — to avoid silent precision loss.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // Create an event and capture its string ID
+    const created = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'datadog_event_create',
+      parameters: {
+        title: 'Deployment completed',
+        text: 'v2.3.1 deployed to production',
+        date_happened: Math.floor(Date.now() / 1000),
+      },
+    });
+    const eventId = created.event?.id_str; // use id_str, not id
+
+    // Retrieve it
+    const event = await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'datadog_event_get',
+      parameters: { event_id: eventId },
+    });
+    console.log(event.event?.title);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import time
+
+    created = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="datadog_event_create",
+        parameters={
+            "title": "Deployment completed",
+            "text": "v2.3.1 deployed to production",
+            "date_happened": int(time.time()),
+        },
+    )
+    event_id = created["event"]["id_str"]  # use id_str, not id
+
+    event = actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="datadog_event_get",
+        parameters={"event_id": event_id},
+    )
+    print(event["event"]["title"])
+    ```
+  </TabItem>
+</Tabs>
+
+### Submit custom metrics
+
+`datadog_metrics_submit` takes separate array parameters for timestamps and values — not a serialized `series` object.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    await actions.executeTool({
+      connectionName,
+      identifier,
+      toolName: 'datadog_metrics_submit',
+      parameters: {
+        metric_name: 'app.request.duration',
+        metric_type: 3,                              // 3 = gauge
+        points_timestamps: JSON.stringify([Math.floor(Date.now() / 1000)]),
+        points_values: JSON.stringify([142.5]),
+        tags: JSON.stringify(['env:production', 'service:api']),
+      },
+    });
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import time, json
+
+    actions.execute_tool(
+        connection_name=connection_name,
+        identifier=identifier,
+        tool_name="datadog_metrics_submit",
+        parameters={
+            "metric_name": "app.request.duration",
+            "metric_type": 3,                         # 3 = gauge
+            "points_timestamps": json.dumps([int(time.time())]),
+            "points_values": json.dumps([142.5]),
+            "tags": json.dumps(["env:production", "service:api"]),
+        },
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="tip" title="metric_type values">
+  `0` = unspecified, `1` = count, `2` = rate, `3` = gauge. Use `3` (gauge) for point-in-time measurements.
+</Aside>

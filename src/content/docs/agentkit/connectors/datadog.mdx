@@ -1,0 +1,84 @@
+---
+title: Datadog
+tableOfContents: true
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/datadog.svg
+connectorAuthType: API Key
+connectorCategories: [monitoring, observability, devops, developer_tools]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/datadog'
+import { SetupDatadogSection } from '@components/templates'
+import { UsageDatadogSection } from '@components/templates'
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Monitor infrastructure** — list, create, update, and delete monitors; mute and unmute alerts; manage downtime schedules
+- **Query metrics** — fetch timeseries data, list metric metadata and tags, submit custom metrics
+- **Search logs** — search and aggregate log events; list log indexes and pipelines
+- **Manage incidents** — create and retrieve incidents for incident response workflows
+- **Track SLOs** — create, update, delete, and get history for service level objectives
+- **Build dashboards** — create, update, delete, and list dashboards; capture graph snapshots
+- **Run Synthetics** — trigger and manage synthetic tests; get test results; manage locations and global variables
+- **Manage RUM** — create and list Real User Monitoring applications
+- **Manage notebooks** — create, retrieve, and delete collaborative notebooks
+- **Manage users and roles** — create users, assign roles, list permissions
+- **Monitor hosts and containers** — list hosts, mute/unmute hosts, manage host tags, list containers and processes
+- **Post events** — create and retrieve events in the Datadog event stream
+- **Run service checks** — submit custom service check results
+
+## Authentication
+
+This connector uses **API Key** authentication. Scalekit stores and injects your Datadog API key and Application key automatically on every request.
+
+<details>
+<summary>Set up the connector</summary>
+
+<SetupDatadogSection />
+
+</details>
+
+<details>
+<summary>Code examples</summary>
+
+<UsageDatadogSection />
+
+</details>
+
+## Getting resource IDs
+
+Most tools require IDs that must be fetched from the API — never guess or hard-code them.
+
+| Resource | Tool to get ID | Field in response |
+|----------|---------------|-------------------|
+| Monitor ID | `datadog_monitors_list` | `array[].id` |
+| Dashboard ID | `datadog_dashboards_list` | `dashboards[].id` |
+| Downtime ID | `datadog_downtime_create` response | `data.id` (UUID — not `included[].id`) |
+| Notebook ID | `datadog_notebooks_list` | `data[].id` |
+| Incident ID | `datadog_incidents_list` | `data[].id` |
+| SLO ID | `datadog_slos_list` | `data[].id` |
+| Role ID | `datadog_roles_list` | `data[].id` |
+| User ID | `datadog_users_list` | `data[].id` |
+| RUM App ID | `datadog_rum_applications_list` | `data[].id` |
+| Event ID | `datadog_event_create` response | `event.id_str` (**use `id_str`, not `id`** — see note below) |
+| Metric name | `datadog_metrics_list` | `metrics[]` (requires `from` Unix timestamp) |
+| Log pipeline ID | `datadog_log_pipelines_list` | `array[].id` |
+
+<details>
+<summary>Why event IDs must come from id_str</summary>
+
+Datadog event IDs are 64-bit integers (e.g. `8610103547030771722`) that exceed the float64 precision limit (~9 × 10¹⁵). When the numeric `id` field is parsed as a JSON number, it loses precision and the path resolves to a wrong ID, causing a 400 "No event matches" error. Always read `event.id_str` from the response and pass it as a string to `datadog_event_get`.
+
+</details>
+
+## Tool list
+
+<ToolList tools={tools} />
