@@ -13,6 +13,52 @@ import { LinkCard, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starli
 
 Agent Auth supports three approaches to tool calling: execute tools directly with explicit parameters, customize tool behavior with pre- and post-modifiers, or let an LLM select and invoke tools automatically based on user input.
 
+## Find a tool name
+
+Tool names are exact identifiers such as `gmail_fetch_mails` and `googlecalendar_list_events`. Don't guess them from the connector label. Use the connector page's **Tool list**, or list the tools available for the current user before calling `execute_tool`.
+
+After you initialize `scalekit` or `actions`, run:
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Python">
+
+```python
+from google.protobuf.json_format import MessageToDict
+
+connection_name = "your-connection-name"  # copy the exact Connection name from AgentKit > Connections
+
+scoped_response, _ = actions.tools.list_scoped_tools(
+    identifier="user_123",
+    filter={"connection_names": [connection_name]},  # omit filter to list every connector
+    page_size=100,
+)
+
+for scoped_tool in scoped_response.tools:
+    definition = MessageToDict(scoped_tool.tool).get("definition", {})
+    print("Available tool:", definition.get("name"))
+```
+
+</TabItem>
+<TabItem label="Node.js">
+
+```typescript
+const connectionName = 'your-connection-name'; // copy the exact Connection name from AgentKit > Connections
+
+const { tools } = await scalekit.tools.listScopedTools('user_123', {
+  filter: { connectionNames: [connectionName] }, // omit filter to list every connector
+  pageSize: 100,
+});
+
+for (const tool of tools) {
+  console.log('Available tool:', tool.tool.definition.name);
+}
+```
+
+</TabItem>
+</Tabs>
+
+Once you have the exact tool name, pass it to `execute_tool` / `executeTool`.
+
 ## Direct tool execution
 
 Using Scalekit SDK, you can execute any action on behalf of a user using the following parameters:
