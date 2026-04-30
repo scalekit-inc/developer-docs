@@ -378,6 +378,7 @@ export const redirects = {
     '/agentkit/bring-your-own-connector/making-tool-calls/',
 
   // Legacy framework pages moved to /agentkit/examples/
+  '/agentkit/frameworks': '/agentkit/examples/',
   '/agentkit/frameworks/langchain': '/agentkit/examples/langchain/',
   '/agentkit/frameworks/google-adk': '/agentkit/examples/google-adk/',
 
