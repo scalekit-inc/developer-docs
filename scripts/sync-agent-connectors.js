@@ -852,6 +852,14 @@ function generateAuthSection(authPattern, providerName) {
   return `This connector uses **${authPattern.display_name || type}** authentication.`
 }
 
+function generateConnectionSetupGuidance(providerName) {
+  return `Before calling this connector from your code, create the ${providerName} connection in **AgentKit** > **Connections** and copy the exact **Connection name** from that connection into your code. The value in code must match the dashboard exactly.`
+}
+
+function generateToolListGuidance() {
+  return `Use the exact tool names from the **Tool list** below when you call \`execute_tool\`. If you're not sure which name to use, list the tools available for the current user first.`
+}
+
 // ---------------------------------------------------------------------------
 // MDX generation
 // ---------------------------------------------------------------------------
@@ -938,6 +946,8 @@ function generateMdxContent(provider, tools) {
     lines.push('')
     lines.push(generateAuthSection(primaryAuth, providerName))
     lines.push('')
+    lines.push(generateConnectionSetupGuidance(providerName))
+    lines.push('')
   }
   appendSectionComponents(lines, SECTION_ENTRIES, providerSlug, 'after-authentication')
 
@@ -969,6 +979,8 @@ function generateMdxContent(provider, tools) {
   appendSectionComponents(lines, SECTION_ENTRIES, providerSlug, 'before-tool-list')
   if (tools.length > 0) {
     lines.push('## Tool list')
+    lines.push('')
+    lines.push(generateToolListGuidance())
     lines.push('')
     lines.push('<ToolList tools={tools} />')
     lines.push('')
