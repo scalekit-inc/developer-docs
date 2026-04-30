@@ -66,6 +66,70 @@ Use the exact tool names from the **Tool list** below when you call `execute_too
   </TabItem>
 </Tabs>
 
+## Execute tools
+
+After the Google Calendar connected account is active, call the exact tool name and read the tool payload from `response.data`. For `googlecalendar_list_events`, the events array is inside `response.data["events"]`; the top-level response object is only the SDK wrapper.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const accountResponse = await actions.getOrCreateConnectedAccount({
+      connectionName,
+      identifier,
+    });
+    const connectedAccountId = accountResponse.connectedAccount?.id;
+
+    if (!connectedAccountId) {
+      throw new Error('Authorize the Google Calendar connection before listing events.');
+    }
+
+    const response = await actions.executeTool({
+      toolName: 'googlecalendar_list_events',
+      connectedAccountId,
+      toolInput: {
+        calendar_id: 'primary',
+        max_results: 10,
+      },
+    });
+
+    const events = Array.isArray(response.data?.events) ? response.data.events : [];
+    const nextPageToken =
+      typeof response.data?.next_page_token === 'string' ? response.data.next_page_token : '';
+
+    console.log('Events returned:', events.length);
+    console.log('Next page token:', nextPageToken);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    account_response = actions.get_or_create_connected_account(
+        connection_name=connection_name,
+        identifier=identifier,
+    )
+    connected_account = account_response.connected_account
+
+    if not connected_account.id:
+        raise RuntimeError("Authorize the Google Calendar connection before listing events.")
+
+    response = actions.execute_tool(
+        tool_name="googlecalendar_list_events",
+        connected_account_id=connected_account.id,
+        tool_input={
+            "calendar_id": "primary",
+            "max_results": 10,
+        },
+    )
+
+    data = response.data or {}
+    events = data.get("events", [])
+    next_page_token = data.get("next_page_token", "")
+
+    print("Events returned:", len(events))
+    print("Next page token:", next_page_token)
+    ```
+  </TabItem>
+</Tabs>
+
 ## Proxy API Calls
 
 <Tabs syncKey="tech-stack">

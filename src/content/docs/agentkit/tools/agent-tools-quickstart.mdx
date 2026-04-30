@@ -70,6 +70,8 @@ Using Scalekit SDK, you can execute any action on behalf of a user using the fol
 - `tool_name`
 - `tool_input_parameters`
 
+`execute_tool` / `executeTool` returns a response wrapper. The tool output lives in `response.data`, and the keys inside `data` depend on the tool you called. When integrating a new tool, print `response.data` first, then extract the specific fields you need.
+
 <Tabs syncKey="tech-stack">
 <TabItem label="Python">
 
@@ -87,7 +89,7 @@ tool_response = actions.execute_tool(
     connected_account_id=connected_account.id,
 )
 
-print(f'Recent emails: {tool_response.result}')
+print(f'Recent emails: {tool_response.data}')
 ```
 
 </TabItem>
@@ -107,7 +109,7 @@ const toolResponse = await actions.executeTool({
   },
 });
 
-console.log('Recent emails:', toolResponse.result);
+console.log('Recent emails:', toolResponse.data);
 ```
 
 </TabItem>
