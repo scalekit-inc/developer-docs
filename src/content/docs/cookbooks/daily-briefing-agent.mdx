@@ -274,13 +274,19 @@ For Google Calendar, retrieve a valid access token from Scalekit and call the Go
 
     ```python
     def get_access_token(connector: str) -> str:
-        # get_connected_account always returns a fresh token —
-        # Scalekit refreshes expired tokens before returning.
-        response = actions.get_connected_account(
+        # Use get_or_create_connected_account as the safe default so
+        # first-time users do not hit RESOURCE_NOT_FOUND.
+        response = actions.get_or_create_connected_account(
             connection_name=connector,
             identifier=USER_ID,
         )
-        tokens = response.connected_account.authorization_details["oauth_token"]
+        connected_account = response.connected_account
+        if connected_account.status != "ACTIVE":
+            raise RuntimeError(
+                f"{connector} is not active yet. Complete authorization first."
+            )
+
+        tokens = connected_account.authorization_details["oauth_token"]
         return tokens["access_token"]
 
     def fetch_calendar_events(access_token: str, max_results: int = 5) -> list:

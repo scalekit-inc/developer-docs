@@ -30,12 +30,15 @@ Complete these steps in the Scalekit dashboard before writing any code:
 1. **Create a Scalekit account** at [app.scalekit.com](https://app.scalekit.com).
 2. **Configure a Gmail connector** at Dashboard → **AgentKit** > **Connections** > **Create Connection** → select **Gmail**.
 
+   Create the connection in the dashboard before running any code. Then copy the exact **Connection name** from that connection and use that value in your code. It must match the dashboard exactly, and it is not always the provider slug `gmail`.
+
    Gmail is enabled by default in new Scalekit environments. To connect to other services, create a connection for each app under **AgentKit** > **Connections** > **Create Connection**.
 
 3. **Copy your API credentials** at Dashboard → **Developers → Settings → API Credentials**. Save these three values as environment variables:
    - `SCALEKIT_CLIENT_ID`
    - `SCALEKIT_CLIENT_SECRET`
    - `SCALEKIT_ENV_URL`
+   - `GMAIL_CONNECTION_NAME` (copy the exact Connection name from **AgentKit** > **Connections**)
 
 ## Build your agent
 
@@ -127,6 +130,7 @@ Complete these steps in the Scalekit dashboard before writing any code:
             env_url=os.getenv("SCALEKIT_ENV_URL"),
         )
         actions = scalekit_client.actions
+        connection_name = os.getenv("GMAIL_CONNECTION_NAME")  # must match the Connection name in the dashboard exactly
         ```
       </TabItem>
       <TabItem label="Node.js">
@@ -142,20 +146,21 @@ Complete these steps in the Scalekit dashboard before writing any code:
         );
 
         const actions = scalekit.actions;
+        const connectionName = process.env.GMAIL_CONNECTION_NAME!; // must match the Connection name in the dashboard exactly
         ```
       </TabItem>
     </Tabs>
 
     ### 2. Create a connected account
 
-    Scalekit tracks each user's third-party connection as a connected account. This is the record that holds their OAuth tokens. Creating it tells Scalekit to start managing the user's Gmail access on your behalf.
+    Scalekit tracks each user's third-party connection as a connected account. This is the record that holds their OAuth tokens. Creating it tells Scalekit to start managing the user's Gmail access on your behalf. This step fails if the Gmail connection has not been created in **AgentKit** > **Connections** yet, or if `connection_name` / `connectionName` does not match the dashboard exactly.
 
     <Tabs syncKey="tech-stack">
       <TabItem label="Python">
         ```python wrap {2} showLineNumbers=false frame="none"
         # Create or retrieve the user's connected Gmail account
         response = actions.get_or_create_connected_account(
-            connection_name="gmail",
+            connection_name=connection_name,
             identifier="user_123"  # Replace with your system's unique user ID
         )
         connected_account = response.connected_account
@@ -166,7 +171,7 @@ Complete these steps in the Scalekit dashboard before writing any code:
         ```typescript showLineNumbers=false frame="none"
         // Create or retrieve the user's connected Gmail account
         const response = await actions.getOrCreateConnectedAccount({
-          connectionName: 'gmail',
+          connectionName,
           identifier: 'user_123',  // Replace with your system's unique user ID
         });
 
@@ -187,7 +192,7 @@ Complete these steps in the Scalekit dashboard before writing any code:
         if(connected_account.status != "ACTIVE"):
               print(f"Gmail is not connected: {connected_account.status}")
               link_response = actions.get_authorization_link(
-                  connection_name="gmail",
+                  connection_name=connection_name,
                   identifier="user_123"
               )
               print(f"🔗 click on the link to authorize Gmail", link_response.link)
@@ -202,7 +207,7 @@ Complete these steps in the Scalekit dashboard before writing any code:
         if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
           console.log('gmail is not connected:', connectedAccount?.status);
           const linkResponse = await actions.getAuthorizationLink({
-            connectionName: 'gmail',
+            connectionName,
             identifier: 'user_123',
           });
           console.log('🔗 click on the link to authorize gmail', linkResponse.link);

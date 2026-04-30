@@ -1,4 +1,4 @@
-import { Steps, Aside } from '@astrojs/starlight/components'
+import { Steps } from '@astrojs/starlight/components'
 
 Register your Scalekit environment with the Slack connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. Then complete the configuration in your application as follows:
 
@@ -21,7 +21,13 @@ Register your Scalekit environment with the Slack connector so Scalekit handles 
 
 2. ### Enable distribution
 
-    - In your Slack app settings, go to **Manage Distribution** and enable it.
+    - In your Slack app settings, go to **Manage Distribution**.
+
+    - Under **Share Your App with Other Workspaces**, complete the checklist Slack shows for your app. This can include accepting Slack's distribution agreement, adding support and privacy URLs, and confirming that the redirect URL you added above is valid.
+
+    - Click **Activate Public Distribution**.
+
+      Slack app distribution must be active before users can authorize the app from external workspaces. If distribution is not active, OAuth can succeed in your development workspace but fail when a user tries to connect a second workspace.
 
       ![Enable Slack app distribution](@/assets/docs/agent-connectors/slack/enable-distribution.png)
 
@@ -30,6 +36,8 @@ Register your Scalekit environment with the Slack connector so Scalekit handles 
 3. ### Add credentials in Scalekit
 
     - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** and open the connection you created.
+
+    Choose **Bot scope** for most agents, including agents that read channel history or send messages as your Slack app. Bot scope makes the agent act as the Slack app or bot; use **User scope** only when the agent must act as the authorizing Slack user.
 
     - Enter your credentials:
       - Client ID

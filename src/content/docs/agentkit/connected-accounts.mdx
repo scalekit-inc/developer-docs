@@ -31,10 +31,12 @@ A **connected account** is the per-user record that holds a user's credentials a
 
 ## Check account status
 
+Use `get_or_create_connected_account` as the safe default when a user may be connecting for the first time. Use `get_connected_account` only when you know the account already exists and you need to inspect or return its stored auth details.
+
 <Tabs syncKey="tech-stack">
   <TabItem label="Python">
 ```python
-response = actions.get_connected_account(
+response = actions.get_or_create_connected_account(
     connection_name="gmail",
     identifier="user_123"
 )
@@ -44,7 +46,7 @@ print(f"Status: {connected_account.status}")
   </TabItem>
   <TabItem label="Node.js">
 ```typescript
-const response = await actions.getConnectedAccount({
+const response = await actions.getOrCreateConnectedAccount({
   connectionName: 'gmail',
   identifier: 'user_123',
 });
