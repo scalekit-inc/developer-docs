@@ -1,32 +1,32 @@
-import type { ToolDefinition } from '@/types/tools'
+import type { Tool } from '../../types/agent-connectors'
 
-export const tools: ToolDefinition[] = [
+export const tools: Tool[] = [
   // Account
   {
     name: "datadog_api_key_validate",
     description: "Validate the current Datadog API key.",
-    parameters: [],
+    params: [],
   },
   {
     name: "datadog_current_user_get",
     description: "Get the current authenticated Datadog user.",
-    parameters: [],
+    params: [],
   },
   {
     name: "datadog_permissions_list",
     description: "List all available Datadog permissions.",
-    parameters: [],
+    params: [],
   },
   {
     name: "datadog_ip_ranges_list",
     description: "Get all IP ranges used by Datadog agents and services.",
-    parameters: [],
+    params: [],
   },
   // Dashboards
   {
     name: "datadog_dashboards_list",
     description: "List all Datadog dashboards.",
-    parameters: [
+    params: [
       {
         name: "count",
         type: "integer",
@@ -56,7 +56,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_dashboard_get",
     description: "Get a specific Datadog dashboard by ID.",
-    parameters: [
+    params: [
       {
         name: "dashboard_id",
         type: "string",
@@ -68,7 +68,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_dashboard_create",
     description: "Create a new Datadog dashboard.",
-    parameters: [
+    params: [
       {
         name: "description",
         type: "string",
@@ -110,7 +110,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_dashboard_update",
     description: "Update an existing Datadog dashboard.",
-    parameters: [
+    params: [
       {
         name: "dashboard_id",
         type: "string",
@@ -146,7 +146,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_dashboard_delete",
     description: "Delete a Datadog dashboard by ID.",
-    parameters: [
+    params: [
       {
         name: "dashboard_id",
         type: "string",
@@ -158,7 +158,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_graph_snapshot",
     description: "Take a snapshot of a metric graph in Datadog.",
-    parameters: [
+    params: [
       {
         name: "end",
         type: "integer",
@@ -195,7 +195,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_monitors_list",
     description: "List all Datadog monitors with optional filtering.",
-    parameters: [
+    params: [
       {
         name: "group_states",
         type: "string",
@@ -243,7 +243,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_monitor_get",
     description: "Get a specific Datadog monitor by ID.",
-    parameters: [
+    params: [
       {
         name: "monitor_id",
         type: "integer",
@@ -255,7 +255,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_monitor_create",
     description: "Create a new Datadog monitor.",
-    parameters: [
+    params: [
       {
         name: "message",
         type: "string",
@@ -309,7 +309,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_monitor_update",
     description: "Update an existing Datadog monitor.",
-    parameters: [
+    params: [
       {
         name: "message",
         type: "string",
@@ -351,7 +351,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_monitor_delete",
     description: "Delete a Datadog monitor by ID.",
-    parameters: [
+    params: [
       {
         name: "monitor_id",
         type: "integer",
@@ -363,7 +363,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_monitor_search",
     description: "Search Datadog monitors using a query string.",
-    parameters: [
+    params: [
       {
         name: "page",
         type: "integer",
@@ -393,7 +393,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_monitor_mute",
     description: "Mute a Datadog monitor, optionally with a scope and end time.",
-    parameters: [
+    params: [
       {
         name: "end",
         type: "integer",
@@ -417,7 +417,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_monitor_unmute",
     description: "Unmute a Datadog monitor.",
-    parameters: [
+    params: [
       {
         name: "monitor_id",
         type: "integer",
@@ -429,7 +429,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_downtimes_list",
     description: "List all Datadog downtimes.",
-    parameters: [
+    params: [
       {
         name: "filter_monitor_id",
         type: "integer",
@@ -453,7 +453,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_downtime_get",
     description: "Get a specific Datadog downtime by ID.",
-    parameters: [
+    params: [
       {
         name: "downtime_id",
         type: "string",
@@ -465,7 +465,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_downtime_create",
     description: "Create a new Datadog downtime to suppress alerts.",
-    parameters: [
+    params: [
       {
         name: "end",
         type: "string",
@@ -513,7 +513,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_downtime_update",
     description: "Update an existing Datadog downtime.",
-    parameters: [
+    params: [
       {
         name: "downtime_id",
         type: "string",
@@ -537,7 +537,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_downtime_cancel",
     description: "Cancel a Datadog downtime by ID.",
-    parameters: [
+    params: [
       {
         name: "downtime_id",
         type: "string",
@@ -550,7 +550,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_incidents_list",
     description: "List Datadog incidents with optional filtering.",
-    parameters: [
+    params: [
       {
         name: "filter",
         type: "string",
@@ -580,7 +580,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_incident_get",
     description: "Get a specific Datadog incident by ID.",
-    parameters: [
+    params: [
       {
         name: "incident_id",
         type: "string",
@@ -592,7 +592,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_incident_create",
     description: "Create a new Datadog incident.",
-    parameters: [
+    params: [
       {
         name: "customer_impacted",
         type: "string",
@@ -623,7 +623,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_slos_list",
     description: "List Service Level Objectives (SLOs) in Datadog.",
-    parameters: [
+    params: [
       {
         name: "ids",
         type: "string",
@@ -659,7 +659,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_slo_get",
     description: "Get a specific Datadog Service Level Objective by ID.",
-    parameters: [
+    params: [
       {
         name: "slo_id",
         type: "string",
@@ -671,7 +671,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_slo_create",
     description: "Create a new Service Level Objective (SLO) in Datadog.",
-    parameters: [
+    params: [
       {
         name: "description",
         type: "string",
@@ -719,7 +719,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_slo_update",
     description: "Update an existing Datadog Service Level Objective.",
-    parameters: [
+    params: [
       {
         name: "description",
         type: "string",
@@ -761,7 +761,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_slo_delete",
     description: "Delete a Datadog Service Level Objective by ID.",
-    parameters: [
+    params: [
       {
         name: "slo_id",
         type: "string",
@@ -773,7 +773,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_slo_history",
     description: "Get historical data for a specific Datadog SLO.",
-    parameters: [
+    params: [
       {
         name: "from_ts",
         type: "integer",
@@ -804,7 +804,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_metrics_list",
     description: "List active metrics reported from a given Unix timestamp.",
-    parameters: [
+    params: [
       {
         name: "from",
         type: "integer",
@@ -828,7 +828,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_metrics_query",
     description: "Query timeseries metric data from Datadog.",
-    parameters: [
+    params: [
       {
         name: "from",
         type: "integer",
@@ -852,7 +852,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_metrics_submit",
     description: "Submit metric data points to Datadog.",
-    parameters: [
+    params: [
       {
         name: "host",
         type: "string",
@@ -894,7 +894,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_metric_metadata_get",
     description: "Get metadata for a specific Datadog metric.",
-    parameters: [
+    params: [
       {
         name: "metric_name",
         type: "string",
@@ -906,7 +906,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_metric_metadata_update",
     description: "Update metadata for a specific Datadog metric.",
-    parameters: [
+    params: [
       {
         name: "description",
         type: "string",
@@ -942,7 +942,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_metric_tags_list",
     description: "List all tags for a specific Datadog metric.",
-    parameters: [
+    params: [
       {
         name: "metric_name",
         type: "string",
@@ -955,7 +955,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_logs_search",
     description: "Search and filter Datadog log events.",
-    parameters: [
+    params: [
       {
         name: "cursor",
         type: "string",
@@ -997,7 +997,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_logs_aggregate",
     description: "Aggregate Datadog log events with grouping and compute operations.",
-    parameters: [
+    params: [
       {
         name: "compute",
         type: "string",
@@ -1033,12 +1033,12 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_log_indexes_list",
     description: "List all Datadog log indexes.",
-    parameters: [],
+    params: [],
   },
   {
     name: "datadog_log_pipeline_get",
     description: "Get a specific Datadog log processing pipeline by ID.",
-    parameters: [
+    params: [
       {
         name: "pipeline_id",
         type: "string",
@@ -1050,12 +1050,12 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_log_pipelines_list",
     description: "List all Datadog log processing pipelines.",
-    parameters: [],
+    params: [],
   },
   {
     name: "datadog_audit_logs_search",
     description: "Search audit log events in Datadog for a given time window.",
-    parameters: [
+    params: [
       {
         name: "cursor",
         type: "string",
@@ -1098,7 +1098,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_events_query",
     description: "Query Datadog events within a time range.",
-    parameters: [
+    params: [
       {
         name: "count",
         type: "integer",
@@ -1152,7 +1152,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_events_list_v2",
     description: "List Datadog events using the v2 API with filtering and pagination.",
-    parameters: [
+    params: [
       {
         name: "filter_from",
         type: "string",
@@ -1194,7 +1194,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_event_get",
     description: "Get a specific Datadog event by ID.",
-    parameters: [
+    params: [
       {
         name: "event_id",
         type: "integer",
@@ -1206,7 +1206,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_event_create",
     description: "Create a new event in Datadog.",
-    parameters: [
+    params: [
       {
         name: "aggregation_key",
         type: "string",
@@ -1261,7 +1261,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_hosts_list",
     description: "List Datadog hosts with optional filtering and sorting.",
-    parameters: [
+    params: [
       {
         name: "count",
         type: "integer",
@@ -1303,12 +1303,12 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_hosts_totals",
     description: "Get the total number of active and up Datadog hosts.",
-    parameters: [],
+    params: [],
   },
   {
     name: "datadog_host_mute",
     description: "Mute a Datadog host to suppress alerts.",
-    parameters: [
+    params: [
       {
         name: "end",
         type: "integer",
@@ -1338,7 +1338,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_host_unmute",
     description: "Unmute a Datadog host.",
-    parameters: [
+    params: [
       {
         name: "host_name",
         type: "string",
@@ -1350,7 +1350,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_host_tags_get",
     description: "Get all tags for a specific host.",
-    parameters: [
+    params: [
       {
         name: "host_name",
         type: "string",
@@ -1362,7 +1362,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_host_tags_create",
     description: "Add tags to a specific host in Datadog.",
-    parameters: [
+    params: [
       {
         name: "host_name",
         type: "string",
@@ -1386,7 +1386,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_host_tags_update",
     description: "Replace all tags for a specific host in Datadog.",
-    parameters: [
+    params: [
       {
         name: "host_name",
         type: "string",
@@ -1410,7 +1410,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_host_tags_delete",
     description: "Remove all tags from a specific host in Datadog.",
-    parameters: [
+    params: [
       {
         name: "host_name",
         type: "string",
@@ -1428,7 +1428,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_containers_list",
     description: "List all containers running on your infrastructure.",
-    parameters: [
+    params: [
       {
         name: "filter_tags",
         type: "string",
@@ -1452,7 +1452,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_processes_list",
     description: "List live processes running on your infrastructure.",
-    parameters: [
+    params: [
       {
         name: "from",
         type: "integer",
@@ -1495,7 +1495,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_synthetics_tests_list",
     description: "List all Datadog Synthetics tests.",
-    parameters: [
+    params: [
       {
         name: "page_number",
         type: "integer",
@@ -1513,7 +1513,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_synthetics_api_test_get",
     description: "Get a specific Datadog Synthetics API test by public ID.",
-    parameters: [
+    params: [
       {
         name: "public_id",
         type: "string",
@@ -1525,7 +1525,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_synthetics_browser_test_get",
     description: "Get a specific Datadog Synthetics browser test by public ID.",
-    parameters: [
+    params: [
       {
         name: "public_id",
         type: "string",
@@ -1537,7 +1537,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_synthetics_test_results_get",
     description: "Get the latest results for a specific Datadog Synthetics test.",
-    parameters: [
+    params: [
       {
         name: "from_ts",
         type: "integer",
@@ -1561,7 +1561,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_synthetics_test_trigger",
     description: "Trigger one or more Datadog Synthetics tests to run immediately.",
-    parameters: [
+    params: [
       {
         name: "tests",
         type: "string",
@@ -1573,7 +1573,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_synthetics_test_pause_resume",
     description: "Pause or resume a Datadog Synthetics test.",
-    parameters: [
+    params: [
       {
         name: "new_status",
         type: "string",
@@ -1591,7 +1591,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_synthetics_test_delete",
     description: "Delete one or more Datadog Synthetics tests by public ID.",
-    parameters: [
+    params: [
       {
         name: "public_ids",
         type: "string",
@@ -1603,23 +1603,23 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_synthetics_locations_list",
     description: "List all Datadog Synthetics locations (public and private).",
-    parameters: [],
+    params: [],
   },
   {
     name: "datadog_synthetics_global_variables_list",
     description: "List all Datadog Synthetics global variables.",
-    parameters: [],
+    params: [],
   },
   // RUM
   {
     name: "datadog_rum_applications_list",
     description: "List all Datadog RUM applications.",
-    parameters: [],
+    params: [],
   },
   {
     name: "datadog_rum_application_get",
     description: "Get a specific RUM application by its ID.",
-    parameters: [
+    params: [
       {
         name: "id",
         type: "string",
@@ -1631,7 +1631,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_rum_application_create",
     description: "Create a new Datadog RUM application.",
-    parameters: [
+    params: [
       {
         name: "name",
         type: "string",
@@ -1650,7 +1650,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_notebooks_list",
     description: "List all notebooks available in your Datadog account.",
-    parameters: [
+    params: [
       {
         name: "author_handle",
         type: "string",
@@ -1686,7 +1686,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_notebook_get",
     description: "Get a specific Datadog notebook by its ID.",
-    parameters: [
+    params: [
       {
         name: "notebook_id",
         type: "integer",
@@ -1698,7 +1698,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_notebook_create",
     description: "Create a new notebook in Datadog.",
-    parameters: [
+    params: [
       {
         name: "cells",
         type: "string",
@@ -1716,7 +1716,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_notebook_delete",
     description: "Delete a specific notebook by its ID.",
-    parameters: [
+    params: [
       {
         name: "notebook_id",
         type: "integer",
@@ -1729,7 +1729,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_users_list",
     description: "List Datadog users with optional filtering.",
-    parameters: [
+    params: [
       {
         name: "filter",
         type: "string",
@@ -1765,7 +1765,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_user_get",
     description: "Get a specific Datadog user by UUID.",
-    parameters: [
+    params: [
       {
         name: "user_id",
         type: "string",
@@ -1777,7 +1777,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_user_create",
     description: "Create a new Datadog user.",
-    parameters: [
+    params: [
       {
         name: "email",
         type: "string",
@@ -1807,7 +1807,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_user_update",
     description: "Update an existing Datadog user.",
-    parameters: [
+    params: [
       {
         name: "disabled",
         type: "string",
@@ -1837,7 +1837,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_user_disable",
     description: "Disable a Datadog user account by UUID.",
-    parameters: [
+    params: [
       {
         name: "user_id",
         type: "string",
@@ -1849,7 +1849,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_user_roles_list",
     description: "Get all roles assigned to a specific Datadog user.",
-    parameters: [
+    params: [
       {
         name: "user_id",
         type: "string",
@@ -1861,7 +1861,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_roles_list",
     description: "List all Datadog roles.",
-    parameters: [
+    params: [
       {
         name: "filter",
         type: "string",
@@ -1891,7 +1891,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_role_get",
     description: "Get a specific Datadog role by ID.",
-    parameters: [
+    params: [
       {
         name: "role_id",
         type: "string",
@@ -1903,7 +1903,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_role_create",
     description: "Create a new Datadog role.",
-    parameters: [
+    params: [
       {
         name: "name",
         type: "string",
@@ -1922,7 +1922,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "datadog_service_check_submit",
     description: "Submit a service check result to Datadog.",
-    parameters: [
+    params: [
       {
         name: "check",
         type: "string",

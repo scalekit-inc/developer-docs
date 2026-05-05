@@ -77,7 +77,7 @@ Use `executeTool` (Node.js) or `execute_tool` (Python) to call any Datadog tool 
       connectionName,
       identifier,
       toolName: 'datadog_monitor_create',
-      parameters: {
+      toolInput: {
         name: 'High CPU Usage',
         type: 'metric alert',
         query: 'avg(last_5m):avg:system.cpu.user{*} > 90',
@@ -93,7 +93,7 @@ Use `executeTool` (Node.js) or `execute_tool` (Python) to call any Datadog tool 
         connection_name=connection_name,
         identifier=identifier,
         tool_name="datadog_monitor_create",
-        parameters={
+        tool_input={
             "name": "High CPU Usage",
             "type": "metric alert",
             "query": "avg(last_5m):avg:system.cpu.user{*} > 90",
@@ -114,7 +114,7 @@ Use `executeTool` (Node.js) or `execute_tool` (Python) to call any Datadog tool 
       connectionName,
       identifier,
       toolName: 'datadog_logs_search',
-      parameters: {
+      toolInput: {
         query: 'service:web status:error',
         from: '2024-01-01T00:00:00Z',
         to: '2024-01-02T00:00:00Z',
@@ -130,7 +130,7 @@ Use `executeTool` (Node.js) or `execute_tool` (Python) to call any Datadog tool 
         connection_name=connection_name,
         identifier=identifier,
         tool_name="datadog_logs_search",
-        parameters={
+        tool_input={
             "query": "service:web status:error",
             "from": "2024-01-01T00:00:00Z",
             "to": "2024-01-02T00:00:00Z",
@@ -151,7 +151,7 @@ Use `executeTool` (Node.js) or `execute_tool` (Python) to call any Datadog tool 
       connectionName,
       identifier,
       toolName: 'datadog_metrics_query',
-      parameters: {
+      toolInput: {
         query: 'avg:system.cpu.user{*}',
         from: 1704067200,  // Unix timestamp
         to: 1704153600,
@@ -166,7 +166,7 @@ Use `executeTool` (Node.js) or `execute_tool` (Python) to call any Datadog tool 
         connection_name=connection_name,
         identifier=identifier,
         tool_name="datadog_metrics_query",
-        parameters={
+        tool_input={
             "query": "avg:system.cpu.user{*}",
             "from": 1704067200,
             "to": 1704153600,
@@ -186,7 +186,7 @@ Use `executeTool` (Node.js) or `execute_tool` (Python) to call any Datadog tool 
       connectionName,
       identifier,
       toolName: 'datadog_incident_create',
-      parameters: {
+      toolInput: {
         title: 'Database connection failures',
         customer_impacted: true,
         severity: 'SEV-2',
@@ -201,7 +201,7 @@ Use `executeTool` (Node.js) or `execute_tool` (Python) to call any Datadog tool 
         connection_name=connection_name,
         identifier=identifier,
         tool_name="datadog_incident_create",
-        parameters={
+        tool_input={
             "title": "Database connection failures",
             "customer_impacted": True,
             "severity": "SEV-2",
@@ -223,7 +223,7 @@ The `start` and `end` fields use **ISO 8601 format**, not Unix timestamps.
       connectionName,
       identifier,
       toolName: 'datadog_downtime_create',
-      parameters: {
+      toolInput: {
         scope: 'env:production',
         start: '2026-06-01T02:00:00Z',
         end: '2026-06-01T04:00:00Z',
@@ -241,7 +241,7 @@ The `start` and `end` fields use **ISO 8601 format**, not Unix timestamps.
         connection_name=connection_name,
         identifier=identifier,
         tool_name="datadog_downtime_create",
-        parameters={
+        tool_input={
             "scope": "env:production",
             "start": "2026-06-01T02:00:00Z",
             "end": "2026-06-01T04:00:00Z",
@@ -270,7 +270,7 @@ The `query` field must be a **JSON string** containing `numerator` and `denomina
       connectionName,
       identifier,
       toolName: 'datadog_slo_create',
-      parameters: {
+      toolInput: {
         name: 'API Success Rate',
         type: 'metric',
         query: JSON.stringify({
@@ -291,7 +291,7 @@ The `query` field must be a **JSON string** containing `numerator` and `denomina
         connection_name=connection_name,
         identifier=identifier,
         tool_name="datadog_slo_create",
-        parameters={
+        tool_input={
             "name": "API Success Rate",
             "type": "metric",
             "query": json.dumps({
@@ -318,7 +318,7 @@ Datadog event IDs are 64-bit integers that exceed the float64 precision limit. A
       connectionName,
       identifier,
       toolName: 'datadog_event_create',
-      parameters: {
+      toolInput: {
         title: 'Deployment completed',
         text: 'v2.3.1 deployed to production',
         date_happened: Math.floor(Date.now() / 1000),
@@ -331,7 +331,7 @@ Datadog event IDs are 64-bit integers that exceed the float64 precision limit. A
       connectionName,
       identifier,
       toolName: 'datadog_event_get',
-      parameters: { event_id: eventId },
+      toolInput: { event_id: eventId },
     });
     console.log(event.event?.title);
     ```
@@ -344,7 +344,7 @@ Datadog event IDs are 64-bit integers that exceed the float64 precision limit. A
         connection_name=connection_name,
         identifier=identifier,
         tool_name="datadog_event_create",
-        parameters={
+        tool_input={
             "title": "Deployment completed",
             "text": "v2.3.1 deployed to production",
             "date_happened": int(time.time()),
@@ -356,7 +356,7 @@ Datadog event IDs are 64-bit integers that exceed the float64 precision limit. A
         connection_name=connection_name,
         identifier=identifier,
         tool_name="datadog_event_get",
-        parameters={"event_id": event_id},
+        tool_input={"event_id": event_id},
     )
     print(event["event"]["title"])
     ```
@@ -374,7 +374,7 @@ Datadog event IDs are 64-bit integers that exceed the float64 precision limit. A
       connectionName,
       identifier,
       toolName: 'datadog_metrics_submit',
-      parameters: {
+      toolInput: {
         metric_name: 'app.request.duration',
         metric_type: 3,                              // 3 = gauge
         points_timestamps: JSON.stringify([Math.floor(Date.now() / 1000)]),
@@ -392,7 +392,7 @@ Datadog event IDs are 64-bit integers that exceed the float64 precision limit. A
         connection_name=connection_name,
         identifier=identifier,
         tool_name="datadog_metrics_submit",
-        parameters={
+        tool_input={
             "metric_name": "app.request.duration",
             "metric_type": 3,                         # 3 = gauge
             "points_timestamps": json.dumps([int(time.time())]),
