@@ -1,0 +1,60 @@
+---
+title: QuickBooks
+tableOfContents: true
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/quickbooks.svg
+connectorAuthType: OAuth 2.0
+connectorCategories: [accounting, finance]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/quickbooks'
+import { SetupQuickbooksSection } from '@components/templates'
+import { UsageQuickbooksSection } from '@components/templates'
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Manage customers and vendors** — create, update, list, and retrieve customer and vendor records
+- **Create and manage invoices** — create invoices, update line items, void or delete, and send by email
+- **Track bills and payments** — create bills from vendors, record bill payments with check or credit card
+- **Handle estimates and purchase orders** — create estimates, convert to invoices, manage purchase orders
+- **Record journal entries, deposits, and transfers** — post journal entries, create deposits, and transfer funds between accounts
+- **Manage items and products** — create service and inventory items with pricing and account assignments
+- **Access financial reports** — retrieve Profit & Loss, Balance Sheet, Cash Flow, Trial Balance, General Ledger, Aged Payables, and Aged Receivables reports
+- **Manage classes and departments** — organize transactions with classes and departments
+- **Work with tax codes** — list and retrieve tax codes for accurate tax application
+
+## Authentication
+
+This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to QuickBooks, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
+
+You supply your Intuit **QuickBooks app** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.
+
+Before calling this connector from your code, create the QuickBooks connection in **AgentKit** > **Connections** and copy the exact **Connection name** from that connection into your code. The value in code must match the dashboard exactly.
+
+<details>
+<summary>Set up the connector</summary>
+
+<SetupQuickbooksSection />
+
+</details>
+
+<details>
+<summary>Code examples</summary>
+
+<UsageQuickbooksSection />
+
+</details>
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />
