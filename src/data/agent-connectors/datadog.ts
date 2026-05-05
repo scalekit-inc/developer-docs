@@ -595,7 +595,7 @@ export const tools: Tool[] = [
     params: [
       {
         name: "customer_impacted",
-        type: "string",
+        type: "boolean",
         required: true,
         description: "true",
       },
@@ -1197,7 +1197,7 @@ export const tools: Tool[] = [
     params: [
       {
         name: "event_id",
-        type: "integer",
+        type: "string",
         required: true,
         description: "1234567890",
       },
