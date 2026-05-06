@@ -1,0 +1,495 @@
+---
+title: 'HubSpot connector'
+description: 'Connect your agent to HubSpot CRM — manage contacts, deals, tickets, and engagements through OAuth 2.0 with automatic token refresh.'
+sidebar:
+  label: HubSpot (v2)
+tableOfContents: true
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/hub_spot.svg
+connectorAuthType: OAuth 2.0
+connectorCategories: [crm, sales]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import { Steps, Tabs, TabItem, Aside, Badge } from '@astrojs/starlight/components'
+import { Image } from 'astro:assets'
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/hubspot'
+import redirectUriImg from '@/assets/docs/agent-connectors/hubspot/use-own-credentials-redirect-uri.png'
+import addRedirectUrlImg from '@/assets/docs/agent-connectors/hubspot/add-redirect-url.png'
+import addCredentialsImg from '@/assets/docs/agent-connectors/hubspot/add-credentials.png'
+
+<Steps>
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK documentation: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   Add these environment variables (find them in **[app.scalekit.com](https://app.scalekit.com)** > **Developers** > **API Credentials**):
+
+   ```bash frame="none" showLineNumbers=false
+   export SCALEKIT_ENV_URL="https://your-env.scalekit.com"
+   export SCALEKIT_CLIENT_ID="skc_..."
+   export SCALEKIT_CLIENT_SECRET="..."
+   ```
+
+3. ### Set up the connector
+
+   Register your HubSpot OAuth credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   **Set up auth redirects**
+
+   In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **HubSpot** and click **Create**. Copy the redirect URI.
+
+   <Image src={redirectUriImg} alt="Copy redirect URI from Scalekit dashboard" />
+
+   Log in to your [HubSpot developer dashboard](https://developers.hubspot.com/), click **Manage apps** > **Create app** > **Public app**. Do not select **Private app** — private apps use static tokens and do not support the OAuth redirect flow Scalekit needs.
+
+   Go to **Auth** > **Auth settings** > **Redirect URL**, paste the redirect URI from Scalekit, and click **Save**.
+
+   <Image src={addRedirectUrlImg} alt="Adding redirect URL to HubSpot" />
+
+   Under **Auth** > **Auth settings** > **Scopes**, select the scopes your application needs. For a read-only CRM flow: `crm.objects.contacts.read`, `crm.objects.companies.read`, `crm.objects.deals.read`.
+
+   **Get client credentials**
+
+   In your HubSpot app, go to **Auth** > **Auth settings**. Copy your **Client ID** and **Client Secret**.
+
+   **Add credentials in Scalekit**
+
+   In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** and open the HubSpot connection. Enter your **Client ID**, **Client Secret**, and **Permissions** (OAuth scope strings). Click **Save**.
+
+   <Image src={addCredentialsImg} alt="Add credentials in Scalekit dashboard" />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```typescript title="quickstart.ts"
+       import { ScalekitClient } from '@scalekit-sdk/node'
+       import 'dotenv/config'
+
+       const scalekit = new ScalekitClient(
+         process.env.SCALEKIT_ENV_URL,
+         process.env.SCALEKIT_CLIENT_ID,
+         process.env.SCALEKIT_CLIENT_SECRET,
+       )
+       const actions = scalekit.actions
+
+       const connectionName = 'hubspot'
+       const identifier = 'user_123'
+
+       // Generate an authorization link for the user
+       const { link } = await actions.getAuthorizationLink({
+         connectionName,
+         identifier,
+       })
+       console.log('Open this URL to authorize HubSpot:', link)
+       process.stdout.write('Press Enter after authorizing...')
+       await new Promise(r => process.stdin.once('data', r))
+
+       // Make your first API call — list CRM owners
+       const result = await actions.request({
+         connectionName,
+         identifier,
+         method: 'GET',
+         path: '/crm/v3/owners',
+       })
+       console.log('HubSpot owners:', result)
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```python title="quickstart.py"
+       import os
+       from scalekit.client import ScalekitClient
+       from dotenv import load_dotenv
+       load_dotenv()
+
+       scalekit_client = ScalekitClient(
+           env_url=os.getenv("SCALEKIT_ENV_URL"),
+           client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+           client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+       )
+       actions = scalekit_client.actions
+
+       connection_name = "hubspot"
+       identifier = "user_123"
+
+       # Generate an authorization link for the user
+       link_response = actions.get_authorization_link(
+           connection_name=connection_name,
+           identifier=identifier,
+       )
+       print("Open this URL to authorize HubSpot:", link_response.link)
+       input("Press Enter after authorizing...")
+
+       # Make your first API call — list CRM owners
+       result = actions.request(
+           connection_name=connection_name,
+           identifier=identifier,
+           method="GET",
+           path="/crm/v3/owners",
+       )
+       print("HubSpot owners:", result)
+       ```
+     </TabItem>
+   </Tabs>
+
+5. ### Verify your setup
+
+   If the previous step printed a JSON response with HubSpot owner records, your connection is working. If you get an error, check [Troubleshooting](#troubleshooting).
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Manage contacts** — create, update, list, and search contacts; batch-create up to 100 at once
+- **Manage companies** — create and update company records with industry, location, and revenue data
+- **Manage deals** — create deals, move them through pipeline stages, and search by any property
+- **Manage tickets** — create and update support tickets with priority and pipeline stage
+- **Log engagements** — record calls, meetings, notes, and emails against any CRM record
+- **Manage tasks** — create tasks with due dates and priorities, and mark them complete
+- **Work with products, line items, and quotes** — build out deal proposals end-to-end
+- **Manage custom objects** — create, update, and search records for any custom schema
+- **Access marketing data** — list forms, retrieve submissions, and inspect campaigns and email events
+- **Search and paginate** — full-text search and filter across all CRM object types
+- **Manage associations** — link any two CRM objects (e.g., associate a contact with a ticket)
+- **List owners and properties** — look up user IDs and discover all available fields per object type
+
+## Common workflows
+
+<details>
+<summary>Make a proxy API call</summary>
+
+Make authenticated requests to any HubSpot API endpoint through the Scalekit proxy. Scalekit injects the OAuth token automatically.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.request({
+      connectionName: 'hubspot',
+      identifier: 'user_123',
+      method: 'GET',
+      path: '/crm/v3/objects/contacts',
+      params: { limit: '10' },
+    })
+    console.log(result)
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.request(
+        connection_name="hubspot",
+        identifier="user_123",
+        method="GET",
+        path="/crm/v3/objects/contacts",
+        params={"limit": "10"},
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Create a contact</summary>
+
+Use `executeTool` / `execute_tool` to call HubSpot tools by name with typed parameters.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const contact = await actions.executeTool({
+      connectionName: 'hubspot',
+      identifier: 'user_123',
+      toolName: 'hubspot_contact_create',
+      parameters: {
+        email: 'jane.smith@acme.com',
+        firstname: 'Jane',
+        lastname: 'Smith',
+        jobtitle: 'VP of Engineering',
+        company: 'Acme Corp',
+        lifecyclestage: 'lead',
+      },
+    })
+    console.log('Created contact:', contact.id)
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    contact = actions.execute_tool(
+        connection_name="hubspot",
+        identifier="user_123",
+        tool_name="hubspot_contact_create",
+        parameters={
+            "email": "jane.smith@acme.com",
+            "firstname": "Jane",
+            "lastname": "Smith",
+            "jobtitle": "VP of Engineering",
+            "company": "Acme Corp",
+            "lifecyclestage": "lead",
+        },
+    )
+    print("Created contact:", contact["id"])
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Search deals</summary>
+
+Filter deals by stage, amount, or any property using the HubSpot search API:
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const deals = await actions.executeTool({
+      connectionName: 'hubspot',
+      identifier: 'user_123',
+      toolName: 'hubspot_deals_search',
+      parameters: {
+        query: 'enterprise',
+        filterGroups: JSON.stringify([{
+          filters: [{
+            propertyName: 'dealstage',
+            operator: 'EQ',
+            value: 'qualifiedtobuy',
+          }],
+        }]),
+        properties: 'dealname,amount,dealstage,closedate',
+        limit: 10,
+      },
+    })
+    console.log('Found deals:', deals.results)
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import json
+
+    deals = actions.execute_tool(
+        connection_name="hubspot",
+        identifier="user_123",
+        tool_name="hubspot_deals_search",
+        parameters={
+            "query": "enterprise",
+            "filterGroups": json.dumps([{
+                "filters": [{
+                    "propertyName": "dealstage",
+                    "operator": "EQ",
+                    "value": "qualifiedtobuy",
+                }],
+            }]),
+            "properties": "dealname,amount,dealstage,closedate",
+            "limit": 10,
+        },
+    )
+    print("Found deals:", deals["results"])
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Log a call</summary>
+
+Record a completed sales call linked to a CRM record:
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const call = await actions.executeTool({
+      connectionName: 'hubspot',
+      identifier: 'user_123',
+      toolName: 'hubspot_call_log',
+      parameters: {
+        hs_call_title: 'Q4 Renewal Discussion',
+        hs_timestamp: new Date().toISOString(),
+        hs_call_body: 'Discussed renewal terms. Customer interested in enterprise plan.',
+        hs_call_direction: 'OUTBOUND',
+        hs_call_duration: 900000,
+        hs_call_status: 'COMPLETED',
+      },
+    })
+    console.log('Logged call:', call.id)
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    from datetime import datetime, timezone
+
+    call = actions.execute_tool(
+        connection_name="hubspot",
+        identifier="user_123",
+        tool_name="hubspot_call_log",
+        parameters={
+            "hs_call_title": "Q4 Renewal Discussion",
+            "hs_timestamp": datetime.now(timezone.utc).isoformat(),
+            "hs_call_body": "Discussed renewal terms. Customer interested in enterprise plan.",
+            "hs_call_direction": "OUTBOUND",
+            "hs_call_duration": 900000,
+            "hs_call_status": "COMPLETED",
+        },
+    )
+    print("Logged call:", call["id"])
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Create and associate a ticket</summary>
+
+Create a support ticket and link it to an existing contact in one workflow:
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // Create the ticket
+    const ticket = await actions.executeTool({
+      connectionName: 'hubspot',
+      identifier: 'user_123',
+      toolName: 'hubspot_ticket_create',
+      parameters: {
+        subject: 'Cannot export data to CSV',
+        hs_pipeline_stage: '1',
+        content: 'Customer reports the CSV export button is unresponsive on the Reports page.',
+        hs_ticket_priority: 'HIGH',
+      },
+    })
+
+    // Associate the ticket with a contact
+    await actions.executeTool({
+      connectionName: 'hubspot',
+      identifier: 'user_123',
+      toolName: 'hubspot_association_create',
+      parameters: {
+        from_object_type: 'tickets',
+        from_object_id: ticket.id,
+        to_object_type: 'contacts',
+        to_object_id: '12345',
+      },
+    })
+    console.log('Ticket created and linked:', ticket.id)
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    # Create the ticket
+    ticket = actions.execute_tool(
+        connection_name="hubspot",
+        identifier="user_123",
+        tool_name="hubspot_ticket_create",
+        parameters={
+            "subject": "Cannot export data to CSV",
+            "hs_pipeline_stage": "1",
+            "content": "Customer reports the CSV export button is unresponsive on the Reports page.",
+            "hs_ticket_priority": "HIGH",
+        },
+    )
+
+    # Associate the ticket with a contact
+    actions.execute_tool(
+        connection_name="hubspot",
+        identifier="user_123",
+        tool_name="hubspot_association_create",
+        parameters={
+            "from_object_type": "tickets",
+            "from_object_id": ticket["id"],
+            "to_object_type": "contacts",
+            "to_object_id": "12345",
+        },
+    )
+    print("Ticket created and linked:", ticket["id"])
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+## Tool list
+
+Use the exact tool names from the list below when you call `executeTool` / `execute_tool`. If you are not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />
+
+## Troubleshooting
+
+<details>
+<summary>401 Unauthorized</summary>
+
+**Cause:** Invalid or expired Scalekit API credentials.
+
+**Fix:** Verify your `SCALEKIT_CLIENT_ID` and `SCALEKIT_CLIENT_SECRET` environment variables match the credentials in **[app.scalekit.com](https://app.scalekit.com)** > **Developers** > **API Credentials**. Regenerate the secret if needed.
+
+</details>
+
+<details>
+<summary>403 Forbidden</summary>
+
+**Cause:** The HubSpot OAuth token lacks the required scopes for the API endpoint you called.
+
+**Fix:** Check the scopes configured in your HubSpot Public App (**Auth** > **Auth settings** > **Scopes**) and in your Scalekit connection's **Permissions** field. Both must include the scope required by the endpoint. After updating scopes, the user must re-authorize the connection.
+
+</details>
+
+<details>
+<summary>429 Too Many Requests</summary>
+
+**Cause:** HubSpot enforces rate limits of **100 requests per 10 seconds** for OAuth apps.
+
+**Fix:** Add exponential backoff and retry logic. For bulk operations, use batch endpoints (e.g., `hubspot_contacts_batch_create` handles up to 100 contacts in a single call).
+
+</details>
+
+<details>
+<summary>Tool not found</summary>
+
+**Cause:** The `toolName` / `tool_name` parameter does not match any available HubSpot tool.
+
+**Fix:** Check the exact tool name in the [Tool list](#tool-list) above. Tool names are case-sensitive and use the format `hubspot_<object>_<action>`.
+
+</details>
+
+<details>
+<summary>Connection not enabled</summary>
+
+**Cause:** The user has not yet authorized the HubSpot connection, or the connection name in your code does not match the dashboard.
+
+**Fix:** Call `getAuthorizationLink()` / `get_authorization_link()` to generate an OAuth link for the user. Verify the `connectionName` in your code matches the exact name shown in **AgentKit** > **Connections**.
+
+</details>
+
