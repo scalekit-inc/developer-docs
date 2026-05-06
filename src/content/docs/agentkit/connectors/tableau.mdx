@@ -19,6 +19,7 @@ import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/tableau'
 import { SetupTableauSection } from '@components/templates'
 import { UsageTableauSection } from '@components/templates'
+import { SectionBeforeToolListTableauResourceIds } from '@components/templates'
 
 ## What you can do
 
@@ -60,26 +61,7 @@ Before calling this connector from your code, create the Tableau connection in *
 
 ## Getting resource IDs
 
-Most Tableau tools require one or more resource LUIDs. The **site ID is resolved automatically** by Scalekit after sign-in — you do not pass it to tool calls. Always fetch other IDs from the API — never guess or hard-code them.
-
-| Resource | Tool to get ID | Field in response |
-|----------|---------------|-------------------|
-| Workbook ID | `tableau_workbooks_list` or `tableau_workbook_search` | `workbooks.workbook[].id` |
-| View ID | `tableau_views_list` or `tableau_workbook_views_list` | `views.view[].id` |
-| Data Source ID | `tableau_datasources_list` | `datasources.datasource[].id` |
-| Project ID | `tableau_projects_list` | `projects.project[].id` |
-| User ID | `tableau_users_list` | `users.user[].id` |
-| Group ID | `tableau_groups_list` | `groups.group[].id` |
-| Job ID | `tableau_job_get` (from background job operations) | `job.id` |
-| Site ID (proxy only) | `tableau_session_get` | `session.site.id` |
-
-**Recommended start sequence for any agent session:**
-
-```text
-1. tableau_workbooks_list           → discover workbooks
-2. tableau_workbook_views_list      → discover views within a workbook
-3. tableau_datasources_list         → discover data sources
-```
+<SectionBeforeToolListTableauResourceIds />
 
 ## Tool list
 
