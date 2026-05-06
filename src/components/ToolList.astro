@@ -14,6 +14,14 @@ const { tools } = Astro.props
       <details class="tool-card" id={tool.name} open={i === 0 || undefined}>
         <summary class="tool-header">
           <code class="tool-name">{tool.name}</code>
+          <a
+            class="tool-anchor"
+            href={`#${tool.name}`}
+            aria-label={`Link to ${tool.name}`}
+            onclick="event.stopPropagation()"
+          >
+            #
+          </a>
           <span class="tool-inline-desc">{tool.description}</span>
           <span class="tool-param-badge">
             {tool.params.length} param{tool.params.length !== 1 ? 's' : ''}
@@ -79,12 +87,33 @@ const { tools } = Astro.props
 
   .tool-header {
     display: grid;
-    grid-template-columns: auto 1fr auto 1rem;
+    grid-template-columns: auto auto 1fr auto 1rem;
     align-items: center;
     gap: 0.75rem;
+    column-gap: 0.75rem;
     padding: 0.875rem 1.125rem;
     cursor: pointer;
     user-select: none;
+  }
+
+  .tool-anchor {
+    font-family: var(--sl-font-system-mono);
+    font-size: var(--sl-text-xs);
+    font-weight: 600;
+    color: var(--sl-color-gray-4);
+    text-decoration: none;
+    opacity: 0;
+    transition:
+      opacity 0.15s,
+      color 0.15s;
+    padding: 0 0.125rem;
+    margin-left: -0.5rem;
+  }
+  .tool-header:hover .tool-anchor {
+    opacity: 1;
+  }
+  .tool-anchor:hover {
+    color: var(--sl-color-text-accent);
   }
 
   .tool-name {
@@ -249,7 +278,7 @@ const { tools } = Astro.props
 
   @media (max-width: 48rem) {
     .tool-header {
-      grid-template-columns: 1fr auto 1rem;
+      grid-template-columns: auto auto 1fr auto 1rem;
     }
     .tool-inline-desc {
       display: none;
