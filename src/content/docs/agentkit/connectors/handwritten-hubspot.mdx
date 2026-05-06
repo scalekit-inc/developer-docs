@@ -187,33 +187,37 @@ Connect this agent connector to let your agent:
 ## Common workflows
 
 <details>
-<summary>Make a proxy API call</summary>
+<summary>List contacts</summary>
 
-Make authenticated requests to any HubSpot API endpoint through the Scalekit proxy. Scalekit injects the OAuth token automatically.
+Retrieve contacts with selected properties. All parameters are optional — call with no arguments to get the default page.
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Node.js">
     ```typescript
-    const result = await actions.request({
+    const contacts = await actions.executeTool({
       connectionName: 'hubspot',
       identifier: 'user_123',
-      method: 'GET',
-      path: '/crm/v3/objects/contacts',
-      params: { limit: '10' },
+      toolName: 'hubspot_contacts_list',
+      parameters: {
+        properties: 'firstname,lastname,email,company',
+        limit: 10,
+      },
     })
-    console.log(result)
+    console.log('Contacts:', contacts.results)
     ```
   </TabItem>
   <TabItem label="Python">
     ```python
-    result = actions.request(
+    contacts = actions.execute_tool(
         connection_name="hubspot",
         identifier="user_123",
-        method="GET",
-        path="/crm/v3/objects/contacts",
-        params={"limit": "10"},
+        tool_name="hubspot_contacts_list",
+        parameters={
+            "properties": "firstname,lastname,email,company",
+            "limit": 10,
+        },
     )
-    print(result)
+    print("Contacts:", contacts["results"])
     ```
   </TabItem>
 </Tabs>
