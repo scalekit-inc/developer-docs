@@ -19,11 +19,11 @@ This page extracts the MCP-specific items from the main authentication [producti
 
 <CheckItem iconName="approve-check-circle"> **Verify production environment configuration** </CheckItem>
 
-Confirm that your environment URL (`SCALEKIT_ENVIRONMENT_URL`), client ID (`SCALEKIT_CLIENT_ID`), and client secret (`SCALEKIT_CLIENT_SECRET`) are correctly set for production — not dev or staging.
+Confirm that your environment URL (`SCALEKIT_ENVIRONMENT_URL`), client ID (`SCALEKIT_CLIENT_ID`), and client secret (`SCALEKIT_CLIENT_SECRET`) are correctly set for production, not dev or staging.
 
 ## Custom domain (CNAME)
 
-Configuring a custom domain is the highest-impact step for MCP auth. Without it, the OAuth consent screen your users see during authorization displays `yourapp.scalekit.com` — Scalekit's default domain — instead of your own brand. This section should be completed before you test any end-to-end auth flows in production.
+Configuring a custom domain is the highest-impact step for MCP auth. Without it, the OAuth consent screen your users see during authorization displays `yourapp.scalekit.com` (Scalekit's default domain) instead of your own brand. Complete this section before you test any end-to-end auth flows in production.
 
 <CheckItem iconName="approve-check-circle"> **Configure a custom domain in the Scalekit dashboard** </CheckItem>
 
@@ -31,7 +31,7 @@ Go to **Dashboard > Customization > Custom Domain** and follow the CNAME setup i
 
 <CheckItem iconName="approve-check-circle"> **Verify SSL certificate provisioning** </CheckItem>
 
-After CNAME verification, Scalekit automatically provisions an SSL certificate. Click **Check** in **Dashboard > Customization > Custom Domain** to confirm status. Provisioning can take up to 24 hours — contact [support@scalekit.com](mailto:support@scalekit.com) if it takes longer.
+After CNAME verification, Scalekit automatically provisions an SSL certificate. Click **Check** in **Dashboard > Customization > Custom Domain** to confirm status. Provisioning can take up to 24 hours. Contact [support@scalekit.com](mailto:support@scalekit.com) if it takes longer.
 
 <CheckItem iconName="approve-check-circle"> **Update customer-facing authorization URLs to use your custom domain** </CheckItem>
 
@@ -39,7 +39,7 @@ Backend API calls work with either URL, but the authorization URL and any other 
 
 <CheckItem iconName="approve-check-circle"> **Confirm the consent screen shows your branded domain** </CheckItem>
 
-Open an incognito window, trigger an authorization flow, and verify the OAuth consent screen shows your custom domain (for example, `auth.yourapp.com`) — not the default Scalekit URL.
+Open an incognito window, trigger an authorization flow, and verify the OAuth consent screen shows your custom domain (for example, `auth.yourapp.com`) and not the default Scalekit URL.
 
 ## Consent screen branding
 
@@ -53,7 +53,7 @@ When registering your MCP server in **Dashboard > MCP Servers**, provide a name 
 
 ## Bring your own auth (if applicable)
 
-If you are using a federated authentication setup — where Scalekit acts as the OAuth 2.1 layer but delegates user authentication to your existing system — verify these additional items.
+If you are using a federated authentication setup where Scalekit acts as the OAuth 2.1 layer but delegates user authentication to your existing system, verify these additional items.
 
 <CheckItem iconName="approve-check-circle"> **Configure your login endpoint URL in the Scalekit dashboard** </CheckItem>
 
@@ -69,7 +69,7 @@ After authenticating a user, your system POSTs user attributes to Scalekit at `/
 
 <CheckItem iconName="approve-check-circle"> **Verify the state parameter in your callback redirect** </CheckItem>
 
-After the user handoff, your system redirects back to Scalekit's callback URL with the `state` value from step 1. Confirm the values match exactly — mismatched state is silently rejected and breaks the flow.
+After the user handoff, your system redirects back to Scalekit's callback URL with the `state` value from step 1. Confirm the values match exactly. Mismatched state is silently rejected and breaks the flow.
 
 <CheckItem iconName="approve-check-circle"> **Test the complete federated flow end-to-end** </CheckItem>
 
@@ -79,7 +79,7 @@ Trigger a full authorization flow from an MCP client through your login page, th
 
 <CheckItem iconName="approve-check-circle"> **Test the human → MCP authorization flow end-to-end** </CheckItem>
 
-After CNAME and branding are configured, trigger a complete authorization code flow — from the initial tool call through the `401` challenge, consent screen, token exchange, and authorized response. Run this in production with your live credentials.
+After CNAME and branding are configured, trigger a complete authorization code flow: from the initial tool call through the `401` challenge, consent screen, token exchange, and authorized response. Run this in production with your live credentials.
 
 <CheckItem iconName="approve-check-circle"> **Test the agent → MCP client credentials flow** </CheckItem>
 
