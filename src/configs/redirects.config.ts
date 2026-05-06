@@ -290,6 +290,16 @@ export const redirects = {
     '/guides/integrations/social-connections/salesforce/',
 
   // =============================================================================
+  // OAUTH / OIDC DISCOVERY REDIRECTS
+  // =============================================================================
+
+  // Publish discovery endpoints so agents can find auth metadata programmatically.
+  // Both paths point to the same OIDC document (superset of OAuth AS metadata).
+  '/.well-known/openid-configuration': 'https://auth.scalekit.com/.well-known/openid-configuration',
+  '/.well-known/oauth-authorization-server':
+    'https://auth.scalekit.com/.well-known/openid-configuration',
+
+  // =============================================================================
   // GENERAL / OTHER REDIRECTS
   // =============================================================================
 
@@ -357,9 +367,24 @@ export const redirects = {
   '/dev-kit/changelogs/java/version/v1-0-1': '/sdks/java/',
   '/dev-kit/changelogs/go/version/v1-0-4': '/sdks/go/',
 
-  // managing-providers renamed to managing-connectors
+  // bring-your-own-connector page renames
   '/agentkit/bring-your-own-connector/managing-providers':
-    '/agentkit/bring-your-own-connector/managing-connectors/',
+    '/agentkit/bring-your-own-connector/create-connector/',
+  '/agentkit/bring-your-own-connector/managing-connectors':
+    '/agentkit/bring-your-own-connector/create-connector/',
+  '/agentkit/bring-your-own-connector/auth-types-and-patterns':
+    '/agentkit/bring-your-own-connector/create-connector/',
+  '/agentkit/bring-your-own-connector/using-tool-proxy':
+    '/agentkit/bring-your-own-connector/making-tool-calls/',
+
+  // Legacy framework pages moved to /agentkit/examples/
+  '/agentkit/frameworks': '/agentkit/examples/',
+  '/agentkit/frameworks/anthropic': '/agentkit/examples/anthropic/',
+  '/agentkit/frameworks/langchain': '/agentkit/examples/langchain/',
+  '/agentkit/frameworks/google-adk': '/agentkit/examples/google-adk/',
+  '/agentkit/frameworks/mastra': '/agentkit/examples/mastra/',
+  '/agentkit/frameworks/openai': '/agentkit/examples/openai/',
+  '/agentkit/frameworks/vercel-ai': '/agentkit/examples/vercel-ai/',
 
   // Agent connectors redirects
   '/reference/agent-connectors/[...slug]': '/agentkit/connectors/[...slug]',

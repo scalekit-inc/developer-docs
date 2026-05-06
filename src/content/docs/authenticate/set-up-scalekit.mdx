@@ -287,7 +287,7 @@ Before you begin, create a Scalekit account if you haven't already. After creati
 
 ## Set up Scalekit MCP Server <Badge text="Optional" />
 
-Scalekit's Model Context Protocol (MCP) server connects your AI coding assistants to Scalekit. Manage environments, organizations, users, and authentication through natural language queries in Claude, Cursor, Windsurf, and other MCP-compatible tools.
+Scalekit's Model Context Protocol (MCP) server connects your AI coding assistants to Scalekit. Manage environments, organizations, users, and authentication through natural language queries in your MCP client.
 
 The MCP server provides AI assistants with tools for environment management, organization and user management, authentication connection setup, role administration, and admin portal access. It uses OAuth 2.1 authentication to securely connect your AI tools to your Scalekit workspace.
 
@@ -297,44 +297,28 @@ If you're building your own MCP server and need to add OAuth-based authorization
 
 ### Configure your MCP client
 
-Based on your MCP client, follow the configuration instructions below:
+Use the most common client configs below. For the full list of supported MCP hosts and editor setups, see the [Scalekit MCP server guide](/dev-kit/ai-assisted-development/scalekit-mcp-server/).
 
 <Tabs>
-<TabItem value="claude" label="Claude Desktop">
+<TabItem value="claude-code" label="Claude Code">
 
-1. Open the Claude Desktop app, go to Settings, then Developer
-2. Click Edit Config
-3. Open the `claude_desktop_config.json` file
-4. Copy and paste the server config to your existing file, then save
-5. Restart Claude
+Run this command in your terminal:
 
-```json
-{
-  "mcpServers": {
-    "scalekit": {
-      "command": "npx",
-      "args": ["-y", "mcp-remote", "https://mcp.scalekit.com/"]
-    }
-  }
-}
+```bash title="Terminal"
+claude mcp add --transport http scalekit https://mcp.scalekit.com/
 ```
 
 </TabItem>
 
 <TabItem value="cursor" label="Cursor">
 
-1. Open Cursor, go to Settings, then Cursor Settings
-2. Select MCP on the left
-3. Click Add "New Global MCP Server" at the top right
-4. Copy and paste the server config to your existing file, then save
-5. Restart Cursor
+Edit `~/.cursor/mcp.json`, or open **Cursor Settings → MCP → Add New Global MCP Server** and paste the config:
 
-```json
+```json title="~/.cursor/mcp.json" showLineNumbers=false
 {
   "mcpServers": {
     "scalekit": {
-      "command": "npx",
-      "args": ["-y", "mcp-remote", "https://mcp.scalekit.com/"]
+      "url": "https://mcp.scalekit.com/"
     }
   }
 }
@@ -342,36 +326,25 @@ Based on your MCP client, follow the configuration instructions below:
 
 </TabItem>
 
-<TabItem value="windsurf" label="Windsurf">
+<TabItem value="codex" label="Codex">
 
-1. Open Windsurf, go to Settings, then Developer
-2. Click Edit Config
-3. Open the `windsurf_config.json` file
-4. Copy and paste the server config to your existing file, then save
-5. Restart Windsurf
+Run this command in your terminal:
 
-```json
-{
-  "mcpServers": {
-    "scalekit": {
-      "command": "npx",
-      "args": ["-y", "mcp-remote", "https://mcp.scalekit.com/"]
-    }
-  }
-}
+```bash title="Terminal"
+codex mcp add scalekit --url https://mcp.scalekit.com/
 ```
 
 </TabItem>
 
-<TabItem value="vscode" label="VS Code (1.101+)">
+<TabItem value="opencode" label="OpenCode">
 
-VS Code version 1.101 or greater supports OAuth natively. Configure the MCP server directly without the `mcp-remote` proxy:
+Edit `opencode.json` in your project root:
 
-```json
+```json title="opencode.json" showLineNumbers=false
 {
-  "servers": {
+  "mcp": {
     "scalekit": {
-      "type": "http",
+      "type": "remote",
       "url": "https://mcp.scalekit.com/"
     }
   }
@@ -384,7 +357,7 @@ VS Code version 1.101 or greater supports OAuth natively. Configure the MCP serv
 After configuration, your MCP client will initiate an OAuth authorization workflow to securely connect to Scalekit's MCP server.
 
 <Aside type="note">
-The Scalekit MCP server source code is available on [GitHub](https://github.com/scalekit-inc/mcp). Feel free to explore the code, raise issues, or contribute new tools.
+For Claude Desktop, VS Code, Windsurf, Gemini CLI, Kiro, Warp, Zed, and other hosts, use the full [Scalekit MCP server guide](/dev-kit/ai-assisted-development/scalekit-mcp-server/).
 </Aside>
 
 ## Configure code editors for Scalekit documentation

@@ -16,6 +16,7 @@ import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/salesforce'
 import { SetupSalesforceSection } from '@components/templates'
 import { UsageSalesforceSection } from '@components/templates'
+import { SectionAfterToolListSalesforceMetadataApiSoap } from '@components/templates'
 
 ## What you can do
 
@@ -26,12 +27,15 @@ Connect this agent connector to let your agent:
 - **Log activities** — create tasks and events linked to any CRM record
 - **Run SOQL queries** — execute arbitrary Salesforce Object Query Language queries for custom data retrieval
 - **Search across objects** — find records by name, email, phone, or any field value
+- **Call the Metadata API** — use [SOAP proxy calls](#call-the-metadata-api-through-soap-proxy) to inspect and modify Salesforce org metadata
 
 ## Authentication
 
 This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to Salesforce, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
 
 You supply your Salesforce **Connected App** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.
+
+Before calling this connector from your code, create the Salesforce connection in **AgentKit** > **Connections** and copy the exact **Connection name** from that connection into your code. The value in code must match the dashboard exactly.
 
 <details>
 <summary>Set up the connector</summary>
@@ -49,4 +53,10 @@ You supply your Salesforce **Connected App** credentials (Client ID + Secret) on
 
 ## Tool list
 
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
 <ToolList tools={tools} />
+
+## Call the Metadata API through SOAP proxy
+
+<SectionAfterToolListSalesforceMetadataApiSoap />

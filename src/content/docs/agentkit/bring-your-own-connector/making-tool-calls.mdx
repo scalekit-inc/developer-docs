@@ -1,0 +1,230 @@
+---
+title: Making tool calls
+description: Make tool calls using a REST API connector via Tool Proxy, or discover and execute tools from a custom MCP connector.
+tags: [agentauth, connectors, proxy, api, guide]
+sidebar:
+  label: "Making tool calls"
+tableOfContents:
+  maxHeadingLevel: 3
+prev:
+  label: "Create a connector"
+  link: "/agentkit/bring-your-own-connector/create-connector"
+next:
+  label: "Custom domain"
+  link: "/agentkit/advanced/custom-domain"
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+Use this page to make tool calls after the connector, connection, and connected account are set up.
+
+The call method depends on the connector type:
+
+- **REST API connectors** — use `actions.request()` to proxy HTTP calls through Tool Proxy
+- **MCP connectors** — use `list_scoped_tools` to discover available tools, then `execute_tool` to call them
+
+Both types use the same connection, connected account, and user authorization model.
+
+## Prerequisites
+
+Make sure:
+
+- The connector exists and is configured with the right [auth pattern](/agentkit/bring-your-own-connector/create-connector)
+- A [connection](/agentkit/connections) is configured for the connector
+- The [connected account](/agentkit/connected-accounts) exists
+- The user has completed [authorization](/agentkit/tools/authorize)
+
+Create a connection for your connector in the Scalekit Dashboard:
+
+![Connections page showing a custom connector connection alongside built-in connectors](@/assets/docs/agentkit/bring-your-own-connector/custom-provider-connection.png)
+
+After the user completes authorization, the connected account appears in the Connected Accounts tab:
+
+![Connected Accounts tab showing an authenticated account for a custom connector](@/assets/docs/agentkit/bring-your-own-connector/custom-provider-connected-account.png)
+
+## REST API proxy calls
+
+In the request examples below, `path` is relative to the connector `proxy_url`. `connectionName` must match the connection you created, and `identifier` must match the connected account you want to use for the request.
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js">
+
+```typescript
+import { ScalekitClient } from '@scalekit-sdk/node';
+import 'dotenv/config';
+
+const connectionName = 'your-provider-connection'; // get your connection name from connection configurations
+const identifier = 'user_123'; // your unique user identifier
+
+// Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+const scalekit = new ScalekitClient(
+  process.env.SCALEKIT_ENV_URL,
+  process.env.SCALEKIT_CLIENT_ID,
+  process.env.SCALEKIT_CLIENT_SECRET
+);
+const actions = scalekit.actions;
+
+// Authenticate the user
+const { link } = await actions.getAuthorizationLink({
+  connectionName,
+  identifier,
+});
+console.log('Authorize connector:', link);
+process.stdout.write('Press Enter after authorizing...');
+await new Promise(r => process.stdin.once('data', r));
+
+// Make a request via Scalekit proxy
+const result = await actions.request({
+  connectionName,
+  identifier,
+  path: '/v1/customers',
+  method: 'GET',
+});
+console.log(result);
+```
+
+</TabItem>
+<TabItem label="Python">
+
+```python
+import scalekit.client, os
+from dotenv import load_dotenv
+load_dotenv()
+
+connection_name = "your-provider-connection"  # get your connection name from connection configurations
+identifier = "user_123"  # your unique user identifier
+
+# Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+scalekit_client = scalekit.client.ScalekitClient(
+    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+    env_url=os.getenv("SCALEKIT_ENV_URL"),
+)
+actions = scalekit_client.actions
+
+# Authenticate the user
+link_response = actions.get_authorization_link(
+    connection_name=connection_name,
+    identifier=identifier
+)
+# present this link to your user for authorization, or click it yourself for testing
+print("Authorize connector:", link_response.link)
+input("Press Enter after authorizing...")
+
+# Make a request via Scalekit proxy
+result = actions.request(
+    connection_name=connection_name,
+    identifier=identifier,
+    path="/v1/customers",
+    method="GET"
+)
+print(result)
+```
+
+</TabItem>
+</Tabs>
+
+The request shape stays the same regardless of auth type — the connector definition controls how Scalekit authenticates the call.
+
+## MCP tool calling
+
+MCP connectors expose tools from the upstream MCP server. Discover the available tools, then execute them by name.
+
+<details>
+<summary>Discover available tools (optional)</summary>
+
+If you already know the tool names from the Scalekit Dashboard, you can skip this step.
+
+Call `list_scoped_tools` with the connection name to see which tools the MCP server exposes for a given user.
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js">
+
+```typescript
+import { ScalekitClient } from '@scalekit-sdk/node';
+import 'dotenv/config';
+
+const scalekit = new ScalekitClient(
+  process.env.SCALEKIT_ENV_URL,
+  process.env.SCALEKIT_CLIENT_ID,
+  process.env.SCALEKIT_CLIENT_SECRET
+);
+
+const connectionName = 'your-mcp-connection'; // connection name from Scalekit Dashboard
+const identifier = 'user_123'; // your unique user identifier
+
+const scoped = await scalekit.tools.listScopedTools(identifier, {
+  filter: { connectionNames: [connectionName] },
+  pageSize: 100,
+});
+
+const toolNames = scoped.tools?.map((st) => st.tool?.definition?.name) ?? [];
+console.log('Available tools:', toolNames);
+```
+
+</TabItem>
+<TabItem label="Python">
+
+```python
+import scalekit.client, os
+from dotenv import load_dotenv
+load_dotenv()
+
+scalekit_client = scalekit.client.ScalekitClient(
+    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+    env_url=os.getenv("SCALEKIT_ENV_URL"),
+)
+
+connection_name = "your-mcp-connection"  # connection name from Scalekit Dashboard
+identifier = "user_123"  # your unique user identifier
+
+response, _ = scalekit_client.tools.list_scoped_tools(
+    identifier=identifier,
+    filter={"connection_names": [connection_name]},
+    page_size=100,
+)
+
+tool_names = [scoped_tool.tool.definition["name"] for scoped_tool in response.tools]
+print("Available tools:", tool_names)
+```
+
+</TabItem>
+</Tabs>
+
+</details>
+
+Call `execute_tool` with the connection name, identifier, and any tool-specific input.
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js">
+
+```typescript
+const actions = scalekit.actions;
+
+const result = await actions.executeTool({
+  toolName: 'tool_name_from_discovery', // replace with a name from list_scoped_tools
+  connector: 'your-mcp-connection',
+  identifier: 'user_123',
+  toolInput: { key: 'value' }, // replace with the tool's required input
+});
+console.log(result);
+```
+
+</TabItem>
+<TabItem label="Python">
+
+```python
+actions = scalekit_client.actions
+
+result = actions.execute_tool(
+    tool_name="tool_name_from_discovery",  # replace with a name from list_scoped_tools
+    connection_name="your-mcp-connection",
+    identifier="user_123",
+    tool_input={"key": "value"},  # replace with the tool's required input
+)
+print(result)
+```
+
+</TabItem>
+</Tabs>

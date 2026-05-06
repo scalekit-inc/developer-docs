@@ -18,7 +18,7 @@ This guide covers everything you need to go from zero to a merged pull request.
   - [Describe overridden components](#describe-overridden-components)
   - [Describe custom components](#describe-custom-components)
 - [Write and edit docs](#write-and-edit-docs)
-  - [Maintain Agent connector docs](#maintain-agent-connector-docs)
+  - [Maintain agent connector docs](#maintain-agent-connector-docs)
 - [Raise a pull request](#raise-a-pull-request)
 - [Report an issue](#report-an-issue)
 - [Get help](#get-help)
@@ -211,16 +211,21 @@ Additional component groups:
 
 All documentation pages live in `src/content/`. They are `.mdx` files (Markdown + JSX).
 
-### Maintain Agent connector docs
+### Maintain agent connector docs
 
 Agent connector docs use a generated workflow, not fully hand-written pages.
 
 - `pnpm run sync-agent-connectors` fetches production connector metadata and regenerates the connector docs under `src/content/docs/agentkit/connectors/`
 - Add setup instructions through `src/components/templates/agent-connectors/_setup-<slug>.mdx`
 - Add optional code examples through `src/components/templates/agent-connectors/_usage-<slug>.mdx`
-- Read `project-docs/SYNC_AGENT_CONNECTORS.md` before running the sync or reviewing the generated diff
+- Add custom connector sections through `src/components/templates/agent-connectors/_section-<hook>-<slug>-<topic>.mdx`
+- Read the [Sync agent connectors guide](project-docs/SYNC_AGENT_CONNECTORS.md) before running the sync or reviewing the generated diff
 
-The long-form guide explains prerequisites, required `PROD_*` env vars, expected diffs, and what to do when generated connector content disappears.
+Use custom sections only when authored content does not fit setup instructions or code examples. Supported hooks include `after-authentication`, `after-setup`, `after-usage`, `before-tool-list`, and `after-tool-list`.
+
+If a custom section needs a table-of-contents entry, export `sectionTitle` from the section template and omit the duplicate `##` heading from the component body. The sync script emits that title as a real heading in the generated connector page.
+
+The long-form guide explains prerequisites, required `PROD_*` env vars, supported custom section hooks, expected diffs, and what to do when generated connector content disappears.
 
 ### Frontmatter
 

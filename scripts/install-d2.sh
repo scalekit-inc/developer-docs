@@ -29,10 +29,10 @@ case "$ARCH" in
     ;;
 esac
 
-# Map OS names
+# Map OS names (upstream uses "macos" for Darwin starting in v0.7.x)
 case "$OS" in
   Darwin)
-    OS="darwin"
+    OS="macos"
     ;;
   Linux)
     OS="linux"
