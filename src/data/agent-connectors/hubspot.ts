@@ -691,7 +691,7 @@ export const tools: Tool[] = [
   {
     name: 'hubspot_ticket_create',
     description:
-      'Create a new support ticket in HubSpot. Use `hubspot_deal_pipelines_list` with `object_type: tickets` to find valid pipeline and stage IDs.',
+      'Create a new support ticket in HubSpot. Use `hubspot_deal_pipelines_list` to inspect pipeline definitions and resolve valid pipeline and stage IDs for tickets.',
     params: [
       {
         name: 'subject',
