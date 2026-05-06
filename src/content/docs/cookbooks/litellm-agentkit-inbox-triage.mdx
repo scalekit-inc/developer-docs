@@ -1,6 +1,6 @@
 ---
 title: 'Triage a Gmail inbox with AgentKit and the LiteLLM gateway'
-description: 'Run an end-to-end Node.js sample that classifies inbound mail, routes threads to GitHub repos, drafts issues and replies through Scalekit-hosted LiteLLM, and waits for human approval before side effects.'
+description: 'Run an end-to-end Node.js sample that classifies inbound mail, routes threads to GitHub repos, drafts issues and replies through an OpenAI-compatible LiteLLM gateway (LITELLM_BASE_URL from LLM Gateway), and waits for human approval before side effects.'
 date: 2026-05-06
 tags: ['Agent auth', 'Gmail', 'GitHub', 'Slack', 'LiteLLM']
 sidebar:
@@ -18,7 +18,7 @@ authors:
 
 import { Aside, Steps } from '@astrojs/starlight/components';
 
-This recipe points at a **TypeScript / Node.js** sample that combines **Scalekit AgentKit** (Gmail, GitHub, and Slack connectors) with the **Scalekit-hosted LiteLLM gateway** at `llm.scalekit.cloud`. You get a credible evaluation path: real OAuth, real tool execution, and **human-in-the-loop** approval before any GitHub issue or outbound email is created.
+This recipe points at a **TypeScript / Node.js** sample that combines **Scalekit AgentKit** (Gmail, GitHub, and Slack connectors) with an **OpenAI-compatible LiteLLM gateway**. Set **`LITELLM_BASE_URL`** from your project’s **LLM Gateway** in the dashboard (the sample never hard-codes a host). You get a credible evaluation path: real OAuth, real tool execution, and **human-in-the-loop** approval before any GitHub issue or outbound email is created.
 
 The sample repository is **[litellm-agentkit-inbox-triage](https://github.com/scalekit-developers/litellm-agentkit-inbox-triage)** on GitHub. Clone it, configure Scalekit connections plus a virtual LiteLLM API key, run one process, complete three connector authorizations in your terminal, then drive the flow from a browser.
 
@@ -97,11 +97,11 @@ Read the repository **[README](https://github.com/scalekit-developers/litellm-ag
 ## 3. Create a LiteLLM virtual key and verify the gateway
 
 1. In the Scalekit dashboard, open **LLM Gateway** and create a **virtual API key** (optionally set a small budget cap for evaluation).
-2. Sanity-check the gateway:
+2. Sanity-check the gateway (use the same `LITELLM_API_KEY` and `LITELLM_BASE_URL` you will put in `.env`; load them first, for example `set -a && source .env && set +a`):
 
    ```bash
    curl -H "Authorization: Bearer $LITELLM_API_KEY" \
-        https://llm.scalekit.cloud/v1/models
+        "$LITELLM_BASE_URL/v1/models"
    ```
 
 3. Align `routing.yaml` → `models:` with the model IDs returned by that endpoint.
@@ -136,12 +136,12 @@ The repository **[COOKBOOK.md](https://github.com/scalekit-developers/litellm-ag
 | Connections | [Configure a connection](/agentkit/connections/) |
 | Authorization links | [Authorize a user](/agentkit/tools/authorize/) |
 | Connected accounts | [Manage connected accounts](/agentkit/connected-accounts/) |
-| OpenAI-style gateway usage (pattern) | See env discussion in [GitHub PR summarizer](/cookbooks/render-github-pr-summarizer/) — same `openai` client + `baseURL` idea; this sample targets `llm.scalekit.cloud` |
+| OpenAI-style gateway usage (pattern) | See env discussion in [GitHub PR summarizer](/cookbooks/render-github-pr-summarizer/) — same `openai` client + `baseURL` idea; point `LITELLM_BASE_URL` at whatever host your **LLM Gateway** shows |
 
 ## Troubleshooting
 
 - **Wrong connection name** — Symptoms look like random tool failures. Fix the three `*_CONNECTION_NAME` variables to match the dashboard strings exactly.
 - **GitHub permission errors** — Re-check OAuth scopes for private repositories (see step 2).
-- **Unknown model errors** — Re-run the `/v1/models` curl check and update `routing.yaml`.
+- **Unknown model errors** — Re-run the `curl "$LITELLM_BASE_URL/v1/models"` check and update `routing.yaml`.
 
 For deeper debugging patterns, see [Authentication troubleshooting](/agentkit/authentication/troubleshooting/).
