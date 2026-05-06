@@ -7,9 +7,9 @@
 
 [functions]
   directory = "netlify/functions"
+  # Bundles Functions 1.x with esbuild. The SSR function (Functions 2.0) is
+  # bundled separately by the Netlify adapter and is not affected by this setting.
   node_bundler = "esbuild"
-  # Ensure Functions 2.0 format is used
-  included_files = ["netlify/functions/**"]
 
 # Local dev: same as `pnpm run start` — `NETLIFY_DEV=1 astro dev` on port 4321.
 # Declare `command` + `targetPort` so Netlify Dev matches astro.config server settings.
@@ -21,7 +21,15 @@
   path = "/*"
   function = "track-agents"
 
-# LLM-friendly files: fresh but cacheable (1 hour)
+# Astro emits content-hashed filenames for all JS/CSS bundles — safe to cache permanently.
+# The hash changes whenever content changes, so immutable is correct here.
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# LLM index files — 1h fresh, 24h stale. All four rules below are intentionally identical;
+# Netlify TOML requires a separate [[headers]] block per path pattern.
 [[headers]]
   for = "/llms.txt"
   [headers.values]

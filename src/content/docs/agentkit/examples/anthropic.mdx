@@ -110,6 +110,7 @@ Fetch tools scoped to this user, then run the full Claude tool-use loop:
 scoped_response, _ = actions.tools.list_scoped_tools(
     identifier="user_123",
     filter={"connection_names": ["gmail"]},
+    page_size=100,  # fetch beyond the default page so no connector tools are missed
 )
 llm_tools = [
     {
@@ -157,6 +158,7 @@ while True:
 // Fetch tools scoped to this user
 const { tools } = await scalekit.tools.listScopedTools('user_123', {
   filter: { connectionNames: ['gmail'] },
+  pageSize: 100, // fetch beyond the default page so no connector tools are missed
 });
 const llmTools = tools.map(t => ({
   name: t.tool.definition.name,

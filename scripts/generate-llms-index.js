@@ -3,12 +3,13 @@
  * Postbuild script: overwrite dist/llms.txt with a complete llmstxt.org-format index.
  *
  * This runs after `astro build` so it overwrites the starlight-llms-txt plugin output.
- * Purpose: add individual page URLs so AI crawlers (e.g. afdocs) can verify full coverage.
+ * Purpose: add individual page URLs so AI crawlers can verify full coverage and navigate
+ * directly to the right page without loading full topic sets.
  *
  * Usage: node scripts/generate-llms-index.js
  */
 
-import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs'
+import { readFile, writeFile, readdir } from 'node:fs/promises'
 import { join, relative, extname, basename } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -28,7 +29,12 @@ const CUSTOM_SETS = [
   {
     label: 'Agent Authentication',
     slug: 'agentkit',
-    desc: 'AI agents, OAuth token vault, tool calling, connectors',
+    desc: 'AI agents, OAuth token vault, tool calling, connectors, framework integrations',
+  },
+  {
+    label: 'AgentKit Frameworks',
+    slug: 'agentkit-frameworks',
+    desc: 'framework-specific integration guides — LangChain, Vercel AI, Anthropic, OpenAI, Google ADK, Mastra, Claude Managed Agents',
   },
   {
     label: 'MCP Authentication',
@@ -60,7 +66,7 @@ const CUSTOM_SETS = [
 
 /**
  * Parse YAML frontmatter from a markdown/mdx file.
- * Returns { title, description, draft } — all other fields ignored.
+ * Returns { title, description, draft, sidebarHidden } — all other fields ignored.
  */
 function parseFrontmatter(content) {
   const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/)
@@ -70,29 +76,29 @@ function parseFrontmatter(content) {
     const m = fm.match(new RegExp(`^${key}:\\s*['"]?(.+?)['"]?\\s*$`, 'm'))
     return m ? m[1].trim() : undefined
   }
+  // Detect sidebar: { hidden: true } — multi-line YAML: "sidebar:\n  hidden: true"
+  const sidebarHidden = /^sidebar:\s*\n(?:[ \t]+\S[^\n]*\n)*?[ \t]+hidden:\s*true/m.test(fm)
   return {
     title: get('title'),
     description: get('description'),
     draft: get('draft') === 'true',
+    sidebarHidden,
   }
 }
 
 /**
- * Walk a directory recursively and return all .md/.mdx file paths.
+ * Walk a directory recursively and yield all .md/.mdx file paths.
  */
-function walk(dir) {
-  const results = []
-  for (const entry of readdirSync(dir)) {
-    const full = join(dir, entry)
-    const stat = statSync(full)
-    if (stat.isDirectory()) {
-      results.push(...walk(full))
-    } else {
-      const ext = extname(entry)
-      if (ext === '.md' || ext === '.mdx') results.push(full)
+async function* walk(dir) {
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name)
+    if (entry.isDirectory()) {
+      yield* walk(full)
+    } else if (entry.isFile()) {
+      const ext = extname(entry.name)
+      if (ext === '.md' || ext === '.mdx') yield full
     }
   }
-  return results
 }
 
 /**
@@ -101,35 +107,138 @@ function walk(dir) {
  */
 function fileToUrlPath(filePath) {
   let rel = relative(DOCS_DIR, filePath)
-  // Remove extension
   rel = rel.replace(/\.(mdx?|md)$/, '')
-  // Normalize separators
   rel = rel.replace(/\\/g, '/')
-  // Remove trailing /index
   if (rel === 'index' || rel.endsWith('/index')) {
     rel = rel.slice(0, -'index'.length).replace(/\/$/, '')
   }
   return rel ? `/${rel}/` : '/'
 }
 
+function mdUrl(urlPath) {
+  return `${BASE_URL}${urlPath.replace(/\/$/, '')}.md`
+}
+
+function formatEntry({ urlPath, title, description }) {
+  return description
+    ? `- [${title}](${mdUrl(urlPath)}): ${description}`
+    : `- [${title}](${mdUrl(urlPath)})`
+}
+
 // --- Collect all docs ---
-const allFiles = walk(DOCS_DIR)
+const reads = []
+for await (const file of walk(DOCS_DIR)) {
+  reads.push(readFile(file, 'utf8').then((content) => ({ file, content })))
+}
+const allFiles = await Promise.all(reads)
 
 const pages = []
-for (const file of allFiles) {
-  const content = readFileSync(file, 'utf8')
-  const { title, description, draft } = parseFrontmatter(content)
-  if (draft) continue
+for (const { file, content } of allFiles) {
+  const { title, description, draft, sidebarHidden } = parseFrontmatter(content)
+  if (draft || sidebarHidden) continue
   const urlPath = fileToUrlPath(file)
   pages.push({ file, urlPath, title: title || basename(file), description: description || '' })
 }
 
-// Sort: root first, then alphabetically by path
-pages.sort((a, b) => {
-  if (a.urlPath === '/') return -1
-  if (b.urlPath === '/') return 1
-  return a.urlPath.localeCompare(b.urlPath)
-})
+// --- Classify pages into named sections for grouped output ---
+
+// AgentKit sub-sections — ordered by relevance for agent queries
+const AGENTKIT_SUBS = [
+  '/agentkit/examples/',
+  '/agentkit/tools/',
+  '/agentkit/mcp/',
+  '/agentkit/authentication/',
+  '/agentkit/bring-your-own-connector/',
+  '/agentkit/advanced/',
+  '/agentkit/connectors/',
+  '/agentkit/sdks/',
+]
+
+const AGENTKIT_SECTIONS = [
+  {
+    heading: 'AgentKit — Getting Started',
+    match: (p) => p.startsWith('/agentkit/') && !AGENTKIT_SUBS.some((x) => p.startsWith(x)),
+  },
+  {
+    heading: 'AgentKit — Examples & Framework Integrations (load for framework-specific questions)',
+    match: (p) => p.startsWith('/agentkit/examples/'),
+  },
+  { heading: 'AgentKit — SDKs', match: (p) => p.startsWith('/agentkit/sdks/') },
+  { heading: 'AgentKit — Tools', match: (p) => p.startsWith('/agentkit/tools/') },
+  { heading: 'AgentKit — MCP Integration', match: (p) => p.startsWith('/agentkit/mcp/') },
+  { heading: 'AgentKit — Authentication', match: (p) => p.startsWith('/agentkit/authentication/') },
+  {
+    heading: 'AgentKit — Custom Connectors',
+    match: (p) => p.startsWith('/agentkit/bring-your-own-connector/'),
+  },
+  { heading: 'AgentKit — Advanced', match: (p) => p.startsWith('/agentkit/advanced/') },
+  {
+    // Connectors last — 100+ entries, rarely needed for integration questions
+    heading: 'AgentKit — Connectors (100+ pre-built integrations)',
+    match: (p) => p.startsWith('/agentkit/connectors/'),
+  },
+]
+
+// Top-level sections for non-AgentKit pages
+const OTHER_SECTIONS = [
+  {
+    heading: 'MCP Authentication',
+    match: (p) => p.startsWith('/authenticate/mcp/') || p.startsWith('/mcp/'),
+  },
+  {
+    heading: 'SaaSKit / Full Stack Auth',
+    match: (p) => p.startsWith('/authenticate/fsa/') || p.startsWith('/fsa/'),
+  },
+  {
+    heading: 'Enterprise SSO',
+    match: (p) => p.startsWith('/authenticate/sso/') || p.startsWith('/sso/'),
+  },
+  { heading: 'SCIM Provisioning', match: (p) => p.startsWith('/directory/') },
+  { heading: 'Machine-to-Machine Auth', match: (p) => p.startsWith('/authenticate/m2m/') },
+  { heading: 'User & Org Management', match: (p) => p.startsWith('/authenticate/manage') },
+  {
+    heading: 'SDK & API Reference',
+    match: (p) => p.startsWith('/reference/') || p.startsWith('/dev-kit/sdks/'),
+  },
+  {
+    heading: 'Cookbooks & Examples',
+    match: (p) => p.startsWith('/cookbooks/') || p.startsWith('/resources/'),
+  },
+  {
+    heading: 'Developer Kit & AI-Assisted Development',
+    match: (p) => p.startsWith('/dev-kit/'),
+  },
+  { heading: 'Guides', match: (p) => p.startsWith('/guides/') },
+  { heading: 'Passwordless', match: (p) => p.startsWith('/passwordless/') },
+  { heading: 'Authentication Methods', match: (p) => p.startsWith('/authenticate/') },
+]
+
+function classifyPages(pages) {
+  const assigned = new Set()
+  const sections = []
+
+  for (const section of [...AGENTKIT_SECTIONS, ...OTHER_SECTIONS]) {
+    const matched = pages.filter(
+      (p) => !assigned.has(p.urlPath) && p.urlPath !== '/' && section.match(p.urlPath),
+    )
+    matched.sort((a, b) => a.urlPath.localeCompare(b.urlPath))
+    if (matched.length > 0) {
+      sections.push({ heading: section.heading, pages: matched })
+      matched.forEach((p) => assigned.add(p.urlPath))
+    }
+  }
+
+  const remaining = pages.filter((p) => !assigned.has(p.urlPath) && p.urlPath !== '/')
+  if (remaining.length > 0) {
+    remaining.sort((a, b) => a.urlPath.localeCompare(b.urlPath))
+    sections.push({ heading: 'Other pages', pages: remaining })
+  }
+
+  return sections
+}
+
+const classified = classifyPages(pages)
+const rootPage = pages.find((p) => p.urlPath === '/')
 
 // --- Build the llms.txt content ---
 const lines = [
@@ -140,7 +249,32 @@ const lines = [
   '## How to use',
   '',
   'When answering questions about Scalekit, load the most relevant documentation set below.',
+  'For framework-specific AgentKit questions, fetch the framework page directly — see "Framework routing" below.',
   'Use `llms-full.txt` only when exhaustive context is needed.',
+  '',
+  '## Product → Documentation routing',
+  '',
+  '- **AgentKit** (AI agents, tool calling, connectors) → load Agent Authentication set',
+  '- **AgentKit + specific framework** → fetch the framework page directly (see Framework routing below)',
+  '- **SaaSKit / FSA** (login, sessions, RBAC) → load SaaSKit Complete set',
+  '- **MCP Authentication** (OAuth 2.1 for MCP servers) → load MCP Authentication set',
+  '- **Enterprise SSO / SCIM** → load Enterprise SSO & SCIM set',
+  '- **M2M / API auth** → load Machine-to-Machine Auth set',
+  '- **Quickstarts** → load Quickstart Collection set',
+  '',
+  '## Framework routing (AgentKit)',
+  '',
+  'When a developer mentions a specific AI framework, fetch that page directly:',
+  '',
+  `- LangChain → ${BASE_URL}/agentkit/examples/langchain.md`,
+  `- Vercel AI SDK → ${BASE_URL}/agentkit/examples/vercel-ai.md`,
+  `- Anthropic SDK → ${BASE_URL}/agentkit/examples/anthropic.md`,
+  `- OpenAI Agents SDK → ${BASE_URL}/agentkit/examples/openai.md`,
+  `- Google ADK → ${BASE_URL}/agentkit/examples/google-adk.md`,
+  `- Mastra → ${BASE_URL}/agentkit/examples/mastra.md`,
+  `- Claude Managed Agents → ${BASE_URL}/agentkit/examples/claude-managed-agents.md`,
+  '',
+  `For all framework examples: ${BASE_URL}/agentkit/examples.md`,
   '',
   '## Documentation Sets',
   '',
@@ -155,18 +289,29 @@ const lines = [
   `- [API reference markdown](${BASE_URL}/apis.md): LLM-friendly Markdown from the Scalekit OpenAPI specification`,
   `- [OpenAPI Specification](${BASE_URL}/api/scalekit.scalar.json): OpenAPI Specification for Scalekit REST API`,
   '',
-  '## All documentation pages',
-  '',
 ]
 
-for (const { urlPath, title, description } of pages) {
-  const mdUrl = `${BASE_URL}${urlPath.replace(/\/$/, '')}.md`
-  lines.push(description ? `- [${title}](${mdUrl}): ${description}` : `- [${title}](${mdUrl})`)
+// Root page first
+if (rootPage) {
+  lines.push('## Home')
+  lines.push('')
+  lines.push(formatEntry(rootPage))
+  lines.push('')
+}
+
+// Grouped sections
+for (const { heading, pages: sectionPages } of classified) {
+  lines.push(`## ${heading}`)
+  lines.push('')
+  for (const page of sectionPages) {
+    lines.push(formatEntry(page))
+  }
+  lines.push('')
 }
 
 const output = lines.join('\n') + '\n'
-writeFileSync(OUT_FILE, output, 'utf8')
+await writeFile(OUT_FILE, output, 'utf8')
 
 console.log(
-  `[generate-llms-index] Wrote ${pages.length} pages to dist/llms.txt (${output.length} bytes)`,
+  `[generate-llms-index] Wrote ${pages.length} pages in ${classified.length} sections to dist/llms.txt (${output.length} bytes)`,
 )

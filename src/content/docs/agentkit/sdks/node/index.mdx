@@ -300,12 +300,12 @@ Lists all tools available in your workspace.
 
 #### listScopedTools
 
-Lists tools scoped to a specific user. Use this to fetch per-user tool schemas to pass to an LLM API.
+Lists tools scoped to a specific user. Use this for tool discovery because it returns pagination metadata such as `nextPageToken` and `totalSize`.
 
 <MethodParams label="Input schema" params={[
   { name: 'identifier', type: 'string', required: true, description: "User's connected account identifier" },
   { name: 'filter', type: 'ScopedToolFilter', required: false, description: 'Filter by providers, tool names, or connection names' },
-  { name: 'pageSize', type: 'number', required: false, description: 'Maximum tools per page (server default if omitted)' },
+  { name: 'pageSize', type: 'number', required: false, description: 'Maximum tools per page. Use 100 for discovery so connectors with more than the default page are not truncated.' },
   { name: 'pageToken', type: 'string', required: false, description: 'Opaque cursor from a previous list response' },
 ]} />
 
@@ -320,6 +320,7 @@ Lists tools scoped to a specific user. Use this to fetch per-user tool schemas t
 ```ts title="Example"
 const { tools } = await scalekit.tools.listScopedTools('user@example.com', {
   filter: { connectionNames: ['gmail'] },
+  pageSize: 100,
 });
 // Pass tools to your LLM's tool call API
 ```

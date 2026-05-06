@@ -21,16 +21,26 @@ import { UsageHubspotSection } from '@components/templates'
 
 Connect this agent connector to let your agent:
 
-- **Read CRM records** — retrieve contacts, companies, deals, and tickets
-- **Create and update records** — add contacts, update deal stages, and log company data
-- **Log engagements** — record calls, emails, meetings, and notes against any CRM record
-- **Search and filter** — query CRM objects by property values and associations
+- **Manage contacts** — create, update, list, and search contacts; batch-create up to 100 at once
+- **Manage companies** — create and update company records with industry, location, and revenue data
+- **Manage deals** — create deals, move them through pipeline stages, and search by any property
+- **Manage tickets** — create and update support tickets with priority and pipeline stage
+- **Log engagements** — record calls, meetings, notes, and emails against any CRM record
+- **Manage tasks** — create tasks with due dates and priorities, and mark them complete
+- **Work with products, line items, and quotes** — build out deal proposals end-to-end
+- **Manage custom objects** — create, update, and search records for any custom schema
+- **Access marketing data** — list forms, retrieve submissions, and inspect campaigns and email events
+- **Search and paginate** — full-text search and filter across all CRM object types
+- **Manage associations** — link any two CRM objects (e.g. associate a contact with a ticket)
+- **List owners and properties** — look up user IDs and discover all available fields per object type
 
 ## Authentication
 
 This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to HubSpot, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
 
 You supply your HubSpot **Connected App** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.
+
+Before calling this connector from your code, create the HubSpot connection in **AgentKit** > **Connections** and copy the exact **Connection name** from that connection into your code. The value in code must match the dashboard exactly.
 
 <details>
 <summary>Set up the connector</summary>
@@ -47,5 +57,7 @@ You supply your HubSpot **Connected App** credentials (Client ID + Secret) once 
 </details>
 
 ## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
 
 <ToolList tools={tools} />
