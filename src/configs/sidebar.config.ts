@@ -367,6 +367,10 @@ export const sidebar = [
           'authenticate/mcp/troubleshooting',
         ],
       },
+      {
+        label: 'Go live',
+        items: ['authenticate/mcp/launch-checklist'],
+      },
     ],
   },
   {
