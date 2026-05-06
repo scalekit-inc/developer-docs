@@ -1,10 +1,19 @@
 # GitHub CODEOWNERS file
 # Each line is a file pattern followed by one or more owners.
 # Owners will be automatically requested for review when someone opens a pull request.
+#
+# Order matters: the last matching pattern wins. Default is all three owners; *.mdx
+# narrows to amit and ravi (excludes saif for most MDX); connector MDX restores saif;
+# integrations/ stays last so jranaskit wins for that folder.
 
 # Default owners for everything in the repo
 * @saif-at-scalekit @amitash1912 @ravibits
 
+# Most MDX: exclude @saif-at-scalekit from review requests
+*.mdx @amitash1912 @ravibits
 
-# Folder specific owner
+# Exception: agentkit connector docs — include @saif-at-scalekit again
+/src/content/docs/agentkit/connectors/**/*.mdx @saif-at-scalekit @amitash1912 @ravibits
+
+# Folder specific owner (last so it takes precedence for this path)
 /src/content/docs/guides/integrations/ @jranaskit
