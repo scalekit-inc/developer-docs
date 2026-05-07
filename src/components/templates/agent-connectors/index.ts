@@ -1,3 +1,4 @@
+export { default as AgentKitCredentials } from './_agentkit-credentials.mdx'
 export { default as SetupAirtableSection } from './_setup-airtable.mdx'
 export { default as SetupApifymcpSection } from './_setup-apifymcp.mdx'
 export { default as SetupApolloSection } from './_setup-apollo.mdx'

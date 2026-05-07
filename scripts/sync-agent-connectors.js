@@ -729,6 +729,7 @@ function syncTemplateIndex(setupMap, usageMap, sectionEntries, connectedAccountM
         `export { default as ${componentName} } from './_quickstart-${stem}.${ext}'`,
     )
   const lines = [
+    `export { default as AgentKitCredentials } from './_agentkit-credentials.mdx'`,
     ...setupLines,
     ...connectedAccountLines,
     ...sectionLines,
@@ -992,15 +993,7 @@ function generateQuickstartSteps(
 
   lines.push('2. ### Set your credentials')
   lines.push('')
-  lines.push(
-    '   Add these to your environment. Find values in **[app.scalekit.com](https://app.scalekit.com)** > **Developers** > **API Credentials**.',
-  )
-  lines.push('')
-  lines.push('   ```bash frame="terminal"')
-  lines.push('   export SCALEKIT_ENV_URL="https://your-env.scalekit.com"')
-  lines.push('   export SCALEKIT_CLIENT_ID="..."')
-  lines.push('   export SCALEKIT_CLIENT_SECRET="..."')
-  lines.push('   ```')
+  lines.push('   <AgentKitCredentials />')
   lines.push('')
 
   let nextStep = 3
@@ -1098,6 +1091,7 @@ function generateMdxContent(provider, tools) {
   lines.push("import ToolList from '@/components/ToolList.astro'")
   lines.push(`import { tools } from '@/data/agent-connectors/${providerSlug}'`)
   lines.push("import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'")
+  lines.push("import { AgentKitCredentials } from '@components/templates'")
   const setupComponentName = getSetupComponent(SETUP_STEM_MAP, providerSlug)
   const sectionComponentNames = getSectionComponents(SECTION_ENTRIES, providerSlug)
   const quickstartComponentName = getQuickstartComponent(
