@@ -8817,6 +8817,23 @@ components:
           format: date-time
           examples:
             - 2025-09-01T12:14:43.110455Z
+        verification_method:
+          description: Method used to verify domain ownership. ADMIN indicates
+            that the domain is considered verified without requiring any
+            DNS-based validation. DNS indicates that the domain must be verified
+            by adding and validating a DNS TXT record.
+          $ref: '#/components/schemas/domainsVerificationMethod'
+          examples:
+            - ADMIN
+        verification_status:
+          description: Current verification status of the domain. AUTO_VERIFIED
+            means the domain was automatically verified without DNS changes,
+            VERIFIED means the domain is verified — either via DNS TXT record
+            validation or by an admin explicitly marking it as verified, PENDING
+            requires manual DNS configuration.
+          $ref: '#/components/schemas/domainsVerificationStatus'
+          examples:
+            - AUTO_VERIFIED
     domainsDomainType:
       type: string
       enum:
@@ -8854,6 +8871,19 @@ components:
           format: int32
           examples:
             - 1
+    domainsVerificationMethod:
+      type: string
+      enum:
+        - ADMIN
+        - DNS
+        - NOT_APPLICABLE
+    domainsVerificationStatus:
+      type: string
+      enum:
+        - PENDING
+        - VERIFIED
+        - FAILED
+        - AUTO_VERIFIED
     errdetailsDebugInfo:
       description: Describes additional debugging info.
       type: object
@@ -9158,7 +9188,8 @@ components:
             - true
         name:
           description: 'Feature identifier. Supported values include: "sso" (Single
-            Sign-On), "directory_sync" (Directory Synchronization)'
+            Sign-On), "directory_sync" (Directory Synchronization), "domain_verification"
+            (Domain Verification)'
           type: string
           examples:
             - sso
