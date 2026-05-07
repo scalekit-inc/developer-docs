@@ -1,0 +1,147 @@
+---
+title: 'Triage a Gmail inbox with AgentKit and the LiteLLM gateway'
+description: 'Run an end-to-end Node.js sample that classifies inbound mail, routes threads to GitHub repos, drafts issues and replies through an OpenAI-compatible LiteLLM gateway (LITELLM_BASE_URL from LLM Gateway), and waits for human approval before side effects.'
+date: 2026-05-06
+tags: ['Agent auth', 'Gmail', 'GitHub', 'Slack', 'LiteLLM']
+sidebar:
+  label: 'Inbox triage + LiteLLM'
+tableOfContents: true
+excerpt: >
+  Poll Gmail with AgentKit tools, send each new thread through a multi-stage LiteLLM pipeline with per-stage models, notify Slack, then approve filing a GitHub issue and sending a reply from a localhost dashboard.
+featured: false
+authors:
+  - name: 'Saif'
+    title: 'Developer Advocate'
+    url: 'https://www.linkedin.com/in/saif-shines/'
+    picture: '/images/blog/authors/saif.png'
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+This recipe points at a **TypeScript / Node.js** sample that combines **Scalekit AgentKit** (Gmail, GitHub, and Slack connectors) with an **OpenAI-compatible LiteLLM gateway**. Set **`LITELLM_BASE_URL`** from your project’s **LLM Gateway** in the dashboard (the sample never hard-codes a host). You get a credible evaluation path: real OAuth, real tool execution, and **human-in-the-loop** approval before any GitHub issue or outbound email is created.
+
+The sample repository is **[litellm-agentkit-inbox-triage](https://github.com/scalekit-developers/litellm-agentkit-inbox-triage)** on GitHub. Clone it, configure Scalekit connections plus a virtual LiteLLM API key, run one process, complete three connector authorizations in your terminal, then drive the flow from a browser.
+
+<Aside type="note" title="This cookbook mirrors one repository language">
+  The reference implementation is **Node.js only** (requires **Node.js 24+** for `node:sqlite`). For multi-language patterns around AgentKit tool calls and identifiers, start from the [AgentKit quickstart](/agentkit/quickstart/) and the [Node.js SDK reference](/agentkit/sdks/node/).
+</Aside>
+
+## What you are building
+
+- **Gmail ingestion** — Poll for new threads using AgentKit-executed Gmail tools. A SQLite cursor prevents duplicate processing.
+- **Model-per-stage routing** — Each stage (`classify`, `research`, `tiebreak`, `draft`, …) calls the LiteLLM gateway with a **different model name** read from `routing.yaml`.
+- **Deterministic GitHub routing** — Keyword rules in `routing.yaml` pick a target repository; an optional LLM tie-breaker resolves ties.
+- **Research loop** — A small tool-calling loop searches related GitHub issues through AgentKit.
+- **Slack notification** — Posts a summary with a pending decision link (conceptually; the sample prints the local dashboard URL).
+- **Human approval** — A localhost dashboard lists proposals. **Approve** creates the GitHub issue, sends the Gmail reply, and updates Slack. **Reject** discards without side effects.
+
+## How data moves through the sample
+
+The diagram shows **logical stages**. LiteLLM traffic always goes to your **virtual API key** on the gateway; Gmail, GitHub, and Slack traffic goes through **AgentKit `executeTool`** with the same opaque **user identifier** for all three connectors.
+
+```d2 pad=28 layout=dagre
+direction: right
+
+gmail: Gmail inbox
+ingest: Poll + ingest\n(AgentKit)
+classify: Classify\n(LiteLLM)
+route: Route\n(routing.yaml)
+research: Research\n(LiteLLM + GitHub tools)
+draft: Draft reply + issue\n(LiteLLM)
+persist: Store pending proposal\n(SQLite)
+notify: Slack notify\n(AgentKit)
+ui: Dashboard\n(localhost)
+act: Approve → issue + reply\n(AgentKit)
+
+gmail -> ingest
+ingest -> classify
+classify -> route
+route -> research
+research -> draft
+draft -> persist
+persist -> notify
+notify -> ui
+ui -> act
+```
+
+## Before you start
+
+- A Scalekit account at [app.scalekit.com](https://app.scalekit.com).
+- Ability to create **AgentKit connections** for **Gmail**, **GitHub**, and **Slack**. Connection **names** must match what you put in `.env` (see [Configure a connection](/agentkit/connections/)).
+- A **virtual LiteLLM API key** from the dashboard (**LLM Gateway**). A **small spend cap on the order of roughly two US dollars** is usually enough to exercise the pipeline on a handful of threads.
+- **Node.js 24 or newer** and **npm** on your machine.
+- An **interactive terminal** — the sample prints magic links and waits for Enter after each connector authorization. This recipe does **not** cover headless CI.
+
+## 1. Clone the sample
+
+```bash
+git clone https://github.com/scalekit-developers/litellm-agentkit-inbox-triage.git
+cd litellm-agentkit-inbox-triage
+```
+
+Read the repository **[README](https://github.com/scalekit-developers/litellm-agentkit-inbox-triage/blob/main/README.md)** for the authoritative variable list and security notes.
+
+## 2. Configure AgentKit connections
+
+<Steps>
+1. Open [app.scalekit.com](https://app.scalekit.com) → **AgentKit** → **Connections** → **Create Connection** for **Gmail**, **GitHub**, and **Slack**.
+2. Copy each **Connection name** exactly as shown in the dashboard into `GMAIL_CONNECTION_NAME`, `GITHUB_CONNECTION_NAME`, and `SLACK_CONNECTION_NAME` in your `.env` file.
+3. For **GitHub**, confirm OAuth scopes include repository access appropriate for **creating issues** and **searching** in the repos you list in `routing.yaml`. In GitHub’s classic scope model that typically means including **`repo`**. If your dashboard uses different labels, map them to the same capabilities. See [Scopes and permissions](/agentkit/authentication/scopes-permissions/) and the [GitHub connector](/agentkit/connectors/github/).
+4. For **Gmail** and **Slack**, follow the dashboard wizard and the connector docs if your workspace restricts OAuth apps: [Gmail](/agentkit/connectors/gmail/), [Slack](/agentkit/connectors/slack/).
+</Steps>
+
+<Aside type="caution" title="Dashboard only after all three connectors are active">
+  The sample calls `setupConnectors` **before** it binds the Express dashboard. You will **not** reach `http://localhost:3000` until Gmail, GitHub, and Slack each show **connector active** in the logs.
+</Aside>
+
+## 3. Create a LiteLLM virtual key and verify the gateway
+
+1. In the Scalekit dashboard, open **LLM Gateway** and create a **virtual API key** (optionally set a small budget cap for evaluation).
+2. Sanity-check the gateway (use the same `LITELLM_API_KEY` and `LITELLM_BASE_URL` you will put in `.env`; load them first, for example `set -a && source .env && set +a`):
+
+   ```bash
+   curl -H "Authorization: Bearer $LITELLM_API_KEY" \
+        "$LITELLM_BASE_URL/v1/models"
+   ```
+
+3. Align `routing.yaml` → `models:` with the model IDs returned by that endpoint.
+
+## 4. Run the sample
+
+```bash
+cp .env.example .env
+# Edit .env: Scalekit env URL, client id/secret, connection names, LITELLM_* values
+
+npm install
+npm run dev
+```
+
+Complete each printed **authorization URL** in the browser, then press **Enter** in the terminal after each connector.
+
+When you see **All connectors active** and **dashboard listening on http://localhost:3000**, keep the process running and **send any test email** to the connected Gmail account. Within roughly one poll interval (default **5 seconds**), a proposal should appear in the dashboard.
+
+## 5. Approve or reject
+
+Open **`http://localhost:3000`**. Review the classification, routed repository, related issues, and drafts. **Approve** runs GitHub issue creation, sends the Gmail reply, and updates Slack. **Reject** leaves external systems unchanged.
+
+## 6. Extend beyond the demo
+
+The repository **[COOKBOOK.md](https://github.com/scalekit-developers/litellm-agentkit-inbox-triage/blob/main/COOKBOOK.md)** (same name, different file from this docs site) explains how to add routing targets, swap models per stage, and add connectors—use it once the baseline flow works.
+
+## Related Scalekit docs
+
+| Topic | Link |
+|---|---|
+| AgentKit overview | [Overview](/agentkit/overview/) |
+| Connections | [Configure a connection](/agentkit/connections/) |
+| Authorization links | [Authorize a user](/agentkit/tools/authorize/) |
+| Connected accounts | [Manage connected accounts](/agentkit/connected-accounts/) |
+| OpenAI-style gateway usage (pattern) | See env discussion in [GitHub PR summarizer](/cookbooks/render-github-pr-summarizer/) — same `openai` client + `baseURL` idea; point `LITELLM_BASE_URL` at whatever host your **LLM Gateway** shows |
+
+## Troubleshooting
+
+- **Wrong connection name** — Symptoms look like random tool failures. Fix the three `*_CONNECTION_NAME` variables to match the dashboard strings exactly.
+- **GitHub permission errors** — Re-check OAuth scopes for private repositories (see step 2).
+- **Unknown model errors** — Re-run the `curl "$LITELLM_BASE_URL/v1/models"` check and update `routing.yaml`.
+
+For deeper debugging patterns, see [Authentication troubleshooting](/agentkit/authentication/troubleshooting/).
