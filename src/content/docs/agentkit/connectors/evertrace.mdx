@@ -1,6 +1,10 @@
 ---
-title: Evertrace AI
+title: 'Evertrace AI connector'
 tableOfContents: true
+description: 'Connect to evertrace.ai to search and manage talent signals, saved searches, and lists. Access rich professional profiles with scoring, experiences, and educ'
+sidebar:
+  label: 'Evertrace AI'
+overviewTitle: 'Quickstart'
 connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/evertrace.png
 connectorAuthType: Bearer Token
 connectorCategories: [crm, sales]
@@ -10,10 +14,50 @@ head:
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 ---
 
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/evertrace'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { QuickstartGenericApikeySection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   Add these to your environment. Find values in **[app.scalekit.com](https://app.scalekit.com)** > **Developers** > **API Credentials**.
+
+   ```bash frame="terminal"
+   export SCALEKIT_ENV_URL="https://your-env.scalekit.com"
+   export SCALEKIT_CLIENT_ID="..."
+   export SCALEKIT_CLIENT_SECRET="..."
+   ```
+
+3. ### Make your first call
+
+   <QuickstartGenericApikeySection connector="evertrace" toolName="evertrace_cities_list" providerName="Evertrace AI" />
+
+</Steps>
 
 ## What you can do
 
@@ -25,12 +69,6 @@ Connect this agent connector to let your agent:
 - **Get lists, signals, searches** — Get a list by ID with its entries, accesses, and creator information
 - **Create lists, searches** — Create a new list
 - **Viewed signal mark** — Mark a signal as viewed by the current user
-
-## Authentication
-
-This connector uses **Bearer Token** authentication. Scalekit securely stores the token and injects it into API requests on behalf of your users. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
-
-Before calling this connector from your code, create the Evertrace AI connection in **AgentKit** > **Connections** and copy the exact **Connection name** from that connection into your code. The value in code must match the dashboard exactly.
 
 ## Tool list
 

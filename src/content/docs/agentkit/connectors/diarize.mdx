@@ -1,6 +1,10 @@
 ---
-title: Diarize
+title: 'Diarize connector'
 tableOfContents: true
+description: 'Connect to Diarize to transcribe and diarize audio and video content from YouTube, X, Instagram, and TikTok. Submit transcription jobs and retrieve results i'
+sidebar:
+  label: 'Diarize'
+overviewTitle: 'Quickstart'
 connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/diarize.svg
 connectorAuthType: Bearer Token
 connectorCategories: [transcription, media, productivity, analytics]
@@ -10,12 +14,63 @@ head:
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 ---
 
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/diarize'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
 import { SetupDiarizeSection } from '@components/templates'
-import { UsageDiarizeSection } from '@components/templates'
+import { QuickstartGenericApikeySection } from '@components/templates'
+import { SectionAfterSetupDiarizeCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   Add these to your environment. Find values in **[app.scalekit.com](https://app.scalekit.com)** > **Developers** > **API Credentials**.
+
+   ```bash frame="terminal"
+   export SCALEKIT_ENV_URL="https://your-env.scalekit.com"
+   export SCALEKIT_CLIENT_ID="..."
+   export SCALEKIT_CLIENT_SECRET="..."
+   ```
+
+3. ### Set up the connector
+
+   Register your Diarize credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupDiarizeSection />
+
+   </details>
+
+4. ### Make your first call
+
+   <QuickstartGenericApikeySection connector="diarize" toolName="diarize_create_transcription_job" providerName="Diarize" />
+
+</Steps>
 
 ## What you can do
 
@@ -25,25 +80,9 @@ Connect this agent connector to let your agent:
 - **Transcript download** — Download the transcript output for a completed transcription job in JSON, TXT, SRT, or VTT format, including speaker diarization, segments, and word-level timestamps
 - **Create create** — Submit a new transcription and diarization job for an audio or video URL (YouTube, X, Instagram, TikTok)
 
-## Authentication
+## Common workflows
 
-This connector uses **Bearer Token** authentication. Scalekit securely stores the token and injects it into API requests on behalf of your users. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
-
-Before calling this connector from your code, create the Diarize connection in **AgentKit** > **Connections** and copy the exact **Connection name** from that connection into your code. The value in code must match the dashboard exactly.
-
-<details>
-<summary>Set up the connector</summary>
-
-<SetupDiarizeSection />
-
-</details>
-
-<details>
-<summary>Code examples</summary>
-
-<UsageDiarizeSection />
-
-</details>
+<SectionAfterSetupDiarizeCommonWorkflows />
 
 ## Tool list
 

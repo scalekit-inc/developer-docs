@@ -1,6 +1,10 @@
 ---
-title: Pipedrive
+title: 'Pipedrive connector'
 tableOfContents: true
+description: 'Connect to Pipedrive CRM. Manage deals, contacts, organizations, activities, leads, and notes to streamline your sales pipeline.'
+sidebar:
+  label: 'Pipedrive'
+overviewTitle: 'Quickstart'
 connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/pipedrive.svg
 connectorAuthType: OAuth 2.0
 connectorCategories: [crm, sales]
@@ -10,11 +14,62 @@ head:
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 ---
 
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/pipedrive'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
 import { SetupPipedriveSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   Add these to your environment. Find values in **[app.scalekit.com](https://app.scalekit.com)** > **Developers** > **API Credentials**.
+
+   ```bash frame="terminal"
+   export SCALEKIT_ENV_URL="https://your-env.scalekit.com"
+   export SCALEKIT_CLIENT_ID="..."
+   export SCALEKIT_CLIENT_SECRET="..."
+   ```
+
+3. ### Set up the connector
+
+   Register your Pipedrive credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupPipedriveSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="pipedrive" toolName="pipedrive_activities_list" providerName="Pipedrive" />
+
+</Steps>
 
 ## What you can do
 
@@ -26,21 +81,6 @@ Connect this agent connector to let your agent:
 - **Delete webhook, note, organization** — Delete a webhook from Pipedrive by its ID
 - **List stages, leads, organizations** — Retrieve all stages in Pipedrive
 - **Create person, product, pipeline** — Create a new person (contact) in Pipedrive with name, email, phone, and optional organization association
-
-## Authentication
-
-This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to Pipedrive, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
-
-You supply your Pipedrive **Connected App** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.
-
-Before calling this connector from your code, create the Pipedrive connection in **AgentKit** > **Connections** and copy the exact **Connection name** from that connection into your code. The value in code must match the dashboard exactly.
-
-<details>
-<summary>Set up the connector</summary>
-
-<SetupPipedriveSection />
-
-</details>
 
 ## Tool list
 

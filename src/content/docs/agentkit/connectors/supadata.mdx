@@ -1,6 +1,10 @@
 ---
-title: Supadata
+title: 'Supadata connector'
 tableOfContents: true
+description: 'Connect with Supadata to extract transcripts, metadata, and structured content from YouTube, social media, and the web using AI.'
+sidebar:
+  label: 'Supadata'
+overviewTitle: 'Quickstart'
 connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/supadata.svg
 connectorAuthType: API Key
 connectorCategories: [data, analytics]
@@ -10,12 +14,63 @@ head:
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 ---
 
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/supadata'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
 import { SetupSupadataSection } from '@components/templates'
-import { UsageSupadataSection } from '@components/templates'
+import { QuickstartGenericApikeySection } from '@components/templates'
+import { SectionAfterSetupSupadataCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   Add these to your environment. Find values in **[app.scalekit.com](https://app.scalekit.com)** > **Developers** > **API Credentials**.
+
+   ```bash frame="terminal"
+   export SCALEKIT_ENV_URL="https://your-env.scalekit.com"
+   export SCALEKIT_CLIENT_ID="..."
+   export SCALEKIT_CLIENT_SECRET="..."
+   ```
+
+3. ### Set up the connector
+
+   Register your Supadata credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupSupadataSection />
+
+   </details>
+
+4. ### Make your first call
+
+   <QuickstartGenericApikeySection connector="supadata" toolName="supadata_metadata_get" providerName="Supadata" />
+
+</Steps>
 
 ## What you can do
 
@@ -27,25 +82,9 @@ Connect this agent connector to let your agent:
 - **Map web** — Discover and return all URLs found on a website
 - **Translate youtube transcript** — Retrieve and translate a YouTube video transcript into a target language
 
-## Authentication
+## Common workflows
 
-This connector uses **API Key** authentication. Your users provide their Supadata API key once, and Scalekit stores and manages it securely. Your agent code never handles keys directly — you only pass a `connectionName` and a user `identifier`.
-
-Before calling this connector from your code, create the Supadata connection in **AgentKit** > **Connections** and copy the exact **Connection name** from that connection into your code. The value in code must match the dashboard exactly.
-
-<details>
-<summary>Set up the connector</summary>
-
-<SetupSupadataSection />
-
-</details>
-
-<details>
-<summary>Code examples</summary>
-
-<UsageSupadataSection />
-
-</details>
+<SectionAfterSetupSupadataCommonWorkflows />
 
 ## Tool list
 

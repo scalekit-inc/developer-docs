@@ -1,0 +1,67 @@
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+<details>
+<summary>Proxy API call</summary>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // Make a GraphQL request via Scalekit proxy
+    const result = await actions.request({
+      connectionName: 'linear',
+      identifier: 'user_123',
+      path: '/graphql',
+      method: 'POST',
+      body: JSON.stringify({ query: '{ viewer { id name email } }' }),
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    # Make a GraphQL request via Scalekit proxy
+    result = actions.request(
+        connection_name='linear',
+        identifier='user_123',
+        path="/graphql",
+        method="POST",
+        body=json.dumps({"query": "{ viewer { id name email } }"})
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Execute a tool</summary>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.executeTool({
+      connector: 'linear',
+      identifier: 'user_123',
+      toolName: 'linear_graphql_query',
+      toolInput: {},
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.execute_tool(
+        connection_name='linear',
+        identifier='user_123',
+        tool_name='linear_graphql_query',
+        tool_input={},
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>

@@ -1,0 +1,50 @@
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+<details>
+<summary>Tool calling</summary>
+
+Use this connector when you want an agent to work with Granola meeting content, including summaries, notes, attendees, and transcripts.
+
+- Use `granolamcp_query_granola_meetings` for natural-language questions such as decisions, action items, or follow-ups from past meetings.
+- Use `granolamcp_list_meetings` to find meetings in a time window before drilling into specific meeting IDs.
+- Use `granolamcp_get_meetings` when you already know the Granola meeting IDs and need richer metadata or notes.
+- Use `granolamcp_get_meeting_transcript` when exact wording matters and you need the verbatim transcript instead of summarized notes.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+    ```python title="examples/granolamcp_query_meetings.py"
+    tool_response = scalekit_client.actions.execute_tool(
+        connection_name='granolamcp',
+        identifier='user_123',
+        tool_name="granolamcp_query_granola_meetings",
+        tool_input={
+            "query": "What decisions and follow-ups came out of last week's customer calls?"
+        },
+    )
+    print("Granola response:", tool_response)
+    
+    ```
+  </TabItem>
+  <TabItem label="Node.js">
+    ```typescript title="examples/granolamcp_query_meetings.ts"
+    const toolResponse = await actions.executeTool({
+      connector: 'granolamcp',
+      identifier: 'user_123',
+      toolName: 'granolamcp_query_granola_meetings',
+      toolInput: {
+        query: "What decisions and follow-ups came out of last week's customer calls?",
+      },
+    });
+    console.log('Granola response:', toolResponse.data);
+    
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="tip" title="Preserve citations">
+  `granolamcp_query_granola_meetings` returns inline citations back to the source meeting notes. Keep those citations in your final user-facing response when possible.
+</Aside>
+
+</details>

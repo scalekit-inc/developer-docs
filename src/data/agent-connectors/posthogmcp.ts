@@ -41,7 +41,7 @@ export const tools: Tool[] = [
         required: false,
         description: `Action steps defining trigger conditions. Each step matches events by name, properties, URL, or element attributes. Multiple steps are OR-ed together.`,
       },
-      { name: 'tags', type: 'array', required: false, description: `Tags.` },
+      { name: 'tags', type: 'array', required: false, description: `No description.` },
     ],
   },
   {
@@ -73,16 +73,16 @@ export const tools: Tool[] = [
     description: `Update an existing action by ID. Can update name, description, steps, tags, and Slack notification settings.`,
     params: [
       {
-        name: 'description',
-        type: 'string',
-        required: false,
-        description: `Human-readable description of what this action represents.`,
-      },
-      {
         name: 'id',
         type: 'number',
         required: true,
         description: `A unique integer value identifying this action.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Human-readable description of what this action represents.`,
       },
       {
         name: 'name',
@@ -114,7 +114,7 @@ export const tools: Tool[] = [
         required: false,
         description: `Action steps defining trigger conditions. Each step matches events by name, properties, URL, or element attributes. Multiple steps are OR-ed together.`,
       },
-      { name: 'tags', type: 'array', required: false, description: `Tags.` },
+      { name: 'tags', type: 'array', required: false, description: `No description.` },
     ],
   },
   {
@@ -161,7 +161,64 @@ export const tools: Tool[] = [
         name: 'scope',
         type: 'string',
         required: false,
-        description: `Filter by a single activity scope, e.g. "FeatureFlag", "Insight", "Dashboard", "Experiment".  * 'Cohort' - Cohort * 'FeatureFlag' - FeatureFlag * 'Person' - Person * 'Group' - Group * 'Insight' - Insight * 'Plugin' - Plugin * 'PluginConfig' - PluginConfig * 'HogFunction' - HogFunction * 'HogFlow' - HogFlow * 'DataManagement' - DataManagement * 'EventDefinition' - EventDefinition * 'PropertyDefinition' - PropertyDefinition * 'Notebook' - Notebook * 'Endpoint' - Endpoint * 'EndpointVersion' - EndpointVersion * 'Dashboard' - Dashboard * 'Replay' - Replay * 'Experiment' - Experiment * 'ExperimentHoldout' - ExperimentHoldout * 'ExperimentSavedMetric' - ExperimentSavedMetric * 'Survey' - Survey * 'EarlyAccessFeature' - EarlyAccessFeature * 'SessionRecordingPlaylist' - SessionRecordingPlaylist * 'Comment' - Comment * 'Team' - Team * 'Project' - Project * 'ErrorTrackingIssue' - ErrorTrackingIssue * 'DataWarehouseSavedQuery' - DataWarehouseSavedQuery * 'Organization' - Organization * 'OrganizationDomain' - OrganizationDomain * 'OrganizationMembership' - OrganizationMembership * 'Role' - Role * 'UserGroup' - UserGroup * 'BatchExport' - BatchExport * 'BatchImport' - BatchImport * 'Integration' - Integration * 'Annotation' - Annotation * 'Tag' - Tag * 'TaggedItem' - TaggedItem * 'Subscription' - Subscription * 'PersonalAPIKey' - PersonalAPIKey * 'ProjectSecretAPIKey' - ProjectSecretAPIKey * 'User' - User * 'Action' - Action * 'AlertConfiguration' - AlertConfiguration * 'Threshold' - Threshold * 'AlertSubscription' - AlertSubscription * 'ExternalDataSource' - ExternalDataSource * 'ExternalDataSchema' - ExternalDataSchema * 'LLMTrace' - LLMTrace * 'WebAnalyticsFilterPreset' - WebAnalyticsFilterPreset * 'CustomerProfileConfig' - CustomerProfileConfig * 'Log' - Log * 'LogsAlertConfiguration' - LogsAlertConfiguration * 'ProductTour' - ProductTour * 'Ticket' - Ticket`,
+        description: `Filter by a single activity scope, e.g. "FeatureFlag", "Insight", "Dashboard", "Experiment".
+
+* \`Cohort\` - Cohort
+* \`FeatureFlag\` - FeatureFlag
+* \`Person\` - Person
+* \`Group\` - Group
+* \`Insight\` - Insight
+* \`Plugin\` - Plugin
+* \`PluginConfig\` - PluginConfig
+* \`HogFunction\` - HogFunction
+* \`HogFlow\` - HogFlow
+* \`DataManagement\` - DataManagement
+* \`EventDefinition\` - EventDefinition
+* \`PropertyDefinition\` - PropertyDefinition
+* \`Notebook\` - Notebook
+* \`Endpoint\` - Endpoint
+* \`EndpointVersion\` - EndpointVersion
+* \`Dashboard\` - Dashboard
+* \`Replay\` - Replay
+* \`Experiment\` - Experiment
+* \`ExperimentHoldout\` - ExperimentHoldout
+* \`ExperimentSavedMetric\` - ExperimentSavedMetric
+* \`Survey\` - Survey
+* \`EarlyAccessFeature\` - EarlyAccessFeature
+* \`SessionRecordingPlaylist\` - SessionRecordingPlaylist
+* \`Comment\` - Comment
+* \`Team\` - Team
+* \`Project\` - Project
+* \`ErrorTrackingIssue\` - ErrorTrackingIssue
+* \`DataWarehouseSavedQuery\` - DataWarehouseSavedQuery
+* \`Organization\` - Organization
+* \`OrganizationDomain\` - OrganizationDomain
+* \`OrganizationMembership\` - OrganizationMembership
+* \`Role\` - Role
+* \`UserGroup\` - UserGroup
+* \`BatchExport\` - BatchExport
+* \`BatchImport\` - BatchImport
+* \`Integration\` - Integration
+* \`Annotation\` - Annotation
+* \`Tag\` - Tag
+* \`TaggedItem\` - TaggedItem
+* \`Subscription\` - Subscription
+* \`PersonalAPIKey\` - PersonalAPIKey
+* \`ProjectSecretAPIKey\` - ProjectSecretAPIKey
+* \`User\` - User
+* \`Action\` - Action
+* \`AlertConfiguration\` - AlertConfiguration
+* \`Threshold\` - Threshold
+* \`AlertSubscription\` - AlertSubscription
+* \`ExternalDataSource\` - ExternalDataSource
+* \`ExternalDataSchema\` - ExternalDataSchema
+* \`LLMTrace\` - LLMTrace
+* \`WebAnalyticsFilterPreset\` - WebAnalyticsFilterPreset
+* \`CustomerProfileConfig\` - CustomerProfileConfig
+* \`Log\` - Log
+* \`LogsAlertConfiguration\` - LogsAlertConfiguration
+* \`ProductTour\` - ProductTour
+* \`Ticket\` - Ticket`,
       },
       {
         name: 'scopes',
@@ -186,13 +243,13 @@ export const tools: Tool[] = [
     name: 'posthogmcp_advanced_activity_logs_list',
     description: `List activity log entries with advanced filtering, sorting, and field-level diffs. Supports filtering by scope, activity type, user, date range, and search text.`,
     params: [
-      { name: 'activities', type: 'array', required: false, description: `Activities.` },
-      { name: 'clients', type: 'array', required: false, description: `Clients.` },
-      { name: 'detail_filters', type: 'string', required: false, description: `Detail filters.` },
-      { name: 'end_date', type: 'string', required: false, description: `End date.` },
-      { name: 'hogql_filter', type: 'string', required: false, description: `Hogql filter.` },
-      { name: 'is_system', type: 'boolean', required: false, description: `Is system.` },
-      { name: 'item_ids', type: 'array', required: false, description: `Item ids.` },
+      { name: 'activities', type: 'array', required: false, description: `No description.` },
+      { name: 'clients', type: 'array', required: false, description: `No description.` },
+      { name: 'detail_filters', type: 'string', required: false, description: `No description.` },
+      { name: 'end_date', type: 'string', required: false, description: `No description.` },
+      { name: 'hogql_filter', type: 'string', required: false, description: `No description.` },
+      { name: 'is_system', type: 'string', required: false, description: `No description.` },
+      { name: 'item_ids', type: 'array', required: false, description: `No description.` },
       {
         name: 'page',
         type: 'number',
@@ -205,16 +262,11 @@ export const tools: Tool[] = [
         required: false,
         description: `Number of results per page (default: 100, max: 1000). Only used with page-based pagination.`,
       },
-      { name: 'scopes', type: 'array', required: false, description: `Scopes.` },
-      { name: 'search_text', type: 'string', required: false, description: `Search text.` },
-      { name: 'start_date', type: 'string', required: false, description: `Start date.` },
-      { name: 'users', type: 'array', required: false, description: `Users.` },
-      {
-        name: 'was_impersonated',
-        type: 'boolean',
-        required: false,
-        description: `Was impersonated.`,
-      },
+      { name: 'scopes', type: 'array', required: false, description: `No description.` },
+      { name: 'search_text', type: 'string', required: false, description: `No description.` },
+      { name: 'start_date', type: 'string', required: false, description: `No description.` },
+      { name: 'users', type: 'array', required: false, description: `No description.` },
+      { name: 'was_impersonated', type: 'string', required: false, description: `No description.` },
     ],
   },
   {
@@ -222,59 +274,10 @@ export const tools: Tool[] = [
     description: `Create a new alert on an insight. Alerts can use either threshold-based conditions or anomaly detection. For threshold alerts: set condition (absolute_value, relative_increase, relative_decrease) and threshold configuration with bounds. For anomaly detection: set detector_config with a detector type (zscore, mad, iqr, threshold, copod, ecod, hbos, isolation_forest, knn, lof, ocsvm, pca) and parameters like threshold (sensitivity 0-1, default 0.9) and window size. Ensemble detectors combine 2+ sub-detectors with AND/OR logic. Requires an insight ID and at least one subscribed user.`,
     params: [
       {
-        name: 'calculation_interval',
-        type: 'string',
-        required: false,
-        description: `How often the alert is checked: hourly, daily, weekly, or monthly.  * 'hourly' - hourly * 'daily' - daily * 'weekly' - weekly * 'monthly' - monthly`,
-      },
-      {
-        name: 'condition',
-        type: 'object',
-        required: false,
-        description: `Alert condition type. Determines how the value is evaluated: absolute_value, relative_increase, or relative_decrease.`,
-      },
-      {
-        name: 'config',
-        type: 'object',
-        required: false,
-        description: `Trends-specific alert configuration. Includes series_index (which series to monitor) and check_ongoing_interval (whether to check the current incomplete interval).`,
-      },
-      { name: 'detector_config', type: 'object', required: false, description: `Detector config.` },
-      {
-        name: 'enabled',
-        type: 'boolean',
-        required: false,
-        description: `Whether the alert is actively being evaluated.`,
-      },
-      {
         name: 'insight',
         type: 'number',
         required: true,
         description: `Insight ID monitored by this alert. Note: Response returns full InsightBasicSerializer object.`,
-      },
-      {
-        name: 'name',
-        type: 'string',
-        required: false,
-        description: `Human-readable name for the alert.`,
-      },
-      {
-        name: 'schedule_restriction',
-        type: 'object',
-        required: false,
-        description: `Blocked local time windows (HH:MM in the project timezone). Interval is half-open [start, end): start inclusive, end exclusive. Use blocked_windows array of {start, end}. Null disables.`,
-      },
-      {
-        name: 'skip_weekend',
-        type: 'boolean',
-        required: false,
-        description: `Skip alert evaluation on weekends (Saturday and Sunday, local to project timezone).`,
-      },
-      {
-        name: 'snoozed_until',
-        type: 'string',
-        required: false,
-        description: `Snooze the alert until this time. Pass a relative date string (e.g. '2h', '1d') or null to unsnooze.`,
       },
       {
         name: 'subscribed_users',
@@ -287,6 +290,60 @@ export const tools: Tool[] = [
         type: 'object',
         required: true,
         description: `Threshold configuration with bounds and type for evaluating the alert.`,
+      },
+      {
+        name: 'calculation_interval',
+        type: 'string',
+        required: false,
+        description: `How often the alert is checked: hourly, daily, weekly, or monthly.
+
+* \`hourly\` - hourly
+* \`daily\` - daily
+* \`weekly\` - weekly
+* \`monthly\` - monthly`,
+      },
+      {
+        name: 'condition',
+        type: 'string',
+        required: false,
+        description: `Alert condition type. Determines how the value is evaluated: absolute_value, relative_increase, or relative_decrease.`,
+      },
+      {
+        name: 'config',
+        type: 'string',
+        required: false,
+        description: `Trends-specific alert configuration. Includes series_index (which series to monitor) and check_ongoing_interval (whether to check the current incomplete interval).`,
+      },
+      { name: 'detector_config', type: 'string', required: false, description: `No description.` },
+      {
+        name: 'enabled',
+        type: 'boolean',
+        required: false,
+        description: `Whether the alert is actively being evaluated.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Human-readable name for the alert.`,
+      },
+      {
+        name: 'schedule_restriction',
+        type: 'string',
+        required: false,
+        description: `Blocked local time windows (HH:MM in the project timezone). Interval is half-open [start, end): start inclusive, end exclusive. Use blocked_windows array of {start, end}. Null disables.`,
+      },
+      {
+        name: 'skip_weekend',
+        type: 'string',
+        required: false,
+        description: `Skip alert evaluation on weekends (Saturday and Sunday, local to project timezone).`,
+      },
+      {
+        name: 'snoozed_until',
+        type: 'string',
+        required: false,
+        description: `Snooze the alert until this time. Pass a relative date string (e.g. '2h', '1d') or null to unsnooze.`,
       },
     ],
   },
@@ -307,6 +364,12 @@ export const tools: Tool[] = [
     description: `Get a specific alert by ID. Returns the full alert configuration including check results, threshold settings, detector_config (for anomaly detection alerts), and subscribed users. Check results include anomaly_scores, triggered_points, and triggered_dates for detector-based alerts. By default returns the last 5 checks. Use checks_date_from and checks_date_to (e.g. '-24h', '-7d') to get checks within a time window, and checks_limit to control the maximum returned (default 5, max 500). When date filters are provided without checks_limit, up to 500 checks are returned. Check history is retained for 14 days.`,
     params: [
       {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `A UUID string identifying this alert configuration.`,
+      },
+      {
         name: 'checks_date_from',
         type: 'string',
         required: false,
@@ -324,12 +387,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Maximum number of check results to return (default 5, max 500). Applied after date filtering.`,
       },
-      {
-        name: 'id',
-        type: 'string',
-        required: true,
-        description: `A UUID string identifying this alert configuration.`,
-      },
     ],
   },
   {
@@ -337,14 +394,8 @@ export const tools: Tool[] = [
     description: `Run an anomaly detector on an insight's historical data without creating any alert or check records. Use this to preview how a detector configuration would perform before saving it as an alert. Requires an insight ID and a detector_config object with a type (zscore, mad, iqr, copod, ecod, hbos, isolation_forest, knn, lof, ocsvm, pca, or ensemble). Optionally specify date_from (e.g. '-48h', '-30d') to control how far back to simulate, and series_index to pick which series to analyze. Returns data values, anomaly scores per point, triggered indices and dates, and for ensemble detectors, per-sub-detector score breakdowns.`,
     params: [
       {
-        name: 'date_from',
-        type: 'string',
-        required: false,
-        description: `Relative date string for how far back to simulate (e.g. '-24h', '-30d', '-4w'). If not provided, uses the detector's minimum required samples.`,
-      },
-      {
         name: 'detector_config',
-        type: 'object',
+        type: 'string',
         required: true,
         description: `Detector configuration to simulate.`,
       },
@@ -353,6 +404,12 @@ export const tools: Tool[] = [
         type: 'number',
         required: true,
         description: `Insight ID to simulate the detector on.`,
+      },
+      {
+        name: 'date_from',
+        type: 'string',
+        required: false,
+        description: `Relative date string for how far back to simulate (e.g. '-24h', '-30d', '-4w'). If not provided, uses the detector's minimum required samples.`,
       },
       {
         name: 'series_index',
@@ -367,35 +424,40 @@ export const tools: Tool[] = [
     description: `Update an existing alert by ID. Can update name, threshold, condition, config, detector_config, subscribed users, enabled state, calculation interval, and weekend skipping. Set detector_config to switch to anomaly detection, or set it to null to switch back to threshold mode. To snooze an alert, set snoozed_until to a relative date string (e.g. '2h', '1d'). To unsnooze, set snoozed_until to null.`,
     params: [
       {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `A UUID string identifying this alert configuration.`,
+      },
+      {
         name: 'calculation_interval',
         type: 'string',
         required: false,
-        description: `How often the alert is checked: hourly, daily, weekly, or monthly.  * 'hourly' - hourly * 'daily' - daily * 'weekly' - weekly * 'monthly' - monthly`,
+        description: `How often the alert is checked: hourly, daily, weekly, or monthly.
+
+* \`hourly\` - hourly
+* \`daily\` - daily
+* \`weekly\` - weekly
+* \`monthly\` - monthly`,
       },
       {
         name: 'condition',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `Alert condition type. Determines how the value is evaluated: absolute_value, relative_increase, or relative_decrease.`,
       },
       {
         name: 'config',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `Trends-specific alert configuration. Includes series_index (which series to monitor) and check_ongoing_interval (whether to check the current incomplete interval).`,
       },
-      { name: 'detector_config', type: 'object', required: false, description: `Detector config.` },
+      { name: 'detector_config', type: 'string', required: false, description: `No description.` },
       {
         name: 'enabled',
         type: 'boolean',
         required: false,
         description: `Whether the alert is actively being evaluated.`,
-      },
-      {
-        name: 'id',
-        type: 'string',
-        required: true,
-        description: `A UUID string identifying this alert configuration.`,
       },
       {
         name: 'insight',
@@ -411,13 +473,13 @@ export const tools: Tool[] = [
       },
       {
         name: 'schedule_restriction',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `Blocked local time windows (HH:MM in the project timezone). Interval is half-open [start, end): start inclusive, end exclusive. Use blocked_windows array of {start, end}. Null disables.`,
       },
       {
         name: 'skip_weekend',
-        type: 'boolean',
+        type: 'string',
         required: false,
         description: `Skip alert evaluation on weekends (Saturday and Sunday, local to project timezone).`,
       },
@@ -479,7 +541,13 @@ export const tools: Tool[] = [
         name: 'scope',
         type: 'string',
         required: false,
-        description: `Annotation visibility scope: 'project', 'organization', 'dashboard', or 'dashboard_item'. 'recording' is deprecated and rejected.  * 'dashboard_item' - insight * 'dashboard' - dashboard * 'project' - project * 'organization' - organization * 'recording' - recording`,
+        description: `Annotation visibility scope: \`project\`, \`organization\`, \`dashboard\`, or \`dashboard_item\`. \`recording\` is deprecated and rejected.
+
+* \`dashboard_item\` - insight
+* \`dashboard\` - dashboard
+* \`project\` - project
+* \`organization\` - organization
+* \`recording\` - recording`,
       },
     ],
   },
@@ -531,6 +599,12 @@ export const tools: Tool[] = [
     description: `Update an existing annotation by ID. You can change its text (\`content\`), when it happened (\`date_marker\`, ISO 8601), or its visibility scope (\`project\` or \`organization\`). Only the fields you provide are updated.`,
     params: [
       {
+        name: 'id',
+        type: 'number',
+        required: true,
+        description: `A unique integer value identifying this annotation.`,
+      },
+      {
         name: 'content',
         type: 'string',
         required: false,
@@ -543,16 +617,16 @@ export const tools: Tool[] = [
         description: `When this annotation happened (ISO 8601 timestamp). Used to position it on charts.`,
       },
       {
-        name: 'id',
-        type: 'number',
-        required: true,
-        description: `A unique integer value identifying this annotation.`,
-      },
-      {
         name: 'scope',
         type: 'string',
         required: false,
-        description: `Annotation visibility scope: 'project', 'organization', 'dashboard', or 'dashboard_item'. 'recording' is deprecated and rejected.  * 'dashboard_item' - insight * 'dashboard' - dashboard * 'project' - project * 'organization' - organization * 'recording' - recording`,
+        description: `Annotation visibility scope: \`project\`, \`organization\`, \`dashboard\`, or \`dashboard_item\`. \`recording\` is deprecated and rejected.
+
+* \`dashboard_item\` - insight
+* \`dashboard\` - dashboard
+* \`project\` - project
+* \`organization\` - organization
+* \`recording\` - recording`,
       },
     ],
   },
@@ -625,7 +699,9 @@ export const tools: Tool[] = [
   {
     name: 'posthogmcp_cdp_function_templates_retrieve',
     description: `Get a specific function template by its template ID (e.g. 'template-slack', 'template-geoip'). Returns the full template including source code, inputs schema, default filters, and mapping templates. Use this to understand what inputs a template requires before creating a function from it.`,
-    params: [{ name: 'template_id', type: 'string', required: true, description: `Template id.` }],
+    params: [
+      { name: 'template_id', type: 'string', required: true, description: `No description.` },
+    ],
   },
   {
     name: 'posthogmcp_cdp_functions_create',
@@ -645,7 +721,7 @@ export const tools: Tool[] = [
       },
       {
         name: 'execution_order',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `Execution priority for transformation functions (lower runs first). Only applies to type=transformation. If omitted, the function is appended at the end.`,
       },
@@ -681,13 +757,13 @@ export const tools: Tool[] = [
       },
       {
         name: 'mappings',
-        type: 'array',
+        type: 'string',
         required: false,
         description: `Event-to-destination field mappings. Only for destination and site_destination types.`,
       },
       {
         name: 'masking',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `PII masking configuration with TTL, threshold, and hash expression.`,
       },
@@ -728,28 +804,28 @@ export const tools: Tool[] = [
     description: `Test-invoke a function with a mock event payload. Sends the function configuration and test data to the plugin server for execution and returns logs and status. Use 'mock_async_functions: true' (default) to simulate external calls like fetch() without making real HTTP requests.`,
     params: [
       {
-        name: 'clickhouse_event',
-        type: 'object',
-        required: false,
-        description: `Mock ClickHouse event data to test the function with.`,
-      },
-      {
         name: 'configuration',
         type: 'object',
         required: true,
         description: `Full function configuration to test.`,
       },
       {
-        name: 'globals',
-        type: 'object',
-        required: false,
-        description: `Mock global variables available during test invocation.`,
-      },
-      {
         name: 'id',
         type: 'string',
         required: true,
         description: `A UUID string identifying this hog function.`,
+      },
+      {
+        name: 'clickhouse_event',
+        type: 'object',
+        required: false,
+        description: `Mock ClickHouse event data to test the function with.`,
+      },
+      {
+        name: 'globals',
+        type: 'object',
+        required: false,
+        description: `Mock global variables available during test invocation.`,
       },
       {
         name: 'invocation_id',
@@ -769,10 +845,10 @@ export const tools: Tool[] = [
     name: 'posthogmcp_cdp_functions_list',
     description: `List all functions (destinations, transformations, site apps, and source webhooks) in the project. Returns each function's name, type, enabled status, execution order, and template info. Filter by type (destination, site_destination, internal_destination, source_webhook, warehouse_source_webhook, site_app, transformation) and enabled status via query parameters.`,
     params: [
-      { name: 'created_at', type: 'string', required: false, description: `Created at.` },
-      { name: 'created_by', type: 'number', required: false, description: `Created by.` },
-      { name: 'enabled', type: 'boolean', required: false, description: `Enabled.` },
-      { name: 'id', type: 'string', required: false, description: `Id.` },
+      { name: 'created_at', type: 'string', required: false, description: `No description.` },
+      { name: 'created_by', type: 'number', required: false, description: `No description.` },
+      { name: 'enabled', type: 'boolean', required: false, description: `No description.` },
+      { name: 'id', type: 'string', required: false, description: `No description.` },
       {
         name: 'limit',
         type: 'number',
@@ -792,13 +868,19 @@ export const tools: Tool[] = [
         required: false,
         description: `Multiple values may be separated by commas.`,
       },
-      { name: 'updated_at', type: 'string', required: false, description: `Updated at.` },
+      { name: 'updated_at', type: 'string', required: false, description: `No description.` },
     ],
   },
   {
     name: 'posthogmcp_cdp_functions_partial_update',
     description: `Partially update a function. Can enable/disable the function, change its name, description, source code, inputs, filters, mappings, or masking config. The 'type' field cannot be changed after creation. To delete a function, use the cdp-functions-delete tool instead.`,
     params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `A UUID string identifying this hog function.`,
+      },
       {
         name: 'description',
         type: 'string',
@@ -813,7 +895,7 @@ export const tools: Tool[] = [
       },
       {
         name: 'execution_order',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `Execution priority for transformations. Lower values run first.`,
       },
@@ -836,12 +918,6 @@ export const tools: Tool[] = [
         description: `URL for the function's icon displayed in the UI.`,
       },
       {
-        name: 'id',
-        type: 'string',
-        required: true,
-        description: `A UUID string identifying this hog function.`,
-      },
-      {
         name: 'inputs',
         type: 'object',
         required: false,
@@ -855,13 +931,13 @@ export const tools: Tool[] = [
       },
       {
         name: 'mappings',
-        type: 'array',
+        type: 'string',
         required: false,
         description: `Event-to-destination field mappings. Only for destination and site_destination types.`,
       },
       {
         name: 'masking',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `PII masking configuration with TTL, threshold, and hash expression.`,
       },
@@ -881,7 +957,15 @@ export const tools: Tool[] = [
         name: 'type',
         type: 'string',
         required: false,
-        description: `Function type: destination, site_destination, internal_destination, source_webhook, warehouse_source_webhook, site_app, or transformation.  * 'destination' - Destination * 'site_destination' - Site Destination * 'internal_destination' - Internal Destination * 'source_webhook' - Source Webhook * 'warehouse_source_webhook' - Warehouse Source Webhook * 'site_app' - Site App * 'transformation' - Transformation`,
+        description: `Function type: destination, site_destination, internal_destination, source_webhook, warehouse_source_webhook, site_app, or transformation.
+
+* \`destination\` - Destination
+* \`site_destination\` - Site Destination
+* \`internal_destination\` - Internal Destination
+* \`source_webhook\` - Source Webhook
+* \`warehouse_source_webhook\` - Warehouse Source Webhook
+* \`site_app\` - Site App
+* \`transformation\` - Transformation`,
       },
     ],
   },
@@ -925,7 +1009,7 @@ export const tools: Tool[] = [
     name: 'posthogmcp_change_requests_list',
     description: `List approval requests (change requests) for the current project. Returns pending, approved, rejected, and expired requests with vote status and staleness info. Useful for understanding what governance actions are waiting for review.`,
     params: [
-      { name: 'action_key', type: 'string', required: false, description: `Action key.` },
+      { name: 'action_key', type: 'string', required: false, description: `No description.` },
       {
         name: 'limit',
         type: 'number',
@@ -938,9 +1022,9 @@ export const tools: Tool[] = [
         required: false,
         description: `The initial index from which to return the results.`,
       },
-      { name: 'requester', type: 'number', required: false, description: `Requester.` },
-      { name: 'resource_id', type: 'string', required: false, description: `Resource id.` },
-      { name: 'resource_type', type: 'string', required: false, description: `Resource type.` },
+      { name: 'requester', type: 'number', required: false, description: `No description.` },
+      { name: 'resource_id', type: 'string', required: false, description: `No description.` },
+      { name: 'resource_type', type: 'string', required: false, description: `No description.` },
       {
         name: 'state',
         type: 'array',
@@ -975,13 +1059,19 @@ export const tools: Tool[] = [
         name: 'cohort_type',
         type: 'string',
         required: false,
-        description: `Type of cohort based on filter complexity  * 'static' - static * 'person_property' - person_property * 'behavioral' - behavioral * 'realtime' - realtime * 'analytical' - analytical`,
+        description: `Type of cohort based on filter complexity
+
+* \`static\` - static
+* \`person_property\` - person_property
+* \`behavioral\` - behavioral
+* \`realtime\` - realtime
+* \`analytical\` - analytical`,
       },
-      { name: 'description', type: 'string', required: false, description: `Description.` },
-      { name: 'filters', type: 'object', required: false, description: `Filters.` },
-      { name: 'is_static', type: 'boolean', required: false, description: `Is static.` },
-      { name: 'name', type: 'string', required: false, description: `Name.` },
-      { name: 'query', type: 'object', required: false, description: `Query.` },
+      { name: 'description', type: 'string', required: false, description: `No description.` },
+      { name: 'filters', type: 'string', required: false, description: `No description.` },
+      { name: 'is_static', type: 'boolean', required: false, description: `No description.` },
+      { name: 'name', type: 'string', required: false, description: `No description.` },
+      { name: 'query', type: 'string', required: false, description: `No description.` },
     ],
   },
   {
@@ -1008,23 +1098,29 @@ and query definition.`,
     description: `Update an existing cohort's name, description, or filters. Changing filters on a dynamic cohort triggers recalculation. To soft-delete a cohort, set 'deleted: true'.`,
     params: [
       {
-        name: 'cohort_type',
-        type: 'string',
-        required: false,
-        description: `Type of cohort based on filter complexity  * 'static' - static * 'person_property' - person_property * 'behavioral' - behavioral * 'realtime' - realtime * 'analytical' - analytical`,
-      },
-      { name: 'deleted', type: 'boolean', required: false, description: `Deleted.` },
-      { name: 'description', type: 'string', required: false, description: `Description.` },
-      { name: 'filters', type: 'object', required: false, description: `Filters.` },
-      {
         name: 'id',
         type: 'number',
         required: true,
         description: `A unique integer value identifying this cohort.`,
       },
-      { name: 'is_static', type: 'boolean', required: false, description: `Is static.` },
-      { name: 'name', type: 'string', required: false, description: `Name.` },
-      { name: 'query', type: 'object', required: false, description: `Query.` },
+      {
+        name: 'cohort_type',
+        type: 'string',
+        required: false,
+        description: `Type of cohort based on filter complexity
+
+* \`static\` - static
+* \`person_property\` - person_property
+* \`behavioral\` - behavioral
+* \`realtime\` - realtime
+* \`analytical\` - analytical`,
+      },
+      { name: 'deleted', type: 'boolean', required: false, description: `No description.` },
+      { name: 'description', type: 'string', required: false, description: `No description.` },
+      { name: 'filters', type: 'string', required: false, description: `No description.` },
+      { name: 'is_static', type: 'boolean', required: false, description: `No description.` },
+      { name: 'name', type: 'string', required: false, description: `No description.` },
+      { name: 'query', type: 'string', required: false, description: `No description.` },
     ],
   },
   {
@@ -1130,13 +1226,13 @@ and query definition.`,
         name: 'assignee',
         type: 'string',
         required: false,
-        description: `Filter by assignee. Use 'unassigned' for tickets with no assignee, 'user:<user_id>' for a specific user, or 'role:<role_uuid>' for a role.`,
+        description: `Filter by assignee. Use \`unassigned\` for tickets with no assignee, \`user:<user_id>\` for a specific user, or \`role:<role_uuid>\` for a role.`,
       },
       {
         name: 'channel_detail',
         type: 'string',
         required: false,
-        description: `Filter by the channel sub-type (e.g. 'widget_embedded', 'slack_bot_mention').`,
+        description: `Filter by the channel sub-type (e.g. \`widget_embedded\`, \`slack_bot_mention\`).`,
       },
       {
         name: 'channel_source',
@@ -1148,19 +1244,19 @@ and query definition.`,
         name: 'date_from',
         type: 'string',
         required: false,
-        description: `Only include tickets updated on or after this date. Accepts absolute dates ('2026-01-01') or relative ones ('-7d', '-1mStart'). Pass 'all' to disable the filter.`,
+        description: `Only include tickets updated on or after this date. Accepts absolute dates (\`2026-01-01\`) or relative ones (\`-7d\`, \`-1mStart\`). Pass \`all\` to disable the filter.`,
       },
       {
         name: 'date_to',
         type: 'string',
         required: false,
-        description: `Only include tickets updated on or before this date. Same format as 'date_from'.`,
+        description: `Only include tickets updated on or before this date. Same format as \`date_from\`.`,
       },
       {
         name: 'distinct_ids',
         type: 'string',
         required: false,
-        description: `Comma-separated list of person 'distinct_id's to filter by (max 100).`,
+        description: `Comma-separated list of person \`distinct_id\`s to filter by (max 100).`,
       },
       {
         name: 'limit',
@@ -1178,13 +1274,13 @@ and query definition.`,
         name: 'order_by',
         type: 'string',
         required: false,
-        description: `Sort order. Prefix with '-' for descending. Defaults to '-updated_at'.`,
+        description: `Sort order. Prefix with \`-\` for descending. Defaults to \`-updated_at\`.`,
       },
       {
         name: 'priority',
         type: 'string',
         required: false,
-        description: `Filter by priority. Accepts a single value or a comma-separated list (e.g. 'medium,high'). Valid values: 'low', 'medium', 'high'.`,
+        description: `Filter by priority. Accepts a single value or a comma-separated list (e.g. \`medium,high\`). Valid values: \`low\`, \`medium\`, \`high\`.`,
       },
       {
         name: 'search',
@@ -1196,19 +1292,19 @@ and query definition.`,
         name: 'sla',
         type: 'string',
         required: false,
-        description: `Filter by SLA state. 'breached' = past 'sla_due_at', 'at-risk' = due within the next hour, 'on-track' = more than an hour remaining.`,
+        description: `Filter by SLA state. \`breached\` = past \`sla_due_at\`, \`at-risk\` = due within the next hour, \`on-track\` = more than an hour remaining.`,
       },
       {
         name: 'status',
         type: 'string',
         required: false,
-        description: `Filter by status. Accepts a single value or a comma-separated list (e.g. 'new,open,pending'). Valid values: 'new', 'open', 'pending', 'on_hold', 'resolved'.`,
+        description: `Filter by status. Accepts a single value or a comma-separated list (e.g. \`new,open,pending\`). Valid values: \`new\`, \`open\`, \`pending\`, \`on_hold\`, \`resolved\`.`,
       },
       {
         name: 'tags',
         type: 'string',
         required: false,
-        description: `JSON-encoded array of tag names to filter by, e.g. '["billing","urgent"]'.`,
+        description: `JSON-encoded array of tag names to filter by, e.g. \`["billing","urgent"]\`.`,
       },
     ],
   },
@@ -1238,7 +1334,11 @@ and query definition.`,
         name: 'priority',
         type: 'string',
         required: false,
-        description: `Ticket priority: low, medium, or high. Null if unset.  * 'low' - Low * 'medium' - Medium * 'high' - High`,
+        description: `Ticket priority: low, medium, or high. Null if unset.
+
+* \`low\` - Low
+* \`medium\` - Medium
+* \`high\` - High`,
       },
       {
         name: 'sla_due_at',
@@ -1246,14 +1346,20 @@ and query definition.`,
         required: false,
         description: `SLA deadline set via workflows. Null means no SLA.`,
       },
-      { name: 'snoozed_until', type: 'string', required: false, description: `Snoozed until.` },
+      { name: 'snoozed_until', type: 'string', required: false, description: `No description.` },
       {
         name: 'status',
         type: 'string',
         required: false,
-        description: `Ticket status: new, open, pending, on_hold, or resolved  * 'new' - New * 'open' - Open * 'pending' - Pending * 'on_hold' - On hold * 'resolved' - Resolved`,
+        description: `Ticket status: new, open, pending, on_hold, or resolved
+
+* \`new\` - New
+* \`open\` - Open
+* \`pending\` - Pending
+* \`on_hold\` - On hold
+* \`resolved\` - Resolved`,
       },
-      { name: 'tags', type: 'array', required: false, description: `Tags.` },
+      { name: 'tags', type: 'array', required: false, description: `No description.` },
     ],
   },
   {
@@ -1283,7 +1389,7 @@ and query definition.`,
         name: 'name',
         type: 'string',
         required: false,
-        description: `Feature flag description (stored in the 'name' field for backwards compatibility).`,
+        description: `Feature flag description (stored in the \`name\` field for backwards compatibility).`,
       },
       {
         name: 'tags',
@@ -1299,13 +1405,13 @@ and query definition.`,
     params: [
       {
         name: 'breakdown_colors',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `Custom color mapping for breakdown values.`,
       },
       {
         name: 'data_color_theme_id',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `ID of the color theme used for chart visualizations.`,
       },
@@ -1315,25 +1421,26 @@ and query definition.`,
         required: false,
         description: `When deleting, also delete insights that are only on this dashboard.`,
       },
-      { name: 'description', type: 'string', required: false, description: `Description.` },
-      { name: 'name', type: 'string', required: false, description: `Name.` },
-      { name: 'pinned', type: 'boolean', required: false, description: `Pinned.` },
+      { name: 'description', type: 'string', required: false, description: `No description.` },
+      { name: 'name', type: 'string', required: false, description: `No description.` },
+      { name: 'pinned', type: 'boolean', required: false, description: `No description.` },
       {
         name: 'quick_filter_ids',
-        type: 'array',
+        type: 'string',
         required: false,
         description: `List of quick filter IDs associated with this dashboard`,
       },
       {
         name: 'restriction_level',
-        type: 'number',
+        type: 'string',
         required: false,
-        description: `* '21' - Everyone in the project can edit * '37' - Only those invited to this dashboard can edit`,
+        description: `* \`21\` - Everyone in the project can edit
+* \`37\` - Only those invited to this dashboard can edit`,
       },
-      { name: 'tags', type: 'array', required: false, description: `Tags.` },
+      { name: 'tags', type: 'array', required: false, description: `No description.` },
       {
         name: 'use_dashboard',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `ID of an existing dashboard to duplicate.`,
       },
@@ -1416,14 +1523,20 @@ and query definition.`,
     description: `Update an existing dashboard by ID. Can update name, description, pinned status, tags, filters, and restriction level. The returned tiles omit insight results to save context — use dashboard-insights-run to fetch the actual data for each insight.`,
     params: [
       {
+        name: 'id',
+        type: 'number',
+        required: true,
+        description: `A unique integer value identifying this dashboard.`,
+      },
+      {
         name: 'breakdown_colors',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `Custom color mapping for breakdown values.`,
       },
       {
         name: 'data_color_theme_id',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `ID of the color theme used for chart visualizations.`,
       },
@@ -1433,31 +1546,26 @@ and query definition.`,
         required: false,
         description: `When deleting, also delete insights that are only on this dashboard.`,
       },
-      { name: 'description', type: 'string', required: false, description: `Description.` },
-      {
-        name: 'id',
-        type: 'number',
-        required: true,
-        description: `A unique integer value identifying this dashboard.`,
-      },
-      { name: 'name', type: 'string', required: false, description: `Name.` },
-      { name: 'pinned', type: 'boolean', required: false, description: `Pinned.` },
+      { name: 'description', type: 'string', required: false, description: `No description.` },
+      { name: 'name', type: 'string', required: false, description: `No description.` },
+      { name: 'pinned', type: 'boolean', required: false, description: `No description.` },
       {
         name: 'quick_filter_ids',
-        type: 'array',
+        type: 'string',
         required: false,
         description: `List of quick filter IDs associated with this dashboard`,
       },
       {
         name: 'restriction_level',
-        type: 'number',
+        type: 'string',
         required: false,
-        description: `* '21' - Everyone in the project can edit * '37' - Only those invited to this dashboard can edit`,
+        description: `* \`21\` - Everyone in the project can edit
+* \`37\` - Only those invited to this dashboard can edit`,
       },
-      { name: 'tags', type: 'array', required: false, description: `Tags.` },
+      { name: 'tags', type: 'array', required: false, description: `No description.` },
       {
         name: 'use_dashboard',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `ID of an existing dashboard to duplicate.`,
       },
@@ -1514,12 +1622,31 @@ and query definition.`,
   {
     name: 'posthogmcp_docs_search',
     description: `Use this tool to search the PostHog documentation for information that can help the user with their request. Use it as a fallback when you cannot answer the user's request using other tools in this MCP. Only use this tool for PostHog related questions.`,
-    params: [{ name: 'query', type: 'string', required: true, description: `Query.` }],
+    params: [{ name: 'query', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'posthogmcp_early_access_feature_create',
     description: `Create a new early access feature. A feature flag is automatically created unless feature_flag_id is provided. Stage determines whether opted-in users get the feature enabled.`,
     params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the early access feature.`,
+      },
+      {
+        name: 'stage',
+        type: 'string',
+        required: true,
+        description: `Lifecycle stage. Valid values: draft, concept, alpha, beta, general-availability, archived. Moving to an active stage (alpha/beta/general-availability) enables the feature flag for opted-in users.
+
+* \`draft\` - draft
+* \`concept\` - concept
+* \`alpha\` - alpha
+* \`beta\` - beta
+* \`general-availability\` - general availability
+* \`archived\` - archived`,
+      },
       {
         name: 'description',
         type: 'string',
@@ -1539,22 +1666,10 @@ and query definition.`,
         description: `Optional ID of an existing feature flag to link. If omitted, a new flag is auto-created from the feature name. The flag must not already be linked to another feature, must not be group-based, and must not be multivariate.`,
       },
       {
-        name: 'name',
-        type: 'string',
-        required: true,
-        description: `The name of the early access feature.`,
-      },
-      {
         name: 'payload',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `Arbitrary JSON metadata associated with this feature.`,
-      },
-      {
-        name: 'stage',
-        type: 'string',
-        required: true,
-        description: `Lifecycle stage. Valid values: draft, concept, alpha, beta, general-availability, archived. Moving to an active stage (alpha/beta/general-availability) enables the feature flag for opted-in users.  * 'draft' - draft * 'concept' - concept * 'alpha' - alpha * 'beta' - beta * 'general-availability' - general availability * 'archived' - archived`,
       },
     ],
   },
@@ -1593,6 +1708,12 @@ and query definition.`,
     description: `Update an early access feature by ID. Changing the stage automatically updates the linked feature flag's enrollment conditions.`,
     params: [
       {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `A UUID string identifying this early access feature.`,
+      },
+      {
         name: 'description',
         type: 'string',
         required: false,
@@ -1605,12 +1726,6 @@ and query definition.`,
         description: `URL to external documentation for this feature. Shown to users in the opt-in UI.`,
       },
       {
-        name: 'id',
-        type: 'string',
-        required: true,
-        description: `A UUID string identifying this early access feature.`,
-      },
-      {
         name: 'name',
         type: 'string',
         required: false,
@@ -1620,7 +1735,14 @@ and query definition.`,
         name: 'stage',
         type: 'string',
         required: false,
-        description: `Lifecycle stage. Valid values: draft, concept, alpha, beta, general-availability, archived. Moving to an active stage (alpha/beta/general-availability) enables the feature flag for opted-in users.  * 'draft' - draft * 'concept' - concept * 'alpha' - alpha * 'beta' - beta * 'general-availability' - general availability * 'archived' - archived`,
+        description: `Lifecycle stage. Valid values: draft, concept, alpha, beta, general-availability, archived. Moving to an active stage (alpha/beta/general-availability) enables the feature flag for opted-in users.
+
+* \`draft\` - draft
+* \`concept\` - concept
+* \`alpha\` - alpha
+* \`beta\` - beta
+* \`general-availability\` - general availability
+* \`archived\` - archived`,
       },
     ],
   },
@@ -1642,7 +1764,7 @@ and query definition.`,
     params: [
       {
         name: 'cache_age_seconds',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `Cache TTL in seconds (60–86400).`,
       },
@@ -1654,7 +1776,7 @@ and query definition.`,
       },
       {
         name: 'is_materialized',
-        type: 'boolean',
+        type: 'string',
         required: false,
         description: `Whether query results are materialized to S3.`,
       },
@@ -1666,7 +1788,7 @@ and query definition.`,
       },
       {
         name: 'query',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `HogQL or insight query this endpoint executes. Changing this auto-creates a new version.`,
       },
@@ -1675,23 +1797,23 @@ and query definition.`,
   {
     name: 'posthogmcp_endpoint_delete',
     description: `Delete an endpoint by name. The endpoint is soft-deleted and its materialized views are cleaned up.`,
-    params: [{ name: 'name', type: 'string', required: true, description: `Name.` }],
+    params: [{ name: 'name', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'posthogmcp_endpoint_get',
     description: `Get a specific endpoint by name. Returns the full endpoint configuration including query definition, version info, materialization status, and column types. Supports ?version=N to retrieve a specific version.`,
-    params: [{ name: 'name', type: 'string', required: true, description: `Name.` }],
+    params: [{ name: 'name', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'posthogmcp_endpoint_materialization_status',
     description: `Get lightweight materialization status for an endpoint without fetching full endpoint data. Returns whether materialization is possible, current status, last run time, and any errors. Supports ?version=N.`,
-    params: [{ name: 'name', type: 'string', required: true, description: `Name.` }],
+    params: [{ name: 'name', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'posthogmcp_endpoint_openapi_spec',
     description: `Get the OpenAPI 3.0 specification for an endpoint. Returns a JSON spec that can be used with SDK generators like openapi-generator or @hey-api/openapi-ts to create typed API clients. Supports ?version=N to generate a spec for a specific version.`,
     params: [
-      { name: 'name', type: 'string', required: true, description: `Name.` },
+      { name: 'name', type: 'string', required: true, description: `No description.` },
       {
         name: 'version',
         type: 'number',
@@ -1704,23 +1826,23 @@ and query definition.`,
     name: 'posthogmcp_endpoint_run',
     description: `Execute an endpoint's query and return results. Uses materialized results when available, otherwise runs inline. For HogQL endpoints, variable keys must match code_name values. For insight endpoints with breakdowns, use the breakdown property name as the key.`,
     params: [
+      { name: 'name', type: 'string', required: true, description: `No description.` },
       {
         name: 'limit',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `Maximum number of results to return. If not provided, returns all results.`,
       },
-      { name: 'name', type: 'string', required: true, description: `Name.` },
       {
         name: 'offset',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `Number of results to skip. Must be used together with limit. Only supported for HogQL endpoints.`,
       },
-      { name: 'refresh', type: 'string', required: false, description: `Refresh.` },
+      { name: 'refresh', type: 'string', required: false, description: `No description.` },
       {
         name: 'variables',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `Key-value pairs to parameterize the query. For HogQL endpoints, keys match variable code_name (e.g. {"event_name": "$pageview"}). For insight endpoints with breakdowns, use the breakdown property name as key.`,
       },
@@ -1730,9 +1852,10 @@ and query definition.`,
     name: 'posthogmcp_endpoint_update',
     description: `Update an existing endpoint by name. Can update the query (auto-creates a new version), description, cache age, active status, and materialization. Pass version in body to target a specific version for non-query updates.`,
     params: [
+      { name: 'name', type: 'string', required: true, description: `No description.` },
       {
         name: 'cache_age_seconds',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `Cache TTL in seconds (60–86400).`,
       },
@@ -1744,26 +1867,25 @@ and query definition.`,
       },
       {
         name: 'is_active',
-        type: 'boolean',
+        type: 'string',
         required: false,
         description: `Whether this endpoint is available for execution via the API.`,
       },
       {
         name: 'is_materialized',
-        type: 'boolean',
+        type: 'string',
         required: false,
         description: `Whether query results are materialized to S3.`,
       },
-      { name: 'name', type: 'string', required: true, description: `Name.` },
       {
         name: 'query',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `HogQL or insight query this endpoint executes. Changing this auto-creates a new version.`,
       },
       {
         name: 'version',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `Target a specific version for updates (defaults to current version).`,
       },
@@ -1773,15 +1895,15 @@ and query definition.`,
     name: 'posthogmcp_endpoint_versions',
     description: `List all versions for an endpoint, in descending order (latest first). Each version contains the query snapshot, description, cache settings, and materialization status at that point in time.`,
     params: [
-      { name: 'created_by', type: 'number', required: false, description: `Created by.` },
-      { name: 'is_active', type: 'boolean', required: false, description: `Is active.` },
+      { name: 'name', type: 'string', required: true, description: `No description.` },
+      { name: 'created_by', type: 'number', required: false, description: `No description.` },
+      { name: 'is_active', type: 'boolean', required: false, description: `No description.` },
       {
         name: 'limit',
         type: 'number',
         required: false,
         description: `Number of results to return per page.`,
       },
-      { name: 'name', type: 'string', required: true, description: `Name.` },
       {
         name: 'offset',
         type: 'number',
@@ -1794,8 +1916,8 @@ and query definition.`,
     name: 'posthogmcp_endpoints_get_all',
     description: `Get all API endpoints in the current project. Endpoints expose saved HogQL or insight queries as callable API routes. Returns name, description, query, active status, current version, and materialization info for each endpoint.`,
     params: [
-      { name: 'created_by', type: 'number', required: false, description: `Created by.` },
-      { name: 'is_active', type: 'boolean', required: false, description: `Is active.` },
+      { name: 'created_by', type: 'number', required: false, description: `No description.` },
+      { name: 'is_active', type: 'boolean', required: false, description: `No description.` },
       {
         name: 'limit',
         type: 'number',
@@ -1815,16 +1937,16 @@ and query definition.`,
     description: `Search for PostHog entities by name or description. Can search across multiple entity types including insights, dashboards, experiments, feature flags, notebooks, actions, cohorts, event definitions, and surveys. Use this to find entities when you know part of their name. Returns matching entities with their IDs and URLs.`,
     params: [
       {
-        name: 'entities',
-        type: 'array',
-        required: false,
-        description: `Entity types to search. If not specified, searches all types. Available: insight, dashboard, experiment, feature_flag, notebook, action, cohort, event_definition, survey`,
-      },
-      {
         name: 'query',
         type: 'string',
         required: true,
         description: `Search query to find entities by name or description`,
+      },
+      {
+        name: 'entities',
+        type: 'array',
+        required: false,
+        description: `Entity types to search. If not specified, searches all types. Available: insight, dashboard, experiment, feature_flag, notebook, action, cohort, event_definition, survey`,
       },
     ],
   },
@@ -1869,8 +1991,14 @@ and query definition.`,
     description: `Create an error tracking grouping rule for the current project. Provide required \`filters\`, and optionally set \`assignee\` and \`description\` for the issues this rule creates.`,
     params: [
       {
-        name: 'assignee',
+        name: 'filters',
         type: 'object',
+        required: true,
+        description: `Property-group filters that define which exceptions should be grouped into the same issue.`,
+      },
+      {
+        name: 'assignee',
+        type: 'string',
         required: false,
         description: `Optional user or role to assign to issues created by this grouping rule.`,
       },
@@ -1879,12 +2007,6 @@ and query definition.`,
         type: 'string',
         required: false,
         description: `Optional human-readable description of what this grouping rule is for.`,
-      },
-      {
-        name: 'filters',
-        type: 'object',
-        required: true,
-        description: `Property-group filters that define which exceptions should be grouped into the same issue.`,
       },
     ],
   },
@@ -1933,22 +2055,26 @@ and query definition.`,
     name: 'posthogmcp_error_tracking_issues_partial_update',
     description: `Update an error tracking issue. Can change status (active, resolved, suppressed), assign to a user, or update description.`,
     params: [
-      { name: 'assignee', type: 'object', required: false, description: `Assignee.` },
-      { name: 'description', type: 'string', required: false, description: `Description.` },
-      { name: 'external_issues', type: 'array', required: false, description: `External issues.` },
-      { name: 'first_seen', type: 'string', required: false, description: `First seen.` },
       {
         name: 'id',
         type: 'string',
         required: true,
         description: `A UUID string identifying this error tracking issue.`,
       },
-      { name: 'name', type: 'string', required: false, description: `Name.` },
+      { name: 'assignee', type: 'object', required: false, description: `No description.` },
+      { name: 'description', type: 'string', required: false, description: `No description.` },
+      { name: 'external_issues', type: 'array', required: false, description: `No description.` },
+      { name: 'first_seen', type: 'string', required: false, description: `No description.` },
+      { name: 'name', type: 'string', required: false, description: `No description.` },
       {
         name: 'status',
         type: 'string',
         required: false,
-        description: `* 'archived' - Archived * 'active' - Active * 'resolved' - Resolved * 'pending_release' - Pending release * 'suppressed' - Suppressed`,
+        description: `* \`archived\` - Archived
+* \`active\` - Active
+* \`resolved\` - Resolved
+* \`pending_release\` - Pending release
+* \`suppressed\` - Suppressed`,
       },
     ],
   },
@@ -1969,16 +2095,16 @@ and query definition.`,
     description: `Split one or more fingerprints out of an existing error tracking issue into new issues. Provide the source issue as \`id\` and the fingerprints to split as \`fingerprints\`, where each entry includes a required \`fingerprint\` and optional \`name\` or \`description\`.`,
     params: [
       {
-        name: 'fingerprints',
-        type: 'array',
-        required: false,
-        description: `Fingerprints to split into new issues. Each fingerprint becomes its own new issue.`,
-      },
-      {
         name: 'id',
         type: 'string',
         required: true,
         description: `A UUID string identifying this error tracking issue.`,
+      },
+      {
+        name: 'fingerprints',
+        type: 'array',
+        required: false,
+        description: `Fingerprints to split into new issues. Each fingerprint becomes its own new issue.`,
       },
     ],
   },
@@ -2005,6 +2131,19 @@ and query definition.`,
     description: `Create a new LLM analytics evaluation. Two types are supported: 'llm_judge' uses an LLM to score generations against a prompt you define (for subjective checks like tone, helpfulness, hallucination detection), and 'hog' runs deterministic code against each generation (for rule-based checks like format validation, keyword detection, length limits). For llm_judge evaluations, provide a prompt in evaluation_config and a model_configuration. For hog evaluations, provide source code in evaluation_config.`,
     params: [
       {
+        name: 'evaluation_config',
+        type: 'object',
+        required: true,
+        description: `Configuration for the evaluation. Provide "prompt" for llm_judge or "source" for hog type.`,
+      },
+      {
+        name: 'evaluation_type',
+        type: 'string',
+        required: true,
+        description: `Type of evaluation. "llm_judge" uses an LLM to score generations against a prompt. "hog" runs deterministic Hog code.`,
+      },
+      { name: 'name', type: 'string', required: true, description: `Name of the evaluation.` },
+      {
         name: 'description',
         type: 'string',
         required: false,
@@ -2017,25 +2156,12 @@ and query definition.`,
         description: `Whether the evaluation runs automatically on new generations. Defaults to false.`,
       },
       {
-        name: 'evaluation_config',
-        type: 'object',
-        required: true,
-        description: `Configuration for the evaluation. Provide "prompt" for llm_judge or "source" for hog type.`,
-      },
-      {
-        name: 'evaluation_type',
-        type: 'string',
-        required: true,
-        description: `Type of evaluation. "llm_judge" uses an LLM to score generations against a prompt. "hog" runs deterministic Hog code.`,
-      },
-      {
         name: 'model_configuration',
         type: 'object',
         required: false,
         description: `LLM model configuration (required for llm_judge evaluations).`,
       },
-      { name: 'name', type: 'string', required: true, description: `Name of the evaluation.` },
-      { name: 'output_config', type: 'object', required: false, description: `Output config.` },
+      { name: 'output_config', type: 'object', required: false, description: `No description.` },
       {
         name: 'output_type',
         type: 'string',
@@ -2073,22 +2199,10 @@ and query definition.`,
     description: `Trigger an evaluation run on a specific $ai_generation event. This executes the evaluation (either LLM judge or Hog code) against the target event asynchronously via a background workflow. The run is async — it returns a workflow_id and status 'started'. Results are written as '$ai_evaluation' events once complete. To check results after triggering a run, query events with: SELECT properties.$ai_evaluation_result as result, properties.$ai_evaluation_reasoning as reasoning FROM events WHERE event = '$ai_evaluation' AND properties.$ai_evaluation_id = '<evaluation_uuid>' AND properties.$ai_target_event_id = '<generation_event_uuid>' ORDER BY timestamp DESC LIMIT 1.`,
     params: [
       {
-        name: 'distinct_id',
-        type: 'string',
-        required: false,
-        description: `Distinct ID of the event (optional, improves lookup performance).`,
-      },
-      {
         name: 'evaluationId',
         type: 'string',
         required: true,
         description: `The UUID of the evaluation to run.`,
-      },
-      {
-        name: 'event',
-        type: 'string',
-        required: false,
-        description: `Event name. Defaults to "$ai_generation".`,
       },
       {
         name: 'target_event_id',
@@ -2102,12 +2216,30 @@ and query definition.`,
         required: true,
         description: `ISO 8601 timestamp of the target event (needed for efficient lookup).`,
       },
+      {
+        name: 'distinct_id',
+        type: 'string',
+        required: false,
+        description: `Distinct ID of the event (optional, improves lookup performance).`,
+      },
+      {
+        name: 'event',
+        type: 'string',
+        required: false,
+        description: `Event name. Defaults to "$ai_generation".`,
+      },
     ],
   },
   {
     name: 'posthogmcp_evaluation_test_hog',
     description: `Test Hog evaluation code against recent $ai_generation events without persisting results. Compiles the provided Hog source code and runs it against a sample of recent events (up to 10 from the last 7 days). Returns per-event results with input/output previews, pass/fail verdicts, and any errors. Use this to validate Hog evaluation logic before enabling it.`,
     params: [
+      {
+        name: 'source',
+        type: 'string',
+        required: true,
+        description: `Hog source code to test. Must return a boolean (true = pass, false = fail).`,
+      },
       {
         name: 'allows_na',
         type: 'boolean',
@@ -2126,30 +2258,24 @@ and query definition.`,
         required: false,
         description: `Number of recent $ai_generation events to test against (1-10, default 5).`,
       },
-      {
-        name: 'source',
-        type: 'string',
-        required: true,
-        description: `Hog source code to test. Must return a boolean (true = pass, false = fail).`,
-      },
     ],
   },
   {
     name: 'posthogmcp_evaluation_update',
     description: `Update an existing LLM analytics evaluation. You can change the name, description, enabled status, evaluation config (prompt or source code), and output config. Use this to enable/disable evaluations or modify their scoring logic.`,
     params: [
+      {
+        name: 'evaluationId',
+        type: 'string',
+        required: true,
+        description: `The UUID of the evaluation to update.`,
+      },
       { name: 'description', type: 'string', required: false, description: `Updated description.` },
       {
         name: 'enabled',
         type: 'boolean',
         required: false,
         description: `Enable or disable the evaluation.`,
-      },
-      {
-        name: 'evaluationId',
-        type: 'string',
-        required: true,
-        description: `The UUID of the evaluation to update.`,
       },
       {
         name: 'evaluation_config',
@@ -2206,8 +2332,8 @@ and query definition.`,
     name: 'posthogmcp_event_definitions_list',
     description: `List all event definitions in the project with optional filtering. Can filter by search term.`,
     params: [
-      { name: 'limit', type: 'integer', required: false, description: `Limit.` },
-      { name: 'offset', type: 'integer', required: false, description: `Offset.` },
+      { name: 'limit', type: 'integer', required: false, description: `No description.` },
+      { name: 'offset', type: 'integer', required: false, description: `No description.` },
       {
         name: 'q',
         type: 'string',
@@ -2233,10 +2359,17 @@ and query definition.`,
     description: `Create a comprehensive A/B test experiment. PROCESS: 1) Understand experiment goal and hypothesis 2) Search existing feature flags with 'feature-flags-get-all' tool first and suggest reuse or new key 3) Help user define success metrics by asking what they want to optimize 4) MOST IMPORTANT: Use 'event-definitions-list' tool to find available events in their project 5) For funnel metrics, provide the series array with EventsNode entries for each step 6) Configure variants (default 50/50 control/test unless they specify otherwise) 7) Set targeting criteria if needed.`,
     params: [
       {
+        name: 'feature_flag_key',
+        type: 'string',
+        required: true,
+        description: `Unique key for the experiment's feature flag. Letters, numbers, hyphens, and underscores only. Search existing flags with the feature-flags-get-all tool first — reuse an existing flag when possible.`,
+      },
+      { name: 'name', type: 'string', required: true, description: `Name of the experiment.` },
+      {
         name: 'allow_unknown_events',
         type: 'boolean',
         required: false,
-        description: `Allow unknown events.`,
+        description: `No description.`,
       },
       {
         name: 'description',
@@ -2246,38 +2379,31 @@ and query definition.`,
       },
       {
         name: 'exposure_criteria',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `Exposure configuration including filter test accounts and custom exposure events.`,
       },
       {
-        name: 'feature_flag_key',
-        type: 'string',
-        required: true,
-        description: `Unique key for the experiment's feature flag. Letters, numbers, hyphens, and underscores only. Search existing flags with the feature-flags-get-all tool first — reuse an existing flag when possible.`,
-      },
-      {
         name: 'holdout_id',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `ID of a holdout group to exclude from the experiment.`,
       },
       {
         name: 'metrics',
-        type: 'array',
+        type: 'string',
         required: false,
         description: `Primary experiment metrics. Each metric must have kind='ExperimentMetric' and a metric_type: 'mean' (set source to an EventsNode with an event name), 'funnel' (set series to an array of EventsNode steps), 'ratio' (set numerator and denominator EventsNode entries), or 'retention' (set start_event and completion_event). Use the event-definitions-list tool to find available events in the project.`,
       },
       {
         name: 'metrics_secondary',
-        type: 'array',
+        type: 'string',
         required: false,
         description: `Secondary metrics for additional measurements. Same format as primary metrics.`,
       },
-      { name: 'name', type: 'string', required: true, description: `Name of the experiment.` },
       {
         name: 'parameters',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `Variant definitions and statistical configuration. Set feature_flag_variants to customize the split (default: 50/50 control/test). Each variant needs a key and rollout_percentage; percentages must sum to 100. Set minimum_detectable_effect (percentage, suggest 20-30) to control statistical power.`,
       },
@@ -2285,7 +2411,10 @@ and query definition.`,
         name: 'type',
         type: 'string',
         required: false,
-        description: `Experiment type: web for frontend UI changes, product for backend/API changes.  * 'web' - web * 'product' - product`,
+        description: `Experiment type: web for frontend UI changes, product for backend/API changes.
+
+* \`web\` - web
+* \`product\` - product`,
       },
     ],
   },
@@ -2306,22 +2435,28 @@ and query definition.`,
     description: `End a running experiment. Sets end_date to now but does NOT modify the feature flag. Optionally provide a conclusion and comment. Returns 400 if the experiment is not running.`,
     params: [
       {
+        name: 'id',
+        type: 'number',
+        required: true,
+        description: `A unique integer value identifying this experiment.`,
+      },
+      {
         name: 'conclusion',
         type: 'string',
         required: false,
-        description: `The conclusion of the experiment.  * 'won' - won * 'lost' - lost * 'inconclusive' - inconclusive * 'stopped_early' - stopped_early * 'invalid' - invalid`,
+        description: `The conclusion of the experiment.
+
+* \`won\` - won
+* \`lost\` - lost
+* \`inconclusive\` - inconclusive
+* \`stopped_early\` - stopped_early
+* \`invalid\` - invalid`,
       },
       {
         name: 'conclusion_comment',
         type: 'string',
         required: false,
         description: `Optional comment about the experiment conclusion.`,
-      },
-      {
-        name: 'id',
-        type: 'number',
-        required: true,
-        description: `A unique integer value identifying this experiment.`,
       },
     ],
   },
@@ -2426,18 +2561,6 @@ and query definition.`,
     description: `Ship a variant to 100% of users and optionally end the experiment. Requires variant_key. Can include conclusion and conclusion_comment. Returns 400 if the experiment is in draft state.`,
     params: [
       {
-        name: 'conclusion',
-        type: 'string',
-        required: false,
-        description: `The conclusion of the experiment.  * 'won' - won * 'lost' - lost * 'inconclusive' - inconclusive * 'stopped_early' - stopped_early * 'invalid' - invalid`,
-      },
-      {
-        name: 'conclusion_comment',
-        type: 'string',
-        required: false,
-        description: `Optional comment about the experiment conclusion.`,
-      },
-      {
         name: 'id',
         type: 'number',
         required: true,
@@ -2449,12 +2572,36 @@ and query definition.`,
         required: true,
         description: `The key of the variant to ship to 100% of users.`,
       },
+      {
+        name: 'conclusion',
+        type: 'string',
+        required: false,
+        description: `The conclusion of the experiment.
+
+* \`won\` - won
+* \`lost\` - lost
+* \`inconclusive\` - inconclusive
+* \`stopped_early\` - stopped_early
+* \`invalid\` - invalid`,
+      },
+      {
+        name: 'conclusion_comment',
+        type: 'string',
+        required: false,
+        description: `Optional comment about the experiment conclusion.`,
+      },
     ],
   },
   {
     name: 'posthogmcp_experiment_update',
     description: `Update an existing experiment by ID. Can update name, description, variants, metrics, and other properties. Use lifecycle tools for state transitions: experiment-launch to start, experiment-end to stop, experiment-reset to return to draft, experiment-pause/experiment-resume to temporarily halt. NOTE: feature_flag_key cannot be changed after creation.`,
     params: [
+      {
+        name: 'id',
+        type: 'number',
+        required: true,
+        description: `A unique integer value identifying this experiment.`,
+      },
       {
         name: 'archived',
         type: 'boolean',
@@ -2465,7 +2612,13 @@ and query definition.`,
         name: 'conclusion',
         type: 'string',
         required: false,
-        description: `Experiment conclusion: won, lost, inconclusive, stopped_early, or invalid.  * 'won' - won * 'lost' - lost * 'inconclusive' - inconclusive * 'stopped_early' - stopped_early * 'invalid' - invalid`,
+        description: `Experiment conclusion: won, lost, inconclusive, stopped_early, or invalid.
+
+* \`won\` - won
+* \`lost\` - lost
+* \`inconclusive\` - inconclusive
+* \`stopped_early\` - stopped_early
+* \`invalid\` - invalid`,
       },
       {
         name: 'conclusion_comment',
@@ -2481,32 +2634,26 @@ and query definition.`,
       },
       {
         name: 'exposure_criteria',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `Exposure configuration including filter test accounts and custom exposure events.`,
       },
       {
-        name: 'id',
-        type: 'number',
-        required: true,
-        description: `A unique integer value identifying this experiment.`,
-      },
-      {
         name: 'metrics',
-        type: 'array',
+        type: 'string',
         required: false,
         description: `Primary experiment metrics. Each metric must have kind='ExperimentMetric' and a metric_type: 'mean' (set source to an EventsNode with an event name), 'funnel' (set series to an array of EventsNode steps), 'ratio' (set numerator and denominator EventsNode entries), or 'retention' (set start_event and completion_event). Use the event-definitions-list tool to find available events in the project.`,
       },
       {
         name: 'metrics_secondary',
-        type: 'array',
+        type: 'string',
         required: false,
         description: `Secondary metrics for additional measurements. Same format as primary metrics.`,
       },
       { name: 'name', type: 'string', required: false, description: `Name of the experiment.` },
       {
         name: 'parameters',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `Variant definitions and statistical configuration. Set feature_flag_variants to customize the split (default: 50/50 control/test). Each variant needs a key and rollout_percentage; percentages must sum to 100. Set minimum_detectable_effect (percentage, suggest 20-30) to control statistical power.`,
       },
@@ -2516,7 +2663,7 @@ and query definition.`,
     name: 'posthogmcp_feature_flag_get_all',
     description: `Get feature flags in the current project. Supports list filters including search by feature flag key or name (case-insensitive), then use the returned ID for get/update/delete tools.`,
     params: [
-      { name: 'active', type: 'string', required: false, description: `Active.` },
+      { name: 'active', type: 'string', required: false, description: `No description.` },
       {
         name: 'created_by_id',
         type: 'string',
@@ -2565,7 +2712,7 @@ and query definition.`,
         required: false,
         description: `JSON-encoded list of tag names to filter feature flags by.`,
       },
-      { name: 'type', type: 'string', required: false, description: `Type.` },
+      { name: 'type', type: 'string', required: false, description: `No description.` },
     ],
   },
   {
@@ -2599,12 +2746,6 @@ and query definition.`,
     description: `Copy a feature flag from one project to other projects within the same organization. Provide the flag key, source project ID, and a list of target project IDs. Optionally copy scheduled changes with copy_schedule. Returns lists of successful and failed copies.`,
     params: [
       {
-        name: 'copy_schedule',
-        type: 'boolean',
-        required: false,
-        description: `Whether to also copy scheduled changes for this flag`,
-      },
-      {
         name: 'feature_flag_key',
         type: 'string',
         required: true,
@@ -2621,6 +2762,12 @@ and query definition.`,
         type: 'array',
         required: true,
         description: `List of target project IDs to copy the flag to`,
+      },
+      {
+        name: 'copy_schedule',
+        type: 'boolean',
+        required: false,
+        description: `Whether to also copy scheduled changes for this flag`,
       },
     ],
   },
@@ -2673,7 +2820,7 @@ and query definition.`,
       },
       {
         name: 'group_type_index',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `Group type index for group-based flags (null for person-based flags)`,
       },
@@ -2683,25 +2830,25 @@ and query definition.`,
     name: 'posthogmcp_get_llm_total_costs_for_project',
     description: `Fetches the total LLM daily costs for each model for a project over a given number of days. If no number of days is provided, it defaults to 7. The results are sorted by model name. The total cost is rounded to 4 decimal places. The query is executed against the project's data warehouse. Show the results as a Markdown formatted table with the following information for each model: Model name, Total cost in USD, Each day's date, Each day's cost in USD. Write in bold the model name with the highest total cost. Properly render the markdown table in the response.`,
     params: [
-      { name: 'days', type: 'number', required: false, description: `Days.` },
-      { name: 'projectId', type: 'integer', required: true, description: `Projectid.` },
+      { name: 'projectId', type: 'integer', required: true, description: `No description.` },
+      { name: 'days', type: 'number', required: false, description: `No description.` },
     ],
   },
   {
     name: 'posthogmcp_insight_create',
     description: `Create a new saved insight from a name and query definition. Test queries with query-trends / query-funnel / query-retention / query-paths / query-stickiness / query-lifecycle first to confirm the shape, then save. Returns insight metadata only — after creating, call the insight-query tool with the returned \`short_id\` if you want to see the computed results.`,
     params: [
+      { name: 'query', type: 'string', required: true, description: `No description.` },
       {
         name: 'dashboards',
         type: 'array',
         required: false,
         description: `Dashboard IDs this insight should belong to. This is a full replacement — always include all existing dashboard IDs when adding a new one.`,
       },
-      { name: 'description', type: 'string', required: false, description: `Description.` },
-      { name: 'favorited', type: 'boolean', required: false, description: `Favorited.` },
-      { name: 'name', type: 'string', required: false, description: `Name.` },
-      { name: 'query', type: 'object', required: true, description: `Query.` },
-      { name: 'tags', type: 'array', required: false, description: `Tags.` },
+      { name: 'description', type: 'string', required: false, description: `No description.` },
+      { name: 'favorited', type: 'boolean', required: false, description: `No description.` },
+      { name: 'name', type: 'string', required: false, description: `No description.` },
+      { name: 'tags', type: 'array', required: false, description: `No description.` },
     ],
   },
   {
@@ -2710,9 +2857,9 @@ and query definition.`,
     params: [
       {
         name: 'id',
-        type: 'number',
+        type: 'string',
         required: true,
-        description: `Numeric primary key or 8-character 'short_id' (for example 'AaVQ8Ijw') identifying the insight.`,
+        description: `Numeric primary key or 8-character \`short_id\` (for example \`AaVQ8Ijw\`) identifying the insight.`,
       },
     ],
   },
@@ -2722,9 +2869,9 @@ and query definition.`,
     params: [
       {
         name: 'id',
-        type: 'number',
+        type: 'string',
         required: true,
-        description: `Numeric primary key or 8-character 'short_id' (for example 'AaVQ8Ijw') identifying the insight.`,
+        description: `Numeric primary key or 8-character \`short_id\` (for example \`AaVQ8Ijw\`) identifying the insight.`,
       },
     ],
   },
@@ -2751,22 +2898,22 @@ and query definition.`,
     description: `Update a saved insight by numeric \`id\` or \`short_id\`. Can update name, description, query, tags, favorited status, and dashboards. Returns insight metadata only — after updating the query, call the insight-query tool with the same identifier if you want to see the recomputed results.`,
     params: [
       {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Numeric primary key or 8-character \`short_id\` (for example \`AaVQ8Ijw\`) identifying the insight.`,
+      },
+      {
         name: 'dashboards',
         type: 'array',
         required: false,
         description: `Dashboard IDs this insight should belong to. This is a full replacement — always include all existing dashboard IDs when adding a new one.`,
       },
-      { name: 'description', type: 'string', required: false, description: `Description.` },
-      { name: 'favorited', type: 'boolean', required: false, description: `Favorited.` },
-      {
-        name: 'id',
-        type: 'number',
-        required: true,
-        description: `Numeric primary key or 8-character 'short_id' (for example 'AaVQ8Ijw') identifying the insight.`,
-      },
-      { name: 'name', type: 'string', required: false, description: `Name.` },
-      { name: 'query', type: 'object', required: false, description: `Query.` },
-      { name: 'tags', type: 'array', required: false, description: `Tags.` },
+      { name: 'description', type: 'string', required: false, description: `No description.` },
+      { name: 'favorited', type: 'boolean', required: false, description: `No description.` },
+      { name: 'name', type: 'string', required: false, description: `No description.` },
+      { name: 'query', type: 'string', required: false, description: `No description.` },
+      { name: 'tags', type: 'array', required: false, description: `No description.` },
     ],
   },
   {
@@ -2785,7 +2932,7 @@ and query definition.`,
         required: false,
         description: `The initial index from which to return the results.`,
       },
-      { name: 'short_id', type: 'string', required: false, description: `Short id.` },
+      { name: 'short_id', type: 'string', required: false, description: `No description.` },
     ],
   },
   {
@@ -2874,7 +3021,12 @@ and query definition.`,
         name: 'filter',
         type: 'string',
         required: false,
-        description: `Filter type to apply ('all', 'pass', 'fail', or 'na')  * 'all' - all * 'pass' - pass * 'fail' - fail * 'na' - na`,
+        description: `Filter type to apply ('all', 'pass', 'fail', or 'na')
+
+* \`all\` - all
+* \`pass\` - pass
+* \`fail\` - fail
+* \`na\` - na`,
       },
       {
         name: 'force_refresh',
@@ -2894,16 +3046,17 @@ and query definition.`,
     name: 'posthogmcp_llm_analytics_sentiment_create',
     description: `Classify sentiment of LLM trace or generation user messages as positive, neutral, or negative. Pass a list of trace or generation IDs and an analysis_level ("trace" or "generation"). Returns per-ID sentiment labels with confidence scores and per-message breakdowns. Results are cached — use force_refresh to recompute. Rate-limited.`,
     params: [
+      { name: 'ids', type: 'array', required: true, description: `No description.` },
       {
         name: 'analysis_level',
         type: 'string',
         required: false,
-        description: `* 'trace' - trace * 'generation' - generation`,
+        description: `* \`trace\` - trace
+* \`generation\` - generation`,
       },
-      { name: 'date_from', type: 'string', required: false, description: `Date from.` },
-      { name: 'date_to', type: 'string', required: false, description: `Date to.` },
-      { name: 'force_refresh', type: 'boolean', required: false, description: `Force refresh.` },
-      { name: 'ids', type: 'array', required: true, description: `Ids.` },
+      { name: 'date_from', type: 'string', required: false, description: `No description.` },
+      { name: 'date_to', type: 'string', required: false, description: `No description.` },
+      { name: 'force_refresh', type: 'boolean', required: false, description: `No description.` },
     ],
   },
   {
@@ -2912,7 +3065,7 @@ and query definition.`,
     params: [
       {
         name: 'data',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `Data to summarize. For traces: {trace, hierarchy}. For events: {event}. Not required when using trace_id or generation_id.`,
       },
@@ -2944,7 +3097,10 @@ and query definition.`,
         name: 'mode',
         type: 'string',
         required: false,
-        description: `Summary detail level: 'minimal' for 3-5 points, 'detailed' for 5-10 points  * 'minimal' - minimal * 'detailed' - detailed`,
+        description: `Summary detail level: 'minimal' for 3-5 points, 'detailed' for 5-10 points
+
+* \`minimal\` - minimal
+* \`detailed\` - detailed`,
       },
       {
         name: 'model',
@@ -2956,7 +3112,10 @@ and query definition.`,
         name: 'summarize_type',
         type: 'string',
         required: false,
-        description: `Type of entity to summarize. Inferred automatically when using trace_id or generation_id.  * 'trace' - trace * 'event' - event`,
+        description: `Type of entity to summarize. Inferred automatically when using trace_id or generation_id.
+
+* \`trace\` - trace
+* \`event\` - event`,
       },
       {
         name: 'trace_id',
@@ -2971,10 +3130,19 @@ and query definition.`,
     description: `List values for a specific log attribute key. Use to discover what values exist before building filters. Defaults to attribute_type "log" (log-level attributes). To get values for resource-level attributes (e.g. service.name, k8s.pod.name), you MUST explicitly pass attribute_type: "resource". Accepts optional serviceNames, dateRange, and filterGroup to narrow which logs are scanned.`,
     params: [
       {
+        name: 'key',
+        type: 'string',
+        required: true,
+        description: `The attribute key to get values for`,
+      },
+      {
         name: 'attribute_type',
         type: 'string',
         required: false,
-        description: `Type of attribute: "log" or "resource". Defaults to "log".  * 'log' - log * 'resource' - resource`,
+        description: `Type of attribute: "log" or "resource". Defaults to "log".
+
+* \`log\` - log
+* \`resource\` - resource`,
       },
       {
         name: 'dateRange',
@@ -2987,12 +3155,6 @@ and query definition.`,
         type: 'array',
         required: false,
         description: `Property filters to narrow which logs are scanned for values.`,
-      },
-      {
-        name: 'key',
-        type: 'string',
-        required: true,
-        description: `The attribute key to get values for`,
       },
       {
         name: 'serviceNames',
@@ -3016,7 +3178,10 @@ and query definition.`,
         name: 'attribute_type',
         type: 'string',
         required: false,
-        description: `Type of attributes: "log" for log attributes, "resource" for resource attributes. Defaults to "log".  * 'log' - log * 'resource' - resource`,
+        description: `Type of attributes: "log" for log attributes, "resource" for resource attributes. Defaults to "log".
+
+* \`log\` - log
+* \`resource\` - resource`,
       },
       {
         name: 'dateRange',
@@ -3138,7 +3303,7 @@ Break down the sparkline by \`"severity"\` (default) or \`"service"\`. Use \`"se
     params: [
       {
         name: 'content',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `Notebook content as a ProseMirror JSON document structure.`,
       },
@@ -3166,7 +3331,7 @@ Break down the sparkline by \`"severity"\` (default) or \`"service"\`. Use \`"se
   {
     name: 'posthogmcp_notebooks_destroy',
     description: `Delete a notebook by short_id. The notebook will be soft-deleted and no longer appear in lists.`,
-    params: [{ name: 'short_id', type: 'string', required: true, description: `Short id.` }],
+    params: [{ name: 'short_id', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'posthogmcp_notebooks_list',
@@ -3176,7 +3341,9 @@ Break down the sparkline by \`"severity"\` (default) or \`"service"\`. Use \`"se
         name: 'contains',
         type: 'string',
         required: false,
-        description: `Filter for notebooks that match a provided filter.                 Each match pair is separated by a colon,                 multiple match pairs can be sent separated by a space or a comma`,
+        description: `Filter for notebooks that match a provided filter.
+                Each match pair is separated by a colon,
+                multiple match pairs can be sent separated by a space or a comma`,
       },
       {
         name: 'created_by',
@@ -3220,9 +3387,10 @@ Break down the sparkline by \`"severity"\` (default) or \`"service"\`. Use \`"se
     name: 'posthogmcp_notebooks_partial_update',
     description: `Update an existing notebook by short_id. Can update title, content, and deleted status. IMPORTANT: when updating the content field, you must provide the current version number for optimistic concurrency control. Retrieve the notebook first to get the latest version.`,
     params: [
+      { name: 'short_id', type: 'string', required: true, description: `No description.` },
       {
         name: 'content',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `Notebook content as a ProseMirror JSON document structure.`,
       },
@@ -3232,7 +3400,6 @@ Break down the sparkline by \`"severity"\` (default) or \`"service"\`. Use \`"se
         required: false,
         description: `Whether the notebook has been soft-deleted.`,
       },
-      { name: 'short_id', type: 'string', required: true, description: `Short id.` },
       {
         name: 'text_content',
         type: 'string',
@@ -3251,7 +3418,7 @@ Break down the sparkline by \`"severity"\` (default) or \`"service"\`. Use \`"se
   {
     name: 'posthogmcp_notebooks_retrieve',
     description: `Get a specific notebook by its short_id. Returns the full notebook including title, content, version, and creation/modification metadata.`,
-    params: [{ name: 'short_id', type: 'string', required: true, description: `Short id.` }],
+    params: [{ name: 'short_id', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'posthogmcp_org_members_list',
@@ -3273,7 +3440,7 @@ Break down the sparkline by \`"severity"\` (default) or \`"service"\`. Use \`"se
         name: 'order',
         type: 'string',
         required: false,
-        description: `Sort order. Defaults to '-joined_at'.`,
+        description: `Sort order. Defaults to \`-joined_at\`.`,
       },
     ],
   },
@@ -3422,7 +3589,7 @@ Break down the sparkline by \`"severity"\` (default) or \`"service"\`. Use \`"se
       { name: 'key', type: 'string', required: true, description: `The property key to set.` },
       {
         name: 'value',
-        type: 'object',
+        type: 'string',
         required: true,
         description: `The property value. Can be a string, number, boolean, or object.`,
       },
@@ -3475,7 +3642,7 @@ Break down the sparkline by \`"severity"\` (default) or \`"service"\`. Use \`"se
       },
       {
         name: 'prompt',
-        type: 'object',
+        type: 'string',
         required: true,
         description: `Prompt payload as JSON or string data.`,
       },
@@ -3491,7 +3658,7 @@ Break down the sparkline by \`"severity"\` (default) or \`"service"\`. Use \`"se
         required: true,
         description: `Name for the duplicated prompt. Must be unique and use only letters, numbers, hyphens, and underscores.`,
       },
-      { name: 'prompt_name', type: 'string', required: true, description: `Prompt name.` },
+      { name: 'prompt_name', type: 'string', required: true, description: `No description.` },
     ],
   },
   {
@@ -3501,13 +3668,17 @@ The response always includes \`outline\`, a flat list of markdown headings parse
 as a lightweight table of contents. Pass \`content=none\` to get the outline without the prompt payload,
 or \`content=preview\` for a short \`prompt_preview\` snippet instead of the full prompt.`,
     params: [
+      { name: 'prompt_name', type: 'string', required: true, description: `No description.` },
       {
         name: 'content',
         type: 'string',
         required: false,
-        description: `Controls how much prompt content is included in the response. 'full' includes the full prompt, 'preview' includes a short prompt_preview, and 'none' omits prompt content entirely. The outline field is always included.  * 'full' - full * 'preview' - preview * 'none' - none`,
+        description: `Controls how much prompt content is included in the response. 'full' includes the full prompt, 'preview' includes a short prompt_preview, and 'none' omits prompt content entirely. The outline field is always included.
+
+* \`full\` - full
+* \`preview\` - preview
+* \`none\` - none`,
       },
-      { name: 'prompt_name', type: 'string', required: true, description: `Prompt name.` },
       {
         name: 'version',
         type: 'number',
@@ -3542,6 +3713,7 @@ find/replace updates. Each edit must have 'old' (text to find, must match exactl
 'new' (replacement text). Edits are applied sequentially. Only one of 'prompt' or 'edits'
 may be provided.`,
     params: [
+      { name: 'prompt_name', type: 'string', required: true, description: `No description.` },
       {
         name: 'base_version',
         type: 'number',
@@ -3556,17 +3728,17 @@ may be provided.`,
       },
       {
         name: 'prompt',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `Full prompt payload to publish as a new version. Mutually exclusive with edits.`,
       },
-      { name: 'prompt_name', type: 'string', required: true, description: `Prompt name.` },
     ],
   },
   {
     name: 'posthogmcp_properties_list',
     description: `List properties for events or persons. If fetching event properties, you must provide an event name.`,
     params: [
+      { name: 'type', type: 'string', required: true, description: `Type of properties to get` },
       {
         name: 'eventName',
         type: 'string',
@@ -3579,9 +3751,8 @@ may be provided.`,
         required: false,
         description: `Whether to include predefined properties`,
       },
-      { name: 'limit', type: 'integer', required: false, description: `Limit.` },
-      { name: 'offset', type: 'integer', required: false, description: `Offset.` },
-      { name: 'type', type: 'string', required: true, description: `Type of properties to get` },
+      { name: 'limit', type: 'integer', required: false, description: `No description.` },
+      { name: 'offset', type: 'integer', required: false, description: `No description.` },
     ],
   },
   {
@@ -3823,7 +3994,7 @@ All defaults apply: \`status: "active"\`, \`orderBy: "occurrences"\`, \`dateRang
 - Ensure that any properties included are directly relevant to the context and objectives of the user's question. Avoid unnecessary or unrelated details.
 - Avoid overcomplicating the response with excessive property filters. Focus on the simplest solution.`,
     params: [
-      { name: 'assignee', type: 'object', required: false, description: `Filter by assignee.` },
+      { name: 'assignee', type: 'string', required: false, description: `Filter by assignee.` },
       {
         name: 'dateRange',
         type: 'object',
@@ -3848,9 +4019,9 @@ All defaults apply: \`status: "active"\`, \`orderBy: "occurrences"\`, \`dateRang
         required: false,
         description: `Filter to a specific error tracking issue by ID.`,
       },
-      { name: 'kind', type: 'string', required: false, description: `Kind.` },
-      { name: 'limit', type: 'integer', required: false, description: `Limit.` },
-      { name: 'offset', type: 'integer', required: false, description: `Offset.` },
+      { name: 'kind', type: 'string', required: false, description: `No description.` },
+      { name: 'limit', type: 'integer', required: false, description: `No description.` },
+      { name: 'offset', type: 'integer', required: false, description: `No description.` },
       {
         name: 'orderBy',
         type: 'string',
@@ -4076,14 +4247,7 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
   {
     name: 'posthogmcp_query_run',
     description: `You should use this to answer questions that a user has about their data and for when you want to create a new insight. You can use 'event-definitions-list' to get events to use in the query, and 'event-properties-list' to get properties for those events. It can run a trend, funnel, paths or HogQL query. Where possible, use a trend, funnel or paths query rather than a HogQL query, unless you know the HogQL is correct (e.g. it came from a previous insight.). Use PathsQuery to visualize user flows and navigation patterns — set includeEventTypes to ['hogql'] with a pathsHogQLExpression for custom path steps.`,
-    params: [
-      {
-        name: 'query',
-        type: 'object',
-        required: true,
-        description: `Query object. For analytics charts use InsightVizNode: {kind: 'InsightVizNode', source: TrendsQuery|FunnelsQuery|PathsQuery}. For SQL use DataVisualizationNode: {kind: 'DataVisualizationNode', source: {kind: 'HogQLQuery', query: 'SELECT ...'}}. TrendsQuery and FunnelsQuery require series: [{kind: 'EventsNode', event: 'event_name', custom_name: 'Label'}]. PathsQuery supports pathsFilter for controlling steps and edge limits.`,
-      },
-    ],
+    params: [{ name: 'query', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'posthogmcp_role_get',
@@ -4101,6 +4265,7 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
     name: 'posthogmcp_role_members_list',
     description: `List all members assigned to a specific role. Shows who has which role in the organization.`,
     params: [
+      { name: 'role_id', type: 'string', required: true, description: `No description.` },
       {
         name: 'limit',
         type: 'number',
@@ -4113,7 +4278,6 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
         required: false,
         description: `The initial index from which to return the results.`,
       },
-      { name: 'role_id', type: 'string', required: true, description: `Role id.` },
     ],
   },
   {
@@ -4138,7 +4302,33 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
     name: 'posthogmcp_scheduled_changes_create',
     description: `Schedule a future change to a feature flag. Supported operations: 'update_status' (enable/disable), 'add_release_condition', and 'update_variants'. Provide the flag ID as record_id, model_name as "FeatureFlag", a payload with the operation and value, and a scheduled_at datetime.`,
     params: [
-      { name: 'cron_expression', type: 'string', required: false, description: `Cron expression.` },
+      {
+        name: 'model_name',
+        type: 'string',
+        required: true,
+        description: `The type of record to modify. Currently only "FeatureFlag" is supported.
+
+* \`FeatureFlag\` - feature flag`,
+      },
+      {
+        name: 'payload',
+        type: 'string',
+        required: true,
+        description: `The change to apply. Must include an 'operation' key and a 'value' key. Supported operations: 'update_status' (value: true/false to enable/disable the flag), 'add_release_condition' (value: object with 'groups', 'payloads', and 'multivariate' keys), 'update_variants' (value: object with 'variants' and 'payloads' keys).`,
+      },
+      {
+        name: 'record_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the record to modify (e.g. the feature flag ID).`,
+      },
+      {
+        name: 'scheduled_at',
+        type: 'string',
+        required: true,
+        description: `ISO 8601 datetime when the change should be applied (e.g. '2025-06-01T14:00:00Z').`,
+      },
+      { name: 'cron_expression', type: 'string', required: false, description: `No description.` },
       {
         name: 'end_date',
         type: 'string',
@@ -4152,34 +4342,15 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
         description: `Whether this schedule repeats. Only the 'update_status' operation supports recurring schedules.`,
       },
       {
-        name: 'model_name',
-        type: 'string',
-        required: true,
-        description: `The type of record to modify. Currently only "FeatureFlag" is supported.  * 'FeatureFlag' - feature flag`,
-      },
-      {
-        name: 'payload',
-        type: 'object',
-        required: true,
-        description: `The change to apply. Must include an 'operation' key and a 'value' key. Supported operations: 'update_status' (value: true/false to enable/disable the flag), 'add_release_condition' (value: object with 'groups', 'payloads', and 'multivariate' keys), 'update_variants' (value: object with 'variants' and 'payloads' keys).`,
-      },
-      {
-        name: 'record_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the record to modify (e.g. the feature flag ID).`,
-      },
-      {
         name: 'recurrence_interval',
         type: 'string',
         required: false,
-        description: `How often the schedule repeats. Required when is_recurring is true. One of: daily, weekly, monthly, yearly.  * 'daily' - daily * 'weekly' - weekly * 'monthly' - monthly * 'yearly' - yearly`,
-      },
-      {
-        name: 'scheduled_at',
-        type: 'string',
-        required: true,
-        description: `ISO 8601 datetime when the change should be applied (e.g. '2025-06-01T14:00:00Z').`,
+        description: `How often the schedule repeats. Required when is_recurring is true. One of: daily, weekly, monthly, yearly.
+
+* \`daily\` - daily
+* \`weekly\` - weekly
+* \`monthly\` - monthly
+* \`yearly\` - yearly`,
       },
     ],
   },
@@ -4241,18 +4412,18 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
     name: 'posthogmcp_scheduled_changes_update',
     description: `Update a pending scheduled change by ID. You can modify the payload, scheduled_at time, or recurrence settings. Cannot change the target record (record_id) or model type (model_name).`,
     params: [
-      { name: 'cron_expression', type: 'string', required: false, description: `Cron expression.` },
-      {
-        name: 'end_date',
-        type: 'string',
-        required: false,
-        description: `Optional ISO 8601 datetime after which a recurring schedule stops executing.`,
-      },
       {
         name: 'id',
         type: 'number',
         required: true,
         description: `A unique integer value identifying this scheduled change.`,
+      },
+      { name: 'cron_expression', type: 'string', required: false, description: `No description.` },
+      {
+        name: 'end_date',
+        type: 'string',
+        required: false,
+        description: `Optional ISO 8601 datetime after which a recurring schedule stops executing.`,
       },
       {
         name: 'is_recurring',
@@ -4264,11 +4435,13 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
         name: 'model_name',
         type: 'string',
         required: false,
-        description: `The type of record to modify. Currently only "FeatureFlag" is supported.  * 'FeatureFlag' - feature flag`,
+        description: `The type of record to modify. Currently only "FeatureFlag" is supported.
+
+* \`FeatureFlag\` - feature flag`,
       },
       {
         name: 'payload',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `The change to apply. Must include an 'operation' key and a 'value' key. Supported operations: 'update_status' (value: true/false to enable/disable the flag), 'add_release_condition' (value: object with 'groups', 'payloads', and 'multivariate' keys), 'update_variants' (value: object with 'variants' and 'payloads' keys).`,
       },
@@ -4282,7 +4455,12 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
         name: 'recurrence_interval',
         type: 'string',
         required: false,
-        description: `How often the schedule repeats. Required when is_recurring is true. One of: daily, weekly, monthly, yearly.  * 'daily' - daily * 'weekly' - weekly * 'monthly' - monthly * 'yearly' - yearly`,
+        description: `How often the schedule repeats. Required when is_recurring is true. One of: daily, weekly, monthly, yearly.
+
+* \`daily\` - daily
+* \`weekly\` - weekly
+* \`monthly\` - monthly
+* \`yearly\` - yearly`,
       },
       {
         name: 'scheduled_at',
@@ -4326,7 +4504,7 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
         required: false,
         description: `Set to true to soft-delete the playlist.`,
       },
-      { name: 'derived_name', type: 'string', required: false, description: `Derived name.` },
+      { name: 'derived_name', type: 'string', required: false, description: `No description.` },
       {
         name: 'description',
         type: 'string',
@@ -4335,7 +4513,7 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
       },
       {
         name: 'filters',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `JSON object with recording filter criteria. Only used when type is 'filters'. Defines which recordings match this saved filter view. When updating a filters-type playlist, you must include the existing filters alongside any other changes — omitting filters will be treated as removing them.`,
       },
@@ -4355,26 +4533,30 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
         name: 'type',
         type: 'string',
         required: false,
-        description: `Playlist type: 'collection' for manually curated recordings, 'filters' for saved filter views. Required on create, cannot be changed after.  * 'collection' - Collection * 'filters' - Filters`,
+        description: `Playlist type: 'collection' for manually curated recordings, 'filters' for saved filter views. Required on create, cannot be changed after.
+
+* \`collection\` - Collection
+* \`filters\` - Filters`,
       },
     ],
   },
   {
     name: 'posthogmcp_session_recording_playlist_get',
     description: `Get a specific session recording playlist by short_id. Returns full playlist metadata including name, description, filters, type, and recording counts.`,
-    params: [{ name: 'short_id', type: 'string', required: true, description: `Short id.` }],
+    params: [{ name: 'short_id', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'posthogmcp_session_recording_playlist_update',
     description: `Update an existing session recording playlist by short_id. Can update name, description, pinned status, and filters. Set deleted to true to soft-delete. The type field cannot be changed after creation. When updating a filters-type playlist, you must include the existing filters alongside other field changes, otherwise the update will fail.`,
     params: [
+      { name: 'short_id', type: 'string', required: true, description: `No description.` },
       {
         name: 'deleted',
         type: 'boolean',
         required: false,
         description: `Set to true to soft-delete the playlist.`,
       },
-      { name: 'derived_name', type: 'string', required: false, description: `Derived name.` },
+      { name: 'derived_name', type: 'string', required: false, description: `No description.` },
       {
         name: 'description',
         type: 'string',
@@ -4383,7 +4565,7 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
       },
       {
         name: 'filters',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `JSON object with recording filter criteria. Only used when type is 'filters'. Defines which recordings match this saved filter view. When updating a filters-type playlist, you must include the existing filters alongside any other changes — omitting filters will be treated as removing them.`,
       },
@@ -4399,14 +4581,13 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
         required: false,
         description: `Whether this playlist is pinned to the top of the list.`,
       },
-      { name: 'short_id', type: 'string', required: true, description: `Short id.` },
     ],
   },
   {
     name: 'posthogmcp_session_recording_playlists_list',
     description: `List session recording playlists in the project. Returns both user-created and synthetic (system-generated) playlists with their metadata and recording counts.`,
     params: [
-      { name: 'created_by', type: 'number', required: false, description: `Created by.` },
+      { name: 'created_by', type: 'number', required: false, description: `No description.` },
       {
         name: 'limit',
         type: 'number',
@@ -4419,7 +4600,7 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
         required: false,
         description: `The initial index from which to return the results.`,
       },
-      { name: 'short_id', type: 'string', required: false, description: `Short id.` },
+      { name: 'short_id', type: 'string', required: false, description: `No description.` },
     ],
   },
   {
@@ -4427,26 +4608,59 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
     description: `Create a new subscription to receive scheduled deliveries of an insight or dashboard. Requires either an insight ID or dashboard ID. Set target_type to email, slack, or webhook and target_value to the recipient(s). For email: comma-separated addresses. For slack: requires an integration_id for a connected Slack workspace plus a channel name in target_value. For webhook: a URL. Set frequency (daily, weekly, monthly, yearly) and optionally interval, byweekday, start_date, and until_date. Dashboard subscriptions also require dashboard_export_insights (list of insight IDs from that dashboard, max 6).`,
     params: [
       {
+        name: 'frequency',
+        type: 'string',
+        required: true,
+        description: `How often to deliver: daily, weekly, monthly, or yearly.
+
+* \`daily\` - Daily
+* \`weekly\` - Weekly
+* \`monthly\` - Monthly
+* \`yearly\` - Yearly`,
+      },
+      {
+        name: 'start_date',
+        type: 'string',
+        required: true,
+        description: `When to start delivering (ISO 8601 datetime).`,
+      },
+      {
+        name: 'target_type',
+        type: 'string',
+        required: true,
+        description: `Delivery channel: email, slack, or webhook.
+
+* \`email\` - Email
+* \`slack\` - Slack
+* \`webhook\` - Webhook`,
+      },
+      {
+        name: 'target_value',
+        type: 'string',
+        required: true,
+        description: `Recipient(s): comma-separated email addresses for email, Slack channel name/ID for slack, or full URL for webhook.`,
+      },
+      {
         name: 'bysetpos',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `Position within byweekday set for monthly frequency (e.g. 1 for first, -1 for last).`,
       },
       {
         name: 'byweekday',
-        type: 'array',
+        type: 'string',
         required: false,
         description: `Days of week for weekly subscriptions: monday, tuesday, wednesday, thursday, friday, saturday, sunday.`,
       },
       {
         name: 'count',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `Total number of deliveries before the subscription stops. Null for unlimited.`,
       },
       {
         name: 'dashboard',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `Dashboard ID to subscribe to (mutually exclusive with insight on create).`,
       },
@@ -4463,20 +4677,14 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
         description: `Set to true to soft-delete. Subscriptions cannot be hard-deleted.`,
       },
       {
-        name: 'frequency',
-        type: 'string',
-        required: true,
-        description: `How often to deliver: daily, weekly, monthly, or yearly.  * 'daily' - Daily * 'weekly' - Weekly * 'monthly' - Monthly * 'yearly' - Yearly`,
-      },
-      {
         name: 'insight',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `Insight ID to subscribe to (mutually exclusive with dashboard on create).`,
       },
       {
         name: 'integration_id',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `ID of a connected Slack integration. Required when target_type is slack.`,
       },
@@ -4492,35 +4700,12 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
         required: false,
         description: `Optional message included in the invitation email when adding new recipients.`,
       },
-      {
-        name: 'start_date',
-        type: 'string',
-        required: true,
-        description: `When to start delivering (ISO 8601 datetime).`,
-      },
-      {
-        name: 'summary_enabled',
-        type: 'boolean',
-        required: false,
-        description: `Summary enabled.`,
-      },
+      { name: 'summary_enabled', type: 'boolean', required: false, description: `No description.` },
       {
         name: 'summary_prompt_guide',
         type: 'string',
         required: false,
-        description: `Summary prompt guide.`,
-      },
-      {
-        name: 'target_type',
-        type: 'string',
-        required: true,
-        description: `Delivery channel: email, slack, or webhook.  * 'email' - Email * 'slack' - Slack * 'webhook' - Webhook`,
-      },
-      {
-        name: 'target_value',
-        type: 'string',
-        required: true,
-        description: `Recipient(s): comma-separated email addresses for email, Slack channel name/ID for slack, or full URL for webhook.`,
+        description: `No description.`,
       },
       {
         name: 'title',
@@ -4591,26 +4776,32 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
     description: `Update an existing subscription by ID. Can change target_type, target_value, frequency, interval, byweekday, start_date, until_date, title, or deleted status. Set deleted to true to deactivate a subscription (subscriptions are soft-deleted). Changing target_value triggers notifications to new recipients.`,
     params: [
       {
-        name: 'bysetpos',
+        name: 'id',
         type: 'number',
+        required: true,
+        description: `A unique integer value identifying this subscription.`,
+      },
+      {
+        name: 'bysetpos',
+        type: 'string',
         required: false,
         description: `Position within byweekday set for monthly frequency (e.g. 1 for first, -1 for last).`,
       },
       {
         name: 'byweekday',
-        type: 'array',
+        type: 'string',
         required: false,
         description: `Days of week for weekly subscriptions: monday, tuesday, wednesday, thursday, friday, saturday, sunday.`,
       },
       {
         name: 'count',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `Total number of deliveries before the subscription stops. Null for unlimited.`,
       },
       {
         name: 'dashboard',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `Dashboard ID to subscribe to (mutually exclusive with insight on create).`,
       },
@@ -4630,23 +4821,22 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
         name: 'frequency',
         type: 'string',
         required: false,
-        description: `How often to deliver: daily, weekly, monthly, or yearly.  * 'daily' - Daily * 'weekly' - Weekly * 'monthly' - Monthly * 'yearly' - Yearly`,
-      },
-      {
-        name: 'id',
-        type: 'number',
-        required: true,
-        description: `A unique integer value identifying this subscription.`,
+        description: `How often to deliver: daily, weekly, monthly, or yearly.
+
+* \`daily\` - Daily
+* \`weekly\` - Weekly
+* \`monthly\` - Monthly
+* \`yearly\` - Yearly`,
       },
       {
         name: 'insight',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `Insight ID to subscribe to (mutually exclusive with dashboard on create).`,
       },
       {
         name: 'integration_id',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `ID of a connected Slack integration. Required when target_type is slack.`,
       },
@@ -4668,23 +4858,22 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
         required: false,
         description: `When to start delivering (ISO 8601 datetime).`,
       },
-      {
-        name: 'summary_enabled',
-        type: 'boolean',
-        required: false,
-        description: `Summary enabled.`,
-      },
+      { name: 'summary_enabled', type: 'boolean', required: false, description: `No description.` },
       {
         name: 'summary_prompt_guide',
         type: 'string',
         required: false,
-        description: `Summary prompt guide.`,
+        description: `No description.`,
       },
       {
         name: 'target_type',
         type: 'string',
         required: false,
-        description: `Delivery channel: email, slack, or webhook.  * 'email' - Email * 'slack' - Slack * 'webhook' - Webhook`,
+        description: `Delivery channel: email, slack, or webhook.
+
+* \`email\` - Email
+* \`slack\` - Slack
+* \`webhook\` - Webhook`,
       },
       {
         name: 'target_value',
@@ -4722,47 +4911,169 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
     name: 'posthogmcp_survey_create',
     description: `Creates a new survey in the project. Surveys can be popover or API-based and support various question types including open-ended, multiple choice, rating, and link questions. Once created, you should ask the user if they want to add the survey to their application code.`,
     params: [
+      { name: 'name', type: 'string', required: true, description: `Survey name.` },
+      {
+        name: 'type',
+        type: 'string',
+        required: true,
+        description: `Survey type.
+
+* \`popover\` - popover
+* \`widget\` - widget
+* \`external_survey\` - external survey
+* \`api\` - api`,
+      },
       {
         name: 'appearance',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `Survey appearance customization.`,
       },
       { name: 'description', type: 'string', required: false, description: `Survey description.` },
       {
         name: 'enable_partial_responses',
-        type: 'boolean',
+        type: 'string',
         required: false,
         description: `When at least one question is answered, the response is stored (true). The response is stored when all questions are answered (false).`,
       },
       {
         name: 'iteration_count',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `For a recurring schedule, this field specifies the number of times the survey should be shown to the user. Use 1 for 'once every X days', higher numbers for multiple repetitions. Works together with iteration_frequency_days to determine the overall survey schedule.`,
       },
       {
         name: 'iteration_frequency_days',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `For a recurring schedule, this field specifies the interval in days between each survey instance shown to the user, used alongside iteration_count for precise scheduling.`,
       },
       {
         name: 'linked_flag_id',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `The feature flag linked to this survey.`,
       },
-      { name: 'name', type: 'string', required: true, description: `Survey name.` },
       {
         name: 'questions',
-        type: 'array',
+        type: 'string',
         required: false,
-        description: `The 'array' of questions included in the survey. Each question must conform to one of the defined question types: Basic, Link, Rating, or Multiple Choice.          Basic (open-ended question)         - 'id': The question ID         - 'type': 'open'         - 'question': The text of the question.         - 'description': Optional description of the question.         - 'descriptionContentType': Content type of the description ('html' or 'text').         - 'optional': Whether the question is optional ('boolean').         - 'buttonText': Text displayed on the submit button.         - 'branching': Branching logic for the question. See branching types below for details.          Link (a question with a link)         - 'id': The question ID         - 'type': 'link'         - 'question': The text of the question.         - 'description': Optional description of the question.         - 'descriptionContentType': Content type of the description ('html' or 'text').         - 'optional': Whether the question is optional ('boolean').         - 'buttonText': Text displayed on the submit button.         - 'link': The URL associated with the question.         - 'branching': Branching logic for the question. See branching types below for details.          Rating (a question with a rating scale)         - 'id': The question ID         - 'type': 'rating'         - 'question': The text of the question.         - 'description': Optional description of the question.         - 'descriptionContentType': Content type of the description ('html' or 'text').         - 'optional': Whether the question is optional ('boolean').         - 'buttonText': Text displayed on the submit button.         - 'display': Display style of the rating ('number' or 'emoji').         - 'scale': The scale of the rating ('number').         - 'lowerBoundLabel': Label for the lower bound of the scale.         - 'upperBoundLabel': Label for the upper bound of the scale.         - 'isNpsQuestion': Whether the question is an NPS rating.         - 'branching': Branching logic for the question. See branching types below for details.          Multiple choice         - 'id': The question ID         - 'type': 'single_choice' or 'multiple_choice'         - 'question': The text of the question.         - 'description': Optional description of the question.         - 'descriptionContentType': Content type of the description ('html' or 'text').         - 'optional': Whether the question is optional ('boolean').         - 'buttonText': Text displayed on the submit button.         - 'choices': An array of choices for the question.         - 'shuffleOptions': Whether to shuffle the order of the choices ('boolean').         - 'hasOpenChoice': Whether the question allows an open-ended response ('boolean').         - 'branching': Branching logic for the question. See branching types below for details.          Branching logic can be one of the following types:          Next question: Proceeds to the next question         '''json         {             "type": "next_question"         }         '''          End: Ends the survey, optionally displaying a confirmation message.         '''json         {             "type": "end"         }         '''          Response-based: Branches based on the response values. Available for the 'rating' and 'single_choice' question types.         '''json         {             "type": "response_based",             "responseValues": {                 "responseKey": "value"             }         }         '''          Specific question: Proceeds to a specific question by index.         '''json         {             "type": "specific_question",             "index": 2         }         '''          Translations: Each question can include inline translations.         - 'translations': Object mapping language codes to translated fields.         - Language codes: Any string - allows customers to use their own language keys (e.g., "es", "es-MX", "english", "french")         - Translatable fields: 'question', 'description', 'buttonText', 'choices', 'lowerBoundLabel', 'upperBoundLabel', 'link'          Example with translations:         '''json         {             "id": "uuid",             "type": "rating",             "question": "How satisfied are you?",             "lowerBoundLabel": "Not satisfied",             "upperBoundLabel": "Very satisfied",             "translations": {                 "es": {                     "question": "¿Qué tan satisfecho estás?",                     "lowerBoundLabel": "No satisfecho",                     "upperBoundLabel": "Muy satisfecho"                 },                 "fr": {                     "question": "Dans quelle mesure êtes-vous satisfait?"                 }             }         }         '''`,
+        description: `
+        The \`array\` of questions included in the survey. Each question must conform to one of the defined question types: Basic, Link, Rating, or Multiple Choice.
+
+        Basic (open-ended question)
+        - \`id\`: The question ID
+        - \`type\`: \`open\`
+        - \`question\`: The text of the question.
+        - \`description\`: Optional description of the question.
+        - \`descriptionContentType\`: Content type of the description (\`html\` or \`text\`).
+        - \`optional\`: Whether the question is optional (\`boolean\`).
+        - \`buttonText\`: Text displayed on the submit button.
+        - \`branching\`: Branching logic for the question. See branching types below for details.
+
+        Link (a question with a link)
+        - \`id\`: The question ID
+        - \`type\`: \`link\`
+        - \`question\`: The text of the question.
+        - \`description\`: Optional description of the question.
+        - \`descriptionContentType\`: Content type of the description (\`html\` or \`text\`).
+        - \`optional\`: Whether the question is optional (\`boolean\`).
+        - \`buttonText\`: Text displayed on the submit button.
+        - \`link\`: The URL associated with the question.
+        - \`branching\`: Branching logic for the question. See branching types below for details.
+
+        Rating (a question with a rating scale)
+        - \`id\`: The question ID
+        - \`type\`: \`rating\`
+        - \`question\`: The text of the question.
+        - \`description\`: Optional description of the question.
+        - \`descriptionContentType\`: Content type of the description (\`html\` or \`text\`).
+        - \`optional\`: Whether the question is optional (\`boolean\`).
+        - \`buttonText\`: Text displayed on the submit button.
+        - \`display\`: Display style of the rating (\`number\` or \`emoji\`).
+        - \`scale\`: The scale of the rating (\`number\`).
+        - \`lowerBoundLabel\`: Label for the lower bound of the scale.
+        - \`upperBoundLabel\`: Label for the upper bound of the scale.
+        - \`isNpsQuestion\`: Whether the question is an NPS rating.
+        - \`branching\`: Branching logic for the question. See branching types below for details.
+
+        Multiple choice
+        - \`id\`: The question ID
+        - \`type\`: \`single_choice\` or \`multiple_choice\`
+        - \`question\`: The text of the question.
+        - \`description\`: Optional description of the question.
+        - \`descriptionContentType\`: Content type of the description (\`html\` or \`text\`).
+        - \`optional\`: Whether the question is optional (\`boolean\`).
+        - \`buttonText\`: Text displayed on the submit button.
+        - \`choices\`: An array of choices for the question.
+        - \`shuffleOptions\`: Whether to shuffle the order of the choices (\`boolean\`).
+        - \`hasOpenChoice\`: Whether the question allows an open-ended response (\`boolean\`).
+        - \`branching\`: Branching logic for the question. See branching types below for details.
+
+        Branching logic can be one of the following types:
+
+        Next question: Proceeds to the next question
+        \`\`\`json
+        {
+            "type": "next_question"
+        }
+        \`\`\`
+
+        End: Ends the survey, optionally displaying a confirmation message.
+        \`\`\`json
+        {
+            "type": "end"
+        }
+        \`\`\`
+
+        Response-based: Branches based on the response values. Available for the \`rating\` and \`single_choice\` question types.
+        \`\`\`json
+        {
+            "type": "response_based",
+            "responseValues": {
+                "responseKey": "value"
+            }
+        }
+        \`\`\`
+
+        Specific question: Proceeds to a specific question by index.
+        \`\`\`json
+        {
+            "type": "specific_question",
+            "index": 2
+        }
+        \`\`\`
+
+        Translations: Each question can include inline translations.
+        - \`translations\`: Object mapping language codes to translated fields.
+        - Language codes: Any string - allows customers to use their own language keys (e.g., "es", "es-MX", "english", "french")
+        - Translatable fields: \`question\`, \`description\`, \`buttonText\`, \`choices\`, \`lowerBoundLabel\`, \`upperBoundLabel\`, \`link\`
+
+        Example with translations:
+        \`\`\`json
+        {
+            "id": "uuid",
+            "type": "rating",
+            "question": "How satisfied are you?",
+            "lowerBoundLabel": "Not satisfied",
+            "upperBoundLabel": "Very satisfied",
+            "translations": {
+                "es": {
+                    "question": "¿Qué tan satisfecho estás?",
+                    "lowerBoundLabel": "No satisfecho",
+                    "upperBoundLabel": "Muy satisfecho"
+                },
+                "fr": {
+                    "question": "Dans quelle mesure êtes-vous satisfait?"
+                }
+            }
+        }
+        \`\`\`
+        `,
       },
       {
         name: 'responses_limit',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `The maximum number of responses before automatically stopping the survey.`,
       },
@@ -4774,15 +5085,9 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
       },
       {
         name: 'targeting_flag_filters',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `Target specific users based on their properties. Example: {groups: [{properties: [{key: 'email', value: ['@company.com'], operator: 'icontains'}], rollout_percentage: 100}]}`,
-      },
-      {
-        name: 'type',
-        type: 'string',
-        required: true,
-        description: `Survey type.  * 'popover' - popover * 'widget' - widget * 'external_survey' - external survey * 'api' - api`,
       },
     ],
   },
@@ -4815,6 +5120,12 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
     description: `Get response statistics for a specific survey. Includes detailed event counts (shown, dismissed, sent), unique respondents, conversion rates, and timing data. Supports optional date filtering.`,
     params: [
       {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `A UUID string identifying this survey.`,
+      },
+      {
         name: 'date_from',
         type: 'string',
         required: false,
@@ -4826,12 +5137,6 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
         required: false,
         description: `Optional ISO timestamp for end date (e.g. 2024-01-31T23:59:59Z)`,
       },
-      {
-        name: 'id',
-        type: 'string',
-        required: true,
-        description: `A UUID string identifying this survey.`,
-      },
     ],
   },
   {
@@ -4839,8 +5144,14 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
     description: `Update an existing survey by ID. Can update name, description, questions, scheduling, and other survey properties.`,
     params: [
       {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `A UUID string identifying this survey.`,
+      },
+      {
         name: 'appearance',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `Survey appearance customization.`,
       },
@@ -4852,14 +5163,14 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
       },
       {
         name: 'conditions',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `Display and targeting conditions for the survey.`,
       },
       { name: 'description', type: 'string', required: false, description: `Survey description.` },
       {
         name: 'enable_partial_responses',
-        type: 'boolean',
+        type: 'string',
         required: false,
         description: `When at least one question is answered, the response is stored (true). The response is stored when all questions are answered (false).`,
       },
@@ -4870,45 +5181,150 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
         description: `When the survey stopped being shown to users. Setting this will complete the survey.`,
       },
       {
-        name: 'id',
-        type: 'string',
-        required: true,
-        description: `A UUID string identifying this survey.`,
-      },
-      {
         name: 'iteration_count',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `For a recurring schedule, this field specifies the number of times the survey should be shown to the user. Use 1 for 'once every X days', higher numbers for multiple repetitions. Works together with iteration_frequency_days to determine the overall survey schedule.`,
       },
       {
         name: 'iteration_frequency_days',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `For a recurring schedule, this field specifies the interval in days between each survey instance shown to the user, used alongside iteration_count for precise scheduling.`,
       },
       {
         name: 'linked_flag_id',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `The feature flag linked to this survey.`,
       },
       { name: 'name', type: 'string', required: false, description: `Survey name.` },
       {
         name: 'questions',
-        type: 'array',
+        type: 'string',
         required: false,
-        description: `The 'array' of questions included in the survey. Each question must conform to one of the defined question types: Basic, Link, Rating, or Multiple Choice.          Basic (open-ended question)         - 'id': The question ID         - 'type': 'open'         - 'question': The text of the question.         - 'description': Optional description of the question.         - 'descriptionContentType': Content type of the description ('html' or 'text').         - 'optional': Whether the question is optional ('boolean').         - 'buttonText': Text displayed on the submit button.         - 'branching': Branching logic for the question. See branching types below for details.          Link (a question with a link)         - 'id': The question ID         - 'type': 'link'         - 'question': The text of the question.         - 'description': Optional description of the question.         - 'descriptionContentType': Content type of the description ('html' or 'text').         - 'optional': Whether the question is optional ('boolean').         - 'buttonText': Text displayed on the submit button.         - 'link': The URL associated with the question.         - 'branching': Branching logic for the question. See branching types below for details.          Rating (a question with a rating scale)         - 'id': The question ID         - 'type': 'rating'         - 'question': The text of the question.         - 'description': Optional description of the question.         - 'descriptionContentType': Content type of the description ('html' or 'text').         - 'optional': Whether the question is optional ('boolean').         - 'buttonText': Text displayed on the submit button.         - 'display': Display style of the rating ('number' or 'emoji').         - 'scale': The scale of the rating ('number').         - 'lowerBoundLabel': Label for the lower bound of the scale.         - 'upperBoundLabel': Label for the upper bound of the scale.         - 'isNpsQuestion': Whether the question is an NPS rating.         - 'branching': Branching logic for the question. See branching types below for details.          Multiple choice         - 'id': The question ID         - 'type': 'single_choice' or 'multiple_choice'         - 'question': The text of the question.         - 'description': Optional description of the question.         - 'descriptionContentType': Content type of the description ('html' or 'text').         - 'optional': Whether the question is optional ('boolean').         - 'buttonText': Text displayed on the submit button.         - 'choices': An array of choices for the question.         - 'shuffleOptions': Whether to shuffle the order of the choices ('boolean').         - 'hasOpenChoice': Whether the question allows an open-ended response ('boolean').         - 'branching': Branching logic for the question. See branching types below for details.          Branching logic can be one of the following types:          Next question: Proceeds to the next question         '''json         {             "type": "next_question"         }         '''          End: Ends the survey, optionally displaying a confirmation message.         '''json         {             "type": "end"         }         '''          Response-based: Branches based on the response values. Available for the 'rating' and 'single_choice' question types.         '''json         {             "type": "response_based",             "responseValues": {                 "responseKey": "value"             }         }         '''          Specific question: Proceeds to a specific question by index.         '''json         {             "type": "specific_question",             "index": 2         }         '''          Translations: Each question can include inline translations.         - 'translations': Object mapping language codes to translated fields.         - Language codes: Any string - allows customers to use their own language keys (e.g., "es", "es-MX", "english", "french")         - Translatable fields: 'question', 'description', 'buttonText', 'choices', 'lowerBoundLabel', 'upperBoundLabel', 'link'          Example with translations:         '''json         {             "id": "uuid",             "type": "rating",             "question": "How satisfied are you?",             "lowerBoundLabel": "Not satisfied",             "upperBoundLabel": "Very satisfied",             "translations": {                 "es": {                     "question": "¿Qué tan satisfecho estás?",                     "lowerBoundLabel": "No satisfecho",                     "upperBoundLabel": "Muy satisfecho"                 },                 "fr": {                     "question": "Dans quelle mesure êtes-vous satisfait?"                 }             }         }         '''`,
+        description: `
+        The \`array\` of questions included in the survey. Each question must conform to one of the defined question types: Basic, Link, Rating, or Multiple Choice.
+
+        Basic (open-ended question)
+        - \`id\`: The question ID
+        - \`type\`: \`open\`
+        - \`question\`: The text of the question.
+        - \`description\`: Optional description of the question.
+        - \`descriptionContentType\`: Content type of the description (\`html\` or \`text\`).
+        - \`optional\`: Whether the question is optional (\`boolean\`).
+        - \`buttonText\`: Text displayed on the submit button.
+        - \`branching\`: Branching logic for the question. See branching types below for details.
+
+        Link (a question with a link)
+        - \`id\`: The question ID
+        - \`type\`: \`link\`
+        - \`question\`: The text of the question.
+        - \`description\`: Optional description of the question.
+        - \`descriptionContentType\`: Content type of the description (\`html\` or \`text\`).
+        - \`optional\`: Whether the question is optional (\`boolean\`).
+        - \`buttonText\`: Text displayed on the submit button.
+        - \`link\`: The URL associated with the question.
+        - \`branching\`: Branching logic for the question. See branching types below for details.
+
+        Rating (a question with a rating scale)
+        - \`id\`: The question ID
+        - \`type\`: \`rating\`
+        - \`question\`: The text of the question.
+        - \`description\`: Optional description of the question.
+        - \`descriptionContentType\`: Content type of the description (\`html\` or \`text\`).
+        - \`optional\`: Whether the question is optional (\`boolean\`).
+        - \`buttonText\`: Text displayed on the submit button.
+        - \`display\`: Display style of the rating (\`number\` or \`emoji\`).
+        - \`scale\`: The scale of the rating (\`number\`).
+        - \`lowerBoundLabel\`: Label for the lower bound of the scale.
+        - \`upperBoundLabel\`: Label for the upper bound of the scale.
+        - \`isNpsQuestion\`: Whether the question is an NPS rating.
+        - \`branching\`: Branching logic for the question. See branching types below for details.
+
+        Multiple choice
+        - \`id\`: The question ID
+        - \`type\`: \`single_choice\` or \`multiple_choice\`
+        - \`question\`: The text of the question.
+        - \`description\`: Optional description of the question.
+        - \`descriptionContentType\`: Content type of the description (\`html\` or \`text\`).
+        - \`optional\`: Whether the question is optional (\`boolean\`).
+        - \`buttonText\`: Text displayed on the submit button.
+        - \`choices\`: An array of choices for the question.
+        - \`shuffleOptions\`: Whether to shuffle the order of the choices (\`boolean\`).
+        - \`hasOpenChoice\`: Whether the question allows an open-ended response (\`boolean\`).
+        - \`branching\`: Branching logic for the question. See branching types below for details.
+
+        Branching logic can be one of the following types:
+
+        Next question: Proceeds to the next question
+        \`\`\`json
+        {
+            "type": "next_question"
+        }
+        \`\`\`
+
+        End: Ends the survey, optionally displaying a confirmation message.
+        \`\`\`json
+        {
+            "type": "end"
+        }
+        \`\`\`
+
+        Response-based: Branches based on the response values. Available for the \`rating\` and \`single_choice\` question types.
+        \`\`\`json
+        {
+            "type": "response_based",
+            "responseValues": {
+                "responseKey": "value"
+            }
+        }
+        \`\`\`
+
+        Specific question: Proceeds to a specific question by index.
+        \`\`\`json
+        {
+            "type": "specific_question",
+            "index": 2
+        }
+        \`\`\`
+
+        Translations: Each question can include inline translations.
+        - \`translations\`: Object mapping language codes to translated fields.
+        - Language codes: Any string - allows customers to use their own language keys (e.g., "es", "es-MX", "english", "french")
+        - Translatable fields: \`question\`, \`description\`, \`buttonText\`, \`choices\`, \`lowerBoundLabel\`, \`upperBoundLabel\`, \`link\`
+
+        Example with translations:
+        \`\`\`json
+        {
+            "id": "uuid",
+            "type": "rating",
+            "question": "How satisfied are you?",
+            "lowerBoundLabel": "Not satisfied",
+            "upperBoundLabel": "Very satisfied",
+            "translations": {
+                "es": {
+                    "question": "¿Qué tan satisfecho estás?",
+                    "lowerBoundLabel": "No satisfecho",
+                    "upperBoundLabel": "Muy satisfecho"
+                },
+                "fr": {
+                    "question": "Dans quelle mesure êtes-vous satisfait?"
+                }
+            }
+        }
+        \`\`\`
+        `,
       },
       {
         name: 'remove_targeting_flag',
-        type: 'boolean',
+        type: 'string',
         required: false,
         description: `Set to true to completely remove all targeting filters from the survey, making it visible to all users (subject to other display conditions like URL matching).`,
       },
       {
         name: 'responses_limit',
-        type: 'number',
+        type: 'string',
         required: false,
         description: `The maximum number of responses before automatically stopping the survey.`,
       },
@@ -4916,7 +5332,11 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
         name: 'schedule',
         type: 'string',
         required: false,
-        description: `Survey scheduling behavior: 'once' = show once per user (default), 'recurring' = repeat based on iteration_count and iteration_frequency_days settings, 'always' = show every time conditions are met (mainly for widget surveys)  * 'once' - once * 'recurring' - recurring * 'always' - always`,
+        description: `Survey scheduling behavior: 'once' = show once per user (default), 'recurring' = repeat based on iteration_count and iteration_frequency_days settings, 'always' = show every time conditions are met (mainly for widget surveys)
+
+* \`once\` - once
+* \`recurring\` - recurring
+* \`always\` - always`,
       },
       {
         name: 'start_date',
@@ -4926,7 +5346,7 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
       },
       {
         name: 'targeting_flag_filters',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `Target specific users based on their properties. Example: {groups: [{properties: [{key: 'email', value: ['@company.com'], operator: 'icontains'}], rollout_percentage: 100}]}`,
       },
@@ -4940,7 +5360,12 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
         name: 'type',
         type: 'string',
         required: false,
-        description: `Survey type.  * 'popover' - popover * 'widget' - widget * 'external_survey' - external survey * 'api' - api`,
+        description: `Survey type.
+
+* \`popover\` - popover
+* \`widget\` - widget
+* \`external_survey\` - external survey
+* \`api\` - api`,
       },
     ],
   },
@@ -4948,7 +5373,7 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
     name: 'posthogmcp_surveys_get_all',
     description: `Get all surveys in the project with optional filtering. Can filter by search term or use pagination.`,
     params: [
-      { name: 'archived', type: 'boolean', required: false, description: `Archived.` },
+      { name: 'archived', type: 'boolean', required: false, description: `No description.` },
       {
         name: 'limit',
         type: 'number',
@@ -4985,17 +5410,25 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
   {
     name: 'posthogmcp_switch_organization',
     description: `Change the active organization from the default organization. You should only use this tool if the user asks you to change the organization - otherwise, the default organization will be used.`,
-    params: [{ name: 'orgId', type: 'string', required: true, description: `Orgid.` }],
+    params: [{ name: 'orgId', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'posthogmcp_switch_project',
     description: `Change the active project from the default project. You should only use this tool if the user asks you to change the project - otherwise, the default project will be used.`,
-    params: [{ name: 'projectId', type: 'integer', required: true, description: `Projectid.` }],
+    params: [
+      { name: 'projectId', type: 'integer', required: true, description: `No description.` },
+    ],
   },
   {
     name: 'posthogmcp_update_feature_flag',
     description: `Update a feature flag by ID in the current project.`,
     params: [
+      {
+        name: 'id',
+        type: 'number',
+        required: true,
+        description: `A unique integer value identifying this feature flag.`,
+      },
       {
         name: 'active',
         type: 'boolean',
@@ -5014,18 +5447,12 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
         required: false,
         description: `Feature flag targeting configuration.`,
       },
-      {
-        name: 'id',
-        type: 'number',
-        required: true,
-        description: `A unique integer value identifying this feature flag.`,
-      },
       { name: 'key', type: 'string', required: false, description: `Feature flag key.` },
       {
         name: 'name',
         type: 'string',
         required: false,
-        description: `Feature flag description (stored in the 'name' field for backwards compatibility).`,
+        description: `Feature flag description (stored in the \`name\` field for backwards compatibility).`,
       },
       {
         name: 'tags',
@@ -5039,6 +5466,12 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
     name: 'posthogmcp_view_create',
     description: `Create a new data warehouse saved query (view). If a view with the same name already exists, it will be updated instead (upsert behavior). The query must be valid HogQL. After creation, the view can be referenced by name in other HogQL queries.`,
     params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Unique name for the view. Used as the table name in HogQL queries. Must not conflict with existing table names.`,
+      },
       {
         name: 'dag_id',
         type: 'string',
@@ -5058,14 +5491,8 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
         description: `Whether this view is for testing only and will auto-expire.`,
       },
       {
-        name: 'name',
-        type: 'string',
-        required: true,
-        description: `Unique name for the view. Used as the table name in HogQL queries. Must not conflict with existing table names.`,
-      },
-      {
         name: 'query',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `HogQL query definition as a JSON object. Must contain a "query" key with the SQL string. Example: {"query": "SELECT * FROM events LIMIT 100"}`,
       },
@@ -5113,12 +5540,24 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
     description: `Enable materialization for a saved query. This creates a physical table from the view's query and sets up a 24-hour sync schedule to keep it refreshed. Materialized views are faster to query but use storage. Use 'view-unmaterialize' to undo. Rate limited.`,
     params: [
       {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `A UUID string identifying this data warehouse saved query.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Unique name for the view. Used as the table name in HogQL queries and the node name in the data modeling Node.`,
+      },
+      {
         name: 'dag_id',
         type: 'string',
         required: false,
         description: `Optional DAG to place this view into`,
       },
-      { name: 'deleted', type: 'boolean', required: false, description: `Deleted.` },
+      { name: 'deleted', type: 'string', required: false, description: `No description.` },
       {
         name: 'edited_history_id',
         type: 'string',
@@ -5132,32 +5571,20 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
         description: `Optional folder ID used to organize this view in the SQL editor sidebar.`,
       },
       {
-        name: 'id',
-        type: 'string',
-        required: true,
-        description: `A UUID string identifying this data warehouse saved query.`,
-      },
-      {
         name: 'is_test',
         type: 'boolean',
         required: false,
         description: `Whether this view is for testing only and will auto-expire.`,
       },
       {
-        name: 'name',
-        type: 'string',
-        required: true,
-        description: `Unique name for the view. Used as the table name in HogQL queries and the node name in the data modeling Node.`,
-      },
-      {
         name: 'query',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `HogQL query definition as a JSON object with a "query" key containing the SQL string and a "kind" key containing the query type. Example: {"query": "SELECT * FROM events LIMIT 100", "kind": "HogQLQuery"}`,
       },
       {
         name: 'soft_update',
-        type: 'boolean',
+        type: 'string',
         required: false,
         description: `If true, skip column inference and validation. For saving drafts.`,
       },
@@ -5168,12 +5595,24 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
     description: `Trigger a manual materialization run for a saved query. This immediately refreshes the materialized table with the latest data. The view must already be materialized. Use 'view-run-history' to check run status.`,
     params: [
       {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `A UUID string identifying this data warehouse saved query.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Unique name for the view. Used as the table name in HogQL queries and the node name in the data modeling Node.`,
+      },
+      {
         name: 'dag_id',
         type: 'string',
         required: false,
         description: `Optional DAG to place this view into`,
       },
-      { name: 'deleted', type: 'boolean', required: false, description: `Deleted.` },
+      { name: 'deleted', type: 'string', required: false, description: `No description.` },
       {
         name: 'edited_history_id',
         type: 'string',
@@ -5187,32 +5626,20 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
         description: `Optional folder ID used to organize this view in the SQL editor sidebar.`,
       },
       {
-        name: 'id',
-        type: 'string',
-        required: true,
-        description: `A UUID string identifying this data warehouse saved query.`,
-      },
-      {
         name: 'is_test',
         type: 'boolean',
         required: false,
         description: `Whether this view is for testing only and will auto-expire.`,
       },
       {
-        name: 'name',
-        type: 'string',
-        required: true,
-        description: `Unique name for the view. Used as the table name in HogQL queries and the node name in the data modeling Node.`,
-      },
-      {
         name: 'query',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `HogQL query definition as a JSON object with a "query" key containing the SQL string and a "kind" key containing the query type. Example: {"query": "SELECT * FROM events LIMIT 100", "kind": "HogQLQuery"}`,
       },
       {
         name: 'soft_update',
-        type: 'boolean',
+        type: 'string',
         required: false,
         description: `If true, skip column inference and validation. For saving drafts.`,
       },
@@ -5235,12 +5662,24 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
     description: `Undo materialization for a saved query. Deletes the materialized table and removes the sync schedule, reverting the view back to a virtual query that runs on each access. The view definition itself is preserved. Rate limited.`,
     params: [
       {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `A UUID string identifying this data warehouse saved query.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Unique name for the view. Used as the table name in HogQL queries and the node name in the data modeling Node.`,
+      },
+      {
         name: 'dag_id',
         type: 'string',
         required: false,
         description: `Optional DAG to place this view into`,
       },
-      { name: 'deleted', type: 'boolean', required: false, description: `Deleted.` },
+      { name: 'deleted', type: 'string', required: false, description: `No description.` },
       {
         name: 'edited_history_id',
         type: 'string',
@@ -5254,32 +5693,20 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
         description: `Optional folder ID used to organize this view in the SQL editor sidebar.`,
       },
       {
-        name: 'id',
-        type: 'string',
-        required: true,
-        description: `A UUID string identifying this data warehouse saved query.`,
-      },
-      {
         name: 'is_test',
         type: 'boolean',
         required: false,
         description: `Whether this view is for testing only and will auto-expire.`,
       },
       {
-        name: 'name',
-        type: 'string',
-        required: true,
-        description: `Unique name for the view. Used as the table name in HogQL queries and the node name in the data modeling Node.`,
-      },
-      {
         name: 'query',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `HogQL query definition as a JSON object with a "query" key containing the SQL string and a "kind" key containing the query type. Example: {"query": "SELECT * FROM events LIMIT 100", "kind": "HogQLQuery"}`,
       },
       {
         name: 'soft_update',
-        type: 'boolean',
+        type: 'string',
         required: false,
         description: `If true, skip column inference and validation. For saving drafts.`,
       },
@@ -5289,6 +5716,12 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
     name: 'posthogmcp_view_update',
     description: `Update an existing data warehouse saved query (view). Can change the name, HogQL query, or sync frequency. Changing the query triggers column re-inference and sets the status to 'modified'. Use sync_frequency to control materialization schedule: '24hour', '12hour', '6hour', '1hour', '30min', or 'never'. IMPORTANT: when updating the query field, you must first retrieve the view to get its latest_history_id, then pass that value as edited_history_id for conflict detection.`,
     params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `A UUID string identifying this data warehouse saved query.`,
+      },
       {
         name: 'dag_id',
         type: 'string',
@@ -5308,12 +5741,6 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
         description: `Optional folder ID used to organize this view in the SQL editor sidebar.`,
       },
       {
-        name: 'id',
-        type: 'string',
-        required: true,
-        description: `A UUID string identifying this data warehouse saved query.`,
-      },
-      {
         name: 'is_test',
         type: 'boolean',
         required: false,
@@ -5327,7 +5754,7 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
       },
       {
         name: 'query',
-        type: 'object',
+        type: 'string',
         required: false,
         description: `HogQL query definition as a JSON object. Must contain a "query" key with the SQL string. Example: {"query": "SELECT * FROM events LIMIT 100"}`,
       },
@@ -5349,9 +5776,9 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
     name: 'posthogmcp_workflows_list',
     description: `List all workflows in the project. Returns workflows with their name, description, status (draft/active/archived), version, trigger configuration, and timestamps.`,
     params: [
-      { name: 'created_at', type: 'string', required: false, description: `Created at.` },
-      { name: 'created_by', type: 'number', required: false, description: `Created by.` },
-      { name: 'id', type: 'string', required: false, description: `Id.` },
+      { name: 'created_at', type: 'string', required: false, description: `No description.` },
+      { name: 'created_by', type: 'number', required: false, description: `No description.` },
+      { name: 'id', type: 'string', required: false, description: `No description.` },
       {
         name: 'limit',
         type: 'number',
@@ -5364,7 +5791,7 @@ Cursor for pagination. Use the \`nextCursor\` value from the previous response.
         required: false,
         description: `The initial index from which to return the results.`,
       },
-      { name: 'updated_at', type: 'string', required: false, description: `Updated at.` },
+      { name: 'updated_at', type: 'string', required: false, description: `No description.` },
     ],
   },
 ]

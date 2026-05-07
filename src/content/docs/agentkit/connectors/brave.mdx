@@ -1,6 +1,10 @@
 ---
-title: Brave Search
+title: 'Brave Search connector'
 tableOfContents: true
+description: 'Connect to Brave Search to perform web, image, video, and news searches with privacy-focused results, plus AI-powered suggestions and spellcheck.'
+sidebar:
+  label: 'Brave Search'
+overviewTitle: 'Quickstart'
 connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/brave.svg
 connectorAuthType: API Key
 connectorCategories: [data, analytics]
@@ -10,10 +14,51 @@ head:
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 ---
 
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/brave'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { QuickstartGenericApikeySection } from '@components/templates'
+import { SectionAfterSetupBraveSearchCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   Add these to your environment. Find values in **[app.scalekit.com](https://app.scalekit.com)** > **Developers** > **API Credentials**.
+
+   ```bash frame="terminal"
+   export SCALEKIT_ENV_URL="https://your-env.scalekit.com"
+   export SCALEKIT_CLIENT_ID="..."
+   export SCALEKIT_CLIENT_SECRET="..."
+   ```
+
+3. ### Make your first call
+
+   <QuickstartGenericApikeySection connector="brave" toolName="brave_chat_completions" providerName="Brave Search" />
+
+</Steps>
 
 ## What you can do
 
@@ -26,11 +71,9 @@ Connect this agent connector to let your agent:
 - **Pois local** — Fetch detailed Point of Interest (POI) data for up to 20 location IDs returned by a Brave web search response
 - **Enrichments summarizer** — Fetch enrichment data for a Brave AI summary key
 
-## Authentication
+## Common workflows
 
-This connector uses **API Key** authentication. Your users provide their Brave Search API key once, and Scalekit stores and manages it securely. Your agent code never handles keys directly — you only pass a `connectionName` and a user `identifier`.
-
-Before calling this connector from your code, create the Brave Search connection in **AgentKit** > **Connections** and copy the exact **Connection name** from that connection into your code. The value in code must match the dashboard exactly.
+<SectionAfterSetupBraveSearchCommonWorkflows />
 
 ## Tool list
 

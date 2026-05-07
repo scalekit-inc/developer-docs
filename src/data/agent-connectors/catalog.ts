@@ -7,6 +7,21 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
+  tableau: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/tableau.svg',
+    authType: 'API Key',
+    categories: ['analytics', 'business_intelligence', 'data_visualization', 'productivity'],
+  },
+  heyreach: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/heyreach.svg',
+    authType: 'API Key',
+    categories: ['outreach', 'linkedin', 'sales', 'crm'],
+  },
+  posthogmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/posthog-1.svg',
+    authType: 'OAuth 2.0',
+    categories: [],
+  },
   box: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/box.svg',
     authType: 'OAuth 2.0',

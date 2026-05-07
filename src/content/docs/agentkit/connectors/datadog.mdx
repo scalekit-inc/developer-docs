@@ -1,9 +1,9 @@
 ---
-title: Datadog
-description: Connect to Datadog to monitor metrics, logs, dashboards, monitors, incidents, SLOs, and more across your infrastructure.
-sidebar:
-  label: Datadog
+title: 'Datadog connector'
 tableOfContents: true
+description: 'Connect to Datadog to monitor metrics, logs, dashboards, monitors, incidents, SLOs, and more across your infrastructure.'
+sidebar:
+  label: 'Datadog'
 connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/datadog.svg
 connectorAuthType: API Key
 connectorCategories: [monitoring, observability, devops, developer_tools]
@@ -13,14 +13,66 @@ head:
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 ---
 
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/datadog'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
 import { SetupDatadogSection } from '@components/templates'
-import { UsageDatadogSection } from '@components/templates'
+import { QuickstartGenericApikeySection } from '@components/templates'
+import { SectionAfterSetupDatadogCommonWorkflows } from '@components/templates'
+import { SectionBeforeToolListDatadogResourceIds } from '@components/templates'
 
-![Datadog connector card shown in Scalekit's Create Connection search](@/assets/docs/agent-connectors/datadog/scalekit-search-datadog.png)
+![Datadog connector shown in Scalekit's Create Connection search](@/assets/docs/agent-connectors/datadog/scalekit-search-datadog.png)
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   Add these to your environment. Find values in **[app.scalekit.com](https://app.scalekit.com)** > **Developers** > **API Credentials**.
+
+   ```bash frame="terminal"
+   export SCALEKIT_ENV_URL="https://your-env.scalekit.com"
+   export SCALEKIT_CLIENT_ID="..."
+   export SCALEKIT_CLIENT_SECRET="..."
+   ```
+
+3. ### Set up the connector
+
+   Register your Datadog API credentials with Scalekit so it stores them securely. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupDatadogSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartGenericApikeySection connector="datadog" toolName="datadog_dashboards_list" providerName="Datadog" />
+
+</Steps>
 
 ## What you can do
 
@@ -40,50 +92,16 @@ Connect this agent connector to let your agent:
 - **Post events** — create and retrieve events in the Datadog event stream
 - **Run service checks** — submit custom service check results
 
-## Authentication
+## Common workflows
 
-This connector uses **API Key** authentication. Scalekit stores and injects your Datadog API key and Application key automatically on every request.
-
-<details>
-<summary>Set up the connector</summary>
-
-<SetupDatadogSection />
-
-</details>
-
-<details>
-<summary>Code examples</summary>
-
-<UsageDatadogSection />
-
-</details>
+<SectionAfterSetupDatadogCommonWorkflows />
 
 ## Getting resource IDs
 
-Most tools require IDs that must be fetched from the API — never guess or hard-code them.
-
-| Resource | Tool to get ID | Field in response |
-|----------|---------------|-------------------|
-| Monitor ID | `datadog_monitors_list` | `array[].id` |
-| Dashboard ID | `datadog_dashboards_list` | `dashboards[].id` |
-| Downtime ID | `datadog_downtime_create` response | `data.id` (UUID — not `included[].id`) |
-| Notebook ID | `datadog_notebooks_list` | `data[].id` |
-| Incident ID | `datadog_incidents_list` | `data[].id` |
-| SLO ID | `datadog_slos_list` | `data[].id` |
-| Role ID | `datadog_roles_list` | `data[].id` |
-| User ID | `datadog_users_list` | `data[].id` |
-| RUM App ID | `datadog_rum_applications_list` | `data[].id` |
-| Event ID | `datadog_event_create` response | `event.id_str` (**use `id_str`, not `id`** — see note below) |
-| Metric name | `datadog_metrics_list` | `metrics[]` (requires `from` Unix timestamp) |
-| Log pipeline ID | `datadog_log_pipelines_list` | `array[].id` |
-
-<details>
-<summary>Why event IDs must come from id_str</summary>
-
-Datadog event IDs are 64-bit integers (e.g. `8610103547030771722`) that exceed the float64 precision limit (~9 × 10¹⁵). When the numeric `id` field is parsed as a JSON number, it loses precision and the path resolves to a wrong ID, causing a 400 "No event matches" error. Always read `event.id_str` from the response and pass it as a string to `datadog_event_get`.
-
-</details>
+<SectionBeforeToolListDatadogResourceIds />
 
 ## Tool list
+
+Pass the exact tool name from the list below when you call `executeTool` (Node.js) or `execute_tool` (Python).
 
 <ToolList tools={tools} />

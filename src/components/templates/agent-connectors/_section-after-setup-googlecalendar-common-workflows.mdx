@@ -1,0 +1,120 @@
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+<details>
+<summary>Execute a tool</summary>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const accountResponse = await actions.getOrCreateConnectedAccount({
+      connectionName: 'googlecalendar',
+      identifier: 'user_123',
+    });
+    const connectedAccountId = accountResponse.connectedAccount?.id;
+
+    if (!connectedAccountId) {
+      throw new Error('Authorize the Google Calendar connection before listing events.');
+    }
+
+    const response = await actions.executeTool({
+      connector: 'googlecalendar',
+      identifier: 'user_123',
+      toolName: 'googlecalendar_list_events',
+      toolInput: {
+        calendar_id: 'primary',
+        max_results: 10,
+      },
+    });
+
+    const events = Array.isArray(response.data?.events) ? response.data.events : [];
+    const nextPageToken =
+      typeof response.data?.next_page_token === 'string' ? response.data.next_page_token : '';
+
+    console.log('Events returned:', events.length);
+    console.log('Next page token:', nextPageToken);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    account_response = actions.get_or_create_connected_account(
+        connection_name='googlecalendar',
+        identifier='user_123',
+    )
+    connected_account = account_response.connected_account
+
+    if not connected_account.id:
+        raise RuntimeError("Authorize the Google Calendar connection before listing events.")
+
+    response = actions.execute_tool(
+        connection_name='googlecalendar',
+        identifier='user_123',
+        tool_name="googlecalendar_list_events",
+        tool_input={
+            "calendar_id": "primary",
+            "max_results": 10,
+        },
+    )
+
+    data = response.data or {}
+    events = data.get("events", [])
+    next_page_token = data.get("next_page_token", "")
+
+    print("Events returned:", len(events))
+    print("Next page token:", next_page_token)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Proxy API call</summary>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    import { ConnectorStatus } from '@scalekit-sdk/node/lib/pkg/grpc/scalekit/v1/connected_accounts/connected_accounts_pb';
+
+    const response = await actions.getOrCreateConnectedAccount({
+      connectionName: 'googlecalendar',
+      identifier: 'user_123',
+    });
+    const connectedAccount = response.connectedAccount;
+
+    if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
+    }
+
+    const result = await actions.request({
+      connectionName: 'googlecalendar',
+      identifier: 'user_123',
+      path: '/calendar/v3/users/me/calendarList',
+      method: 'GET',
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    response = actions.get_or_create_connected_account(
+        connection_name='googlecalendar',
+        identifier='user_123'
+    )
+    connected_account = response.connected_account
+
+    if connected_account.status != "ACTIVE":
+        pass
+
+    result = actions.request(
+        connection_name='googlecalendar',
+        identifier='user_123',
+        path="/calendar/v3/users/me/calendarList",
+        method="GET"
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>

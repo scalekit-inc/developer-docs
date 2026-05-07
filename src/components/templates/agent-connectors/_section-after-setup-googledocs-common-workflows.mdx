@@ -1,0 +1,105 @@
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+<details>
+<summary>Proxy API call</summary>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.request({
+      connectionName: 'googledocs',
+      identifier: 'user_123',
+      path: '/v1/documents',
+      method: 'GET',
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.request(
+        connection_name='googledocs',
+        identifier='user_123',
+        path="/v1/documents",
+        method="GET"
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary><code>googledocs_create_document</code></summary>
+
+Create a new blank Google Doc with an optional title. Returns the new document's ID and metadata.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `schema_version` | string | No | Optional schema version to use for tool execution |
+| `title` | string | No | Title of the new document |
+| `tool_version` | string | No | Optional tool version to use for execution |
+
+</details>
+
+<details>
+<summary><code>googledocs_read_document</code></summary>
+
+Read the complete content and structure of a Google Doc including text, formatting, tables, and metadata.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `document_id` | string | Yes | The ID of the Google Doc to read |
+| `schema_version` | string | No | Optional schema version to use for tool execution |
+| `suggestions_view_mode` | string | No | How suggestions are rendered in the response |
+| `tool_version` | string | No | Optional tool version to use for execution |
+
+</details>
+
+<details>
+<summary><code>googledocs_update_document</code></summary>
+
+Update the content of an existing Google Doc using batch update requests. Supports inserting and deleting text, formatting, tables, and other document elements.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `document_id` | string | Yes | The ID of the Google Doc to update |
+| `requests` | `array<object>` | Yes | Array of update requests to apply to the document |
+| `schema_version` | string | No | Optional schema version to use for tool execution |
+| `tool_version` | string | No | Optional tool version to use for execution |
+| `write_control` | `object` | No | Optional write control for revision management |
+
+</details>
+
+<details>
+<summary>Execute a tool</summary>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.executeTool({
+      connector: 'googledocs',
+      identifier: 'user_123',
+      toolName: 'googledocs_create_document',
+      toolInput: {},
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.execute_tool(
+        connection_name='googledocs',
+        identifier='user_123',
+        tool_name='googledocs_create_document',
+        tool_input={},
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>

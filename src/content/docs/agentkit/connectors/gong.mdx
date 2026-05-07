@@ -1,6 +1,10 @@
 ---
-title: Gong
+title: 'Gong connector'
 tableOfContents: true
+description: 'Connect with Gong to sync calls, transcripts, insights, coaching and CRM activity'
+sidebar:
+  label: 'Gong'
+overviewTitle: 'Quickstart'
 connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/gong.svg
 connectorAuthType: OAuth 2.0
 connectorCategories: [crm, sales, ai, automation]
@@ -10,12 +14,63 @@ head:
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 ---
 
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/gong'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
 import { SetupGongSection } from '@components/templates'
-import { UsageGongSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+import { SectionAfterSetupGongCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   Add these to your environment. Find values in **[app.scalekit.com](https://app.scalekit.com)** > **Developers** > **API Credentials**.
+
+   ```bash frame="terminal"
+   export SCALEKIT_ENV_URL="https://your-env.scalekit.com"
+   export SCALEKIT_CLIENT_ID="..."
+   export SCALEKIT_CLIENT_SECRET="..."
+   ```
+
+3. ### Set up the connector
+
+   Register your Gong credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupGongSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="gong" toolName="gong_call_outcomes_list" providerName="Gong" />
+
+</Steps>
 
 ## What you can do
 
@@ -28,27 +83,9 @@ Connect this agent connector to let your agent:
 - **Override engage flow content, engage prospects assign cool off** — Override field placeholder values in a Gong Engage flow for specific prospects, allowing personalized content without modifying the base flow template
 - **Report engage email activity** — Report email engagement events (opens, clicks, bounces, unsubscribes) to Gong Engage so they appear in the activity timeline for a prospect
 
-## Authentication
+## Common workflows
 
-This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to Gong, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
-
-You supply your Gong **Connected App** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.
-
-Before calling this connector from your code, create the Gong connection in **AgentKit** > **Connections** and copy the exact **Connection name** from that connection into your code. The value in code must match the dashboard exactly.
-
-<details>
-<summary>Set up the connector</summary>
-
-<SetupGongSection />
-
-</details>
-
-<details>
-<summary>Code examples</summary>
-
-<UsageGongSection />
-
-</details>
+<SectionAfterSetupGongCommonWorkflows />
 
 ## Tool list
 

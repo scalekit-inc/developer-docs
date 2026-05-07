@@ -448,6 +448,93 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outlook_todo_checklist_items_create',
+    description: `Add a checklist item (subtask) to a specific task in a Microsoft To Do task list.`,
+    params: [
+      {
+        name: 'display_name',
+        type: 'string',
+        required: true,
+        description: `The display name of the checklist item.`,
+      },
+      { name: 'list_id', type: 'string', required: true, description: `The ID of the task list.` },
+      {
+        name: 'task_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the task to add the checklist item to.`,
+      },
+      {
+        name: 'is_checked',
+        type: 'boolean',
+        required: false,
+        description: `Whether the checklist item is already checked/completed.`,
+      },
+    ],
+  },
+  {
+    name: 'outlook_todo_checklist_items_delete',
+    description: `Permanently delete a checklist item (subtask) from a task in a Microsoft To Do task list.`,
+    params: [
+      {
+        name: 'checklist_item_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the checklist item to delete.`,
+      },
+      { name: 'list_id', type: 'string', required: true, description: `The ID of the task list.` },
+      { name: 'task_id', type: 'string', required: true, description: `The ID of the task.` },
+    ],
+  },
+  {
+    name: 'outlook_todo_checklist_items_get',
+    description: `Get a specific checklist item (subtask) from a task in a Microsoft To Do task list.`,
+    params: [
+      {
+        name: 'checklist_item_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the checklist item.`,
+      },
+      { name: 'list_id', type: 'string', required: true, description: `The ID of the task list.` },
+      { name: 'task_id', type: 'string', required: true, description: `The ID of the task.` },
+    ],
+  },
+  {
+    name: 'outlook_todo_checklist_items_list',
+    description: `List all checklist items (subtasks) for a specific task in a Microsoft To Do task list.`,
+    params: [
+      { name: 'list_id', type: 'string', required: true, description: `The ID of the task list.` },
+      { name: 'task_id', type: 'string', required: true, description: `The ID of the task.` },
+    ],
+  },
+  {
+    name: 'outlook_todo_checklist_items_update',
+    description: `Update a checklist item (subtask) in a Microsoft To Do task. Only provided fields are changed.`,
+    params: [
+      {
+        name: 'checklist_item_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the checklist item to update.`,
+      },
+      { name: 'list_id', type: 'string', required: true, description: `The ID of the task list.` },
+      { name: 'task_id', type: 'string', required: true, description: `The ID of the task.` },
+      {
+        name: 'display_name',
+        type: 'string',
+        required: false,
+        description: `New display name for the checklist item.`,
+      },
+      {
+        name: 'is_checked',
+        type: 'boolean',
+        required: false,
+        description: `Whether the checklist item is checked/completed.`,
+      },
+    ],
+  },
+  {
     name: 'outlook_todo_lists_create',
     description: `Create a new Microsoft To Do task list.`,
     params: [

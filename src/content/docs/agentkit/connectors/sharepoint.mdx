@@ -1,6 +1,10 @@
 ---
-title: SharePoint
+title: 'SharePoint connector'
 tableOfContents: true
+description: 'Connect to SharePoint. Manage sites, documents, lists, and collaborative content'
+sidebar:
+  label: 'SharePoint'
+overviewTitle: 'Quickstart'
 connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/sharepoint.svg
 connectorAuthType: OAuth 2.0
 connectorCategories: [files, documents]
@@ -10,31 +14,64 @@ head:
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 ---
 
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/sharepoint'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
 import { SetupSharepointSection } from '@components/templates'
-import { UsageSharepointSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+import { SectionAfterSetupSharepointCommonWorkflows } from '@components/templates'
 
-## Authentication
+<Steps>
 
-This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to SharePoint, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
+1. ### Install the SDK
 
-You supply your SharePoint **Connected App** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
 
-Before calling this connector from your code, create the SharePoint connection in **AgentKit** > **Connections** and copy the exact **Connection name** from that connection into your code. The value in code must match the dashboard exactly.
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
 
-<details>
-<summary>Set up the connector</summary>
+2. ### Set your credentials
 
-<SetupSharepointSection />
+   Add these to your environment. Find values in **[app.scalekit.com](https://app.scalekit.com)** > **Developers** > **API Credentials**.
 
-</details>
+   ```bash frame="terminal"
+   export SCALEKIT_ENV_URL="https://your-env.scalekit.com"
+   export SCALEKIT_CLIENT_ID="..."
+   export SCALEKIT_CLIENT_SECRET="..."
+   ```
 
-<details>
-<summary>Code examples</summary>
+3. ### Set up the connector
 
-<UsageSharepointSection />
+   Register your SharePoint credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
 
-</details>
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupSharepointSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection />
+
+</Steps>
+
+## Common workflows
+
+<SectionAfterSetupSharepointCommonWorkflows />
