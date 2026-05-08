@@ -3,18 +3,16 @@ import { Tabs, TabItem, Code } from '@astrojs/starlight/components'
 
 interface Props {
   connector?: string
-  toolName?: string
   providerName?: string
-  toolInputNode?: string
-  toolInputPython?: string
+  verifyPath?: string
+  verifyMethod?: string
 }
 
 const {
   connector = 'your-connection',
-  toolName = 'provider_list_tool',
   providerName = 'the provider',
-  toolInputNode = '{}',
-  toolInputPython = '{}',
+  verifyPath = '/v1/users/me',
+  verifyMethod = 'GET',
 } = Astro.props
 
 const nodeCode = `import { ScalekitClient } from '@scalekit-sdk/node'
@@ -30,12 +28,12 @@ const actions = scalekit.actions
 const connector = '${connector}'
 const identifier = 'user_123'
 
-// Make your first call
-const result = await actions.executeTool({
-  connector,
+// Make your first API call through the proxy
+const result = await actions.request({
+  connectionName: connector,
   identifier,
-  toolName: '${toolName}',
-  toolInput: ${toolInputNode},
+  path: '${verifyPath}',
+  method: '${verifyMethod}',
 })
 console.log(result)`
 
@@ -54,12 +52,12 @@ actions = scalekit_client.actions
 connection_name = "${connector}"
 identifier = "user_123"
 
-# Make your first call
-result = actions.execute_tool(
-    tool_input=${toolInputPython},
-    tool_name="${toolName}",
+# Make your first API call through the proxy
+result = actions.request(
     connection_name=connection_name,
     identifier=identifier,
+    path="${verifyPath}",
+    method="${verifyMethod}",
 )
 print(result)`
 ---

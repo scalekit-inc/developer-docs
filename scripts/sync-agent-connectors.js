@@ -949,6 +949,116 @@ function generateToolListGuidance() {
 }
 
 // ---------------------------------------------------------------------------
+// Smart tool selection for quickstart code samples
+// ---------------------------------------------------------------------------
+
+/**
+ * Pick the best tool for the quickstart code sample.
+ *
+ * Strategy:
+ *   1. Prefer a tool with zero required params (safe to call with `toolInput: {}`).
+ *   2. If every tool needs params, pick the one with fewest required params and
+ *      generate sample values from the param schema.
+ */
+function getRequiredParams(tool) {
+  const schema = tool.input_schema || {}
+  const required = schema.required || []
+  const properties = schema.properties || {}
+  return required
+    .filter((name) => name in properties)
+    .map((name) => ({ name, ...(properties[name] || {}) }))
+}
+
+function selectQuickstartTool(tools) {
+  if (!tools || tools.length === 0) return { name: null, toolInput: null }
+
+  const sorted = [...tools].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+
+  // Prefer a tool with zero required params
+  const noReqParams = sorted.find((t) => getRequiredParams(t).length === 0)
+
+  if (noReqParams) {
+    return { name: noReqParams.name, toolInput: null }
+  }
+
+  // Fallback: fewest required params, alphabetical tiebreak
+  const byReqCount = [...sorted].sort((a, b) => {
+    return getRequiredParams(a).length - getRequiredParams(b).length
+  })
+
+  const best = byReqCount[0]
+  const requiredParams = getRequiredParams(best)
+
+  const sampleInput = {}
+  for (const p of requiredParams) {
+    sampleInput[p.name] = generateSampleValue(p)
+  }
+
+  return { name: best.name, toolInput: sampleInput }
+}
+
+function generateSampleValue(param) {
+  const desc = (param.description || '').toLowerCase()
+  const name = param.name || ''
+
+  if (param.type === 'integer' || param.type === 'number') return 10
+  if (param.type === 'boolean') return true
+  if (param.type === 'array') return []
+  if (param.type === 'object') return {}
+
+  if (desc.includes('url') || desc.includes('uri'))
+    return 'https://example.com/' + name.replace(/_/g, '-')
+  if (desc.includes('email')) return 'user@example.com'
+  return 'YOUR_' + name.toUpperCase()
+}
+
+function formatToolInputNode(obj) {
+  if (!obj || Object.keys(obj).length === 0) return '{}'
+  const entries = Object.entries(obj)
+    .map(([k, v]) => {
+      if (typeof v === 'string') return `${k}: '${v}'`
+      return `${k}: ${JSON.stringify(v)}`
+    })
+    .join(', ')
+  return `{ ${entries} }`
+}
+
+function formatToolInputPython(obj) {
+  if (!obj || Object.keys(obj).length === 0) return '{}'
+  return JSON.stringify(obj)
+}
+
+// ---------------------------------------------------------------------------
+// Verify endpoints for connectors with no tools (proxy/request quickstart)
+// ---------------------------------------------------------------------------
+
+const NO_TOOL_VERIFY_ENDPOINTS = {
+  airtable: { path: '/v0/meta/whoami', method: 'GET' },
+  asana: { path: '/api/1.0/users/me', method: 'GET' },
+  attention: { path: '/v1/users/me', method: 'GET' },
+  bigquery: { path: '/bigquery/v2/projects', method: 'GET' },
+  chorus: { path: '/v1/users/me', method: 'GET' },
+  clari_copilot: { path: '/v1/users/me', method: 'GET' },
+  clickup: { path: '/api/v2/user', method: 'GET' },
+  confluence: { path: '/wiki/rest/api/user/current', method: 'GET' },
+  dropbox: { path: '/2/users/get_current_account', method: 'POST' },
+  fathom: { path: '/v1/users/me', method: 'GET' },
+  google_ads: { path: '/v17/customers', method: 'GET' },
+  googlemeet: { path: '/v2/spaces', method: 'GET' },
+  intercom: { path: '/me', method: 'GET' },
+  microsoftexcel: { path: '/v1.0/me/drive/root/children', method: 'GET' },
+  microsoftteams: { path: '/v1.0/me', method: 'GET' },
+  microsoftword: { path: '/v1.0/me', method: 'GET' },
+  // monday uses a connector-specific quickstart (_quickstart-monday.mdx) due to GraphQL body
+  onedrive: { path: '/v1.0/me/drive', method: 'GET' },
+  onenote: { path: '/v1.0/me/onenote/notebooks', method: 'GET' },
+  servicenow: { path: '/api/now/table/sys_user', method: 'GET' },
+  sharepoint: { path: '/v1.0/me/sites', method: 'GET' },
+  trello: { path: '/1/members/me', method: 'GET' },
+  zoom: { path: '/v2/users/me', method: 'GET' },
+}
+
+// ---------------------------------------------------------------------------
 // MDX generation
 // ---------------------------------------------------------------------------
 
@@ -959,14 +1069,14 @@ function generateQuickstartSteps(
   setupComponentName,
   quickstartComponentName,
   tools,
+  verifyEndpoint,
 ) {
   const lines = []
   const authType = primaryAuth ? primaryAuth.type || 'OAUTH' : 'OAUTH'
   const slugForCode = providerSlug.replace(/_/g, '-')
 
-  // First tool alphabetically for generic fallback props
-  const sortedTools = [...tools].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
-  const firstToolName = sortedTools[0]?.name || null
+  // Smart tool selection: prefer a tool with no required params, fallback to sample values
+  const { name: selectedToolName, toolInput } = selectQuickstartTool(tools)
 
   lines.push('<Steps>')
   lines.push('')
@@ -1018,15 +1128,27 @@ function generateQuickstartSteps(
     const isGeneric =
       quickstartComponentName.includes('GenericOauth') ||
       quickstartComponentName.includes('GenericApikey')
+    const isNotools = quickstartComponentName.includes('Notools')
+    const needsAuthLabel = authType === 'OAUTH' || authType.toUpperCase().includes('OAUTH')
     lines.push(
-      `${nextStep}. ### ${authType === 'OAUTH' ? 'Authorize and make your first call' : 'Make your first call'}`,
+      `${nextStep}. ### ${needsAuthLabel ? 'Authorize and make your first call' : 'Make your first call'}`,
     )
     lines.push('')
-    if (isGeneric && firstToolName) {
+
+    if (isNotools && verifyEndpoint) {
+      // No-tools connectors: show actions.request() with the verify endpoint
       lines.push(
-        `   <${quickstartComponentName} connector="${slugForCode}" toolName="${firstToolName}" providerName="${providerName}" />`,
+        `   <${quickstartComponentName} connector="${slugForCode}" providerName="${providerName}" verifyPath="${verifyEndpoint.path}" verifyMethod="${verifyEndpoint.method}" />`,
       )
+    } else if (isGeneric && selectedToolName) {
+      // Connectors with tools: show executeTool with smart tool selection
+      let propsStr = `connector="${slugForCode}" toolName="${selectedToolName}" providerName="${providerName}"`
+      if (toolInput) {
+        propsStr += ` toolInputNode="${formatToolInputNode(toolInput)}" toolInputPython='${formatToolInputPython(toolInput)}'`
+      }
+      lines.push(`   <${quickstartComponentName} ${propsStr} />`)
     } else {
+      // Connector-specific quickstart (e.g. _quickstart-hubspot.mdx, _quickstart-monday.mdx)
       lines.push(`   <${quickstartComponentName} />`)
     }
     lines.push('')
@@ -1094,11 +1216,26 @@ function generateMdxContent(provider, tools) {
   lines.push("import { AgentKitCredentials } from '@components/templates'")
   const setupComponentName = getSetupComponent(SETUP_STEM_MAP, providerSlug)
   const sectionComponentNames = getSectionComponents(SECTION_ENTRIES, providerSlug)
-  const quickstartComponentName = getQuickstartComponent(
-    QUICKSTART_STEM_MAP,
-    providerSlug,
-    authType,
-  )
+  let quickstartComponentName = getQuickstartComponent(QUICKSTART_STEM_MAP, providerSlug, authType)
+
+  // For connectors with no tools, override to notools quickstart variant
+  // (shows actions.request() instead of executeTool)
+  let verifyEndpoint = null
+  if (tools.length === 0) {
+    // Check for a connector-specific quickstart first (e.g. _quickstart-monday.mdx)
+    const connectorSpecific = getQuickstartComponent(QUICKSTART_STEM_MAP, providerSlug, null)
+    if (connectorSpecific) {
+      quickstartComponentName = connectorSpecific
+    } else {
+      verifyEndpoint = NO_TOOL_VERIFY_ENDPOINTS[providerSlug] || null
+      if (verifyEndpoint) {
+        const needsAuthLink = authType === 'OAUTH' || authType.toUpperCase().includes('OAUTH')
+        const notoolsStem = needsAuthLink ? 'generic-oauth-notools' : 'generic-apikey-notools'
+        quickstartComponentName = QUICKSTART_STEM_MAP[notoolsStem]?.componentName || null
+      }
+    }
+  }
+
   if (setupComponentName) {
     lines.push(`import { ${setupComponentName} } from '@components/templates'`)
   }
@@ -1119,6 +1256,7 @@ function generateMdxContent(provider, tools) {
       setupComponentName,
       quickstartComponentName,
       tools,
+      verifyEndpoint,
     ),
   )
   lines.push('')

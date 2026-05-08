@@ -145,5 +145,8 @@ export { default as SectionBeforeToolListDatadogResourceIds } from './_section-b
 export { default as SectionBeforeToolListTableauResourceIds } from './_section-before-tool-list-tableau-resource-ids.mdx'
 export { default as SectionBeforeToolListXeroCommonPatterns } from './_section-before-tool-list-xero-common-patterns.mdx'
 export { default as QuickstartGenericApikeySection } from './_quickstart-generic-apikey.astro'
+export { default as QuickstartGenericApikeyNotoolsSection } from './_quickstart-generic-apikey-notools.astro'
 export { default as QuickstartGenericOauthSection } from './_quickstart-generic-oauth.astro'
+export { default as QuickstartGenericOauthNotoolsSection } from './_quickstart-generic-oauth-notools.astro'
 export { default as QuickstartHubspotSection } from './_quickstart-hubspot.mdx'
+export { default as QuickstartMondaySection } from './_quickstart-monday.mdx'

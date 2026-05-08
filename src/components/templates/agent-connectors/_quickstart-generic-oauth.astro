@@ -5,12 +5,16 @@ interface Props {
   connector?: string
   toolName?: string
   providerName?: string
+  toolInputNode?: string
+  toolInputPython?: string
 }
 
 const {
   connector = 'your-connection',
   toolName = 'provider_list_tool',
   providerName = 'the provider',
+  toolInputNode = '{}',
+  toolInputPython = '{}',
 } = Astro.props
 
 const nodeCode = `import { ScalekitClient } from '@scalekit-sdk/node'
@@ -37,7 +41,7 @@ const result = await actions.executeTool({
   connector,
   identifier,
   toolName: '${toolName}',
-  toolInput: {},
+  toolInput: ${toolInputNode},
 })
 console.log(result)`
 
@@ -66,7 +70,7 @@ input("Press Enter after authorizing...")
 
 # Make your first call
 result = actions.execute_tool(
-    tool_input={},
+    tool_input=${toolInputPython},
     tool_name="${toolName}",
     connection_name=connection_name,
     identifier=identifier,
