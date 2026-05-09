@@ -42,20 +42,27 @@ The app runs as a Node web service on Render. It serves an HTML page with a **Co
 Under the hood, the flow looks like this:
 
 ```text
-Browser
+Browser (original tab)                  Browser (new tab)
+  │                                       │
+  ▼ GET /                                 │
+Express server sets signed session cookie │
+  │                                       │
+  ▼ POST /api/auth                        │
+Scalekit returns GitHub auth link         │
+  │                                       │
+  │  opens auth link ─────────────────►   ▼
+  │                                     GitHub OAuth consent
+  │                                       │
+  │  polls GET /api/auth/status           ▼
+  │  ◄─── Scalekit API: ACTIVE ──►  Scalekit verifies account
   │
-  ▼ GET /
-Express server sets signed HTTP-only session cookie
+  ▼ page auto-reloads
   │
-  ▼ POST /api/auth
-Scalekit returns GitHub auth link for a session-bound identifier
-  │
-  ▼ GET /user/verify?auth_request_id=...&state=...
-Express server validates state and calls verifyConnectedAccountUser
-  │
-  ▼ POST /api/summarize { owner, repo }
+  ▼ POST /api/summarize { repository }
 Scalekit runs GitHub requests with the connected user's token
 ```
+
+The OAuth flow opens in a **new tab** so the app page stays intact. The original tab polls the Scalekit API until the connected account becomes `ACTIVE`, then auto-reloads to show the connected state.
 
 ## 1. Set up the GitHub connector
 
@@ -72,17 +79,22 @@ Create the connector once per Scalekit environment.
 Scalekit generates a unique GitHub connection name for each environment. Do not copy one from a tutorial or another project. Always use the exact value from your own Scalekit Dashboard.
 </Aside>
 
-## 2. Enable custom user verification
+## 2. Configure user verification (required)
 
-This recipe uses Scalekit's connected-account verification callback. Without that callback, the app has no trustworthy way to prove which local user session should own the new GitHub connection.
+Scalekit's user verification setting controls what happens after a user completes GitHub OAuth. **You must choose a mode in the dashboard before the app will work end-to-end.** Go to **AgentKit > Settings > User verification** in the [Scalekit dashboard](https://app.scalekit.com).
 
-<Steps>
-1. Open the GitHub connector you created in the previous step.
-2. In the Scalekit Dashboard, go to **AgentKit > Settings > User verification** and set it to **Custom user verification**.
-3. Set `PUBLIC_BASE_URL` if you want to pin the callback origin explicitly.
-4. If `PUBLIC_BASE_URL` is unset, the app falls back to the incoming request origin.
-5. When `PUBLIC_BASE_URL` is set, the app sends `${PUBLIC_BASE_URL}/user/verify` as `userVerifyUrl`.
-</Steps>
+| Mode | When to use | What happens after OAuth |
+|------|-------------|--------------------------|
+| **Scalekit users only** | Development and testing | Scalekit verifies the user internally. The connected account goes `ACTIVE` automatically. The app detects this by polling the Scalekit API. |
+| **Custom user verification** | Production | Scalekit redirects the browser to your app's `/user/verify` callback. The server calls `verifyConnectedAccountUser` to activate the account. The app also polls the Scalekit API as a fallback. |
+
+The app works in **both modes** without code changes. If you skip this step entirely, the connected account may never reach `ACTIVE` status and the app will stay stuck on "Waiting for GitHub authorization."
+
+<Aside type="caution" title="This step is required">
+This is the most common setup mistake. If you deploy the app, set all environment variables, and complete GitHub OAuth but the app never shows "GitHub connected," check this dashboard setting first.
+</Aside>
+
+For the full verification model, see [user verification for connected accounts](/agentkit/user-verification/).
 
 ## 3. Create the project
 
@@ -125,18 +137,22 @@ cp .env.example .env
 
 ```bash title=".env"
 PORT=3000
-# Optional callback-origin override. If omitted, the app uses the incoming request origin.
-PUBLIC_BASE_URL=http://localhost:3000
 SESSION_SECRET=replace-with-openssl-rand-hex-32
 
-LITELLM_API_KEY=your-api-key
-LITELLM_BASE_URL=https://your-litellm-base-url
-LITELLM_MODEL=claude-haiku-4-5
+OPENAI_API_KEY=your-api-key
+OPENAI_MODEL=gpt-4.1-mini
+# Leave OPENAI_BASE_URL empty for OpenAI direct.
+# Set it to a proxy URL for LiteLLM, Azure OpenAI, Ollama, etc.
+# OPENAI_BASE_URL=https://your-litellm-proxy.example.com
 
 SCALEKIT_ENVIRONMENT_URL=https://your-env.scalekit.com
 SCALEKIT_CLIENT_ID=your-scalekit-client-id
 SCALEKIT_CLIENT_SECRET=your-scalekit-client-secret
 GITHUB_CONNECTION_NAME=your-github-connection-name
+
+# Optional — the app auto-detects its public URL from proxy headers.
+# Only set this if you need to pin the callback origin explicitly.
+# PUBLIC_BASE_URL=http://localhost:3000
 ```
 
 Generate `SESSION_SECRET` with:
@@ -145,10 +161,12 @@ Generate `SESSION_SECRET` with:
 openssl rand -hex 32
 ```
 
-If `PUBLIC_BASE_URL` is set, it must match the public origin where the app is running because the server uses it to construct `userVerifyUrl`. If it is omitted, the app falls back to the incoming request origin.
-
 <Aside type="note" title="Any OpenAI-compatible API works">
-The sample uses the `openai` npm package with a configurable `baseURL`. The `LITELLM_*` variable names are only a convention. You can point them at LiteLLM, OpenAI, Azure OpenAI, Ollama, or any other OpenAI-compatible endpoint.
+The sample uses the `openai` npm package with a configurable `baseURL`. Set `OPENAI_BASE_URL` to route calls through LiteLLM, Azure OpenAI, Ollama, or any other OpenAI-compatible endpoint. The API key must match the endpoint it is sent to.
+</Aside>
+
+<Aside type="note" title="PUBLIC_BASE_URL is optional">
+The app infers its public URL from Render's `x-forwarded-proto` and `host` proxy headers automatically. You only need to set `PUBLIC_BASE_URL` if you are behind a custom domain or an unusual reverse proxy. On first deploy to Render, you can leave it unset — the app works without it.
 </Aside>
 
 ## 5. Add Scalekit auth helpers
@@ -221,6 +239,23 @@ export async function verifyUser(params: {
     authRequestId: params.authRequestId,
     identifier: params.identifier,
   });
+}
+
+/**
+ * Check the connected account status via Scalekit API.
+ * Returns true when the account is active (OAuth complete and verified).
+ */
+export async function isAccountActive(identifier: string): Promise<boolean> {
+  try {
+    const res = await scalekit.actions.getConnectedAccount({
+      connectionName: GITHUB_CONNECTION_NAME,
+      identifier,
+    });
+    // ConnectorStatus.ACTIVE === 1
+    return res.connectedAccount?.status === 1;
+  } catch {
+    return false;
+  }
 }
 
 export async function githubTool(
@@ -489,7 +524,7 @@ The HTTP server owns the secure flow. It issues the session cookie, starts the G
 import crypto from "node:crypto";
 import express from "express";
 import { setupGitHubAuthTask, summarizePRsTask } from "./tasks.js";
-import { verifyUser } from "./scalekit.js";
+import { isAccountActive, verifyUser } from "./scalekit.js";
 import {
   consumePendingState,
   isConnected,
@@ -498,7 +533,7 @@ import {
   requireSession,
   setPendingState,
 } from "./session.js";
-import { renderHomePage } from "./views.js";
+import { renderHomePage, renderAuthCompletePage } from "./views.js";
 import type { Request } from "express";
 
 function getConfiguredPublicBaseUrl(): string | null {
@@ -529,6 +564,23 @@ export function startServer(): void {
     res.type("html").send(renderHomePage({ connected: isConnected(entry) }));
   });
 
+  // Polled by the original tab while the OAuth tab is open.
+  // Checks the in-memory session first, then queries the Scalekit API
+  // to detect when the connected account becomes ACTIVE.
+  app.get("/api/auth/status", async (req, res) => {
+    const { entry } = requireSession(req, res);
+    if (isConnected(entry)) {
+      res.json({ connected: true });
+      return;
+    }
+    if (entry.identifier && await isAccountActive(entry.identifier)) {
+      markConnected(entry);
+      res.json({ connected: true });
+      return;
+    }
+    res.json({ connected: false });
+  });
+
   app.post("/api/auth", async (req, res) => {
     const { entry } = requireSession(req, res);
     const identifier = mintIdentifier(entry);
@@ -545,6 +597,9 @@ export function startServer(): void {
     res.json({ authLink: result.authLink });
   });
 
+  // Callback for custom user verification mode. When Scalekit is
+  // configured in "Scalekit users only" mode, this route may not fire —
+  // the /api/auth/status polling handles that case via the Scalekit API.
   app.get("/user/verify", async (req, res) => {
     const { auth_request_id, state } = req.query as Record<string, string>;
     if (!auth_request_id || !state) {
@@ -569,7 +624,10 @@ export function startServer(): void {
     });
 
     markConnected(entry);
-    res.redirect("/");
+    // This handler runs in the OAuth tab. Render a minimal page
+    // telling the user to close it — the original tab is polling
+    // /api/auth/status and will auto-reload.
+    res.type("html").send(renderAuthCompletePage());
   });
 
   app.post("/api/summarize", async (req, res) => {
@@ -593,9 +651,23 @@ export function startServer(): void {
 
 ## 9. Render the browser UI
 
-The UI only asks for `owner` and `repo`. It does not ask for a user identifier. After a successful callback, the page shows a connected banner and changes Step 1 to **Reconnect GitHub** for the current session.
+The UI only asks for a repository. It does not ask for a user identifier. After a successful connection, the page auto-reloads and shows a connected banner.
+
+The key change from a naive implementation: `connectGitHub()` opens the auth link in a **new tab** instead of navigating the current page. This keeps the app intact even if the OAuth redirect chain doesn't return cleanly. The original tab polls `/api/auth/status` and auto-reloads when the Scalekit API reports the account as `ACTIVE`.
 
 ```typescript title="src/views.ts"
+export function renderAuthCompletePage(): string {
+  return `<!DOCTYPE html>
+  <html lang="en">
+    <body style="display:flex;align-items:center;justify-content:center;min-height:100vh">
+      <div style="text-align:center">
+        <h1>&#10003; GitHub connected</h1>
+        <p>You can close this tab and return to the app. The original page will update automatically.</p>
+      </div>
+    </body>
+  </html>`;
+}
+
 export function renderHomePage({ connected }: { connected: boolean }): string {
   const connectedBanner = connected
     ? `<div class="connected-banner">&#10003; GitHub connected</div>`
@@ -607,28 +679,59 @@ export function renderHomePage({ connected }: { connected: boolean }): string {
     <body>
       ${connectedBanner}
       <button id="auth-btn" onclick="connectGitHub()">${authButtonLabel}</button>
-      <p>Public repositories work with any connected GitHub account. Private repositories only work if the connected account has access.</p>
-      <input id="sum-owner" aria-label="Repository owner" />
-      <input id="sum-repo" aria-label="Repository name" />
+      <div id="auth-result"></div>
+      <input id="sum-repository" placeholder="https://github.com/owner/repo" aria-label="GitHub repository" />
       <button id="sum-btn" onclick="summarize()">Summarize</button>
       <pre id="summary-output"></pre>
       <script>
+        let authPollTimer = null;
+
+        function startAuthPoll() {
+          if (authPollTimer) return;
+          authPollTimer = setInterval(async () => {
+            try {
+              const r = await fetch('/api/auth/status');
+              const d = await r.json();
+              if (d.connected) {
+                clearInterval(authPollTimer);
+                authPollTimer = null;
+                window.location.reload();
+              }
+            } catch {}
+          }, 2500);
+        }
+
         async function connectGitHub() {
-          const res = await fetch('/api/auth', { method: 'POST' });
-          const data = await res.json();
-          window.location.href = data.authLink;
+          const btn = document.getElementById('auth-btn');
+          const resultEl = document.getElementById('auth-result');
+          btn.disabled = true;
+          resultEl.textContent = 'Generating authorization link...';
+
+          try {
+            const res = await fetch('/api/auth', { method: 'POST' });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Request failed');
+
+            // Open OAuth in a new tab — this page stays intact.
+            window.open(data.authLink, '_blank');
+            resultEl.textContent = 'Waiting for GitHub authorization — complete the flow in the new tab.';
+            startAuthPoll();
+          } catch (err) {
+            resultEl.textContent = err.message;
+            btn.disabled = false;
+          }
         }
 
         async function summarize() {
-          const owner = document.getElementById('sum-owner').value.trim();
-          const repo = document.getElementById('sum-repo').value.trim();
+          const repository = document.getElementById('sum-repository').value.trim();
           const output = document.getElementById('summary-output');
+          if (!repository) { alert('Enter a GitHub repository'); return; }
           output.textContent = 'Loading summary...';
 
           const res = await fetch('/api/summarize', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ owner, repo }),
+            body: JSON.stringify({ repository }),
           });
           const data = await res.json();
 
@@ -652,13 +755,12 @@ export function renderHomePage({ connected }: { connected: boolean }): string {
 2. Run `npm install`.
 3. Run `npm run dev`.
 4. Open `http://localhost:3000`.
-5. Click **Connect GitHub**.
-6. Finish the GitHub OAuth flow and return to the app.
-7. Confirm the page shows **GitHub connected** and the button label changes to **Reconnect GitHub**.
-8. Enter `owner` and `repo`, then generate a summary.
+5. Click **Connect GitHub**. A new tab opens for the GitHub OAuth flow.
+6. Complete the OAuth consent in the new tab.
+7. The new tab shows "GitHub connected — you can close this tab" (in custom verification mode) or a Scalekit success page (in Scalekit-users-only mode).
+8. The original tab auto-detects the connection and reloads, showing a **GitHub connected** banner.
+9. Enter a repository URL or `owner/repo`, then generate a summary.
 </Steps>
-
-When the callback succeeds, the page shows a connected banner. The browser session cookie is `HttpOnly`, and the server rejects tampered cookies because they fail HMAC validation.
 
 Public repositories work with any connected GitHub account. Private repositories only work if the connected account has access.
 
@@ -668,22 +770,23 @@ Render deploys the app as a web service from `render.yaml`.
 
 Set these environment variables in Render:
 
-- `LITELLM_API_KEY`
-- `LITELLM_BASE_URL`
-- `LITELLM_MODEL`
-- `SCALEKIT_ENVIRONMENT_URL`
-- `SCALEKIT_CLIENT_ID`
-- `SCALEKIT_CLIENT_SECRET`
-- `GITHUB_CONNECTION_NAME`
-- `SESSION_SECRET`
-- `PUBLIC_BASE_URL`
+| Variable | Required | Notes |
+|----------|----------|-------|
+| `SCALEKIT_ENVIRONMENT_URL` | Yes | From Scalekit dashboard → Developers → API Credentials |
+| `SCALEKIT_CLIENT_ID` | Yes | Same location |
+| `SCALEKIT_CLIENT_SECRET` | Yes | Same location |
+| `GITHUB_CONNECTION_NAME` | Yes | From AgentKit → Connectors |
+| `OPENAI_API_KEY` | Yes | OpenAI key or proxy token |
+| `OPENAI_BASE_URL` | No | Leave empty for OpenAI direct. Set for LiteLLM/Azure/Ollama. |
+| `OPENAI_MODEL` | No | Default: `gpt-4.1-mini` |
+| `SESSION_SECRET` | Auto | `render.yaml` auto-generates this |
+| `PUBLIC_BASE_URL` | No | Auto-detected from proxy headers. Only needed behind a custom domain. |
 
-When `PUBLIC_BASE_URL` is set, use the deployed service origin, for example `https://your-service.onrender.com`.
-
-If `PUBLIC_BASE_URL` is omitted, the app falls back to the incoming request origin for the OAuth callback URL. When you deploy from the included `render.yaml`, Render auto-generates `SESSION_SECRET` for you.
+After deploying, configure user verification in the Scalekit dashboard ([step 2](#2-configure-user-verification-required)). The app will not complete the GitHub connection flow without this.
 
 ## Production notes
 
+- **User verification mode**: Switch to **Custom user verification** in the Scalekit dashboard before going to production. This ensures your backend confirms which session owns each new connection.
 - **Shared session store**: The sample stores session data in memory. Use Redis or a database-backed shared store in production.
 - **Short-lived OAuth state**: The sample expires the pending `state` after 10 minutes and consumes it after a single callback.
 - **Session-bound identifier**: The browser never chooses the identifier that Scalekit uses to look up the connected account.
@@ -692,4 +795,5 @@ If `PUBLIC_BASE_URL` is omitted, the app falls back to the incoming request orig
 ## Next steps
 
 - Read [user verification for connected accounts](/agentkit/user-verification/) for the full verification model and additional examples.
+- Read [authorize a user](/agentkit/tools/authorize/) for the status-polling pattern used to detect when a connected account becomes `ACTIVE`.
 - Open the [render-ai-agent-deploykit](https://github.com/scalekit-developers/render-ai-agent-deploykit) repository to compare the full implementation against the snippets in this cookbook.
