@@ -514,6 +514,84 @@ export const setupGitHubAuthTask = task(
     return { authLink: link };
   },
 );
+
+// ---- LLM summary ----
+
+function createOpenAIClient(): OpenAI {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) throw new Error("OPENAI_API_KEY not set");
+  return new OpenAI({
+    apiKey,
+    ...(process.env.OPENAI_BASE_URL && { baseURL: process.env.OPENAI_BASE_URL }),
+  });
+}
+
+const generateSummary = task(
+  { name: "generateSummary", retry: { maxRetries: 3, waitDurationMs: 2000 } },
+  async function generateSummary(
+    prs: { number: number; title: string; diff: string; comments: { body?: string }[] }[],
+    owner: string,
+    repo: string,
+  ): Promise<string> {
+    if (prs.length === 0) return "No open pull requests found in this repository.";
+
+    const client = createOpenAIClient();
+    const prBlocks = prs
+      .map((pr) => {
+        const bodies = pr.comments.slice(0, 5).map((c) => `> ${(c.body ?? "").slice(0, 300)}`).join("\n");
+        return `PR #${pr.number} — ${pr.title}\n${bodies || "No comments."}\nDiff:\n${pr.diff || "(not available)"}`;
+      })
+      .join("\n\n---\n\n");
+
+    const response = await client.chat.completions.create({
+      model: process.env.OPENAI_MODEL ?? "gpt-4.1-mini",
+      messages: [
+        {
+          role: "system",
+          content:
+            "Summarize each PR in one paragraph (3-4 sentences) for a team lead. " +
+            "Cover what it does, how much discussion happened, and whether it looks close to merging.",
+        },
+        { role: "user", content: `Repository: ${owner}/${repo}\n\n${prBlocks}` },
+      ],
+    });
+
+    return response.choices[0].message.content ?? "(no summary generated)";
+  },
+);
+
+// ---- Root task ----
+
+export const summarizePRsTask = task(
+  { name: "summarizePRs", timeoutSeconds: 120 },
+  async function summarizePRs(input: PRSummaryInput) {
+    const { identifier, owner, repo } = input;
+    const topPRs = await fetchOpenPRs(identifier, owner, repo);
+
+    if (topPRs.length === 0) {
+      return { repository: `${owner}/${repo}`, prsAnalyzed: [] as string[], summary: "No open pull requests found." };
+    }
+
+    const details = await Promise.all(
+      topPRs.map((pr) => fetchPRDetails(identifier, owner, repo, pr.number)),
+    );
+
+    const prsForSummary = topPRs.map((pr, i) => ({
+      number: pr.number,
+      title: pr.title,
+      diff: details[i].diff,
+      comments: details[i].comments as { body?: string }[],
+    }));
+
+    const summary = await generateSummary(prsForSummary, owner, repo);
+
+    return {
+      repository: `${owner}/${repo}`,
+      prsAnalyzed: topPRs.map((p) => `#${p.number}: ${p.title}`),
+      summary,
+    };
+  },
+);
 ```
 
 ## 8. Wire the HTTP server
