@@ -637,9 +637,29 @@ export function startServer(): void {
       return;
     }
 
-    const { owner, repo } = req.body as { owner?: string; repo?: string };
+    // The UI sends { repository: "https://github.com/owner/repo" } or "owner/repo".
+    // Parse the string into separate owner and repo values.
+    const { repository } = req.body as { repository?: string };
+    if (!repository) {
+      res.status(400).json({ error: "Provide a GitHub repository URL or owner/repo name." });
+      return;
+    }
+
+    let owner: string | undefined;
+    let repo: string | undefined;
+    try {
+      const url = new URL(repository);
+      const segments = url.pathname.split("/").filter(Boolean);
+      owner = segments[0];
+      repo = segments[1]?.replace(/\.git$/, "");
+    } catch {
+      const parts = repository.split("/");
+      owner = parts[0];
+      repo = parts[1]?.replace(/\.git$/, "");
+    }
+
     if (!owner || !repo) {
-      res.status(400).json({ error: "owner and repo are required" });
+      res.status(400).json({ error: "Provide a GitHub repository URL or owner/repo name." });
       return;
     }
 
