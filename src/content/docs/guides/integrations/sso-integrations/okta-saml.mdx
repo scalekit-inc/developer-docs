@@ -18,6 +18,12 @@ import { Steps, Aside } from "@astrojs/starlight/components"
 
 This guide walks you through configuring Okta as your SAML identity provider for the application you are onboarding, enabling secure single sign-on for your users. You'll learn how to set up an enterprise application, configure SAML settings to the host application. By following these steps, your users will be able to seamlessly authenticate using their Okta credentials.
 
+<Aside type="tip" title="Before you begin">
+Make sure you have [registered a redirect URL](/guides/dashboard/redirects/) for your application in the Scalekit Dashboard. SSO login will fail with a "No redirect uris found" error if this step is skipped.
+
+If you haven't started integrating SSO into your app yet, follow [Add modular SSO](/authenticate/sso/add-modular-sso/) first.
+</Aside>
+
 ## Create Enterprise Application
 
 <Steps>
@@ -61,7 +67,13 @@ This guide walks you through configuring Okta as your SAML identity provider for
 ## Attribute Mapping
 
 <Steps>
-1. Check the **Attribute Statements** section in the **SSO Configuration Portal**, and carefully map the same attributes on your Okta Admin Console. There are 2 ways that you may perform the mapping here. You may either use the Add expression buttons to add your attributes or through the legacy configurations. You will need to click on **Add expression** to add your required attributes.
+1. The following user profile attributes must be mapped in Okta so that Scalekit receives user details during SSO login:
+
+   - **Email Address** of the user
+   - **First Name** of the user
+   - **Last Name** of the user
+
+   Check the **Attribute Statements** section in the **SSO Configuration Portal** for the exact attribute names and values to use, then map the same attributes on your Okta Admin Console. You can either use the **Add expression** buttons or the legacy configuration method.
 
    ![Attribute mapping on SSO Configuration Portal](@/assets/docs/guides/sso-integrations/okta-saml/20.png)
 
@@ -135,3 +147,8 @@ Click on **Enable Connection.** This will let all your selected users login to t
 ![Enable SSO on Okta Admin Console](@/assets/docs/guides/sso-integrations/okta-saml/19.png)
 
 With this, we are done configuring your Okta application for an SSO login setup.
+
+## Next steps
+
+- [Map custom user attributes](/sso/guides/sso-user-attributes/) to pass additional profile details (e.g., employee number) from Okta to your application.
+- [Test your SSO integration](/sso/guides/test-sso/) end to end to verify the full login flow.
