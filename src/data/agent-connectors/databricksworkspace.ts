@@ -27,7 +27,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'databricksworkspace_cluster_terminate',
-    description: `Terminate a Databricks cluster by cluster ID. The cluster will be deleted and all its associated resources released.`,
+    description: `Terminate a Databricks cluster by cluster ID. The cluster transitions to a terminated state and can be restarted. To permanently delete a cluster, use the permanent delete operation.`,
     params: [
       {
         name: 'cluster_id',
