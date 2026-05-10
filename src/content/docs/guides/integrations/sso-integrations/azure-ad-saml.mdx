@@ -18,6 +18,12 @@ import { Steps, Aside, Badge } from "@astrojs/starlight/components"
 
 This guide walks you through configuring Microsoft Entra ID as your SAML identity provider for the application you are onboarding, enabling secure Single Sign-On for your users. You'll learn how to set up an enterprise application, configure SAML settings, map user attributes, and assign users to the application. By following these steps, your users will be able to seamlessly authenticate using their Microsoft Entra ID credentials.
 
+<Aside type="tip" title="Before you begin">
+Make sure you have [registered a redirect URL](/guides/dashboard/redirects/) for your application in the Scalekit Dashboard. SSO login will fail with a "No redirect uris found" error if this step is skipped.
+
+If you haven't started integrating SSO into your app yet, follow [Add modular SSO](/authenticate/sso/add-modular-sso/) first.
+</Aside>
+
 ## Download metadata XML
 
 <Steps>
@@ -69,7 +75,13 @@ This guide walks you through configuring Microsoft Entra ID as your SAML identit
 
    ![Click on Edit](@/assets/docs/guides/sso-integrations/azure-ad-saml/6.png)
 
-2. Check the **Attribute Mapping** section in the **SSO Configuration Portal**, and carefully map the same attributes on your **Entra ID** app
+2. The following user profile attributes must be mapped in Entra ID so that Scalekit receives user details during SSO login:
+
+   - **Email Address** of the user
+   - **First Name** of the user
+   - **Last Name** of the user
+
+   Check the **Attribute Mapping** section in the **SSO Configuration Portal** for the exact attribute names and values to use, then map the same attributes on your **Entra ID** app.
 
    ![SSO Configuration Portal](@/assets/docs/guides/sso-integrations/azure-ad-saml/7.png)
    ![Microsoft Entra ID](@/assets/docs/guides/sso-integrations/azure-ad-saml/8.png)
@@ -118,3 +130,8 @@ Click on **Enable Connection**. This will let all your selected users login to t
 ![Enable SSO on Entra ID](@/assets/docs/guides/sso-integrations/azure-ad-saml/13.png)
 
 With this, we are done configuring your Microsoft Entra ID application for an SSO login setup.
+
+## Next steps
+
+- [Map custom user attributes](/sso/guides/sso-user-attributes/) to pass additional profile details from your IdP to your application.
+- [Test your SSO integration](/sso/guides/test-sso/) end to end to verify the full login flow.
