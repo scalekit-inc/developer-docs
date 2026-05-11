@@ -1,0 +1,65 @@
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+**Don't worry about your ServiceNow instance domain in the path.** Scalekit automatically resolves `{{domain}}` from the connected account's configuration. For example, a request with `path="/api/now/table/sys_user"` will be sent to `https://mycompany.service-now.com/api/now/table/sys_user` automatically.
+
+<details>
+<summary>Proxy API call</summary>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.request({
+      connectionName: 'servicenow',
+      identifier: 'user_123',
+      path: '/api/now/table/sys_user',
+      method: 'GET',
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.request(
+        connection_name='servicenow',
+        identifier='user_123',
+        path="/api/now/table/sys_user",
+        method="GET"
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Execute a tool</summary>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.executeTool({
+      connector: 'servicenow',
+      identifier: 'user_123',
+      toolName: 'servicenow_list',
+      toolInput: {},
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.execute_tool(
+        tool_input={},
+        tool_name='servicenow_list',
+        connection_name='servicenow',
+        identifier='user_123',
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>

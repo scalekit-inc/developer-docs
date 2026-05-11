@@ -1,0 +1,131 @@
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+<details>
+<summary>Proxy API call</summary>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.request({
+      connectionName: 'quickbooks',
+      identifier: 'user_123',
+      path: '/v3/company/{{realm_id}}/query?query=SELECT * FROM Customer MAXRESULTS 10 STARTPOSITION 1',
+      method: 'GET',
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.request(
+        connection_name='quickbooks',
+        identifier='user_123',
+        path="/v3/company/{{realm_id}}/query?query=SELECT * FROM Customer MAXRESULTS 10 STARTPOSITION 1",
+        method="GET"
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>List customers</summary>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const customers = await actions.executeTool({
+      connector: 'quickbooks',
+      identifier: 'user_123',
+      toolName: 'quickbooks_customers_list',
+      toolInput: {
+        max_results: 10,
+        start_position: 1,
+      },
+    });
+    console.log('Customers:', customers);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    customers = actions.execute_tool(
+        connection_name='quickbooks',
+        identifier='user_123',
+        tool_name="quickbooks_customers_list",
+        tool_input={
+            "max_results": 10,
+            "start_position": 1,
+        },
+    )
+    print("Customers:", customers)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Create an invoice</summary>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const invoice = await actions.executeTool({
+      connector: 'quickbooks',
+      identifier: 'user_123',
+      toolName: 'quickbooks_invoice_create',
+      toolInput: {
+        CustomerRef: JSON.stringify({ value: '1' }),
+        Line: JSON.stringify([
+          {
+            Amount: 150.00,
+            DetailType: 'SalesItemLineDetail',
+            SalesItemLineDetail: {
+              ItemRef: { value: '1', name: 'Services' },
+              Qty: 1,
+              UnitPrice: 150.00,
+            },
+          },
+        ]),
+        DueDate: '2025-06-30',
+        DocNumber: 'INV-001',
+      },
+    });
+    console.log('Created invoice ID:', invoice.Invoice?.Id);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import json
+
+    invoice = actions.execute_tool(
+        connection_name='quickbooks',
+        identifier='user_123',
+        tool_name="quickbooks_invoice_create",
+        tool_input={
+            "CustomerRef": json.dumps({"value": "1"}),
+            "Line": json.dumps([
+                {
+                    "Amount": 150.00,
+                    "DetailType": "SalesItemLineDetail",
+                    "SalesItemLineDetail": {
+                        "ItemRef": {"value": "1", "name": "Services"},
+                        "Qty": 1,
+                        "UnitPrice": 150.00,
+                    },
+                }
+            ]),
+            "DueDate": "2025-06-30",
+            "DocNumber": "INV-001",
+        },
+    )
+    print("Created invoice ID:", invoice.get("Invoice", {}).get("Id"))
+    ```
+  </TabItem>
+</Tabs>
+
+</details>

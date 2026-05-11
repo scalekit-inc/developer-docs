@@ -4,8 +4,7 @@ export const tools: Tool[] = [
   // ─── Company Info ─────────────────────────────────────────────────────────────
   {
     name: 'quickbooks_company_info_get',
-    description:
-      'Retrieve company information for the connected QuickBooks Online account.',
+    description: 'Retrieve company information for the connected QuickBooks Online account.',
     params: [],
   },
 
@@ -31,7 +30,7 @@ export const tools: Tool[] = [
         name: 'where_clause',
         type: 'string',
         required: false,
-        description: "Optional WHERE clause to filter accounts, e.g. \"AccountType = 'Bank'\".",
+        description: 'Optional WHERE clause to filter accounts, e.g. "AccountType = \'Bank\'".',
       },
     ],
   },
@@ -136,8 +135,7 @@ export const tools: Tool[] = [
   // ─── Customers ────────────────────────────────────────────────────────────────
   {
     name: 'quickbooks_customers_list',
-    description:
-      'List customers from QuickBooks Online with optional filtering and pagination.',
+    description: 'List customers from QuickBooks Online with optional filtering and pagination.',
     params: [
       {
         name: 'max_results',
@@ -303,8 +301,7 @@ export const tools: Tool[] = [
   // ─── Vendors ──────────────────────────────────────────────────────────────────
   {
     name: 'quickbooks_vendors_list',
-    description:
-      'List vendors from QuickBooks Online with optional filtering and pagination.',
+    description: 'List vendors from QuickBooks Online with optional filtering and pagination.',
     params: [
       {
         name: 'max_results',
@@ -432,8 +429,7 @@ export const tools: Tool[] = [
   // ─── Items ────────────────────────────────────────────────────────────────────
   {
     name: 'quickbooks_items_list',
-    description:
-      'List items (products and services) from QuickBooks Online.',
+    description: 'List items (products and services) from QuickBooks Online.',
     params: [
       {
         name: 'max_results',
@@ -451,7 +447,7 @@ export const tools: Tool[] = [
         name: 'where_clause',
         type: 'string',
         required: false,
-        description: "Optional WHERE clause, e.g. \"Type = 'Service'\".",
+        description: 'Optional WHERE clause, e.g. "Type = \'Service\'".',
       },
     ],
   },
@@ -469,8 +465,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'quickbooks_item_create',
-    description:
-      'Create a new item (product or service) in QuickBooks Online.',
+    description: 'Create a new item (product or service) in QuickBooks Online.',
     params: [
       {
         name: 'Name',
@@ -581,8 +576,7 @@ export const tools: Tool[] = [
   // ─── Invoices ─────────────────────────────────────────────────────────────────
   {
     name: 'quickbooks_invoices_list',
-    description:
-      'List invoices from QuickBooks Online with optional filtering and pagination.',
+    description: 'List invoices from QuickBooks Online with optional filtering and pagination.',
     params: [
       {
         name: 'max_results',
@@ -600,7 +594,7 @@ export const tools: Tool[] = [
         name: 'where_clause',
         type: 'string',
         required: false,
-        description: "Optional WHERE clause, e.g. \"TxnDate > '2024-01-01'\".",
+        description: 'Optional WHERE clause, e.g. "TxnDate > \'2024-01-01\'".',
       },
     ],
   },
@@ -776,8 +770,7 @@ export const tools: Tool[] = [
   // ─── Bills ────────────────────────────────────────────────────────────────────
   {
     name: 'quickbooks_bills_list',
-    description:
-      'List bills from QuickBooks Online with optional filtering and pagination.',
+    description: 'List bills from QuickBooks Online with optional filtering and pagination.',
     params: [
       {
         name: 'max_results',
@@ -983,13 +976,15 @@ export const tools: Tool[] = [
         name: 'CheckPayment',
         type: 'string',
         required: false,
-        description: 'Check payment details as JSON, required when PayType is Check. e.g. `{"BankAccountRef":{"value":"35"}}`.',
+        description:
+          'Check payment details as JSON, required when PayType is Check. e.g. `{"BankAccountRef":{"value":"35"}}`.',
       },
       {
         name: 'CreditCardPayment',
         type: 'string',
         required: false,
-        description: 'Credit card payment details as JSON, required when PayType is CreditCard. e.g. `{"CCAccountRef":{"value":"41"}}`.',
+        description:
+          'Credit card payment details as JSON, required when PayType is CreditCard. e.g. `{"CCAccountRef":{"value":"41"}}`.',
       },
       {
         name: 'PrivateNote',
@@ -1021,8 +1016,7 @@ export const tools: Tool[] = [
   // ─── Payments ─────────────────────────────────────────────────────────────────
   {
     name: 'quickbooks_payments_list',
-    description:
-      'List payments from QuickBooks Online with optional filtering and pagination.',
+    description: 'List payments from QuickBooks Online with optional filtering and pagination.',
     params: [
       {
         name: 'max_results',
@@ -1144,8 +1138,7 @@ export const tools: Tool[] = [
   // ─── Estimates ────────────────────────────────────────────────────────────────
   {
     name: 'quickbooks_estimates_list',
-    description:
-      'List estimates from QuickBooks Online with optional filtering and pagination.',
+    description: 'List estimates from QuickBooks Online with optional filtering and pagination.',
     params: [
       {
         name: 'max_results',
@@ -1457,7 +1450,8 @@ export const tools: Tool[] = [
         name: 'DepositToAccountRef',
         type: 'string',
         required: true,
-        description: 'Account to deposit the refund into as JSON, e.g. `{"value":"35"}` for Checking.',
+        description:
+          'Account to deposit the refund into as JSON, e.g. `{"value":"35"}` for Checking.',
       },
       {
         name: 'Line',
@@ -1691,8 +1685,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'quickbooks_transfer_create',
-    description:
-      'Create a new fund transfer between accounts in QuickBooks Online.',
+    description: 'Create a new fund transfer between accounts in QuickBooks Online.',
     params: [
       {
         name: 'FromAccountRef',
@@ -2216,8 +2209,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'quickbooks_report_aged_payables',
-    description:
-      'Retrieve an Aged Payable Detail report from QuickBooks Online.',
+    description: 'Retrieve an Aged Payable Detail report from QuickBooks Online.',
     params: [
       {
         name: 'report_date',
@@ -2235,8 +2227,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'quickbooks_report_aged_receivables',
-    description:
-      'Retrieve an Aged Receivable Detail report from QuickBooks Online.',
+    description: 'Retrieve an Aged Receivable Detail report from QuickBooks Online.',
     params: [
       {
         name: 'report_date',

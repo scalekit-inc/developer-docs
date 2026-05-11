@@ -1,6 +1,10 @@
 ---
-title: HeyReach
+title: 'HeyReach connector'
 tableOfContents: true
+description: 'Connect to HeyReach to manage LinkedIn outreach campaigns, lead lists, and conversations. List campaigns, retrieve leads, monitor campaign progress, and...'
+sidebar:
+  label: 'HeyReach'
+overviewTitle: 'Quickstart'
 connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/heyreach.svg
 connectorAuthType: API Key
 connectorCategories: [outreach, linkedin, sales, crm]
@@ -10,46 +14,70 @@ head:
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 ---
 
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/heyreach'
-import { SetupHeyreachSection, UsageHeyreachSection } from '@components/templates'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupHeyreachSection } from '@components/templates'
+import { QuickstartGenericApikeySection } from '@components/templates'
+import { SectionAfterSetupHeyreachCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your HeyReach credentials with Scalekit so it can authenticate requests on your behalf. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupHeyreachSection />
+
+   </details>
+
+4. ### Make your first call
+
+   <QuickstartGenericApikeySection connector="heyreach" toolName="heyreach_check_api_key" providerName="HeyReach" />
+
+</Steps>
 
 ## What you can do
 
 Connect this agent connector to let your agent:
 
-- **Add leads to a campaign** — Enroll up to 100 leads in an active campaign, bound to LinkedIn sender accounts
-- **Verify the API key** — Confirm the stored key is valid before running other tools
-- **List campaigns** — Page through outreach campaigns, statuses, and sender account IDs
-- **List LinkedIn sender accounts** — Discover connected profiles used to send outreach
-- **List lead lists** — Find list IDs for bulk lead retrieval
-- **Get campaign details** — Load one campaign’s status, stats, lists, and sender accounts
-- **Monitor inbox conversations** — Filter and page LinkedIn replies across accounts and campaigns
-- **Look up a lead** — Fetch one lead by LinkedIn profile URL
-- **Get leads from a list** — Page leads from a specific list
-- **Track performance stats** — Pull aggregate acceptance, reply, and InMail metrics for accounts and campaigns
+- **Get lead, conversations, all linkedin accounts** — Retrieve detailed information about a single HeyReach lead by their LinkedIn profile URL
+- **Campaign add leads to** — Add up to 100 leads to an existing HeyReach campaign
+- **Key check api** — Verify that your HeyReach API key is valid and the connection is working
 
-## Authentication
+## Common workflows
 
-This connector uses **API Key** authentication. Your users provide their HeyReach API key once, and Scalekit stores and manages it securely. Your agent code never handles keys directly — you only pass a `connectionName` and a user `identifier`.
-
-Before calling this connector from your code, create the HeyReach connection in **AgentKit** > **Connections** and copy the exact **Connection name** from that connection into your code. The value in code must match the dashboard exactly.
-
-<details>
-<summary>Set up the connector</summary>
-
-<SetupHeyreachSection />
-
-</details>
-
-<details>
-<summary>Code examples</summary>
-
-<UsageHeyreachSection />
-
-</details>
+<SectionAfterSetupHeyreachCommonWorkflows />
 
 ## Tool list
 

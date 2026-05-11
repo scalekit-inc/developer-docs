@@ -16,36 +16,11 @@ Use dedicated Actor tools (e.g. apifymcp_rag_web_browser) when available instead
 When NOT to use:
 - You don't know the Actor's input schema — use apifymcp_fetch_actor_details first`,
     params: [
-      {
-        name: 'actor',
-        type: 'string',
-        required: true,
-        description: `Actor ID or full name in 'username/name' format (e.g. 'apify/rag-web-browser'). For MCP server Actors use 'actorName:toolName' format.`,
-      },
-      {
-        name: 'input',
-        type: 'object',
-        required: true,
-        description: `Input JSON to pass to the Actor. Must match the Actor's input schema exactly — use apifymcp_fetch_actor_details with output: {"inputSchema": true} first to get the required fields and types.`,
-      },
-      {
-        name: 'async',
-        type: 'boolean',
-        required: false,
-        description: `If true, starts the run and returns immediately with a runId. Use only when the user explicitly asks to run in the background or does not need immediate results.`,
-      },
-      {
-        name: 'callOptions',
-        type: 'object',
-        required: false,
-        description: `Optional run configuration options`,
-      },
-      {
-        name: 'previewOutput',
-        type: 'boolean',
-        required: false,
-        description: `When true (default), includes preview items in the response. Set to false when you plan to fetch full results separately via apifymcp_get_actor_output — avoids duplicate data and saves tokens.`,
-      },
+      { name: 'actor', type: 'string', required: true, description: `Actor ID or full name in 'username/name' format (e.g. 'apify/rag-web-browser'). For MCP server Actors use 'actorName:toolName' format.` },
+      { name: 'input', type: 'object', required: true, description: `Input JSON to pass to the Actor. Must match the Actor's input schema exactly — use apifymcp_fetch_actor_details with output: {"inputSchema": true} first to get the required fields and types.` },
+      { name: 'async', type: 'boolean', required: false, description: `If true, starts the run and returns immediately with a runId. Use only when the user explicitly asks to run in the background or does not need immediate results.` },
+      { name: 'callOptions', type: 'object', required: false, description: `Optional run configuration options` },
+      { name: 'previewOutput', type: 'boolean', required: false, description: `When true (default), includes preview items in the response. Set to false when you plan to fetch full results separately via apifymcp_get_actor_output — avoids duplicate data and saves tokens.` },
     ],
   },
   {
@@ -62,18 +37,8 @@ When to use:
 When NOT to use:
 - You already have the input schema and are ready to run — use apifymcp_call_actor directly`,
     params: [
-      {
-        name: 'actor',
-        type: 'string',
-        required: true,
-        description: `Actor ID or full name in 'username/name' format (e.g. 'apify/rag-web-browser')`,
-      },
-      {
-        name: 'output',
-        type: 'object',
-        required: false,
-        description: `JSON object with boolean flags to control which fields are returned. Always specify this to avoid a large token-heavy response. Set only the fields you need to true. Available fields: description, inputSchema, mcpTools, metadata, outputSchema, pricing, rating, readme, stats. All default to true if omitted (very large response) except mcpTools. Example: {"inputSchema": true}`,
-      },
+      { name: 'actor', type: 'string', required: true, description: `Actor ID or full name in 'username/name' format (e.g. 'apify/rag-web-browser')` },
+      { name: 'output', type: 'object', required: false, description: `JSON object with boolean flags to control which fields are returned. Always specify this to avoid a large token-heavy response. Set only the fields you need to true. Available fields: description, inputSchema, mcpTools, metadata, outputSchema, pricing, rating, readme, stats. All default to true if omitted (very large response) except mcpTools. Example: {"inputSchema": true}` },
     ],
   },
   {
@@ -87,12 +52,7 @@ When to use:
 When NOT to use:
 - You don't have a URL yet — use apifymcp_search_apify_docs first`,
     params: [
-      {
-        name: 'url',
-        type: 'string',
-        required: true,
-        description: `Full URL of the Apify or Crawlee documentation page (e.g. 'https://docs.apify.com/platform/actors')`,
-      },
+      { name: 'url', type: 'string', required: true, description: `Full URL of the Apify or Crawlee documentation page (e.g. 'https://docs.apify.com/platform/actors')` },
     ],
   },
   {
@@ -107,30 +67,10 @@ When to use:
 When NOT to use:
 - You don't have a datasetId yet — run an Actor with apifymcp_call_actor first`,
     params: [
-      {
-        name: 'datasetId',
-        type: 'string',
-        required: true,
-        description: `Actor output dataset ID to retrieve from`,
-      },
-      {
-        name: 'fields',
-        type: 'string',
-        required: false,
-        description: `Comma-separated list of fields to include. Supports dot notation for nested fields (e.g. 'crawl.httpStatusCode,metadata.url'). Note: dot-notation fields are returned as flat keys in the output — e.g. requesting 'crawl.httpStatusCode' returns {"crawl.httpStatusCode": 200}, not a nested object.`,
-      },
-      {
-        name: 'limit',
-        type: 'number',
-        required: false,
-        description: `Maximum number of items to return (default: 100)`,
-      },
-      {
-        name: 'offset',
-        type: 'number',
-        required: false,
-        description: `Number of items to skip for pagination (default: 0)`,
-      },
+      { name: 'datasetId', type: 'string', required: true, description: `Actor output dataset ID to retrieve from` },
+      { name: 'fields', type: 'string', required: false, description: `Comma-separated list of fields to include. Supports dot notation for nested fields (e.g. 'crawl.httpStatusCode,metadata.url'). Note: dot-notation fields are returned as flat keys in the output — e.g. requesting 'crawl.httpStatusCode' returns {"crawl.httpStatusCode": 200}, not a nested object.` },
+      { name: 'limit', type: 'number', required: false, description: `Maximum number of items to return (default: 100)` },
+      { name: 'offset', type: 'number', required: false, description: `Number of items to skip for pagination (default: 0)` },
     ],
   },
   {
@@ -160,24 +100,9 @@ When to use:
 When NOT to use:
 - User needs repeated/scheduled scraping of a specific platform — search for a dedicated Actor using apifymcp_search_actors instead`,
     params: [
-      {
-        name: 'query',
-        type: 'string',
-        required: true,
-        description: `Google Search keywords or a specific URL to scrape. Supports advanced search operators.`,
-      },
-      {
-        name: 'maxResults',
-        type: 'integer',
-        required: false,
-        description: `Maximum number of top Google Search results to scrape and return. Ignored when query is a direct URL. Higher values increase response time and compute cost significantly — keep low (1-3) for latency-sensitive use cases. Default: 3.`,
-      },
-      {
-        name: 'outputFormats',
-        type: 'array',
-        required: false,
-        description: `Output formats for the scraped page content. Options: 'markdown', 'text', 'html' (default: ['markdown'])`,
-      },
+      { name: 'query', type: 'string', required: true, description: `Google Search keywords or a specific URL to scrape. Supports advanced search operators.` },
+      { name: 'maxResults', type: 'integer', required: false, description: `Maximum number of top Google Search results to scrape and return. Ignored when query is a direct URL. Higher values increase response time and compute cost significantly — keep low (1-3) for latency-sensitive use cases. Default: 3.` },
+      { name: 'outputFormats', type: 'array', required: false, description: `Output formats for the scraped page content. Options: 'markdown', 'text', 'html' (default: ['markdown'])` },
     ],
   },
   {
@@ -195,24 +120,9 @@ When NOT to use:
 
 Always do at least two searches: first with broad keywords, then with more specific terms if needed.`,
     params: [
-      {
-        name: 'keywords',
-        type: 'string',
-        required: false,
-        description: `Space-separated keywords to search Actors in the Apify Store. Use 1-3 simple terms (e.g. 'Instagram posts', 'Amazon products'). Avoid generic terms like 'scraper' or 'crawler'. Omitting keywords or passing an empty string returns popular/general Actors — always provide keywords for relevant results.`,
-      },
-      {
-        name: 'limit',
-        type: 'integer',
-        required: false,
-        description: `Maximum number of Actors to return (1-100, default: 5)`,
-      },
-      {
-        name: 'offset',
-        type: 'integer',
-        required: false,
-        description: `Number of results to skip for pagination (default: 0)`,
-      },
+      { name: 'keywords', type: 'string', required: false, description: `Space-separated keywords to search Actors in the Apify Store. Use 1-3 simple terms (e.g. 'Instagram posts', 'Amazon products'). Avoid generic terms like 'scraper' or 'crawler'. Omitting keywords or passing an empty string returns popular/general Actors — always provide keywords for relevant results.` },
+      { name: 'limit', type: 'integer', required: false, description: `Maximum number of Actors to return (1-100, default: 5)` },
+      { name: 'offset', type: 'integer', required: false, description: `Number of results to skip for pagination (default: 0)` },
     ],
   },
   {
@@ -231,30 +141,10 @@ When to use:
 When NOT to use:
 - You already have a documentation URL — use apifymcp_fetch_apify_docs directly`,
     params: [
-      {
-        name: 'query',
-        type: 'string',
-        required: true,
-        description: `Algolia full-text search query using keywords only (e.g. 'standby actor', 'proxy configuration'). Do not use full sentences.`,
-      },
-      {
-        name: 'docSource',
-        type: 'string',
-        required: false,
-        description: `Documentation source to search. Options: 'apify' (default), 'crawlee-js', 'crawlee-py'`,
-      },
-      {
-        name: 'limit',
-        type: 'number',
-        required: false,
-        description: `Maximum number of results to return (1-20, default: 5)`,
-      },
-      {
-        name: 'offset',
-        type: 'number',
-        required: false,
-        description: `Offset for pagination (default: 0)`,
-      },
+      { name: 'query', type: 'string', required: true, description: `Algolia full-text search query using keywords only (e.g. 'standby actor', 'proxy configuration'). Do not use full sentences.` },
+      { name: 'docSource', type: 'string', required: false, description: `Documentation source to search. Options: 'apify' (default), 'crawlee-js', 'crawlee-py'` },
+      { name: 'limit', type: 'number', required: false, description: `Maximum number of results to return (1-20, default: 5)` },
+      { name: 'offset', type: 'number', required: false, description: `Offset for pagination (default: 0)` },
     ],
   },
 ]

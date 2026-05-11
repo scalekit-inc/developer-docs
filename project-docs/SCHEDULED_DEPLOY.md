@@ -25,11 +25,11 @@ GitHub API  (current main HEAD SHA)  ─┘
 
 These must be configured in the repository's **Settings → Secrets and variables → Actions**:
 
-| Secret | Purpose |
-|--------|---------|
-| `NETLIFY_BUILD_HOOK` | Netlify build hook URL (Settings → Build hooks) |
+| Secret               | Purpose                                                      |
+| -------------------- | ------------------------------------------------------------ |
+| `NETLIFY_BUILD_HOOK` | Netlify build hook URL (Settings → Build hooks)              |
 | `NETLIFY_AUTH_TOKEN` | Netlify personal access token (User settings → Applications) |
-| `NETLIFY_SITE_ID` | Netlify site ID (Site settings → General → Site ID) |
+| `NETLIFY_SITE_ID`    | Netlify site ID (Site settings → General → Site ID)          |
 
 `GITHUB_TOKEN` is provided automatically by GitHub Actions.
 
