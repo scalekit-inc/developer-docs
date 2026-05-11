@@ -890,7 +890,7 @@ function generateCapabilityBullets(tools, providerName) {
         groupTools.slice(0, 3).map((t) => {
           const parts = t.name.split('_')
           const actionIdx = parts.indexOf(action)
-          const objectParts = actionIdx > 1 ? parts.slice(1, actionIdx) : parts.slice(1, 2)
+          const objectParts = actionIdx > 1 ? parts.slice(1, actionIdx) : parts.slice(actionIdx + 1)
           return objectParts.join(' ')
         }),
       ),
@@ -1207,7 +1207,14 @@ function generateMdxContent(provider, tools) {
   lines.push('---')
   lines.push(`title: '${providerName.replace(/'/g, "''")} connector'`)
   lines.push('tableOfContents: true')
-  const descClean = providerDescription.slice(0, 157).replace(/'/g, "''")
+  // Truncate at word boundary to avoid mid-word cutoffs in metadata previews
+  let descClean = providerDescription
+  if (descClean.length > 157) {
+    descClean = descClean.slice(0, 157)
+    const lastSpace = descClean.lastIndexOf(' ')
+    if (lastSpace > 100) descClean = descClean.slice(0, lastSpace)
+  }
+  descClean = descClean.replace(/'/g, "''")
   lines.push(`description: '${descClean}'`)
   lines.push('sidebar:')
   lines.push(`  label: '${providerName.replace(/'/g, "''")}'`)
@@ -1230,8 +1237,10 @@ function generateMdxContent(provider, tools) {
   lines.push('')
 
   // Imports
-  lines.push("import ToolList from '@/components/ToolList.astro'")
-  lines.push(`import { tools } from '@/data/agent-connectors/${providerSlug}'`)
+  if (tools.length > 0) {
+    lines.push("import ToolList from '@/components/ToolList.astro'")
+    lines.push(`import { tools } from '@/data/agent-connectors/${providerSlug}'`)
+  }
   lines.push("import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'")
   lines.push("import { AgentKitCredentials } from '@components/templates'")
   const setupComponentName = getSetupComponent(SETUP_STEM_MAP, providerSlug)
