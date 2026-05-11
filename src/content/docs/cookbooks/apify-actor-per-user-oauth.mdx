@@ -1,10 +1,10 @@
 ---
-title: 'Build an Apify Actor with per-user OAuth using Scalekit Agent Auth'
-description: 'Deploy a serverless Apify Actor that authenticates each user against their own OAuth-protected APIs, using Apify user identity to key Scalekit connected accounts.'
+title: 'Apify Actor with per-user OAuth via Scalekit'
+description: 'Build an Apify Actor that uses Scalekit Agent Auth so each user connects their OAuth accounts, keyed by Apify userId.'
 date: 2026-04-21
 tags: ['Agent auth']
 sidebar:
-  label: 'Apify Actor with per-user OAuth'
+  label: 'Apify Actor per-user OAuth'
 excerpt: >
   Apify Actors run in isolated containers with no persistent session — there is no concept of "who is logged in." This recipe shows how to use Apify's built-in user identity as the key into Scalekit's OAuth token vault, so each user who runs your Actor connects their own third-party accounts, and tokens survive across runs without any user-managed input fields.
 featured: false
@@ -15,7 +15,7 @@ authors:
     picture: '/images/blog/authors/saif.png'
 ---
 
-import { TabItem, Tabs } from '@astrojs/starlight/components';
+import { Aside } from '@astrojs/starlight/components';
 
 An Apify Actor is a stateless serverless container. Every run starts cold — no session, no cookies, no "current user." When you want each person who runs your Actor to access their own Notion workspace, their own Gmail, or their own GitHub account, you need to map Apify's identity model onto an OAuth token store that persists across runs.
 
@@ -71,9 +71,11 @@ In the [Scalekit Dashboard](https://app.scalekit.com), go to **AgentKit → Conn
 3. Scalekit pre-configures the redirect URI and scopes for Notion. Click **Save**.
 4. Note the **Connection name** (e.g., `notion`).
 
-:::caution
+<Aside type="caution" title="Scopes are locked at authorization time">
+
 Scopes are locked in at authorization time. If you add scopes to a connection after a user has already authorized, their existing token does not gain the new scopes. Delete the connected account in Scalekit and have the user re-authorize to pick up the updated scopes.
-:::
+
+</Aside>
 
 ### 2. Create the Apify Actor project
 
@@ -85,7 +87,7 @@ npm install @scalekit-sdk/node openai apify
 
 Set your Scalekit credentials as Actor environment variables in the Apify Console under **Settings → Environment variables**:
 
-```
+```bash
 SCALEKIT_ENV_URL=https://your-env.scalekit.dev
 SCALEKIT_CLIENT_ID=skc_...
 SCALEKIT_CLIENT_SECRET=your-secret
@@ -93,7 +95,7 @@ SCALEKIT_CLIENT_SECRET=your-secret
 
 If your Actor creates new Notion pages (not just writing to existing ones), also set a default parent location. Without this, the Actor can only write to pages that already exist by exact title match.
 
-```
+```bash
 NOTION_DEFAULT_PARENT_PAGE_ID=1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d
 ```
 
@@ -116,14 +118,16 @@ const notionIdentifier = userId;
 
 `userId` is a stable opaque string that Apify sets for the account running the Actor. It persists across runs, so the first run that completes OAuth will find an active token on every subsequent run.
 
-:::caution
+<Aside type="caution" title="Local development: userId is undefined">
+
 `Actor.getEnv().userId` is `undefined` when you run the Actor locally with `apify run`. Use a hardcoded fallback for local development:
 
 ```js
 const { userId } = Actor.getEnv();
 const notionIdentifier = userId ?? 'local-dev-user';
 ```
-:::
+
+</Aside>
 
 ### 4. Choose shared vs per-user identifiers
 
@@ -271,7 +275,7 @@ function buildDonePage(serviceName) {
 
 The live view URL follows this pattern:
 
-```
+```text
 https://{actorId}--{actorRunId}-{PORT}.runs.apify.net
 ```
 
@@ -330,9 +334,11 @@ End-user experience after this change:
 4. After completing OAuth, the page updates to "✅ Notion Authorized"
 5. The Actor continues automatically — no re-run needed
 
-:::note[Apify web view does not auto-refresh]
+<Aside type="note" title="Apify web view does not auto-refresh">
+
 The Actor's live web view in the Apify Console does not refresh automatically. After completing the OAuth flow, the page may still show the "Authorize" button. Click the **auto-refresh** toggle in the web view toolbar, or open the URL in a new tab to see the updated state. The Actor itself continues regardless — it polls the account status server-side and proceeds as soon as authorization completes.
-:::
+
+</Aside>
 
 ### 8. Design the input schema for end users
 
@@ -364,9 +370,11 @@ The Actor's input form should show only what the end user actually needs to prov
 
 Everything else — `notionIdentifier`, `youtubeIdentifier`, timeouts, model name, base URL — is either derived at runtime (`userId`) or hardcoded and deployed as an Actor environment variable.
 
-:::note[Apify input schema does not support `placeholder`]
+<Aside type="note" title="Apify input schema does not support placeholder">
+
 The Apify input schema spec does not allow a `placeholder` property on fields. Put example values in `description` instead — they appear as helper text below the field label in the Console.
-:::
+
+</Aside>
 
 ### 9. Testing
 
