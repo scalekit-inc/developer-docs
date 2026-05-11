@@ -107,3 +107,50 @@ You can create more than one connection for the same connector. This is useful w
 - You're integrating with multiple instances of the same service (for example, two different Salesforce orgs)
 
 Each connection has its own name, which you use to identify it in API calls and in the dashboard.
+
+## Troubleshoot connection errors
+
+### failed_to_exchange_token
+
+**Symptom:** After the user completes the OAuth consent screen, the callback redirects to an error page with `error=failed_to_exchange_token`. The error description may include `Error executing post auth hooks`.
+
+**Common causes:**
+
+- **Session expired:** The user waited too long between starting the OAuth flow and completing consent. The verification session timed out.
+- **Transient platform issue:** A temporary error occurred during the token exchange between the provider and Scalekit. This includes post-auth hook failures.
+- **Network interruption:** Connectivity between the provider and Scalekit was disrupted during the callback.
+
+**Resolution:**
+
+1. Close the error page and restart the connection flow from your application
+2. If the error persists after retrying, check the [Scalekit status page](https://status.scalekit.com) for ongoing incidents
+3. If no incident is reported and retries continue to fail, contact [support](mailto:support@scalekit.com) with the full error URL and timestamp
+
+<Aside type="tip" title="Distinguish transient errors from misconfigurations">
+A `failed_to_exchange_token` error that resolves on retry is almost always a transient issue. If it happens consistently for the same connection, check your OAuth app credentials and redirect URI configuration.
+</Aside>
+
+### Session expired or invalid
+
+**Symptom:** The callback page shows *"Your verification session has expired or is no longer valid. Please close this window and restart the connection flow."*
+
+**Cause:** The OAuth verification session has a time limit. If the user takes too long to complete authentication with the provider (for example, they step away mid-flow or the provider's consent screen loads slowly), the session expires before the callback arrives.
+
+**Resolution:** Close the window and start the connection flow again. No configuration change is needed.
+
+### redirect_uri_mismatch
+
+**Symptom:** The provider returns a `redirect_uri_mismatch` error instead of completing the OAuth flow.
+
+**Cause:** The redirect URI registered in the provider's OAuth app does not match the URI that Scalekit sends in the authorization request.
+
+**Resolution:**
+
+1. In Scalekit Dashboard, go to **AgentKit** > **Connections** and open the affected connection
+2. Copy the **Redirect URI** shown in the connection form
+3. In the provider's developer console, verify the redirect URI matches exactly -- including protocol (`https` vs `http`), trailing slashes, and port numbers
+4. Save and retry the connection flow
+
+<Aside type="caution" title="Character-for-character match required">
+Providers enforce an exact string match on redirect URIs. Common mismatches: a trailing slash (`/callback/` vs `/callback`), `http` vs `https`, or a missing port number.
+</Aside>
