@@ -30,14 +30,49 @@ Scalekit solves this with a connected-accounts model: for each `(connector, iden
 
 The complete source is available in the [notion-youtube-agent](https://github.com/scalekit-developers/agentkit-apify-actor-example) repository.
 
+## Before you start
+
+You need working OAuth credentials for each third-party API your Actor will connect to. Scalekit manages the token lifecycle, but the underlying API must be enabled and the OAuth client must exist first.
+
+**For YouTube (or any Google API):**
+
+1. Open the [Google Cloud Console](https://console.cloud.google.com/) and select your project.
+2. Go to **APIs & Services → Enabled APIs & services** and enable **YouTube Data API v3**. Without this, every tool call returns `permission_denied` even if the OAuth token is valid.
+3. Create an OAuth 2.0 client (**APIs & Services → Credentials → + Create credentials → OAuth client ID**). Set the application type to **Web application**. Leave the redirect URI blank for now — you'll add it from Scalekit in the next section.
+
+**For Notion:**
+
+1. Go to [notion.so/my-integrations](https://www.notion.so/my-integrations) and create a new integration, or use Notion's OAuth setup if your Actor uses Scalekit's Notion OAuth connector.
+
+**For both connectors:**
+
+- A [Scalekit](https://app.scalekit.com) environment with API credentials (`SCALEKIT_ENV_URL`, `SCALEKIT_CLIENT_ID`, `SCALEKIT_CLIENT_SECRET`).
+- [Apify CLI](https://docs.apify.com/cli) installed: `npm install -g @apify/cli`
+- Node.js 18+
+
 ### 1. Set up connections in Scalekit
 
-In the [Scalekit Dashboard](https://app.scalekit.com), create two connections under **Agent Auth → Connections**:
+In the [Scalekit Dashboard](https://app.scalekit.com), go to **AgentKit → Connections** and create two connections:
 
-- `notion` — Notion OAuth connection (per-user)
-- `youtube` — YouTube OAuth connection (shared)
+**YouTube connection (shared)**
 
-The connection names are identifiers your code references directly. They must match exactly.
+1. Search for **YouTube** and click **Create**.
+2. Copy the **Redirect URI** from the connection panel (it looks like `https://<ENV_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`).
+3. Paste it into your Google Cloud OAuth client under **Authorized redirect URIs** and save.
+4. Back in Scalekit, enter the **Client ID** and **Client Secret** from your Google Cloud OAuth client.
+5. Under **Scopes**, select at least `youtube.readonly`. Add `youtube` if your Actor needs write access (playlists, subscriptions). Add `yt-analytics.readonly` if you query analytics data.
+6. Click **Save**. Note the **Connection name** (e.g., `youtube`) — your code must match it exactly.
+
+**Notion connection (per-user)**
+
+1. Search for **Notion** and click **Create**.
+2. Enter the **Client ID** and **Client Secret** from your Notion integration or OAuth app.
+3. Scalekit pre-configures the redirect URI and scopes for Notion. Click **Save**.
+4. Note the **Connection name** (e.g., `notion`).
+
+:::caution
+Scopes are locked in at authorization time. If you add scopes to a connection after a user has already authorized, their existing token does not gain the new scopes. Delete the connected account in Scalekit and have the user re-authorize to pick up the updated scopes.
+:::
 
 ### 2. Create the Apify Actor project
 
@@ -54,6 +89,14 @@ SCALEKIT_ENV_URL=https://your-env.scalekit.dev
 SCALEKIT_CLIENT_ID=skc_...
 SCALEKIT_CLIENT_SECRET=your-secret
 ```
+
+If your Actor creates new Notion pages (not just writing to existing ones), also set a default parent location. Without this, the Actor can only write to pages that already exist by exact title match.
+
+```
+NOTION_DEFAULT_PARENT_PAGE_ID=1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d
+```
+
+To find a Notion page ID: open the page in Notion, click **Share → Copy link**. The 32-character hex string at the end of the URL is the page ID.
 
 ### 3. Derive user identity from Apify's runtime
 
@@ -346,6 +389,33 @@ apify push
 On the first cloud run, the Actor outputs an `authPageUrl`. Open it, click **Authorize Notion**, and complete the OAuth flow. The Actor polls and continues automatically. On every subsequent run for the same Apify account, the token is already active and the auth step is skipped entirely.
 
 ## Common mistakes
+
+<details>
+<summary>Tool calls fail with <code>permission_denied</code> even though the account is ACTIVE</summary>
+
+- **Symptom**: `[permission_denied] tool execution failed - forbidden access` in logs. The connected account status is ACTIVE and authorization completed successfully.
+- **Cause**: The underlying API is not enabled in the cloud provider console. An ACTIVE connected account means the OAuth token exists — it does not mean the API accepts calls. For YouTube, this happens when **YouTube Data API v3** is not enabled in the Google Cloud project.
+- **Fix**: Go to [Google Cloud Console → APIs & Services → Enabled APIs](https://console.cloud.google.com/apis/dashboard) and enable **YouTube Data API v3**. No code change or re-authorization needed — existing tokens work once the API is enabled.
+
+</details>
+
+<details>
+<summary>Tool calls fail with <code>permission_denied</code> after adding scopes</summary>
+
+- **Symptom**: Same `permission_denied` error. The connection has the right scopes configured, but you added them after the user already authorized.
+- **Cause**: OAuth tokens carry the scopes that were configured at authorization time. Adding scopes to a connection does not retroactively update existing tokens.
+- **Fix**: Delete the connected account in the Scalekit dashboard (or via API) and have the user re-authorize. The new token will include the updated scopes.
+
+</details>
+
+<details>
+<summary>Notion page creation fails with "no parent_page_id/database_id provided"</summary>
+
+- **Symptom**: The agent finds no page with the requested title and throws `Notion page "X" was not found and cannot be created because no parent_page_id/database_id was provided`.
+- **Cause**: Notion's API requires a parent location for every new page. The Actor checks for a default parent in the input, then in environment variables, and throws if neither is set.
+- **Fix**: Set `NOTION_DEFAULT_PARENT_PAGE_ID` or `NOTION_DEFAULT_DATABASE_ID` as an Actor environment variable. To find a page ID, open the page in Notion, click **Share → Copy link**, and extract the 32-character hex string from the URL.
+
+</details>
 
 <details>
 <summary>Using email as the identifier</summary>
