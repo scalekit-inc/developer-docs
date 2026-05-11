@@ -970,10 +970,11 @@ function getRequiredParams(tool) {
 }
 
 function isReadOnlyTool(name) {
-  const n = (name || '').toLowerCase()
-  return /^[a-z_]*(get|list|search|read|fetch|query|find|check|view|me|myself|self|info|status|whoami)/.test(
-    n.replace(/^[a-z]+_/, ''),
-  )
+  // Extract segments after the connector prefix and check if the action verb
+  // (first or last segment) is read-only
+  const segments = (name || '').toLowerCase().replace(/^[a-z]+_/, '').split('_')
+  const readVerbs = new Set(['get', 'list', 'search', 'read', 'fetch', 'query', 'find', 'check', 'view', 'myself', 'info', 'status', 'whoami'])
+  return readVerbs.has(segments[0]) || readVerbs.has(segments[segments.length - 1])
 }
 
 function selectQuickstartTool(tools) {
@@ -987,11 +988,21 @@ function selectQuickstartTool(tools) {
     return { name: readOnlyNoReq.name, toolInput: null }
   }
 
-  // Fallback: any tool with zero required params (prefer read-only)
+  // Next: read-only tool with fewest required params (generate sample values)
+  const readOnlyWithParams = sorted
+    .filter((t) => isReadOnlyTool(t.name) && getRequiredParams(t).length > 0)
+    .sort((a, b) => getRequiredParams(a).length - getRequiredParams(b).length)
+  if (readOnlyWithParams.length > 0) {
+    const best = readOnlyWithParams[0]
+    const sampleInput = {}
+    for (const p of getRequiredParams(best)) sampleInput[p.name] = generateSampleValue(p)
+    return { name: best.name, toolInput: sampleInput }
+  }
+
+  // Fallback: any tool with zero required params
   const noReqParams = sorted.filter((t) => getRequiredParams(t).length === 0)
-  const bestNoReq = noReqParams.find((t) => isReadOnlyTool(t.name)) || noReqParams[0]
-  if (bestNoReq) {
-    return { name: bestNoReq.name, toolInput: null }
+  if (noReqParams.length > 0) {
+    return { name: noReqParams[0].name, toolInput: null }
   }
 
   // Last resort: fewest required params, prefer read-only, alphabetical tiebreak
@@ -1209,10 +1220,12 @@ function generateMdxContent(provider, tools) {
   lines.push('tableOfContents: true')
   // Truncate at word boundary to avoid mid-word cutoffs in metadata previews
   let descClean = providerDescription
-  if (descClean.length > 157) {
-    descClean = descClean.slice(0, 157)
+  if (descClean.length > 155) {
+    descClean = descClean.slice(0, 155)
     const lastSpace = descClean.lastIndexOf(' ')
     if (lastSpace > 100) descClean = descClean.slice(0, lastSpace)
+    // Strip trailing punctuation before appending ellipsis
+    descClean = descClean.replace(/[,;:\s]+$/, '') + '...'
   }
   descClean = descClean.replace(/'/g, "''")
   lines.push(`description: '${descClean}'`)
