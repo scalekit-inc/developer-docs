@@ -1,0 +1,165 @@
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+Once a connected account is set up, make API calls through the Scalekit proxy or call Google Contacts tools directly via `execute_tool`.
+
+## Proxy API calls
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    import { ScalekitClient } from '@scalekit-sdk/node';
+
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    const actions = scalekit.actions;
+
+    // List contacts
+    const result = await actions.request({
+      connectionName: 'googlecontacts',
+      identifier: 'user_123',
+      path: '/v1/people/me/connections',
+      method: 'GET',
+      query: { personFields: 'names,emailAddresses,phoneNumbers' },
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+    actions = scalekit_client.actions
+
+    # List contacts
+    result = actions.request(
+        connection_name="googlecontacts",
+        identifier="user_123",
+        path="/v1/people/me/connections",
+        method="GET",
+        query={"personFields": "names,emailAddresses,phoneNumbers"},
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+## Execute tools
+
+Use `execute_tool` to call Google Contacts tools directly from your agent.
+
+### List contacts
+
+```python
+connected_account = scalekit_client.connect.get_or_create_connected_account(
+    connection_name="googlecontacts",
+    identifier="user_123"
+).connected_account
+
+contacts = actions.execute_tool(
+    tool_name="googlecontacts_contacts_list",
+    connected_account_id=connected_account.id,
+    tool_input={
+        "person_fields": "names,emailAddresses,phoneNumbers",
+        "page_size": 10,
+    }
+)
+```
+
+### Create a contact
+
+```python
+new_contact = actions.execute_tool(
+    tool_name="googlecontacts_contact_create",
+    connected_account_id=connected_account.id,
+    tool_input={
+        "given_name": "Jane",
+        "family_name": "Doe",
+        "email": "jane.doe@example.com",
+        "phone": "+1234567890",
+        "person_fields": "names,emailAddresses,phoneNumbers",
+    }
+)
+person_id = new_contact["resourceName"].split("/")[1]
+```
+
+### Search contacts
+
+```python
+results = actions.execute_tool(
+    tool_name="googlecontacts_contacts_search",
+    connected_account_id=connected_account.id,
+    tool_input={
+        "query": "Jane",
+        "read_mask": "names,emailAddresses",
+    }
+)
+```
+
+### Create a group and add a member
+
+```python
+group = actions.execute_tool(
+    tool_name="googlecontacts_group_create",
+    connected_account_id=connected_account.id,
+    tool_input={"name": "VIP Customers"}
+)
+group_id = group["resourceName"].split("/")[1]
+
+actions.execute_tool(
+    tool_name="googlecontacts_group_members_modify",
+    connected_account_id=connected_account.id,
+    tool_input={
+        "group_id": group_id,
+        "resource_names_to_add": [f"people/{person_id}"],
+    }
+)
+```
+
+<Aside type="tip" title="person_fields is required">
+  Most read tools require a `person_fields` or `read_mask` parameter. Pass a comma-separated list such as `names,emailAddresses,phoneNumbers,organizations`.
+</Aside>
+
+### Update a contact
+
+`googlecontacts_contact_update` and `googlecontacts_group_update` require a current `etag`. Google uses the etag as optimistic concurrency control — if the resource was modified since you last read it, the update is rejected to prevent silent overwrites.
+
+In agentic workflows, your agent will typically call `googlecontacts_contact_get` first to read the current state of the contact, and the etag from that response is passed directly into the update call.
+
+```python
+# 1. Get contact — etag is included in the response
+contact = actions.execute_tool(
+    tool_name="googlecontacts_contact_get",
+    connected_account_id=connected_account.id,
+    tool_input={
+        "person_id": "c8901234567",
+        "person_fields": "names,emailAddresses",
+    }
+)
+
+# 2. Pass the etag from the get response into the update
+actions.execute_tool(
+    tool_name="googlecontacts_contact_update",
+    connected_account_id=connected_account.id,
+    tool_input={
+        "person_id": "c8901234567",
+        "etag": contact["etag"],
+        "update_person_fields": "names",
+        "given_name": "Jane",
+        "family_name": "Smith",
+    }
+)
+```
+
+<Aside type="caution" title="Do not cache etags">
+  Always use the etag from the most recent `contact_get` or `group_get` response. A stale etag causes the API to reject the update.
+</Aside>
