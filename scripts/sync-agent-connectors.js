@@ -1274,6 +1274,8 @@ function generateMdxContent(provider, tools) {
         const needsAuthLink = authType === 'OAUTH' || authType.toUpperCase().includes('OAUTH')
         const notoolsStem = needsAuthLink ? 'generic-oauth-notools' : 'generic-apikey-notools'
         quickstartComponentName = QUICKSTART_STEM_MAP[notoolsStem]?.componentName || null
+      } else {
+        quickstartComponentName = null
       }
     }
   }
