@@ -38,7 +38,8 @@ You need working OAuth credentials for each third-party API your Actor will conn
 
 1. Open the [Google Cloud Console](https://console.cloud.google.com/) and select your project.
 2. Go to **APIs & Services → Enabled APIs & services** and enable **YouTube Data API v3**. Without this, every tool call returns `permission_denied` even if the OAuth token is valid.
-3. Create an OAuth 2.0 client (**APIs & Services → Credentials → + Create credentials → OAuth client ID**). Set the application type to **Web application**. Leave the redirect URI blank for now — you'll add it from Scalekit in the next section.
+3. Go to **APIs & Services → OAuth consent screen**. Set the **User type** to **External** (not Internal). Internal restricts access to your Google Workspace organization — personal Gmail accounts and users outside your org will see `Error 403: org_internal` during authorization. After selecting External, add the Google accounts you want to test with under **Test users** (required while the app is in "Testing" publishing status).
+4. Create an OAuth 2.0 client (**APIs & Services → Credentials → + Create credentials → OAuth client ID**). Set the application type to **Web application**. Leave the redirect URI blank for now — you'll add it from Scalekit in the next section.
 
 **For Notion:**
 
@@ -396,6 +397,15 @@ On the first cloud run, the Actor outputs an `authPageUrl`. Open it, click **Aut
 - **Symptom**: `[permission_denied] tool execution failed - forbidden access` in logs. The connected account status is ACTIVE and authorization completed successfully.
 - **Cause**: The underlying API is not enabled in the cloud provider console. An ACTIVE connected account means the OAuth token exists — it does not mean the API accepts calls. For YouTube, this happens when **YouTube Data API v3** is not enabled in the Google Cloud project.
 - **Fix**: Go to [Google Cloud Console → APIs & Services → Enabled APIs](https://console.cloud.google.com/apis/dashboard) and enable **YouTube Data API v3**. No code change or re-authorization needed — existing tokens work once the API is enabled.
+
+</details>
+
+<details>
+<summary>Authorization fails with <code>Error 403: org_internal</code></summary>
+
+- **Symptom**: Google shows "Access blocked: [App name] can only be used within its organization" when a user tries to authorize.
+- **Cause**: The OAuth consent screen in Google Cloud Console is set to **Internal** user type, which restricts access to accounts within your Google Workspace organization. Personal Gmail accounts and external users are blocked.
+- **Fix**: Go to [Google Cloud Console → APIs & Services → OAuth consent screen](https://console.cloud.google.com/apis/credentials/consent) and change the user type to **External**. Add the accounts you want to test with under **Test users** — this is required while the app is in "Testing" publishing status.
 
 </details>
 
