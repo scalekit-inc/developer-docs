@@ -969,21 +969,39 @@ function getRequiredParams(tool) {
     .map((name) => ({ name, ...(properties[name] || {}) }))
 }
 
+function isReadOnlyTool(name) {
+  const n = (name || '').toLowerCase()
+  return /^[a-z_]*(get|list|search|read|fetch|query|find|check|view|me|myself|self|info|status|whoami)/.test(
+    n.replace(/^[a-z]+_/, ''),
+  )
+}
+
 function selectQuickstartTool(tools) {
   if (!tools || tools.length === 0) return { name: null, toolInput: null }
 
   const sorted = [...tools].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
 
-  // Prefer a tool with zero required params
-  const noReqParams = sorted.find((t) => getRequiredParams(t).length === 0)
-
-  if (noReqParams) {
-    return { name: noReqParams.name, toolInput: null }
+  // Prefer a read-only tool with zero required params
+  const readOnlyNoReq = sorted.find((t) => getRequiredParams(t).length === 0 && isReadOnlyTool(t.name))
+  if (readOnlyNoReq) {
+    return { name: readOnlyNoReq.name, toolInput: null }
   }
 
-  // Fallback: fewest required params, alphabetical tiebreak
+  // Fallback: any tool with zero required params (prefer read-only)
+  const noReqParams = sorted.filter((t) => getRequiredParams(t).length === 0)
+  const bestNoReq = noReqParams.find((t) => isReadOnlyTool(t.name)) || noReqParams[0]
+  if (bestNoReq) {
+    return { name: bestNoReq.name, toolInput: null }
+  }
+
+  // Last resort: fewest required params, prefer read-only, alphabetical tiebreak
   const byReqCount = [...sorted].sort((a, b) => {
-    return getRequiredParams(a).length - getRequiredParams(b).length
+    const diff = getRequiredParams(a).length - getRequiredParams(b).length
+    if (diff !== 0) return diff
+    // Prefer read-only at same param count
+    if (isReadOnlyTool(a.name) && !isReadOnlyTool(b.name)) return -1
+    if (!isReadOnlyTool(a.name) && isReadOnlyTool(b.name)) return 1
+    return 0
   })
 
   const best = byReqCount[0]
@@ -1111,7 +1129,9 @@ function generateQuickstartSteps(
     lines.push('3. ### Set up the connector')
     lines.push('')
     lines.push(
-      `   Register your ${providerName} credentials with Scalekit so it handles the token lifecycle. You do this once per environment.`,
+      authType === 'OAUTH' || authType.toUpperCase().includes('OAUTH')
+        ? `   Register your ${providerName} credentials with Scalekit so it handles the token lifecycle. You do this once per environment.`
+        : `   Register your ${providerName} credentials with Scalekit so it can authenticate requests on your behalf. You do this once per environment.`,
     )
     lines.push('')
     lines.push('   <details>')
