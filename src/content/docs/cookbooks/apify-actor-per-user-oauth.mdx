@@ -38,7 +38,7 @@ You need working OAuth credentials for each third-party API your Actor will conn
 
 1. Open the [Google Cloud Console](https://console.cloud.google.com/) and select your project.
 2. Go to **APIs & Services → Enabled APIs & services** and enable **YouTube Data API v3**. Without this, every tool call returns `permission_denied` even if the OAuth token is valid.
-3. Go to **APIs & Services → OAuth consent screen**. Set the **User type** to **External** (not Internal). Internal restricts access to your Google Workspace organization — personal Gmail accounts and users outside your org will see `Error 403: org_internal` during authorization. After selecting External, add the Google accounts you want to test with under **Test users** (required while the app is in "Testing" publishing status).
+3. Go to **APIs & Services → OAuth consent screen** and add the Google accounts that will authorize the Actor under **Test users**. While the app is in "Testing" publishing status, only accounts listed here can complete the OAuth flow — all others see `Error 403: org_internal`.
 4. Create an OAuth 2.0 client (**APIs & Services → Credentials → + Create credentials → OAuth client ID**). Set the application type to **Web application**. Leave the redirect URI blank for now — you'll add it from Scalekit in the next section.
 
 **For Notion:**
@@ -404,8 +404,8 @@ On the first cloud run, the Actor outputs an `authPageUrl`. Open it, click **Aut
 <summary>Authorization fails with <code>Error 403: org_internal</code></summary>
 
 - **Symptom**: Google shows "Access blocked: [App name] can only be used within its organization" when a user tries to authorize.
-- **Cause**: The OAuth consent screen in Google Cloud Console is set to **Internal** user type, which restricts access to accounts within your Google Workspace organization. Personal Gmail accounts and external users are blocked.
-- **Fix**: Go to [Google Cloud Console → APIs & Services → OAuth consent screen](https://console.cloud.google.com/apis/credentials/consent) and change the user type to **External**. Add the accounts you want to test with under **Test users** — this is required while the app is in "Testing" publishing status.
+- **Cause**: The Google account attempting to authorize is not listed as a test user. While the OAuth app is in "Testing" publishing status, only accounts explicitly added as test users can complete the OAuth flow.
+- **Fix**: Go to [Google Cloud Console → APIs & Services → OAuth consent screen](https://console.cloud.google.com/apis/credentials/consent) and add the Google account under **Test users**. No need to change the app's publishing status or user type — just add the account and retry.
 
 </details>
 
