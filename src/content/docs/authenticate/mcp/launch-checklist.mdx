@@ -9,11 +9,9 @@ next: false
 tableOfContents: false
 ---
 
-import CheckItem from '@components/ui/CheckItem.astro';
+import CheckItem from '@/components/ui/CheckItem.astro';
 
 As you prepare to launch MCP server authentication to production, verify these items before going live.
-
-This page extracts the MCP-specific items from the main authentication [production readiness checklist](/authenticate/launch-checklist/) and adds the custom domain and branding steps that determine what your users see during the OAuth consent flow.
 
 ## Production environment
 
@@ -27,15 +25,15 @@ Configuring a custom domain is the highest-impact step for MCP auth. Without it,
 
 <CheckItem iconName="approve-check-circle"> **Configure a custom domain in the Scalekit dashboard** </CheckItem>
 
-Go to **Dashboard > Customization > Custom Domain** and follow the CNAME setup instructions. CNAME configuration is available only in production environments. See [Branded custom domains](/guides/custom-domain/) for step-by-step instructions.
+Go to **Dashboard > Auth for SaaS > Customization > Custom Domain** and follow the CNAME setup instructions. CNAME configuration is available only in production environments. See [Branded custom domains](/guides/custom-domain/) for step-by-step instructions.
 
 <CheckItem iconName="approve-check-circle"> **Verify SSL certificate provisioning** </CheckItem>
 
-After CNAME verification, Scalekit automatically provisions an SSL certificate. Click **Check** in **Dashboard > Customization > Custom Domain** to confirm status. Provisioning can take up to 24 hours. Contact [support@scalekit.com](mailto:support@scalekit.com) if it takes longer.
+After CNAME verification, Scalekit automatically provisions an SSL certificate. Click **Check** in **Dashboard > Auth for SaaS > Customization > Custom Domain** to confirm status. Provisioning can take up to 24 hours. Contact [support@scalekit.com](mailto:support@scalekit.com) if it takes longer.
 
 <CheckItem iconName="approve-check-circle"> **Update customer-facing authorization URLs to use your custom domain** </CheckItem>
 
-Backend API calls work with either URL, but the authorization URL and any other endpoints your users interact with must use the CNAME URL for custom domain branding to take effect. Update those URLs in your application code after CNAME setup is complete.
+Backend API calls work with either URL, but the authorization URL and any other endpoints your users interact with must use your custom domain (for example, `mcp.yourapp.com`) for branding to take effect. Update those URLs in your application code after CNAME setup is complete.
 
 <CheckItem iconName="approve-check-circle"> **Confirm the consent screen shows your branded domain** </CheckItem>
 
@@ -83,10 +81,12 @@ After CNAME and branding are configured, trigger a complete authorization code f
 
 <CheckItem iconName="approve-check-circle"> **Test the agent → MCP client credentials flow** </CheckItem>
 
-Verify that M2M clients can obtain tokens and call MCP tools successfully. Confirm that client credentials are stored in environment variables or a secrets manager, not hardcoded.
+Verify that API clients can obtain tokens and call MCP tools successfully. Confirm that client credentials are stored in environment variables or a secrets manager, not hardcoded.
 
 ## Monitoring
 
 <CheckItem iconName="approve-check-circle"> **Enable auth logs and set up alerts** </CheckItem>
 
 Monitor **Dashboard > Auth Logs** for repeated `401` errors, invalid scope requests, and token failures after launch. Set up alerts for unusual activity patterns.
+
+After launch, use [Auth logs](/guides/dashboard/auth-logs/) to debug authentication issues and review the [MCP auth troubleshooting guide](/authenticate/mcp/troubleshooting/) for common problems.
