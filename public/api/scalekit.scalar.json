@@ -8137,6 +8137,16 @@
             "type": "string",
             "format": "date-time",
             "examples": ["2025-09-01T12:14:43.110455Z"]
+          },
+          "verification_method": {
+            "description": "Method that determines how domain ownership is verified.\n- ADMIN: domain is marked verified without DNS validation, typically by an admin.\n- DNS: domain must be verified by adding a TXT record to your DNS configuration.\n- NOT_APPLICABLE: verification does not apply to this domain type.",
+            "$ref": "#/components/schemas/domainsVerificationMethod",
+            "examples": ["ADMIN"]
+          },
+          "verification_status": {
+            "description": "Verification status of the domain.\n- PENDING: DNS TXT record has not been validated yet.\n- VERIFIED: domain confirmed via DNS TXT record validation or admin approval.\n- AUTO_VERIFIED: domain verified automatically without DNS changes.\n- FAILED: DNS TXT record was not validated within the verification window.",
+            "$ref": "#/components/schemas/domainsVerificationStatus",
+            "examples": ["AUTO_VERIFIED"]
           }
         }
       },
@@ -8178,6 +8188,14 @@
             "examples": [1]
           }
         }
+      },
+      "domainsVerificationMethod": {
+        "type": "string",
+        "enum": ["ADMIN", "DNS", "NOT_APPLICABLE"]
+      },
+      "domainsVerificationStatus": {
+        "type": "string",
+        "enum": ["PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"]
       },
       "errdetailsDebugInfo": {
         "description": "Describes additional debugging info.",
@@ -8509,7 +8527,7 @@
             "examples": [true]
           },
           "name": {
-            "description": "Feature identifier. Supported values include: \"sso\" (Single Sign-On), \"directory_sync\" (Directory Synchronization)",
+            "description": "Feature identifier. Supported values include: \"sso\" (Single Sign-On), \"directory_sync\" (Directory Synchronization), \"domain_verification\" (Domain Verification)",
             "type": "string",
             "examples": ["sso"]
           }
