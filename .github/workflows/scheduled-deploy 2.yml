@@ -1,0 +1,56 @@
+name: Deploy to Production
+
+on:
+  schedule:
+    - cron: '30 10 * * *' # 4:00 PM IST (UTC+5:30) daily
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check_and_deploy:
+    runs-on: ubuntu-latest
+    name: Deploy if new commits on main
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Get last deployed commit on Netlify
+        id: netlify
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          set -euo pipefail
+          LAST_DEPLOYED=$(curl -fsS \
+            -H "Authorization: Bearer $NETLIFY_AUTH_TOKEN" \
+            "https://api.netlify.com/api/v1/sites/$NETLIFY_SITE_ID/deploys?branch=production&per_page=10" \
+            | jq -r '[.[] | select(.state == "ready")][0].commit_ref')
+          if [ "$LAST_DEPLOYED" = "null" ] || [ -z "${LAST_DEPLOYED:-}" ]; then
+            echo "No prior production deploy found. Will deploy."
+            LAST_DEPLOYED=""
+          fi
+          echo "Last deployed SHA: ${LAST_DEPLOYED:-<none>}"
+          echo "last_deployed=$LAST_DEPLOYED" >> "$GITHUB_OUTPUT"
+
+      - name: Get current HEAD of main
+        id: github
+        run: |
+          CURRENT_HEAD=$(git rev-parse HEAD)
+          echo "Current HEAD SHA: $CURRENT_HEAD"
+          echo "current_head=$CURRENT_HEAD" >> "$GITHUB_OUTPUT"
+
+      - name: Push main to production branch
+        if: steps.netlify.outputs.last_deployed != steps.github.outputs.current_head
+        run: |
+          git push origin HEAD:production --force
+          echo "Deploy triggered — pushed main to production branch."
+
+      - name: Skip deploy
+        if: steps.netlify.outputs.last_deployed == steps.github.outputs.current_head
+        run: echo "Already up to date. Skipping deploy."

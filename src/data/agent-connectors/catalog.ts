@@ -7,6 +7,26 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
+  'xero': {
+    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/xero.svg",
+    authType: "OAuth 2.0",
+    categories: ["accounting","finance","invoicing"],
+  },
+  'mailchimp': {
+    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/mailchimp.svg",
+    authType: "OAuth 2.0",
+    categories: ["marketing","email","automation","analytics"],
+  },
+  'datadog': {
+    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/datadog.svg",
+    authType: "API Key",
+    categories: ["developer_tools","devops","monitoring","observability"],
+  },
+  'quickbooks': {
+    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/Quickbooks.svg",
+    authType: "OAuth 2.0",
+    categories: ["accounting","finance"],
+  },
   'tableau': {
     iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/tableau.svg",
     authType: "API Key",
