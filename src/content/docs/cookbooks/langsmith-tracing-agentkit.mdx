@@ -53,16 +53,20 @@ This recipe builds a Python agent that fetches Gmail messages through AgentKit a
 
    ```bash title=".env"
    # Scalekit — from app.scalekit.com → Settings → API Credentials
+   # Threat: leaked credentials grant full API access to your Scalekit environment.
+   # Never commit this file to version control; add .env to .gitignore.
    SCALEKIT_CLIENT_ID=skc_your_client_id
    SCALEKIT_CLIENT_SECRET=skcs_your_client_secret
    SCALEKIT_ENVIRONMENT_URL=https://your-subdomain.scalekit.dev
 
    # LangSmith — from smith.langchain.com → Settings → API Keys
+   # Threat: exposed API key allows unauthorized trace reads and writes.
    LANGCHAIN_TRACING_V2=true
    LANGCHAIN_API_KEY=lsv2_your_langsmith_api_key
    LANGCHAIN_PROJECT=scalekit-agentkit-traces
 
    # LLM — OpenAI directly, or through a LiteLLM gateway
+   # Threat: exposed key allows unauthorized model usage billed to your account.
    OPENAI_API_KEY=sk-your-openai-key
    ```
 
@@ -108,11 +112,17 @@ This recipe builds a Python agent that fetches Gmail messages through AgentKit a
        )
        print("Authorize Gmail:", link.link)
        input("Press Enter after authorizing...")
+   else:
+       print(f"✅ Gmail connected for {IDENTIFIER}")
    ```
 
-   `get_or_create_connected_account` returns an existing session if one exists. If the user hasn't authorized yet, `get_authorization_link` returns a URL the user opens in a browser. Scalekit handles the full OAuth exchange and stores the token.
+   `get_or_create_connected_account` returns an existing session if one exists. If the user hasn't authorized yet, `get_authorization_link` returns a URL the user opens in a browser. Scalekit handles the full OAuth exchange, validates the redirect callback, and stores the token. Your application never sees the `client_secret` used in the token exchange — Scalekit manages that server-side, which prevents credential leakage from frontend or agent code.
 
 4. ## Load tools and run the agent
+
+   <Aside type="note" title="Python-only recipe">
+     The Scalekit LangChain adapter (`actions.langchain.get_tools()`) is Python-specific because LangChain's `StructuredTool` is a Python class. If you use the Node.js, Go, or Java SDKs, call `actions.execute_tool()` directly and trace with your framework's own observability. The `ScalekitClient` initialization pattern is the same across all four SDKs.
+   </Aside>
 
    `actions.langchain.get_tools()` returns a list of `StructuredTool` objects. Bind them to a model and run a standard tool-calling loop:
 
@@ -125,6 +135,7 @@ This recipe builds a Python agent that fetches Gmail messages through AgentKit a
        connection_names=["gmail"],
    )
    tool_map = {t.name: t for t in tools}
+   print(f"✅ Loaded {len(tools)} LangChain tools: {[t.name for t in tools[:5]]}")
 
    llm = ChatOpenAI(model="gpt-4o").bind_tools(tools)
    messages = [HumanMessage("Fetch my last 3 unread emails and summarize them")]
@@ -136,6 +147,7 @@ This recipe builds a Python agent that fetches Gmail messages through AgentKit a
            print(response.content)
            break
        for tc in response.tool_calls:
+           print(f"  🔧 Tool call: {tc['name']}")
            result = tool_map[tc["name"]].invoke(tc["args"])
            messages.append(ToolMessage(content=str(result), tool_call_id=tc["id"]))
    ```
@@ -153,7 +165,7 @@ This recipe builds a Python agent that fetches Gmail messages through AgentKit a
    ```text title="Terminal" showLineNumbers=false
    ✅ Gmail connected for user_123
    ✅ Loaded 8 LangChain tools: ['gmail_fetch_mails', 'gmail_send_mail', ...]
-     🔧 Tool call #1: gmail_fetch_mails
+     🔧 Tool call: gmail_fetch_mails
    Here are your 3 most recent unread emails: ...
    ```
 
@@ -213,7 +225,7 @@ The tools were not bound to the LLM via `.bind_tools()`, so the model is generat
 
 **Trace metadata.** Use LangSmith's `@traceable` decorator or `with_config({"tags": [...]})` to add custom tags, metadata, or run names to your traces for filtering.
 
-**Cost tracking.** LangSmith captures token counts per LLM call. Combined with tool call traces, you get full cost visibility per agent run.
+**Cost tracking.** LangSmith captures token counts per LLM call. Combined with tool call traces, you get full-cost visibility per agent run.
 
 ## Next steps
 
