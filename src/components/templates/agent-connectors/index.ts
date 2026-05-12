@@ -142,6 +142,7 @@ export { default as SectionAfterSetupZendeskCommonWorkflows } from './_section-a
 export { default as SectionAfterSetupZoomCommonWorkflows } from './_section-after-setup-zoom-common-workflows.mdx'
 export { default as SectionAfterToolListSalesforceMetadataApiSoap } from './_section-after-tool-list-salesforce-metadata-api-soap.mdx'
 export { default as SectionBeforeToolListDatadogResourceIds } from './_section-before-tool-list-datadog-resource-ids.mdx'
+export { default as SectionBeforeToolListHubspotResourceIds } from './_section-before-tool-list-hubspot-resource-ids.mdx'
 export { default as SectionBeforeToolListTableauResourceIds } from './_section-before-tool-list-tableau-resource-ids.mdx'
 export { default as SectionBeforeToolListXeroCommonPatterns } from './_section-before-tool-list-xero-common-patterns.mdx'
 export { default as QuickstartGenericApikeySection } from './_quickstart-generic-apikey.astro'
