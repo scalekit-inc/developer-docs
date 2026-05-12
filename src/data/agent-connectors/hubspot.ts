@@ -574,7 +574,7 @@ export const tools: Tool[] = [
   {
     name: 'hubspot_companies_batch_upsert',
     description:
-      'Create or update multiple companies in HubSpot CRM in a single batch API call. Uses domain as the unique identifier by default.',
+      'Create or update multiple companies in HubSpot CRM in a single batch API call. Specify a unique property via `idProperty` to match records — omitting `idProperty` defaults to matching by record ID.',
     params: [
       {
         name: 'inputs',
