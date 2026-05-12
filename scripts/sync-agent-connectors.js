@@ -404,6 +404,32 @@ function renderMarkdownWithAst(text, { tableCell = false } = {}) {
 }
 
 // ---------------------------------------------------------------------------
+// Hand-maintained page detection — checks whether a connector slug has any
+// associated template files (_setup-*, _section-*, _quickstart-*). Used by
+// orphan cleanup to preserve pages that have hand-authored content even when
+// the production API no longer returns the provider.
+// ---------------------------------------------------------------------------
+
+function hasTemplateFiles(slug) {
+  const templatesDir = path.join(__dirname, '../src/components/templates/agent-connectors')
+  let files
+  try {
+    files = fs.readdirSync(templatesDir)
+  } catch {
+    return false
+  }
+  const slugVariants = [slug, slug.replace(/_/g, '-'), slug.replace(/_/g, '')]
+  return files.some((f) => {
+    for (const v of slugVariants) {
+      if (f === `_setup-${v}.mdx`) return true
+      if (f.startsWith(`_section-`) && f.includes(`-${v}-`)) return true
+      if (f === `_quickstart-${v}.mdx` || f === `_quickstart-${v}.astro`) return true
+    }
+    return false
+  })
+}
+
+// ---------------------------------------------------------------------------
 // Setup section map — auto-discovered from src/components/templates/agent-connectors/
 // ---------------------------------------------------------------------------
 
@@ -510,6 +536,55 @@ function getUsageComponent(stemMap, providerSlug) {
 }
 
 const USAGE_STEM_MAP = buildUsageStemMap()
+
+// ---------------------------------------------------------------------------
+// Quickstart template map — auto-discovered from src/components/templates/agent-connectors/
+// ---------------------------------------------------------------------------
+
+function buildQuickstartStemMap() {
+  const templatesDir = path.join(__dirname, '../src/components/templates/agent-connectors')
+  let files
+  try {
+    files = fs.readdirSync(templatesDir)
+  } catch {
+    return {}
+  }
+  const map = {}
+  for (const file of files) {
+    if (!file.startsWith('_quickstart-')) continue
+    if (!file.endsWith('.mdx') && !file.endsWith('.astro')) continue
+    const stem = file.replace('_quickstart-', '').replace(/\.(mdx|astro)$/, '')
+    // .astro takes precedence over .mdx for the same stem
+    if (!map[stem] || file.endsWith('.astro')) {
+      map[stem] = {
+        componentName: 'Quickstart' + toPascalCase(stem) + 'Section',
+        ext: file.endsWith('.astro') ? 'astro' : 'mdx',
+      }
+    }
+  }
+  return map
+}
+
+function getQuickstartComponentName(stemMap, stem) {
+  return stemMap[stem]?.componentName || null
+}
+
+function getQuickstartComponent(stemMap, providerSlug, authType) {
+  if (!providerSlug) return null
+  const lookup = (stem) => stemMap[stem]?.componentName || null
+  // Try connector-specific first
+  const direct =
+    lookup(providerSlug) ||
+    lookup(providerSlug.replace(/_/g, '-')) ||
+    lookup(providerSlug.replace(/_/g, ''))
+  if (direct) return direct
+  // Generic fallback by auth type
+  if (authType === 'OAUTH') return lookup('generic-oauth')
+  if (authType === 'API_KEY' || authType === 'BEARER') return lookup('generic-apikey')
+  return null
+}
+
+const QUICKSTART_STEM_MAP = buildQuickstartStemMap()
 
 // ---------------------------------------------------------------------------
 // Custom section map — auto-discovered from src/components/templates/agent-connectors/
@@ -631,7 +706,7 @@ function buildConnectedAccountStemMap() {
 
 const CONNECTED_ACCOUNT_STEM_MAP = buildConnectedAccountStemMap()
 
-function syncTemplateIndex(setupMap, usageMap, sectionEntries, connectedAccountMap) {
+function syncTemplateIndex(setupMap, usageMap, sectionEntries, connectedAccountMap, quickstartMap) {
   const templatesDir = path.join(__dirname, '../src/components/templates/agent-connectors')
   const indexPath = path.join(templatesDir, 'index.ts')
   const setupLines = Object.entries(setupMap)
@@ -647,7 +722,20 @@ function syncTemplateIndex(setupMap, usageMap, sectionEntries, connectedAccountM
   const usageLines = Object.entries(usageMap)
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([stem, name]) => `export { default as ${name} } from './_usage-${stem}.mdx'`)
-  const lines = [...setupLines, ...connectedAccountLines, ...sectionLines, ...usageLines]
+  const quickstartLines = Object.entries(quickstartMap || {})
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(
+      ([stem, { componentName, ext }]) =>
+        `export { default as ${componentName} } from './_quickstart-${stem}.${ext}'`,
+    )
+  const lines = [
+    `export { default as AgentKitCredentials } from './_agentkit-credentials.mdx'`,
+    ...setupLines,
+    ...connectedAccountLines,
+    ...sectionLines,
+    ...usageLines,
+    ...quickstartLines,
+  ]
   fs.writeFileSync(indexPath, lines.join('\n') + '\n', 'utf8')
 }
 
@@ -802,7 +890,7 @@ function generateCapabilityBullets(tools, providerName) {
         groupTools.slice(0, 3).map((t) => {
           const parts = t.name.split('_')
           const actionIdx = parts.indexOf(action)
-          const objectParts = actionIdx > 1 ? parts.slice(1, actionIdx) : parts.slice(1, 2)
+          const objectParts = actionIdx > 1 ? parts.slice(1, actionIdx) : parts.slice(actionIdx + 1)
           return objectParts.join(' ')
         }),
       ),
@@ -861,8 +949,264 @@ function generateToolListGuidance() {
 }
 
 // ---------------------------------------------------------------------------
+// Smart tool selection for quickstart code samples
+// ---------------------------------------------------------------------------
+
+/**
+ * Pick the best tool for the quickstart code sample.
+ *
+ * Strategy:
+ *   1. Prefer a tool with zero required params (safe to call with `toolInput: {}`).
+ *   2. If every tool needs params, pick the one with fewest required params and
+ *      generate sample values from the param schema.
+ */
+function getRequiredParams(tool) {
+  const schema = tool.input_schema || {}
+  const required = schema.required || []
+  const properties = schema.properties || {}
+  return required
+    .filter((name) => name in properties)
+    .map((name) => ({ name, ...(properties[name] || {}) }))
+}
+
+function isReadOnlyTool(name) {
+  // Extract segments after the connector prefix and check if the action verb
+  // (first or last segment) is read-only
+  const segments = (name || '')
+    .toLowerCase()
+    .replace(/^[a-z]+_/, '')
+    .split('_')
+  const readVerbs = new Set([
+    'get',
+    'list',
+    'search',
+    'read',
+    'fetch',
+    'query',
+    'find',
+    'check',
+    'view',
+    'myself',
+    'info',
+    'status',
+    'whoami',
+  ])
+  return readVerbs.has(segments[0]) || readVerbs.has(segments[segments.length - 1])
+}
+
+function selectQuickstartTool(tools) {
+  if (!tools || tools.length === 0) return { name: null, toolInput: null }
+
+  const sorted = [...tools].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+
+  // Prefer a read-only tool with zero required params
+  const readOnlyNoReq = sorted.find(
+    (t) => getRequiredParams(t).length === 0 && isReadOnlyTool(t.name),
+  )
+  if (readOnlyNoReq) {
+    return { name: readOnlyNoReq.name, toolInput: null }
+  }
+
+  // Next: read-only tool with fewest required params (generate sample values)
+  const readOnlyWithParams = sorted
+    .filter((t) => isReadOnlyTool(t.name) && getRequiredParams(t).length > 0)
+    .sort((a, b) => getRequiredParams(a).length - getRequiredParams(b).length)
+  if (readOnlyWithParams.length > 0) {
+    const best = readOnlyWithParams[0]
+    const sampleInput = {}
+    for (const p of getRequiredParams(best)) sampleInput[p.name] = generateSampleValue(p)
+    return { name: best.name, toolInput: sampleInput }
+  }
+
+  // Fallback: any tool with zero required params
+  const noReqParams = sorted.filter((t) => getRequiredParams(t).length === 0)
+  if (noReqParams.length > 0) {
+    return { name: noReqParams[0].name, toolInput: null }
+  }
+
+  // Last resort: fewest required params, prefer read-only, alphabetical tiebreak
+  const byReqCount = [...sorted].sort((a, b) => {
+    const diff = getRequiredParams(a).length - getRequiredParams(b).length
+    if (diff !== 0) return diff
+    // Prefer read-only at same param count
+    if (isReadOnlyTool(a.name) && !isReadOnlyTool(b.name)) return -1
+    if (!isReadOnlyTool(a.name) && isReadOnlyTool(b.name)) return 1
+    return 0
+  })
+
+  const best = byReqCount[0]
+  const requiredParams = getRequiredParams(best)
+
+  const sampleInput = {}
+  for (const p of requiredParams) {
+    sampleInput[p.name] = generateSampleValue(p)
+  }
+
+  return { name: best.name, toolInput: sampleInput }
+}
+
+function generateSampleValue(param) {
+  const desc = (param.description || '').toLowerCase()
+  const name = param.name || ''
+
+  if (param.type === 'integer' || param.type === 'number') return 10
+  if (param.type === 'boolean') return true
+  if (param.type === 'array') return []
+  if (param.type === 'object') return {}
+
+  if (desc.includes('url') || desc.includes('uri'))
+    return 'https://example.com/' + name.replace(/_/g, '-')
+  if (desc.includes('email')) return 'user@example.com'
+  return 'YOUR_' + name.toUpperCase()
+}
+
+function formatToolInputNode(obj) {
+  if (!obj || Object.keys(obj).length === 0) return '{}'
+  const entries = Object.entries(obj)
+    .map(([k, v]) => {
+      if (typeof v === 'string') return `${k}: '${v}'`
+      return `${k}: ${JSON.stringify(v)}`
+    })
+    .join(', ')
+  return `{ ${entries} }`
+}
+
+function formatToolInputPython(obj) {
+  if (!obj || Object.keys(obj).length === 0) return '{}'
+  return JSON.stringify(obj)
+}
+
+// ---------------------------------------------------------------------------
+// Verify endpoints for connectors with no tools (proxy/request quickstart)
+// ---------------------------------------------------------------------------
+
+const NO_TOOL_VERIFY_ENDPOINTS = {
+  airtable: { path: '/v0/meta/whoami', method: 'GET' },
+  asana: { path: '/api/1.0/users/me', method: 'GET' },
+  attention: { path: '/v1/users/me', method: 'GET' },
+  bigquery: { path: '/bigquery/v2/projects', method: 'GET' },
+  chorus: { path: '/v1/users/me', method: 'GET' },
+  clari_copilot: { path: '/v1/users/me', method: 'GET' },
+  clickup: { path: '/api/v2/user', method: 'GET' },
+  confluence: { path: '/wiki/rest/api/user/current', method: 'GET' },
+  dropbox: { path: '/2/users/get_current_account', method: 'POST' },
+  fathom: { path: '/v1/users/me', method: 'GET' },
+  google_ads: { path: '/v17/customers', method: 'GET' },
+  googlemeet: { path: '/v2/spaces', method: 'GET' },
+  intercom: { path: '/me', method: 'GET' },
+  microsoftexcel: { path: '/v1.0/me/drive/root/children', method: 'GET' },
+  microsoftteams: { path: '/v1.0/me', method: 'GET' },
+  microsoftword: { path: '/v1.0/me', method: 'GET' },
+  // monday uses a connector-specific quickstart (_quickstart-monday.mdx) due to GraphQL body
+  onedrive: { path: '/v1.0/me/drive', method: 'GET' },
+  onenote: { path: '/v1.0/me/onenote/notebooks', method: 'GET' },
+  servicenow: { path: '/api/now/table/sys_user', method: 'GET' },
+  sharepoint: { path: '/v1.0/me/sites', method: 'GET' },
+  trello: { path: '/1/members/me', method: 'GET' },
+  zoom: { path: '/v2/users/me', method: 'GET' },
+}
+
+// ---------------------------------------------------------------------------
 // MDX generation
 // ---------------------------------------------------------------------------
+
+function generateQuickstartSteps(
+  providerName,
+  providerSlug,
+  primaryAuth,
+  setupComponentName,
+  quickstartComponentName,
+  tools,
+  verifyEndpoint,
+) {
+  const lines = []
+  const authType = primaryAuth ? primaryAuth.type || 'OAUTH' : 'OAUTH'
+  const slugForCode = providerSlug.replace(/_/g, '-')
+
+  // Smart tool selection: prefer a tool with no required params, fallback to sample values
+  const { name: selectedToolName, toolInput } = selectQuickstartTool(tools)
+
+  lines.push('<Steps>')
+  lines.push('')
+
+  lines.push('1. ### Install the SDK')
+  lines.push('')
+  lines.push('   <Tabs syncKey="tech-stack">')
+  lines.push('     <TabItem label="Node.js">')
+  lines.push('       ```bash frame="terminal"')
+  lines.push('       npm install @scalekit-sdk/node')
+  lines.push('       ```')
+  lines.push('     </TabItem>')
+  lines.push('     <TabItem label="Python">')
+  lines.push('       ```bash frame="terminal"')
+  lines.push('       pip install scalekit')
+  lines.push('       ```')
+  lines.push('     </TabItem>')
+  lines.push('   </Tabs>')
+  lines.push('')
+  lines.push(
+    '   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)',
+  )
+  lines.push('')
+
+  lines.push('2. ### Set your credentials')
+  lines.push('')
+  lines.push('   <AgentKitCredentials />')
+  lines.push('')
+
+  let nextStep = 3
+  if (setupComponentName) {
+    lines.push('3. ### Set up the connector')
+    lines.push('')
+    lines.push(
+      authType === 'OAUTH' || authType.toUpperCase().includes('OAUTH')
+        ? `   Register your ${providerName} credentials with Scalekit so it handles the token lifecycle. You do this once per environment.`
+        : `   Register your ${providerName} credentials with Scalekit so it can authenticate requests on your behalf. You do this once per environment.`,
+    )
+    lines.push('')
+    lines.push('   <details>')
+    lines.push('   <summary>Dashboard setup steps</summary>')
+    lines.push('')
+    lines.push(`   <${setupComponentName} />`)
+    lines.push('')
+    lines.push('   </details>')
+    lines.push('')
+    nextStep = 4
+  }
+
+  if (quickstartComponentName) {
+    const isGeneric =
+      quickstartComponentName.includes('GenericOauth') ||
+      quickstartComponentName.includes('GenericApikey')
+    const isNotools = quickstartComponentName.includes('Notools')
+    const needsAuthLabel = authType === 'OAUTH' || authType.toUpperCase().includes('OAUTH')
+    lines.push(
+      `${nextStep}. ### ${needsAuthLabel ? 'Authorize and make your first call' : 'Make your first call'}`,
+    )
+    lines.push('')
+
+    if (isNotools && verifyEndpoint) {
+      // No-tools connectors: show actions.request() with the verify endpoint
+      lines.push(
+        `   <${quickstartComponentName} connector="${slugForCode}" providerName="${providerName}" verifyPath="${verifyEndpoint.path}" verifyMethod="${verifyEndpoint.method}" />`,
+      )
+    } else if (isGeneric && selectedToolName) {
+      // Connectors with tools: show executeTool with smart tool selection
+      let propsStr = `connector="${slugForCode}" toolName="${selectedToolName}" providerName="${providerName}"`
+      if (toolInput) {
+        propsStr += ` toolInputNode="${formatToolInputNode(toolInput)}" toolInputPython='${formatToolInputPython(toolInput)}'`
+      }
+      lines.push(`   <${quickstartComponentName} ${propsStr} />`)
+    } else {
+      // Connector-specific quickstart (e.g. _quickstart-hubspot.mdx, _quickstart-monday.mdx)
+      lines.push(`   <${quickstartComponentName} />`)
+    }
+    lines.push('')
+  }
+
+  lines.push('</Steps>')
+  return lines
+}
 
 function generateMdxContent(provider, tools) {
   const lines = []
@@ -887,10 +1231,26 @@ function generateMdxContent(provider, tools) {
     Array.isArray(provider.categories) ? provider.categories : [],
   )
 
+  const authType = primaryAuth ? primaryAuth.type || 'OAUTH' : 'OAUTH'
+
   // --- Frontmatter ---
   lines.push('---')
-  lines.push(`title: ${providerName}`)
+  lines.push(`title: '${providerName.replace(/'/g, "''")} connector'`)
   lines.push('tableOfContents: true')
+  // Truncate at word boundary to avoid mid-word cutoffs in metadata previews
+  let descClean = providerDescription
+  if (descClean.length > 155) {
+    descClean = descClean.slice(0, 155)
+    const lastSpace = descClean.lastIndexOf(' ')
+    if (lastSpace > 100) descClean = descClean.slice(0, lastSpace)
+    // Strip trailing punctuation before appending ellipsis
+    descClean = descClean.replace(/[,;:\s]+$/, '') + '...'
+  }
+  descClean = descClean.replace(/'/g, "''")
+  lines.push(`description: '${descClean}'`)
+  lines.push('sidebar:')
+  lines.push(`  label: '${providerName.replace(/'/g, "''")}'`)
+  lines.push(`overviewTitle: 'Quickstart'`)
   if (iconSrc) lines.push(`connectorIcon: ${iconSrc}`)
   if (authTypeLabel) lines.push(`connectorAuthType: ${authTypeLabel}`)
   if (categories.length) lines.push(`connectorCategories: [${categories.join(', ')}]`)
@@ -902,24 +1262,66 @@ function generateMdxContent(provider, tools) {
   lines.push('      .sl-markdown-content h2 {')
   lines.push('        font-size: var(--sl-text-xl);')
   lines.push('      }')
+  lines.push('      .sl-markdown-content h3 {')
+  lines.push('        font-size: var(--sl-text-lg);')
+  lines.push('      }')
   lines.push('---')
   lines.push('')
 
   // Imports
-  lines.push("import ToolList from '@/components/ToolList.astro'")
-  lines.push(`import { tools } from '@/data/agent-connectors/${providerSlug}'`)
+  if (tools.length > 0) {
+    lines.push("import ToolList from '@/components/ToolList.astro'")
+    lines.push(`import { tools } from '@/data/agent-connectors/${providerSlug}'`)
+  }
+  lines.push("import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'")
+  lines.push("import { AgentKitCredentials } from '@components/templates'")
   const setupComponentName = getSetupComponent(SETUP_STEM_MAP, providerSlug)
-  const usageComponentName = getUsageComponent(USAGE_STEM_MAP, providerSlug)
   const sectionComponentNames = getSectionComponents(SECTION_ENTRIES, providerSlug)
+  let quickstartComponentName = getQuickstartComponent(QUICKSTART_STEM_MAP, providerSlug, authType)
+
+  // For connectors with no tools, override to notools quickstart variant
+  // (shows actions.request() instead of executeTool)
+  let verifyEndpoint = null
+  if (tools.length === 0) {
+    // Check for a connector-specific quickstart first (e.g. _quickstart-monday.mdx)
+    const connectorSpecific = getQuickstartComponent(QUICKSTART_STEM_MAP, providerSlug, null)
+    if (connectorSpecific) {
+      quickstartComponentName = connectorSpecific
+    } else {
+      verifyEndpoint = NO_TOOL_VERIFY_ENDPOINTS[providerSlug] || null
+      if (verifyEndpoint) {
+        const needsAuthLink = authType === 'OAUTH' || authType.toUpperCase().includes('OAUTH')
+        const notoolsStem = needsAuthLink ? 'generic-oauth-notools' : 'generic-apikey-notools'
+        quickstartComponentName = QUICKSTART_STEM_MAP[notoolsStem]?.componentName || null
+      } else {
+        quickstartComponentName = null
+      }
+    }
+  }
+
   if (setupComponentName) {
     lines.push(`import { ${setupComponentName} } from '@components/templates'`)
   }
-  if (usageComponentName) {
-    lines.push(`import { ${usageComponentName} } from '@components/templates'`)
+  if (quickstartComponentName) {
+    lines.push(`import { ${quickstartComponentName} } from '@components/templates'`)
   }
   for (const sectionComponentName of sectionComponentNames) {
     lines.push(`import { ${sectionComponentName} } from '@components/templates'`)
   }
+  lines.push('')
+
+  // Quickstart Steps block
+  lines.push(
+    ...generateQuickstartSteps(
+      providerName,
+      providerSlug,
+      primaryAuth,
+      setupComponentName,
+      quickstartComponentName,
+      tools,
+      verifyEndpoint,
+    ),
+  )
   lines.push('')
 
   // What you can do — use hand-curated overrides when available, auto-gen as fallback
@@ -940,39 +1342,12 @@ function generateMdxContent(provider, tools) {
     lines.push('')
   }
 
-  // Authentication
-  if (primaryAuth) {
-    lines.push('## Authentication')
-    lines.push('')
-    lines.push(generateAuthSection(primaryAuth, providerName))
-    lines.push('')
-    lines.push(generateConnectionSetupGuidance(providerName))
-    lines.push('')
-  }
+  // Setup content is now embedded inside Step 3 as a <details> block
   appendSectionComponents(lines, SECTION_ENTRIES, providerSlug, 'after-authentication')
-
-  // Setup section (collapsible)
-  if (setupComponentName) {
-    lines.push('<details>')
-    lines.push('<summary>Set up the connector</summary>')
-    lines.push('')
-    lines.push(`<${setupComponentName} />`)
-    lines.push('')
-    lines.push('</details>')
-    lines.push('')
-  }
+  // after-setup hook renders _section-after-setup-*-common-workflows.mdx files here
   appendSectionComponents(lines, SECTION_ENTRIES, providerSlug, 'after-setup')
 
-  // Usage section (collapsible)
-  if (usageComponentName) {
-    lines.push('<details>')
-    lines.push('<summary>Code examples</summary>')
-    lines.push('')
-    lines.push(`<${usageComponentName} />`)
-    lines.push('')
-    lines.push('</details>')
-    lines.push('')
-  }
+  // after-usage kept for backward compat with any existing _section-after-usage-* files
   appendSectionComponents(lines, SECTION_ENTRIES, providerSlug, 'after-usage')
 
   // Tool list
@@ -986,6 +1361,7 @@ function generateMdxContent(provider, tools) {
     lines.push('')
   }
   appendSectionComponents(lines, SECTION_ENTRIES, providerSlug, 'after-tool-list')
+  // Troubleshooting: add via _section-after-tool-list-<slug>-troubleshooting.mdx
 
   return lines.join('\n')
 }
@@ -1008,9 +1384,15 @@ async function main() {
     process.exit(1)
   }
 
-  syncTemplateIndex(SETUP_STEM_MAP, USAGE_STEM_MAP, SECTION_ENTRIES, CONNECTED_ACCOUNT_STEM_MAP)
+  syncTemplateIndex(
+    SETUP_STEM_MAP,
+    USAGE_STEM_MAP,
+    SECTION_ENTRIES,
+    CONNECTED_ACCOUNT_STEM_MAP,
+    QUICKSTART_STEM_MAP,
+  )
   console.log(
-    `✓ Synced index.ts (${Object.keys(SETUP_STEM_MAP).length} setup + ${SECTION_ENTRIES.length} section + ${Object.keys(USAGE_STEM_MAP).length} usage templates)`,
+    `✓ Synced index.ts (${Object.keys(SETUP_STEM_MAP).length} setup + ${SECTION_ENTRIES.length} section + ${Object.keys(USAGE_STEM_MAP).length} usage + ${Object.keys(QUICKSTART_STEM_MAP).length} quickstart templates)`,
   )
 
   const outputDir = path.join(__dirname, '../src/content/docs/agentkit/connectors')
@@ -1039,12 +1421,20 @@ async function main() {
   // Build the set of file names this run will produce
   const expectedFiles = new Set(providers.map((p) => toSafeIdentifier(p.identifier || '') + '.mdx'))
 
-  // Remove orphaned .mdx files not in the expected set
+  // Remove orphaned .mdx files not in the expected set.
+  // Skip connectors that have hand-authored template files — the naming convention
+  // (_setup-*, _section-*, _quickstart-*) signals that the page is hand-maintained
+  // and should survive sync runs even when the API no longer returns the provider.
   let removed = 0
   for (const existing of fs.readdirSync(outputDir)) {
     if (!existing.endsWith('.mdx')) continue
     if (existing === 'index.mdx') continue // Preserve index if it ever exists in this dir
     if (expectedFiles.has(existing)) continue
+    const slug = existing.replace(/\.mdx$/, '')
+    if (hasTemplateFiles(slug)) {
+      console.log(`  ⊘ Keeping hand-maintained page: ${existing} (has template files)`)
+      continue
+    }
     const orphanPath = path.join(outputDir, existing)
     if (!orphanPath.startsWith(outputDir + path.sep)) continue // safety check
     fs.unlinkSync(orphanPath)

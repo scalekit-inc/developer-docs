@@ -1,6 +1,10 @@
 ---
-title: Granola
+title: 'Granola connector'
 tableOfContents: true
+description: 'Connect to Granola to access AI-generated meeting notes, summaries, transcripts, and attendee data from your workspace. Granola automatically records and...'
+sidebar:
+  label: 'Granola'
+overviewTitle: 'Quickstart'
 connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/granola.svg
 connectorAuthType: Bearer Token
 connectorCategories: [ai, automation, communication]
@@ -10,10 +14,45 @@ head:
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 ---
 
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/granola'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { QuickstartGenericApikeySection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Make your first call
+
+   <QuickstartGenericApikeySection connector="granola" toolName="granola_notes_list" providerName="Granola" />
+
+</Steps>
 
 ## What you can do
 
@@ -21,12 +60,6 @@ Connect this agent connector to let your agent:
 
 - **Get note** — Retrieve a single Granola meeting note by its ID
 - **List notes** — List all accessible meeting notes in the Granola workspace with pagination and date filtering
-
-## Authentication
-
-This connector uses **Bearer Token** authentication. Scalekit securely stores the token and injects it into API requests on behalf of your users. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
-
-Before calling this connector from your code, create the Granola connection in **AgentKit** > **Connections** and copy the exact **Connection name** from that connection into your code. The value in code must match the dashboard exactly.
 
 ## Tool list
 

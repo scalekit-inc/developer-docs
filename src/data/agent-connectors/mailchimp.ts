@@ -4,19 +4,22 @@ export const tools: Tool[] = [
   // ─── Account ──────────────────────────────────────────────────────────────────
   {
     name: 'mailchimp_ping',
-    description: 'Health check — returns a simple "Everything\'s Chimpy!" response if your API key is valid.',
+    description:
+      'Health check — returns a simple "Everything\'s Chimpy!" response if your API key is valid.',
     params: [],
   },
   {
     name: 'mailchimp_account_info',
-    description: 'Retrieve details about the authenticated Mailchimp account, including plan, contact info, and industry.',
+    description:
+      'Retrieve details about the authenticated Mailchimp account, including plan, contact info, and industry.',
     params: [],
   },
 
   // ─── Audiences (Lists) ────────────────────────────────────────────────────────
   {
     name: 'mailchimp_lists_list',
-    description: 'List all Mailchimp audiences (lists) in the account with pagination and filtering options.',
+    description:
+      'List all Mailchimp audiences (lists) in the account with pagination and filtering options.',
     params: [
       {
         name: 'count',
@@ -70,7 +73,8 @@ export const tools: Tool[] = [
   },
   {
     name: 'mailchimp_list_create',
-    description: 'Create a new Mailchimp audience. Requires a contact address and campaign defaults. Note: free plans allow only one audience.',
+    description:
+      'Create a new Mailchimp audience. Requires a contact address and campaign defaults. Note: free plans allow only one audience.',
     params: [
       {
         name: 'name',
@@ -82,7 +86,8 @@ export const tools: Tool[] = [
         name: 'permission_reminder',
         type: 'string',
         required: true,
-        description: 'A reminder for subscribers about why they were added (e.g. "You subscribed to our newsletter.").',
+        description:
+          'A reminder for subscribers about why they were added (e.g. "You subscribed to our newsletter.").',
       },
       {
         name: 'from_name',
@@ -154,7 +159,8 @@ export const tools: Tool[] = [
   },
   {
     name: 'mailchimp_list_update',
-    description: 'Update settings for a Mailchimp audience such as name, permission reminder, or sender details.',
+    description:
+      'Update settings for a Mailchimp audience such as name, permission reminder, or sender details.',
     params: [
       {
         name: 'list_id',
@@ -190,7 +196,8 @@ export const tools: Tool[] = [
   },
   {
     name: 'mailchimp_list_delete',
-    description: 'Permanently delete a Mailchimp audience and all its member data. This action is irreversible.',
+    description:
+      'Permanently delete a Mailchimp audience and all its member data. This action is irreversible.',
     params: [
       {
         name: 'list_id',
@@ -204,7 +211,8 @@ export const tools: Tool[] = [
   // ─── Members ──────────────────────────────────────────────────────────────────
   {
     name: 'mailchimp_list_members_list',
-    description: 'List all members of a Mailchimp audience with filtering by status, segment, and pagination.',
+    description:
+      'List all members of a Mailchimp audience with filtering by status, segment, and pagination.',
     params: [
       {
         name: 'list_id',
@@ -216,7 +224,8 @@ export const tools: Tool[] = [
         name: 'status',
         type: 'string',
         required: false,
-        description: 'Filter by subscription status: `subscribed`, `unsubscribed`, `cleaned`, `pending`, or `transactional`.',
+        description:
+          'Filter by subscription status: `subscribed`, `unsubscribed`, `cleaned`, `pending`, or `transactional`.',
       },
       {
         name: 'count',
@@ -252,7 +261,8 @@ export const tools: Tool[] = [
   },
   {
     name: 'mailchimp_list_member_get',
-    description: 'Retrieve information about a specific audience member by their MD5-hashed email address.',
+    description:
+      'Retrieve information about a specific audience member by their MD5-hashed email address.',
     params: [
       {
         name: 'list_id',
@@ -264,7 +274,8 @@ export const tools: Tool[] = [
         name: 'subscriber_hash',
         type: 'string',
         required: true,
-        description: 'The MD5 hash of the member\'s email address (lowercase). Get it from `mailchimp_list_members_list`.',
+        description:
+          "The MD5 hash of the member's email address (lowercase). Get it from `mailchimp_list_members_list`.",
       },
       {
         name: 'fields',
@@ -288,7 +299,7 @@ export const tools: Tool[] = [
         name: 'email_address',
         type: 'string',
         required: true,
-        description: 'The member\'s email address.',
+        description: "The member's email address.",
       },
       {
         name: 'status',
@@ -300,13 +311,13 @@ export const tools: Tool[] = [
         name: 'first_name',
         type: 'string',
         required: false,
-        description: 'Member\'s first name.',
+        description: "Member's first name.",
       },
       {
         name: 'last_name',
         type: 'string',
         required: false,
-        description: 'Member\'s last name.',
+        description: "Member's last name.",
       },
       {
         name: 'tags',
@@ -318,7 +329,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'mailchimp_list_member_update',
-    description: 'Update an existing audience member\'s details such as email, status, or name.',
+    description: "Update an existing audience member's details such as email, status, or name.",
     params: [
       {
         name: 'list_id',
@@ -330,13 +341,14 @@ export const tools: Tool[] = [
         name: 'subscriber_hash',
         type: 'string',
         required: true,
-        description: 'MD5 hash of the member\'s email address (lowercase).',
+        description: "MD5 hash of the member's email address (lowercase).",
       },
       {
         name: 'status',
         type: 'string',
         required: false,
-        description: 'Updated subscription status: `subscribed`, `unsubscribed`, `cleaned`, or `pending`.',
+        description:
+          'Updated subscription status: `subscribed`, `unsubscribed`, `cleaned`, or `pending`.',
       },
       {
         name: 'email_address',
@@ -360,7 +372,8 @@ export const tools: Tool[] = [
   },
   {
     name: 'mailchimp_list_member_upsert',
-    description: 'Add or update a member in an audience. Creates the member if they don\'t exist; updates them if they do.',
+    description:
+      "Add or update a member in an audience. Creates the member if they don't exist; updates them if they do.",
     params: [
       {
         name: 'list_id',
@@ -372,19 +385,20 @@ export const tools: Tool[] = [
         name: 'subscriber_hash',
         type: 'string',
         required: true,
-        description: 'MD5 hash of the member\'s email address (lowercase).',
+        description: "MD5 hash of the member's email address (lowercase).",
       },
       {
         name: 'email_address',
         type: 'string',
         required: true,
-        description: 'The member\'s email address.',
+        description: "The member's email address.",
       },
       {
         name: 'status_if_new',
         type: 'string',
         required: true,
-        description: 'Status to set if this is a new subscriber: `subscribed`, `unsubscribed`, `cleaned`, or `pending`.',
+        description:
+          'Status to set if this is a new subscriber: `subscribed`, `unsubscribed`, `cleaned`, or `pending`.',
       },
       {
         name: 'status',
@@ -408,7 +422,8 @@ export const tools: Tool[] = [
   },
   {
     name: 'mailchimp_list_member_archive',
-    description: 'Archive a member from a Mailchimp audience (sets status to unsubscribed without permanently deleting).',
+    description:
+      'Archive a member from a Mailchimp audience (sets status to unsubscribed without permanently deleting).',
     params: [
       {
         name: 'list_id',
@@ -420,7 +435,7 @@ export const tools: Tool[] = [
         name: 'subscriber_hash',
         type: 'string',
         required: true,
-        description: 'MD5 hash of the member\'s email address (lowercase).',
+        description: "MD5 hash of the member's email address (lowercase).",
       },
     ],
   },
@@ -438,7 +453,7 @@ export const tools: Tool[] = [
         name: 'subscriber_hash',
         type: 'string',
         required: true,
-        description: 'MD5 hash of the member\'s email address (lowercase).',
+        description: "MD5 hash of the member's email address (lowercase).",
       },
     ],
   },
@@ -456,7 +471,7 @@ export const tools: Tool[] = [
         name: 'subscriber_hash',
         type: 'string',
         required: true,
-        description: 'MD5 hash of the member\'s email address (lowercase).',
+        description: "MD5 hash of the member's email address (lowercase).",
       },
     ],
   },
@@ -474,13 +489,14 @@ export const tools: Tool[] = [
         name: 'subscriber_hash',
         type: 'string',
         required: true,
-        description: 'MD5 hash of the member\'s email address (lowercase).',
+        description: "MD5 hash of the member's email address (lowercase).",
       },
       {
         name: 'tags',
         type: 'string',
         required: true,
-        description: 'JSON array of tag objects, each with `name` and `status` (`active` or `inactive`). Example: `[{"name":"vip","status":"active"}]`.',
+        description:
+          'JSON array of tag objects, each with `name` and `status` (`active` or `inactive`). Example: `[{"name":"vip","status":"active"}]`.',
       },
     ],
   },
@@ -542,7 +558,8 @@ export const tools: Tool[] = [
   },
   {
     name: 'mailchimp_segment_create',
-    description: 'Create a new segment in a Mailchimp audience. Provide either `options` for a saved/conditional segment or `static_segment` for a static list of emails.',
+    description:
+      'Create a new segment in a Mailchimp audience. Provide either `options` for a saved/conditional segment or `static_segment` for a static list of emails.',
     params: [
       {
         name: 'list_id',
@@ -560,7 +577,8 @@ export const tools: Tool[] = [
         name: 'static_segment',
         type: 'string',
         required: false,
-        description: 'JSON array of email addresses for a static segment (e.g. `["a@example.com","b@example.com"]`).',
+        description:
+          'JSON array of email addresses for a static segment (e.g. `["a@example.com","b@example.com"]`).',
       },
       {
         name: 'options',
@@ -572,7 +590,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'mailchimp_segment_update',
-    description: 'Update an existing audience segment\'s name or member conditions.',
+    description: "Update an existing audience segment's name or member conditions.",
     params: [
       {
         name: 'list_id',
@@ -652,13 +670,15 @@ export const tools: Tool[] = [
   // ─── Campaigns ────────────────────────────────────────────────────────────────
   {
     name: 'mailchimp_campaigns_list',
-    description: 'List all campaigns in the Mailchimp account with filtering by type, status, and date.',
+    description:
+      'List all campaigns in the Mailchimp account with filtering by type, status, and date.',
     params: [
       {
         name: 'type',
         type: 'string',
         required: false,
-        description: 'Filter by campaign type: `regular`, `plaintext`, `absplit`, `rss`, or `variate`.',
+        description:
+          'Filter by campaign type: `regular`, `plaintext`, `absplit`, `rss`, or `variate`.',
       },
       {
         name: 'status',
@@ -724,7 +744,8 @@ export const tools: Tool[] = [
   },
   {
     name: 'mailchimp_campaign_create',
-    description: 'Create a new Mailchimp campaign. Use `mailchimp_campaign_content_set` to add HTML content before sending.',
+    description:
+      'Create a new Mailchimp campaign. Use `mailchimp_campaign_content_set` to add HTML content before sending.',
     params: [
       {
         name: 'type',
@@ -778,7 +799,8 @@ export const tools: Tool[] = [
   },
   {
     name: 'mailchimp_campaign_update',
-    description: 'Update settings for an existing campaign such as subject line, sender name, or audience.',
+    description:
+      'Update settings for an existing campaign such as subject line, sender name, or audience.',
     params: [
       {
         name: 'campaign_id',
@@ -886,7 +908,8 @@ export const tools: Tool[] = [
   },
   {
     name: 'mailchimp_campaign_send',
-    description: 'Send a campaign immediately. The campaign must have a subject line, content, and a valid recipient list.',
+    description:
+      'Send a campaign immediately. The campaign must have a subject line, content, and a valid recipient list.',
     params: [
       {
         name: 'campaign_id',
@@ -910,7 +933,8 @@ export const tools: Tool[] = [
         name: 'schedule_time',
         type: 'string',
         required: true,
-        description: 'The UTC datetime to send the campaign in ISO 8601 format (e.g. `2024-12-01T10:00:00Z`).',
+        description:
+          'The UTC datetime to send the campaign in ISO 8601 format (e.g. `2024-12-01T10:00:00Z`).',
       },
     ],
   },
@@ -940,7 +964,8 @@ export const tools: Tool[] = [
         name: 'test_emails',
         type: 'string',
         required: true,
-        description: 'JSON-encoded array of email addresses to send the test to (e.g. `["you@example.com"]`).',
+        description:
+          'JSON-encoded array of email addresses to send the test to (e.g. `["you@example.com"]`).',
       },
       {
         name: 'send_type',
@@ -1038,7 +1063,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'mailchimp_template_update',
-    description: 'Update an existing email template\'s name or HTML content.',
+    description: "Update an existing email template's name or HTML content.",
     params: [
       {
         name: 'template_id',
@@ -1082,7 +1107,8 @@ export const tools: Tool[] = [
         name: 'type',
         type: 'string',
         required: false,
-        description: 'Filter by campaign type: `regular`, `plaintext`, `absplit`, `rss`, or `variate`.',
+        description:
+          'Filter by campaign type: `regular`, `plaintext`, `absplit`, `rss`, or `variate`.',
       },
       {
         name: 'count',
@@ -1124,7 +1150,8 @@ export const tools: Tool[] = [
   },
   {
     name: 'mailchimp_report_click_details',
-    description: 'Retrieve click activity details for a sent campaign, showing which links were clicked.',
+    description:
+      'Retrieve click activity details for a sent campaign, showing which links were clicked.',
     params: [
       {
         name: 'campaign_id',
@@ -1148,7 +1175,8 @@ export const tools: Tool[] = [
   },
   {
     name: 'mailchimp_report_open_details',
-    description: 'Retrieve open activity details for a sent campaign, showing who opened the email.',
+    description:
+      'Retrieve open activity details for a sent campaign, showing who opened the email.',
     params: [
       {
         name: 'campaign_id',
@@ -1172,7 +1200,8 @@ export const tools: Tool[] = [
   },
   {
     name: 'mailchimp_report_email_activity',
-    description: 'Retrieve per-subscriber email activity (opens, clicks, bounces) for a sent campaign.',
+    description:
+      'Retrieve per-subscriber email activity (opens, clicks, bounces) for a sent campaign.',
     params: [
       {
         name: 'campaign_id',
@@ -1264,7 +1293,8 @@ export const tools: Tool[] = [
         name: 'workflow_id',
         type: 'string',
         required: true,
-        description: 'The unique ID of the automation workflow. Get it from `mailchimp_automations_list`.',
+        description:
+          'The unique ID of the automation workflow. Get it from `mailchimp_automations_list`.',
       },
     ],
   },

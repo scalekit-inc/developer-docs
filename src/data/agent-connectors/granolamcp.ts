@@ -7,18 +7,8 @@ export const tools: Tool[] = [
 Use this when the user needs exact quotes, specific wording, or wants to review what was literally said in a meeting. For summarized content or action items, use query_granola_meetings or list_meetings/get_meetings instead.`,
     params: [
       { name: 'meeting_id', type: 'string', required: true, description: `Meeting UUID` },
-      {
-        name: 'schema_version',
-        type: 'string',
-        required: false,
-        description: `Optional schema version to use for tool execution`,
-      },
-      {
-        name: 'tool_version',
-        type: 'string',
-        required: false,
-        description: `Optional tool version to use for tool execution`,
-      },
+      { name: 'schema_version', type: 'string', required: false, description: `Optional schema version to use for tool execution` },
+      { name: 'tool_version', type: 'string', required: false, description: `Optional tool version to use for tool execution` },
     ],
   },
   {
@@ -26,24 +16,9 @@ Use this when the user needs exact quotes, specific wording, or wants to review 
     description: `Get detailed meeting information for one or more Granola meetings by ID. Returns private notes, AI-generated summary, attendees, and metadata.
 Use this when you already have specific meeting IDs (e.g. from list_meetings results). For open-ended questions about meeting content, use query_granola_meetings instead.`,
     params: [
-      {
-        name: 'meeting_ids',
-        type: 'array',
-        required: true,
-        description: `Array of meeting UUIDs (max 10)`,
-      },
-      {
-        name: 'schema_version',
-        type: 'string',
-        required: false,
-        description: `Optional schema version to use for tool execution`,
-      },
-      {
-        name: 'tool_version',
-        type: 'string',
-        required: false,
-        description: `Optional tool version to use for tool execution`,
-      },
+      { name: 'meeting_ids', type: 'array', required: true, description: `Array of meeting UUIDs (max 10)` },
+      { name: 'schema_version', type: 'string', required: false, description: `Optional schema version to use for tool execution` },
+      { name: 'tool_version', type: 'string', required: false, description: `Optional tool version to use for tool execution` },
     ],
   },
   {
@@ -64,36 +39,11 @@ When NOT to use:
 
 Use get_meetings to retrieve detailed meeting content after identifying relevant meetings.`,
     params: [
-      {
-        name: 'custom_end',
-        type: 'string',
-        required: false,
-        description: `ISO date for custom range end (required if time_range is 'custom')`,
-      },
-      {
-        name: 'custom_start',
-        type: 'string',
-        required: false,
-        description: `ISO date for custom range start (required if time_range is 'custom')`,
-      },
-      {
-        name: 'schema_version',
-        type: 'string',
-        required: false,
-        description: `Optional schema version to use for tool execution`,
-      },
-      {
-        name: 'time_range',
-        type: 'string',
-        required: false,
-        description: `Time range to query meetings from`,
-      },
-      {
-        name: 'tool_version',
-        type: 'string',
-        required: false,
-        description: `Optional tool version to use for tool execution`,
-      },
+      { name: 'custom_end', type: 'string', required: false, description: `ISO date for custom range end (required if time_range is 'custom')` },
+      { name: 'custom_start', type: 'string', required: false, description: `ISO date for custom range start (required if time_range is 'custom')` },
+      { name: 'schema_version', type: 'string', required: false, description: `Optional schema version to use for tool execution` },
+      { name: 'time_range', type: 'string', required: false, description: `Time range to query meetings from` },
+      { name: 'tool_version', type: 'string', required: false, description: `Optional tool version to use for tool execution` },
     ],
   },
   {
@@ -113,30 +63,10 @@ When NOT to use:
 
 Prioritize using query_granola_meetings over list_meetings/get_meetings for open-ended or natural language queries about meeting content.`,
     params: [
-      {
-        name: 'query',
-        type: 'string',
-        required: true,
-        description: `The query to run on Granola meeting notes`,
-      },
-      {
-        name: 'document_ids',
-        type: 'array',
-        required: false,
-        description: `Optional list of specific meeting IDs to limit context to`,
-      },
-      {
-        name: 'schema_version',
-        type: 'string',
-        required: false,
-        description: `Optional schema version to use for tool execution`,
-      },
-      {
-        name: 'tool_version',
-        type: 'string',
-        required: false,
-        description: `Optional tool version to use for tool execution`,
-      },
+      { name: 'query', type: 'string', required: true, description: `The query to run on Granola meeting notes` },
+      { name: 'document_ids', type: 'array', required: false, description: `Optional list of specific meeting IDs to limit context to` },
+      { name: 'schema_version', type: 'string', required: false, description: `Optional schema version to use for tool execution` },
+      { name: 'tool_version', type: 'string', required: false, description: `Optional tool version to use for tool execution` },
     ],
   },
 ]

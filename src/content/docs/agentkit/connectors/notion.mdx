@@ -1,6 +1,10 @@
 ---
-title: Notion
+title: 'Notion connector'
 tableOfContents: true
+description: 'Connect to Notion workspace. Create, edit pages, manage databases, and collaborate on content'
+sidebar:
+  label: 'Notion'
+overviewTitle: 'Quickstart'
 connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/notion.svg
 connectorAuthType: OAuth 2.0
 connectorCategories: [project_management, files, documents]
@@ -10,12 +14,58 @@ head:
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 ---
 
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/notion'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
 import { SetupNotionSection } from '@components/templates'
-import { UsageNotionSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+import { SectionAfterSetupNotionCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Notion credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupNotionSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="notion" toolName="notion_data_fetch" providerName="Notion" />
+
+</Steps>
 
 ## What you can do
 
@@ -26,27 +76,9 @@ Connect this agent connector to let your agent:
 - **Update content** — edit existing page blocks, properties, and database fields
 - **Search** — find pages and databases across the user's Notion workspace
 
-## Authentication
+## Common workflows
 
-This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to Notion, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
-
-You supply your Notion **Connected App** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.
-
-Before calling this connector from your code, create the Notion connection in **AgentKit** > **Connections** and copy the exact **Connection name** from that connection into your code. The value in code must match the dashboard exactly.
-
-<details>
-<summary>Set up the connector</summary>
-
-<SetupNotionSection />
-
-</details>
-
-<details>
-<summary>Code examples</summary>
-
-<UsageNotionSection />
-
-</details>
+<SectionAfterSetupNotionCommonWorkflows />
 
 ## Tool list
 

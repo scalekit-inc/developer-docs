@@ -1,51 +1,73 @@
 ---
-title: PostHog MCP
-description: Connect to PostHog MCP to query analytics, manage feature flags, run experiments, and interact with your product data.
-sidebar:
-  label: PostHog MCP
+title: 'Posthog MCP connector'
 tableOfContents: true
+description: 'Connect to Posthog MCP to enable your AI agents and tools to directly interact with PostHog''s products.'
+sidebar:
+  label: 'Posthog MCP'
+overviewTitle: 'Quickstart'
 connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/posthog-1.svg
-connectorAuthType: OAuth 2.1/DCR
-connectorCategories: [analytics, product, feature-flags]
+connectorAuthType: OAuth 2.0
 head:
   - tag: style
     content: |
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 ---
 
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/posthogmcp'
-import { UsagePosthogmcpSection } from '@components/templates'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+import { SectionAfterSetupPosthogmcpCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="posthogmcp" toolName="posthogmcp_activity_log_list" providerName="Posthog MCP" />
+
+</Steps>
 
 ## What you can do
 
 Connect this agent connector to let your agent:
 
-- **Analytics & insights** — Run trend, funnel, path, and HogQL queries; create and retrieve insights and dashboards
-- **Feature flags** — Create, update, evaluate, and delete flags; manage multivariate and early-access feature flags
-- **Experiments** — Create A/B tests, configure variants and metrics, launch experiments, and retrieve results
-- **Surveys** — Create surveys with multiple question types; retrieve response stats and submissions
-- **Persons & cohorts** — List and query persons, create and manage cohorts, retrieve person activity
-- **Session recordings** — List and retrieve session recordings and playlists
-- **Error tracking** — List, merge, resolve, and suppress error tracking issues
-- **Events & actions** — List event and property definitions, create and manage actions
-- **CDP & data pipelines** — List and manage transformations, destinations, and external data sources
-- **Activity & audit** — Retrieve activity logs and audit trails for all resources
+- **List workflows, view, subscriptions** — List all workflows in the project
+- **Get workflows, view, surveys** — Get a specific workflow by ID
+- **Update view, feature flag, survey** — Update an existing data warehouse saved query (view)
+- **Unmaterialize view** — Undo materialization for a saved query
+- **Run view, evaluation** — Get the 5 most recent materialization run statuses for a saved query
+- **Materialize view** — Enable materialization for a saved query
 
-## Authentication
+## Common workflows
 
-This connector uses **OAuth 2.1/DCR with PKCE**. PostHog MCP is an MCP server that issues credentials dynamically via Dynamic Client Registration — Scalekit handles DCR, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
-
-<details>
-<summary>Code examples</summary>
-
-<UsagePosthogmcpSection />
-
-</details>
-
-Before calling this connector from your code, create the PostHog MCP connection in **AgentKit** > **Connections** and copy the exact **Connection name** from that connection into your code. The value in code must match the dashboard exactly.
+<SectionAfterSetupPosthogmcpCommonWorkflows />
 
 ## Tool list
 

@@ -1,0 +1,36 @@
+export const sectionTitle = 'Getting resource IDs'
+
+Most HubSpot batch and update tools require record IDs. Always fetch IDs from the API — never guess or hard-code them.
+
+| Resource | Tool to get ID | Field in response |
+|----------|---------------|-------------------|
+| Contact ID | `hubspot_contacts_search` or `hubspot_contacts_list` | `results[].id` |
+| Company ID | `hubspot_companies_search` | `results[].id` |
+| Deal ID | `hubspot_deals_search` | `results[].id` |
+| Ticket ID | `hubspot_tickets_search` | `results[].id` |
+| Line Item ID | `hubspot_deal_line_items_get` | `results[].id` |
+| Product ID | `hubspot_products_list` | `results[].id` |
+| Owner ID | `hubspot_owners_list` | `results[].id` |
+| Pipeline ID | `hubspot_deal_pipelines_list` | `results[].id` |
+| Pipeline Stage ID | `hubspot_deal_pipelines_list` | `results[].stages[].id` |
+| Custom Object Type ID | `hubspot_schemas_list` | `results[].objectTypeId` |
+| Custom Object Record ID | `hubspot_custom_object_records_search` | `results[].id` |
+| Quote ID | `hubspot_quote_get` | `id` |
+
+### Association type IDs
+
+When linking records, use the correct `association_type_id` for the object pair:
+
+| From → To | Association Type ID |
+|-----------|-------------------|
+| Contact → Company (primary) | `1` |
+| Contact → Company | `279` |
+| Contact → Deal | `4` |
+| Contact → Ticket | `15` |
+| Deal → Contact | `3` |
+| Deal → Company | `5` |
+| Ticket → Contact | `16` |
+| Ticket → Company | `340` |
+| Line Item → Deal | `20` |
+| Company → Contact | `280` |
+| Company → Deal | `6` |

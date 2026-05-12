@@ -4,7 +4,8 @@ const XERO_TENANT_PARAM: Tool['params'][number] = {
   name: 'xero_tenant_id',
   type: 'string',
   required: false,
-  description: 'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
+  description:
+    'Xero tenant (organisation) ID. Injected automatically by Scalekit — you do not need to supply this.',
 }
 
 export const tools: Tool[] = [

@@ -1,6 +1,10 @@
 ---
-title: PagerDuty
+title: 'PagerDuty connector'
 tableOfContents: true
+description: 'Connect to PagerDuty to manage incidents, services, users, teams, escalation policies, schedules, and on-call rotations.'
+sidebar:
+  label: 'PagerDuty'
+overviewTitle: 'Quickstart'
 connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/pagerduty.svg
 connectorAuthType: OAuth 2.0
 connectorCategories: [developer_tools]
@@ -10,10 +14,45 @@ head:
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 ---
 
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/pagerduty'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="pagerduty" toolName="pagerduty_escalation_policies_list" providerName="PagerDuty" />
+
+</Steps>
 
 ## What you can do
 
@@ -25,14 +64,6 @@ Connect this agent connector to let your agent:
 - **Update team, incident, maintenance window** — Update an existing PagerDuty team's name or description
 - **Get service, maintenance window, escalation policy** — Get details of a specific PagerDuty service by its ID
 - **Manage incident** — Manage multiple PagerDuty incidents in bulk
-
-## Authentication
-
-This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to PagerDuty, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
-
-You supply your PagerDuty **Connected App** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.
-
-Before calling this connector from your code, create the PagerDuty connection in **AgentKit** > **Connections** and copy the exact **Connection name** from that connection into your code. The value in code must match the dashboard exactly.
 
 ## Tool list
 

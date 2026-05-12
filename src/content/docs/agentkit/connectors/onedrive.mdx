@@ -1,6 +1,10 @@
 ---
-title: OneDrive
+title: 'OneDrive connector'
 tableOfContents: true
+description: 'Connect to OneDrive. Manage files, folders, and cloud storage with Microsoft OneDrive'
+sidebar:
+  label: 'OneDrive'
+overviewTitle: 'Quickstart'
 connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/onedrive.svg
 connectorAuthType: OAuth 2.0
 connectorCategories: [files, documents]
@@ -10,31 +14,57 @@ head:
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 ---
 
-import ToolList from '@/components/ToolList.astro'
-import { tools } from '@/data/agent-connectors/onedrive'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
 import { SetupOnedriveSection } from '@components/templates'
-import { UsageOnedriveSection } from '@components/templates'
+import { QuickstartGenericOauthNotoolsSection } from '@components/templates'
+import { SectionAfterSetupOnedriveCommonWorkflows } from '@components/templates'
 
-## Authentication
+<Steps>
 
-This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to OneDrive, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
+1. ### Install the SDK
 
-You supply your OneDrive **Connected App** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
 
-Before calling this connector from your code, create the OneDrive connection in **AgentKit** > **Connections** and copy the exact **Connection name** from that connection into your code. The value in code must match the dashboard exactly.
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
 
-<details>
-<summary>Set up the connector</summary>
+2. ### Set your credentials
 
-<SetupOnedriveSection />
+   <AgentKitCredentials />
 
-</details>
+3. ### Set up the connector
 
-<details>
-<summary>Code examples</summary>
+   Register your OneDrive credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
 
-<UsageOnedriveSection />
+   <details>
+   <summary>Dashboard setup steps</summary>
 
-</details>
+   <SetupOnedriveSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartGenericOauthNotoolsSection connector="onedrive" providerName="OneDrive" verifyPath="/v1.0/me/drive" verifyMethod="GET" />
+
+</Steps>
+
+## Common workflows
+
+<SectionAfterSetupOnedriveCommonWorkflows />

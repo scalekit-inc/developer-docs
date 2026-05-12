@@ -1,0 +1,71 @@
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+<details>
+<summary>Proxy API call</summary>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // Get a YouTube transcript — no API key needed here
+    const result = await actions.request({
+      connectionName: 'supadata',
+      identifier: 'user_123',
+      path: '/v1/youtube/transcript',
+      method: 'GET',
+      queryParams: { videoId: 'dQw4w9WgXcQ', text: 'true' },
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    # Get a YouTube transcript — no API key needed here
+    result = actions.request(
+        connection_name='supadata',
+        identifier='user_123',
+        path="/v1/youtube/transcript",
+        method="GET",
+        params={"videoId": "dQw4w9WgXcQ", "text": True}
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<Aside type="tip" title="No OAuth flow needed">
+  Supadata uses API key auth — unlike OAuth connectors, there is no authorization link or redirect flow. Once you call `upsert_connected_account` (Python) / `upsertConnectedAccount` (Node.js), or add an account via the dashboard, your users can make requests immediately.
+</Aside>
+
+<details>
+<summary>Execute a tool</summary>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.executeTool({
+      connector: 'supadata',
+      identifier: 'user_123',
+      toolName: 'supadata_metadata_get',
+      toolInput: {},
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.execute_tool(
+        tool_input={},
+        tool_name='supadata_metadata_get',
+        connection_name='supadata',
+        identifier='user_123',
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>

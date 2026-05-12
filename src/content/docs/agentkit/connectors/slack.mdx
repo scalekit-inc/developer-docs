@@ -1,6 +1,10 @@
 ---
-title: Slack
+title: 'Slack connector'
 tableOfContents: true
+description: 'Connect to Slack workspace. Send Messages as Bots or on behalf of users'
+sidebar:
+  label: 'Slack'
+overviewTitle: 'Quickstart'
 connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/slack.svg
 connectorAuthType: OAuth 2.0
 connectorCategories: [communication]
@@ -10,12 +14,58 @@ head:
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 ---
 
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/slack'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
 import { SetupSlackSection } from '@components/templates'
-import { UsageSlackSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+import { SectionAfterSetupSlackCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Slack credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupSlackSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="slack" toolName="slack_list_channels" providerName="Slack" />
+
+</Steps>
 
 ## What you can do
 
@@ -27,27 +77,9 @@ Connect this agent connector to let your agent:
 - **Look up users** — search for team members by name, email, or username
 - **Upload files** — share files and attachments into any conversation
 
-## Authentication
+## Common workflows
 
-This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to Slack, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
-
-You supply your Slack **Connected App** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.
-
-Before calling this connector from your code, create the Slack connection in **AgentKit** > **Connections** and copy the exact **Connection name** from that connection into your code. The value in code must match the dashboard exactly.
-
-<details>
-<summary>Set up the connector</summary>
-
-<SetupSlackSection />
-
-</details>
-
-<details>
-<summary>Code examples</summary>
-
-<UsageSlackSection />
-
-</details>
+<SectionAfterSetupSlackCommonWorkflows />
 
 ## Tool list
 

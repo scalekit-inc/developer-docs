@@ -1,6 +1,10 @@
 ---
-title: Apify MCP
+title: 'Apify MCP connector'
 tableOfContents: true
+description: 'Connect to Apify MCP to run web scraping, browser automation, and data extraction Actors directly from your AI workflows.'
+sidebar:
+  label: 'Apify MCP'
+overviewTitle: 'Quickstart'
 connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/apify.svg
 connectorAuthType: Bearer Token
 connectorCategories: [ai, automation, developer_tools]
@@ -10,42 +14,72 @@ head:
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 ---
 
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/apifymcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
 import { SetupApifymcpSection } from '@components/templates'
-import { UsageApifymcpSection } from '@components/templates'
+import { QuickstartGenericApikeySection } from '@components/templates'
+import { SectionAfterSetupApifymcpCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Apify MCP credentials with Scalekit so it can authenticate requests on your behalf. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupApifymcpSection />
+
+   </details>
+
+4. ### Make your first call
+
+   <QuickstartGenericApikeySection connector="apifymcp" toolName="apifymcp_search_actors" providerName="Apify MCP" />
+
+</Steps>
 
 ## What you can do
 
 Connect this agent connector to let your agent:
 
-- **Get get** — Get detailed information about a specific Actor run by runId
-- **Fetch fetch** — Get detailed information about an Actor by its ID or full name (format: 'username/name', e.g
-- **Search search** — Search the Apify Store to FIND and DISCOVER what scraping tools/Actors exist for specific platforms or use cases
+- **Get actor run, actor output** — Get detailed information about a specific Actor run by runId
+- **Fetch actor details, apify docs** — Get detailed information about an Actor by its ID or full name (format: 'username/name', e.g
+- **Search actors, apify docs** — Search the Apify Store to FIND and DISCOVER what scraping tools/Actors exist for specific platforms or use cases
 - **Actor call** — Call any Actor from the Apify Store
 - **Browser rag web** — Web browser for AI agents and RAG pipelines
 
-## Authentication
+## Common workflows
 
-This connector uses **Bearer Token** authentication. Scalekit securely stores the token and injects it into API requests on behalf of your users. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
-
-Before calling this connector from your code, create the Apify MCP connection in **AgentKit** > **Connections** and copy the exact **Connection name** from that connection into your code. The value in code must match the dashboard exactly.
-
-<details>
-<summary>Set up the connector</summary>
-
-<SetupApifymcpSection />
-
-</details>
-
-<details>
-<summary>Code examples</summary>
-
-<UsageApifymcpSection />
-
-</details>
+<SectionAfterSetupApifymcpCommonWorkflows />
 
 ## Tool list
 

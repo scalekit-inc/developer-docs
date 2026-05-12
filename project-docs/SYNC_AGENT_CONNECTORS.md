@@ -37,16 +37,19 @@ You should only hand-edit the template files that add authored content on top of
 Supported template families in the current sync flow:
 
 - `_setup-<slug>.mdx` adds the optional **Set up the connector** section
-- `_usage-<slug>.mdx` adds the optional **Code examples** section
+- `_quickstart-<slug>.mdx` or `_quickstart-<slug>.astro` adds a connector-specific **Authorize and make your first call** step inside the quickstart `<Steps>` block
 - `_section-<hook>-<slug>-<topic>.mdx` adds an optional custom section at a supported generated-page hook
 
 Examples:
 
 - `src/components/templates/agent-connectors/_setup-github.mdx`
-- `src/components/templates/agent-connectors/_usage-github.mdx`
+- `src/components/templates/agent-connectors/_quickstart-hubspot.mdx`
+- `src/components/templates/agent-connectors/_section-after-setup-github-common-workflows.mdx`
 - `src/components/templates/agent-connectors/_section-after-tool-list-salesforce-metadata-api-soap.mdx`
 
 The sync script does not infer setup instructions from API metadata. If a matching `_setup-<slug>.mdx` file does not exist, the generated connector page will still include the latest tool information, but it will not include setup instructions.
+
+The `_usage-<slug>.mdx` template family is no longer supported. Common workflow content now uses the `_section-after-setup-<slug>-common-workflows.mdx` naming pattern instead.
 
 Do not hand-maintain these generated files:
 
@@ -71,9 +74,95 @@ The script will:
 - regenerate `src/components/templates/agent-connectors/index.ts`
 - inject `<SetupFathomSection />` into the generated `src/content/docs/agentkit/connectors/fathom.mdx` page
 
+## Add a connector-specific quickstart
+
+By default, the sync script generates a generic quickstart step ("Authorize and make your first call") for each auth type using the `_quickstart-generic-oauth.astro` and `_quickstart-generic-apikey.astro` components. These accept the connector slug, a tool name, and the provider display name as props.
+
+To add a connector-specific quickstart with a handcrafted code example, create a file using the `_quickstart-<slug>.mdx` naming pattern:
+
+1. Create `src/components/templates/agent-connectors/_quickstart-hubspot.mdx`.
+2. Add your quickstart code as a standard `<Tabs syncKey="tech-stack">` block. Do not include client init boilerplate — the quickstart is a single code example users can run after setting credentials.
+3. Run the sync script.
+
+The script will use the connector-specific quickstart instead of the generic component. The `_quickstart-<slug>.mdx` file takes precedence over the generic fallback.
+
+You can also use an `.astro` file (`_quickstart-<slug>.astro`) when the component needs to accept props or render dynamic content.
+
+## Add a common workflows section
+
+Common workflow content goes in a `_section-after-setup-<slug>-common-workflows.mdx` file. The `after-setup` hook places it immediately after the **Set up the connector** section and before the **Tool list**.
+
+1. Create `src/components/templates/agent-connectors/_section-after-setup-github-common-workflows.mdx`.
+2. Add `export const sectionTitle = 'Common workflows'` as the first line.
+3. Add workflow content below. Each workflow should use a `<details><summary>Name</summary>…</details>` block with `<Tabs syncKey="tech-stack">` tabs inside.
+4. Run the sync script.
+
+Each workflow code block should show both the proxy API call and the equivalent `executeTool` call in the same block:
+
+````mdx
+<details>
+<summary>List contacts</summary>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // --- Proxy API (direct HTTP) ---
+    const proxyResult = await actions.request({
+      connectionName: 'hubspot',
+      identifier: 'user_123',
+      path: '/crm/v3/contacts',
+      method: 'GET',
+    });
+
+    // --- executeTool (typed, validated) ---
+    const result = await actions.executeTool({
+      connector: 'hubspot',
+      identifier: 'user_123',
+      toolName: 'hubspot_contacts_list',
+      toolInput: { limit: 10 },
+    });
+    ```
+
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    # --- Proxy API (direct HTTP) ---
+    proxy_result = actions.request(
+        connection_name='hubspot',
+        identifier='user_123',
+        path='/crm/v3/contacts',
+        method='GET',
+    )
+
+    # --- execute_tool (typed, validated) ---
+    result = actions.execute_tool(
+        connection_name='hubspot',
+        identifier='user_123',
+        tool_name='hubspot_contacts_list',
+        tool_input={'limit': 10},
+    )
+    ```
+
+  </TabItem>
+</Tabs>
+
+</details>
+````
+
+Note: `actions.request()` uses `connectionName:` (Node.js) / `connection_name=` (Python). `actions.executeTool()` uses `connector:` / `connection_name=`.
+
+## Add a troubleshooting section
+
+To add a troubleshooting section to a connector page, create a `_section-after-tool-list-<slug>-troubleshooting.mdx` file:
+
+1. Create `src/components/templates/agent-connectors/_section-after-tool-list-hubspot-troubleshooting.mdx`.
+2. Add `export const sectionTitle = 'Troubleshooting'` as the first line.
+3. Add `<details>` blocks for each common error below. Do not include the `## Troubleshooting` heading — the script emits it from the exported title.
+4. Run the sync script.
+
 ## Add a custom connector section
 
-Create a custom section template when a generated connector page needs authored content that does not fit setup instructions or code examples.
+Create a custom section template when a generated connector page needs authored content that does not fit the patterns above.
 
 Use this filename pattern:
 
@@ -85,13 +174,13 @@ The `<slug>` must match the generated connector page filename stem. For example,
 
 Supported hooks:
 
-| Hook                   | Placement                                                 |
-| ---------------------- | --------------------------------------------------------- |
-| `after-authentication` | After the generated **Authentication** section            |
-| `after-setup`          | After the optional **Set up the connector** details block |
-| `after-usage`          | After the optional **Code examples** details block        |
-| `before-tool-list`     | Immediately before the generated **Tool list** section    |
-| `after-tool-list`      | Immediately after the generated **Tool list** section     |
+| Hook                   | Placement                                                               |
+| ---------------------- | ----------------------------------------------------------------------- |
+| `after-authentication` | After the generated authentication note (before setup)                  |
+| `after-setup`          | After the **Set up the connector** section — common workflows go here   |
+| `after-usage`          | Backward-compatible hook; `after-setup` is preferred                    |
+| `before-tool-list`     | Immediately before the **Tool list** section                            |
+| `after-tool-list`      | Immediately after the **Tool list** section — troubleshooting goes here |
 
 Example:
 
@@ -134,7 +223,7 @@ These diffs are usually expected:
 - new connectors published to production
 - new tools added to existing connectors
 - metadata refreshes on existing connectors
-- updates caused by a new `_setup-*`, `_usage-*`, or `_section-*` template you added
+- updates caused by a new `_setup-*`, `_quickstart-*`, or `_section-*` template you added
 
 These diffs should make you stop and look carefully:
 
@@ -152,7 +241,8 @@ After the sync finishes, verify these points:
 - the expected generated connector page exists under `src/content/docs/agentkit/connectors/`
 - the expected generated tool data file exists under `src/data/agent-connectors/`
 - the setup section appears only for connectors with a matching `_setup-*` template
-- the usage section appears only for connectors with a matching `_usage-*` template
+- the quickstart step uses the connector-specific `_quickstart-<slug>.mdx` when present, or the generic fallback otherwise
+- the **Common workflows** section appears for connectors with a matching `_section-after-setup-*-common-workflows.mdx`
 - custom sections appear at the hook declared in matching `_section-*` templates
 - the generated page reflects the latest tool information from production
 
@@ -164,9 +254,10 @@ The script derives component names from the template filename.
 | ----------------------------------------------------------- | ----------------------------------------------- |
 | `_setup-google-ads.mdx`                                     | `SetupGoogleAdsSection`                         |
 | `_setup-googlecalendar.mdx`                                 | `SetupGooglecalendarSection`                    |
-| `_setup-microsoft-excel.mdx`                                | `SetupMicrosoftExcelSection`                    |
+| `_quickstart-hubspot.mdx`                                   | `QuickstartHubspotSection`                      |
+| `_quickstart-generic-oauth.astro`                           | `QuickstartGenericOauthSection`                 |
+| `_section-after-setup-github-common-workflows.mdx`          | `SectionAfterSetupGithubCommonWorkflows`        |
 | `_section-after-tool-list-salesforce-metadata-api-soap.mdx` | `SectionAfterToolListSalesforceMetadataApiSoap` |
-| `_usage-google_ads.mdx`                                     | `UsageGoogleAdsSection`                         |
 
 Provider API slugs often use underscores. Setup and usage template lookup currently tries these forms:
 
@@ -186,3 +277,12 @@ If the generated connector page is missing setup instructions:
 - rerun `pnpm run sync-agent-connectors` and review the warnings for missing setup templates
 
 If the connector page is generated but the setup section is missing, the most common cause is a slug mismatch between the provider identifier and the `_setup-*` filename.
+
+## Troubleshooting missing quickstart or common workflows content
+
+If the connector page is missing the quickstart step or common workflows:
+
+- confirm the `_quickstart-<slug>.mdx` or `_section-after-setup-<slug>-common-workflows.mdx` file exists in `src/components/templates/agent-connectors/`
+- confirm the slug in the filename matches the generated page slug (check the warnings output from the sync script)
+- confirm the `_section-after-setup-*-common-workflows.mdx` file exports `sectionTitle` as the first line: `export const sectionTitle = 'Common workflows'`
+- rerun `pnpm run sync-agent-connectors` after adding or renaming template files — the script must regenerate `index.ts` to pick up the new exports
