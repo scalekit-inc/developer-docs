@@ -1,0 +1,234 @@
+---
+title: 'Trace AgentKit tool calls in LangSmith'
+description: 'Add LangSmith observability to a LangChain agent that uses Scalekit AgentKit tools for Gmail, Slack, GitHub, and 60+ connectors.'
+date: 2026-05-12
+tags: ['Agent auth', 'LangChain', 'LangSmith']
+sidebar:
+  label: 'LangSmith tracing'
+tableOfContents: true
+excerpt: >
+  Scalekit AgentKit returns native LangChain StructuredTool objects. Enable LangSmith tracing and every tool call — Gmail fetches, Slack messages, GitHub searches — appears as a traced span automatically. This recipe walks through setup, a working agent, and verifying traces in the LangSmith dashboard.
+featured: false
+authors:
+  - name: 'Saif'
+    title: 'Developer Advocate'
+    url: 'https://www.linkedin.com/in/saif-shines/'
+    picture: '/images/blog/authors/saif.png'
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+When you hand an LLM a set of tools — Gmail, Slack, GitHub, calendar — you need to see what happened. Which tool was called, with what arguments, what came back, and how long it took. Without that visibility, debugging a misbehaving agent means guessing.
+
+[LangSmith](https://smith.langchain.com) provides that visibility for LangChain agents. Scalekit AgentKit returns native LangChain `StructuredTool` objects, which means LangSmith traces them automatically — no wrapper code, no custom callbacks. Set two environment variables and every tool call shows up as a span in your trace.
+
+This recipe builds a Python agent that fetches Gmail messages through AgentKit and traces the entire run in LangSmith. The same pattern works with any of Scalekit's 60+ connectors.
+
+## What you are building
+
+- **A LangChain agent** that uses Scalekit AgentKit tools to read Gmail.
+- **LangSmith tracing** that captures every LLM call, tool invocation, input/output, and latency as spans in a trace.
+- **A verification step** confirming traces appear in the LangSmith dashboard.
+
+## Prerequisites
+
+- A Scalekit account at [app.scalekit.com](https://app.scalekit.com) with API credentials (**Settings → API Credentials**).
+- A **Gmail** connection configured under **Agent Auth → Connections**. See [Configure a connection](/agentkit/connections/).
+- A [LangSmith account](https://smith.langchain.com) and API key from **Settings → API Keys**.
+- An OpenAI API key, or a LiteLLM gateway URL with a virtual key.
+- **Python 3.10+** and **pip** or **uv**.
+
+<Steps>
+1. ## Install dependencies
+
+   ```bash title="Terminal"
+   pip install scalekit-sdk-python langchain-openai langsmith python-dotenv
+   ```
+
+   `scalekit-sdk-python` includes the LangChain adapter. `langsmith` is the tracing client — importing it is enough for LangSmith to pick up traces when the environment variables are set.
+
+2. ## Set environment variables
+
+   Create a `.env` file at the project root:
+
+   ```bash title=".env"
+   # Scalekit — from app.scalekit.com → Settings → API Credentials
+   SCALEKIT_CLIENT_ID=skc_your_client_id
+   SCALEKIT_CLIENT_SECRET=skcs_your_client_secret
+   SCALEKIT_ENVIRONMENT_URL=https://your-subdomain.scalekit.dev
+
+   # LangSmith — from smith.langchain.com → Settings → API Keys
+   LANGCHAIN_TRACING_V2=true
+   LANGCHAIN_API_KEY=lsv2_your_langsmith_api_key
+   LANGCHAIN_PROJECT=scalekit-agentkit-traces
+
+   # LLM — OpenAI directly, or through a LiteLLM gateway
+   OPENAI_API_KEY=sk-your-openai-key
+   ```
+
+   | Variable | Purpose |
+   |---|---|
+   | `LANGCHAIN_TRACING_V2` | Must be `true` to enable tracing |
+   | `LANGCHAIN_API_KEY` | Your LangSmith API key (starts with `lsv2_`) |
+   | `LANGCHAIN_PROJECT` | Project name in LangSmith — auto-created if it doesn't exist |
+
+   <Aside type="note" title="Using a LiteLLM gateway?">
+     Replace `OPENAI_API_KEY` with `LITELLM_BASE_URL` and `LITELLM_API_KEY`, then pass them to `ChatOpenAI(openai_api_base=..., openai_api_key=...)`. The tracing behavior is identical — LangSmith traces the LangChain layer, not the transport.
+   </Aside>
+
+3. ## Connect a user to Gmail
+
+   Initialize the Scalekit client and ensure the user has an active Gmail connection:
+
+   ```python title="langsmith_tracing.py"
+   import os
+   from dotenv import load_dotenv
+
+   load_dotenv()
+
+   import scalekit.client
+
+   scalekit_client = scalekit.client.ScalekitClient(
+       client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+       client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+       env_url=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
+   )
+   actions = scalekit_client.actions
+
+   IDENTIFIER = "user_123"
+
+   response = actions.get_or_create_connected_account(
+       connection_name="gmail",
+       identifier=IDENTIFIER,
+   )
+   if response.connected_account.status != "ACTIVE":
+       link = actions.get_authorization_link(
+           connection_name="gmail",
+           identifier=IDENTIFIER,
+       )
+       print("Authorize Gmail:", link.link)
+       input("Press Enter after authorizing...")
+   ```
+
+   `get_or_create_connected_account` returns an existing session if one exists. If the user hasn't authorized yet, `get_authorization_link` returns a URL the user opens in a browser. Scalekit handles the full OAuth exchange and stores the token.
+
+4. ## Load tools and run the agent
+
+   `actions.langchain.get_tools()` returns a list of `StructuredTool` objects. Bind them to a model and run a standard tool-calling loop:
+
+   ```python title="langsmith_tracing.py"
+   from langchain_core.messages import HumanMessage, ToolMessage
+   from langchain_openai import ChatOpenAI
+
+   tools = actions.langchain.get_tools(
+       identifier=IDENTIFIER,
+       connection_names=["gmail"],
+   )
+   tool_map = {t.name: t for t in tools}
+
+   llm = ChatOpenAI(model="gpt-4o").bind_tools(tools)
+   messages = [HumanMessage("Fetch my last 3 unread emails and summarize them")]
+
+   while True:
+       response = llm.invoke(messages)
+       messages.append(response)
+       if not response.tool_calls:
+           print(response.content)
+           break
+       for tc in response.tool_calls:
+           result = tool_map[tc["name"]].invoke(tc["args"])
+           messages.append(ToolMessage(content=str(result), tool_call_id=tc["id"]))
+   ```
+
+   There is no tracing-specific code here. Because `LANGCHAIN_TRACING_V2=true` is set, LangSmith automatically instruments every `invoke` call — LLM requests, tool calls, and the full message chain.
+
+5. ## Run and verify
+
+   ```bash title="Terminal"
+   python langsmith_tracing.py
+   ```
+
+   Expected output:
+
+   ```text title="Terminal" showLineNumbers=false
+   ✅ Gmail connected for user_123
+   ✅ Loaded 8 LangChain tools: ['gmail_fetch_mails', 'gmail_send_mail', ...]
+     🔧 Tool call #1: gmail_fetch_mails
+   Here are your 3 most recent unread emails: ...
+   ```
+
+   Open [LangSmith](https://smith.langchain.com), select the **scalekit-agentkit-traces** project, and click the latest trace. You should see:
+
+   - A **ChatOpenAI** span for the LLM call
+   - A **gmail_fetch_mails** tool span showing the input arguments and the structured response from Gmail
+   - Latency, token counts, and the full message chain
+
+</Steps>
+
+## Common mistakes
+
+<details>
+<summary>Traces are not appearing in LangSmith</summary>
+
+Either `LANGCHAIN_TRACING_V2` is not `true` or `LANGCHAIN_API_KEY` is missing from the environment.
+
+**Solution:** Confirm both variables are set *before* importing any LangChain module. If you are using a `.env` file, call `load_dotenv()` at the top of the script before any other imports. You can verify with:
+
+```python
+import os
+print(os.getenv("LANGCHAIN_TRACING_V2"))  # Should print "true"
+print(os.getenv("LANGCHAIN_API_KEY"))      # Should print "lsv2_..."
+```
+</details>
+
+<details>
+<summary>Connected account stays in PENDING</summary>
+
+The user did not complete the OAuth flow in the browser. AgentKit waits for the user to authorize through the URL returned by `get_authorization_link`.
+
+**Solution:** Open the printed URL in a browser, complete the Google OAuth consent, and return to the terminal. The connected account status updates to `ACTIVE` after a successful callback.
+</details>
+
+<details>
+<summary>Tool call fails with <code>resource not found</code></summary>
+
+The connection name in code does not match the connection name in the Scalekit dashboard, or the connected account is not active.
+
+**Solution:** Open **Agent Auth → Connections** in the dashboard. Verify the connection name matches exactly (case-sensitive). Then check that the connected account for your identifier shows **ACTIVE** status.
+</details>
+
+<details>
+<summary>Traces appear but tool spans are missing</summary>
+
+The tools were not bound to the LLM via `.bind_tools()`, so the model is generating text instead of structured tool calls.
+
+**Solution:** Ensure you call `llm = ChatOpenAI(...).bind_tools(tools)` and that the `tools` list is not empty. Print `len(tools)` after `get_tools()` to confirm tools loaded.
+</details>
+
+## Production notes
+
+**Token refresh is automatic.** Scalekit stores OAuth tokens per user per connector and refreshes them before expiry. Your agent code never handles refresh tokens directly.
+
+**Add multiple connectors.** Pass additional connection names to `get_tools()` to load tools from Gmail, Slack, GitHub, and others in a single call. LangSmith traces all of them identically.
+
+**Trace metadata.** Use LangSmith's `@traceable` decorator or `with_config({"tags": [...]})` to add custom tags, metadata, or run names to your traces for filtering.
+
+**Cost tracking.** LangSmith captures token counts per LLM call. Combined with tool call traces, you get full cost visibility per agent run.
+
+## Next steps
+
+- [Configure more AgentKit connectors](/agentkit/connectors/) — add Slack, GitHub, Salesforce, and 60+ others alongside Gmail.
+- [Generate MCP URLs for tools](/agentkit/mcp/generate-user-urls/) — serve AgentKit tools over MCP for use with any MCP-compatible client.
+- [LangSmith evaluation](https://docs.smith.langchain.com/evaluation) — score agent responses and tool usage across test datasets.
+- [LangSmith trace filtering](https://docs.smith.langchain.com/how_to_guides/tracing/filter_traces_in_application) — filter traces by metadata, tags, latency, or error status.
+
+## Related resources
+
+| Topic | Link |
+|---|---|
+| AgentKit overview | [Overview](/agentkit/overview/) |
+| LangChain framework guide | [LangChain](/agentkit/examples/langchain/) |
+| Connections | [Configure a connection](/agentkit/connections/) |
+| Connected accounts | [Manage connected accounts](/agentkit/connected-accounts/) |
+| Sample repository | [agent-auth-examples](https://github.com/scalekit-developers/agent-auth-examples) |
+| LangSmith docs | [docs.smith.langchain.com](https://docs.smith.langchain.com) |
