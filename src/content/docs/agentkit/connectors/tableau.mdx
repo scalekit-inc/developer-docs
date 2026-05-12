@@ -1,63 +1,87 @@
 ---
-title: Tableau
-description: Connect your agent to browse Tableau workbooks, export dashboards, query data sources, and manage site resources via Personal Access Token.
+title: 'Tableau connector'
 tableOfContents: true
+description: 'Connect to Tableau Cloud or Tableau Server to browse workbooks, views, and data sources, export visualizations, and query underlying data.'
 sidebar:
-  label: Tableau
+  label: 'Tableau'
+overviewTitle: 'Quickstart'
 connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/tableau.svg
 connectorAuthType: API Key
-connectorCategories: [analytics, business_intelligence, data_visualization]
+connectorCategories: [analytics, business_intelligence, data_visualization, productivity]
 head:
   - tag: style
     content: |
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 ---
 
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/tableau'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
 import { SetupTableauSection } from '@components/templates'
-import { UsageTableauSection } from '@components/templates'
+import { QuickstartGenericApikeySection } from '@components/templates'
+import { SectionAfterSetupTableauCommonWorkflows } from '@components/templates'
 import { SectionBeforeToolListTableauResourceIds } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Tableau credentials with Scalekit so it can authenticate requests on your behalf. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupTableauSection />
+
+   </details>
+
+4. ### Make your first call
+
+   <QuickstartGenericApikeySection connector="tableau" toolName="tableau_datasources_list" providerName="Tableau" />
+
+</Steps>
 
 ## What you can do
 
 Connect this agent connector to let your agent:
 
-- **Browse workbooks and views** — List, search, and retrieve detailed metadata for workbooks, views (sheets and dashboards), and data sources published on a Tableau site
-- **Export visualizations** — Download dashboards as PNGs, PDF documents, or Excel crosstab files; download full workbooks as `.twbx` files
-- **Query underlying data** — Export view summary data as CSV, or run structured queries against published data sources using the VizQL Data Service API (Tableau Cloud 2024.1+)
-- **Monitor jobs** — Poll background job status to track completion of long-running operations
-- **Manage the site** — Create and update projects; add and remove users; create, add, and remove groups
+- **List workbooks, workbook connections, views** — Retrieve a filtered, sorted list of workbooks on a specified Tableau site
+- **Search workbook** — Search for workbooks on a Tableau site by name
+- **Get workbook, view, user** — Retrieve detailed information about a specific Tableau workbook by its ID, including metadata, project, owner, tags, and optional usage statistics
+- **Delete workbook, project, datasource** — Delete a workbook from a Tableau site
+- **Site user remove from, user add to** — Remove a user from a Tableau site
+- **Query view** — Run a structured query against a published Tableau data source using the VizQL Data Service API
 
-## Authentication
+## Common workflows
 
-Tableau uses **Personal Access Token (PAT)** authentication. You store your PAT credentials in Scalekit once, and Scalekit calls `tableau_auth_signin` to obtain a session token, then refreshes it automatically before every tool call. Your agent code never handles tokens directly — Scalekit injects the current session token as the `X-Tableau-Auth` header on every request.
-
-**How it works:**
-
-1. Store your PAT name, PAT secret, domain, and site content URL in a Scalekit connected account
-2. Before each tool call, Scalekit checks if the session token is still valid (with a 5-minute buffer)
-3. If the token has expired or is about to expire, Scalekit signs in automatically using the stored PAT credentials via `tableau_auth_signin`
-4. The fresh session token is injected as `X-Tableau-Auth` — your code does nothing
-5. After sign-in, the **site ID** (site LUID) is stored automatically in the connected account — you do not pass `site_id` to tool calls. Token lifetime is 120 minutes for Tableau Cloud and 240 minutes for Tableau Server.
-
-Before calling this connector from your code, create the Tableau connection in **AgentKit** > **Connections** and copy the exact **Connection name** from that connection into your code. The value in code must match the dashboard exactly.
-
-<details>
-<summary>Set up the connector</summary>
-
-<SetupTableauSection />
-
-</details>
-
-<details>
-<summary>Code examples</summary>
-
-<UsageTableauSection />
-
-</details>
+<SectionAfterSetupTableauCommonWorkflows />
 
 ## Getting resource IDs
 

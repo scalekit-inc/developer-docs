@@ -1,0 +1,73 @@
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript title="quickstart.ts"
+    import { ScalekitClient } from '@scalekit-sdk/node'
+    import 'dotenv/config'
+
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET,
+    )
+    const actions = scalekit.actions
+
+    const connector = 'monday'
+    const identifier = 'user_123'
+
+    // Generate an authorization link for the user
+    const { link } = await actions.getAuthorizationLink({ connectionName: connector, identifier })
+    console.log('Authorize Monday:', link)
+    process.stdout.write('Press Enter after authorizing...')
+    await new Promise(r => process.stdin.once('data', r))
+
+    // Make your first API call through the proxy
+    const result = await actions.request({
+      connectionName: connector,
+      identifier,
+      path: '/v2',
+      method: 'POST',
+      body: JSON.stringify({ query: '{ boards (limit: 5) { id name } }' }),
+    })
+    console.log(result)
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python title="quickstart.py"
+    import os
+    import json
+    from scalekit.client import ScalekitClient
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    scalekit_client = ScalekitClient(
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+    )
+    actions = scalekit_client.actions
+
+    connection_name = "monday"
+    identifier = "user_123"
+
+    # Generate an authorization link for the user
+    link_response = actions.get_authorization_link(
+        connection_name=connection_name,
+        identifier=identifier,
+    )
+    print("Authorize Monday:", link_response.link)
+    input("Press Enter after authorizing...")
+
+    # Make your first API call through the proxy
+    result = actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/v2",
+        method="POST",
+        body=json.dumps({"query": "{ boards (limit: 5) { id name } }"}),
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>

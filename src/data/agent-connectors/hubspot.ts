@@ -430,14 +430,77 @@ export const tools: Tool[] = [
   {
     name: 'hubspot_contacts_batch_create',
     description:
-      'Create multiple contacts in HubSpot CRM in a single API call. Each contact requires an email address. Supports up to 100 contacts per request.',
+      'Create multiple contacts in HubSpot CRM in a single batch API call. Pass a JSON array of contact objects — each with a `properties` map and an optional `associations` array.',
     params: [
       {
-        name: 'contacts',
-        type: 'array',
+        name: 'inputs',
+        type: 'string',
         required: true,
         description:
-          'Array of contact objects to create. Each object supports: `email` (required), `firstname`, `lastname`, `phone`, `company`, `jobtitle`, `website`, `lifecyclestage`. Max 100 contacts.',
+          'JSON array of contact objects to create. Each item has a `properties` object with contact fields and an optional `associations` array to link records on creation. Example: `[{"properties":{"email":"jane@example.com","firstname":"Jane","lastname":"Smith"},"associations":[{"to":{"id":"201"},"types":[{"associationCategory":"HUBSPOT_DEFINED","associationTypeId":279}]}]}]`',
+      },
+    ],
+  },
+  {
+    name: 'hubspot_contacts_batch_update',
+    description:
+      'Update multiple contacts in HubSpot CRM in a single batch API call. Pass a JSON array of objects — each with an `id` and a `properties` map.',
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of contact update objects. Each item has an `id` (HubSpot record ID) and a `properties` object with fields to update. Example: `[{"id":"12345","properties":{"jobtitle":"VP of Engineering","lifecyclestage":"customer"}}]`',
+      },
+    ],
+  },
+  {
+    name: 'hubspot_contacts_batch_upsert',
+    description:
+      'Create or update multiple contacts in HubSpot CRM in a single batch API call. Uses `idProperty` for lookup — creates if not found, updates if found.',
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of contact upsert objects. Each item has an `idProperty` (unique field name, e.g. `"email"`), `id` (value of that field), and `properties` map. Example: `[{"idProperty":"email","id":"jane@example.com","properties":{"firstname":"Jane","lifecyclestage":"lead"}}]`',
+      },
+    ],
+  },
+  {
+    name: 'hubspot_contacts_batch_read',
+    description:
+      'Read multiple contact records from HubSpot CRM in a single batch API call. Pass a JSON array of record IDs.',
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of contact record IDs to fetch. Each item has an `id` field. Example: `[{"id":"12345"},{"id":"67890"}]`',
+      },
+      {
+        name: 'properties',
+        type: 'string',
+        required: false,
+        description:
+          'JSON array of property names to return (e.g. `["firstname","email","company"]`). Returns default properties if omitted.',
+      },
+    ],
+  },
+  {
+    name: 'hubspot_contacts_batch_archive',
+    description:
+      'Archive multiple contacts in HubSpot CRM in a single batch API call. Archived contacts are hidden from the UI but can be restored.',
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of contact record IDs to archive. Each item has an `id` field. Example: `[{"id":"12345"},{"id":"67890"}]`',
       },
     ],
   },
@@ -476,6 +539,84 @@ export const tools: Tool[] = [
         type: 'number',
         required: false,
         description: 'Number of events to return per page (default: 100).',
+      },
+    ],
+  },
+
+  {
+    name: 'hubspot_companies_batch_create',
+    description:
+      'Create multiple companies in HubSpot CRM in a single batch API call. Pass a JSON array of company objects — each with a `properties` map and an optional `associations` array.',
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of company objects to create. Each item has a `properties` object with company fields and an optional `associations` array. Example: `[{"properties":{"name":"Acme Corp","domain":"acme.com","industry":"TECHNOLOGY"},"associations":[{"to":{"id":"101"},"types":[{"associationCategory":"HUBSPOT_DEFINED","associationTypeId":280}]}]}]`',
+      },
+    ],
+  },
+  {
+    name: 'hubspot_companies_batch_update',
+    description:
+      'Update multiple companies in HubSpot CRM in a single batch API call. Pass a JSON array of objects — each with an `id` and a `properties` map.',
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of company update objects. Each item has an `id` (HubSpot record ID) and a `properties` object with fields to update. Example: `[{"id":"12345","properties":{"numberofemployees":500,"annualrevenue":"5000000"}}]`',
+      },
+    ],
+  },
+  {
+    name: 'hubspot_companies_batch_upsert',
+    description:
+      'Create or update multiple companies in HubSpot CRM in a single batch API call. Specify a unique property via `idProperty` to match records — omitting `idProperty` defaults to matching by record ID.',
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of company upsert objects. Each item has an `idProperty` (unique field name, e.g. `"domain"`), `id` (value of that field), and `properties` map. Example: `[{"idProperty":"domain","id":"acme.com","properties":{"name":"Acme Corp","industry":"TECHNOLOGY"}}]`',
+      },
+    ],
+  },
+  {
+    name: 'hubspot_companies_batch_read',
+    description:
+      'Read multiple company records from HubSpot CRM in a single batch API call. Pass a JSON array of record IDs.',
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of company record IDs to fetch. Each item has an `id` field. Example: `[{"id":"12345"},{"id":"67890"}]`',
+      },
+      {
+        name: 'properties',
+        type: 'string',
+        required: false,
+        description:
+          'JSON array of property names to return (e.g. `["name","domain","industry"]`). Returns default properties if omitted.',
+      },
+    ],
+  },
+  {
+    name: 'hubspot_companies_batch_archive',
+    description:
+      'Archive multiple companies in HubSpot CRM in a single batch API call. Archived companies are hidden from the UI but can be restored.',
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of company record IDs to archive. Each item has an `id` field. Example: `[{"id":"12345"},{"id":"67890"}]`',
       },
     ],
   },
@@ -565,8 +706,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'hubspot_deal_update',
-    description:
-      'Update an existing deal in HubSpot CRM by deal ID. Provide any fields to update.',
+    description: 'Update an existing deal in HubSpot CRM by deal ID. Provide any fields to update.',
     params: [
       {
         name: 'deal_id',
@@ -688,11 +828,89 @@ export const tools: Tool[] = [
     ],
   },
 
+  {
+    name: 'hubspot_deals_batch_create',
+    description:
+      'Create multiple deals in HubSpot CRM in a single batch API call. Pass a JSON array of deal objects — each with a `properties` map and an optional `associations` array.',
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of deal objects to create. Each item has a `properties` object with deal fields and an optional `associations` array. Example: `[{"properties":{"dealname":"Enterprise Q4","amount":"50000","dealstage":"qualifiedtobuy","closedate":"2025-12-31"},"associations":[{"to":{"id":"101"},"types":[{"associationCategory":"HUBSPOT_DEFINED","associationTypeId":3}]}]}]`',
+      },
+    ],
+  },
+  {
+    name: 'hubspot_deals_batch_update',
+    description:
+      'Update multiple deals in HubSpot CRM in a single batch API call. Pass a JSON array of objects — each with an `id` and a `properties` map.',
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of deal update objects. Each item has an `id` (HubSpot record ID) and a `properties` object with fields to update. Example: `[{"id":"12345","properties":{"dealstage":"closedwon","amount":"75000"}}]`',
+      },
+    ],
+  },
+  {
+    name: 'hubspot_deals_batch_upsert',
+    description:
+      'Create or update multiple deals in HubSpot CRM in a single batch API call. Uses a unique property for lookup — the property must be configured as unique in your HubSpot portal.',
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of deal upsert objects. Each item has an `idProperty` (unique field name), `id` (value of that field), and `properties` map. Example: `[{"idProperty":"dealname","id":"Enterprise Q4","properties":{"amount":"50000","dealstage":"qualifiedtobuy"}}]`',
+      },
+    ],
+  },
+  {
+    name: 'hubspot_deals_batch_read',
+    description:
+      'Read multiple deal records from HubSpot CRM in a single batch API call. Pass a JSON array of record IDs.',
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of deal record IDs to fetch. Each item has an `id` field. Example: `[{"id":"12345"},{"id":"67890"}]`',
+      },
+      {
+        name: 'properties',
+        type: 'string',
+        required: false,
+        description:
+          'JSON array of property names to return (e.g. `["dealname","amount","dealstage"]`). Returns default properties if omitted.',
+      },
+    ],
+  },
+  {
+    name: 'hubspot_deals_batch_archive',
+    description:
+      'Archive multiple deals in HubSpot CRM in a single batch API call. Archived deals are hidden from the UI but can be restored.',
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of deal record IDs to archive. Each item has an `id` field. Example: `[{"id":"12345"},{"id":"67890"}]`',
+      },
+    ],
+  },
+
   // ─── Tickets ──────────────────────────────────────────────────────────────────
   {
     name: 'hubspot_ticket_create',
     description:
-      "Create a new support ticket in HubSpot. Use `hubspot_deal_pipelines_list` with `object_type: tickets` to find valid pipeline and stage IDs.",
+      'Create a new support ticket in HubSpot. Use `hubspot_deal_pipelines_list` with `object_type: tickets` to find valid pipeline and stage IDs.',
     params: [
       {
         name: 'subject',
@@ -826,6 +1044,84 @@ export const tools: Tool[] = [
     ],
   },
 
+  {
+    name: 'hubspot_tickets_batch_create',
+    description:
+      'Create multiple support tickets in HubSpot CRM in a single batch API call. Pass a JSON array of ticket objects — each with a `properties` map and an optional `associations` array.',
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of ticket objects to create. Each item has a `properties` object with ticket fields and an optional `associations` array. Example: `[{"properties":{"subject":"Login issue","hs_pipeline_stage":"1","hs_ticket_priority":"HIGH"},"associations":[{"to":{"id":"101"},"types":[{"associationCategory":"HUBSPOT_DEFINED","associationTypeId":16}]}]}]`',
+      },
+    ],
+  },
+  {
+    name: 'hubspot_tickets_batch_update',
+    description:
+      'Update multiple support tickets in HubSpot CRM in a single batch API call. Pass a JSON array of objects — each with an `id` and a `properties` map.',
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of ticket update objects. Each item has an `id` (HubSpot record ID) and a `properties` object with fields to update. Example: `[{"id":"12345","properties":{"hs_pipeline_stage":"4","hs_ticket_priority":"LOW"}}]`',
+      },
+    ],
+  },
+  {
+    name: 'hubspot_tickets_batch_upsert',
+    description:
+      'Create or update multiple support tickets in HubSpot CRM in a single batch API call. Uses a unique property for lookup — the property must be configured as unique in your HubSpot portal.',
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of ticket upsert objects. Each item has an `idProperty` (unique field name), `id` (value of that field), and `properties` map. Example: `[{"idProperty":"subject","id":"Login issue","properties":{"hs_pipeline_stage":"1","hs_ticket_priority":"HIGH"}}]`',
+      },
+    ],
+  },
+  {
+    name: 'hubspot_tickets_batch_read',
+    description:
+      'Read multiple support ticket records from HubSpot CRM in a single batch API call. Pass a JSON array of record IDs.',
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of ticket record IDs to fetch. Each item has an `id` field. Example: `[{"id":"12345"},{"id":"67890"}]`',
+      },
+      {
+        name: 'properties',
+        type: 'string',
+        required: false,
+        description:
+          'JSON array of property names to return (e.g. `["subject","hs_ticket_priority","hs_pipeline_stage"]`). Returns default properties if omitted.',
+      },
+    ],
+  },
+  {
+    name: 'hubspot_tickets_batch_archive',
+    description:
+      'Archive multiple support tickets in HubSpot CRM in a single batch API call. Archived tickets are hidden from the UI but can be restored.',
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of ticket record IDs to archive. Each item has an `id` field. Example: `[{"id":"12345"},{"id":"67890"}]`',
+      },
+    ],
+  },
+
   // ─── Tasks ────────────────────────────────────────────────────────────────────
   {
     name: 'hubspot_task_create',
@@ -849,8 +1145,7 @@ export const tools: Tool[] = [
         name: 'hs_task_status',
         type: 'string',
         required: false,
-        description:
-          'Status: `NOT_STARTED`, `IN_PROGRESS`, `COMPLETED`, `DEFERRED`, or `WAITING`.',
+        description: 'Status: `NOT_STARTED`, `IN_PROGRESS`, `COMPLETED`, `DEFERRED`, or `WAITING`.',
       },
       {
         name: 'hs_task_priority',
@@ -977,8 +1272,7 @@ export const tools: Tool[] = [
         name: 'hs_meeting_outcome',
         type: 'string',
         required: false,
-        description:
-          'Outcome of the meeting: `SCHEDULED`, `COMPLETED`, `NO_SHOW`, or `CANCELED`.',
+        description: 'Outcome of the meeting: `SCHEDULED`, `COMPLETED`, `NO_SHOW`, or `CANCELED`.',
       },
     ],
   },
@@ -1140,8 +1434,7 @@ export const tools: Tool[] = [
         name: 'hs_timestamp',
         type: 'string',
         required: true,
-        description:
-          'Timestamp for the note in ISO 8601 format (e.g. `2024-01-15T10:30:00Z`).',
+        description: 'Timestamp for the note in ISO 8601 format (e.g. `2024-01-15T10:30:00Z`).',
       },
     ],
   },
@@ -1280,6 +1573,62 @@ export const tools: Tool[] = [
 
   // ─── Associations ─────────────────────────────────────────────────────────────
   {
+    name: 'hubspot_associations_batch_create',
+    description:
+      'Create associations between two HubSpot CRM object types in a single batch API call using the v4 associations API.',
+    params: [
+      {
+        name: 'from_object_type',
+        type: 'string',
+        required: true,
+        description:
+          'Source object type: `contacts`, `companies`, `deals`, `tickets`, `line_items`, `products`.',
+      },
+      {
+        name: 'to_object_type',
+        type: 'string',
+        required: true,
+        description:
+          'Target object type: `contacts`, `companies`, `deals`, `tickets`, `line_items`, `products`.',
+      },
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of association objects in HubSpot v4 format. Each item has `_from` (with `id`), `to` (with `id`), and `types` (array with `associationCategory` and `associationTypeId`). Common type IDs: `279`=contact→company, `4`=contact→deal, `15`=contact→ticket, `3`=deal→contact, `5`=deal→company, `16`=ticket→contact. Example: `[{"_from":{"id":"101"},"to":{"id":"201"},"types":[{"associationCategory":"HUBSPOT_DEFINED","associationTypeId":279}]}]`',
+      },
+    ],
+  },
+  {
+    name: 'hubspot_associations_batch_archive',
+    description:
+      'Remove associations between two HubSpot CRM object types in a single batch API call using the v4 associations API.',
+    params: [
+      {
+        name: 'from_object_type',
+        type: 'string',
+        required: true,
+        description:
+          'Source object type: `contacts`, `companies`, `deals`, `tickets`, `line_items`, `products`.',
+      },
+      {
+        name: 'to_object_type',
+        type: 'string',
+        required: true,
+        description:
+          'Target object type: `contacts`, `companies`, `deals`, `tickets`, `line_items`, `products`.',
+      },
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of association pairs to remove. Each item has `_from` (with `id`) and `to` (with `id`). Example: `[{"_from":{"id":"101"},"to":{"id":"201"}}]`',
+      },
+    ],
+  },
+  {
     name: 'hubspot_association_create',
     description:
       'Create a default association between two HubSpot CRM objects. For example, associate a contact with a deal, or a company with a ticket.',
@@ -1378,8 +1727,7 @@ export const tools: Tool[] = [
         name: 'form_id',
         type: 'string',
         required: true,
-        description:
-          'The unique identifier of the HubSpot form. Get it from `hubspot_forms_list`.',
+        description: 'The unique identifier of the HubSpot form. Get it from `hubspot_forms_list`.',
       },
       {
         name: 'limit',
@@ -1455,6 +1803,69 @@ export const tools: Tool[] = [
 
   // ─── Line Items ───────────────────────────────────────────────────────────────
   {
+    name: 'hubspot_line_items_batch_create',
+    description:
+      'Create multiple line items in HubSpot CRM in a single batch API call. Pass a JSON array of line item objects — each with a `properties` map and an optional `associations` array.',
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of line item objects to create. Each item has a `properties` object and an optional `associations` array to link to a deal. Example: `[{"properties":{"name":"Enterprise License","quantity":"1","price":"999.00"},"associations":[{"to":{"id":"DEAL_ID"},"types":[{"associationCategory":"HUBSPOT_DEFINED","associationTypeId":20}]}]}]`',
+      },
+    ],
+  },
+  {
+    name: 'hubspot_line_items_batch_update',
+    description:
+      'Update multiple line items in HubSpot CRM in a single batch API call. Pass a JSON array of objects — each with an `id` and a `properties` map.',
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of line item update objects. Each item has an `id` (HubSpot record ID) and a `properties` object with fields to update. Example: `[{"id":"12345","properties":{"quantity":"5","price":"799.00"}}]`',
+      },
+    ],
+  },
+  {
+    name: 'hubspot_line_items_batch_read',
+    description:
+      'Read multiple line item records from HubSpot CRM in a single batch API call. Pass a JSON array of record IDs.',
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of line item record IDs to fetch. Each item has an `id` field. Example: `[{"id":"12345"},{"id":"67890"}]`',
+      },
+      {
+        name: 'properties',
+        type: 'string',
+        required: false,
+        description:
+          'JSON array of property names to return (e.g. `["name","quantity","price"]`). Returns default properties if omitted.',
+      },
+    ],
+  },
+  {
+    name: 'hubspot_line_items_batch_archive',
+    description:
+      'Archive multiple line items in HubSpot CRM in a single batch API call. Archived line items are removed from their associated deals.',
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of line item record IDs to archive. Each item has an `id` field. Example: `[{"id":"12345"},{"id":"67890"}]`',
+      },
+    ],
+  },
+  {
     name: 'hubspot_line_item_create',
     description:
       'Create a new line item in HubSpot. Line items represent individual products or services in a deal.',
@@ -1492,6 +1903,42 @@ export const tools: Tool[] = [
     ],
   },
 
+  {
+    name: 'hubspot_products_batch_read',
+    description:
+      'Read multiple product records from the HubSpot product library in a single batch API call. Pass a JSON array of record IDs.',
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of product record IDs to fetch. Each item has an `id` field. Example: `[{"id":"12345"},{"id":"67890"}]`',
+      },
+      {
+        name: 'properties',
+        type: 'string',
+        required: false,
+        description:
+          'JSON array of property names to return (e.g. `["name","price","hs_sku"]`). Returns default properties if omitted.',
+      },
+    ],
+  },
+  {
+    name: 'hubspot_products_batch_archive',
+    description:
+      'Archive multiple products from the HubSpot product library in a single batch API call.',
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of product record IDs to archive. Each item has an `id` field. Example: `[{"id":"12345"},{"id":"67890"}]`',
+      },
+    ],
+  },
+
   // ─── Quotes ───────────────────────────────────────────────────────────────────
   {
     name: 'hubspot_quote_create',
@@ -1507,7 +1954,8 @@ export const tools: Tool[] = [
         name: 'hs_language',
         type: 'string',
         required: true,
-        description: 'Language of the quote as an ISO 639-1 code (e.g. `en`, `de`, `fr`). Required by HubSpot.',
+        description:
+          'Language of the quote as an ISO 639-1 code (e.g. `en`, `de`, `fr`). Required by HubSpot.',
       },
       {
         name: 'deal_id',
@@ -1525,8 +1973,7 @@ export const tools: Tool[] = [
         name: 'hs_status',
         type: 'string',
         required: false,
-        description:
-          'Status of the quote: `DRAFT`, `PENDING_APPROVAL`, `APPROVED`, or `REJECTED`.',
+        description: 'Status of the quote: `DRAFT`, `PENDING_APPROVAL`, `APPROVED`, or `REJECTED`.',
       },
     ],
   },
@@ -1618,19 +2065,22 @@ export const tools: Tool[] = [
         name: 'object_type_id',
         type: 'string',
         required: true,
-        description: 'The custom object type ID (e.g. `2-1234567`). Get it from `hubspot_schemas_list`.',
+        description:
+          'The custom object type ID (e.g. `2-1234567`). Get it from `hubspot_schemas_list`.',
       },
       {
         name: 'record_id',
         type: 'string',
         required: true,
-        description: 'The HubSpot ID of the record to update. Get it from `hubspot_custom_object_records_search`.',
+        description:
+          'The HubSpot ID of the record to update. Get it from `hubspot_custom_object_records_search`.',
       },
       {
         name: 'properties',
         type: 'object',
         required: true,
-        description: 'JSON object of property names and updated values (e.g. `{"name": "Updated Name", "status": "active"}`). Use `hubspot_schemas_list` to discover valid property names.',
+        description:
+          'JSON object of property names and updated values (e.g. `{"name": "Updated Name", "status": "active"}`). Use `hubspot_schemas_list` to discover valid property names.',
       },
     ],
   },

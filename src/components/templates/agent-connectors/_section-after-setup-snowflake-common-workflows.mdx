@@ -1,0 +1,65 @@
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+**Don't worry about your Snowflake account domain in the path.** Scalekit automatically resolves `{{domain}}` from the connected account's configuration. For example, a request with `path="/api/v2/statements"` will be sent to `https://myorg-myaccount.snowflakecomputing.com/api/v2/statements` automatically.
+
+<details>
+<summary>Proxy API call</summary>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.request({
+      connectionName: 'snowflake',
+      identifier: 'user_123',
+      path: '/api/v2/statements',
+      method: 'POST',
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.request(
+        connection_name='snowflake',
+        identifier='user_123',
+        path="/api/v2/statements",
+        method="POST"
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Execute a tool</summary>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.executeTool({
+      connector: 'snowflake',
+      identifier: 'user_123',
+      toolName: 'snowflake_cancel_query',
+      toolInput: {},
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.execute_tool(
+        tool_input={},
+        tool_name='snowflake_cancel_query',
+        connection_name='snowflake',
+        identifier='user_123',
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>

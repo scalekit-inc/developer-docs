@@ -10,10 +10,21 @@
 
 language: 'en-US'
 early_access: false
+tone_instructions: >-
+  Be concise. State each finding once; note unfixed duplicates without
+  re-explaining. Do not suggest refactoring on data-definition or generated
+  files. Prioritize correctness over style.
 
 reviews:
   profile: 'assertive'
   request_changes_workflow: true
+
+  path_filters:
+    - '!pnpm-lock.yaml'
+    - '!package-lock.json'
+    - '!dist/**'
+    - '!.astro/**'
+    - '!src/content/docs/reference/agent-connectors/**'
   high_level_summary: true
   high_level_summary_placeholder: '@coderabbitai summary'
   poem: false
@@ -27,6 +38,23 @@ reviews:
     base_branches:
       - 'main'
       - 'staging'
+    ignore_title_keywords:
+      - 'WIP'
+      - 'DO NOT REVIEW'
+      - 'wip'
+
+  tools:
+    markdownlint:
+      enabled: true
+    languagetool:
+      enabled: true
+      level: default
+      enabled_categories:
+        - 'GRAMMAR'
+    shellcheck:
+      enabled: true
+    actionlint:
+      enabled: true
 
   # ── Path-level instructions ──────────────────────────────
   path_instructions:
@@ -55,6 +83,9 @@ reviews:
           "obviously", "of course", "note that".
         - Flag passive voice constructions where active voice is clearer.
         - Headings must be sentence case, not Title Case (except proper nouns).
+        - Headings that match a real API parameter, method, or field name
+          (e.g., `contactID`, `xero_tenant_id`, `executeTool`) should preserve
+          the original casing. Do NOT flag these as sentence-case violations.
         - No heading should end with a colon or period.
 
         ## Content structure
@@ -300,10 +331,69 @@ reviews:
         - `starlightLinksValidator` exclude patterns must stay minimal —
           only exclude paths that genuinely can't be validated (e.g., `/apis/**`).
 
+    # ── CI/CD workflows ─────────────────────────────────
+    - path: '.github/workflows/**'
+      instructions: |
+        This is a CI/CD workflow file. Apply these constraints:
+        - Do NOT suggest changing `--force` to `--force-with-lease` unless
+          there is a concrete race condition with parallel trigger sources.
+        - Do NOT suggest adding concurrency groups unless the workflow has
+          both scheduled and manual triggers on the same branch.
+        - Focus on: correct action versions, secret exposure, missing
+          permissions blocks, and missing error handling on API calls.
+        - Use actionlint findings as the primary source; do not duplicate
+          what actionlint already reports.
+
+    # ── Connector data definitions ───────────────────────
+    - path: 'src/data/agent-connectors/**'
+      instructions: |
+        These are connector tool definition files (TypeScript data objects).
+        - Do NOT suggest extracting constants, refactoring data structures,
+          or renaming fields — these match the upstream API schemas.
+        - Do NOT suggest adding parameters that don't exist in the upstream API.
+        - DO flag: incorrect types, missing required fields per the
+          AgentConnectorTool schema, and description text that contradicts
+          what the tool actually does.
+
+    # ── Connector setup templates ────────────────────────
+    - path: 'src/components/templates/agent-connectors/_setup-*.mdx'
+      instructions: |
+        These are connector setup templates. Override the global MDX rule:
+        - Do NOT require all four SDK language tabs. Setup templates show
+          auth-redirect and credential configuration which may only apply
+          to Node.js and Python. Require tabs ONLY when the snippet
+          demonstrates Scalekit client SDK usage (scalekit / scalekit_client).
+        - DO check: missing `os` or other standard library imports in
+          Python snippets, and missing `require`/`import` in Node.js snippets.
+
   # ── Finishing touches ────────────────────────────────
   finishing_touches:
     docstrings:
       enabled: false # This is a docs repo, not a code library
+    custom:
+      - name: 'fix frontmatter'
+        enabled: true
+        instructions: |
+          Scan all new or changed .mdx files under src/content/docs/.
+          For each file missing a `description` in frontmatter, add a concise
+          (≤160 char) action-oriented description derived from the page title
+          and first paragraph. For each file missing `sidebar.label`, add one
+          derived from the title (≤30 chars, sentence case). Do not change
+          existing values.
+      - name: 'fix internal links'
+        enabled: true
+        instructions: |
+          Find all hardcoded `https://docs.scalekit.com/...` links in changed
+          .mdx files and replace them with root-relative paths (e.g.,
+          `/authenticate/fsa/quickstart/`). Preserve anchor fragments.
 
 chat:
   auto_reply: true
+
+knowledge_base:
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - 'CLAUDE.md'
+      - 'CONTRIBUTING.md'
+      - 'AGENTS.md'

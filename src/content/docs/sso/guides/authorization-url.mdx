@@ -199,6 +199,22 @@ When you provide multiple connection parameters, Scalekit follows a specific pre
 
 5. `login_hint` (lowest precedence): Scalekit extracts the domain portion from the email address and uses the corresponding SSO connection mapped to that organization. The domain must be registered to the organization either manually from the Scalekit Dashboard or through the admin portal when [onboarding an enterprise customer](/sso/guides/onboard-enterprise-customers/).
 
-<Aside type="note" title="Example scenario">
-If you provide both `organization_id=org_123` and `login_hint=user@company.com`, Scalekit uses the organization's SSO connection because `organization_id` has higher precedence than `login_hint`
-</Aside>
+## Common scenarios
+
+<details>
+<summary>SSO falls back to OTP instead of redirecting to the IdP</summary>
+
+When routing via `domain` or `login_hint`, Scalekit performs an **exact match** against the domains registered to the organization. Subdomains and root domains are treated as distinct values — `wal-mart.com` and `homeoffice.wal-mart.com` are different.
+
+If your users have addresses like `user@homeoffice.wal-mart.com`, register `homeoffice.wal-mart.com` as the organization domain, not just `wal-mart.com`. A mismatch causes Scalekit to silently fall through to OTP login.
+
+</details>
+
+<details>
+<summary>Both organization_id and login_hint provided — which wins?</summary>
+
+`organization_id` takes precedence. When you pass both `organization_id=org_123` and `login_hint=user@company.com`, Scalekit routes to the SSO connection configured for that organization and ignores the domain extracted from the email.
+
+See [Parameter precedence](#parameter-precedence) above for the full priority order.
+
+</details>

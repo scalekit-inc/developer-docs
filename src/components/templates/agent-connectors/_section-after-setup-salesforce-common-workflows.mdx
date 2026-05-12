@@ -1,0 +1,163 @@
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+<details>
+<summary>Make your first call</summary>
+
+Once a user authorizes the connection, make a request to Salesforce through the Scalekit proxy. The example below retrieves the authenticated user's profile — a useful sanity-check call.
+
+<Aside type="note" title="Path resolution">
+Scalekit automatically prepends the user's Salesforce instance URL and API version (e.g. `https://mycompany.my.salesforce.com/services/data/v58.0`) — you only write the resource path.
+</Aside>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.request({
+      connectionName: 'salesforce',
+      identifier: 'user_123',
+      method: 'GET',
+      path: '/chatter/users/me',
+    })
+
+    console.log(result)
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.request(
+        connection_name='salesforce',
+        identifier='user_123',
+        method="GET",
+        path="/chatter/users/me",
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Query records with SOQL</summary>
+
+Retrieve this month's open opportunities, sorted by deal size:
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.request({
+      connectionName: 'salesforce',
+      identifier: 'user_123',
+      method: 'GET',
+      path: '/query',
+      params: {
+        q: 'SELECT Id, Name, Amount, StageName, CloseDate FROM Opportunity WHERE CloseDate = THIS_MONTH ORDER BY Amount DESC LIMIT 10',
+      },
+    })
+
+    console.log(result.records)
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.request(
+        connection_name='salesforce',
+        identifier='user_123',
+        method="GET",
+        path="/query",
+        params={
+            "q": "SELECT Id, Name, Amount, StageName, CloseDate FROM Opportunity WHERE CloseDate = THIS_MONTH ORDER BY Amount DESC LIMIT 10"
+        },
+    )
+
+    print(result["records"])
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Log a sales call and advance a lead</summary>
+
+Find a lead by email, update its status, then log a completed task — all in one agent turn.
+
+This workflow uses Scalekit's [tool calling API](/agentkit/connectors/salesforce/#tool-list) (`execute_tool`), which maps directly to the tool names in the tool list below.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // 1. Search for the lead
+    const searchResult = await actions.request({
+      connectionName: 'salesforce',
+      identifier: 'user_123',
+      method: 'GET',
+      path: '/query',
+      params: { q: "SELECT Id, Status FROM Lead WHERE Email = 'jane@acme.com' LIMIT 1" },
+    })
+    const lead = searchResult.records[0]
+
+    // 2. Update the lead status
+    await actions.request({
+      connectionName: 'salesforce',
+      identifier: 'user_123',
+      method: 'PATCH',
+      path: `/sobjects/Lead/${lead.Id}`,
+      body: { Status: 'Working - Contacted' },
+    })
+
+    // 3. Log a completed task linked to the lead
+    await actions.request({
+      connectionName: 'salesforce',
+      identifier: 'user_123',
+      method: 'POST',
+      path: '/sobjects/Task',
+      body: {
+        WhoId: lead.Id,
+        Subject: 'Discovery call — follow up in 3 days',
+        Status: 'Completed',
+        ActivityDate: '2025-04-10',
+      },
+    })
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    # 1. Find the lead by email
+    lead = actions.execute_tool(
+        tool_name="salesforce_lead_search",
+        connection_name='salesforce',
+        identifier='user_123',
+        tool_input={"query": "jane@acme.com"},
+    )
+
+    # 2. Update the lead status
+    actions.execute_tool(
+        tool_name="salesforce_lead_update",
+        connection_name='salesforce',
+        identifier='user_123',
+        tool_input={
+            "lead_id": lead.result["Id"],
+            "Status": "Working - Contacted",
+        },
+    )
+
+    # 3. Log a completed task linked to the lead
+    actions.execute_tool(
+        tool_name="salesforce_task_create",
+        connection_name='salesforce',
+        identifier='user_123',
+        tool_input={
+            "WhoId": lead.result["Id"],
+            "Subject": "Discovery call — follow up in 3 days",
+            "Status": "Completed",
+            "ActivityDate": "2025-04-10",
+        },
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+</details>

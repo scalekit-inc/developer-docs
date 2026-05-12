@@ -1,6 +1,10 @@
 ---
-title: Airtable
+title: 'Airtable connector'
 tableOfContents: true
+description: 'Connect to Airtable. Manage databases, tables, records, and collaborate on structured data'
+sidebar:
+  label: 'Airtable'
+overviewTitle: 'Quickstart'
 connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/airtable.svg
 connectorAuthType: OAuth 2.0
 connectorCategories: [project_management, data, analytics]
@@ -10,31 +14,57 @@ head:
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 ---
 
-import ToolList from '@/components/ToolList.astro'
-import { tools } from '@/data/agent-connectors/airtable'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
 import { SetupAirtableSection } from '@components/templates'
-import { UsageAirtableSection } from '@components/templates'
+import { QuickstartGenericOauthNotoolsSection } from '@components/templates'
+import { SectionAfterSetupAirtableCommonWorkflows } from '@components/templates'
 
-## Authentication
+<Steps>
 
-This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to Airtable, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
+1. ### Install the SDK
 
-You supply your Airtable **Connected App** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
 
-Before calling this connector from your code, create the Airtable connection in **AgentKit** > **Connections** and copy the exact **Connection name** from that connection into your code. The value in code must match the dashboard exactly.
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
 
-<details>
-<summary>Set up the connector</summary>
+2. ### Set your credentials
 
-<SetupAirtableSection />
+   <AgentKitCredentials />
 
-</details>
+3. ### Set up the connector
 
-<details>
-<summary>Code examples</summary>
+   Register your Airtable credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
 
-<UsageAirtableSection />
+   <details>
+   <summary>Dashboard setup steps</summary>
 
-</details>
+   <SetupAirtableSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartGenericOauthNotoolsSection connector="airtable" providerName="Airtable" verifyPath="/v0/meta/whoami" verifyMethod="GET" />
+
+</Steps>
+
+## Common workflows
+
+<SectionAfterSetupAirtableCommonWorkflows />

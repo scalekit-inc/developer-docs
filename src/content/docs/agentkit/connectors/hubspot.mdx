@@ -1,6 +1,10 @@
 ---
-title: HubSpot
+title: 'HubSpot connector'
 tableOfContents: true
+description: 'Connect to HubSpot CRM. Manage contacts, deals, companies, and marketing automation'
+sidebar:
+  label: 'HubSpot'
+overviewTitle: 'Quickstart'
 connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/hub_spot.svg
 connectorAuthType: OAuth 2.0
 connectorCategories: [crm, sales]
@@ -10,51 +14,78 @@ head:
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 ---
 
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/hubspot'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
 import { SetupHubspotSection } from '@components/templates'
-import { UsageHubspotSection } from '@components/templates'
+import { QuickstartHubspotSection } from '@components/templates'
+import { SectionAfterSetupHubspotCommonWorkflows } from '@components/templates'
+import { SectionBeforeToolListHubspotResourceIds } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your HubSpot credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupHubspotSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartHubspotSection />
+
+</Steps>
 
 ## What you can do
 
 Connect this agent connector to let your agent:
 
-- **Manage contacts** — create, update, list, and search contacts; batch-create up to 100 at once
-- **Manage companies** — create and update company records with industry, location, and revenue data
-- **Manage deals** — create deals, move them through pipeline stages, and search by any property
-- **Manage tickets** — create and update support tickets with priority and pipeline stage
+- **Manage contacts** — create, update, search, and list contacts; batch create, update, upsert, read, and archive
+- **Manage companies and deals** — create and update company records and deals; batch create, update, upsert, read, and archive
+- **Manage tickets and tasks** — create and update support tickets; create tasks with due dates and priorities
+- **Batch operations with inline associations** — create contacts, companies, deals, or tickets and link them to related records in a single call
 - **Log engagements** — record calls, meetings, notes, and emails against any CRM record
-- **Manage tasks** — create tasks with due dates and priorities, and mark them complete
-- **Work with products, line items, and quotes** — build out deal proposals end-to-end
-- **Manage custom objects** — create, update, and search records for any custom schema
-- **Access marketing data** — list forms, retrieve submissions, and inspect campaigns and email events
-- **Search and paginate** — full-text search and filter across all CRM object types
-- **Manage associations** — link any two CRM objects (e.g. associate a contact with a ticket)
-- **List owners and properties** — look up user IDs and discover all available fields per object type
+- **Search, associate, and extend** — full-text search across all CRM objects, batch-manage associations, list owners, discover properties, and work with custom objects
 
-## Authentication
+## Common workflows
 
-This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to HubSpot, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
+<SectionAfterSetupHubspotCommonWorkflows />
 
-You supply your HubSpot **Connected App** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.
+## Getting resource IDs
 
-Before calling this connector from your code, create the HubSpot connection in **AgentKit** > **Connections** and copy the exact **Connection name** from that connection into your code. The value in code must match the dashboard exactly.
-
-<details>
-<summary>Set up the connector</summary>
-
-<SetupHubspotSection />
-
-</details>
-
-<details>
-<summary>Code examples</summary>
-
-<UsageHubspotSection />
-
-</details>
+<SectionBeforeToolListHubspotResourceIds />
 
 ## Tool list
 

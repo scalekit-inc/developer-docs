@@ -1,0 +1,70 @@
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript title="quickstart.ts"
+    import { ScalekitClient } from '@scalekit-sdk/node'
+    import 'dotenv/config'
+
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET,
+    )
+    const actions = scalekit.actions
+
+    const connector = 'hubspot'
+    const identifier = 'user_123'
+
+    // Generate an authorization link for the user
+    const { link } = await actions.getAuthorizationLink({ connectionName: connector, identifier })
+    console.log('Authorize HubSpot:', link)
+    process.stdout.write('Press Enter after authorizing...')
+    await new Promise(r => process.stdin.once('data', r))
+
+    // Make your first call — list CRM owners
+    const result = await actions.executeTool({
+      connector,
+      identifier,
+      toolName: 'hubspot_owners_list',
+      toolInput: {},
+    })
+    console.log('HubSpot owners:', result)
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python title="quickstart.py"
+    import os
+    from scalekit.client import ScalekitClient
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    scalekit_client = ScalekitClient(
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+    )
+    actions = scalekit_client.actions
+
+    connection_name = "hubspot"
+    identifier = "user_123"
+
+    # Generate an authorization link for the user
+    link_response = actions.get_authorization_link(
+        connection_name=connection_name,
+        identifier=identifier,
+    )
+    print("Authorize HubSpot:", link_response.link)
+    input("Press Enter after authorizing...")
+
+    # Make your first call — list CRM owners
+    result = actions.execute_tool(
+        tool_input={},
+        tool_name="hubspot_owners_list",
+        connection_name=connection_name,
+        identifier=identifier,
+    )
+    print("HubSpot owners:", result)
+    ```
+  </TabItem>
+</Tabs>

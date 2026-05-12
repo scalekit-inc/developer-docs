@@ -1,6 +1,10 @@
 ---
-title: Exa
+title: 'Exa connector'
 tableOfContents: true
+description: 'Connect to Exa to perform AI-powered semantic web search, crawl websites for structured content, get natural language answers from the web, run in-depth...'
+sidebar:
+  label: 'Exa'
+overviewTitle: 'Quickstart'
 connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/exa.svg
 connectorAuthType: API Key
 connectorCategories: [data, analytics, ai, automation]
@@ -10,43 +14,73 @@ head:
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 ---
 
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/exa'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
 import { SetupExaSection } from '@components/templates'
-import { UsageExaSection } from '@components/templates'
+import { QuickstartGenericApikeySection } from '@components/templates'
+import { SectionAfterSetupExaCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Exa credentials with Scalekit so it can authenticate requests on your behalf. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupExaSection />
+
+   </details>
+
+4. ### Make your first call
+
+   <QuickstartGenericApikeySection connector="exa" toolName="exa_list_websets" providerName="Exa" />
+
+</Steps>
 
 ## What you can do
 
 Connect this agent connector to let your agent:
 
 - **Similar find** — Find web pages similar to a given URL using Exa's neural similarity search
-- **Search search** — Search the web using Exa's AI-powered semantic or keyword search engine
-- **Research research** — Run in-depth research on a topic using Exa's neural search
-- **Crawl crawl** — Crawl one or more web pages by URL and extract their content including full text, highlights, and AI-generated summaries
-- **List list** — List all Exa Websets in your account with optional pagination
-- **Websets websets** — Execute a complex web query designed to discover and return large sets of URLs (up to thousands) matching specific criteria
+- **Search records** — Search the web using Exa's AI-powered semantic or keyword search engine
+- **Research records** — Run in-depth research on a topic using Exa's neural search
+- **Crawl records** — Crawl one or more web pages by URL and extract their content including full text, highlights, and AI-generated summaries
+- **List websets, webset items** — List all Exa Websets in your account with optional pagination
+- **Websets records** — Execute a complex web query designed to discover and return large sets of URLs (up to thousands) matching specific criteria
 
-## Authentication
+## Common workflows
 
-This connector uses **API Key** authentication. Your users provide their Exa API key once, and Scalekit stores and manages it securely. Your agent code never handles keys directly — you only pass a `connectionName` and a user `identifier`.
-
-Before calling this connector from your code, create the Exa connection in **AgentKit** > **Connections** and copy the exact **Connection name** from that connection into your code. The value in code must match the dashboard exactly.
-
-<details>
-<summary>Set up the connector</summary>
-
-<SetupExaSection />
-
-</details>
-
-<details>
-<summary>Code examples</summary>
-
-<UsageExaSection />
-
-</details>
+<SectionAfterSetupExaCommonWorkflows />
 
 ## Tool list
 

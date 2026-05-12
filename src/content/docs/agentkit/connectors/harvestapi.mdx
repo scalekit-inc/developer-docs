@@ -1,6 +1,10 @@
 ---
-title: HarvestAPI
+title: 'HarvestAPI connector'
 tableOfContents: true
+description: 'Connect to HarvestAPI to scrape LinkedIn profiles, companies, and job listings, and search for people and jobs using LinkedIn data. Enables AI agents to...'
+sidebar:
+  label: 'HarvestAPI'
+overviewTitle: 'Quickstart'
 connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/harvestapi.svg
 connectorAuthType: API Key
 connectorCategories: [crm, sales]
@@ -10,43 +14,73 @@ head:
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 ---
 
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/harvestapi'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
 import { SetupHarvestapiSection } from '@components/templates'
-import { UsageHarvestapiSection } from '@components/templates'
+import { QuickstartGenericApikeySection } from '@components/templates'
+import { SectionAfterSetupHarvestapiCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your HarvestAPI credentials with Scalekit so it can authenticate requests on your behalf. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupHarvestapiSection />
+
+   </details>
+
+4. ### Make your first call
+
+   <QuickstartGenericApikeySection connector="harvestapi" toolName="harvestapi_get_ad" providerName="HarvestAPI" />
+
+</Steps>
 
 ## What you can do
 
 Connect this agent connector to let your agent:
 
-- **Search search** — Search LinkedIn for leads using advanced filters including company, job title, location, seniority, industry, and experience
-- **Get get** — Retrieve reactions made by a LinkedIn profile
+- **Search leads, services, geo** — Search LinkedIn for leads using advanced filters including company, job title, location, seniority, industry, and experience
+- **Get profile reactions, profile comments, comment reactions** — Retrieve reactions made by a LinkedIn profile
 - **Profile scrape** — Scrape a LinkedIn profile by URL or public identifier, returning contact details, employment history, education, skills, and more
 - **Job scrape** — Retrieve full job listing details from LinkedIn by job URL or job ID
 - **Company scrape** — Scrape a LinkedIn company page for overview, headcount, employee count range, follower count, locations, specialities, industries, and funding data
 - **Profiles bulk scrape** — Batch scrape multiple LinkedIn profiles in a single request using the HarvestAPI Apify scraper
 
-## Authentication
+## Common workflows
 
-This connector uses **API Key** authentication. Your users provide their HarvestAPI API key once, and Scalekit stores and manages it securely. Your agent code never handles keys directly — you only pass a `connectionName` and a user `identifier`.
-
-Before calling this connector from your code, create the HarvestAPI connection in **AgentKit** > **Connections** and copy the exact **Connection name** from that connection into your code. The value in code must match the dashboard exactly.
-
-<details>
-<summary>Set up the connector</summary>
-
-<SetupHarvestapiSection />
-
-</details>
-
-<details>
-<summary>Code examples</summary>
-
-<UsageHarvestapiSection />
-
-</details>
+<SectionAfterSetupHarvestapiCommonWorkflows />
 
 ## Tool list
 
