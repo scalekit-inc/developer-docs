@@ -8818,19 +8818,32 @@ components:
           examples:
             - 2025-09-01T12:14:43.110455Z
         verification_method:
-          description: Method used to verify domain ownership. ADMIN indicates
-            that the domain is considered verified without requiring any
-            DNS-based validation. DNS indicates that the domain must be verified
-            by adding and validating a DNS TXT record.
+          description: >-
+            Method that determines how domain ownership is verified.
+
+            - ADMIN: domain is marked verified without DNS validation, typically
+            by an admin.
+
+            - DNS: domain must be verified by adding a TXT record to your DNS
+            configuration.
+
+            - NOT_APPLICABLE: verification does not apply to this domain type.
           $ref: '#/components/schemas/domainsVerificationMethod'
           examples:
             - ADMIN
         verification_status:
-          description: Current verification status of the domain. AUTO_VERIFIED
-            means the domain was automatically verified without DNS changes,
-            VERIFIED means the domain is verified — either via DNS TXT record
-            validation or by an admin explicitly marking it as verified, PENDING
-            requires manual DNS configuration.
+          description: >-
+            Verification status of the domain.
+
+            - PENDING: DNS TXT record has not been validated yet.
+
+            - VERIFIED: domain confirmed via DNS TXT record validation or admin
+            approval.
+
+            - AUTO_VERIFIED: domain verified automatically without DNS changes.
+
+            - FAILED: DNS TXT record was not validated within the verification
+            window.
           $ref: '#/components/schemas/domainsVerificationStatus'
           examples:
             - AUTO_VERIFIED
