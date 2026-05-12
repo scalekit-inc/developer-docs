@@ -8,9 +8,8 @@ hallucinations and enabling faster, more accurate code generation.
 
 ### Claude Code
 
-```
-/plugin marketplace add scalekit-inc/claude-code-authstack
-/plugin install <auth-type>@scalekit-auth-stack
+```bash
+claude plugin marketplace add scalekit-inc/claude-code-authstack && claude plugin install <auth-type>@scalekit-auth-stack
 ```
 
 ### GitHub Copilot CLI
