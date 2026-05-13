@@ -116,6 +116,7 @@ export const sidebar = [
         label: 'Go Live',
         items: [
           'authenticate/launch-checklist',
+          'authenticate/test-users',
           'guides/dashboard/auth-logs',
           'fsa/guides/migration-guide',
         ],
