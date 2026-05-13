@@ -107,3 +107,43 @@ You can create more than one connection for the same connector. This is useful w
 - You're integrating with multiple instances of the same service (for example, two different Salesforce orgs)
 
 Each connection has its own name, which you use to identify it in API calls and in the dashboard.
+
+## Troubleshooting
+
+### `failed_to_exchange_token` — OAuth token exchange failed
+
+**Symptom:** After completing the OAuth consent screen, the callback URL shows an error:
+
+```txt frame="none"
+/ui-handlers/connect/callback/error?error=failed_to_exchange_token&error_description=...
+```
+
+**Causes:**
+
+| Cause | What to check |
+|-------|---------------|
+| Session expired | The OAuth flow took too long between opening the consent screen and completing it. Restart the connection flow. |
+| Post-auth hook error | The error description includes `Error executing post auth hooks`. This is a transient server-side issue — retry after a few minutes. |
+| Network issue | A connectivity problem between the provider and Scalekit during the token exchange. Retry the flow. |
+
+**Resolution:**
+
+1. Close the error page and restart the connection flow from your application
+2. If the error persists after retrying, check the [Scalekit status page](https://status.scalekit.com) for ongoing incidents
+3. If the issue continues, contact support with the full error URL and timestamp
+
+### Session expired or invalid
+
+**Symptom:** The callback displays:
+
+> "Your verification session has expired or is no longer valid. Please close this window and restart the connection flow."
+
+This happens when the user waits too long between starting the OAuth flow and completing the consent screen, or if the browser session was interrupted (e.g., switching browsers mid-flow).
+
+**Resolution:** Close the window and restart the connection flow. The session is single-use and time-limited.
+
+### `redirect_uri_mismatch`
+
+**Symptom:** The OAuth provider rejects the redirect with a URI mismatch error.
+
+**Resolution:** Verify that the **Redirect URI** shown in the Scalekit Dashboard matches exactly what you registered in the provider's developer console. Common mismatches include trailing slashes, `http` vs `https`, and port numbers. See step 3 in [Set up an OAuth connection](#set-up-an-oauth-connection).
