@@ -21,7 +21,7 @@ Test users let you run Playwright, Cypress, and other E2E tests against login an
 
 ## Prerequisites
 
-- For Magic Link & OTP authentication mode, ensure method is set to `Verification Code` or `Magic Link + Verification Code`. `Magic Link` mode is not supported (see [Limitations](#limitations)).
+- For Magic Link & OTP authentication mode, ensure method is set to `Verification Code` or `Magic Link + Verification Code`. `Magic Link`-only mode is not supported.
 
 ## Configure the test users allowlist
 
@@ -263,14 +263,6 @@ describe('OTP login with test user', () => {
 
   See [Auth logs](/guides/dashboard/auth-logs) for how to filter these entries.
 - **User and session exist normally** — the test user's session and org membership appear in the dashboard just like a real user's.
-
-## Limitations
-
-- **`LINK`-only mode is not supported.** If your environment uses `LINK`-only passwordless, Scalekit sends the normal magic-link email even if the address is on the allowlist. Switch to `OTP` or `LINK_OTP`.
-- **`LINK_OTP` suppresses the email, but the static code still works.** The magic link is never sent, but entering the 6-digit code completes verification.
-- **Maximum 5 emails per environment.** Use different `+sktest` addresses for parallel test runs.
-- **Signup gating is not bypassed.** If signup is disabled in your environment, the test user must already exist as an org member before login will work. See [Test the login flow](#test-the-login-flow).
-- **SSO, social login, magic-link signup, and org invites are unaffected.** Test Users only applies to hosted OTP flows.
 
 ## Production safety
 
