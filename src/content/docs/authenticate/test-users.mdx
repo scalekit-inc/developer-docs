@@ -1,6 +1,6 @@
 ---
 title: Test users
-description: Set up test identities to run automated E2E tests against hosted OTP flows without receiving real emails
+description: Set up test users to run automated E2E tests for login/signup flows
 tags: [testing, e2e, playwright, cypress, otp, go-live, automation]
 sidebar:
   label: Test users
@@ -15,15 +15,13 @@ next:
 
 import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components'
 
-Test users let you run Playwright, Cypress, and other E2E tests against Scalekit-hosted login flows without waiting for real emails. Instead of sending a verification email, Scalekit accepts a static 6-digit code you configure — so your tests are fast, reliable, and inbox-free.
-
-Test Users is an allowlist on top of real user records — it does not create users for you. Add the user to an organization first, then add the same email to the allowlist.
+Test users let you run Playwright, Cypress, and other E2E tests against login and signup flows without waiting for real emails. Instead of sending a verification email, Scalekit accepts a static 6-digit code you configure — so your tests are fast, reliable, and inbox-free.
 
 **What doesn't change:** Test Users only affects OTP email delivery. Everything else — organization selection, session creation, audit logs, webhooks, and post-login redirects — works exactly the same as for a real user.
 
 ## Email format
 
-Every allowlisted email must contain `+sktest` in the local part (before `@`). The domain doesn't matter — use any domain you control.
+Define an allowlist for test emails. The emails must contain `+sktest` in the local part (before `@`). The domain doesn't matter — use any domain you control.
 
 | Email | Valid? | Reason |
 | --- | :---: | --- |
@@ -35,22 +33,14 @@ Every allowlisted email must contain `+sktest` in the local part (before `@`). T
 
 ## Prerequisites
 
-- Hosted auth screens enabled in your Scalekit environment.
-- Passwordless mode set to `OTP` or `LINK_OTP` — `LINK`-only mode is not supported (see [Limitations](#limitations)).
-- Admin access to **Environment settings** in the dashboard.
+- For Magic Link & OTP authentication mode, ensure method is set to `Verification Code` or `Magic Link + Verification Code`. `Magic Link` mode is not supported (see [Limitations](#limitations)).
 
-On every login attempt, Scalekit checks for the `+sktest` marker before anything else — addresses without it skip the allowlist entirely and follow the normal flow.
+## Configure the test users allowlist
 
-## Set up a test user
+The allowlist is set per environment. Configure it once; every signup and login test in that environment uses the same emails and static code.
 
 <Steps>
-1. ## Add the user to an organization
-
-   Every test user must belong to an organization. In the dashboard, go to **Organizations**, open the org you want to use (or create one — e.g. `e2e-tests`), click the **Users** tab, and add a new user with a `+sktest` email.
-
-   The `+sktest` marker is required in the local part of the address (before `@`). For example: `alice+sktest@acmecorp.com`.
-
-2. ## Open Test users settings
+1. ## Open Test users settings
 
    Go to **Dashboard > Environment settings > Test users**.
 
@@ -60,30 +50,34 @@ On every login attempt, Scalekit checks for the `+sktest` marker before anything
      Dev environments have Test Users enabled by default. Production environments have it disabled. A warning banner appears in the dashboard whenever Test Users is on in a production environment.
    </Aside>
 
-3. ## Enable and add the email to the allowlist
+2. ## Enable and add emails to the allowlist
 
-   Toggle **Enable test users**, then add the same `+sktest` email from step 1.
+   Toggle **Enable test users**, then add up to 5 `+sktest` emails. Emails are stored lowercase and de-duplicated.
 
    ![Test users allowlist with an email added](@/assets/docs/authenticate/test-users/test-users-allowlist.png)
 
-   You can add up to 5 emails per environment. Emails are saved in lowercase and duplicates are removed automatically.
+3. ## Set the static confirmation code
 
-4. ## Set the static confirmation code
+   Enter a **Static confirmation code** — exactly 6 digits. The default is `424242`. This is the code your tests will type at the OTP prompt.
 
-   Enter a **Static confirmation code** — exactly 6 digits. The default is `424242`. This is the code your test will type at the OTP prompt.
-
-5. ## Save
+4. ## Save
 
    Click **Save**. Reload the page to confirm the settings persisted.
 </Steps>
 
-## Run an E2E test
+## Test the signup flow
 
-The examples below test a full OTP login for `alice+sktest@acmecorp.com`. Replace the URL and selectors to match your hosted auth screen.
+Use this when you want to verify that a brand-new `+sktest` user can complete signup and land in an organization.
+
+At the end of this flow, the test user exists as a member of the target organization. The flow creates that membership — either through JIT provisioning (if configured) or via the org picker step on your hosted signup screen.
+
+**Prerequisite:** Signup must be enabled in the environment and the destination organization must exist. If you use JIT provisioning, no extra setup is needed. Otherwise, create the organization once via the dashboard or `POST /api/v1/organizations`.
 
 <Aside type="tip" title="Use environment variables">
 Store the test email and static code as environment variables (`SCALEKIT_TEST_USER_EMAIL`, `SCALEKIT_TEST_USER_CODE`) — don't hard-code them in test files.
 </Aside>
+
+The examples below test a full OTP signup for `alice+sktest@acmecorp.com`. Replace the URL and selectors to match your hosted auth screen.
 
 <Tabs syncKey="e2e-framework">
   <TabItem label="Playwright">
@@ -93,8 +87,8 @@ import { test, expect } from '@playwright/test'
 const TEST_USER_EMAIL = process.env.SCALEKIT_TEST_USER_EMAIL!
 const TEST_USER_CODE  = process.env.SCALEKIT_TEST_USER_CODE!
 
-test('OTP login with test user', async ({ page }) => {
-  await page.goto('https://app.example.com/login')
+test('OTP signup with test user', async ({ page }) => {
+  await page.goto('https://app.example.com/signup')
 
   await page.getByLabel('Email').fill(TEST_USER_EMAIL)
   await page.getByRole('button', { name: 'Continue' }).click()
@@ -112,9 +106,9 @@ test('OTP login with test user', async ({ page }) => {
 const TEST_USER_EMAIL = Cypress.env('SCALEKIT_TEST_USER_EMAIL')
 const TEST_USER_CODE  = Cypress.env('SCALEKIT_TEST_USER_CODE')
 
-describe('OTP login with test user', () => {
-  it('logs in using the static code', () => {
-    cy.visit('https://app.example.com/login')
+describe('OTP signup with test user', () => {
+  it('signs up using the static code', () => {
+    cy.visit('https://app.example.com/signup')
 
     cy.get('input[type="email"]').type(TEST_USER_EMAIL)
     cy.get('button').contains('Continue').click()
@@ -130,77 +124,19 @@ describe('OTP login with test user', () => {
   </TabItem>
 </Tabs>
 
-## Verify the flow
+**Verify:** After running the test, the new user appears in **Dashboard > Organizations > {org} > Users**. Auth logs in **Dashboard > Auth logs** show:
+- `auth.test_user_verification_issued` — *Verification email suppressed (test user)*
+- `auth.test_user_otp_verified` — *OTP verification successful (test user)*
 
-After running the test, check:
+## Test the login flow
 
-- **No email arrived** in the inbox for the test address.
-- **Auth logs** in **Dashboard > Auth logs** show two test-user events:
-  - `auth.test_user_verification_issued` — shown as *Verification email suppressed (test user)*
-  - `auth.test_user_otp_verified` — shown as *OTP verification successful (test user)*
+Use this when you want to verify that an existing `+sktest` user can sign back in.
 
-  ![Auth log showing test-user events](@/assets/docs/authenticate/test-users/test-users-auth-log.png)
+The test user must already exist as a member of an organization before the test runs. Test Users does not bypass signup gating — if signup is disabled, or you want deterministic fixture data, pre-create the user via the dashboard or SDK first.
 
-  See [Auth logs](/guides/dashboard/auth-logs) for how to filter these entries.
-- **User and session exist normally** — the test user's session and org membership appear in the dashboard just like a real user's.
+### Prerequisite: ensure the user exists in an organization
 
-## Limitations
-
-- **`LINK`-only mode is not supported.** If your environment uses `LINK`-only passwordless, Scalekit sends the normal magic-link email even if the address is on the allowlist. Switch to `OTP` or `LINK_OTP`.
-- **`LINK_OTP` suppresses the email, but the static code still works.** The magic link is never sent, but entering the 6-digit code completes verification.
-- **Maximum 5 emails per environment.** Use different `+sktest` addresses for parallel test runs.
-- **Signup gating is not bypassed.** If signup is disabled in your environment, the test user must already exist as an org member before login works. See [Testing login when signup is disabled](#testing-login-when-signup-is-disabled).
-- **SSO, social login, magic-link signup, and org invites are unaffected.** Test Users only applies to hosted OTP flows.
-
-## Production safety
-
-<Aside type="caution" title="Test Users bypass real email verification">
-Keep Test Users off in production unless you have a deliberate reason to enable it. When it is on, a warning banner appears in the dashboard — leave it visible.
-
-Every allowlisted email must contain `+sktest`. This makes test identities easy to spot in logs and audit records.
-</Aside>
-
-## Common scenarios
-
-<details>
-<summary>Why am I still getting a real verification email?</summary>
-
-All three conditions must be true for Test Users to apply:
-
-- Test Users is enabled in the environment.
-- The exact email is on the allowlist (case-insensitive match).
-- The email contains `+sktest` in its local part.
-
-If `+sktest` is missing, Scalekit skips the allowlist entirely and sends the normal email — no database lookup occurs.
-
-Also check that your passwordless mode is `OTP` or `LINK_OTP`, not `LINK`-only.
-
-</details>
-
-<details>
-<summary>Can I use a different code for each test run?</summary>
-
-No — the static code is set per environment. For parallel isolation, add multiple `+sktest` addresses (up to 5) and assign a different one to each test run.
-
-</details>
-
-<details>
-<summary>How do I keep Test Users out of production CI?</summary>
-
-Never enable Test Users in your production environment. In CI, point to a dev or staging environment. You can also guard your test runner with an environment check — for example, verify that `SCALEKIT_ENVIRONMENT_URL` contains `.dev.` or `.staging.` before running E2E tests.
-
-</details>
-
-<details id="testing-login-when-signup-is-disabled">
-<summary>Testing login when signup is disabled in my environment</summary>
-
-Test Users does not bypass signup gating. If signup is off, the `+sktest` user must already exist inside an organization before login will work.
-
-Use this one-time setup in your test fixture:
-
-1. **Create or pick an organization** — e.g. `e2e-tests` — via the dashboard or `POST /api/v1/organizations`.
-
-2. **Create the user inside that organization:**
+You can add the user manually in **Dashboard > Organizations > {org} > Users**, or create them from your test fixture:
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Node.js">
@@ -267,8 +203,112 @@ User user = scalekitClient.organizations().createUser(orgId,
   </TabItem>
 </Tabs>
 
-3. **Add the email to the Test users allowlist** and make sure Test Users is enabled. Without this step, Scalekit still sends a real OTP email even though the user record exists.
+Then add the same email to the Test users allowlist (see [Configure the test users allowlist](#configure-the-test-users-allowlist)) if you haven't already.
 
-4. **Run the login test.** Scalekit skips the email and accepts the static code.
+### Run the test
+
+The examples below test a full OTP login for `alice+sktest@acmecorp.com`. Replace the URL and selectors to match your hosted auth screen.
+
+<Tabs syncKey="e2e-framework">
+  <TabItem label="Playwright">
+```ts
+import { test, expect } from '@playwright/test'
+
+const TEST_USER_EMAIL = process.env.SCALEKIT_TEST_USER_EMAIL!
+const TEST_USER_CODE  = process.env.SCALEKIT_TEST_USER_CODE!
+
+test('OTP login with test user', async ({ page }) => {
+  await page.goto('https://app.example.com/login')
+
+  await page.getByLabel('Email').fill(TEST_USER_EMAIL)
+  await page.getByRole('button', { name: 'Continue' }).click()
+
+  // No real email sent — type the static code
+  await page.getByLabel('Verification code').fill(TEST_USER_CODE)
+  await page.getByRole('button', { name: 'Verify' }).click()
+
+  await expect(page).toHaveURL('https://app.example.com/dashboard')
+})
+```
+  </TabItem>
+  <TabItem label="Cypress">
+```ts
+const TEST_USER_EMAIL = Cypress.env('SCALEKIT_TEST_USER_EMAIL')
+const TEST_USER_CODE  = Cypress.env('SCALEKIT_TEST_USER_CODE')
+
+describe('OTP login with test user', () => {
+  it('logs in using the static code', () => {
+    cy.visit('https://app.example.com/login')
+
+    cy.get('input[type="email"]').type(TEST_USER_EMAIL)
+    cy.get('button').contains('Continue').click()
+
+    // No real email sent — type the static code
+    cy.get('input[name="otp"]').type(TEST_USER_CODE)
+    cy.get('button').contains('Verify').click()
+
+    cy.url().should('include', '/dashboard')
+  })
+})
+```
+  </TabItem>
+</Tabs>
+
+**Verify:** After running the test, check:
+
+- **No email arrived** in the inbox for the test address.
+- **Auth logs** in **Dashboard > Auth logs** show two test-user events:
+  - `auth.test_user_verification_issued` — shown as *Verification email suppressed (test user)*
+  - `auth.test_user_otp_verified` — shown as *OTP verification successful (test user)*
+
+  ![Auth log showing test-user events](@/assets/docs/authenticate/test-users/test-users-auth-log.png)
+
+  See [Auth logs](/guides/dashboard/auth-logs) for how to filter these entries.
+- **User and session exist normally** — the test user's session and org membership appear in the dashboard just like a real user's.
+
+## Limitations
+
+- **`LINK`-only mode is not supported.** If your environment uses `LINK`-only passwordless, Scalekit sends the normal magic-link email even if the address is on the allowlist. Switch to `OTP` or `LINK_OTP`.
+- **`LINK_OTP` suppresses the email, but the static code still works.** The magic link is never sent, but entering the 6-digit code completes verification.
+- **Maximum 5 emails per environment.** Use different `+sktest` addresses for parallel test runs.
+- **Signup gating is not bypassed.** If signup is disabled in your environment, the test user must already exist as an org member before login will work. See [Test the login flow](#test-the-login-flow).
+- **SSO, social login, magic-link signup, and org invites are unaffected.** Test Users only applies to hosted OTP flows.
+
+## Production safety
+
+<Aside type="caution" title="Test Users bypass real email verification">
+Keep Test Users off in production unless you have a deliberate reason to enable it. When it is on, a warning banner appears in the dashboard — leave it visible.
+
+Every allowlisted email must contain `+sktest`. This makes test identities easy to spot in logs and audit records.
+</Aside>
+
+## Common scenarios
+
+<details>
+<summary>Why am I still getting a real verification email?</summary>
+
+All three conditions must be true for Test Users to apply:
+
+- Test Users is enabled in the environment.
+- The exact email is on the allowlist (case-insensitive match).
+- The email contains `+sktest` in its local part.
+
+If `+sktest` is missing, Scalekit skips the allowlist entirely and sends the normal email — no database lookup occurs.
+
+Also check that your passwordless mode is `OTP` or `LINK_OTP`, not `LINK`-only.
+
+</details>
+
+<details>
+<summary>Can I use a different code for each test run?</summary>
+
+No — the static code is set per environment. For parallel isolation, add multiple `+sktest` addresses (up to 5) and assign a different one to each test run.
+
+</details>
+
+<details>
+<summary>How do I keep Test Users out of production CI?</summary>
+
+Never enable Test Users in your production environment. In CI, point to a dev or staging environment. You can also guard your test runner with an environment check — for example, verify that `SCALEKIT_ENVIRONMENT_URL` contains `.dev.` or `.staging.` before running E2E tests.
 
 </details>
