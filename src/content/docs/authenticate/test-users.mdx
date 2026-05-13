@@ -206,6 +206,8 @@ Use this setup flow as a one-time fixture in your test suite:
 
 2. **Create the user inside that organization** with the `+sktest` email:
 
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
 ```ts
 // Run once as test fixture setup
 import { ScalekitClient } from '@scalekit-sdk/node'
@@ -216,10 +218,65 @@ const scalekit = new ScalekitClient(
   process.env.SCALEKIT_CLIENT_SECRET!
 )
 
-await scalekit.organizations.createUser(orgId, {
+const user = await scalekit.organizations.createUser(orgId, {
   email: 'alice+sktest@acmecorp.com',
 })
+console.log('Created user:', user.id)
 ```
+  </TabItem>
+  <TabItem label="Python">
+```python
+# Run once as test fixture setup
+from scalekit import ScalekitClient
+
+scalekit_client = ScalekitClient(
+  environment_url=os.environ["SCALEKIT_ENVIRONMENT_URL"],
+  client_id=os.environ["SCALEKIT_CLIENT_ID"],
+  client_secret=os.environ["SCALEKIT_CLIENT_SECRET"]
+)
+
+user = scalekit_client.organizations.create_user(org_id, {
+  "email": "alice+sktest@acmecorp.com"
+})
+print("Created user:", user.id)
+```
+  </TabItem>
+  <TabItem label="Go">
+```go
+// Run once as test fixture setup
+scalekitClient := scalekit.NewScalekitClient(
+  os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+  os.Getenv("SCALEKIT_CLIENT_ID"),
+  os.Getenv("SCALEKIT_CLIENT_SECRET"),
+)
+
+user, err := scalekitClient.Organization().CreateUser(ctx, orgID, &scalekit.CreateUserRequest{
+  Email: "alice+sktest@acmecorp.com",
+})
+if err != nil {
+  log.Fatalf("failed to create user: %v", err)
+}
+fmt.Println("Created user:", user.ID)
+```
+  </TabItem>
+  <TabItem label="Java">
+```java
+// Run once as test fixture setup
+ScalekitClient scalekitClient = new ScalekitClient(
+  System.getenv("SCALEKIT_ENVIRONMENT_URL"),
+  System.getenv("SCALEKIT_CLIENT_ID"),
+  System.getenv("SCALEKIT_CLIENT_SECRET")
+);
+
+User user = scalekitClient.organizations().createUser(orgId,
+  CreateUserRequest.builder()
+    .email("alice+sktest@acmecorp.com")
+    .build()
+);
+System.out.println("Created user: " + user.getId());
+```
+  </TabItem>
+</Tabs>
 
 3. **Add the same email to Environment settings > Test users** allowlist and confirm Test Users is enabled. Without this step, Scalekit will still try to send a real OTP email even though the user record exists.
 
