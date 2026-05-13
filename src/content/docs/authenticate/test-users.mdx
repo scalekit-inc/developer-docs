@@ -17,33 +17,29 @@ import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components'
 
 Test users let you run Playwright, Cypress, and other E2E tests against Scalekit-hosted login flows without waiting for real emails. Instead of sending a verification email, Scalekit accepts a static 6-digit code you configure — so your tests are fast, reliable, and inbox-free.
 
-**Before you start — understand the setup order:**
-
-Every user in Scalekit belongs to an organization. Test Users works as an allowlist on top of real user records, not a shortcut that creates users for you. You must:
-
-1. Add the test user to an organization in the dashboard.
-2. Add the **same email** to **Environment settings > Test users**.
-3. Run your E2E test — Scalekit skips the email and accepts the static code.
+Test Users is an allowlist on top of real user records — it does not create users for you. Add the user to an organization first, then add the same email to the allowlist.
 
 **What doesn't change:** Test Users only affects OTP email delivery. Everything else — organization selection, session creation, audit logs, webhooks, and post-login redirects — works exactly the same as for a real user.
 
-## How it works
+## Email format
 
-On every login attempt, Scalekit checks whether the email contains `+sktest` before the `@`. If it doesn't, Scalekit skips the allowlist entirely and sends the normal verification email.
+Every allowlisted email must contain `+sktest` in the local part (before `@`). The domain doesn't matter — use any domain you control.
 
-If `+sktest` is present, Scalekit then checks three things:
-
-- Test Users is enabled in this environment.
-- The email is on the allowlist.
-- The passwordless mode is `OTP` or `LINK_OTP`.
-
-When all three match, Scalekit skips the email and uses your static code as the OTP. The rest of the verification flow proceeds normally.
+| Email | Valid? | Reason |
+| --- | :---: | --- |
+| `alice+sktest@acmecorp.com` | ✓ | `+sktest` present in the local part |
+| `bob+sktest@anything.example` | ✓ | Any domain works |
+| `alice@acmecorp.com` | ✗ | Missing `+sktest` marker |
+| `alice+test@acmecorp.com` | ✗ | Marker must be exactly `+sktest` |
+| `sktest+alice@acmecorp.com` | ✗ | Must appear after `+`, not before `@` |
 
 ## Prerequisites
 
 - Hosted auth screens enabled in your Scalekit environment.
 - Passwordless mode set to `OTP` or `LINK_OTP` — `LINK`-only mode is not supported (see [Limitations](#limitations)).
 - Admin access to **Environment settings** in the dashboard.
+
+On every login attempt, Scalekit checks for the `+sktest` marker before anything else — addresses without it skip the allowlist entirely and follow the normal flow.
 
 ## Set up a test user
 
