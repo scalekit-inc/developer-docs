@@ -215,6 +215,36 @@ After updating permissions, always restart your MCP client to ensure the changes
 
 ---
 
+### OAuth popup closes immediately in MCP clients (COOP header issue)
+
+**Symptom:** The OAuth popup closes immediately or the MCP client reports a "window closed too soon" error, even though the authentication flow succeeds when tested directly.
+
+This affects MCP clients that use popup-based OAuth flows, including Amazon Q.
+
+**Root cause:** The app's login page sets the `Cross-Origin-Opener-Policy: same-origin` HTTP header. When a cross-origin MCP client (e.g., `quick.aws.com`) opens a popup that navigates to a page with this header, the browser severs the opener's reference to the popup. The MCP client's popup reference becomes `closed === true` immediately, before the OAuth flow completes.
+
+This is standard browser COOP enforcement and is not a Scalekit issue — it's an HTTP header on the customer's app.
+
+**Diagnosis:**
+
+Check whether the login page sends a `Cross-Origin-Opener-Policy` header:
+
+```sh
+curl -sI https://your-app.com/login | grep -i cross-origin-opener-policy
+```
+
+If the response includes `Cross-Origin-Opener-Policy: same-origin`, this is the cause.
+
+**Fix:**
+
+Set `Cross-Origin-Opener-Policy: unsafe-none` on the login and OAuth redirect endpoints used in the callback path. You can scope this change to only the OAuth-related routes if you want to keep `same-origin` on other pages.
+
+<Aside type="note">
+This header is set by the customer's application server, not by Scalekit. If you're using a framework like Next.js or Express, check your security headers middleware configuration.
+</Aside>
+
+---
+
 ## Best practices
 
 Follow these best practices to avoid common issues and maintain a robust MCP authentication setup:
