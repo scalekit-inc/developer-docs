@@ -1,0 +1,24 @@
+import { Aside } from '@astrojs/starlight/components'
+
+export const sectionTitle = 'Getting resource IDs'
+
+Most Monday.com tools require one or more resource IDs. Run list/read tools first to discover real IDs — never guess them.
+
+| Resource | Tool to get ID | Field in response |
+|----------|---------------|-------------------|
+| Board ID | `monday_boards_list` | `data.boards[].id` |
+| Item ID | `monday_items_list` (requires `board_id`) | `data.boards[].items_page.items[].id` |
+| Group ID | `monday_items_list` | `data.boards[].items_page.items[].group.id` |
+| Column ID | `monday_items_list` | `data.boards[].items_page.items[].column_values[].id` |
+| User ID | `monday_users_list` or `monday_me_get` | `data.users[].id` / `data.me.id` |
+| Workspace ID | `monday_workspaces_list` | `data.workspaces[].id` |
+| Update ID | `monday_updates_list` | `data.updates[].id` |
+| Tag ID | `monday_tags_list` | `data.tags[].id` |
+| Team ID | `monday_teams_list` | `data.teams[].id` |
+| Webhook ID | `monday_webhooks_list` (requires `board_id`) | `data.webhooks[].id` |
+| Doc ID | `monday_docs_list` | `data.docs[].id` |
+| Subitem ID | `monday_subitem_create` response | `data.create_subitem.id` |
+
+<Aside type="tip" title="Find column IDs for value updates">
+  When calling `monday_item_column_value_change` or `monday_item_column_values_change`, you need the column's `id` (not its title). Run `monday_items_list` and read `column_values[].id` from any item on the board. Common built-in column IDs are `name`, `status`, `person`, `date`, and `files` — custom columns have generated IDs like `color_abc123`.
+</Aside>
