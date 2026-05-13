@@ -234,7 +234,10 @@ Complete these steps in the Scalekit dashboard before writing any code:
                 "max_results": 5,
             },
         )
-        print(response)
+        # Tool payload is under response.data
+        emails = response.data.get("emails", [])
+        for email in emails:
+            print(f"From: {email.get('from')} — {email.get('subject')}")
         ```
       </TabItem>
       <TabItem label="Node.js">

@@ -105,6 +105,27 @@ console.log(result.data);
   </TabItem>
 </Tabs>
 
+## Response shape
+
+The SDK wraps every tool response in a response object. The tool-specific payload is always under `response.data` (Python) or `result.data` (Node.js). Access tool-specific fields from that object:
+
+```python frame="none" showLineNumbers=false
+# Example: Google Calendar list_events
+response = actions.execute_tool(
+    tool_name="googlecalendar_list_events",
+    identifier="user_123",
+    tool_input={"max_results": 10},
+)
+
+# Tool payload is under response.data
+events = response.data.get("events", [])
+next_page_token = response.data.get("next_page_token", "")
+```
+
+<Aside type="caution">
+A common mistake is treating the response as a flat object. If you parse `response` directly instead of `response.data`, you'll see the raw wrapper and may get empty results. Always read from `response.data`.
+</Aside>
+
 ## Wire into your LLM
 
 The full agent loop: fetch scoped tools → pass to LLM → execute tool calls → feed results back.
