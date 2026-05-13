@@ -1,0 +1,174 @@
+---
+title: "Validate OIDC tokens without an SDK"
+description: "Verify Scalekit id_token JWTs in any language using standard OIDC discovery, JWKS, and RS256 validation."
+tags: [sso, oidc, jwt, token-validation, security, guide]
+sidebar:
+  label: "Token validation (non-SDK)"
+tableOfContents:
+  maxHeadingLevel: 3
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+Scalekit SDKs handle token validation automatically. If you're building with a language or framework not covered by an SDK (for example, Ruby on Rails, PHP, or Rust), you can validate tokens yourself using standard OIDC and JWT libraries.
+
+This guide covers the manual validation flow: discovering endpoints, fetching signing keys, and verifying the `id_token` JWT.
+
+## How token validation works
+
+After a user completes SSO login, Scalekit issues an `id_token` — a signed JWT containing the user's profile claims. Your application must verify this token before trusting the claims inside it.
+
+The validation flow follows the standard OIDC pattern:
+
+<Steps>
+1. Fetch the OpenID configuration from your environment's discovery endpoint
+2. Extract the `issuer` and `jwks_uri` from the configuration
+3. Fetch the JSON Web Key Set (JWKS) from `jwks_uri`
+4. Verify the JWT signature, issuer, audience, and expiration
+</Steps>
+
+## Step 1: Fetch OpenID configuration
+
+Every Scalekit environment publishes an OpenID configuration at a well-known URL:
+
+```txt frame="none"
+{your_environment_url}/.well-known/openid-configuration
+```
+
+Fetch it with a simple GET request:
+
+```bash
+curl https://your-env.scalekit.com/.well-known/openid-configuration
+```
+
+The response includes the fields you need for validation:
+
+```json title="Relevant fields"
+{
+  "issuer": "https://your-env.scalekit.com",
+  "jwks_uri": "https://your-env.scalekit.com/keys",
+  "id_token_signing_alg_values_supported": ["RS256"]
+}
+```
+
+## Step 2: Fetch the JWKS
+
+Use the `jwks_uri` from the OpenID configuration to fetch the signing keys:
+
+```bash
+curl https://your-env.scalekit.com/keys
+```
+
+The response is a standard JWKS document containing one or more RSA public keys:
+
+```json title="JWKS response"
+{
+  "keys": [
+    {
+      "kty": "RSA",
+      "kid": "key-id-1",
+      "use": "sig",
+      "alg": "RS256",
+      "n": "...",
+      "e": "AQAB"
+    }
+  ]
+}
+```
+
+<Aside type="tip">
+Cache the JWKS response and refresh it periodically (every few hours) or when you encounter a `kid` you don't recognize. This avoids fetching keys on every request.
+</Aside>
+
+## Step 3: Verify the JWT
+
+When verifying the `id_token`, check all of the following:
+
+| Check | What to verify |
+|-------|---------------|
+| **Algorithm** | Must be `RS256` |
+| **Signature** | Verify using the RSA public key from JWKS that matches the token's `kid` header |
+| **Issuer (`iss`)** | Must match your environment URL (the `issuer` from OpenID configuration) |
+| **Audience (`aud`)** | Must contain your Scalekit client ID |
+| **Expiration (`exp`)** | Must be in the future (token not expired) |
+
+### Example: Ruby
+
+```ruby
+require 'net/http'
+require 'json'
+require 'jwt'
+
+env_url = "https://your-env.scalekit.com"
+client_id = "skc_your_client_id"
+
+# 1. Fetch JWKS
+jwks_raw = Net::HTTP.get(URI("#{env_url}/keys"))
+jwks = JSON.parse(jwks_raw)
+jwk_keys = jwks["keys"].map { |k| JWT::JWK.new(k) }
+
+# 2. Decode and verify the id_token
+id_token = "eyJhbG..."  # from the auth callback
+
+decoded = JWT.decode(
+  id_token,
+  nil,
+  true,  # verify signature
+  {
+    algorithms: ["RS256"],
+    iss: env_url,
+    verify_iss: true,
+    aud: client_id,
+    verify_aud: true,
+    jwks: { keys: jwks["keys"] }
+  }
+)
+
+claims = decoded.first
+puts "User email: #{claims['email']}"
+puts "User name: #{claims['name']}"
+```
+
+### Example: Python (without Scalekit SDK)
+
+```python
+import jwt
+import requests
+
+env_url = "https://your-env.scalekit.com"
+client_id = "skc_your_client_id"
+
+# 1. Fetch JWKS
+jwks_response = requests.get(f"{env_url}/keys")
+jwks = jwks_response.json()
+
+# 2. Get the signing key
+jwk_client = jwt.PyJWKClient(f"{env_url}/keys")
+signing_key = jwk_client.get_signing_key_from_jwt(id_token)
+
+# 3. Decode and verify
+claims = jwt.decode(
+    id_token,
+    signing_key.key,
+    algorithms=["RS256"],
+    issuer=env_url,
+    audience=client_id,
+)
+
+print(f"User email: {claims['email']}")
+print(f"User name: {claims['name']}")
+```
+
+## Key reference
+
+| Field | Value |
+|-------|-------|
+| Discovery URL | `{env_url}/.well-known/openid-configuration` |
+| JWKS URL | `{env_url}/keys` |
+| Issuer | Your environment URL (e.g., `https://your-env.scalekit.com`) |
+| Signing algorithm | `RS256` |
+| Token format | Standard JWT (RFC 7519) |
+
+<Aside type="note">
+For the full list of claims available in the `id_token`, see the [ID token claims reference](/guides/idtoken-claims/).
+</Aside>
