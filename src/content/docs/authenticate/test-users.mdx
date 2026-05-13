@@ -19,18 +19,6 @@ Test users let you run Playwright, Cypress, and other E2E tests against login an
 
 **What doesn't change:** Test Users only affects OTP email delivery. Everything else — organization selection, session creation, audit logs, webhooks, and post-login redirects — works exactly the same as for a real user.
 
-## Email format
-
-Define an allowlist for test emails. The emails must contain `+sktest` in the local part (before `@`). The domain doesn't matter — use any domain you control.
-
-| Email | Valid? | Reason |
-| --- | :---: | --- |
-| `alice+sktest@acmecorp.com` | ✓ | `+sktest` present in the local part |
-| `bob+sktest@anything.example` | ✓ | Any domain works |
-| `alice@acmecorp.com` | ✗ | Missing `+sktest` marker |
-| `alice+test@acmecorp.com` | ✗ | Marker must be exactly `+sktest` |
-| `sktest+alice@acmecorp.com` | ✗ | Must appear after `+`, not before `@` |
-
 ## Prerequisites
 
 - For Magic Link & OTP authentication mode, ensure method is set to `Verification Code` or `Magic Link + Verification Code`. `Magic Link` mode is not supported (see [Limitations](#limitations)).
@@ -53,6 +41,16 @@ The allowlist is set per environment. Configure it once; every signup and login 
 2. ## Enable and add emails to the allowlist
 
    Toggle **Enable test users**, then add up to 5 `+sktest` emails. Emails are stored lowercase and de-duplicated.
+
+   Every allowlisted email must contain `+sktest` in the local part (before `@`). The domain doesn't matter.
+
+   | Email | Valid? | Reason |
+   | --- | :---: | --- |
+   | `alice+sktest@acmecorp.com` | ✓ | `+sktest` present in the local part |
+   | `bob+sktest@anything.example` | ✓ | Any domain works |
+   | `alice@acmecorp.com` | ✗ | Missing `+sktest` marker |
+   | `alice+test@acmecorp.com` | ✗ | Marker must be exactly `+sktest` |
+   | `sktest+alice@acmecorp.com` | ✗ | Must appear after `+`, not before `@` |
 
    ![Test users allowlist with an email added](@/assets/docs/authenticate/test-users/test-users-allowlist.png)
 
