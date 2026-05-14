@@ -85,42 +85,38 @@ After OTP verification, Scalekit redirects to `<CALLBACK_URL>` with an authoriza
 ```ts title="playwright/e2e/signup.spec.ts"
 import { test, expect } from '@playwright/test'
 
-const AUTH_URL        = process.env.SCALEKIT_TEST_AUTH_URL!  // includes &prompt=create
+const AUTH_URL        = process.env.SCALEKIT_TEST_AUTH_URL!
 const TEST_USER_EMAIL = process.env.SCALEKIT_TEST_USER_EMAIL!
 const TEST_USER_CODE  = process.env.SCALEKIT_TEST_USER_CODE!
 
 test('OTP signup with test user', async ({ page }) => {
-  // drives the browser directly to Scalekit's hosted screen via the authorize URL
   await page.goto(AUTH_URL)
 
-  await page.getByLabel('Email').fill(TEST_USER_EMAIL)
-  await page.getByRole('button', { name: 'Continue' }).click()
+  await page.fill('input[name="email"]', TEST_USER_EMAIL)
+  await page.getByRole('button', { name: 'Continue', exact: true }).click()
 
-  // No real email sent — type the static code
-  await page.getByLabel('Verification code').fill(TEST_USER_CODE)
-  await page.getByRole('button', { name: 'Verify' }).click()
+  await page.locator('[data-scope="pin-input"][data-part="input"]').first().pressSequentially(TEST_USER_CODE)
+  await page.getByRole('button', { name: 'Continue', exact: true }).click()
 
-  await expect(page).toHaveURL(/\/dashboard/)
+  await expect(page).toHaveURL(/dashboard/)
 })
 ```
   </TabItem>
   <TabItem label="Cypress">
 ```ts title="cypress/e2e/signup.cy.ts"
-const AUTH_URL        = Cypress.env('SCALEKIT_TEST_AUTH_URL')  // includes &prompt=create
+const AUTH_URL        = Cypress.env('SCALEKIT_TEST_AUTH_URL')
 const TEST_USER_EMAIL = Cypress.env('SCALEKIT_TEST_USER_EMAIL')
 const TEST_USER_CODE  = Cypress.env('SCALEKIT_TEST_USER_CODE')
 
 describe('OTP signup with test user', () => {
   it('signs up using the static code', () => {
-    // drives the browser directly to Scalekit's hosted screen via the authorize URL
     cy.visit(AUTH_URL)
 
-    cy.get('input[type="email"]').type(TEST_USER_EMAIL)
-    cy.get('button').contains('Continue').click()
+    cy.get('input[name="email"]').type(TEST_USER_EMAIL)
+    cy.get('button[type="submit"]').contains('Continue').click()
 
-    // No real email sent — type the static code
-    cy.get('input[name="otp"]').type(TEST_USER_CODE)
-    cy.get('button').contains('Verify').click()
+    cy.get('[data-scope="pin-input"][data-part="input"]').first().type(TEST_USER_CODE)
+    cy.get('button[type="submit"]').contains('Continue').click()
 
     cy.url().should('include', '/dashboard')
   })
@@ -235,42 +231,38 @@ After OTP verification, Scalekit redirects to `<CALLBACK_URL>` with an authoriza
 ```ts title="playwright/e2e/login.spec.ts"
 import { test, expect } from '@playwright/test'
 
-const AUTH_URL        = process.env.SCALEKIT_TEST_AUTH_URL!  // includes &prompt=login
+const AUTH_URL        = process.env.SCALEKIT_TEST_AUTH_URL!
 const TEST_USER_EMAIL = process.env.SCALEKIT_TEST_USER_EMAIL!
 const TEST_USER_CODE  = process.env.SCALEKIT_TEST_USER_CODE!
 
 test('OTP login with test user', async ({ page }) => {
-  // drives the browser directly to Scalekit's hosted screen via the authorize URL
   await page.goto(AUTH_URL)
 
-  await page.getByLabel('Email').fill(TEST_USER_EMAIL)
-  await page.getByRole('button', { name: 'Continue' }).click()
+  await page.fill('input[name="email"]', TEST_USER_EMAIL)
+  await page.getByRole('button', { name: 'Continue', exact: true }).click()
 
-  // No real email sent — type the static code
-  await page.getByLabel('Verification code').fill(TEST_USER_CODE)
-  await page.getByRole('button', { name: 'Verify' }).click()
+  await page.locator('[data-scope="pin-input"][data-part="input"]').first().pressSequentially(TEST_USER_CODE)
+  await page.getByRole('button', { name: 'Continue', exact: true }).click()
 
-  await expect(page).toHaveURL(/\/dashboard/)
+  await expect(page).toHaveURL(/dashboard/)
 })
 ```
   </TabItem>
   <TabItem label="Cypress">
 ```ts title="cypress/e2e/login.cy.ts"
-const AUTH_URL        = Cypress.env('SCALEKIT_TEST_AUTH_URL')  // includes &prompt=login
+const AUTH_URL        = Cypress.env('SCALEKIT_TEST_AUTH_URL')
 const TEST_USER_EMAIL = Cypress.env('SCALEKIT_TEST_USER_EMAIL')
 const TEST_USER_CODE  = Cypress.env('SCALEKIT_TEST_USER_CODE')
 
 describe('OTP login with test user', () => {
   it('logs in using the static code', () => {
-    // drives the browser directly to Scalekit's hosted screen via the authorize URL
     cy.visit(AUTH_URL)
 
-    cy.get('input[type="email"]').type(TEST_USER_EMAIL)
-    cy.get('button').contains('Continue').click()
+    cy.get('input[name="email"]').type(TEST_USER_EMAIL)
+    cy.get('button[type="submit"]').contains('Continue').click()
 
-    // No real email sent — type the static code
-    cy.get('input[name="otp"]').type(TEST_USER_CODE)
-    cy.get('button').contains('Verify').click()
+    cy.get('[data-scope="pin-input"][data-part="input"]').first().type(TEST_USER_CODE)
+    cy.get('button[type="submit"]').contains('Continue').click()
 
     cy.url().should('include', '/dashboard')
   })
