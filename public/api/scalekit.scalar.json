@@ -228,6 +228,60 @@
         }
       }
     },
+    "/api/v1/connected_accounts/-:disconnect": {
+      "post": {
+        "description": "Disconnects a connected account by setting its status to DISCONNECTED. The account record is retained but is marked as no longer active.",
+        "tags": ["Connected Accounts"],
+        "summary": "Disconnect a connected account",
+        "operationId": "ConnectedAccountService_DisconnectConnectedAccount2",
+        "responses": {
+          "200": {
+            "description": "Successfully disconnected the connected account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/connected_accountsDisconnectConnectedAccountResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request - missing or malformed connected account ID",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required - missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Connected account not found",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/connected_accountsDisconnectConnectedAccountRequest"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
     "/api/v1/connected_accounts/auth": {
       "get": {
         "description": "Retrieves complete authentication details for a connected account including OAuth tokens, refresh tokens, scopes, and API configuration. Query by account ID or by combination of organization/user, connector, and identifier. Returns sensitive credential information - use appropriate access controls.",
@@ -314,6 +368,92 @@
         }
       }
     },
+    "/api/v1/connected_accounts/details": {
+      "get": {
+        "description": "Returns metadata for a connected account including status, connector type, provider, and configuration without exposing stored authorization credentials. Look up by account ID, or by a combination of organization (or user), connector, and external identifier.",
+        "tags": ["Connected Accounts"],
+        "summary": "Get connected account details",
+        "operationId": "ConnectedAccountService_GetConnectedAccountDetails",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Organization ID for the connector",
+            "name": "organization_id",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "User ID for the connector",
+            "name": "user_id",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Connector identifier",
+            "name": "connector",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).",
+            "name": "identifier",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique identifier for the connected account",
+            "name": "id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved connected account details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/connected_accountsGetConnectedAccountByIdentifierResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request - missing required query parameters",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required - missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Connected account not found - no account matches the specified criteria",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/connected_accounts/magic_link": {
       "post": {
         "description": "Creates a time-limited magic link for connecting or re-authorizing a third-party account. The link directs users to the OAuth authorization flow for the specified connector. Returns the generated link URL and expiration timestamp. Links typically expire after a short duration for security.",
@@ -357,6 +497,60 @@
             }
           },
           "required": true
+        }
+      }
+    },
+    "/api/v1/connected_accounts/this": {
+      "get": {
+        "description": "Retrieves a connected account by its unique ID. Use the path '/this' (e.g. /api/v1/connected_accounts/this) to retrieve the connected account associated with the current token context.",
+        "tags": ["Connected Accounts"],
+        "summary": "Get a connected account",
+        "operationId": "ConnectedAccountService_GetConnectedAccount",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique identifier for the connected account. Always prefixed with 'ca_'. If omitted (via the /this path), the connected account is resolved from the current token context.",
+            "name": "id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the connected account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/connected_accountsGetConnectedAccountResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request - missing or malformed connected account ID",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required - missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Connected account not found",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
         }
       }
     },
@@ -415,6 +609,126 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/connected_accountsVerifyConnectedAccountUserRequest"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/connected_accounts/{id}": {
+      "get": {
+        "description": "Retrieves a connected account by its unique ID. Use the path '/this' (e.g. /api/v1/connected_accounts/this) to retrieve the connected account associated with the current token context.",
+        "tags": ["Connected Accounts"],
+        "summary": "Get a connected account",
+        "operationId": "ConnectedAccountService_GetConnectedAccount2",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique identifier for the connected account. Always prefixed with 'ca_'. If omitted (via the /this path), the connected account is resolved from the current token context.",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the connected account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/connected_accountsGetConnectedAccountResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request - missing or malformed connected account ID",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required - missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Connected account not found",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/connected_accounts/{id}:disconnect": {
+      "post": {
+        "description": "Disconnects a connected account by setting its status to DISCONNECTED. The account record is retained but is marked as no longer active.",
+        "tags": ["Connected Accounts"],
+        "summary": "Disconnect a connected account",
+        "operationId": "ConnectedAccountService_DisconnectConnectedAccount",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique identifier for the connected account to disconnect. Always prefixed with 'ca_'.",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully disconnected the connected account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/connected_accountsDisconnectConnectedAccountResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request - missing or malformed connected account ID",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required - missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Connected account not found",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnectedAccountServiceDisconnectConnectedAccountBody"
               }
             }
           },
@@ -836,6 +1150,7 @@
             "application/json": {
               "schema": {
                 "description": "Membership details to create. Required fields must be provided.",
+                "required": ["membership"],
                 "$ref": "#/components/schemas/v1usersCreateMembership"
               }
             }
@@ -1742,6 +2057,66 @@
             "label": "Java SDK",
             "lang": "java",
             "source": "// Basic delete\nscalekitClient.roles().deleteOrganizationRole(\"org_123\", \"org_role_admin\");\n\n// With reassignment\nscalekitClient.roles().deleteOrganizationRole(\"org_123\", \"org_role_admin\", \"org_role_member\");"
+          }
+        ]
+      }
+    },
+    "/api/v1/organizations/{org_id}/roles/{role_name}/base": {
+      "delete": {
+        "description": "Removes the base role inheritance relationship for a specified organization role, effectively eliminating all inherited permissions from the base role. Use this endpoint when you want to break the hierarchical relationship between roles and remove inherited permissions within the organization. The role will retain only its directly assigned permissions after this operation. This action cannot be undone, so ensure the role has sufficient direct permissions before removing inheritance.",
+        "tags": ["Roles"],
+        "summary": "Remove organization role inheritance",
+        "operationId": "RolesService_DeleteOrganizationRoleBase",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique identifier to an Organization",
+            "name": "org_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Name of the organization role to remove base from",
+            "name": "role_name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Organization role base inheritance relationship successfully removed. The role now has only its directly assigned permissions.",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "await scalekit.role.deleteOrganizationRoleBase(\"org_123\", \"senior_editor\");"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "scalekit_client.roles.delete_organization_role_base(\n    org_id=\"org_123\",\n    role_name=\"senior_editor\"\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "err := scalekitClient.Role().DeleteOrganizationRoleBase(ctx, \"org_123\", \"senior_editor\")\nif err != nil {\n    // handle error\n}"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "scalekitClient.roles().deleteOrganizationRoleBase(\"org_123\", \"senior_editor\");"
           }
         ]
       }
@@ -3126,6 +3501,136 @@
             "source": "scalekitClient.domains().deleteDomain(organization.getId(), domain.getId());"
           }
         ]
+      }
+    },
+    "/api/v1/organizations/{organization_id}/session-policy": {
+      "get": {
+        "description": "Retrieves the session policy for an organization. Returns session_policy='APPLICATION' if the organization inherits the application-level defaults, or session_policy='CUSTOM' with the configured values if a custom policy is active.",
+        "tags": ["Organizations"],
+        "summary": "Get organization session policy",
+        "operationId": "OrganizationService_GetOrganizationSessionPolicy",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "The unique identifier of the organization whose session policy is being requested.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Session policy retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/organizationsGetOrganizationSessionPolicyResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Organization not found.",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const policy = await scalekit.organization.getOrganizationSessionPolicy('<organization_id>');\n\nconsole.log('Policy source:', policy.policySource);\nconsole.log('Absolute timeout (minutes):', policy.absoluteSessionTimeout);\nconsole.log('Idle timeout enabled:', policy.idleSessionTimeoutEnabled);"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "from scalekit.v1.organizations.organizations_pb2 import SessionPolicyType\n\nresponse, _ = scalekit_client.organization.get_organization_session_policy('<organization_id>')\npolicy = response.policy\n\nif policy.policy_source == SessionPolicyType.CUSTOM:\n    print('Absolute timeout (minutes):', policy.absolute_session_timeout.value)\n    print('Idle timeout enabled:', policy.idle_session_timeout_enabled.value)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "policy, err := scalekitClient.Organization().GetOrganizationSessionPolicy(ctx, \"<organization_id>\")\nif err != nil {\n    log.Fatal(err)\n}\n\nif policy.PolicySource == scalekit.SessionPolicySourceCustom {\n    fmt.Println(\"Absolute timeout (minutes):\", policy.AbsoluteSessionTimeout.GetValue())\n    fmt.Println(\"Idle timeout enabled:\", policy.IdleSessionTimeoutEnabled.GetValue())\n}"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "import com.scalekit.grpc.scalekit.v1.organizations.OrganizationSessionPolicySettings;\nimport com.scalekit.grpc.scalekit.v1.organizations.SessionPolicyType;\n\nOrganizationSessionPolicySettings policy =\n    scalekitClient.organizations().getOrganizationSessionPolicy(\"<organization_id>\");\n\nif (policy.getPolicySource() == SessionPolicyType.CUSTOM) {\n    System.out.println(\"Absolute timeout (minutes): \" + policy.getAbsoluteSessionTimeout().getValue());\n    System.out.println(\"Idle timeout enabled: \" + policy.getIdleSessionTimeoutEnabled().getValue());\n}"
+          }
+        ]
+      },
+      "patch": {
+        "description": "Sets a custom session policy for an organization or reverts to application-level settings. Send session_policy='APPLICATION' to revert to application defaults. Send session_policy='CUSTOM' with timeout values to activate a custom policy.",
+        "tags": ["Organizations"],
+        "summary": "Update organization session policy",
+        "operationId": "OrganizationService_UpdateOrganizationSessionPolicy",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "The unique identifier of the organization whose session policy is being updated.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Session policy updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/organizationsUpdateOrganizationSessionPolicyResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Organization not found.",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "// Set a custom policy\nconst updated = await scalekit.organization.updateOrganizationSessionPolicy('<organization_id>', {\n  policySource: 'CUSTOM',\n  absoluteSessionTimeout: 480,\n  absoluteSessionTimeoutUnit: 'MINUTES',\n  idleSessionTimeoutEnabled: true,\n  idleSessionTimeout: 60,\n  idleSessionTimeoutUnit: 'MINUTES',\n});\n\n// Revert to application defaults\nawait scalekit.organization.updateOrganizationSessionPolicy('<organization_id>', {\n  policySource: 'APPLICATION',\n});"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "from scalekit.v1.organizations.organizations_pb2 import SessionPolicyType\nfrom scalekit.v1.commons.commons_pb2 import TimeUnit\n\n# Set a custom policy\nresponse, _ = scalekit_client.organization.update_organization_session_policy(\n    organization_id='<organization_id>',\n    policy_source=SessionPolicyType.CUSTOM,\n    absolute_session_timeout=480,\n    absolute_session_timeout_unit=TimeUnit.MINUTES,\n    idle_session_timeout_enabled=True,\n    idle_session_timeout=60,\n    idle_session_timeout_unit=TimeUnit.MINUTES,\n)\n\n# Revert to application defaults\nscalekit_client.organization.update_organization_session_policy(\n    organization_id='<organization_id>',\n    policy_source=SessionPolicyType.APPLICATION,\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "// Set a custom policy\ntimeout := int32(480)\nidleTimeout := int32(60)\nidleEnabled := true\n\nupdated, err := scalekitClient.Organization().UpdateOrganizationSessionPolicy(ctx, \"<organization_id>\", scalekit.OrganizationSessionPolicy{\n    PolicySource:               scalekit.SessionPolicySourceCustom,\n    AbsoluteSessionTimeout:     &timeout,\n    AbsoluteSessionTimeoutUnit: scalekit.TimeUnitMinutes,\n    IdleSessionTimeoutEnabled:  &idleEnabled,\n    IdleSessionTimeout:         &idleTimeout,\n    IdleSessionTimeoutUnit:     scalekit.TimeUnitMinutes,\n})\nif err != nil {\n    log.Fatal(err)\n}\n\n// Revert to application defaults\n_, err = scalekitClient.Organization().UpdateOrganizationSessionPolicy(ctx, \"<organization_id>\", scalekit.OrganizationSessionPolicy{\n    PolicySource: scalekit.SessionPolicySourceApplication,\n})"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "import com.google.protobuf.Int32Value;\nimport com.google.protobuf.BoolValue;\nimport com.scalekit.grpc.scalekit.v1.commons.TimeUnit;\nimport com.scalekit.grpc.scalekit.v1.organizations.OrganizationSessionPolicySettings;\nimport com.scalekit.grpc.scalekit.v1.organizations.SessionPolicyType;\n\n// Set a custom policy\nOrganizationSessionPolicySettings policy = OrganizationSessionPolicySettings.newBuilder()\n    .setPolicySource(SessionPolicyType.CUSTOM)\n    .setAbsoluteSessionTimeout(Int32Value.of(480))\n    .setAbsoluteSessionTimeoutUnit(TimeUnit.MINUTES)\n    .setIdleSessionTimeoutEnabled(BoolValue.of(true))\n    .setIdleSessionTimeout(Int32Value.of(60))\n    .setIdleSessionTimeoutUnit(TimeUnit.MINUTES)\n    .build();\n\nOrganizationSessionPolicySettings updated =\n    scalekitClient.organizations().updateOrganizationSessionPolicy(\"<organization_id>\", policy);\n\n// Revert to application defaults\nOrganizationSessionPolicySettings revert = OrganizationSessionPolicySettings.newBuilder()\n    .setPolicySource(SessionPolicyType.APPLICATION)\n    .build();\n\nscalekitClient.organizations().updateOrganizationSessionPolicy(\"<organization_id>\", revert);"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrganizationServiceUpdateOrganizationSessionPolicyBody"
+              }
+            }
+          },
+          "required": true
+        }
       }
     },
     "/api/v1/organizations/{organization_id}/settings/usermanagement": {
@@ -4643,29 +5148,7 @@
               }
             }
           }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "const { permissions } = await scalekit.permission.listEffectiveRolePermissions(\"senior_editor\");"
-          },
-          {
-            "label": "Python SDK",
-            "lang": "python",
-            "source": "response = scalekit_client.permissions.list_effective_role_permissions(role_name=\"senior_editor\")\npermissions = response.permissions"
-          },
-          {
-            "label": "Go SDK",
-            "lang": "go",
-            "source": "resp, err := scalekitClient.Permission().ListEffectiveRolePermissions(ctx, \"senior_editor\")\nif err != nil {\n    // handle error\n}\npermissions := resp.Permissions"
-          },
-          {
-            "label": "Java SDK",
-            "lang": "java",
-            "source": "ListEffectiveRolePermissionsResponse response = scalekitClient.permissions().listEffectiveRolePermissions(\"senior_editor\");\nList<Permission> permissions = response.getPermissionsList();"
-          }
-        ]
+        }
       }
     },
     "/api/v1/roles/{role_name}/users:count": {
@@ -5580,6 +6063,9 @@
   ],
   "components": {
     "schemas": {
+      "ConnectedAccountServiceDisconnectConnectedAccountBody": {
+        "type": "object"
+      },
       "HelpInfoLink": {
         "description": "A documentation or reference link.",
         "type": "object",
@@ -5591,6 +6077,43 @@
           "url": {
             "description": "Absolute URL to the documentation page (e.g. \"https://docs.scalekit.com/...\").",
             "type": "string"
+          }
+        }
+      },
+      "OrganizationServiceUpdateOrganizationSessionPolicyBody": {
+        "type": "object",
+        "properties": {
+          "absolute_session_timeout": {
+            "description": "The absolute session timeout value. The unit is specified by absolute_session_timeout_unit. Omit when policy_source is APPLICATION.",
+            "type": "integer",
+            "format": "int32",
+            "examples": [360]
+          },
+          "absolute_session_timeout_unit": {
+            "description": "Unit for absolute_session_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES.",
+            "$ref": "#/components/schemas/commonsTimeUnit",
+            "examples": ["MINUTES"]
+          },
+          "idle_session_timeout": {
+            "description": "The idle session timeout value. The unit is specified by idle_session_timeout_unit. Omit when idle_session_timeout_enabled is false.",
+            "type": "integer",
+            "format": "int32",
+            "examples": [84]
+          },
+          "idle_session_timeout_enabled": {
+            "description": "Whether idle session timeout is enabled. Omit when policy_source is APPLICATION.",
+            "type": "boolean",
+            "examples": [true]
+          },
+          "idle_session_timeout_unit": {
+            "description": "Unit for idle_session_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES.",
+            "$ref": "#/components/schemas/commonsTimeUnit",
+            "examples": ["MINUTES"]
+          },
+          "policy_source": {
+            "description": "Policy source. Send 'APPLICATION' to revert to application defaults. Send 'CUSTOM' with timeout values to activate a custom policy.",
+            "$ref": "#/components/schemas/organizationsSessionPolicyType",
+            "examples": ["CUSTOM"]
           }
         }
       },
@@ -6390,6 +6913,10 @@
           }
         }
       },
+      "commonsTimeUnit": {
+        "type": "string",
+        "enum": ["MINUTES", "HOURS", "DAYS"]
+      },
       "commonsUserProfile": {
         "type": "object",
         "properties": {
@@ -6501,6 +7028,10 @@
         "type": "object",
         "title": "Authentication credentials container supporting multiple auth types",
         "properties": {
+          "google_dwd": {
+            "title": "Google Domain-Wide Delegation credentials",
+            "$ref": "#/components/schemas/connected_accountsGoogleDWDAuth"
+          },
           "oauth_token": {
             "title": "OAuth 2.0 credentials",
             "$ref": "#/components/schemas/connected_accountsOauthToken"
@@ -6640,16 +7171,26 @@
         }
       },
       "connected_accountsConnectorStatus": {
-        "description": "- ACTIVE: Account is connected and credentials are valid\n - EXPIRED: Access token has expired and needs refresh\n - PENDING_AUTH: Account awaiting user authorization (re-auth initiated)\n - PENDING_VERIFICATION: OAuth complete; awaiting user identity verification\nbefore activation",
+        "description": "- ACTIVE: Account is connected and credentials are valid\n - EXPIRED: Access token has expired and needs refresh\n - PENDING_AUTH: Account awaiting user authorization (re-auth initiated)\n - PENDING_VERIFICATION: OAuth complete; awaiting user identity verification\nbefore activation\n - DISCONNECTED: Account has been manually disconnected",
         "type": "string",
         "title": "Status of a connected account indicating its current state",
-        "enum": ["ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION"]
+        "enum": ["ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"]
       },
       "connected_accountsConnectorType": {
-        "description": "- OAUTH: OAuth 2.0 authorization with access and refresh tokens\n - API_KEY: Static API key authentication\n - BASIC_AUTH: HTTP Basic Authentication (username/password)\n - BEARER_TOKEN: Bearer token authentication\n - CUSTOM: Custom authentication mechanism\n - BASIC: Basic authentication (alias)",
+        "description": "- OAUTH: OAuth 2.0 authorization with access and refresh tokens\n - API_KEY: Static API key authentication\n - BASIC_AUTH: HTTP Basic Authentication (username/password)\n - BEARER_TOKEN: Bearer token authentication\n - CUSTOM: Custom authentication mechanism\n - BASIC: Basic authentication (alias)\n - OAUTH_M2M: OAuth 2.0 client credentials (machine-to-machine)\n - TRELLO_OAUTH1: Trello token-based OAuth1-style browser authorization\n - GOOGLE_DWD: Google Domain-Wide Delegation",
         "type": "string",
         "title": "Type of authentication mechanism used for the connected account",
-        "enum": ["OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC"]
+        "enum": [
+          "OAUTH",
+          "API_KEY",
+          "BASIC_AUTH",
+          "BEARER_TOKEN",
+          "CUSTOM",
+          "BASIC",
+          "OAUTH_M2M",
+          "TRELLO_OAUTH1",
+          "GOOGLE_DWD"
+        ]
       },
       "connected_accountsCreateConnectedAccountRequest": {
         "type": "object",
@@ -6734,11 +7275,39 @@
       "connected_accountsDeleteConnectedAccountResponse": {
         "type": "object"
       },
+      "connected_accountsDisconnectConnectedAccountRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "Unique identifier for the connected account to disconnect. Always prefixed with 'ca_'.",
+            "type": "string",
+            "examples": ["ca_24834495392086178"]
+          }
+        }
+      },
+      "connected_accountsDisconnectConnectedAccountResponse": {
+        "type": "object",
+        "properties": {
+          "connected_account": {
+            "description": "The connected account with its updated DISCONNECTED status.",
+            "$ref": "#/components/schemas/connected_accountsConnectedAccount"
+          }
+        }
+      },
       "connected_accountsGetConnectedAccountByIdentifierResponse": {
         "type": "object",
         "properties": {
           "connected_account": {
             "description": "The connected account with complete details including sensitive authorization credentials (access tokens, refresh tokens, scopes). Handle with appropriate access controls.",
+            "$ref": "#/components/schemas/connected_accountsConnectedAccount"
+          }
+        }
+      },
+      "connected_accountsGetConnectedAccountResponse": {
+        "type": "object",
+        "properties": {
+          "connected_account": {
+            "description": "The connected account with its details and authentication status.",
             "$ref": "#/components/schemas/connected_accountsConnectedAccount"
           }
         }
@@ -6796,6 +7365,38 @@
             "description": "Authentication link for the connector",
             "type": "string",
             "examples": ["https://notion.com/oauth/authorize?client_id=..."]
+          }
+        }
+      },
+      "connected_accountsGoogleDWDAuth": {
+        "description": "Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections.\nSend only subject in requests; access_token, scopes, and token_expires_at are response-only.",
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "description": "OAuth access token acquired via the jwt-bearer grant. Present in responses only.",
+            "type": "string",
+            "readOnly": true,
+            "examples": ["ya29.a0AfH6SMBx..."]
+          },
+          "scopes": {
+            "description": "OAuth scopes granted to this token. Present in responses only.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "examples": [["openid", "https://www.googleapis.com/auth/userinfo.email"]]
+          },
+          "subject": {
+            "description": "Email address of the Google Workspace user to impersonate via Domain-Wide Delegation.",
+            "type": "string",
+            "examples": ["user@example.com"]
+          },
+          "token_expires_at": {
+            "description": "When the access token expires. Present in responses only.",
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
           }
         }
       },
@@ -7036,6 +7637,10 @@
             "type": "boolean",
             "examples": [false]
           },
+          "google_dwd_config": {
+            "description": "Configuration details for Google Domain-Wide Delegation. Present only when type is GOOGLE_DWD.",
+            "$ref": "#/components/schemas/connectionsGoogleDWDConfig"
+          },
           "id": {
             "description": "Unique identifier for this connection. Used in API calls to reference this specific connection.",
             "type": "string",
@@ -7138,7 +7743,10 @@
           "BASIC",
           "BEARER",
           "API_KEY",
-          "WEBAUTHN"
+          "WEBAUTHN",
+          "OAUTH_M2M",
+          "TRELLO_OAUTH1",
+          "GOOGLE_DWD"
         ]
       },
       "connectionsGetConnectionResponse": {
@@ -7147,6 +7755,26 @@
           "connection": {
             "description": "Complete connection details including provider configuration, protocol settings, status, and all metadata. Contains everything needed to understand the connection's current state.",
             "$ref": "#/components/schemas/connectionsConnection"
+          }
+        }
+      },
+      "connectionsGoogleDWDConfig": {
+        "type": "object",
+        "properties": {
+          "scopes": {
+            "description": "OAuth 2.0 scopes to request.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "service_account_json": {
+            "description": "Google Cloud service account JSON key. Write-only: reads return a masked value.",
+            "type": "string"
+          },
+          "token_uri": {
+            "description": "Google token endpoint. Defaults to https://oauth2.googleapis.com/token.",
+            "type": "string"
           }
         }
       },
@@ -7265,6 +7893,11 @@
             "type": "string",
             "examples": ["offline"]
           },
+          "app_name": {
+            "description": "Application name used by providers that require it as an authorize query parameter (e.g., Trello's app_name).",
+            "type": "string",
+            "examples": ["My Trello App"]
+          },
           "authorize_uri": {
             "description": "Authorize URI",
             "type": "string",
@@ -7284,6 +7917,16 @@
             "description": "Custom Scope Name",
             "type": "string",
             "examples": ["user_scope"]
+          },
+          "is_cimd": {
+            "description": "Indicates whether this connection was registered using Client ID Metadata Document (CIMD) instead of Dynamic Client Registration.",
+            "type": "boolean",
+            "readOnly": true,
+            "examples": [true]
+          },
+          "optional_scopes": {
+            "description": "Optional scopes configuration for identity providers that support or require additional scopes to be sent in a custom field during authentication requests.",
+            "$ref": "#/components/schemas/connectionsOptionalScopes"
           },
           "pkce_enabled": {
             "description": "PKCE Enabled",
@@ -7438,6 +8081,24 @@
       "connectionsOIDCScope": {
         "type": "string",
         "enum": ["openid", "profile", "email", "address", "phone"]
+      },
+      "connectionsOptionalScopes": {
+        "type": "object",
+        "properties": {
+          "field_name": {
+            "description": "Name of the field in which scope should be sent in the authentication request. This is required by some identity providers that expect scopes to be sent in a custom field instead of the standard 'scope' parameter.",
+            "type": "string",
+            "examples": ["optional_scope or bot_scope"]
+          },
+          "scopes": {
+            "description": "List of optional scopes that can be requested during authentication",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "examples": [["scope1", "scope2"]]
+          }
+        }
       },
       "connectionsPasswordLessConfig": {
         "type": "object",
@@ -8137,6 +8798,16 @@
             "type": "string",
             "format": "date-time",
             "examples": ["2025-09-01T12:14:43.110455Z"]
+          },
+          "verification_method": {
+            "description": "Method that determines how domain ownership is verified.\n- ADMIN: domain is marked verified without DNS validation, typically by an admin.\n- DNS: domain must be verified by adding a TXT record to your DNS configuration.\n- NOT_APPLICABLE: verification does not apply to this domain type.",
+            "$ref": "#/components/schemas/domainsVerificationMethod",
+            "examples": ["ADMIN"]
+          },
+          "verification_status": {
+            "description": "Verification status of the domain.\n- PENDING: DNS TXT record has not been validated yet.\n- VERIFIED: domain confirmed via DNS TXT record validation or admin approval.\n- AUTO_VERIFIED: domain verified automatically without DNS changes.\n- FAILED: DNS TXT record was not validated within the verification window.",
+            "$ref": "#/components/schemas/domainsVerificationStatus",
+            "examples": ["AUTO_VERIFIED"]
           }
         }
       },
@@ -8178,6 +8849,14 @@
             "examples": [1]
           }
         }
+      },
+      "domainsVerificationMethod": {
+        "type": "string",
+        "enum": ["ADMIN", "DNS", "NOT_APPLICABLE"]
+      },
+      "domainsVerificationStatus": {
+        "type": "string",
+        "enum": ["PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"]
       },
       "errdetailsDebugInfo": {
         "description": "Describes additional debugging info.",
@@ -8351,6 +9030,15 @@
           }
         }
       },
+      "organizationsGetOrganizationSessionPolicyResponse": {
+        "type": "object",
+        "properties": {
+          "policy": {
+            "description": "The session policy for the organization.",
+            "$ref": "#/components/schemas/organizationsOrganizationSessionPolicySettings"
+          }
+        }
+      },
       "organizationsLink": {
         "type": "object",
         "properties": {
@@ -8447,12 +9135,57 @@
             "title": "Organization Settings",
             "$ref": "#/components/schemas/organizationsOrganizationSettings"
           },
+          "slug": {
+            "description": "DNS-safe slug for dynamic redirect URI resolution. Must be 1-63 chars, lowercase alphanumeric and hyphens, must start and end with an alphanumeric character. Unique per environment.",
+            "type": "string",
+            "maxLength": 63,
+            "minLength": 1,
+            "pattern": "^[a-z0-9]([a-z0-9]|-[a-z0-9])*$",
+            "examples": ["acme"]
+          },
           "update_time": {
             "description": "Timestamp when the organization was last updated",
             "type": "string",
             "format": "date-time",
             "title": "Updated time",
             "examples": ["2025-02-15T06:23:44.560000Z"]
+          }
+        }
+      },
+      "organizationsOrganizationSessionPolicySettings": {
+        "type": "object",
+        "properties": {
+          "absolute_session_timeout": {
+            "description": "The absolute session timeout value. The unit is specified by absolute_session_timeout_unit. Omitted when policy_source is 'environment'.",
+            "type": "integer",
+            "format": "int32",
+            "examples": [360]
+          },
+          "absolute_session_timeout_unit": {
+            "description": "Unit for absolute_session_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.",
+            "$ref": "#/components/schemas/commonsTimeUnit",
+            "examples": ["minutes"]
+          },
+          "idle_session_timeout": {
+            "description": "The idle session timeout value. The unit is specified by idle_session_timeout_unit. Omitted when idle_session_timeout_enabled is false or policy_source is 'environment'.",
+            "type": "integer",
+            "format": "int32",
+            "examples": [84]
+          },
+          "idle_session_timeout_enabled": {
+            "description": "Whether idle session timeout is enabled for this organization. Omitted when policy_source is 'environment'.",
+            "type": "boolean",
+            "examples": [true]
+          },
+          "idle_session_timeout_unit": {
+            "description": "Unit for idle_session_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.",
+            "$ref": "#/components/schemas/commonsTimeUnit",
+            "examples": ["minutes"]
+          },
+          "policy_source": {
+            "description": "Policy source. 'APPLICATION' means the organization inherits the application-level session policy. 'CUSTOM' means organization-specific timeout values are active.",
+            "$ref": "#/components/schemas/organizationsSessionPolicyType",
+            "examples": ["CUSTOM"]
           }
         }
       },
@@ -8509,7 +9242,7 @@
             "examples": [true]
           },
           "name": {
-            "description": "Feature identifier. Supported values include: \"sso\" (Single Sign-On), \"directory_sync\" (Directory Synchronization)",
+            "description": "Feature identifier. Supported values include: \"sso\" (Single Sign-On), \"directory_sync\" (Directory Synchronization), \"domain_verification\" (Domain Verification), \"session_policy\" (Organization-level session policy override)",
             "type": "string",
             "examples": ["sso"]
           }
@@ -8526,12 +9259,25 @@
           }
         }
       },
+      "organizationsSessionPolicyType": {
+        "type": "string",
+        "enum": ["APPLICATION", "CUSTOM"]
+      },
       "organizationsUpdateOrganizationResponse": {
         "type": "object",
         "properties": {
           "organization": {
             "description": "Updated organization details",
             "$ref": "#/components/schemas/organizationsOrganization"
+          }
+        }
+      },
+      "organizationsUpdateOrganizationSessionPolicyResponse": {
+        "type": "object",
+        "properties": {
+          "policy": {
+            "description": "The updated session policy for the organization.",
+            "$ref": "#/components/schemas/organizationsOrganizationSessionPolicySettings"
           }
         }
       },
@@ -9371,6 +10117,11 @@
       "toolsExecuteToolRequest": {
         "type": "object",
         "properties": {
+          "agent_run_id": {
+            "description": "Optional. Customer-supplied identifier grouping multiple tool calls into a single agent run. Useful for correlating logs across an agentic workflow.",
+            "type": "string",
+            "examples": ["run_abc123"]
+          },
           "connected_account_id": {
             "description": "Optional. The unique ID of the connected account. Use this to directly identify the connected account instead of using identifier + connector combination.",
             "type": "string",
@@ -10065,6 +10816,14 @@
             "additionalProperties": {
               "type": "string"
             }
+          },
+          "slug": {
+            "description": "DNS-safe slug for dynamic redirect URI resolution (e.g. acme for https://acme.example.com/callback). Lowercase alphanumeric and hyphens, 1-63 chars, must start and end with alphanumeric, unique per environment.",
+            "type": "string",
+            "maxLength": 63,
+            "minLength": 1,
+            "pattern": "^[a-z0-9]([a-z0-9]|-[a-z0-9])*$",
+            "examples": ["acme"]
           }
         }
       },
@@ -10093,6 +10852,14 @@
                 "industry": "technology"
               }
             ]
+          },
+          "slug": {
+            "description": "DNS-safe slug for dynamic redirect URI resolution. Lowercase alphanumeric and hyphens, 1-63 chars, must start and end with alphanumeric, unique per environment.",
+            "type": "string",
+            "maxLength": 63,
+            "minLength": 1,
+            "pattern": "^[a-z0-9]([a-z0-9]|-[a-z0-9])*$",
+            "examples": ["acme"]
           }
         }
       },
