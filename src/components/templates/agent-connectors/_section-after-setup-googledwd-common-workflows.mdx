@@ -1,0 +1,60 @@
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+<details>
+<summary>Create a connected account</summary>
+
+Before executing tools, create a connected account for each Google Workspace user you want to impersonate. Pass the user's email as `subject` — this tells Scalekit which Workspace user the service account should act as. The `identifier` is your application's ID for that user.
+
+<Aside type="note" title="Admin authorization required">
+  The Google Workspace admin must whitelist your service account Client ID and scopes before this call will succeed. See the **Create a connected account** steps above.
+</Aside>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+    ```python
+    response = scalekit_client.actions.create_connected_account(
+        # connection_name: the name of the connection you created in the setup step above
+        connection_name='googledwd',
+        identifier='user_123',
+        authorization_details={
+            "google_dwd": {
+                # subject: the Google Workspace user you want to impersonate
+                "subject": "alice@yourcompany.com",
+            }
+        },
+    )
+    print(response.connected_account.id)
+    print(response.connected_account.status)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Execute a tool</summary>
+
+Use the `identifier` you set when creating the connected account. Scalekit resolves the impersonated Workspace user from that mapping.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+    ```python
+    response = scalekit_client.actions.execute_tool(
+        # connection_name: the name of the connection you created in the setup step above
+        connection_name='googledwd',
+        identifier='user_123',
+        tool_name='googledwd_fetch_mails',
+        tool_input={
+            "max_results": 5,
+            "format": "metadata",
+            "include_spam_trash": False,
+        },
+    )
+    print(response)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
