@@ -143,9 +143,9 @@ Use this flow to verify login for a user that already exists in an organization.
 <Tabs syncKey="tech-stack">
   <TabItem label="Node.js">
 ```ts title="Create test user in an organization"
-import { ScalekitClient } from '@scalekit-sdk/node'
+import { Scalekit } from '@scalekit/sdk'
 
-const scalekit = new ScalekitClient(
+const scalekit = new Scalekit(
   process.env.SCALEKIT_ENVIRONMENT_URL!,
   process.env.SCALEKIT_CLIENT_ID!,
   process.env.SCALEKIT_CLIENT_SECRET!
@@ -161,6 +161,7 @@ const { user } = await scalekit.user.createUserAndMembership(orgId, {
 ```python title="Create test user in an organization"
 import os
 from scalekit import ScalekitClient
+from scalekit.v1.users import CreateUser
 
 scalekit_client = ScalekitClient(
   environment_url=os.environ["SCALEKIT_ENVIRONMENT_URL"],
@@ -168,24 +169,26 @@ scalekit_client = ScalekitClient(
   client_secret=os.environ["SCALEKIT_CLIENT_SECRET"]
 )
 
-user_response = scalekit_client.user.create_user_and_membership(org_id, {
-  "email": "john+sktest@acmecorp.com",
-  "send_invitation_email": False,
-})
+user_response = scalekit_client.user.create_user_and_membership(
+  org_id,
+  CreateUser(email="john+sktest@acmecorp.com", send_invitation_email=False),
+)
 ```
   </TabItem>
   <TabItem label="Go">
 ```go title="Create test user in an organization"
+import usersv1 "github.com/scalekit-inc/scalekit-sdk-go/pkg/grpc/scalekit/v1/users"
+
 scalekitClient := scalekit.NewScalekitClient(
   os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
   os.Getenv("SCALEKIT_CLIENT_ID"),
   os.Getenv("SCALEKIT_CLIENT_SECRET"),
 )
 
-userResp, err := scalekitClient.User.CreateUserAndMembership(ctx, orgID, scalekit.CreateUserAndMembershipRequest{
-  Email:               "john+sktest@acmecorp.com",
-  SendInvitationEmail: scalekit.Bool(false),
-})
+userResp, err := scalekitClient.User().CreateUserAndMembership(ctx, orgID,
+  &usersv1.CreateUser{Email: "john+sktest@acmecorp.com"},
+  false,
+)
 if err != nil {
   log.Fatalf("failed to create user: %v", err)
 }
@@ -193,19 +196,21 @@ if err != nil {
   </TabItem>
   <TabItem label="Java">
 ```java title="Create test user in an organization"
+import com.scalekit.grpc.scalekit.v1.users.*;
+
 ScalekitClient scalekitClient = new ScalekitClient(
   System.getenv("SCALEKIT_ENVIRONMENT_URL"),
   System.getenv("SCALEKIT_CLIENT_ID"),
   System.getenv("SCALEKIT_CLIENT_SECRET")
 );
 
+CreateUserAndMembershipRequest request = CreateUserAndMembershipRequest.newBuilder()
+  .setUser(CreateUser.newBuilder().setEmail("john+sktest@acmecorp.com").build())
+  .setSendInvitationEmail(false)
+  .build();
+
 CreateUserAndMembershipResponse userResp = scalekitClient.users()
-  .createUserAndMembership(orgId,
-    CreateUser.newBuilder()
-      .setEmail("john+sktest@acmecorp.com")
-      .build(),
-    false
-  );
+  .createUserAndMembership(orgId, request);
 ```
   </TabItem>
 </Tabs>
