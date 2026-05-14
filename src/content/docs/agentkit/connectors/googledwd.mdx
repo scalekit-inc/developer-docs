@@ -1,6 +1,9 @@
 ---
-title: Google Workspace (DWD)
+title: 'Google Workspace (DWD) connector'
 tableOfContents: true
+description: 'Set up Google Workspace Domain-Wide Delegation to let your agent impersonate users through a service account — no per-user OAuth required.'
+sidebar:
+  label: 'Google Workspace (DWD)'
 connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/google.svg
 connectorAuthType: Service Account (DWD)
 connectorCategories: [productivity, communication]
@@ -14,62 +17,69 @@ head:
 
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/googledwd'
-import { SetupGoogledwdSection, SectionAfterSetupGoogledwdCommonWorkflows } from '@components/templates'
-import { Steps, Aside } from '@astrojs/starlight/components'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupGoogledwdSection } from '@components/templates'
+import { SectionAfterAuthenticationGoogledwdAuth } from '@components/templates'
+import { SectionAfterSetupGoogledwdCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Google Workspace credentials with Scalekit so it can authenticate requests on your behalf. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupGoogledwdSection />
+
+   </details>
+
+</Steps>
 
 ## What you can do
 
 Connect this agent connector to let your agent:
 
-- **Update update** — Update the vacation auto-reply settings for the authenticated Gmail account
-- **Message trash** — Move a Gmail message to the Trash
-- **File share, move, copy** — Share a file or folder in Google Drive by creating a new permission for a user, group, domain, or anyone
-- **Query query** — Query Google Drive activity to see who viewed, edited, moved, or shared files
-- **Labels modify message** — Add or remove labels on a Gmail message
-- **List list** — List matters in Google Vault
+- **Read and search emails** — Fetch messages, threads, and attachments from any Gmail label or inbox
+- **Send and manage emails** — Compose messages, manage drafts, and modify labels on Gmail messages
+- **Manage Google Drive files** — Share, move, copy, and query activity on files and folders in Google Drive
+- **Access Google Calendar** — Read, create, and manage calendar events across a user's calendars
+- **Manage Google Vault** — List matters and manage legal holds in Google Vault
+- **Administer user settings** — Update vacation auto-reply settings and other Gmail account configurations
 
 ## Authentication
 
-This connector uses **Service Account with Domain-Wide Delegation (DWD)**. You create a GCP service account, grant it domain-wide delegation in Google Admin, and provide Scalekit with the service account JSON key. Scalekit then impersonates any user in your Google Workspace domain on demand — no per-user OAuth redirects required.
-
-## Set up the connector
-
-<details>
-<summary>Set up the connector</summary>
-
-<SetupGoogledwdSection />
-
-## Create a connected account
-
-The admin of the Google Workspace organization you want to connect to must complete these steps to authorize your service account.
-
-<Aside type="caution" title="Requires Google Workspace super admin access">
-  These steps must be completed by a super admin of the target Google Workspace organization — not in your GCP account.
-</Aside>
-
-<Steps>
-1. ### Open API controls in Google Admin
-
-   - Sign in to [Google Admin console](https://admin.google.com) as a super admin.
-   - Go to **Security** → **Access and data control** → **API controls**.
-   - Click **Manage Domain Wide Delegation** → **Add new**.
-
-2. ### Authorize the service account
-
-   - In **Client ID**, enter the **Unique ID** of the service account created during setup (visible in GCP Console → **IAM & Admin** → **Service Accounts** → click the service account → **Details** tab).
-   - In **OAuth scopes**, enter the scopes comma-separated — <span style="color: red;">these must match exactly what was configured in the Scalekit connection.</span> For example:
-      - `https://www.googleapis.com/auth/gmail.readonly, https://www.googleapis.com/auth/calendar, https://www.googleapis.com/auth/drive`
-   - Click **Authorize**.
-</Steps>
-
-You can now impersonate any user in that workspace with your service account via Scalekit connected accounts.
-
-</details>
+<SectionAfterAuthenticationGoogledwdAuth />
 
 ## Common workflows
 
 <SectionAfterSetupGoogledwdCommonWorkflows />
 
 ## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
 
 <ToolList tools={tools} />

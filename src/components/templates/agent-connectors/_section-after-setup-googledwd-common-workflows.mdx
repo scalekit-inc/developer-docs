@@ -1,13 +1,11 @@
 export const sectionTitle = 'Common workflows'
 
-import { Tabs, TabItem } from '@astrojs/starlight/components'
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
 
 <details>
 <summary>Create a connected account</summary>
 
 Before executing tools, create a connected account for each Google Workspace user you want to impersonate. Pass the user's email as `subject` — this tells Scalekit which Workspace user the service account should act as. The `identifier` is your application's ID for that user.
-
-import { Aside } from '@astrojs/starlight/components'
 
 <Aside type="note" title="Admin authorization required">
   The Google Workspace admin must whitelist your service account Client ID and scopes before this call will succeed. See the **Create a connected account** steps above.
@@ -16,7 +14,7 @@ import { Aside } from '@astrojs/starlight/components'
 <Tabs syncKey="tech-stack">
   <TabItem label="Python">
     ```python
-    response = client.actions.create_connected_account(
+    response = scalekit_client.actions.create_connected_account(
         # connection_name: the name of the connection you created in the setup step above
         connection_name='googledwd',
         identifier='user_123',
@@ -43,7 +41,7 @@ Use the `identifier` you set when creating the connected account. Scalekit resol
 <Tabs syncKey="tech-stack">
   <TabItem label="Python">
     ```python
-    response = client.actions.execute_tool(
+    response = scalekit_client.actions.execute_tool(
         # connection_name: the name of the connection you created in the setup step above
         connection_name='googledwd',
         identifier='user_123',
