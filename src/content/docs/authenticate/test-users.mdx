@@ -1,6 +1,6 @@
 ---
 title: Test users
-description: Set up test users to run automated E2E tests for login/signup flows
+description: Set up test users to run automated E2E tests for login and signup flows
 tags: [testing, e2e, playwright, cypress, otp, go-live, automation]
 sidebar:
   label: Test users
@@ -15,17 +15,17 @@ next:
 
 import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components'
 
-Test users let you run Playwright, Cypress, and other E2E tests against login and signup flows without waiting for real emails. Instead of sending a verification email, Scalekit accepts a static 6-digit code you configure — so your tests are fast, reliable, and inbox-free.
+Test users let you run Playwright, Cypress, and other E2E tests against login and signup flows without waiting for real emails for OTP or magic links. Instead of sending a verification email, Scalekit accepts a static 6-digit verification code you configure so that your tests are fast, reliable, and inbox-free.
 
-**What doesn't change:** Test Users only affects OTP email delivery. Everything else — organization selection, session creation, audit logs, webhooks, and post-login redirects — works exactly the same as for a real user.
+**What doesn't change:** Test Users only affects OTP email delivery. Everything else like organization creation, user creation, session creation, audit logs, webhooks, and post-login redirects, works exactly the same as for a real user.
 
 ## Prerequisites
 
-- For Magic Link & OTP authentication mode, ensure method is set to `Verification Code` or `Magic Link + Verification Code`. `Magic Link`-only mode is not supported.
+- Ensure that **Magic Link & OTP** authentication mode is enabled and the method is set to `Verification Code` or `Magic Link + Verification Code`. `Magic Link` mode is not supported.
 
-## Configure the test users allowlist
+## Configure test users
 
-The allowlist is set per environment. Configure it once; every signup and login test in that environment uses the same emails and static code.
+Test users allowlist is set per environment upto 5 emails. Configure it once; every signup and login test in that environment uses the same emails and static verification code.
 
 <Steps>
 1. ## Open Test users settings
@@ -36,17 +36,15 @@ The allowlist is set per environment. Configure it once; every signup and login 
 
 2. ## Enable and add emails to the allowlist
 
-   Toggle **Enable test users**, then add up to 5 `+sktest` emails. Emails are stored lowercase and de-duplicated.
-
-   Every allowlisted email must contain `+sktest` in the local part (before `@`). The domain doesn't matter.
+   **Enable test users**, then add up to 5 test emails. Emails are stored lowercase and de-duplicated. Every allowlisted email must contain `+sktest` in the local part (before `@`). The domain doesn't matter.
 
    | Email | Valid? | Reason |
    | --- | :---: | --- |
-   | `alice+sktest@acmecorp.com` | ✓ | `+sktest` present in the local part |
+   | `john+sktest@acmecorp.com` | ✓ | `+sktest` present in the local part |
    | `bob+sktest@anything.example` | ✓ | Any domain works |
-   | `alice@acmecorp.com` | ✗ | Missing `+sktest` marker |
-   | `alice+test@acmecorp.com` | ✗ | Marker must be exactly `+sktest` |
-   | `sktest+alice@acmecorp.com` | ✗ | Must appear after `+`, not before `@` |
+   | `john@acmecorp.com` | ✗ | Missing `+sktest` marker |
+   | `john+test@acmecorp.com` | ✗ | Marker must be exactly `+sktest` |
+   | `sktest+john@acmecorp.com` | ✗ | Must appear after `+`, not before `@` |
 
    ![Test users allowlist with an email added](@/assets/docs/authenticate/test-users/test-users-allowlist.png)
 
@@ -61,28 +59,39 @@ The allowlist is set per environment. Configure it once; every signup and login 
 
 ## Test the signup flow
 
-Use this when you want to verify that a brand-new `+sktest` user can complete signup and land in an organization.
+Use this when you want to verify that a brand new user can complete signup and land in an organization. At the end of this flow, the test user exists as a member of a new organization. 
 
-At the end of this flow, the test user exists as a member of the target organization. The flow creates that membership — either through JIT provisioning (if configured) or via the org picker step on your hosted signup screen.
-
-**Prerequisite:** Signup must be enabled in the environment and the destination organization must exist. If you use JIT provisioning, no extra setup is needed. Otherwise, create the organization once via the dashboard or `POST /api/v1/organizations`.
 
 <Aside type="tip" title="Use environment variables">
-Store the test email and static code as environment variables (`SCALEKIT_TEST_USER_EMAIL`, `SCALEKIT_TEST_USER_CODE`) — don't hard-code them in test files.
+Store the test email, static code, and authorization URL as environment variables (`SCALEKIT_TEST_USER_EMAIL`, `SCALEKIT_TEST_USER_CODE`, `SCALEKIT_TEST_AUTH_URL`) — don't hard-code them in test files.
 </Aside>
 
-The examples below test a full OTP signup for `alice+sktest@acmecorp.com`. Replace the URL and selectors to match your hosted auth screen.
+Drive the test through Scalekit's authorization endpoint with `prompt=create` so it lands on the hosted signup screen — that way the test is independent of your app's own routing:
+
+```sh title="Authorization URL (signup)" showLineNumbers=false frame
+<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?
+  response_type=code&
+  client_id=<SCALEKIT_CLIENT_ID>&
+  redirect_uri=<CALLBACK_URL>&
+  scope=openid+profile+email+offline_access&
+  state=<RANDOM_STATE>&
+  prompt=create
+```
+
+After OTP verification, Scalekit redirects to `<CALLBACK_URL>` with an authorization code; assert against that URL in your test.
 
 <Tabs syncKey="e2e-framework">
   <TabItem label="Playwright">
 ```ts
 import { test, expect } from '@playwright/test'
 
+const AUTH_URL        = process.env.SCALEKIT_TEST_AUTH_URL!  // includes &prompt=create
 const TEST_USER_EMAIL = process.env.SCALEKIT_TEST_USER_EMAIL!
 const TEST_USER_CODE  = process.env.SCALEKIT_TEST_USER_CODE!
 
 test('OTP signup with test user', async ({ page }) => {
-  await page.goto('https://app.example.com/signup')
+  // drives the browser directly to Scalekit's hosted screen via the authorize URL
+  await page.goto(AUTH_URL)
 
   await page.getByLabel('Email').fill(TEST_USER_EMAIL)
   await page.getByRole('button', { name: 'Continue' }).click()
@@ -91,18 +100,20 @@ test('OTP signup with test user', async ({ page }) => {
   await page.getByLabel('Verification code').fill(TEST_USER_CODE)
   await page.getByRole('button', { name: 'Verify' }).click()
 
-  await expect(page).toHaveURL('https://app.example.com/dashboard')
+  await expect(page).toHaveURL(/\/dashboard/)
 })
 ```
   </TabItem>
   <TabItem label="Cypress">
 ```ts
+const AUTH_URL        = Cypress.env('SCALEKIT_TEST_AUTH_URL')  // includes &prompt=create
 const TEST_USER_EMAIL = Cypress.env('SCALEKIT_TEST_USER_EMAIL')
 const TEST_USER_CODE  = Cypress.env('SCALEKIT_TEST_USER_CODE')
 
 describe('OTP signup with test user', () => {
   it('signs up using the static code', () => {
-    cy.visit('https://app.example.com/signup')
+    // drives the browser directly to Scalekit's hosted screen via the authorize URL
+    cy.visit(AUTH_URL)
 
     cy.get('input[type="email"]').type(TEST_USER_EMAIL)
     cy.get('button').contains('Continue').click()
@@ -144,7 +155,7 @@ const scalekit = new ScalekitClient(
 )
 
 const user = await scalekit.organizations.createUser(orgId, {
-  email: 'alice+sktest@acmecorp.com',
+  email: 'john+sktest@acmecorp.com',
 })
 ```
   </TabItem>
@@ -160,7 +171,7 @@ scalekit_client = ScalekitClient(
 )
 
 user = scalekit_client.organizations.create_user(org_id, {
-  "email": "alice+sktest@acmecorp.com"
+  "email": "john+sktest@acmecorp.com"
 })
 ```
   </TabItem>
@@ -173,7 +184,7 @@ scalekitClient := scalekit.NewScalekitClient(
 )
 
 user, err := scalekitClient.Organization().CreateUser(ctx, orgID, &scalekit.CreateUserRequest{
-  Email: "alice+sktest@acmecorp.com",
+  Email: "john+sktest@acmecorp.com",
 })
 if err != nil {
   log.Fatalf("failed to create user: %v", err)
@@ -190,7 +201,7 @@ ScalekitClient scalekitClient = new ScalekitClient(
 
 User user = scalekitClient.organizations().createUser(orgId,
   CreateUserRequest.builder()
-    .email("alice+sktest@acmecorp.com")
+    .email("john+sktest@acmecorp.com")
     .build()
 );
 ```
@@ -201,18 +212,32 @@ Then add the same email to the Test users allowlist (see [Configure the test use
 
 ### Run the test
 
-The examples below test a full OTP login for `alice+sktest@acmecorp.com`. Replace the URL and selectors to match your hosted auth screen.
+Drive the test through Scalekit's authorization endpoint with `prompt=login` so it lands on the hosted login screen:
+
+```sh title="Authorization URL (login)" showLineNumbers=false frame
+<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?
+  response_type=code&
+  client_id=<SCALEKIT_CLIENT_ID>&
+  redirect_uri=<CALLBACK_URL>&
+  scope=openid+profile+email+offline_access&
+  state=<RANDOM_STATE>&
+  prompt=login
+```
+
+After OTP verification, Scalekit redirects to `<CALLBACK_URL>` with an authorization code; assert against that URL in your test.
 
 <Tabs syncKey="e2e-framework">
   <TabItem label="Playwright">
 ```ts
 import { test, expect } from '@playwright/test'
 
+const AUTH_URL        = process.env.SCALEKIT_TEST_AUTH_URL!  // includes &prompt=login
 const TEST_USER_EMAIL = process.env.SCALEKIT_TEST_USER_EMAIL!
 const TEST_USER_CODE  = process.env.SCALEKIT_TEST_USER_CODE!
 
 test('OTP login with test user', async ({ page }) => {
-  await page.goto('https://app.example.com/login')
+  // drives the browser directly to Scalekit's hosted screen via the authorize URL
+  await page.goto(AUTH_URL)
 
   await page.getByLabel('Email').fill(TEST_USER_EMAIL)
   await page.getByRole('button', { name: 'Continue' }).click()
@@ -221,18 +246,20 @@ test('OTP login with test user', async ({ page }) => {
   await page.getByLabel('Verification code').fill(TEST_USER_CODE)
   await page.getByRole('button', { name: 'Verify' }).click()
 
-  await expect(page).toHaveURL('https://app.example.com/dashboard')
+  await expect(page).toHaveURL(/\/dashboard/)
 })
 ```
   </TabItem>
   <TabItem label="Cypress">
 ```ts
+const AUTH_URL        = Cypress.env('SCALEKIT_TEST_AUTH_URL')  // includes &prompt=login
 const TEST_USER_EMAIL = Cypress.env('SCALEKIT_TEST_USER_EMAIL')
 const TEST_USER_CODE  = Cypress.env('SCALEKIT_TEST_USER_CODE')
 
 describe('OTP login with test user', () => {
   it('logs in using the static code', () => {
-    cy.visit('https://app.example.com/login')
+    // drives the browser directly to Scalekit's hosted screen via the authorize URL
+    cy.visit(AUTH_URL)
 
     cy.get('input[type="email"]').type(TEST_USER_EMAIL)
     cy.get('button').contains('Continue').click()
