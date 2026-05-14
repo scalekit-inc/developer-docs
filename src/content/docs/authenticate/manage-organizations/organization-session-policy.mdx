@@ -5,6 +5,12 @@ tags: [organizations, session, policy, timeout, security]
 sidebar:
   label: "Organization session policy"
 tableOfContents: true
+prev:
+  label: "User management settings"
+  link: "/authenticate/fsa/user-management-settings/"
+next:
+  label: "Hosted UI widgets"
+  link: "/authenticate/manage-users-orgs/hosted-widgets/"
 head:
   - tag: style
     content: |
@@ -19,9 +25,67 @@ By default, all organizations inherit the session policy configured at the appli
 
 Scalekit always enforces the **stricter of the two** (application vs. organization) at session creation time, so organization policies can only tighten — not relax — your application-level defaults.
 
-## Session policy settings
+## Prerequisites
 
-| Setting | Description |
+Organization-level session policies are controlled by the `session_policy` feature flag. Enable it on the organization before applying a custom policy.
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+
+```javascript
+await scalekit.organization.updateOrganizationSettings('org_12345', {
+  features: [{ name: 'session_policy', enabled: true }],
+});
+```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+```python
+scalekit_client.organization.update_organization_settings(
+    organization_id='org_12345',
+    settings=[{'name': 'session_policy', 'enabled': True}],
+)
+```
+
+  </TabItem>
+  <TabItem value="go" label="Go">
+
+```go
+_, err := scalekitClient.Organization().UpdateOrganizationSettings(ctx, "org_12345",
+    scalekit.OrganizationSettings{
+        Features: []scalekit.Feature{
+            {Name: "session_policy", Enabled: true},
+        },
+    },
+)
+if err != nil {
+    log.Fatal(err)
+}
+```
+
+  </TabItem>
+  <TabItem value="java" label="Java">
+
+```java
+import com.scalekit.grpc.scalekit.v1.organizations.OrganizationSettingsFeature;
+import java.util.List;
+
+scalekitClient.organizations().updateOrganizationSettings(
+    "org_12345",
+    List.of(OrganizationSettingsFeature.newBuilder()
+        .setName("session_policy")
+        .setEnabled(true)
+        .build())
+);
+```
+
+  </TabItem>
+</Tabs>
+
+## Session policy fields
+
+| Field | Description |
 |---|---|
 | `policySource` | `APPLICATION` (inherit defaults) or `CUSTOM` (use per-org values) |
 | `absoluteSessionTimeout` | Maximum session lifetime regardless of activity |
@@ -44,22 +108,23 @@ Retrieve the active session policy for an organization to display it in your set
 ```javascript
 const policy = await scalekit.organization.getOrganizationSessionPolicy('org_12345');
 
-if (policy.policySource === 'CUSTOM') {
-  console.log('Absolute timeout:', policy.absoluteSessionTimeout, policy.absoluteSessionTimeoutUnit);
-  console.log('Idle timeout enabled:', policy.idleSessionTimeoutEnabled);
-}
+// policySource: 1 = APPLICATION (inheriting defaults), 2 = CUSTOM (org-specific values active)
+console.log('Policy source:', policy.policySource);
+console.log('Absolute timeout (minutes):', policy.absoluteSessionTimeout);
+console.log('Idle timeout enabled:', policy.idleSessionTimeoutEnabled);
 ```
 
   </TabItem>
   <TabItem value="python" label="Python">
 
 ```python
-from scalekit.v1.organizations.organizations_pb2 import SessionPolicySource
+from scalekit.v1.organizations.organizations_pb2 import SessionPolicyType
 
-policy = scalekit_client.organization.get_organization_session_policy('org_12345')
+response, _ = scalekit_client.organization.get_organization_session_policy('org_12345')
+policy = response.policy
 
-if policy.policy_source == SessionPolicySource.CUSTOM:
-    print('Absolute timeout:', policy.absolute_session_timeout.value, policy.absolute_session_timeout_unit)
+if policy.policy_source == SessionPolicyType.CUSTOM:
+    print('Absolute timeout (minutes):', policy.absolute_session_timeout.value)
     print('Idle timeout enabled:', policy.idle_session_timeout_enabled.value)
 ```
 
@@ -67,14 +132,14 @@ if policy.policy_source == SessionPolicySource.CUSTOM:
   <TabItem value="go" label="Go">
 
 ```go
-policy, err := scalekitClient.Organization.GetOrganizationSessionPolicy(ctx, "org_12345")
+policy, err := scalekitClient.Organization().GetOrganizationSessionPolicy(ctx, "org_12345")
 if err != nil {
     log.Fatal(err)
 }
 
 if policy.PolicySource == scalekit.SessionPolicySourceCustom {
-    fmt.Println("Absolute timeout:", policy.AbsoluteSessionTimeout, policy.AbsoluteSessionTimeoutUnit)
-    fmt.Println("Idle timeout enabled:", policy.IdleSessionTimeoutEnabled)
+    fmt.Println("Absolute timeout (minutes):", policy.AbsoluteSessionTimeout.GetValue())
+    fmt.Println("Idle timeout enabled:", policy.IdleSessionTimeoutEnabled.GetValue())
 }
 ```
 
@@ -83,14 +148,13 @@ if policy.PolicySource == scalekit.SessionPolicySourceCustom {
 
 ```java
 import com.scalekit.grpc.scalekit.v1.organizations.OrganizationSessionPolicySettings;
-import com.scalekit.grpc.scalekit.v1.organizations.SessionPolicySource;
+import com.scalekit.grpc.scalekit.v1.organizations.SessionPolicyType;
 
 OrganizationSessionPolicySettings policy =
     scalekitClient.organizations().getOrganizationSessionPolicy("org_12345");
 
-if (policy.getPolicySource() == SessionPolicySource.CUSTOM) {
-    System.out.println("Absolute timeout: " + policy.getAbsoluteSessionTimeout().getValue()
-        + " " + policy.getAbsoluteSessionTimeoutUnit());
+if (policy.getPolicySource() == SessionPolicyType.CUSTOM) {
+    System.out.println("Absolute timeout (minutes): " + policy.getAbsoluteSessionTimeout().getValue());
     System.out.println("Idle timeout enabled: " + policy.getIdleSessionTimeoutEnabled().getValue());
 }
 ```
@@ -122,12 +186,12 @@ console.log('Policy updated:', updated.policySource);
   <TabItem value="python" label="Python">
 
 ```python
-from scalekit.v1.organizations.organizations_pb2 import SessionPolicySource
+from scalekit.v1.organizations.organizations_pb2 import SessionPolicyType
 from scalekit.v1.commons.commons_pb2 import TimeUnit
 
-updated = scalekit_client.organization.update_organization_session_policy(
+response, _ = scalekit_client.organization.update_organization_session_policy(
     organization_id='org_12345',
-    policy_source=SessionPolicySource.CUSTOM,
+    policy_source=SessionPolicyType.CUSTOM,
     absolute_session_timeout=480,
     absolute_session_timeout_unit=TimeUnit.MINUTES,
     idle_session_timeout_enabled=True,
@@ -135,7 +199,7 @@ updated = scalekit_client.organization.update_organization_session_policy(
     idle_session_timeout_unit=TimeUnit.MINUTES,
 )
 
-print('Policy updated:', updated.policy_source)
+print('Policy updated:', response.policy.policy_source)
 ```
 
   </TabItem>
@@ -146,7 +210,7 @@ timeout := int32(480)
 idleTimeout := int32(60)
 idleEnabled := true
 
-updated, err := scalekitClient.Organization.UpdateOrganizationSessionPolicy(ctx, "org_12345", scalekit.OrganizationSessionPolicy{
+updated, err := scalekitClient.Organization().UpdateOrganizationSessionPolicy(ctx, "org_12345", scalekit.OrganizationSessionPolicy{
     PolicySource:               scalekit.SessionPolicySourceCustom,
     AbsoluteSessionTimeout:     &timeout,
     AbsoluteSessionTimeoutUnit: scalekit.TimeUnitMinutes,
@@ -169,10 +233,10 @@ import com.google.protobuf.Int32Value;
 import com.google.protobuf.BoolValue;
 import com.scalekit.grpc.scalekit.v1.commons.TimeUnit;
 import com.scalekit.grpc.scalekit.v1.organizations.OrganizationSessionPolicySettings;
-import com.scalekit.grpc.scalekit.v1.organizations.SessionPolicySource;
+import com.scalekit.grpc.scalekit.v1.organizations.SessionPolicyType;
 
 OrganizationSessionPolicySettings policy = OrganizationSessionPolicySettings.newBuilder()
-    .setPolicySource(SessionPolicySource.CUSTOM)
+    .setPolicySource(SessionPolicyType.CUSTOM)
     .setAbsoluteSessionTimeout(Int32Value.of(480))
     .setAbsoluteSessionTimeoutUnit(TimeUnit.MINUTES)
     .setIdleSessionTimeoutEnabled(BoolValue.of(true))
@@ -206,11 +270,11 @@ await scalekit.organization.updateOrganizationSessionPolicy('org_12345', {
   <TabItem value="python" label="Python">
 
 ```python
-from scalekit.v1.organizations.organizations_pb2 import SessionPolicySource
+from scalekit.v1.organizations.organizations_pb2 import SessionPolicyType
 
 scalekit_client.organization.update_organization_session_policy(
     organization_id='org_12345',
-    policy_source=SessionPolicySource.APPLICATION,
+    policy_source=SessionPolicyType.APPLICATION,
 )
 ```
 
@@ -218,7 +282,7 @@ scalekit_client.organization.update_organization_session_policy(
   <TabItem value="go" label="Go">
 
 ```go
-_, err := scalekitClient.Organization.UpdateOrganizationSessionPolicy(ctx, "org_12345", scalekit.OrganizationSessionPolicy{
+_, err := scalekitClient.Organization().UpdateOrganizationSessionPolicy(ctx, "org_12345", scalekit.OrganizationSessionPolicy{
     PolicySource: scalekit.SessionPolicySourceApplication,
 })
 if err != nil {
@@ -231,68 +295,13 @@ if err != nil {
 
 ```java
 import com.scalekit.grpc.scalekit.v1.organizations.OrganizationSessionPolicySettings;
-import com.scalekit.grpc.scalekit.v1.organizations.SessionPolicySource;
+import com.scalekit.grpc.scalekit.v1.organizations.SessionPolicyType;
 
 OrganizationSessionPolicySettings policy = OrganizationSessionPolicySettings.newBuilder()
-    .setPolicySource(SessionPolicySource.APPLICATION)
+    .setPolicySource(SessionPolicyType.APPLICATION)
     .build();
 
 scalekitClient.organizations().updateOrganizationSessionPolicy("org_12345", policy);
-```
-
-  </TabItem>
-</Tabs>
-
-## Enable the session_policy feature
-
-Organization-level session policies are controlled by the `session_policy` feature flag. Enable it before applying a custom policy.
-
-<Tabs syncKey="tech-stack">
-  <TabItem value="node" label="Node.js">
-
-```javascript
-await scalekit.organization.updateOrganizationSettings('org_12345', {
-  features: [{ name: 'session_policy', enabled: true }],
-});
-```
-
-  </TabItem>
-  <TabItem value="python" label="Python">
-
-```python
-scalekit_client.organization.update_organization_settings(
-    organization_id='org_12345',
-    settings=[{'name': 'session_policy', 'enabled': True}],
-)
-```
-
-  </TabItem>
-  <TabItem value="go" label="Go">
-
-```go
-import organizationsv1 "github.com/scalekit-inc/scalekit-sdk-go/v2/pkg/grpc/scalekit/v1/organizations"
-
-_, err := scalekitClient.Organization.UpdateOrganizationSettings(ctx, "org_12345",
-    []*organizationsv1.OrganizationSettingsFeature{
-        {Name: "session_policy", Enabled: true},
-    },
-)
-```
-
-  </TabItem>
-  <TabItem value="java" label="Java">
-
-```java
-import com.scalekit.grpc.scalekit.v1.organizations.OrganizationSettingsFeature;
-import java.util.List;
-
-scalekitClient.organizations().updateOrganizationSettings(
-    "org_12345",
-    List.of(OrganizationSettingsFeature.newBuilder()
-        .setName("session_policy")
-        .setEnabled(true)
-        .build())
-);
 ```
 
   </TabItem>
