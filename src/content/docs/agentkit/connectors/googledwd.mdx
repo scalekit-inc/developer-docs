@@ -14,6 +14,8 @@ head:
 
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/googledwd'
+import { SetupGoogledwdSection, SectionAfterSetupGoogledwdCommonWorkflows } from '@components/templates'
+import { Steps, Aside } from '@astrojs/starlight/components'
 
 ## What you can do
 
@@ -28,7 +30,45 @@ Connect this agent connector to let your agent:
 
 ## Authentication
 
-This connector uses **Service Account (DWD)** authentication.
+This connector uses **Service Account with Domain-Wide Delegation (DWD)**. You create a GCP service account, grant it domain-wide delegation in Google Admin, and provide Scalekit with the service account JSON key. Scalekit then impersonates any user in your Google Workspace domain on demand — no per-user OAuth redirects required.
+
+## Set up the connector
+
+<details>
+<summary>Set up the connector</summary>
+
+<SetupGoogledwdSection />
+
+## Create a connected account
+
+The admin of the Google Workspace organization you want to connect to must complete these steps to authorize your service account.
+
+<Aside type="caution" title="Requires Google Workspace super admin access">
+  These steps must be completed by a super admin of the target Google Workspace organization — not in your GCP account.
+</Aside>
+
+<Steps>
+1. ### Open API controls in Google Admin
+
+   - Sign in to [Google Admin console](https://admin.google.com) as a super admin.
+   - Go to **Security** → **Access and data control** → **API controls**.
+   - Click **Manage Domain Wide Delegation** → **Add new**.
+
+2. ### Authorize the service account
+
+   - In **Client ID**, enter the **Unique ID** of the service account created during setup (visible in GCP Console → **IAM & Admin** → **Service Accounts** → click the service account → **Details** tab).
+   - In **OAuth scopes**, enter the scopes comma-separated — <span style="color: red;">these must match exactly what was configured in the Scalekit connection.</span> For example:
+      - `https://www.googleapis.com/auth/gmail.readonly, https://www.googleapis.com/auth/calendar, https://www.googleapis.com/auth/drive`
+   - Click **Authorize**.
+</Steps>
+
+You can now impersonate any user in that workspace with your service account via Scalekit connected accounts.
+
+</details>
+
+## Common workflows
+
+<SectionAfterSetupGoogledwdCommonWorkflows />
 
 ## Tool list
 

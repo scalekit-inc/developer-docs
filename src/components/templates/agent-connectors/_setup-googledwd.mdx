@@ -1,0 +1,33 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with the Google Workspace (DWD) connector so Scalekit can act on behalf of any user in your Google Workspace domain. Unlike OAuth connectors, DWD uses a service account — no per-user login flows are required.
+
+<Steps>
+1. ### Create a connection in Scalekit
+
+   - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **Google Workspace (DWD)** and click **Create**.
+   - Under **Scopes**, add each Google API scope your agent needs. Enter the full scope URI, for example:
+      - `https://www.googleapis.com/auth/gmail.readonly`
+      - `https://www.googleapis.com/auth/calendar`
+      - `https://www.googleapis.com/auth/drive`
+
+      See the [Google OAuth 2.0 Scopes reference](https://developers.google.com/identity/protocols/oauth2/scopes) for the full list.
+
+2. ### Create a GCP service account
+
+   - Go to [Google Cloud Console](https://console.cloud.google.com) → **IAM & Admin** → **Service Accounts**.
+   - Click **+ Create Service Account**, enter a name and description, and click **Create and Continue**.
+   - Skip the optional role and user access steps and click **Done**.
+
+3. ### Download the service account JSON key
+
+   - In [Google Cloud Console](https://console.cloud.google.com), go to **IAM & Admin** → **Service Accounts** and click your service account.
+   - Go to the **Keys** tab → **Add Key** → **Create new key**.
+   - Select **JSON** and click **Create**. The key file downloads automatically.
+
+4. ### Add the service account JSON in Scalekit
+
+   - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** and open the connection you created in step 1.
+   - Paste the full contents of the downloaded JSON key file into the **Service Account JSON** field.
+   - Click **Save**.
+</Steps>
