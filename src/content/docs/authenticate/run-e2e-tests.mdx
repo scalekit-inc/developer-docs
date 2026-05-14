@@ -143,9 +143,9 @@ Use this flow to verify login for a user that already exists in an organization.
 <Tabs syncKey="tech-stack">
   <TabItem label="Node.js">
 ```ts title="Create test user in an organization"
-import { Scalekit } from '@scalekit/sdk'
+import { ScalekitClient } from '@scalekit-sdk/node'
 
-const scalekit = new Scalekit(
+const scalekit = new ScalekitClient(
   process.env.SCALEKIT_ENVIRONMENT_URL!,
   process.env.SCALEKIT_CLIENT_ID!,
   process.env.SCALEKIT_CLIENT_SECRET!
@@ -161,7 +161,7 @@ const { user } = await scalekit.user.createUserAndMembership(orgId, {
 ```python title="Create test user in an organization"
 import os
 from scalekit import ScalekitClient
-from scalekit.v1.users import CreateUser
+from scalekit.v1.users.users_pb2 import CreateUser
 
 scalekit_client = ScalekitClient(
   environment_url=os.environ["SCALEKIT_ENVIRONMENT_URL"],
@@ -171,13 +171,14 @@ scalekit_client = ScalekitClient(
 
 user_response = scalekit_client.user.create_user_and_membership(
   org_id,
-  CreateUser(email="john+sktest@acmecorp.com", send_invitation_email=False),
+  CreateUser(email="john+sktest@acmecorp.com"),
+  send_invitation_email=False,
 )
 ```
   </TabItem>
   <TabItem label="Go">
 ```go title="Create test user in an organization"
-import usersv1 "github.com/scalekit-inc/scalekit-sdk-go/pkg/grpc/scalekit/v1/users"
+import usersv1 "github.com/scalekit-inc/scalekit-sdk-go/v2/pkg/grpc/scalekit/v1/users"
 
 scalekitClient := scalekit.NewScalekitClient(
   os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
