@@ -144,6 +144,7 @@ export { default as SectionAfterToolListSalesforceMetadataApiSoap } from './_sec
 export { default as SectionBeforeToolListDatadogResourceIds } from './_section-before-tool-list-datadog-resource-ids.mdx'
 export { default as SectionBeforeToolListHubspotResourceIds } from './_section-before-tool-list-hubspot-resource-ids.mdx'
 export { default as SectionBeforeToolListLinearResourceIds } from './_section-before-tool-list-linear-resource-ids.mdx'
+export { default as SectionBeforeToolListMondayResourceIds } from './_section-before-tool-list-monday-resource-ids.mdx'
 export { default as SectionBeforeToolListTableauResourceIds } from './_section-before-tool-list-tableau-resource-ids.mdx'
 export { default as SectionBeforeToolListXeroCommonPatterns } from './_section-before-tool-list-xero-common-patterns.mdx'
 export { default as QuickstartGenericApikeySection } from './_quickstart-generic-apikey.astro'
