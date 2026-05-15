@@ -2,17 +2,42 @@ import { Steps, Aside } from '@astrojs/starlight/components'
 
 <Steps>
 
-1. ## Install the Scalekit Auth Stack
+1. ## Add the Scalekit Auth Stack marketplace
 
    Not yet on Claude Code? Follow the [official quickstart guide](https://code.claude.com/docs/en/quickstart) to install it.
 
-   Register Scalekit's plugin marketplace and install the Modular SCIM plugin in a single command:
+   Register Scalekit's plugin marketplace to access pre-configured SCIM skills. This marketplace provides context-aware prompts and implementation guides that help coding agents generate correct directory sync code.
+
+   Start the Claude Code REPL:
 
    ```bash title="Terminal" frame="terminal" showLineNumbers=false
-   claude plugin marketplace add scalekit-inc/claude-code-authstack && claude plugin install modular-scim@scalekit-auth-stack
+   claude
+   ```
+
+   Then add the marketplace:
+
+   ```bash title="Claude REPL" showLineNumbers=false
+   /plugin marketplace add scalekit-inc/claude-code-authstack
+   ```
+
+   When the marketplace registers successfully, you'll see confirmation output:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   ❯ /plugin marketplace add scalekit-inc/claude-code-authstack
+      ⎿  Successfully added marketplace: scalekit-auth-stack
    ```
 
    The marketplace provides specialized SCIM plugins that understand directory sync patterns and webhook security requirements. These plugins guide the coding agent to generate implementation code that matches your project structure.
+
+2. ## Enable SCIM plugins
+
+   Select which directory sync capabilities to activate in your development environment. Each plugin provides specific skills that the coding agent uses to generate SCIM webhook handling code.
+
+   Directly install the specific plugin:
+
+   ```bash title="Claude REPL" showLineNumbers=false
+   /plugin install saaskit@scalekit-auth-stack
+   ```
 
    <details>
    <summary>Alternative: Enable SCIM plugins via plugin wizard</summary>
@@ -23,7 +48,7 @@ import { Steps, Aside } from '@astrojs/starlight/components'
    /plugins
    ```
 
-   Navigate through the visual interface to enable the Modular SCIM plugin.
+   Navigate through the visual interface to enable the SaaSKit plugin.
 
    <Aside type="tip" title="Auto-update recommendations">
    Enable auto-updates for SCIM plugins to receive security patches and improvements. Scalekit regularly updates plugins based on community feedback and security best practices.
@@ -31,7 +56,7 @@ import { Steps, Aside } from '@astrojs/starlight/components'
 
    </details>
 
-2. ## Generate SCIM implementation
+3. ## Generate SCIM implementation
 
    Use a structured prompt to direct the coding agent. A well-formed prompt ensures the agent generates complete, production-ready SCIM code that includes all required security components.
 
@@ -41,13 +66,13 @@ import { Steps, Aside } from '@astrojs/starlight/components'
    Guide the coding agent to add Scalekit SCIM directory sync to my app — set up the webhook endpoint to receive SCIM events, validate the webhook signature, and handle user provisioning and deprovisioning events to create, update, and delete users in my database. Code only.
    ```
 
-    When you submit this prompt, Claude Code loads the Modular SCIM skill from the marketplace -> analyzes your existing application structure -> generates a webhook endpoint to receive SCIM events from Scalekit -> implements webhook signature validation to prevent unauthorized requests -> creates handlers for user provisioning events (create and update) -> adds deprovisioning logic to delete or deactivate users in your database.
+    When you submit this prompt, Claude Code loads the SaaSKit SCIM skill from the marketplace -> analyzes your existing application structure -> generates a webhook endpoint to receive SCIM events from Scalekit -> implements webhook signature validation to prevent unauthorized requests -> creates handlers for user provisioning events (create and update) -> adds deprovisioning logic to delete or deactivate users in your database.
 
    <Aside type="caution" title="Review generated code">
    Always review AI-generated SCIM code before deployment. Verify that webhook signature validation, event handling logic, and database operations match your security requirements. The coding agent provides a foundation, but you must ensure it aligns with your application's specific needs.
    </Aside>
 
-3. ## Verify the implementation
+4. ## Verify the implementation
 
    After the coding agent completes, verify that all SCIM components are properly configured:
 

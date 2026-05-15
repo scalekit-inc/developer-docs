@@ -1,17 +1,42 @@
 import { Steps, Aside } from '@astrojs/starlight/components'
 
 <Steps>
-1. ## Install the Scalekit Auth Stack
+1. ## Add the Scalekit Auth Stack marketplace
 
    Not yet on Claude Code? Follow the [official quickstart guide](https://code.claude.com/docs/en/quickstart) to install it.
 
-   Register Scalekit's plugin marketplace and install the Agent Auth plugin in a single command:
+   Register Scalekit's plugin marketplace to access pre-configured authentication skills. This marketplace provides context-aware prompts and implementation guides that help coding agents generate correct AgentKit code.
+
+   Start the Claude Code REPL:
 
    ```bash title="Terminal" frame="terminal" showLineNumbers=false
-   claude plugin marketplace add scalekit-inc/claude-code-authstack && claude plugin install agent-auth@scalekit-auth-stack
+   claude
    ```
 
-   The marketplace provides specialized authentication plugins that understand Agent Auth patterns and OAuth 2.0 security requirements. These plugins guide the coding agent to generate implementation code that matches your project structure.
+   Then add the marketplace:
+
+   ```bash title="Claude REPL" showLineNumbers=false
+   /plugin marketplace add scalekit-inc/claude-code-authstack
+   ```
+
+   When the marketplace registers successfully, you'll see confirmation output:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   ❯ /plugin marketplace add scalekit-inc/claude-code-authstack
+      ⎿  Successfully added marketplace: scalekit-auth-stack
+   ```
+
+   The marketplace provides specialized authentication plugins that understand AgentKit patterns and OAuth 2.0 security requirements. These plugins guide the coding agent to generate implementation code that matches your project structure.
+
+2. ## Enable authentication plugins
+
+   Select which authentication capabilities to activate in your development environment. Each plugin provides specific skills that the coding agent uses to generate authentication code.
+
+   Directly install the specific plugin:
+
+   ```bash title="Claude REPL" showLineNumbers=false
+   /plugin install agentkit@scalekit-auth-stack
+   ```
 
    <details>
    <summary>Alternative: Enable authentication plugins via plugin wizard</summary>
@@ -22,7 +47,7 @@ import { Steps, Aside } from '@astrojs/starlight/components'
    /plugins
    ```
 
-   Navigate through the visual interface to enable the Agent Auth plugin.
+   Navigate through the visual interface to enable the AgentKit plugin.
 
    <Aside type="tip" title="Auto-update recommendations">
    Enable auto-updates for authentication plugins to receive security patches and improvements. Scalekit regularly updates plugins based on community feedback and security best practices.
@@ -30,9 +55,9 @@ import { Steps, Aside } from '@astrojs/starlight/components'
 
    </details>
 
-2. ## Generate authentication implementation
+3. ## Generate authentication implementation
 
-   Use a structured prompt to direct the coding agent. A well-formed prompt ensures the agent generates complete, production-ready Agent Auth code that includes all required security components.
+   Use a structured prompt to direct the coding agent. A well-formed prompt ensures the agent generates complete, production-ready AgentKit code that includes all required security components.
 
    Copy the following prompt into your coding agent:
 
@@ -40,13 +65,13 @@ import { Steps, Aside } from '@astrojs/starlight/components'
    Guide me through configuring the installed Scalekit marketplace plugin to handle agent authentication for Gmail. Provide the code to trigger the auth flow, retrieve the secure user token, and then use that authenticated session to fetch and list the last 5 unread emails. Add logging to verify the flow.
    ```
 
-    When you submit this prompt, Claude Code loads the Agent Auth skill from the marketplace -> analyzes your existing application structure -> generates Scalekit client initialization -> creates connected account management functions -> implements OAuth authorization link generation -> adds token fetching and refresh logic.
+    When you submit this prompt, Claude Code loads the AgentKit skills from the marketplace -> analyzes your existing application structure -> generates Scalekit client initialization -> creates connected account management functions -> implements OAuth authorization link generation -> adds token fetching and refresh logic.
 
    <Aside type="caution" title="Review generated code">
    Always review AI-generated authentication code before deployment. Verify that environment variables, token validation logic, and error handling match your security requirements. The coding agent provides a foundation, but you must ensure it aligns with your application's specific needs.
    </Aside>
 
-3. ## Verify just-in-time implementation
+4. ## Verify just-in-time implementation
 
    After the coding agent completes, verify that all authentication components are properly configured:
 
