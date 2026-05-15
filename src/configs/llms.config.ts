@@ -16,7 +16,7 @@ for in-depth answers. Load \`llms-full.txt\` only when exhaustive context is nee
 
 ## Product → Documentation routing
 
-- **AgentKit** (AI agents, tool calling, connectors) → load Agent Authentication set
+- **AgentKit** (AI agents, tool calling, connectors) → load AgentKit documentation set
 - **AgentKit + specific framework** → fetch the framework page directly (see Framework routing below)
 - **SaaSKit / FSA** (login, sessions, RBAC) → load SaaSKit Complete set
 - **MCP Authentication** (OAuth 2.1 for MCP servers) → load MCP Authentication set
