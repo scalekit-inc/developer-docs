@@ -23,7 +23,7 @@ Skills CLI (Windsurf, Cline, and 40+ agents):
   npx skills add scalekit-inc/skills --list
   npx skills add scalekit-inc/skills --skill <skill-name>
 
-<auth-type> / <skill-name>: agentkit, full-stack-auth, mcp-auth, modular-sso, modular-scim
+<auth-type> / <skill-name>: agentkit, saaskit
 Full guide: https://docs.scalekit.com/dev-kit/build-with-ai/ -->
 
 `
@@ -37,7 +37,7 @@ GitHub Copilot CLI: copilot plugin marketplace add scalekit-inc/github-copilot-a
 Codex: run the bash installer, restart Codex, then open Plugin Directory and enable <auth-type>
 Skills CLI (Windsurf, Cline, and 40+ agents): npx skills add scalekit-inc/skills --list then npx skills add scalekit-inc/skills --skill <skill-name>
 
-<auth-type> / <skill-name>: agentkit, full-stack-auth, mcp-auth, modular-sso, modular-scim
+<auth-type> / <skill-name>: agentkit, saaskit
 Full guide: https://docs.scalekit.com/dev-kit/build-with-ai/`
 
 /**
