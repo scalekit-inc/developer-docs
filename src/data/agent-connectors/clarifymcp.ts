@@ -117,7 +117,7 @@ export const tools: Tool[] = [
         name: 'description',
         type: 'string',
         required: false,
-        description: `AI context description for this object type — helps the AI understand when to use it.`,
+        description: `AI context description for this list — helps the AI understand when to use it.`,
       },
       {
         name: 'emoji',
