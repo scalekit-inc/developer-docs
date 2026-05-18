@@ -4199,8 +4199,10 @@ paths:
     get:
       description: Retrieves organization details by external ID, including 
         name, region, metadata, and settings. Only provide external_id in the 
-        path — do not pass the id query parameter on this endpoint, as it will 
-        override external_id and cause unexpected results.
+        path. If the id query parameter is also supplied, it silently takes 
+        precedence over external_id due to protobuf oneof semantics, which 
+        causes the request to fail with a 400 Bad Request ('ExternalId is 
+        required').
       tags:
         - Organizations
       summary: Get organization details by external Id
