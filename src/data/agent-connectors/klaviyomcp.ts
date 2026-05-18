@@ -336,7 +336,7 @@ To add a universal content block, add the following within that region, replacin
         name: 'templateId',
         type: 'string',
         required: true,
-        description: `The ID of the template return`,
+        description: `The ID of the template to return`,
       },
     ],
   },
