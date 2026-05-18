@@ -154,6 +154,53 @@ If requests from your MCP client silently fail to reach your server, a proxy or 
 Some corporate proxies require explicit whitelisting of authentication endpoints. Contact your network administrator if you suspect this is the case.
 </Aside>
 
+### Cloudflare bot protection is blocking MCP client requests
+
+If your MCP server is behind Cloudflare and AI agents (such as Claude Desktop, Cursor, or other MCP clients) cannot reach it, Cloudflare's **Bot Fight Mode**, **Super Bot Fight Mode**, or **AI Crawl Control** settings may be classifying agent traffic as bot traffic and blocking it at the edge.
+
+**Symptoms:**
+
+- MCP client connections fail silently or return `403 Forbidden`
+- Authentication handshake never completes
+- Browser access to the MCP server works, but programmatic access from AI agents does not
+- Cloudflare serves a JavaScript challenge or Turnstile page instead of your MCP response
+
+**Diagnose which rule is blocking:**
+
+1. Open the [Cloudflare dashboard](https://dash.cloudflare.com/) for your domain
+2. Navigate to **Security > Events**
+3. Filter for your MCP server path and look for blocked or challenged requests
+4. Note the **rule name** — it tells you which Cloudflare feature caused the block (Bot Fight Mode, Super Bot Fight Mode, AI Crawl Control, or a managed rule)
+
+**Resolution for Cloudflare Free plan (Bot Fight Mode):**
+
+On the Free plan, Bot Fight Mode runs before the WAF Ruleset Engine, so custom WAF skip rules have no effect on it. Your options are:
+
+1. Open **Security Settings** in the Cloudflare dashboard (direct link: `https://dash.cloudflare.com/?to=/:account/:zone/security/settings`)
+2. Under **Bot traffic**, turn **Bot Fight Mode** off
+3. If **Block AI Scrapers and Crawlers** is also enabled, disable it
+4. Retry the MCP client connection
+
+**Resolution for Pro, Business, or Enterprise plans (Super Bot Fight Mode):**
+
+On paid plans, you can create a WAF custom rule that skips bot protection only for MCP traffic while keeping the rest of your domain protected:
+
+1. Navigate to **Security > WAF > Custom rules > Create rule**
+2. Set the expression to match your MCP server path: `starts_with(http.request.uri.path, "/mcp")` — adjust the path to match your MCP server's base path
+3. Set the action to **Skip**, then select **Super Bot Fight Mode**
+4. Move this rule to the top of your custom rules list so it evaluates first
+5. Save and deploy, then retry the MCP client connection
+
+Alternatively, navigate to **AI Crawl Control** in your bot settings and set Claude-related bots (`ClaudeBot`, `Claude-User`) to **Allow**.
+
+<Aside type="tip">
+The WAF skip rule approach is recommended for paid plans because it disables bot checks only for MCP server traffic while keeping your other endpoints protected.
+</Aside>
+
+<Aside type="note">
+Some MCP client SDKs send empty or missing `User-Agent` headers, which can trigger separate WAF rules unrelated to bot protection. If the Security Events log shows a user-agent-based block rather than a bot rule, check your MCP client's request headers.
+</Aside>
+
 ---
 
 ## Client-Specific Issues
