@@ -107,3 +107,45 @@ You can create more than one connection for the same connector. This is useful w
 - You're integrating with multiple instances of the same service (for example, two different Salesforce orgs)
 
 Each connection has its own name, which you use to identify it in API calls and in the dashboard.
+
+## Common scenarios
+
+<details>
+<summary>Why am I seeing a `failed_to_exchange_token` error after the consent screen?</summary>
+
+This error means the OAuth token exchange failed after the user completed the provider's consent screen. The error description may include `Error executing post-auth hooks`.
+
+**Common causes:** the verification session timed out because you waited too long to complete consent, a transient platform issue during the token exchange, or a network interruption between the provider and Scalekit.
+
+**What to try:**
+
+1. Close the error page and restart the connection flow
+2. If the error persists, check the [Scalekit status page](https://status.scalekit.com) for ongoing incidents
+3. If no incident is reported, contact [support](mailto:support@scalekit.com) with the full error URL and timestamp
+
+An error that resolves on retry is almost always transient. If it fails consistently for the same connection, check your OAuth app credentials and redirect URI configuration.
+
+</details>
+
+<details>
+<summary>Why does the callback page say "session expired or invalid"?</summary>
+
+The OAuth verification session has a time limit. If you take too long to complete authentication with the provider (for example, you step away mid-flow or the consent screen loads slowly), the session expires before the callback arrives.
+
+Close the window and start the connection flow again. No configuration change is needed.
+
+</details>
+
+<details>
+<summary>Why am I getting a `redirect_uri_mismatch` error?</summary>
+
+The redirect URI registered in the provider's OAuth app does not match the URI that Scalekit sends in the authorization request. Providers enforce an exact string match.
+
+1. In Scalekit Dashboard, go to **AgentKit** > **Connections** and open the affected connection
+2. Copy the **Redirect URI** shown in the connection form
+3. In the provider's developer console, verify the URI matches exactly -- including protocol (`https` vs `http`), trailing slashes, and port numbers
+4. Save and retry the connection flow
+
+Common mismatches: a trailing slash (`/callback/` vs `/callback`), `http` vs `https`, or a missing port number.
+
+</details>
