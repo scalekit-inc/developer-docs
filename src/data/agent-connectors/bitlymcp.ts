@@ -104,8 +104,8 @@ export const tools: Tool[] = [
       {
         name: 'long_url',
         type: 'string',
-        required: true,
-        description: `The destination URL for the QR code`,
+        required: false,
+        description: `The destination URL for the QR code. Required if bitlink_id is not provided.`,
       },
       {
         name: '_meta',
@@ -213,7 +213,7 @@ export const tools: Tool[] = [
       {
         name: 'long_url',
         type: 'string',
-        required: true,
+        required: false,
         description: `URL to shorten. Required unless bitlink_id is provided (same rules as create_short_link).`,
       },
       {
