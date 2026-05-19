@@ -147,7 +147,7 @@ export const tools: Tool[] = [
       {
         name: 'long_url',
         type: 'string',
-        required: true,
+        required: false,
         description: `The URL to be shortened. Must be a valid HTTP or HTTPS URL. Required if bitlink_id is not provided.`,
       },
       {
