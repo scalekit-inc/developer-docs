@@ -744,7 +744,7 @@ To add a universal content block, add the following within that region, replacin
       },
       {
         name: 'pageSize',
-        type: 'number',
+        type: 'integer',
         required: false,
         description: `Page size (1-100, default 20)`,
       },
@@ -910,7 +910,7 @@ Examples of appropriate use cases:
         name: 'listId',
         type: 'string',
         required: false,
-        description: `The ID of the list to unsubscribe the profile to if provided.`,
+        description: `The ID of the list to unsubscribe the profile from if provided.`,
       },
       {
         name: 'phoneNumber',
