@@ -1,0 +1,47 @@
+description: For update messages ensure the indexes are same as the base model itself.
+type: object
+properties:
+  display_name:
+    description: >-
+      Name of the organization to display in the UI. Must be between 1 and 200
+      characters
+    type: string
+    examples:
+      - Acme Corporation
+  external_id:
+    description: >-
+      Your application's unique identifier for this organization, used to link
+      Scalekit with your system
+    type: string
+    examples:
+      - tenant_12345
+  logo_url:
+    description: >-
+      HTTPS URL of the organization's logo image. Maximum 2048 characters. Must
+      use the https scheme.
+    type: string
+    format: uri
+    maxLength: 2048
+    pattern: ^https://
+    examples:
+      - https://cdn.example.com/acme-logo.png
+  metadata:
+    description: >-
+      Custom key-value pairs to store with the organization. Keys must be 3-25
+      characters, values must be 1-256 characters. Maximum 10 pairs allowed.
+    type: object
+    additionalProperties:
+      type: string
+    examples:
+      - industry: technology
+  slug:
+    description: >-
+      DNS-safe slug for dynamic redirect URI resolution. Lowercase alphanumeric
+      and hyphens, 1-63 chars, must start and end with alphanumeric, unique per
+      environment.
+    type: string
+    maxLength: 63
+    minLength: 1
+    pattern: ^[a-z0-9]([a-z0-9]|-[a-z0-9])*$
+    examples:
+      - acme

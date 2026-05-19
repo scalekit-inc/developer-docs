@@ -1,0 +1,1 @@
+Directory directory = scalekitClient.directories().getDirectory(directoryId, organizationId);

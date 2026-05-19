@@ -1,0 +1,97 @@
+get:
+  description: >-
+    Retrieves a paginated list of all sessions associated with a specific user
+    across all devices and browsers. Use this endpoint to audit user activity,
+    display all active sessions in account management interfaces, or verify user
+    authentication status across devices. Supports filtering by session status
+    (active, expired, revoked, logout) and time range (creation date). Returns
+    session details for each session including device information, IP address,
+    geolocation, and current status. The response includes pagination metadata
+    (page tokens and total count) to handle large session lists efficiently.
+  tags:
+    - Sessions
+  summary: List user sessions
+  operationId: SessionService_GetUserSessions
+  parameters:
+    - schema:
+        type: string
+      description: >-
+        Unique identifier for the user whose sessions to retrieve. Must start
+        with 'usr_' prefix.
+      name: user_id
+      in: path
+      required: true
+    - schema:
+        type: integer
+        format: int64
+      description: >-
+        Maximum number of sessions to return in a single page. Optional
+        parameter. If not specified, defaults to a server-defined limit. Use
+        smaller values for faster responses, larger values for fewer requests.
+      name: page_size
+      in: query
+    - schema:
+        type: string
+      description: >-
+        Pagination token from the previous response for retrieving the next page
+        of results. Leave empty for the first page. Use the next_page_token from
+        a previous response to fetch subsequent pages.
+      name: page_token
+      in: query
+    - schema:
+        type: array
+        items:
+          type: string
+      style: form
+      explode: true
+      description: >-
+        Filter sessions by one or more status values. Possible values: 'active',
+        'expired', 'revoked', 'logout'. Leave empty to include all statuses.
+        Multiple values use OR logic (e.g., status=['active', 'expired'] returns
+        sessions that are either active OR expired).
+      name: filter.status
+      in: query
+    - schema:
+        type: string
+        format: date-time
+      description: >-
+        Filter to include only sessions created on or after this timestamp.
+        Optional. Uses RFC 3339 format. Useful for querying sessions within a
+        specific time window.
+      name: filter.start_time
+      in: query
+    - schema:
+        type: string
+        format: date-time
+      description: >-
+        Filter to include only sessions created on or before this timestamp.
+        Optional. Uses RFC 3339 format. Must be after start_time if both are
+        specified.
+      name: filter.end_time
+      in: query
+  responses:
+    '200':
+      description: >-
+        Successfully retrieved user sessions. Returns a list of sessions with
+        pagination information
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/sessionsUserSessionDetails.yaml
+  x-codeSamples:
+    - label: Node.js SDK
+      lang: javascript
+      source:
+        $ref: ../code_samples/javascript/api_v1_users_{user_id}_sessions/get.js
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: ../code_samples/python/api_v1_users_{user_id}_sessions/get.py
+    - label: Go SDK
+      lang: go
+      source:
+        $ref: ../code_samples/go/api_v1_users_{user_id}_sessions/get.go
+    - label: Java SDK
+      lang: java
+      source:
+        $ref: ../code_samples/java/api_v1_users_{user_id}_sessions/get.java

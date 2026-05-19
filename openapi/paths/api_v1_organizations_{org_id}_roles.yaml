@@ -1,0 +1,106 @@
+get:
+  description: >-
+    Retrieves all environment roles and organization specific roles. Use this
+    endpoint to view all role definitions, including custom roles and their
+    configurations. You can optionally include permission details for each role
+    to understand their capabilities. This is useful for role management,
+    auditing organization access controls, or understanding the available access
+    levels within the organization.
+  tags:
+    - Roles
+  summary: List organization roles
+  operationId: RolesService_ListOrganizationRoles
+  parameters:
+    - schema:
+        type: string
+      description: Unique identifier of the organization
+      name: org_id
+      in: path
+      required: true
+    - schema:
+        type: string
+      description: >-
+        Include additional data in the response. Valid values: 'permissions'
+        (direct permissions only), 'permissions:all' (includes inherited
+        permissions)
+      name: include
+      in: query
+  responses:
+    '200':
+      description: >-
+        Successfully retrieved list of organization roles. Returns all roles
+        with their metadata and optionally their permissions.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/rolesListOrganizationRolesResponse.yaml
+  x-codeSamples:
+    - label: Node.js SDK
+      lang: javascript
+      source:
+        $ref: ../code_samples/javascript/api_v1_organizations_{org_id}_roles/get.js
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: ../code_samples/python/api_v1_organizations_{org_id}_roles/get.py
+    - label: Go SDK
+      lang: go
+      source:
+        $ref: ../code_samples/go/api_v1_organizations_{org_id}_roles/get.go
+    - label: Java SDK
+      lang: java
+      source:
+        $ref: ../code_samples/java/api_v1_organizations_{org_id}_roles/get.java
+post:
+  description: >-
+    Creates a new role within the specified organization with basic
+    configuration including name, display name, description, and permissions.
+    Use this endpoint to define custom roles that can be assigned to users
+    within the organization. You can create hierarchical roles by extending
+    existing roles and assign specific permissions to control access levels. The
+    role will be scoped to the organization and can be used for
+    organization-specific access control.
+  tags:
+    - Roles
+  summary: Create organization role
+  operationId: RolesService_CreateOrganizationRole
+  parameters:
+    - schema:
+        type: string
+      description: Unique identifier of the organization
+      name: org_id
+      in: path
+      required: true
+  responses:
+    '201':
+      description: >-
+        Organization role created successfully. Returns the complete role object
+        with system-generated ID and timestamps.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/rolesCreateOrganizationRoleResponse.yaml
+  x-codeSamples:
+    - label: Node.js SDK
+      lang: javascript
+      source:
+        $ref: ../code_samples/javascript/api_v1_organizations_{org_id}_roles/post.js
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: ../code_samples/python/api_v1_organizations_{org_id}_roles/post.py
+    - label: Go SDK
+      lang: go
+      source:
+        $ref: ../code_samples/go/api_v1_organizations_{org_id}_roles/post.go
+    - label: Java SDK
+      lang: java
+      source:
+        $ref: ../code_samples/java/api_v1_organizations_{org_id}_roles/post.java
+  requestBody:
+    content:
+      application/json:
+        schema:
+          description: Organization role details
+          $ref: ../components/schemas/v1rolesCreateOrganizationRole.yaml
+    required: true

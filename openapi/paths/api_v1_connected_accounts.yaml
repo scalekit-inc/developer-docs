@@ -1,0 +1,182 @@
+get:
+  description: >-
+    Retrieves a paginated list of connected accounts for third-party
+    integrations. Filter by organization, user, connector type, provider, or
+    identifier. Returns OAuth tokens, API keys, and connection status for each
+    account. Use pagination tokens to navigate through large result sets.
+  tags:
+    - Connected Accounts
+  summary: List connected accounts
+  operationId: ConnectedAccountService_ListConnectedAccounts
+  parameters:
+    - schema:
+        type: string
+      description: >-
+        Filter by organization ID. Returns only connected accounts associated
+        with this organization.
+      name: organization_id
+      in: query
+    - schema:
+        type: string
+      description: >-
+        Filter by user ID. Returns only connected accounts associated with this
+        user.
+      name: user_id
+      in: query
+    - schema:
+        type: string
+      description: >-
+        Filter by connector type (e.g., 'notion', 'slack', 'google').
+        Alphanumeric characters, spaces, hyphens, underscores, and colons are
+        allowed.
+      name: connector
+      in: query
+    - schema:
+        type: string
+      description: >-
+        Filter by account identifier. The unique identifier for the connected
+        account within the third-party service (e.g., email address, workspace
+        ID).
+      name: identifier
+      in: query
+    - schema:
+        type: string
+      description: >-
+        Filter by OAuth provider. The authentication provider name such as
+        'google', 'microsoft', 'github', etc.
+      name: provider
+      in: query
+    - schema:
+        type: integer
+        format: int64
+      description: >-
+        Maximum number of connected accounts to return per page. Must be between
+        0 and 100. Default is typically 10.
+      name: page_size
+      in: query
+    - schema:
+        type: string
+      description: >-
+        Pagination token from a previous response. Use the next_page_token value
+        from ListConnectedAccountsResponse to fetch the next page.
+      name: page_token
+      in: query
+    - schema:
+        type: string
+      description: >-
+        Text search query to filter connected accounts by name, identifier, or
+        other searchable fields. Case-insensitive.
+      name: query
+      in: query
+  responses:
+    '200':
+      description: >-
+        Successfully retrieved the list of connected accounts with their
+        authentication details and status
+      content:
+        application/json:
+          schema:
+            $ref: >-
+              ../components/schemas/connected_accountsListConnectedAccountsResponse.yaml
+    '400':
+      description: >-
+        Invalid request - occurs when query parameters are malformed or
+        validation fails
+      content:
+        application/json:
+          schema: {}
+    '401':
+      description: Authentication required - missing or invalid access token
+      content:
+        application/json:
+          schema: {}
+put:
+  description: >-
+    Updates authentication credentials and configuration for an existing
+    connected account. Modify OAuth tokens, refresh tokens, access scopes, or
+    API configuration settings. Specify the account by ID, or by combination of
+    organization/user, connector, and identifier. Returns the updated account
+    with new token expiry and status information.
+  tags:
+    - Connected Accounts
+  summary: Update connected account credentials
+  operationId: ConnectedAccountService_UpdateConnectedAccount
+  responses:
+    '200':
+      description: >-
+        Connected account updated successfully with new credentials or
+        configuration
+      content:
+        application/json:
+          schema:
+            $ref: >-
+              ../components/schemas/connected_accountsUpdateConnectedAccountResponse.yaml
+    '400':
+      description: >-
+        Invalid request - missing required fields, invalid authorization
+        details, or validation failed
+      content:
+        application/json:
+          schema: {}
+    '401':
+      description: Authentication required - missing or invalid access token
+      content:
+        application/json:
+          schema: {}
+    '404':
+      description: Connected account not found - the specified account does not exist
+      content:
+        application/json:
+          schema: {}
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: >-
+            ../components/schemas/connected_accountsUpdateConnectedAccountRequest.yaml
+    required: true
+post:
+  description: >-
+    Creates a new connected account with OAuth tokens or API credentials for
+    third-party service integration. Supply authorization details including
+    access tokens, refresh tokens, scopes, and optional API configuration. The
+    account can be scoped to an organization or user. Returns the created
+    account with its unique identifier and authentication status.
+  tags:
+    - Connected Accounts
+  summary: Create a connected account
+  operationId: ConnectedAccountService_CreateConnectedAccount
+  responses:
+    '201':
+      description: >-
+        Connected account created successfully with authentication credentials
+        stored securely
+      content:
+        application/json:
+          schema:
+            $ref: >-
+              ../components/schemas/connected_accountsCreateConnectedAccountResponse.yaml
+    '400':
+      description: >-
+        Invalid request - missing required fields, invalid authorization
+        details, or validation failed
+      content:
+        application/json:
+          schema: {}
+    '401':
+      description: Authentication required - missing or invalid access token
+      content:
+        application/json:
+          schema: {}
+    '409':
+      description: Conflict - connected account with the same identifier already exists
+      content:
+        application/json:
+          schema: {}
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: >-
+            ../components/schemas/connected_accountsCreateConnectedAccountRequest.yaml
+    required: true

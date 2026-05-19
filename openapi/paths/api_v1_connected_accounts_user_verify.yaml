@@ -1,0 +1,48 @@
+post:
+  description: >-
+    Confirms the user assertion and activates the connected account after the
+    user completes third-party OAuth. Called by the B2B app server with
+    auth_request_id and identifier. Validates that the asserted identifier
+    matches the one stored on the auth request and promotes pending tokens to
+    live.
+  tags:
+    - Connected Accounts
+  summary: Verify connected account user
+  operationId: ConnectedAccountService_VerifyConnectedAccountUser
+  responses:
+    '200':
+      description: Verification successful; connected account is now ACTIVE
+      content:
+        application/json:
+          schema:
+            $ref: >-
+              ../components/schemas/connected_accountsVerifyConnectedAccountUserResponse.yaml
+    '400':
+      description: Invalid request - missing or malformed fields
+      content:
+        application/json:
+          schema: {}
+    '401':
+      description: Unauthorized - invalid or missing access token
+      content:
+        application/json:
+          schema: {}
+    '403':
+      description: Forbidden - identifier mismatch
+      content:
+        application/json:
+          schema: {}
+    '404':
+      description: >-
+        Not found - no pending flow for the given auth_request_id or already
+        consumed
+      content:
+        application/json:
+          schema: {}
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: >-
+            ../components/schemas/connected_accountsVerifyConnectedAccountUserRequest.yaml
+    required: true

@@ -1,0 +1,1 @@
+ListDependentRolesResponse res = scalekitClient.roles().listDependentRoles("admin");

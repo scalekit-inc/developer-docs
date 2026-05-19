@@ -1,0 +1,1 @@
+ToggleConnectionResponse response = scalekitClient.connections().enableConnection(connectionId, organizationId);

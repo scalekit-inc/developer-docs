@@ -1,0 +1,1424 @@
+openapi: 3.1.1
+info:
+  title: AgentKit APIs
+  description: |
+    # Overview
+
+    The AgentKit API gives your AI agents authenticated access to third-party apps — sending emails, reading calendars, creating tickets, querying databases, and more. Your agent calls a tool; Scalekit handles the OAuth flow, token storage, and API call.
+
+    **Base URLs:**
+
+    ```
+    https://{your-subdomain}.scalekit.dev (Development)
+    https://{your-subdomain}.scalekit.com (Production)
+    ```
+
+    ## Quickstart
+
+    ### 1. Get an access token
+
+    Use your API credentials from the [Scalekit Dashboard](https://app.scalekit.com) → **Developers → Settings → API Credentials**.
+
+    ```sh
+    curl -X POST https://<SCALEKIT_ENVIRONMENT_URL>/oauth/token \
+      -H 'Content-Type: application/x-www-form-urlencoded' \
+      -d 'client_id={client_id}' \
+      -d 'client_secret={client_secret}' \
+      -d 'grant_type=client_credentials'
+    ```
+
+    ### 2. List connected accounts
+
+    ```sh
+    curl https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/connected_accounts \
+      -H 'Authorization: Bearer {access_token}'
+    ```
+
+    ### 3. Execute a tool on behalf of a user
+
+    ```sh
+    curl -X POST https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/execute_tool \
+      -H 'Authorization: Bearer {access_token}' \
+      -H 'Content-Type: application/json' \
+      -d '{
+        "connected_account_id": "{connected_account_id}",
+        "tool_name": "gmail_fetch_emails",
+        "tool_input": { "max_results": 5 }
+      }'
+    ```
+
+    ## SDKs
+
+    ```sh
+    npm install @scalekit-sdk/node    # Node.js
+    pip install scalekit-sdk-python    # Python
+    ```
+
+    For the full product guide, see the [AgentKit documentation](https://docs.scalekit.com/agentkit/quickstart/).
+  contact:
+    name: Scalekit Inc
+    url: https://scalekit.com
+    email: support@scalekit.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0
+  version: 1.0.0
+servers:
+  - url: https://$SCALEKIT_ENVIRONMENT_URL
+security:
+  - oauth2: []
+tags:
+  - description: Manage connected accounts for third-party integrations and OAuth connections. Connected accounts represent authenticated access to external services like Google, Notion, Slack, and other applications.
+    name: Connected Accounts
+externalDocs:
+  description: AgentKit Docs
+  url: https://docs.scalekit.com/agentkit/quickstart/
+paths:
+  /api/v1/connected_accounts:
+    get:
+      description: Retrieves a paginated list of connected accounts for third-party integrations. Filter by organization, user, connector type, provider, or identifier. Returns OAuth tokens, API keys, and connection status for each account. Use pagination tokens to navigate through large result sets.
+      tags:
+        - Connected Accounts
+      summary: List connected accounts
+      operationId: ConnectedAccountService_ListConnectedAccounts
+      parameters:
+        - schema:
+            type: string
+          description: Filter by organization ID. Returns only connected accounts associated with this organization.
+          name: organization_id
+          in: query
+        - schema:
+            type: string
+          description: Filter by user ID. Returns only connected accounts associated with this user.
+          name: user_id
+          in: query
+        - schema:
+            type: string
+          description: Filter by connector type (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.
+          name: connector
+          in: query
+        - schema:
+            type: string
+          description: Filter by account identifier. The unique identifier for the connected account within the third-party service (e.g., email address, workspace ID).
+          name: identifier
+          in: query
+        - schema:
+            type: string
+          description: Filter by OAuth provider. The authentication provider name such as 'google', 'microsoft', 'github', etc.
+          name: provider
+          in: query
+        - schema:
+            type: integer
+            format: int64
+          description: Maximum number of connected accounts to return per page. Must be between 0 and 100. Default is typically 10.
+          name: page_size
+          in: query
+        - schema:
+            type: string
+          description: Pagination token from a previous response. Use the next_page_token value from ListConnectedAccountsResponse to fetch the next page.
+          name: page_token
+          in: query
+        - schema:
+            type: string
+          description: Text search query to filter connected accounts by name, identifier, or other searchable fields. Case-insensitive.
+          name: query
+          in: query
+      responses:
+        '200':
+          description: Successfully retrieved the list of connected accounts with their authentication details and status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connected_accountsListConnectedAccountsResponse'
+        '400':
+          description: Invalid request - occurs when query parameters are malformed or validation fails
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required - missing or invalid access token
+          content:
+            application/json:
+              schema: {}
+    put:
+      description: Updates authentication credentials and configuration for an existing connected account. Modify OAuth tokens, refresh tokens, access scopes, or API configuration settings. Specify the account by ID, or by combination of organization/user, connector, and identifier. Returns the updated account with new token expiry and status information.
+      tags:
+        - Connected Accounts
+      summary: Update connected account credentials
+      operationId: ConnectedAccountService_UpdateConnectedAccount
+      responses:
+        '200':
+          description: Connected account updated successfully with new credentials or configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connected_accountsUpdateConnectedAccountResponse'
+        '400':
+          description: Invalid request - missing required fields, invalid authorization details, or validation failed
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required - missing or invalid access token
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Connected account not found - the specified account does not exist
+          content:
+            application/json:
+              schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/connected_accountsUpdateConnectedAccountRequest'
+        required: true
+    post:
+      description: Creates a new connected account with OAuth tokens or API credentials for third-party service integration. Supply authorization details including access tokens, refresh tokens, scopes, and optional API configuration. The account can be scoped to an organization or user. Returns the created account with its unique identifier and authentication status.
+      tags:
+        - Connected Accounts
+      summary: Create a connected account
+      operationId: ConnectedAccountService_CreateConnectedAccount
+      responses:
+        '201':
+          description: Connected account created successfully with authentication credentials stored securely
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connected_accountsCreateConnectedAccountResponse'
+        '400':
+          description: Invalid request - missing required fields, invalid authorization details, or validation failed
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required - missing or invalid access token
+          content:
+            application/json:
+              schema: {}
+        '409':
+          description: Conflict - connected account with the same identifier already exists
+          content:
+            application/json:
+              schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/connected_accountsCreateConnectedAccountRequest'
+        required: true
+  /api/v1/connected_accounts/auth:
+    get:
+      description: Retrieves complete authentication details for a connected account including OAuth tokens, refresh tokens, scopes, and API configuration. Query by account ID or by combination of organization/user, connector, and identifier. Returns sensitive credential information - use appropriate access controls.
+      tags:
+        - Connected Accounts
+      summary: Get connected account auth credentials
+      operationId: ConnectedAccountService_GetConnectedAccountAuth
+      parameters:
+        - schema:
+            type: string
+          description: Organization ID for the connector
+          name: organization_id
+          in: query
+        - schema:
+            type: string
+          description: User ID for the connector
+          name: user_id
+          in: query
+        - schema:
+            type: string
+          description: Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.
+          name: connector
+          in: query
+        - schema:
+            type: string
+          description: The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).
+          name: identifier
+          in: query
+        - schema:
+            type: string
+          description: Unique identifier for the connected account
+          name: id
+          in: query
+      responses:
+        '200':
+          description: Successfully retrieved connected account with full authentication details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connected_accountsGetConnectedAccountByIdentifierResponse'
+        '400':
+          description: Invalid request - missing required query parameters
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required - missing or invalid access token
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Connected account not found - no account matches the specified criteria
+          content:
+            application/json:
+              schema: {}
+  /api/v1/connected_accounts/details:
+    get:
+      description: Returns metadata for a connected account including status, connector type, provider, and configuration without exposing stored authorization credentials. Look up by account ID, or by a combination of organization (or user), connector, and external identifier.
+      tags:
+        - Connected Accounts
+      summary: Get connected account metadata
+      operationId: ConnectedAccountService_GetConnectedAccountDetails
+      parameters:
+        - schema:
+            type: string
+          description: Organization ID for the connector
+          name: organization_id
+          in: query
+        - schema:
+            type: string
+          description: User ID for the connector
+          name: user_id
+          in: query
+        - schema:
+            type: string
+          description: Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.
+          name: connector
+          in: query
+        - schema:
+            type: string
+          description: The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).
+          name: identifier
+          in: query
+        - schema:
+            type: string
+          description: Unique identifier for the connected account
+          name: id
+          in: query
+      responses:
+        '200':
+          description: Successfully retrieved connected account details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connected_accountsGetConnectedAccountByIdentifierResponse'
+        '400':
+          description: Invalid request - missing required query parameters
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required - missing or invalid access token
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Connected account not found - no account matches the specified criteria
+          content:
+            application/json:
+              schema: {}
+  /api/v1/connected_accounts/magic_link:
+    post:
+      description: Creates a time-limited magic link for connecting or re-authorizing a third-party account. The link directs users to the OAuth authorization flow for the specified connector. Returns the generated link URL and expiration timestamp. Links typically expire after a short duration for security.
+      tags:
+        - Connected Accounts
+      summary: Generate authentication magic link
+      operationId: ConnectedAccountService_GetMagicLinkForConnectedAccount
+      responses:
+        '200':
+          description: Magic link generated successfully with authorization URL and expiry time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connected_accountsGetMagicLinkForConnectedAccountResponse'
+        '400':
+          description: Invalid request - missing required parameters or invalid connector
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required - missing or invalid access token
+          content:
+            application/json:
+              schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/connected_accountsGetMagicLinkForConnectedAccountRequest'
+        required: true
+  /api/v1/connected_accounts/user/verify:
+    post:
+      description: Confirms the user assertion and activates the connected account after the user completes third-party OAuth. Called by the B2B app server with auth_request_id and identifier. Validates that the asserted identifier matches the one stored on the auth request and promotes pending tokens to live.
+      tags:
+        - Connected Accounts
+      summary: Verify connected account user
+      operationId: ConnectedAccountService_VerifyConnectedAccountUser
+      responses:
+        '200':
+          description: Verification successful; connected account is now ACTIVE
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connected_accountsVerifyConnectedAccountUserResponse'
+        '400':
+          description: Invalid request - missing or malformed fields
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Unauthorized - invalid or missing access token
+          content:
+            application/json:
+              schema: {}
+        '403':
+          description: Forbidden - identifier mismatch
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not found - no pending flow for the given auth_request_id or already consumed
+          content:
+            application/json:
+              schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/connected_accountsVerifyConnectedAccountUserRequest'
+        required: true
+  /api/v1/connected_accounts:delete:
+    post:
+      description: Permanently removes a connected account and revokes all associated authentication credentials. Identify the account by ID, or by combination of organization/user, connector, and identifier. This action cannot be undone. All OAuth tokens and API keys for this account will be invalidated.
+      tags:
+        - Connected Accounts
+      summary: Delete a connected account
+      operationId: ConnectedAccountService_DeleteConnectedAccount
+      responses:
+        '200':
+          description: Connected account deleted successfully and all credentials revoked
+          content:
+            application/json:
+              schema: {}
+        '400':
+          description: Invalid request - malformed parameters or validation failed
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required - missing or invalid access token
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Connected account not found - the specified account does not exist
+          content:
+            application/json:
+              schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/connected_accountsDeleteConnectedAccountRequest'
+        required: true
+  /api/v1/connected_accounts:search:
+    get:
+      description: Search for connected accounts in your environment using a text query that matches against identifiers, providers, or connectors. The search performs case-insensitive matching across account details. Returns paginated results with account status and authentication type information.
+      tags:
+        - Connected Accounts
+      summary: Search connected accounts
+      operationId: ConnectedAccountService_SearchConnectedAccounts
+      parameters:
+        - schema:
+            type: string
+          description: Search term to match against connected account identifiers, providers, or connectors. Must be at least 3 characters. Case insensitive.
+          name: query
+          in: query
+        - schema:
+            type: integer
+            format: int64
+          description: Maximum number of connected accounts to return per page. Value must be between 1 and 30.
+          name: page_size
+          in: query
+        - schema:
+            type: string
+          description: Token from a previous response for pagination. Provide this to retrieve the next page of results.
+          name: page_token
+          in: query
+        - schema:
+            type: string
+          description: Connection ID to filter connected accounts
+          name: connection_id
+          in: query
+      responses:
+        '200':
+          description: Successfully retrieved matching connected accounts with pagination support
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connected_accountsSearchConnectedAccountsResponse'
+        '400':
+          description: Invalid request - query parameter is too short (minimum 3 characters) or validation failed
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required - missing or invalid access token
+          content:
+            application/json:
+              schema: {}
+  /api/v1/execute_tool:
+    post:
+      description: Executes a tool action using authentication credentials from a connected account. Specify the tool by name and provide required parameters as JSON. The connected account can be identified by ID, or by combination of organization/user, connector, and identifier. Returns the execution result data and a unique execution ID for tracking. Use this endpoint to perform actions like sending emails, creating calendar events, or managing resources in external services.
+      tags:
+        - Connected Accounts
+      summary: Execute a tool using a connected account
+      operationId: ToolService_ExecuteTool
+      responses:
+        '200':
+          description: Tool executed successfully with result data and execution ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/toolsExecuteToolResponse'
+        '400':
+          description: Invalid request - occurs when tool name is missing, parameters are malformed, or tool definition validation fails
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required - missing or invalid access token
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Tool or connected account not found - occurs when the specified tool name or connected account does not exist
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Tool execution failed - occurs when the external service returns an error or the tool encounters a runtime exception
+          content:
+            application/json:
+              schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/toolsExecuteToolRequest'
+        required: true
+webhooks:
+  connected_account.created:
+    post:
+      summary: Connected Account Created
+      description: Triggered when a new connected account is created
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_101531404017336586
+              type: connected_account.created
+              object: ConnectedAccount
+              occurred_at: '2025-12-01T10:23:52.702980847Z'
+              environment_id: env_88640229614813449
+              data:
+                authorization_type: OAUTH
+                connection_id: conn_100668583155073286
+                id: ca_101531404000559370
+                identifier: Bruce
+                provider: CANVA
+                status: PENDING_AUTH
+      responses:
+        '200':
+          description: Webhook received successfully
+  connected_account.updated:
+    post:
+      summary: Connected Account Updated
+      description: Triggered when a connected account is updated
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_101652975398683158
+              type: connected_account.updated
+              object: ConnectedAccount
+              occurred_at: '2025-12-02T06:31:34.895815554Z'
+              environment_id: env_88640229614813449
+              display_name: Connected account updated
+              data:
+                authorization_type: OAUTH
+                connection_id: conn_100510054016352776
+                id: ca_100510623602835982
+                identifier: Pranesh
+                provider: SUPABASE
+                status: PENDING_AUTH
+      responses:
+        '200':
+          description: Webhook received successfully
+  connected_account.deleted:
+    post:
+      summary: Connected Account Deleted
+      description: Triggered when a connected account is deleted
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_101653010731500290
+              type: connected_account.deleted
+              object: ConnectedAccount
+              occurred_at: '2025-12-02T06:31:55.954027187Z'
+              environment_id: env_88640229614813449
+              display_name: connected account deleted
+              data:
+                authorization_type: OAUTH
+                connection_id: conn_101644109747323155
+                id: ca_101649788113519113
+                identifier: Clark
+                last_used_at: '2025-12-02T06:00:01.374253Z'
+                provider: GOOGLE_ADS
+                status: ACTIVE
+                token_expires_at: '2025-12-02T06:59:57.237447Z'
+      responses:
+        '200':
+          description: Webhook received successfully
+  connected_account.magic_link_generated:
+    post:
+      summary: Connected Account Magic Link Generated
+      description: Triggered when a magic link is generated for OAuth flow
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_101652975398683158
+              type: connected_account.magic_link_generated
+              object: ConnectedAccount
+              occurred_at: '2025-12-02T06:31:34.895815554Z'
+              environment_id: env_88640229614813448
+              data:
+                authorization_type: OAUTH
+                connection_id: conn_100510054016352776
+                id: ca_100510623602835982
+                identifier: Pranesh
+                provider: SUPABASE
+                status: PENDING_AUTH
+      responses:
+        '200':
+          description: Webhook received successfully
+  connected_account.oauth_tokens_fetched:
+    post:
+      summary: Connected Account OAuth Tokens Fetched
+      description: Triggered when OAuth tokens are successfully fetched
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_101649795042509316
+              type: connected_account.oauth_tokens_fetched
+              object: ConnectedAccount
+              occurred_at: '2025-12-02T05:59:59.250126407Z'
+              environment_id: env_88640229614813449
+              data:
+                authorization_type: OAUTH
+                connection_id: conn_101644109747323155
+                id: ca_101649788113519113
+                identifier: Clark
+                provider: GOOGLE_ADS
+                status: ACTIVE
+                token_expires_at: '2025-12-02T06:59:57.237447778Z'
+      responses:
+        '200':
+          description: Webhook received successfully
+  connected_account.token_refresh_succeeded:
+    post:
+      summary: Connected Account Token Refresh Succeeded
+      description: Triggered when token refresh succeeds
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_101651946317808143
+              type: connected_account.token_refresh_succeeded
+              object: ConnectedAccount
+              occurred_at: '2025-12-02T06:21:21.517480021Z'
+              environment_id: env_88640229614813449
+              data:
+                authorization_type: OAUTH
+                connection_id: conn_101644109747323155
+                id: ca_101644170698948883
+                identifier: Pranesh
+                last_used_at: '2025-12-02T06:21:21.393723232Z'
+                provider: GOOGLE_ADS
+                status: ACTIVE
+                token_expires_at: '2025-12-02T07:21:20.508197312Z'
+      responses:
+        '200':
+          description: Webhook received successfully
+  connected_account.token_refresh_failed:
+    post:
+      summary: Connected Account Token Refresh Failed
+      description: Triggered when token refresh fails
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_101649795042509316
+              type: connected_account.token_refresh_failed
+              object: ConnectedAccount
+              occurred_at: '2025-12-02T05:59:59.250126407Z'
+              environment_id: env_88640229614813445
+              data:
+                authorization_type: OAUTH
+                connection_id: conn_101644109747323155
+                id: ca_101649788113519113
+                identifier: Clark
+                provider: GOOGLE_ADS
+                status: ACTIVE
+                token_expires_at: '2025-12-02T06:59:57.237447778Z'
+      responses:
+        '200':
+          description: Webhook received successfully
+  connected_account.oauth_succeeded:
+    post:
+      summary: Connected Account OAuth Succeeded
+      description: Triggered when OAuth authentication succeeds
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_101649484227871236
+              type: connected_account.oauth_succeeded
+              object: ConnectedAccount
+              occurred_at: '2025-12-02T05:56:53.994604757Z'
+              environment_id: env_88640229614813449
+              data:
+                authorization_type: OAUTH
+                connection_id: conn_101644109747323155
+                id: ca_101649474950005257
+                identifier: Bruce
+                provider: GOOGLE_ADS
+                status: ACTIVE
+                token_expires_at: '2025-12-02T06:56:52.976081699Z'
+      responses:
+        '200':
+          description: Webhook received successfully
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://$SCALEKIT_ENVIRONMENT_URL/oauth/token
+          scopes:
+            '': No scope required for client credentials flow
+  schemas:
+    connected_accountsConnectorType:
+      description: |-
+        - OAUTH: OAuth 2.0 authorization with access and refresh tokens
+         - API_KEY: Static API key authentication
+         - BASIC_AUTH: HTTP Basic Authentication (username/password)
+         - BEARER_TOKEN: Bearer token authentication
+         - CUSTOM: Custom authentication mechanism
+         - BASIC: Basic authentication (alias)
+         - OAUTH_M2M: OAuth 2.0 client credentials (machine-to-machine)
+         - TRELLO_OAUTH1: Trello token-based OAuth1-style browser authorization
+         - GOOGLE_DWD: Google Domain-Wide Delegation
+      type: string
+      title: Type of authentication mechanism used for the connected account
+      enum:
+        - OAUTH
+        - API_KEY
+        - BASIC_AUTH
+        - BEARER_TOKEN
+        - CUSTOM
+        - BASIC
+        - OAUTH_M2M
+        - TRELLO_OAUTH1
+        - GOOGLE_DWD
+    connected_accountsConnectorStatus:
+      description: |-
+        - ACTIVE: Account is connected and credentials are valid
+         - EXPIRED: Access token has expired and needs refresh
+         - PENDING_AUTH: Account awaiting user authorization (re-auth initiated)
+         - PENDING_VERIFICATION: OAuth complete; awaiting user identity verification
+        before activation
+         - DISCONNECTED: Account has been manually disconnected
+      type: string
+      title: Status of a connected account indicating its current state
+      enum:
+        - ACTIVE
+        - EXPIRED
+        - PENDING_AUTH
+        - PENDING_VERIFICATION
+        - DISCONNECTED
+    connected_accountsConnectedAccountForList:
+      type: object
+      title: Connected account summary for list operations - excludes sensitive authorization details
+      properties:
+        authorization_type:
+          description: Authorization mechanism type.
+          $ref: '#/components/schemas/connected_accountsConnectorType'
+        connection_id:
+          description: Parent connection configuration reference.
+          type: string
+          examples:
+            - conn_24834495392086178
+        connector:
+          description: Connector identifier.
+          type: string
+          examples:
+            - notion
+        id:
+          description: Unique connected account identifier.
+          type: string
+          examples:
+            - ca_24834495392086178
+        identifier:
+          description: The unique identifier for this account in the third-party service.
+          type: string
+          examples:
+            - user@example.com
+        last_used_at:
+          description: Last usage timestamp.
+          type: string
+          format: date-time
+          examples:
+            - '2024-03-20T14:30:00Z'
+        provider:
+          description: OAuth provider name (e.g., 'google', 'microsoft').
+          type: string
+          examples:
+            - google
+        status:
+          description: Current connection status.
+          $ref: '#/components/schemas/connected_accountsConnectorStatus'
+        token_expires_at:
+          description: Token expiration timestamp.
+          type: string
+          format: date-time
+          examples:
+            - '2024-12-31T23:59:59Z'
+        updated_at:
+          description: Last modification timestamp.
+          type: string
+          format: date-time
+          examples:
+            - '2024-03-20T15:04:05Z'
+    connected_accountsListConnectedAccountsResponse:
+      type: object
+      properties:
+        connected_accounts:
+          description: List of connected accounts matching the filter criteria. Excludes sensitive authorization details for security.
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/connected_accountsConnectedAccountForList'
+        next_page_token:
+          description: Pagination token for retrieving the next page. Empty if this is the last page. Pass this value to page_token in the next request.
+          type: string
+          examples:
+            - eyJvZmZzZXQiOjIwfQ==
+        prev_page_token:
+          description: Pagination token for retrieving the previous page. Empty if this is the first page. Pass this value to page_token to go back.
+          type: string
+          examples:
+            - eyJvZmZzZXQiOjB9
+        total_size:
+          description: Total count of connected accounts matching the filter criteria across all pages. Use for calculating pagination.
+          type: integer
+          format: int64
+          examples:
+            - 100
+    connected_accountsGoogleDWDAuth:
+      description: |-
+        Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections.
+        Send only subject in requests; access_token, scopes, and token_expires_at are response-only.
+      type: object
+      properties:
+        access_token:
+          description: OAuth access token acquired via the jwt-bearer grant. Present in responses only.
+          type: string
+          readOnly: true
+          examples:
+            - ya29.a0AfH6SMBx...
+        scopes:
+          description: OAuth scopes granted to this token. Present in responses only.
+          type: array
+          items:
+            type: string
+          readOnly: true
+          examples:
+            - - openid
+              - https://www.googleapis.com/auth/userinfo.email
+        subject:
+          description: Email address of the Google Workspace user to impersonate via Domain-Wide Delegation.
+          type: string
+          examples:
+            - user@example.com
+        token_expires_at:
+          description: When the access token expires. Present in responses only.
+          type: string
+          format: date-time
+          readOnly: true
+    connected_accountsOauthToken:
+      type: object
+      title: OAuth 2.0 access and refresh tokens with scopes
+      properties:
+        access_token:
+          description: OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
+          type: string
+          examples:
+            - ya29.a0AfH6SMBx...
+        domain:
+          description: Associated domain for workspace or organization-scoped OAuth connections (e.g., Google Workspace domain).
+          type: string
+          examples:
+            - example.com
+        refresh_token:
+          description: OAuth refresh token for obtaining new access tokens. Long-lived and used to maintain persistent authorization.
+          type: string
+          examples:
+            - 1//0gHJxZ-Lb2...
+        scopes:
+          description: List of granted OAuth scopes defining the permissions and access levels for this connection.
+          type: array
+          items:
+            type: string
+          examples:
+            - - https://www.googleapis.com/auth/drive.readonly
+              - https://www.googleapis.com/auth/userinfo.email
+    connected_accountsStaticAuth:
+      type: object
+      title: Static authentication credentials for API keys, bearer tokens, or basic auth
+      properties:
+        details:
+          description: Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
+          type: object
+          examples:
+            - api_key: sk_live_...
+              api_secret: ...
+    connected_accountsAuthorizationDetails:
+      type: object
+      title: Authentication credentials container supporting multiple auth types
+      properties:
+        google_dwd:
+          title: Google Domain-Wide Delegation credentials
+          $ref: '#/components/schemas/connected_accountsGoogleDWDAuth'
+        oauth_token:
+          title: OAuth 2.0 credentials
+          $ref: '#/components/schemas/connected_accountsOauthToken'
+        static_auth:
+          title: Static authentication credentials
+          $ref: '#/components/schemas/connected_accountsStaticAuth'
+    v1connected_accountsUpdateConnectedAccount:
+      type: object
+      title: Payload for updating an existing connected account - all fields optional
+      properties:
+        api_config:
+          description: Updated JSON configuration for API-specific settings. Merges with existing configuration - only provided fields are modified.
+          type: object
+          examples:
+            - rate_limit: 2000
+              timeout: 60
+        authorization_details:
+          description: Updated authentication credentials. Provide new OAuth tokens (e.g., after refresh) or updated static auth details. Only included fields will be modified.
+          $ref: '#/components/schemas/connected_accountsAuthorizationDetails'
+          examples:
+            - oauth_token:
+                access_token: ya29.new_token...
+                refresh_token: 1//0g...
+                scopes:
+                  - email
+                  - profile
+                  - calendar
+    connected_accountsUpdateConnectedAccountRequest:
+      type: object
+      properties:
+        connected_account:
+          description: Details of the connected account to update
+          $ref: '#/components/schemas/v1connected_accountsUpdateConnectedAccount'
+          examples:
+            - authorization_details:
+                oauth_token:
+                  access_token: ...
+                  refresh_token: ...
+                  scopes:
+                    - read
+                    - write
+              authorization_type: OAUTH2
+        connector:
+          description: Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.
+          type: string
+          examples:
+            - notion
+        id:
+          description: Unique identifier for the connected account to update
+          type: string
+          examples:
+            - ca_123
+        identifier:
+          description: The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).
+          type: string
+          examples:
+            - user@example.com
+        organization_id:
+          description: Organization ID for the connector
+          type: string
+          examples:
+            - org_121312434123312
+        user_id:
+          description: User ID for the connector
+          type: string
+          examples:
+            - user_121312434123312
+    connected_accountsConnectedAccount:
+      type: object
+      properties:
+        api_config:
+          description: Optional JSON configuration for connector-specific API settings such as rate limits, custom endpoints, or feature flags.
+          type: object
+          examples:
+            - base_url: https://api.custom-domain.com
+              rate_limit: 1000
+              timeout: 30
+        authorization_details:
+          description: Sensitive authentication credentials including access tokens, refresh tokens, and scopes. Contains either OAuth tokens or static auth details.
+          $ref: '#/components/schemas/connected_accountsAuthorizationDetails'
+        authorization_type:
+          description: Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+          $ref: '#/components/schemas/connected_accountsConnectorType'
+        connection_id:
+          description: Reference to the parent connection configuration. Links this account to a specific connector setup in your environment.
+          type: string
+          examples:
+            - conn_24834495392086178
+        connector:
+          description: Connector identifier (e.g., 'notion', 'slack', 'salesforce'). Indicates which third-party application this account connects to.
+          type: string
+          examples:
+            - notion
+        id:
+          description: Unique Scalekit-generated identifier for this connected account. Always prefixed with 'ca_'.
+          type: string
+          examples:
+            - ca_24834495392086178
+        identifier:
+          description: The unique identifier for this account in the third-party service. Typically an email address, user ID, or workspace identifier.
+          type: string
+          examples:
+            - user@example.com
+        last_used_at:
+          description: Timestamp when this connected account was last used to make an API call. Useful for tracking active connections.
+          type: string
+          format: date-time
+          examples:
+            - '2024-03-20T14:30:00Z'
+        provider:
+          description: OAuth provider name (e.g., 'google', 'microsoft', 'github'). Identifies which authentication service manages this connection.
+          type: string
+          examples:
+            - google
+        status:
+          description: Current status of the connected account. Indicates if the account is active, expired, pending authorization, or pending user identity verification.
+          $ref: '#/components/schemas/connected_accountsConnectorStatus'
+        token_expires_at:
+          description: Expiration timestamp for the access token. After this time, the token must be refreshed or re-authorized.
+          type: string
+          format: date-time
+          examples:
+            - '2024-12-31T23:59:59Z'
+        updated_at:
+          description: Timestamp when this connected account was last modified. Updated whenever credentials or configuration changes.
+          type: string
+          format: date-time
+          examples:
+            - '2024-03-20T15:04:05Z'
+    connected_accountsUpdateConnectedAccountResponse:
+      type: object
+      properties:
+        connected_account:
+          description: The updated connected account with refreshed credentials, new token expiry, and modified configuration settings.
+          $ref: '#/components/schemas/connected_accountsConnectedAccount'
+    v1connected_accountsCreateConnectedAccount:
+      type: object
+      title: Payload for creating a new connected account - authorization details are optional
+      properties:
+        api_config:
+          description: Optional JSON configuration for connector-specific API settings such as rate limits, custom API endpoints, timeouts, or feature flags.
+          type: object
+          examples:
+            - base_url: https://api.custom-domain.com
+              rate_limit: 1000
+              timeout: 30
+        authorization_details:
+          description: Optional authentication credentials for the connected account. Include OAuth tokens (access_token, refresh_token, scopes) or static auth details (API keys, bearer tokens). Can be provided later via update.
+          $ref: '#/components/schemas/connected_accountsAuthorizationDetails'
+          examples:
+            - oauth_token:
+                access_token: ya29.a0...
+                refresh_token: 1//0g...
+                scopes:
+                  - email
+                  - profile
+    connected_accountsCreateConnectedAccountRequest:
+      type: object
+      properties:
+        connected_account:
+          description: Details of the connected account to create
+          $ref: '#/components/schemas/v1connected_accountsCreateConnectedAccount'
+          examples:
+            - authorization_details:
+                oauth_token:
+                  access_token: ...
+                  refresh_token: ...
+                  scopes:
+                    - read
+                    - write
+              authorization_type: OAUTH2
+        connector:
+          description: Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.
+          type: string
+          examples:
+            - notion
+        identifier:
+          description: The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).
+          type: string
+          examples:
+            - user@example.com
+        organization_id:
+          description: Organization ID for the connector
+          type: string
+          examples:
+            - org_121312434123312
+        user_id:
+          description: User ID for the connector
+          type: string
+          examples:
+            - user_121312434123312
+    connected_accountsCreateConnectedAccountResponse:
+      type: object
+      properties:
+        connected_account:
+          description: The newly created connected account with its unique identifier, status, and complete authorization details including access tokens.
+          $ref: '#/components/schemas/connected_accountsConnectedAccount'
+    connected_accountsGetConnectedAccountByIdentifierResponse:
+      type: object
+      properties:
+        connected_account:
+          description: The connected account with complete details including sensitive authorization credentials (access tokens, refresh tokens, scopes). Handle with appropriate access controls.
+          $ref: '#/components/schemas/connected_accountsConnectedAccount'
+    connected_accountsGetMagicLinkForConnectedAccountRequest:
+      type: object
+      properties:
+        connector:
+          description: Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.
+          type: string
+          examples:
+            - notion
+        id:
+          description: Unique identifier for the connected account
+          type: string
+          examples:
+            - ca_123
+        identifier:
+          description: The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).
+          type: string
+          examples:
+            - user@example.com
+        organization_id:
+          description: Organization ID for the connector
+          type: string
+          examples:
+            - org_121312434123312
+        state:
+          description: Optional opaque state value. State added to the user verify redirect URL query params to validate the user verification
+          type: string
+          examples:
+            - QVNDSUFyY2hhYml0dGVyXzE2ODQ5NzIwNzI0NTY=
+        user_id:
+          description: User ID for the connector
+          type: string
+          examples:
+            - user_121312434123312
+        user_verify_url:
+          description: B2B app's user verify redirect URL
+          type: string
+          examples:
+            - https://app.yourapp.com/user/verify/callback
+    connected_accountsGetMagicLinkForConnectedAccountResponse:
+      type: object
+      properties:
+        expiry:
+          description: Expiry timestamp for the authentication link
+          type: string
+          format: date-time
+          examples:
+            - '2024-03-20T15:04:05Z'
+        link:
+          description: Authentication link for the connector
+          type: string
+          examples:
+            - https://notion.com/oauth/authorize?client_id=...
+    connected_accountsVerifyConnectedAccountUserRequest:
+      type: object
+      required:
+        - auth_request_id
+        - identifier
+      properties:
+        auth_request_id:
+          description: Auth request ID as base64url-encoded opaque token from the user verify redirect URL query params
+          type: string
+          examples:
+            - QVNDSUFyY2hhYml0dGVyXzE2ODQ5NzIwNzI0NTY=
+        identifier:
+          description: Current logged in user's connected account identifier
+          type: string
+          examples:
+            - user@example.com
+    connected_accountsVerifyConnectedAccountUserResponse:
+      type: object
+      properties:
+        post_user_verify_redirect_url:
+          description: URL to redirect the user to after successful verification
+          type: string
+          examples:
+            - https://env1.example.com/connect/success
+    connected_accountsDeleteConnectedAccountRequest:
+      type: object
+      properties:
+        connector:
+          description: Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.
+          type: string
+          examples:
+            - notion
+        id:
+          description: Unique identifier for the connected account to delete
+          type: string
+          examples:
+            - ca_123
+        identifier:
+          description: The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).
+          type: string
+          examples:
+            - user@example.com
+        organization_id:
+          description: Organization ID for the connector
+          type: string
+          examples:
+            - org_121312434123312
+        user_id:
+          description: User ID for the connector
+          type: string
+          examples:
+            - user_121312434123312
+    connected_accountsSearchConnectedAccountsResponse:
+      type: object
+      properties:
+        connected_accounts:
+          description: List of connected accounts matching the search query. Excludes sensitive authorization details.
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/connected_accountsConnectedAccountForList'
+        next_page_token:
+          description: Pagination token for the next page. Empty if this is the last page.
+          type: string
+          examples:
+            - eyJvZmZzZXQiOjMwfQ==
+        prev_page_token:
+          description: Pagination token for the previous page. Empty if this is the first page.
+          type: string
+          examples:
+            - eyJvZmZzZXQiOjB9
+        total_size:
+          description: Total count of accounts matching the search query across all pages.
+          type: integer
+          format: int64
+          examples:
+            - 100
+    toolsExecuteToolRequest:
+      type: object
+      properties:
+        agent_run_id:
+          description: Optional. Customer-supplied identifier grouping multiple tool calls into a single agent run. Useful for correlating logs across an agentic workflow.
+          type: string
+          examples:
+            - run_abc123
+        connected_account_id:
+          description: Optional. The unique ID of the connected account. Use this to directly identify the connected account instead of using identifier + connector combination.
+          type: string
+          examples:
+            - ca_123
+        connector:
+          description: Optional. The name of the connector/provider (e.g., 'Google Workspace', 'Slack', 'Notion'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed. Use this in combination with identifier to identify the connected account.
+          type: string
+          examples:
+            - Google Workspace
+        identifier:
+          description: Optional. The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier). Use this in combination with connector to identify the connected account.
+          type: string
+          examples:
+            - user@example.com
+        organization_id:
+          description: Optional. The organization ID to scope the connected account lookup. Use this to narrow down the search when the same identifier exists across multiple organizations.
+          type: string
+          examples:
+            - org_123
+        params:
+          description: JSON object containing the parameters required for tool execution. The structure depends on the specific tool being executed.
+          type: object
+          examples:
+            - body: Hello World
+              subject: Hello
+              to: user@example.com
+        tool_name:
+          description: Name of the tool to execute
+          type: string
+          examples:
+            - send_email
+        user_id:
+          description: Optional. The user ID to scope the connected account lookup. Use this to narrow down the search when the same identifier exists across multiple users.
+          type: string
+          examples:
+            - user_123
+    toolsExecuteToolResponse:
+      type: object
+      properties:
+        data:
+          description: Free-flowing JSON parameters for the tool execution
+          type: object
+          examples:
+            - body: Hello World
+              subject: Hello
+              to: user@example.com
+        execution_id:
+          description: Unique identifier for the tool execution
+          type: string
+          examples:
+            - '123456789'
+    ScalekitEvent:
+      type: object
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          example: evt_1234567890abcdef
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+          minLength: 1
+          maxLength: 32
+        type:
+          type: string
+          example: organization.created
+          description: The event type
+          enum:
+            - organization.created
+            - organization.updated
+            - organization.deleted
+            - organization.sso_created
+            - organization.sso_deleted
+            - organization.sso_enabled
+            - organization.sso_disabled
+            - user.signup
+            - user.login
+            - user.logout
+            - user.organization_invitation
+            - user.organization_membership_created
+            - user.organization_membership_updated
+            - user.organization_membership_deleted
+            - organization.directory.user_created
+            - organization.directory.user_updated
+            - organization.directory.user_deleted
+            - organization.directory.group_created
+            - organization.directory.group_updated
+            - organization.directory.group_deleted
+            - organization.directory_enabled
+            - organization.directory_disabled
+            - role.created
+            - role.updated
+            - role.deleted
+            - permission.created
+            - permission.updated
+            - permission.deleted
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+          example: '2024-01-01T00:00:00Z'
+        environment_id:
+          type: string
+          pattern: ^env_
+          example: env_1234567890abcdef
+          description: The environment ID where the event occurred
+          minLength: 1
+          maxLength: 32
+        organization_id:
+          type: string
+          pattern: ^org_
+          example: org_1234567890abcdef
+          description: The organization ID (if applicable)
+          minLength: 1
+          maxLength: 32
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - Organization
+            - Connection
+            - Role
+            - Directory
+            - DirectoryUser
+            - DirectoryGroup
+            - Permission
+            - OrgMembership
+            - User
+          example: Organization
+        data:
+          type: object
+          description: The event payload (structure varies by event type)
+          additionalProperties: true
+          example:
+            id: org_1234567890abcdef
+            name: Example Organization
+            created_at: '2024-01-01T00:00:00Z'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
+          example: Organization Created
+          minLength: 1
+          maxLength: 200

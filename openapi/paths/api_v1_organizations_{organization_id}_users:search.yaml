@@ -1,0 +1,69 @@
+get:
+  description: >-
+    Searches for users within a specific organization by email address, user ID,
+    or external ID. The query must be at least 3 characters and is
+    case-insensitive. Scopes results strictly to the given organization. Returns
+    a paginated list of matching users with up to 30 results per page. Use the
+    next_page_token from the response to retrieve subsequent pages.
+  tags:
+    - Users
+  summary: Search organization users
+  operationId: UserService_SearchOrganizationUsers
+  parameters:
+    - schema:
+        type: string
+      description: >-
+        Unique identifier of the organization to search within. Must start with
+        'org_' and be 1-32 characters long.
+      name: organization_id
+      in: path
+      required: true
+    - schema:
+        type: string
+        minLength: 3
+        maxLength: 100
+      description: >-
+        Search term to match against user email, IDs, or external IDs. Must be
+        at least 3 characters. Case insensitive.
+      name: query
+      in: query
+      required: true
+    - schema:
+        type: integer
+        format: int64
+        minimum: 1
+        maximum: 30
+      description: >-
+        Maximum number of users to return per page. Value must be between 1 and
+        30.
+      name: page_size
+      in: query
+    - schema:
+        type: string
+      description: >-
+        Token from a previous response for pagination. Provide this to retrieve
+        the next page of results.
+      name: page_token
+      in: query
+  responses:
+    '200':
+      description: >-
+        Matching users within the organization returned; includes pagination
+        cursors for navigating large result sets.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/usersSearchOrganizationUsersResponse.yaml
+    '400':
+      description: >-
+        Bad Request - query must be at least 3 characters and no more than 100
+        characters, and organization_id must be a valid org_ prefixed
+        identifier.
+      content:
+        application/json:
+          schema: {}
+    '404':
+      description: Not Found - organization not found.
+      content:
+        application/json:
+          schema: {}

@@ -1,0 +1,1 @@
+scalekitClient.connections().deleteConnection(connectionId, organizationId);

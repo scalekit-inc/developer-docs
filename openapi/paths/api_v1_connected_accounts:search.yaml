@@ -1,0 +1,60 @@
+get:
+  description: >-
+    Search for connected accounts in your environment using a text query that
+    matches against identifiers, providers, or connectors. The search performs
+    case-insensitive matching across account details. Returns paginated results
+    with account status and authentication type information.
+  tags:
+    - Connected Accounts
+  summary: Search connected accounts
+  operationId: ConnectedAccountService_SearchConnectedAccounts
+  parameters:
+    - schema:
+        type: string
+      description: >-
+        Search term to match against connected account identifiers, providers,
+        or connectors. Must be at least 3 characters. Case insensitive.
+      name: query
+      in: query
+    - schema:
+        type: integer
+        format: int64
+      description: >-
+        Maximum number of connected accounts to return per page. Value must be
+        between 1 and 30.
+      name: page_size
+      in: query
+    - schema:
+        type: string
+      description: >-
+        Token from a previous response for pagination. Provide this to retrieve
+        the next page of results.
+      name: page_token
+      in: query
+    - schema:
+        type: string
+      description: Connection ID to filter connected accounts
+      name: connection_id
+      in: query
+  responses:
+    '200':
+      description: >-
+        Successfully retrieved matching connected accounts with pagination
+        support
+      content:
+        application/json:
+          schema:
+            $ref: >-
+              ../components/schemas/connected_accountsSearchConnectedAccountsResponse.yaml
+    '400':
+      description: >-
+        Invalid request - query parameter is too short (minimum 3 characters) or
+        validation failed
+      content:
+        application/json:
+          schema: {}
+    '401':
+      description: Authentication required - missing or invalid access token
+      content:
+        application/json:
+          schema: {}

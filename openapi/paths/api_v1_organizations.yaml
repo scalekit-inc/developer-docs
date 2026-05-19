@@ -1,0 +1,105 @@
+get:
+  description: >-
+    Retrieve a paginated list of organizations within your environment. The
+    response includes a `page_token` that can be used to access subsequent pages
+    of results.
+  tags:
+    - Organizations
+  summary: List organizations
+  operationId: OrganizationService_ListOrganization
+  parameters:
+    - schema:
+        type: integer
+        format: int64
+      description: >-
+        Maximum number of organizations to return per page. Must be between 10
+        and 100
+      name: page_size
+      in: query
+    - schema:
+        type: string
+      description: >-
+        Pagination token from the previous response. Use to retrieve the next
+        page of organizations
+      name: page_token
+      in: query
+    - schema:
+        type: string
+      description: >-
+        Your application's unique identifier for this organization, used to link
+        Scalekit with your system
+      name: external_id
+      in: query
+  responses:
+    '200':
+      description: Successfully retrieved the list of organizations
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/organizationsListOrganizationsResponse.yaml
+    '400':
+      description: Invalid page token
+      content:
+        application/json:
+          schema: {}
+  x-codeSamples:
+    - label: Node.js SDK
+      lang: javascript
+      source:
+        $ref: ../code_samples/javascript/api_v1_organizations/get.js
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: ../code_samples/python/api_v1_organizations/get.py
+    - label: Go SDK
+      lang: go
+      source:
+        $ref: ../code_samples/go/api_v1_organizations/get.go
+    - label: Java SDK
+      lang: java
+      source:
+        $ref: ../code_samples/java/api_v1_organizations/get.java
+post:
+  description: >-
+    Creates a new organization in your environment. Use this endpoint to add a
+    new tenant that can be configured with various settings and metadata
+  tags:
+    - Organizations
+  summary: Create an organization
+  operationId: OrganizationService_CreateOrganization
+  responses:
+    '201':
+      description: >-
+        Returns the newly created organization with its unique identifier and
+        settings
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/organizationsCreateOrganizationResponse.yaml
+  x-badges:
+    - name: ''
+  x-codeSamples:
+    - label: Node.js SDK
+      lang: javascript
+      source:
+        $ref: ../code_samples/javascript/api_v1_organizations/post.js
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: ../code_samples/python/api_v1_organizations/post.py
+    - label: Go SDK
+      lang: go
+      source:
+        $ref: ../code_samples/go/api_v1_organizations/post.go
+    - label: Java SDK
+      lang: java
+      source:
+        $ref: ../code_samples/java/api_v1_organizations/post.java
+  requestBody:
+    content:
+      application/json:
+        schema:
+          description: Required parameters for creating a new organization
+          $ref: ../components/schemas/v1organizationsCreateOrganization.yaml
+    description: Organization details
+    required: true

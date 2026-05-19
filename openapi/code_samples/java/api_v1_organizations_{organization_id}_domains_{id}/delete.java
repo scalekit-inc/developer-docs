@@ -1,0 +1,1 @@
+scalekitClient.domains().deleteDomain(organization.getId(), domain.getId());

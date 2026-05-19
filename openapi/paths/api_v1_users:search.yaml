@@ -1,0 +1,55 @@
+get:
+  description: >-
+    Searches for users across the entire environment by email address, user ID,
+    or external ID. The query must be at least 3 characters and is
+    case-insensitive. Returns a paginated list of matching users with up to 30
+    results per page. Use the next_page_token from the response to retrieve
+    subsequent pages.
+  tags:
+    - Users
+  summary: Search users
+  operationId: UserService_SearchUsers
+  parameters:
+    - schema:
+        type: string
+        minLength: 3
+        maxLength: 100
+      description: >-
+        Search term to match against user email, IDs, or external IDs. Must be
+        at least 3 characters. Case insensitive.
+      name: query
+      in: query
+      required: true
+    - schema:
+        type: integer
+        format: int64
+        minimum: 1
+        maximum: 30
+      description: >-
+        Maximum number of users to return per page. Value must be between 1 and
+        30.
+      name: page_size
+      in: query
+    - schema:
+        type: string
+      description: >-
+        Token from a previous response for pagination. Provide this to retrieve
+        the next page of results.
+      name: page_token
+      in: query
+  responses:
+    '200':
+      description: >-
+        Matching users returned; includes pagination cursors for navigating
+        large result sets.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/usersSearchUsersResponse.yaml
+    '400':
+      description: >-
+        Bad Request - query must be at least 3 characters and no more than 100
+        characters.
+      content:
+        application/json:
+          schema: {}

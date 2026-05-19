@@ -1,0 +1,1 @@
+SessionDetails res = scalekitClient.sessions().getSession("ses_123456789");

@@ -1,0 +1,49 @@
+get:
+  description: >-
+    Retrieves all roles that directly extend the specified base role through
+    inheritance. Use this endpoint to understand the role hierarchy and identify
+    which roles inherit permissions from a particular base role. Provide the
+    base role name as a path parameter, and the response will include all
+    dependent roles with their metadata and permission information. This
+    operation is useful for auditing role inheritance relationships,
+    understanding the impact of changes to base roles, or managing role
+    hierarchies effectively. Returns a list of dependent role objects including
+    their names, display names, descriptions, and permission details.
+  tags:
+    - Roles
+  summary: List dependent roles
+  operationId: RolesService_ListDependentRoles
+  parameters:
+    - schema:
+        type: string
+      description: Name of the base role
+      name: role_name
+      in: path
+      required: true
+  responses:
+    '200':
+      description: >-
+        Successfully retrieved dependent roles. Returns a list of all roles that
+        extend the specified base role, including their metadata and permission
+        information.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/rolesListDependentRolesResponse.yaml
+  x-codeSamples:
+    - label: Node.js SDK
+      lang: javascript
+      source:
+        $ref: ../code_samples/javascript/api_v1_roles_{role_name}_dependents/get.js
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: ../code_samples/python/api_v1_roles_{role_name}_dependents/get.py
+    - label: Go SDK
+      lang: go
+      source:
+        $ref: ../code_samples/go/api_v1_roles_{role_name}_dependents/get.go
+    - label: Java SDK
+      lang: java
+      source:
+        $ref: ../code_samples/java/api_v1_roles_{role_name}_dependents/get.java

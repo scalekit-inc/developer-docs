@@ -1,0 +1,1 @@
+DeleteCredentialResponse res = scalekitClient.webauthn().deleteCredential("wac_123");

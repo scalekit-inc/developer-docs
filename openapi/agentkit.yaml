@@ -1,0 +1,121 @@
+info:
+  title: AgentKit APIs
+  description: |
+    # Overview
+
+    The AgentKit API gives your AI agents authenticated access to third-party apps — sending emails, reading calendars, creating tickets, querying databases, and more. Your agent calls a tool; Scalekit handles the OAuth flow, token storage, and API call.
+
+    **Base URLs:**
+
+    ```
+    https://{your-subdomain}.scalekit.dev (Development)
+    https://{your-subdomain}.scalekit.com (Production)
+    ```
+
+    ## Quickstart
+
+    ### 1. Get an access token
+
+    Use your API credentials from the [Scalekit Dashboard](https://app.scalekit.com) → **Developers → Settings → API Credentials**.
+
+    ```sh
+    curl -X POST https://<SCALEKIT_ENVIRONMENT_URL>/oauth/token \
+      -H 'Content-Type: application/x-www-form-urlencoded' \
+      -d 'client_id={client_id}' \
+      -d 'client_secret={client_secret}' \
+      -d 'grant_type=client_credentials'
+    ```
+
+    ### 2. List connected accounts
+
+    ```sh
+    curl https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/connected_accounts \
+      -H 'Authorization: Bearer {access_token}'
+    ```
+
+    ### 3. Execute a tool on behalf of a user
+
+    ```sh
+    curl -X POST https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/execute_tool \
+      -H 'Authorization: Bearer {access_token}' \
+      -H 'Content-Type: application/json' \
+      -d '{
+        "connected_account_id": "{connected_account_id}",
+        "tool_name": "gmail_fetch_emails",
+        "tool_input": { "max_results": 5 }
+      }'
+    ```
+
+    ## SDKs
+
+    ```sh
+    npm install @scalekit-sdk/node    # Node.js
+    pip install scalekit-sdk-python    # Python
+    ```
+
+    For the full product guide, see the [AgentKit documentation](https://docs.scalekit.com/agentkit/quickstart/).
+  contact:
+    name: Scalekit Inc
+    url: https://scalekit.com
+    email: support@scalekit.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0
+  version: 1.0.0
+paths:
+  /api/v1/connected_accounts:
+    $ref: paths/api_v1_connected_accounts.yaml
+  /api/v1/connected_accounts/auth:
+    $ref: paths/api_v1_connected_accounts_auth.yaml
+  /api/v1/connected_accounts/details:
+    $ref: paths/api_v1_connected_accounts_details.yaml
+  /api/v1/connected_accounts/magic_link:
+    $ref: paths/api_v1_connected_accounts_magic_link.yaml
+  /api/v1/connected_accounts/user/verify:
+    $ref: paths/api_v1_connected_accounts_user_verify.yaml
+  /api/v1/connected_accounts:delete:
+    $ref: paths/api_v1_connected_accounts:delete.yaml
+  /api/v1/connected_accounts:search:
+    $ref: paths/api_v1_connected_accounts:search.yaml
+  /api/v1/execute_tool:
+    $ref: paths/api_v1_execute_tool.yaml
+tags:
+  - description: >-
+      Manage connected accounts for third-party integrations and OAuth
+      connections. Connected accounts represent authenticated access to external
+      services like Google, Notion, Slack, and other applications.
+    name: Connected Accounts
+externalDocs:
+  description: AgentKit Docs
+  url: https://docs.scalekit.com/agentkit/quickstart/
+openapi: 3.1.1
+servers:
+  - url: https://$SCALEKIT_ENVIRONMENT_URL
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://$SCALEKIT_ENVIRONMENT_URL/oauth/token
+          scopes:
+            '': No scope required for client credentials flow
+security:
+  - oauth2: []
+webhooks:
+  connected_account.created:
+    $ref: webhooks/connected_account.created.yaml
+  connected_account.updated:
+    $ref: webhooks/connected_account.updated.yaml
+  connected_account.deleted:
+    $ref: webhooks/connected_account.deleted.yaml
+  connected_account.magic_link_generated:
+    $ref: webhooks/connected_account.magic_link_generated.yaml
+  connected_account.oauth_tokens_fetched:
+    $ref: webhooks/connected_account.oauth_tokens_fetched.yaml
+  connected_account.token_refresh_succeeded:
+    $ref: webhooks/connected_account.token_refresh_succeeded.yaml
+  connected_account.token_refresh_failed:
+    $ref: webhooks/connected_account.token_refresh_failed.yaml
+  connected_account.oauth_succeeded:
+    $ref: webhooks/connected_account.oauth_succeeded.yaml

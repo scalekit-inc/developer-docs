@@ -1,0 +1,1 @@
+const res = await scalekit.session.revokeSession("ses_123456789");

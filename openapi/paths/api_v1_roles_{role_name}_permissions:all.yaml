@@ -1,0 +1,34 @@
+get:
+  description: >-
+    Retrieves the complete set of effective permissions for a role, including
+    both directly assigned permissions and permissions inherited from base roles
+    through the role hierarchy. Use this endpoint to understand the full scope
+    of capabilities available to users assigned to a specific role. Provide the
+    role name as a path parameter, and the response will include all permissions
+    that apply to the role, accounting for inheritance relationships. This
+    operation is essential for auditing role capabilities, understanding
+    permission inheritance, or verifying the complete access scope before role
+    assignment. Returns a comprehensive list of permission names representing
+    the full set of effective permissions for the specified role.
+  tags:
+    - Roles
+  summary: List effective permissions for role
+  operationId: RolesService_ListEffectiveRolePermissions
+  parameters:
+    - schema:
+        type: string
+      description: Name of the role
+      name: role_name
+      in: path
+      required: true
+  responses:
+    '200':
+      description: >-
+        Successfully retrieved effective permissions. Returns the complete list
+        of all permissions that apply to the role, including both direct
+        assignments and inherited permissions from base roles.
+      content:
+        application/json:
+          schema:
+            $ref: >-
+              ../components/schemas/rolesListEffectiveRolePermissionsResponse.yaml

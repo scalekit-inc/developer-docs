@@ -1,0 +1,1 @@
+GetOrganizationRoleResponse res = scalekitClient.roles().getOrganizationRole("org_123", "org_admin");

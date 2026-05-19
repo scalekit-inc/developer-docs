@@ -1,0 +1,50 @@
+post:
+  description: >-
+    Immediately invalidates all active sessions for a specific user across all
+    devices and browsers, setting their status to 'revoked'. Use this endpoint
+    to implement global logout functionality, force re-authentication after
+    security incidents, or terminate all sessions following a password reset or
+    credential compromise. Only active sessions are revoked; already expired,
+    logout, or previously revoked sessions remain unchanged. The revocation is
+    atomic and instantaneous. Returns a list of all revoked sessions with their
+    details and a total count of sessions revoked.
+  tags:
+    - Sessions
+  summary: Revoke all user sessions
+  operationId: SessionService_RevokeAllUserSessions
+  parameters:
+    - schema:
+        type: string
+      description: >-
+        Unique identifier for the user whose all sessions will be revoked. Must
+        start with 'usr_' prefix.
+      name: user_id
+      in: path
+      required: true
+  responses:
+    '200':
+      description: >-
+        Successfully revoked all user sessions. Returns the list of revoked
+        sessions and total count
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/sessionsRevokeAllUserSessionsResponse.yaml
+  x-codeSamples:
+    - label: Node.js SDK
+      lang: javascript
+      source:
+        $ref: >-
+          ../code_samples/javascript/api_v1_users_{user_id}_sessions_revoke/post.js
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: ../code_samples/python/api_v1_users_{user_id}_sessions_revoke/post.py
+    - label: Go SDK
+      lang: go
+      source:
+        $ref: ../code_samples/go/api_v1_users_{user_id}_sessions_revoke/post.go
+    - label: Java SDK
+      lang: java
+      source:
+        $ref: ../code_samples/java/api_v1_users_{user_id}_sessions_revoke/post.java

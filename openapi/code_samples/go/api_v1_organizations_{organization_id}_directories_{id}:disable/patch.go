@@ -1,0 +1,1 @@
+disable,err := scalekitClient.Directory().DisableDirectory(ctx, organizationId, directoryId)

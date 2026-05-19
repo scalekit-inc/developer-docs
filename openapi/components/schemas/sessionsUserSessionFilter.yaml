@@ -1,0 +1,31 @@
+type: object
+properties:
+  end_time:
+    description: >-
+      Filter to include only sessions created on or before this timestamp.
+      Optional. Uses RFC 3339 format. Must be after start_time if both are
+      specified.
+    type: string
+    format: date-time
+    examples:
+      - '2025-12-31T23:59:59Z'
+  start_time:
+    description: >-
+      Filter to include only sessions created on or after this timestamp.
+      Optional. Uses RFC 3339 format. Useful for querying sessions within a
+      specific time window.
+    type: string
+    format: date-time
+    examples:
+      - '2025-01-01T00:00:00Z'
+  status:
+    description: >-
+      Filter sessions by one or more status values. Possible values: 'active',
+      'expired', 'revoked', 'logout'. Leave empty to include all statuses.
+      Multiple values use OR logic (e.g., status=['active', 'expired'] returns
+      sessions that are either active OR expired).
+    type: array
+    items:
+      type: string
+    examples:
+      - - active

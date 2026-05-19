@@ -1,0 +1,1 @@
+GetRoleUsersCountResponse res = scalekitClient.roles().getRoleUsersCount("admin");

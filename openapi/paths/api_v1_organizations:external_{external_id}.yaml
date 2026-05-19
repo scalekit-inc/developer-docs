@@ -1,0 +1,52 @@
+get:
+  description: >-
+    Retrieves organization details by external ID, including name, region,
+    metadata, and settings. Only provide external_id in the path. If the id
+    query parameter is also supplied, it silently takes precedence over
+    external_id due to protobuf oneof semantics, which causes the request to
+    fail with a 400 Bad Request ('ExternalId is required').
+  tags:
+    - Organizations
+  summary: Get organization details by external Id
+  operationId: OrganizationService_GetOrganizationByExternalId
+  parameters:
+    - schema:
+        type: string
+      description: >-
+        Unique identifier that links an organization to your app's tenant. Use
+        this with the GetOrganizationByExternalId endpoint. Only one of id or
+        external_id should be provided per request.
+      name: external_id
+      in: path
+      required: true
+    - schema:
+        type: string
+      description: >-
+        Unique Scalekit-generated identifier for an organization. Use this with
+        the GetOrganization endpoint. Do not pass this parameter when calling
+        GetOrganizationByExternalId — use external_id instead.
+      name: id
+      in: query
+  responses:
+    '200':
+      description: >-
+        Returns the complete organization object with ID, display name,
+        settings, external ID and metadata
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/organizationsGetOrganizationResponse.yaml
+    '400':
+      description: >-
+        Invalid request - external ID is empty or the caller's organization
+        claim does not match
+      content:
+        application/json:
+          schema: {}
+    '404':
+      description: >-
+        Organization not found - no organization exists with the specified
+        external ID
+      content:
+        application/json:
+          schema: {}

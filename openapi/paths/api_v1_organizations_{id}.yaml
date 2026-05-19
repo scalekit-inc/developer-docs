@@ -1,0 +1,133 @@
+get:
+  description: >-
+    Retrieves organization details by Scalekit ID, including name, region,
+    metadata, and settings
+  tags:
+    - Organizations
+  summary: Get organization details
+  operationId: OrganizationService_GetOrganization
+  parameters:
+    - schema:
+        type: string
+      description: >-
+        Unique Scalekit-generated identifier for an organization. Use this with
+        the GetOrganization endpoint. Do not pass this parameter when calling
+        GetOrganizationByExternalId — use external_id instead.
+      name: id
+      in: path
+      required: true
+  responses:
+    '200':
+      description: >-
+        Returns the complete organization object with ID, display name,
+        settings, and metadata
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/organizationsGetOrganizationResponse.yaml
+  x-codeSamples:
+    - label: Node.js SDK
+      lang: javascript
+      source:
+        $ref: ../code_samples/javascript/api_v1_organizations_{id}/get.js
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: ../code_samples/python/api_v1_organizations_{id}/get.py
+    - label: Go SDK
+      lang: go
+      source:
+        $ref: ../code_samples/go/api_v1_organizations_{id}/get.go
+    - label: Java SDK
+      lang: java
+      source:
+        $ref: ../code_samples/java/api_v1_organizations_{id}/get.java
+delete:
+  description: >-
+    Remove an existing organization from the environment using its unique
+    identifier
+  tags:
+    - Organizations
+  summary: Delete an organization
+  operationId: OrganizationService_DeleteOrganization
+  parameters:
+    - schema:
+        type: string
+      description: >-
+        Unique scalekit-generated identifier that uniquely references an
+        organization
+      name: id
+      in: path
+      required: true
+  responses:
+    '200':
+      description: Organization successfully deleted and no longer accessible
+      content:
+        application/json:
+          schema: {}
+  x-codeSamples:
+    - label: Node.js SDK
+      lang: javascript
+      source:
+        $ref: ../code_samples/javascript/api_v1_organizations_{id}/delete.js
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: ../code_samples/python/api_v1_organizations_{id}/delete.py
+    - label: Go SDK
+      lang: go
+      source:
+        $ref: ../code_samples/go/api_v1_organizations_{id}/delete.go
+    - label: Java SDK
+      lang: java
+      source:
+        $ref: ../code_samples/java/api_v1_organizations_{id}/delete.java
+patch:
+  description: >-
+    Updates an organization's display name, external ID, or metadata. Requires a
+    valid organization identifier. Region code cannot be modified through this
+    endpoint.
+  tags:
+    - Organizations
+  summary: Update organization details
+  operationId: OrganizationService_UpdateOrganization
+  parameters:
+    - schema:
+        type: string
+      description: Unique identifier of the organization to be updated
+      name: id
+      in: path
+      required: true
+  responses:
+    '200':
+      description: >-
+        Returns the updated organization with all current details reflected in
+        the response.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/organizationsUpdateOrganizationResponse.yaml
+  x-codeSamples:
+    - label: Node.js SDK
+      lang: javascript
+      source:
+        $ref: ../code_samples/javascript/api_v1_organizations_{id}/patch.js
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: ../code_samples/python/api_v1_organizations_{id}/patch.py
+    - label: Go SDK
+      lang: go
+      source:
+        $ref: ../code_samples/go/api_v1_organizations_{id}/patch.go
+    - label: Java SDK
+      lang: java
+      source:
+        $ref: ../code_samples/java/api_v1_organizations_{id}/patch.java
+  requestBody:
+    content:
+      application/json:
+        schema:
+          description: Organization Parameters to be updated
+          $ref: ../components/schemas/v1organizationsUpdateOrganization.yaml
+    required: true

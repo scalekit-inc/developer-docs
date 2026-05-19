@@ -1,0 +1,1 @@
+await scalekit.user.deleteUser("usr_123");

@@ -1,0 +1,49 @@
+get:
+  description: >-
+    Retrieves the total number of users currently assigned to the specified role
+    within the environment. Use this endpoint to monitor role usage, enforce
+    user limits, or understand the scope of role assignments. Provide the role's
+    unique name as a path parameter, and the response will include the current
+    user count for that role. This operation is read-only and does not modify
+    any data or user assignments. The count reflects all users who have the role
+    either directly assigned or inherited through organization membership. This
+    information is useful for capacity planning, security auditing, or
+    understanding the impact of role changes across your user base.
+  tags:
+    - Roles
+  summary: Retrieve user count for role
+  operationId: RolesService_GetRoleUsersCount
+  parameters:
+    - schema:
+        type: string
+      description: Unique name of the role
+      name: role_name
+      in: path
+      required: true
+  responses:
+    '200':
+      description: >-
+        Successfully retrieved user count for the specified role. Returns the
+        total number of users currently assigned to the role, including both
+        direct assignments and inherited assignments.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/rolesGetRoleUsersCountResponse.yaml
+  x-codeSamples:
+    - label: Node.js SDK
+      lang: javascript
+      source:
+        $ref: ../code_samples/javascript/api_v1_roles_{role_name}_users:count/get.js
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: ../code_samples/python/api_v1_roles_{role_name}_users:count/get.py
+    - label: Go SDK
+      lang: go
+      source:
+        $ref: ../code_samples/go/api_v1_roles_{role_name}_users:count/get.go
+    - label: Java SDK
+      lang: java
+      source:
+        $ref: ../code_samples/java/api_v1_roles_{role_name}_users:count/get.java

@@ -1,0 +1,118 @@
+get:
+  description: Retrieves details of a specific API client in an organization.
+  tags:
+    - API Auth
+  summary: Get organization API client
+  operationId: ClientService_GetOrganizationClient
+  parameters:
+    - schema:
+        type: string
+      description: Unique identifier of the organization
+      name: organization_id
+      in: path
+      required: true
+    - schema:
+        type: string
+      description: Unique identifier of the API client
+      name: client_id
+      in: path
+      required: true
+  responses:
+    '200':
+      description: >-
+        Returns the complete API client configuration, including all current
+        settings and a list of active secrets. Note that secret values are not
+        included in the response for security reasons.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/clientsGetOrganizationClientResponse.yaml
+  x-codeSamples:
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: >-
+          ../code_samples/python/api_v1_organizations_{organization_id}_clients_{client_id}/get.py
+delete:
+  description: >-
+    Permanently deletes an API client from an organization. This operation
+    cannot be undone and will revoke all access for the client. All associated
+    secrets will also be invalidated. Use this endpoint to remove unused or
+    compromised clients.
+  tags:
+    - API Auth
+  summary: Delete organization API client
+  operationId: ClientService_DeleteOrganizationClient
+  parameters:
+    - schema:
+        type: string
+      description: >-
+        Unique identifier of the organization that owns the client. Must start
+        with 'org_' prefix.
+      name: organization_id
+      in: path
+      required: true
+    - schema:
+        type: string
+      description: >-
+        Unique identifier of the API client to permanently delete. Must start
+        with 'm2morg_' prefix.
+      name: client_id
+      in: path
+      required: true
+  responses:
+    '200':
+      description: Organization API client successfully deleted and no longer accessible
+      content:
+        application/json:
+          schema: {}
+  x-codeSamples:
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: >-
+          ../code_samples/python/api_v1_organizations_{organization_id}_clients_{client_id}/delete.py
+patch:
+  description: >-
+    Updates an existing organization API client. Only specified fields are
+    modified.
+  tags:
+    - API Auth
+  summary: Update organization API client
+  operationId: ClientService_UpdateOrganizationClient
+  parameters:
+    - schema:
+        type: string
+      description: Unique identifier of the organization
+      name: organization_id
+      in: path
+      required: true
+    - schema:
+        type: string
+      description: Unique identifier of the client
+      name: client_id
+      in: path
+      required: true
+  responses:
+    '200':
+      description: >-
+        Returns the updated organization API client with all current details
+        reflected in the response, including modified scopes, audience values,
+        and custom claims.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/clientsUpdateOrganizationClientResponse.yaml
+  x-codeSamples:
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: >-
+          ../code_samples/python/api_v1_organizations_{organization_id}_clients_{client_id}/patch.py
+  requestBody:
+    content:
+      application/json:
+        schema:
+          description: Updated details for the client
+          $ref: ../components/schemas/clientsOrganizationClient.yaml
+    required: true

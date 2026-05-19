@@ -1,0 +1,46 @@
+post:
+  description: >-
+    Immediately invalidates a specific user session by session ID, setting its
+    status to 'revoked'. Once revoked, the session cannot be used for any future
+    API requests or application access. Use this endpoint to implement
+    session-level logout, force a user to reauthenticate on a specific device,
+    or terminate suspicious sessions. The revocation is instantaneous and
+    irreversible. Returns the revoked session details including the session ID,
+    user ID, and the revocation timestamp.
+  tags:
+    - Sessions
+  summary: Revoke user session
+  operationId: SessionService_RevokeSession
+  parameters:
+    - schema:
+        type: string
+      description: >-
+        Unique identifier for the session to revoke. Must start with 'ses_'
+        prefix.
+      name: session_id
+      in: path
+      required: true
+  responses:
+    '200':
+      description: Successfully revoked the session. Returns the revoked session details
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/sessionsRevokeSessionResponse.yaml
+  x-codeSamples:
+    - label: Node.js SDK
+      lang: javascript
+      source:
+        $ref: ../code_samples/javascript/api_v1_sessions_{session_id}_revoke/post.js
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: ../code_samples/python/api_v1_sessions_{session_id}_revoke/post.py
+    - label: Go SDK
+      lang: go
+      source:
+        $ref: ../code_samples/go/api_v1_sessions_{session_id}_revoke/post.go
+    - label: Java SDK
+      lang: java
+      source:
+        $ref: ../code_samples/java/api_v1_sessions_{session_id}_revoke/post.java

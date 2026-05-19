@@ -1,0 +1,1 @@
+RevokeAllUserSessionsResponse res = scalekitClient.sessions().revokeAllUserSessions("user_123");
