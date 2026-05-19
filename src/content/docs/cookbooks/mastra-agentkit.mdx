@@ -1,0 +1,322 @@
+---
+title: 'Build a Mastra agent with Scalekit AgentKit tools'
+description: 'Give a Mastra agent access to Gmail and 60+ tools through Scalekit AgentKit — zero manual OAuth handling.'
+date: 2026-05-19
+tags: ['Agent auth', 'Node.js']
+sidebar:
+  label: 'Mastra AgentKit'
+tableOfContents: true
+excerpt: >
+  Mastra agents need tools. Each third-party API — Gmail, Slack, Calendar — means another OAuth flow, another token store, another refresh cycle. This recipe connects a Mastra agent to Scalekit AgentKit tools using the Node SDK, with automatic authorization and token refresh.
+featured: false
+authors:
+  - name: 'Saif'
+    title: 'Developer Advocate'
+    url: 'https://www.linkedin.com/in/saif-shines/'
+    picture: '/images/blog/authors/saif.png'
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+A [Mastra](https://mastra.ai) agent that reads emails needs a Gmail OAuth token. An agent that also posts to Slack needs a second token. Each tool means another OAuth flow, another token store, another refresh cycle. Before you write any agent logic, you are already maintaining parallel credential pipelines.
+
+Scalekit AgentKit eliminates that overhead. It stores one OAuth session per connector per user, handles token refresh automatically, and gives your agent a single API surface for 60+ tools. This recipe shows how to discover AgentKit tools at runtime, wrap them as native Mastra tools, and run them through a Mastra agent — all in TypeScript, with no Python backend.
+
+## What you are building
+
+- **A Mastra agent** that fetches Gmail messages through Scalekit AgentKit.
+- **Dynamic tool discovery** — the agent discovers available tools at runtime from Scalekit, instead of hardcoding tool definitions.
+- **Magic link authorization** — if the user has not connected their Gmail account, the agent generates an authorization URL.
+- **A pattern you can extend** to any of Scalekit's [60+ connectors](/agentkit/connectors/) by changing a single string.
+
+The complete source is available in the [mastra-agentkit-example](https://github.com/scalekit-developers/mastra-agentkit-example) repository.
+
+## Prerequisites
+
+- A Scalekit account at [app.scalekit.com](https://app.scalekit.com) with API credentials (**Settings → API Credentials**).
+- A **Gmail** connection configured under **AgentKit → Connections**. See [Configure a connection](/agentkit/connections/).
+- An OpenAI API key.
+- **Node.js 18+** and **pnpm** (or npm).
+
+<Steps>
+1. ## Install dependencies
+
+   ```bash title="Terminal"
+   pnpm add @mastra/core @scalekit-sdk/node @ai-sdk/openai zod dotenv
+   pnpm add -D tsx typescript @types/node
+   ```
+
+   `@mastra/core` provides the `Agent` and `createTool` primitives. `@scalekit-sdk/node` handles authentication, tool discovery, and tool execution against the Scalekit API. `@ai-sdk/openai` connects the agent to GPT-4o.
+
+2. ## Set environment variables
+
+   Create a `.env` file at the project root:
+
+   ```bash title=".env"
+   # Scalekit — from app.scalekit.com → Settings → API Credentials
+   # Threat: leaked credentials grant full API access to your Scalekit environment.
+   # Never commit this file to version control; add .env to .gitignore.
+   SCALEKIT_ENV_URL=https://your-env.scalekit.dev
+   SCALEKIT_CLIENT_ID=skc_your_client_id
+   SCALEKIT_CLIENT_SECRET=your_client_secret
+
+   # OpenAI
+   # Threat: exposed key allows unauthorized model usage billed to your account.
+   OPENAI_API_KEY=sk-your-openai-key
+
+   # User and connection — replace with values from your application
+   USER_IDENTIFIER=user_123
+   CONNECTION_NAME=gmail
+   ```
+
+   | Variable | Purpose |
+   |---|---|
+   | `SCALEKIT_ENV_URL` | Your Scalekit environment URL (starts with `https://`) |
+   | `SCALEKIT_CLIENT_ID` | Client ID from API Credentials (starts with `skc_`) |
+   | `SCALEKIT_CLIENT_SECRET` | Client secret from API Credentials |
+   | `OPENAI_API_KEY` | OpenAI API key for GPT-4o |
+   | `USER_IDENTIFIER` | A unique identifier for the end user in your application |
+   | `CONNECTION_NAME` | The connection name configured in your Scalekit dashboard |
+
+3. ## Initialize Scalekit and ensure the user is connected
+
+   Create `src/index.ts`. Start by initializing the Scalekit client and checking whether the user has an active Gmail connection:
+
+   ```typescript title="src/index.ts"
+   import { Agent } from '@mastra/core/agent';
+   import { createTool } from '@mastra/core/tools';
+   import { openai } from '@ai-sdk/openai';
+   import { ScalekitClient } from '@scalekit-sdk/node';
+   import { z } from 'zod';
+   import 'dotenv/config';
+
+   const IDENTIFIER = process.env.USER_IDENTIFIER || 'user_123';
+   const CONNECTION = process.env.CONNECTION_NAME || 'gmail';
+
+   const scalekit = new ScalekitClient(
+     process.env.SCALEKIT_ENV_URL!,
+     process.env.SCALEKIT_CLIENT_ID!,
+     process.env.SCALEKIT_CLIENT_SECRET!,
+   );
+
+   const { connectedAccount } = await scalekit.actions.getOrCreateConnectedAccount({
+     connectionName: CONNECTION,
+     identifier: IDENTIFIER,
+   });
+
+   if (connectedAccount?.status?.toString() !== '1') {
+     const { link } = await scalekit.actions.getAuthorizationLink({
+       connectionName: CONNECTION,
+       identifier: IDENTIFIER,
+     });
+     console.log(`\n[${CONNECTION}] Authorization required.`);
+     console.log(`Open this link:\n\n  ${link}\n`);
+     console.log('Press Enter once you have completed the OAuth flow...');
+     await new Promise<void>((resolve) => {
+       process.stdin.resume();
+       process.stdin.once('data', () => { process.stdin.pause(); resolve(); });
+     });
+   }
+   ```
+
+   `getOrCreateConnectedAccount` returns an existing session if one exists or creates a pending one. If the account is not active (status `1`), `getAuthorizationLink` returns a URL the user opens in a browser. Scalekit handles the full OAuth exchange — your application never sees the provider's client secret.
+
+   <Aside type="tip" title="Production flow">
+     In a web application, you would redirect the user to the authorization link in the browser and handle the callback. The CLI approach here is for development and testing.
+   </Aside>
+
+4. ## Discover tools from Scalekit
+
+   Once the user is connected, list the tools available for their account:
+
+   ```typescript title="src/index.ts (continued)"
+   const toolsResponse = await scalekit.tools.listTools({
+     filter: { connector: CONNECTION, identifier: IDENTIFIER },
+     pageSize: 50,
+   });
+
+   const scalekitTools = toolsResponse.tools;
+   console.log(
+     `Discovered ${scalekitTools.length} tools: ` +
+     scalekitTools.map((t) => (t.definition as any)?.name).join(', ')
+   );
+   ```
+
+   `listTools` returns tool definitions that include a `name`, `description`, and `input_schema` (a JSON Schema object). The `filter` parameter scopes results to the connector and user — the agent only sees tools the user has authorized.
+
+5. ## Convert Scalekit tools to Mastra tools
+
+   Mastra agents accept tools created with `createTool`. Each Scalekit tool needs to be wrapped:
+
+   ```typescript title="src/index.ts (continued)"
+   const mastraTools: Record<string, ReturnType<typeof createTool>> = {};
+
+   for (const tool of scalekitTools) {
+     const def = tool.definition as Record<string, any> | undefined;
+     if (!def?.name) continue;
+
+     const toolName: string = def.name;
+     const description: string = def.description || toolName;
+
+     // Use a permissive Zod schema — Scalekit validates inputs server-side.
+     const inputSchema = z.object({}).passthrough();
+
+     mastraTools[toolName] = createTool({
+       id: toolName,
+       description,
+       inputSchema,
+       execute: async ({ context }) => {
+         const result = await scalekit.tools.executeTool({
+           toolName,
+           identifier: IDENTIFIER,
+           params: context as Record<string, unknown>,
+         });
+         return result;
+       },
+     });
+   }
+   ```
+
+   The `inputSchema` uses `z.object({}).passthrough()` — a permissive schema that lets the LLM pass any parameters through. Scalekit validates inputs server-side, so client-side validation is optional. If you want stricter types, convert the JSON Schema from `def.input_schema` into a typed Zod schema.
+
+   The `execute` function calls `scalekit.tools.executeTool()`, which sends the tool call to Scalekit. Scalekit injects the user's OAuth token, calls the third-party API, and returns the structured response.
+
+6. ## Build and run the agent
+
+   Create the Mastra agent with the discovered tools and run it:
+
+   ```typescript title="src/index.ts (continued)"
+   const agent = new Agent({
+     name: 'gmail-assistant',
+     instructions:
+       'You are a helpful Gmail assistant. Use the available tools to fulfill requests. ' +
+       'Always confirm what you did after completing an action.',
+     model: openai('gpt-4o'),
+     tools: mastraTools,
+   });
+
+   const prompt = process.argv[2] || 'Fetch my last 5 unread emails and summarize them.';
+   console.log(`\nPrompt: ${prompt}\n`);
+
+   const result = await agent.generate(prompt);
+   console.log(result.text);
+   ```
+
+   Add a start script to `package.json`:
+
+   ```json title="package.json (scripts section)"
+   {
+     "scripts": {
+       "start": "tsx src/index.ts"
+     }
+   }
+   ```
+
+7. ## Run and verify
+
+   ```bash title="Terminal"
+   pnpm start
+   ```
+
+   On the first run, if the user hasn't authorized Gmail, you see the authorization flow:
+
+   ```text title="Terminal" showLineNumbers=false
+   [gmail] Authorization required.
+   Open this link:
+
+     https://auth.scalekit.dev/connect/...
+
+   Press Enter once you have completed the OAuth flow...
+   ```
+
+   After authorization (or on subsequent runs), the agent runs:
+
+   ```text title="Terminal" showLineNumbers=false
+   Connected account for user_123 is active.
+   Discovered 8 tools: gmail_fetch_mails, gmail_send_mail, gmail_search_mails, ...
+   Created 8 Mastra tools.
+
+   Prompt: Fetch my last 5 unread emails and summarize them.
+
+   Here are your 5 most recent unread emails:
+
+   1. "Q1 roadmap feedback needed" — Sarah Chen (1h ago)
+      Requesting feedback on the product roadmap by Friday.
+   2. "Deploy failed: production" — GitHub Actions (2h ago)
+      CI pipeline failed on the main branch, test suite timeout.
+   3. "New PR review requested" — Lin Feng (3h ago)
+      Review requested on PR #412: refactor auth middleware.
+   ...
+   ```
+
+   You can also pass a custom prompt:
+
+   ```bash title="Terminal"
+   pnpm start "Search for emails from GitHub and list the subjects"
+   ```
+
+</Steps>
+
+## Common mistakes
+
+<details>
+<summary>Connected account stays in PENDING</summary>
+
+The user did not complete the OAuth flow in the browser. AgentKit waits for the user to authorize through the URL returned by `getAuthorizationLink`.
+
+**Solution:** Open the printed URL in a browser, complete the Google OAuth consent, and return to the terminal. The connected account status updates to `ACTIVE` after a successful callback.
+</details>
+
+<details>
+<summary>Tool list is empty</summary>
+
+The connection name in code does not match the connection name in the Scalekit dashboard, or the connected account is not active.
+
+**Solution:** Open **AgentKit → Connections** in the dashboard. Verify the connection name matches exactly (case-sensitive). Then check that the connected account for your identifier shows **ACTIVE** status.
+</details>
+
+<details>
+<summary><code>executeTool</code> fails with identifier error</summary>
+
+The `identifier` passed to `executeTool` does not match the identifier used when creating the connected account.
+
+**Solution:** Use the same `identifier` value throughout — `getOrCreateConnectedAccount`, `listTools`, and `executeTool` must all receive the same string.
+</details>
+
+<details>
+<summary>Agent generates text instead of calling tools</summary>
+
+The model did not receive tool definitions with enough detail to trigger a tool call. This happens when every tool has an empty description or when the `inputSchema` is missing entirely.
+
+**Solution:** Verify that `scalekitTools` is not empty after discovery. Print `Object.keys(mastraTools)` to confirm tools were created. If tools exist but the model still does not call them, check that the tool descriptions are informative — the LLM uses descriptions to decide when a tool is relevant.
+</details>
+
+## Production notes
+
+**Token refresh is automatic.** Scalekit stores OAuth tokens per user per connector and refreshes them before expiry. Your agent code never handles refresh tokens directly.
+
+**Scope tools per user.** The `identifier` parameter in `listTools` and `executeTool` ensures each user only accesses their own connected accounts. Never share an identifier across users.
+
+**Add more connectors.** Change `CONNECTION_NAME` to `slack`, `notion`, `googlecalendar`, or any of the [60+ supported connectors](/agentkit/connectors/). The code is identical — only the connection name changes.
+
+**Error handling in production.** Wrap `executeTool` calls in try/catch to handle network errors and expired connections gracefully. Return a clear message to the user when a tool call fails instead of letting the agent retry silently.
+
+**MCP alternative.** If you prefer Mastra's built-in MCP client over manual tool wrapping, see the [Mastra MCP example](/agentkit/examples/mastra/). That approach requires a per-user MCP URL generated from the Python SDK.
+
+## Next steps
+
+- [Configure more connectors](/agentkit/connectors/) — add Slack, GitHub, Salesforce, and others alongside Gmail.
+- [Mastra MCP integration](/agentkit/examples/mastra/) — use Mastra's native MCP client with a Scalekit MCP URL.
+- [AgentKit quickstart](/agentkit/quickstart/) — connect your first user in under five minutes.
+- [Connected accounts](/agentkit/connected-accounts/) — manage user connections, check status, and revoke access programmatically.
+
+## Related resources
+
+| Topic | Link |
+|---|---|
+| AgentKit overview | [Overview](/agentkit/overview/) |
+| All connectors | [Connectors](/agentkit/connectors/) |
+| Connected accounts | [Manage connected accounts](/agentkit/connected-accounts/) |
+| Mastra MCP example | [Mastra](/agentkit/examples/mastra/) |
+| Sample repository | [mastra-agentkit-example](https://github.com/scalekit-developers/mastra-agentkit-example) |
+| Mastra docs | [mastra.ai/docs](https://mastra.ai/docs) |
