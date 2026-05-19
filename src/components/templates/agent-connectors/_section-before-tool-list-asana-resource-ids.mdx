@@ -1,0 +1,22 @@
+import { Aside } from '@astrojs/starlight/components'
+
+export const sectionTitle = 'Getting resource IDs'
+
+Most Asana tools require a GID (global ID) for the resource they operate on. Fetch IDs using list or read tools before calling create, update, or delete tools.
+
+| Resource | Tool to get GID | Response field |
+|----------|----------------|----------------|
+| Workspace GID | `asana_workspaces_list` | `data[].gid` |
+| Project GID | `asana_projects_list` | `data[].gid` |
+| Task GID | `asana_tasks_list` or `asana_project_tasks_list` | `data[].gid` |
+| Section GID | `asana_sections_list` | `data[].gid` |
+| Tag GID | `asana_tags_list` | `data[].gid` |
+| Team GID | `asana_workspace_teams_list` | `data[].gid` |
+| User GID (list) | `asana_users_list` | `data[].gid` |
+| User GID (self) | `asana_me_get` | `data.gid` |
+| Story GID | `asana_task_stories_list` | `data[].gid` |
+| Attachment GID | task response with `opt_fields=attachments` | `data[].attachments[].gid` |
+
+<Aside type="tip" title="Use opt_fields to get related GIDs">
+  Many tools accept an `opt_fields` parameter. Pass `opt_fields=gid,name` to retrieve just the IDs and names you need without fetching full objects. For example, `asana_tasks_list` with `opt_fields=gid,name,assignee.gid` returns task GIDs with assignee GIDs in one call.
+</Aside>
