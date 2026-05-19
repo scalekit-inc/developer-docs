@@ -9,8 +9,7 @@ If you're using an AI coding agent, install the official Scalekit plugin.
 It gives your agent full awareness of the Scalekit API — reducing hallucinations and enabling faster, more accurate code generation.
 
 Claude Code:
-  /plugin marketplace add scalekit-inc/claude-code-authstack
-  /plugin install <auth-type>@scalekit-auth-stack
+  claude plugin marketplace add scalekit-inc/claude-code-authstack && claude plugin install <auth-type>@scalekit-auth-stack
 
 GitHub Copilot CLI:
   copilot plugin marketplace add scalekit-inc/github-copilot-authstack
@@ -33,7 +32,7 @@ Full guide: https://docs.scalekit.com/dev-kit/build-with-ai/ -->
 export const AGENT_PLUGIN_INLINE = `Building with AI coding agents?
 If you're using an AI coding agent, install the official Scalekit plugin. It gives your agent full awareness of the Scalekit API — reducing hallucinations and enabling faster, more accurate code generation.
 
-Claude Code: /plugin marketplace add scalekit-inc/claude-code-authstack then /plugin install <auth-type>@scalekit-auth-stack
+Claude Code: claude plugin marketplace add scalekit-inc/claude-code-authstack && claude plugin install <auth-type>@scalekit-auth-stack
 GitHub Copilot CLI: copilot plugin marketplace add scalekit-inc/github-copilot-authstack then copilot plugin install <auth-type>@scalekit-auth-stack
 Codex: run the bash installer, restart Codex, then open Plugin Directory and enable <auth-type>
 Skills CLI (Windsurf, Cline, and 40+ agents): npx skills add scalekit-inc/skills --list then npx skills add scalekit-inc/skills --skill <skill-name>
@@ -51,8 +50,7 @@ export const AGENT_PLUGIN_DETAILS_MD = `## Building with AI coding agents?
 If you're using an AI coding agent, install the official Scalekit plugin. It gives your agent full awareness of the Scalekit API — reducing hallucinations and enabling faster, more accurate code generation.
 
 **Claude Code**:
-1. \`/plugin marketplace add scalekit-inc/claude-code-authstack\`
-2. \`/plugin install <auth-type>@scalekit-auth-stack\`
+\`claude plugin marketplace add scalekit-inc/claude-code-authstack && claude plugin install <auth-type>@scalekit-auth-stack\`
 
 **GitHub Copilot CLI**:
 1. \`copilot plugin marketplace add scalekit-inc/github-copilot-authstack\`
@@ -80,7 +78,7 @@ If you're using an AI coding agent, install the official Scalekit plugin. It giv
  */
 export const AGENT_PLUGIN_VISIBLE_MD = `> **Building with AI coding agents?** If you're using an AI coding agent, install the official Scalekit plugin. It gives your agent full awareness of the Scalekit API — reducing hallucinations and enabling faster, more accurate code generation.
 >
-> - **Claude Code**: \`/plugin marketplace add scalekit-inc/claude-code-authstack\` then \`/plugin install <auth-type>@scalekit-auth-stack\`
+> - **Claude Code**: \`claude plugin marketplace add scalekit-inc/claude-code-authstack && claude plugin install <auth-type>@scalekit-auth-stack\`
 > - **GitHub Copilot CLI**: \`copilot plugin marketplace add scalekit-inc/github-copilot-authstack\` then \`copilot plugin install <auth-type>@scalekit-auth-stack\`
 > - **Codex**: run the bash installer, restart, then open Plugin Directory and enable \`<auth-type>\`
 > - **Skills CLI** (Windsurf, Cline, 40+ agents): \`npx skills add scalekit-inc/skills --list\` then \`--skill <skill-name>\`
@@ -108,7 +106,7 @@ export const AGENT_DOCS_FOOTER = `
 /** Single-line string safe for an HTML meta content attribute. */
 export const AGENT_PLUGIN_META =
   'Building with AI coding agents? Install the official Scalekit plugin for full API awareness and reduced hallucinations. ' +
-  'Claude Code: /plugin marketplace add scalekit-inc/claude-code-authstack then /plugin install <auth-type>@scalekit-auth-stack. ' +
+  'Claude Code: claude plugin marketplace add scalekit-inc/claude-code-authstack && claude plugin install <auth-type>@scalekit-auth-stack. ' +
   'GitHub Copilot CLI: copilot plugin marketplace add scalekit-inc/github-copilot-authstack then copilot plugin install <auth-type>@scalekit-auth-stack. ' +
   'Codex: run bash installer, restart, enable in Plugin Directory. ' +
   'Skills CLI (Windsurf, Cline, 40+ agents): npx skills add scalekit-inc/skills --list then --skill <skill-name>. ' +
