@@ -7,6 +7,46 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
+  commonroommcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/commonroom.svg',
+    authType: 'OAuth 2.0',
+    categories: ['marketing', 'sales', 'analytics', 'crm'],
+  },
+  fellowaimcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/fellowai.svg',
+    authType: 'OAuth 2.0',
+    categories: ['productivity', 'project_management'],
+  },
+  supermetricsmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/supermetrics.svg',
+    authType: 'OAuth 2.0',
+    categories: ['marketing', 'sales', 'analytics', 'crm'],
+  },
+  customeriomcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/customerio.svg',
+    authType: 'OAuth 2.0',
+    categories: ['marketing', 'sales', 'analytics', 'crm'],
+  },
+  zapiermcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/zapier.svg',
+    authType: 'OAuth 2.0',
+    categories: ['automation', 'productivity', 'developer_tools'],
+  },
+  clickhouse: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/clickhouse.svg',
+    authType: 'OAuth 2.0',
+    categories: ['analytics', 'developer_tools', 'data'],
+  },
+  atlassianmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/atlassian.svg',
+    authType: 'OAuth 2.0',
+    categories: ['project_management', 'productivity'],
+  },
+  ahrefsmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/ahrefs.svg',
+    authType: 'OAuth 2.0',
+    categories: ['marketing', 'sales', 'crm'],
+  },
   clarifymcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/clarify.svg',
     authType: 'OAuth 2.0',
