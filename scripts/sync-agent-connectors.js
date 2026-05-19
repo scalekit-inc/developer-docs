@@ -972,8 +972,25 @@ function getRequiredParams(tool) {
 function isReadOnlyTool(name) {
   // Extract segments after the connector prefix and check if the action verb
   // (first or last segment) is read-only
-  const segments = (name || '').toLowerCase().replace(/^[a-z]+_/, '').split('_')
-  const readVerbs = new Set(['get', 'list', 'search', 'read', 'fetch', 'query', 'find', 'check', 'view', 'myself', 'info', 'status', 'whoami'])
+  const segments = (name || '')
+    .toLowerCase()
+    .replace(/^[a-z]+_/, '')
+    .split('_')
+  const readVerbs = new Set([
+    'get',
+    'list',
+    'search',
+    'read',
+    'fetch',
+    'query',
+    'find',
+    'check',
+    'view',
+    'myself',
+    'info',
+    'status',
+    'whoami',
+  ])
   return readVerbs.has(segments[0]) || readVerbs.has(segments[segments.length - 1])
 }
 
@@ -983,7 +1000,9 @@ function selectQuickstartTool(tools) {
   const sorted = [...tools].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
 
   // Prefer a read-only tool with zero required params
-  const readOnlyNoReq = sorted.find((t) => getRequiredParams(t).length === 0 && isReadOnlyTool(t.name))
+  const readOnlyNoReq = sorted.find(
+    (t) => getRequiredParams(t).length === 0 && isReadOnlyTool(t.name),
+  )
   if (readOnlyNoReq) {
     return { name: readOnlyNoReq.name, toolInput: null }
   }

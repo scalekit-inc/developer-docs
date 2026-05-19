@@ -294,7 +294,7 @@ import { serveAuthPage } from './authServer.js';
 await Actor.init();
 
 const input = await Actor.getInput();
-const { task, llmApiKey } = input;
+const { task } = input;
 
 const { userId } = Actor.getEnv();
 const notionIdentifier = userId;
@@ -355,18 +355,13 @@ The Actor's input form should show only what the end user actually needs to prov
       "type": "string",
       "description": "Natural language task for the agent. Examples: 'List the 5 most recently edited pages in my Notion workspace' or 'Search YouTube for React tutorial channels and append the top 10 to my Research page'.",
       "editor": "textarea"
-    },
-    "llmApiKey": {
-      "title": "LLM API Key",
-      "type": "string",
-      "description": "API key for the LLM endpoint.",
-      "isSecret": true,
-      "editor": "textfield"
     }
   },
-  "required": ["task", "llmApiKey"]
+  "required": ["task"]
 }
 ```
+
+By default the Actor uses [Apify's OpenRouter proxy](https://apify.com/apify/openrouter) for LLM inference, authenticated via `APIFY_TOKEN` (which Apify sets automatically). No external API key is needed — LLM costs are billed to the user's Apify credits. If your Actor needs to support a custom LLM endpoint, add an optional `llmApiKey` field and detect the endpoint at runtime.
 
 Everything else — `notionIdentifier`, `youtubeIdentifier`, timeouts, model name, base URL — is either derived at runtime (`userId`) or hardcoded and deployed as an Actor environment variable.
 
@@ -388,8 +383,7 @@ Provide input in `storage/key_value_stores/default/INPUT.json`:
 
 ```json
 {
-  "task": "List the 5 most recently edited pages in my Notion workspace",
-  "llmApiKey": "sk-..."
+  "task": "List the 5 most recently edited pages in my Notion workspace"
 }
 ```
 
