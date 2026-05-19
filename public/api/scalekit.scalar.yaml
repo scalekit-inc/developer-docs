@@ -235,9 +235,9 @@ paths:
           in: query
         - schema:
             type: string
-          description: Filter by connector type. Connector identifier such as
-            'notion', 'slack', 'google', etc. Alphanumeric with spaces, hyphens,
-            underscores, and colons allowed.
+          description: Filter by connector type (e.g., 'notion', 'slack',
+            'google'). Alphanumeric characters, spaces, hyphens, underscores,
+            and colons are allowed.
           name: connector
           in: query
         - schema:
@@ -384,7 +384,7 @@ paths:
         credential information - use appropriate access controls.
       tags:
         - Connected Accounts
-      summary: Get connected account details
+      summary: Get connected account auth credentials
       operationId: ConnectedAccountService_GetConnectedAccountAuth
       parameters:
         - schema:
@@ -399,7 +399,9 @@ paths:
           in: query
         - schema:
             type: string
-          description: Connector identifier
+          description: Connector identifier (e.g., 'notion', 'slack', 'google').
+            Alphanumeric characters, spaces, hyphens, underscores, and colons
+            are allowed.
           name: connector
           in: query
         - schema:
@@ -418,6 +420,69 @@ paths:
         '200':
           description: Successfully retrieved connected account with full
             authentication details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connected_accountsGetConnectedAccountByIdentifierResponse'
+        '400':
+          description: Invalid request - missing required query parameters
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required - missing or invalid access token
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Connected account not found - no account matches the
+            specified criteria
+          content:
+            application/json:
+              schema: {}
+  /api/v1/connected_accounts/details:
+    get:
+      description: Returns metadata for a connected account including status,
+        connector type, provider, and configuration without exposing stored
+        authorization credentials. Look up by account ID, or by a combination of
+        organization (or user), connector, and external identifier.
+      tags:
+        - Connected Accounts
+      summary: Get connected account metadata
+      operationId: ConnectedAccountService_GetConnectedAccountDetails
+      parameters:
+        - schema:
+            type: string
+          description: Organization ID for the connector
+          name: organization_id
+          in: query
+        - schema:
+            type: string
+          description: User ID for the connector
+          name: user_id
+          in: query
+        - schema:
+            type: string
+          description: Connector identifier (e.g., 'notion', 'slack', 'google').
+            Alphanumeric characters, spaces, hyphens, underscores, and colons
+            are allowed.
+          name: connector
+          in: query
+        - schema:
+            type: string
+          description: The unique identifier for the connected account within
+            the third-party service (e.g., email address, user ID, workspace
+            identifier).
+          name: identifier
+          in: query
+        - schema:
+            type: string
+          description: Unique identifier for the connected account
+          name: id
+          in: query
+      responses:
+        '200':
+          description: Successfully retrieved connected account details
           content:
             application/json:
               schema:
@@ -960,6 +1025,8 @@ paths:
             schema:
               description: Membership details to create. Required fields must be
                 provided.
+              required:
+                - membership
               $ref: '#/components/schemas/v1usersCreateMembership'
         required: true
     delete:
@@ -1197,8 +1264,10 @@ paths:
       parameters:
         - schema:
             type: string
-          description: Unique scalekit-generated identifier that uniquely
-            references an organization
+          description: Unique Scalekit-generated identifier for an organization.
+            Use this with the GetOrganization endpoint. Do not pass this
+            parameter when calling GetOrganizationByExternalId — use external_id
+            instead.
           name: id
           in: path
           required: true
@@ -3425,6 +3494,71 @@ paths:
           lang: java
           source: scalekitClient.domains().deleteDomain(organization.getId(),
             domain.getId());
+  /api/v1/organizations/{organization_id}/session-policy:
+    get:
+      description: Retrieves the session policy for an organization. Returns
+        session_policy='APPLICATION' if the organization inherits the
+        application-level defaults, or session_policy='CUSTOM' with the
+        configured values if a custom policy is active.
+      tags:
+        - Organizations
+      summary: Get organization session policy
+      operationId: OrganizationService_GetOrganizationSessionPolicy
+      parameters:
+        - schema:
+            type: string
+          description: The unique identifier of the organization whose session
+            policy is being requested.
+          name: organization_id
+          in: path
+          required: true
+      responses:
+        '200':
+          description: Session policy retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organizationsGetOrganizationSessionPolicyResponse'
+        '404':
+          description: Organization not found.
+          content:
+            application/json:
+              schema: {}
+    patch:
+      description: Sets a custom session policy for an organization or reverts
+        to application-level settings. Send session_policy='APPLICATION' to
+        revert to application defaults. Send session_policy='CUSTOM' with
+        timeout values to activate a custom policy.
+      tags:
+        - Organizations
+      summary: Update organization session policy
+      operationId: OrganizationService_UpdateOrganizationSessionPolicy
+      parameters:
+        - schema:
+            type: string
+          description: The unique identifier of the organization whose session
+            policy is being updated.
+          name: organization_id
+          in: path
+          required: true
+      responses:
+        '200':
+          description: Session policy updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organizationsUpdateOrganizationSessionPolicyResponse'
+        '404':
+          description: Organization not found.
+          content:
+            application/json:
+              schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationServiceUpdateOrganizationSessionPolicyBody'
+        required: true
   /api/v1/organizations/{organization_id}/settings/usermanagement:
     patch:
       description: Upsert user management settings for an organization
@@ -3837,8 +3971,12 @@ paths:
               schema: {}
   /api/v1/organizations:external/{external_id}:
     get:
-      description: Retrieves organization details by External ID, including
-        name, region, metadata, and settings
+      description: Retrieves organization details by external ID, including
+        name, region, metadata, and settings. Only provide external_id in the
+        path. If the id query parameter is also supplied, it silently takes
+        precedence over external_id due to protobuf oneof semantics, which
+        causes the request to fail with a 400 Bad Request ('ExternalId is
+        required').
       tags:
         - Organizations
       summary: Get organization details by external Id
@@ -3846,15 +3984,19 @@ paths:
       parameters:
         - schema:
             type: string
-          description: Unique identifier that links an Organization Object to
-            your app's tenant, stored as an External ID
+          description: Unique identifier that links an organization to your
+            app's tenant. Use this with the GetOrganizationByExternalId
+            endpoint. Only one of id or external_id should be provided per
+            request.
           name: external_id
           in: path
           required: true
         - schema:
             type: string
-          description: Unique scalekit-generated identifier that uniquely
-            references an organization
+          description: Unique Scalekit-generated identifier for an organization.
+            Use this with the GetOrganization endpoint. Do not pass this
+            parameter when calling GetOrganizationByExternalId — use external_id
+            instead.
           name: id
           in: query
       responses:
@@ -4904,53 +5046,6 @@ paths:
 
             // With reassignment
             scalekitClient.roles().deleteRole("admin", "member");
-  /api/v1/roles/{role_name}/base:
-    delete:
-      description: Removes the base role inheritance relationship for a
-        specified role, effectively eliminating all inherited permissions from
-        the base role. Use this endpoint when you want to break the hierarchical
-        relationship between roles and remove inherited permissions. The role
-        will retain only its directly assigned permissions after this operation.
-        This action cannot be undone, so ensure the role has sufficient direct
-        permissions before removing inheritance. Returns no content on
-        successful removal of the base relationship.
-      tags:
-        - Roles
-      summary: Delete role inheritance relationship
-      operationId: RolesService_DeleteRoleBase
-      parameters:
-        - schema:
-            type: string
-          description: Unique name identifier of the role whose base inheritance
-            relationship should be removed. Must be alphanumeric with
-            underscores, 1-64 characters.
-          name: role_name
-          in: path
-          required: true
-      responses:
-        '200':
-          description: Base role inheritance relationship successfully removed.
-            The role now has only its directly assigned permissions.
-          content:
-            application/json:
-              schema: {}
-      x-codeSamples:
-        - label: Node.js SDK
-          lang: javascript
-          source: await scalekit.role.deleteRoleBase("senior_editor");
-        - label: Python SDK
-          lang: python
-          source: scalekit_client.roles.delete_role_base(role_name="senior_editor")
-        - label: Go SDK
-          lang: go
-          source: |-
-            err := scalekitClient.Role().DeleteRoleBase(ctx, "senior_editor")
-            if err != nil {
-                // handle error
-            }
-        - label: Java SDK
-          lang: java
-          source: scalekitClient.roles().deleteRoleBase("senior_editor");
   /api/v1/roles/{role_name}/dependents:
     get:
       description: Retrieves all roles that directly extend the specified base
@@ -5214,33 +5309,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/rolesListEffectiveRolePermissionsResponse'
-      x-codeSamples:
-        - label: Node.js SDK
-          lang: javascript
-          source: const { permissions } = await
-            scalekit.permission.listEffectiveRolePermissions("senior_editor");
-        - label: Python SDK
-          lang: python
-          source: |-
-            response = scalekit_client.permissions.list_effective_role_permissions(role_name="senior_editor")
-            permissions = response.permissions
-        - label: Go SDK
-          lang: go
-          source: >-
-            resp, err :=
-            scalekitClient.Permission().ListEffectiveRolePermissions(ctx,
-            "senior_editor")
-
-            if err != nil {
-                // handle error
-            }
-
-            permissions := resp.Permissions
-        - label: Java SDK
-          lang: java
-          source: |-
-            ListEffectiveRolePermissionsResponse response = scalekitClient.permissions().listEffectiveRolePermissions("senior_editor");
-            List<Permission> permissions = response.getPermissionsList();
   /api/v1/roles/{role_name}/users:count:
     get:
       description: Retrieves the total number of users currently assigned to the
@@ -6250,6 +6318,50 @@ components:
           description: Absolute URL to the documentation page (e.g.
             "https://docs.scalekit.com/...").
           type: string
+    OrganizationServiceUpdateOrganizationSessionPolicyBody:
+      type: object
+      properties:
+        absolute_session_timeout:
+          description: The absolute session timeout value. The unit is specified
+            by absolute_session_timeout_unit. Omit when policy_source is
+            APPLICATION.
+          type: integer
+          format: int32
+          examples:
+            - 360
+        absolute_session_timeout_unit:
+          description: "Unit for absolute_session_timeout. Accepted values: 'MINUTES',
+            'HOURS', 'DAYS'. Defaults to MINUTES."
+          $ref: '#/components/schemas/commonsTimeUnit'
+          examples:
+            - MINUTES
+        idle_session_timeout:
+          description: The idle session timeout value. The unit is specified by
+            idle_session_timeout_unit. Omit when idle_session_timeout_enabled is
+            false.
+          type: integer
+          format: int32
+          examples:
+            - 84
+        idle_session_timeout_enabled:
+          description: Whether idle session timeout is enabled. Omit when
+            policy_source is APPLICATION.
+          type: boolean
+          examples:
+            - true
+        idle_session_timeout_unit:
+          description: "Unit for idle_session_timeout. Accepted values: 'MINUTES',
+            'HOURS', 'DAYS'. Defaults to MINUTES."
+          $ref: '#/components/schemas/commonsTimeUnit'
+          examples:
+            - MINUTES
+        policy_source:
+          description: Policy source. Send 'APPLICATION' to revert to
+            application defaults. Send 'CUSTOM' with timeout values to activate
+            a custom policy.
+          $ref: '#/components/schemas/organizationsSessionPolicyType'
+          examples:
+            - CUSTOM
     OrganizationServiceUpsertUserManagementSettingsBody:
       type: object
       properties:
@@ -7061,6 +7173,12 @@ components:
           type: string
           examples:
             - team_dev
+    commonsTimeUnit:
+      type: string
+      enum:
+        - MINUTES
+        - HOURS
+        - DAYS
     commonsUserProfile:
       type: object
       properties:
@@ -7222,6 +7340,9 @@ components:
       type: object
       title: Authentication credentials container supporting multiple auth types
       properties:
+        google_dwd:
+          title: Google Domain-Wide Delegation credentials
+          $ref: '#/components/schemas/connected_accountsGoogleDWDAuth'
         oauth_token:
           title: OAuth 2.0 credentials
           $ref: '#/components/schemas/connected_accountsOauthToken'
@@ -7370,6 +7491,7 @@ components:
          - PENDING_AUTH: Account awaiting user authorization (re-auth initiated)
          - PENDING_VERIFICATION: OAuth complete; awaiting user identity verification
         before activation
+         - DISCONNECTED: Account has been manually disconnected
       type: string
       title: Status of a connected account indicating its current state
       enum:
@@ -7377,6 +7499,7 @@ components:
         - EXPIRED
         - PENDING_AUTH
         - PENDING_VERIFICATION
+        - DISCONNECTED
     connected_accountsConnectorType:
       description: |-
         - OAUTH: OAuth 2.0 authorization with access and refresh tokens
@@ -7385,6 +7508,9 @@ components:
          - BEARER_TOKEN: Bearer token authentication
          - CUSTOM: Custom authentication mechanism
          - BASIC: Basic authentication (alias)
+         - OAUTH_M2M: OAuth 2.0 client credentials (machine-to-machine)
+         - TRELLO_OAUTH1: Trello token-based OAuth1-style browser authorization
+         - GOOGLE_DWD: Google Domain-Wide Delegation
       type: string
       title: Type of authentication mechanism used for the connected account
       enum:
@@ -7394,6 +7520,9 @@ components:
         - BEARER_TOKEN
         - CUSTOM
         - BASIC
+        - OAUTH_M2M
+        - TRELLO_OAUTH1
+        - GOOGLE_DWD
     connected_accountsCreateConnectedAccountRequest:
       type: object
       properties:
@@ -7410,7 +7539,9 @@ components:
                     - write
               authorization_type: OAUTH2
         connector:
-          description: Connector identifier
+          description: Connector identifier (e.g., 'notion', 'slack', 'google').
+            Alphanumeric characters, spaces, hyphens, underscores, and colons
+            are allowed.
           type: string
           examples:
             - notion
@@ -7443,7 +7574,9 @@ components:
       type: object
       properties:
         connector:
-          description: Connector identifier
+          description: Connector identifier (e.g., 'notion', 'slack', 'google').
+            Alphanumeric characters, spaces, hyphens, underscores, and colons
+            are allowed.
           type: string
           examples:
             - notion
@@ -7483,7 +7616,9 @@ components:
       type: object
       properties:
         connector:
-          description: Connector identifier
+          description: Connector identifier (e.g., 'notion', 'slack', 'google').
+            Alphanumeric characters, spaces, hyphens, underscores, and colons
+            are allowed.
           type: string
           examples:
             - notion
@@ -7534,6 +7669,43 @@ components:
           type: string
           examples:
             - https://notion.com/oauth/authorize?client_id=...
+    connected_accountsGoogleDWDAuth:
+      description: >-
+        Google Domain-Wide Delegation authentication — used for GOOGLE_DWD
+        connections.
+
+        Send only subject in requests; access_token, scopes, and
+        token_expires_at are response-only.
+      type: object
+      properties:
+        access_token:
+          description: OAuth access token acquired via the jwt-bearer grant.
+            Present in responses only.
+          type: string
+          readOnly: true
+          examples:
+            - ya29.a0AfH6SMBx...
+        scopes:
+          description: OAuth scopes granted to this token. Present in responses
+            only.
+          type: array
+          items:
+            type: string
+          readOnly: true
+          examples:
+            - - openid
+              - https://www.googleapis.com/auth/userinfo.email
+        subject:
+          description: Email address of the Google Workspace user to impersonate
+            via Domain-Wide Delegation.
+          type: string
+          examples:
+            - user@example.com
+        token_expires_at:
+          description: When the access token expires. Present in responses only.
+          type: string
+          format: date-time
+          readOnly: true
     connected_accountsListConnectedAccountsResponse:
       type: object
       properties:
@@ -7652,7 +7824,9 @@ components:
                     - write
               authorization_type: OAUTH2
         connector:
-          description: Connector identifier
+          description: Connector identifier (e.g., 'notion', 'slack', 'google').
+            Alphanumeric characters, spaces, hyphens, underscores, and colons
+            are allowed.
           type: string
           examples:
             - notion
@@ -7758,6 +7932,10 @@ components:
           type: boolean
           examples:
             - false
+        google_dwd_config:
+          description: Configuration details for Google Domain-Wide Delegation.
+            Present only when type is GOOGLE_DWD.
+          $ref: '#/components/schemas/connectionsGoogleDWDConfig'
         id:
           description: Unique identifier for this connection. Used in API calls
             to reference this specific connection.
@@ -7866,6 +8044,9 @@ components:
         - BEARER
         - API_KEY
         - WEBAUTHN
+        - OAUTH_M2M
+        - TRELLO_OAUTH1
+        - GOOGLE_DWD
     connectionsGetConnectionResponse:
       type: object
       properties:
@@ -7874,6 +8055,22 @@ components:
             configuration, protocol settings, status, and all metadata. Contains
             everything needed to understand the connection's current state.
           $ref: '#/components/schemas/connectionsConnection'
+    connectionsGoogleDWDConfig:
+      type: object
+      properties:
+        scopes:
+          description: OAuth 2.0 scopes to request.
+          type: array
+          items:
+            type: string
+        service_account_json:
+          description: 'Google Cloud service account JSON key. Write-only: reads return
+            a masked value.'
+          type: string
+        token_uri:
+          description: Google token endpoint. Defaults to
+            https://oauth2.googleapis.com/token.
+          type: string
     connectionsIDPCertificate:
       type: object
       properties:
@@ -7987,6 +8184,12 @@ components:
           type: string
           examples:
             - offline
+        app_name:
+          description: Application name used by providers that require it as an
+            authorize query parameter (e.g., Trello's app_name).
+          type: string
+          examples:
+            - My Trello App
         authorize_uri:
           description: Authorize URI
           type: string
@@ -8007,6 +8210,19 @@ components:
           type: string
           examples:
             - user_scope
+        is_cimd:
+          description: Indicates whether this connection was registered using
+            Client ID Metadata Document (CIMD) instead of Dynamic Client
+            Registration.
+          type: boolean
+          readOnly: true
+          examples:
+            - true
+        optional_scopes:
+          description: Optional scopes configuration for identity providers that
+            support or require additional scopes to be sent in a custom field
+            during authentication requests.
+          $ref: '#/components/schemas/connectionsOptionalScopes'
         pkce_enabled:
           description: PKCE Enabled
           type: boolean
@@ -8167,6 +8383,26 @@ components:
         - email
         - address
         - phone
+    connectionsOptionalScopes:
+      type: object
+      properties:
+        field_name:
+          description: Name of the field in which scope should be sent in the
+            authentication request. This is required by some identity providers
+            that expect scopes to be sent in a custom field instead of the
+            standard 'scope' parameter.
+          type: string
+          examples:
+            - optional_scope or bot_scope
+        scopes:
+          description: List of optional scopes that can be requested during
+            authentication
+          type: array
+          items:
+            type: string
+          examples:
+            - - scope1
+              - scope2
     connectionsPasswordLessConfig:
       type: object
       properties:
@@ -9055,6 +9291,12 @@ components:
         organization:
           description: The newly created organization
           $ref: '#/components/schemas/organizationsOrganization'
+    organizationsGetOrganizationSessionPolicyResponse:
+      type: object
+      properties:
+        policy:
+          description: The session policy for the organization.
+          $ref: '#/components/schemas/organizationsOrganizationSessionPolicySettings'
     organizationsLink:
       type: object
       properties:
@@ -9137,6 +9379,15 @@ components:
           title: Id
           examples:
             - org_59615193906282635
+        logo_url:
+          description: HTTPS URL of the organization's logo image. Maximum 2048
+            characters. Must use the https scheme.
+          type: string
+          format: uri
+          maxLength: 2048
+          pattern: ^https://
+          examples:
+            - https://cdn.example.com/acme-logo.png
         metadata:
           description: Key value pairs extension attributes.
           type: object
@@ -9152,6 +9403,16 @@ components:
         settings:
           title: Organization Settings
           $ref: '#/components/schemas/organizationsOrganizationSettings'
+        slug:
+          description: DNS-safe slug for dynamic redirect URI resolution. Must
+            be 1-63 chars, lowercase alphanumeric and hyphens, must start and
+            end with an alphanumeric character. Unique per environment.
+          type: string
+          maxLength: 63
+          minLength: 1
+          pattern: ^[a-z0-9]([a-z0-9]|-[a-z0-9])*$
+          examples:
+            - acme
         update_time:
           description: Timestamp when the organization was last updated
           type: string
@@ -9159,6 +9420,50 @@ components:
           title: Updated time
           examples:
             - 2025-02-15T06:23:44.560000Z
+    organizationsOrganizationSessionPolicySettings:
+      type: object
+      properties:
+        absolute_session_timeout:
+          description: The absolute session timeout value. The unit is specified
+            by absolute_session_timeout_unit. Omitted when policy_source is
+            'environment'.
+          type: integer
+          format: int32
+          examples:
+            - 360
+        absolute_session_timeout_unit:
+          description: "Unit for absolute_session_timeout. Accepted values: 'minutes',
+            'hours', 'days'. Responses always return 'minutes'."
+          $ref: '#/components/schemas/commonsTimeUnit'
+          examples:
+            - minutes
+        idle_session_timeout:
+          description: The idle session timeout value. The unit is specified by
+            idle_session_timeout_unit. Omitted when idle_session_timeout_enabled
+            is false or policy_source is 'environment'.
+          type: integer
+          format: int32
+          examples:
+            - 84
+        idle_session_timeout_enabled:
+          description: Whether idle session timeout is enabled for this
+            organization. Omitted when policy_source is 'environment'.
+          type: boolean
+          examples:
+            - true
+        idle_session_timeout_unit:
+          description: "Unit for idle_session_timeout. Accepted values: 'minutes',
+            'hours', 'days'. Responses always return 'minutes'."
+          $ref: '#/components/schemas/commonsTimeUnit'
+          examples:
+            - minutes
+        policy_source:
+          description: Policy source. 'APPLICATION' means the organization
+            inherits the application-level session policy. 'CUSTOM' means
+            organization-specific timeout values are active.
+          $ref: '#/components/schemas/organizationsSessionPolicyType'
+          examples:
+            - CUSTOM
     organizationsOrganizationSettings:
       description: Configuration options that control organization-level
         features and capabilities
@@ -9202,7 +9507,8 @@ components:
         name:
           description: 'Feature identifier. Supported values include: "sso" (Single
             Sign-On), "directory_sync" (Directory Synchronization), "domain_verification"
-            (Domain Verification)'
+            (Domain Verification), "session_policy" (Organization-level session policy
+            override)'
           type: string
           examples:
             - sso
@@ -9218,12 +9524,23 @@ components:
           format: int32
           examples:
             - 100
+    organizationsSessionPolicyType:
+      type: string
+      enum:
+        - APPLICATION
+        - CUSTOM
     organizationsUpdateOrganizationResponse:
       type: object
       properties:
         organization:
           description: Updated organization details
           $ref: '#/components/schemas/organizationsOrganization'
+    organizationsUpdateOrganizationSessionPolicyResponse:
+      type: object
+      properties:
+        policy:
+          description: The updated session policy for the organization.
+          $ref: '#/components/schemas/organizationsOrganizationSessionPolicySettings'
     organizationsUpsertUserManagementSettingsResponse:
       type: object
       properties:
@@ -10052,6 +10369,13 @@ components:
     toolsExecuteToolRequest:
       type: object
       properties:
+        agent_run_id:
+          description: Optional. Customer-supplied identifier grouping multiple
+            tool calls into a single agent run. Useful for correlating logs
+            across an agentic workflow.
+          type: string
+          examples:
+            - run_abc123
         connected_account_id:
           description: Optional. The unique ID of the connected account. Use
             this to directly identify the connected account instead of using
@@ -10061,8 +10385,9 @@ components:
             - ca_123
         connector:
           description: Optional. The name of the connector/provider (e.g.,
-            'Google Workspace', 'Slack', 'Notion'). Use this in combination with
-            identifier to identify the connected account.
+            'Google Workspace', 'Slack', 'Notion'). Alphanumeric characters,
+            spaces, hyphens, underscores, and colons are allowed. Use this in
+            combination with identifier to identify the connected account.
           type: string
           examples:
             - Google Workspace
@@ -10744,10 +11069,30 @@ components:
           type: string
           examples:
             - my_unique_id
+        logo_url:
+          description: HTTPS URL of the organization's logo image. Maximum 2048
+            characters. Must use the https scheme.
+          type: string
+          format: uri
+          maxLength: 2048
+          pattern: ^https://
+          examples:
+            - https://cdn.example.com/acme-logo.png
         metadata:
           type: object
           additionalProperties:
             type: string
+        slug:
+          description: DNS-safe slug for dynamic redirect URI resolution (e.g.
+            acme for https://acme.example.com/callback). Lowercase alphanumeric
+            and hyphens, 1-63 chars, must start and end with alphanumeric,
+            unique per environment.
+          type: string
+          maxLength: 63
+          minLength: 1
+          pattern: ^[a-z0-9]([a-z0-9]|-[a-z0-9])*$
+          examples:
+            - acme
     v1organizationsUpdateOrganization:
       description: For update messages ensure the indexes are same as the base
         model itself.
@@ -10765,6 +11110,15 @@ components:
           type: string
           examples:
             - tenant_12345
+        logo_url:
+          description: HTTPS URL of the organization's logo image. Maximum 2048
+            characters. Must use the https scheme.
+          type: string
+          format: uri
+          maxLength: 2048
+          pattern: ^https://
+          examples:
+            - https://cdn.example.com/acme-logo.png
         metadata:
           description: Custom key-value pairs to store with the organization.
             Keys must be 3-25 characters, values must be 1-256 characters.
@@ -10774,6 +11128,16 @@ components:
             type: string
           examples:
             - industry: technology
+        slug:
+          description: DNS-safe slug for dynamic redirect URI resolution.
+            Lowercase alphanumeric and hyphens, 1-63 chars, must start and end
+            with alphanumeric, unique per environment.
+          type: string
+          maxLength: 63
+          minLength: 1
+          pattern: ^[a-z0-9]([a-z0-9]|-[a-z0-9])*$
+          examples:
+            - acme
     v1rolesCreateOrganizationRole:
       type: object
       properties:
@@ -11192,6 +11556,30 @@ components:
           type: string
           examples:
             - user_xyz789
+    TestUser:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: 'Whether test user mode is enabled for this environment.'
+          example: true
+        emails:
+          type: array
+          items:
+            type: string
+            format: email
+          description: "Explicit list of test user email addresses. Each email must
+            contain '+sktest' in the local part (e.g. alice+sktest@example.com). Maximum
+            5 emails per environment (configurable server-side)."
+          example: ['alice+sktest@example.com', 'bob+sktest@example.com']
+        static_confirmation_code:
+          type: string
+          pattern: '^[0-9]{6}$'
+          minLength: 6
+          maxLength: 6
+          description: 'Six-digit static OTP code used in place of a real verification
+            email for matched test users.'
+          example: '424242'
     ScalekitEvent:
       type: object
       required:
