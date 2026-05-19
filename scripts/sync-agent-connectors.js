@@ -36,7 +36,18 @@ function loadCapabilityOverrides() {
   }
 }
 
+function loadTagOverrides() {
+  const tagsPath = path.join(__dirname, '../src/data/agent-connectors/tags.json')
+  try {
+    const raw = fs.readFileSync(tagsPath, 'utf8')
+    return JSON.parse(raw)
+  } catch {
+    return {}
+  }
+}
+
 const CAPABILITY_OVERRIDES = loadCapabilityOverrides()
+const TAG_OVERRIDES = loadTagOverrides()
 
 // ---------------------------------------------------------------------------
 // Env loader (using dotenv)
@@ -1248,6 +1259,8 @@ function generateMdxContent(provider, tools) {
   }
   descClean = descClean.replace(/'/g, "''")
   lines.push(`description: '${descClean}'`)
+  const tagOverride = TAG_OVERRIDES[providerSlug]
+  if (tagOverride && tagOverride.length) lines.push(`tags: [${tagOverride.join(', ')}]`)
   lines.push('sidebar:')
   lines.push(`  label: '${providerName.replace(/'/g, "''")}'`)
   lines.push(`overviewTitle: 'Quickstart'`)
