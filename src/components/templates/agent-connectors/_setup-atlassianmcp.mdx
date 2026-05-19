@@ -1,0 +1,35 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with the Atlassian Rovo MCP connector so Scalekit handles the OAuth flow and token lifecycle for you.
+
+<Steps>
+1. ### Copy the redirect URI from Scalekit
+
+   In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **Atlassian Rovo MCP** and click **Create**. Copy the redirect URI — it looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+2. ### Open the Rovo MCP server settings in Atlassian
+
+   - Go to [admin.atlassian.com](https://admin.atlassian.com) and select your organisation.
+   - In the left sidebar, expand **Rovo** and click **Rovo access**.
+   - Click **Rovo MCP server** in the submenu.
+   - Select the **Domains** tab at the top of the page.
+
+   <Aside type="note" title="Admin access required">
+     You must be an Atlassian organisation admin to access these settings. If you don't see **Rovo** in the sidebar, your organisation may not have Rovo enabled.
+   </Aside>
+
+3. ### Add the redirect URI as a domain
+
+   - Under **Your domains**, click **Add domain**.
+
+   ![Your domains section in Atlassian Rovo MCP server](@/assets/docs/agent-connectors/atlassianmcp/add-domain-redirect-uri.png)
+
+   - In the **Add domain** dialog, paste the redirect URI you copied from Scalekit into the **Domain** field. The value should match `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+   - Accept the terms and click **Add**.
+
+   ![Add domain dialog in Atlassian Rovo MCP server](@/assets/docs/agent-connectors/atlassianmcp/add-domain-modal.png)
+
+4. ### Authorize and connect
+
+   Once the domain is saved, return to the Scalekit dashboard and complete the connection setup. Scalekit handles token exchange and refresh automatically for each user who authorizes the connector.
+</Steps>
