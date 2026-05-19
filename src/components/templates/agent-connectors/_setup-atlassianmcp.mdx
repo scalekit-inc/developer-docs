@@ -1,11 +1,13 @@
 import { Steps, Aside } from '@astrojs/starlight/components'
 
-Register your Scalekit environment with the Atlassian Rovo MCP connector so Scalekit handles the OAuth flow and token lifecycle for you.
+Atlassian Rovo MCP uses Dynamic Client Registration (DCR) — no client ID or secret is needed. The only step is registering your Scalekit redirect URI as an allowed domain in Atlassian Administration.
 
 <Steps>
 1. ### Copy the redirect URI from Scalekit
 
    In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **Atlassian Rovo MCP** and click **Create**. Copy the redirect URI — it looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+   ![Copy redirect URI from Scalekit dashboard for Atlassian Rovo MCP](@/assets/docs/agent-connectors/atlassianmcp/copy-redirect-uri.png)
 
 2. ### Open the Rovo MCP server settings in Atlassian
 
@@ -22,14 +24,12 @@ Register your Scalekit environment with the Atlassian Rovo MCP connector so Scal
 
    - Under **Your domains**, click **Add domain**.
 
-   ![Your domains section in Atlassian Rovo MCP server](@/assets/docs/agent-connectors/atlassianmcp/add-domain-redirect-uri.png)
+   ![Your domains section in Atlassian Rovo MCP server administration](@/assets/docs/agent-connectors/atlassianmcp/add-domain-redirect-uri.png)
 
-   - In the **Add domain** dialog, paste the redirect URI you copied from Scalekit into the **Domain** field. The value should match `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+   - In the **Add domain** dialog, paste the redirect URI from Scalekit into the **Domain** field.
    - Accept the terms and click **Add**.
 
    ![Add domain dialog in Atlassian Rovo MCP server](@/assets/docs/agent-connectors/atlassianmcp/add-domain-modal.png)
 
-4. ### Authorize and connect
-
-   Once the domain is saved, return to the Scalekit dashboard and complete the connection setup. Scalekit handles token exchange and refresh automatically for each user who authorizes the connector.
+   Once added, Scalekit automatically registers the OAuth client via DCR and handles token management for every user who authorizes the connection — no further configuration needed.
 </Steps>
