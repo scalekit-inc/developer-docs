@@ -386,7 +386,7 @@ export const tools: Tool[] = [
         name: 'type',
         type: 'string',
         required: true,
-        description: `The relationship type for this issue link (e.g. Relates, Blocks, Duplicate).`,
+        description: `Space type filter (e.g. global or personal).`,
       },
       {
         name: 'comment',
@@ -452,7 +452,7 @@ export const tools: Tool[] = [
         name: 'description',
         type: 'string',
         required: false,
-        description: `A human-readable description of the Jira issue.`,
+        description: `The full description of the Jira issue.`,
       },
       {
         name: 'parent',
@@ -601,7 +601,7 @@ export const tools: Tool[] = [
         name: 'query',
         type: 'string',
         required: false,
-        description: `Text query to search for Compass components by name.`,
+        description: `Search query to find Atlassian content across Jira and Confluence.`,
       },
     ],
   },
@@ -911,7 +911,7 @@ export const tools: Tool[] = [
       },
       {
         name: 'labels',
-        type: 'string',
+        type: 'array',
         required: false,
         description: `List of space labels to filter by.`,
       },
@@ -985,7 +985,7 @@ export const tools: Tool[] = [
         name: 'fields',
         type: 'array',
         required: false,
-        description: `List of field IDs to include in the response. Omit to return all fields. Use field IDs like summary, status, priority, assignee, issuetype.`,
+        description: `Fields to update as a JSON object, e.g. {"summary": "New title", "priority": {"name": "High"}}.`,
       },
       {
         name: 'fieldsByKeys',
@@ -1321,7 +1321,7 @@ export const tools: Tool[] = [
         name: 'searchString',
         type: 'string',
         required: false,
-        description: `Text to filter projects by name or key.`,
+        description: `Text to search for when looking up Jira users.`,
       },
       {
         name: 'startAt',
@@ -1345,7 +1345,7 @@ export const tools: Tool[] = [
         name: 'searchString',
         type: 'string',
         required: true,
-        description: `Name or email to search for Atlassian users by.`,
+        description: `Text to search for when looking up Jira users.`,
       },
     ],
   },
@@ -1431,7 +1431,7 @@ export const tools: Tool[] = [
         name: 'fields',
         type: 'array',
         required: false,
-        description: `List of field IDs to include in each issue result. Defaults to summary, description, status, issuetype, priority, created. Use * to return all fields.`,
+        description: `Fields to update as a JSON object, e.g. {"summary": "New title", "priority": {"name": "High"}}.`,
       },
       {
         name: 'maxResults',
