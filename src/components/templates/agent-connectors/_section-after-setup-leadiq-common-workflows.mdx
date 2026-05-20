@@ -1,0 +1,324 @@
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+<Aside type="tip" title="No OAuth flow needed">
+  LeadIQ uses API key auth — there is no authorization link or redirect flow. Once you call `upsertConnectedAccount` (Node.js) / `upsert_connected_account` (Python) with your API key, your users can make requests immediately.
+</Aside>
+
+<details>
+<summary>Check credit quota before searching</summary>
+
+Always check available credits before calling tools that consume them (`leadiq_search_people`, `leadiq_flat_advanced_search`, `leadiq_grouped_advanced_search`).
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const usage = await actions.executeTool({
+      toolName: 'leadiq_get_usage',
+      connectionName: 'leadiq',
+      identifier: 'user_123',
+      toolInput: {},
+    });
+    console.log(usage.data?.usage);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    usage = actions.execute_tool(
+        tool_name="leadiq_get_usage",
+        connection_name="leadiq",
+        identifier="user_123",
+        tool_input={},
+    )
+    print(usage.data)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Preview contact availability before consuming credits</summary>
+
+Use `leadiq_search_people_preview` to check whether LeadIQ has a work email or phone for a person before calling `leadiq_search_people`. The preview call does not consume credits.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const preview = await actions.executeTool({
+      toolName: 'leadiq_search_people_preview',
+      connectionName: 'leadiq',
+      identifier: 'user_123',
+      toolInput: {
+        linkedin_url: 'https://www.linkedin.com/in/janedoe',
+      },
+    });
+
+    if (preview.data?.data?.searchPeoplePreview?.hasEmail) {
+      // Safe to call leadiq_search_people — credits will be consumed
+    }
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    preview = actions.execute_tool(
+        tool_name="leadiq_search_people_preview",
+        connection_name="leadiq",
+        identifier="user_123",
+        tool_input={"linkedin_url": "https://www.linkedin.com/in/janedoe"},
+    )
+
+    result = preview.data.get("data", {}).get("searchPeoplePreview", {})
+    if result.get("hasEmail"):
+        # Safe to call leadiq_search_people — credits will be consumed
+        pass
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Look up a contact by LinkedIn URL, email, or name</summary>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // By LinkedIn URL (most precise)
+    const contact = await actions.executeTool({
+      toolName: 'leadiq_search_people',
+      connectionName: 'leadiq',
+      identifier: 'user_123',
+      toolInput: {
+        linkedin_url: 'https://www.linkedin.com/in/janedoe',
+        limit: 1,
+      },
+    });
+
+    // By name + company
+    const byName = await actions.executeTool({
+      toolName: 'leadiq_search_people',
+      connectionName: 'leadiq',
+      identifier: 'user_123',
+      toolInput: {
+        first_name: 'Jane',
+        last_name: 'Doe',
+        company_name: 'Acme Corp',
+        limit: 5,
+      },
+    });
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    # By LinkedIn URL (most precise)
+    contact = actions.execute_tool(
+        tool_name="leadiq_search_people",
+        connection_name="leadiq",
+        identifier="user_123",
+        tool_input={
+            "linkedin_url": "https://www.linkedin.com/in/janedoe",
+            "limit": 1,
+        },
+    )
+
+    # By name + company
+    by_name = actions.execute_tool(
+        tool_name="leadiq_search_people",
+        connection_name="leadiq",
+        identifier="user_123",
+        tool_input={
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "company_name": "Acme Corp",
+            "limit": 5,
+        },
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Enrich a company by domain or name</summary>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const company = await actions.executeTool({
+      toolName: 'leadiq_search_company',
+      connectionName: 'leadiq',
+      identifier: 'user_123',
+      toolInput: {
+        domain: 'acme.com',
+      },
+    });
+    console.log(company.data?.data?.searchCompany);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    company = actions.execute_tool(
+        tool_name="leadiq_search_company",
+        connection_name="leadiq",
+        identifier="user_123",
+        tool_input={"domain": "acme.com"},
+    )
+    print(company.data)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Advanced people search with industry and seniority filters</summary>
+
+Pass filter objects as Python dicts or JavaScript objects — not JSON-encoded strings.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const results = await actions.executeTool({
+      toolName: 'leadiq_flat_advanced_search',
+      connectionName: 'leadiq',
+      identifier: 'user_123',
+      toolInput: {
+        company_filter: {
+          industries: ['Software Development'],
+          sizes: [{ min: 50, max: 500 }],
+        },
+        contact_filter: {
+          seniorities: ['VP', 'Director'],
+        },
+        limit: 10,
+      },
+    });
+    const people = results.data?.data?.flatAdvancedSearch?.people ?? [];
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    results = actions.execute_tool(
+        tool_name="leadiq_flat_advanced_search",
+        connection_name="leadiq",
+        identifier="user_123",
+        tool_input={
+            "company_filter": {
+                "industries": ["Software Development"],
+                "sizes": [{"min": 50, "max": 500}],
+            },
+            "contact_filter": {
+                "seniorities": ["VP", "Director"],
+            },
+            "limit": 10,
+        },
+    )
+    people = results.data.get("data", {}).get("flatAdvancedSearch", {}).get("people", [])
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Advanced search grouped by company (account-based prospecting)</summary>
+
+Returns results organized by company, each with a list of matching contacts. Useful for account-based outreach.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const grouped = await actions.executeTool({
+      toolName: 'leadiq_grouped_advanced_search',
+      connectionName: 'leadiq',
+      identifier: 'user_123',
+      toolInput: {
+        company_filter: {
+          industries: ['Financial Services'],
+          sizes: [{ min: 200, max: 5000 }],
+        },
+        contact_filter: {
+          seniorities: ['Executive', 'VP'],
+        },
+        limit: 5,            // number of companies
+        limit_per_company: 3, // contacts per company
+      },
+    });
+    const companies = grouped.data?.data?.groupedAdvancedSearch?.companies ?? [];
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    grouped = actions.execute_tool(
+        tool_name="leadiq_grouped_advanced_search",
+        connection_name="leadiq",
+        identifier="user_123",
+        tool_input={
+            "company_filter": {
+                "industries": ["Financial Services"],
+                "sizes": [{"min": 200, "max": 5000}],
+            },
+            "contact_filter": {
+                "seniorities": ["Executive", "VP"],
+            },
+            "limit": 5,             # number of companies
+            "limit_per_company": 3, # contacts per company
+        },
+    )
+    companies = (
+        grouped.data.get("data", {})
+        .get("groupedAdvancedSearch", {})
+        .get("companies", [])
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Report incorrect contact data</summary>
+
+Help improve LeadIQ data quality by reporting bounced emails or wrong phone numbers.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    await actions.executeTool({
+      toolName: 'leadiq_submit_person_feedback',
+      connectionName: 'leadiq',
+      identifier: 'user_123',
+      toolInput: {
+        value: 'jane.doe@acme.com',
+        status: 'Invalid',
+        type: 'WorkEmail',
+        invalid_reason: 'EmailBounceCode550',
+      },
+    });
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    actions.execute_tool(
+        tool_name="leadiq_submit_person_feedback",
+        connection_name="leadiq",
+        identifier="user_123",
+        tool_input={
+            "value": "jane.doe@acme.com",
+            "status": "Invalid",
+            "type": "WorkEmail",
+            "invalid_reason": "EmailBounceCode550",
+        },
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<Aside type="note" title="Prospect list tools require a paid plan">
+  The `leadiq_get_lists`, `leadiq_get_list`, `leadiq_create_list`, and `leadiq_add_prospect_to_list` tools require a LeadIQ Prospector plan. On Freemium accounts these tools return a 401 from the prospector service.
+</Aside>
