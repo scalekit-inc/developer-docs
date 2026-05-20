@@ -48,7 +48,7 @@ export const tools: Tool[] = [
         required: true,
         description: `
 The complete HTML of the template. Should include <html> and <body> tags.
-To include an image, first upload the image using the upload_image_from_url tool, then use the returned image URL.
+To include an image, first upload the image using the upload_image_from_file or upload_image_from_url tool, then use the returned image URL.
 Always include an unsubscribe link. Do this by inserting the template string "{% unsubscribe 'Unsubscribe' %}". You can replace 'Unsubscribe' with custom text.
 
 To add an editable region to the template, ensure the has_editable_regions param is true and add the following:
@@ -61,7 +61,7 @@ To add an editable image block, add the following within that region:
 <div class="klaviyo-block klaviyo-image-block"></div>
 
 To add a universal content block, add the following within that region, replacing block_id with the ID of the universal content block:
-<div data-klaviyo-universal-block="block_id">&nbsp;</div>
+<div data-klaviyo-universal-block="block_id">&nbsp;<div>
 `,
       },
       {
@@ -336,7 +336,7 @@ To add a universal content block, add the following within that region, replacin
         name: 'templateId',
         type: 'string',
         required: true,
-        description: `The ID of the template to return`,
+        description: `The ID of the template return`,
       },
     ],
   },
@@ -744,7 +744,7 @@ To add a universal content block, add the following within that region, replacin
       },
       {
         name: 'pageSize',
-        type: 'integer',
+        type: 'number',
         required: false,
         description: `Page size (1-100, default 20)`,
       },
@@ -910,7 +910,7 @@ Examples of appropriate use cases:
         name: 'listId',
         type: 'string',
         required: false,
-        description: `The ID of the list to unsubscribe the profile from if provided.`,
+        description: `The ID of the list to unsubscribe the profile to if provided.`,
       },
       {
         name: 'phoneNumber',
