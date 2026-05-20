@@ -1,0 +1,254 @@
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+<details>
+<summary>Auto-provision from existing Zapier connections</summary>
+
+The fastest way to get started is to auto-provision the MCP server based on apps the user has already connected in Zapier.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // Auto-provisions actions based on the user's existing Zapier accounts
+    const result = await actions.executeTool({
+      toolName: 'zapiermcp_auto_provision_mcp',
+      connectionName: 'zapiermcp',
+      identifier: 'user_123',
+      toolInput: {},
+    });
+    console.log(result.data?.result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.execute_tool(
+        tool_name="zapiermcp_auto_provision_mcp",
+        connection_name="zapiermcp",
+        identifier="user_123",
+        tool_input={},
+    )
+    print(result.data["result"])
+    ```
+  </TabItem>
+</Tabs>
+
+After provisioning, call `zapiermcp_list_enabled_zapier_actions` to see which apps and action keys are now active.
+
+</details>
+
+<details>
+<summary>Discover and enable an app</summary>
+
+Search Zapier's catalog for an app, then enable its actions on the MCP server so the agent can use them.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // Search for apps by name
+    const apps = await actions.executeTool({
+      toolName: 'zapiermcp_discover_zapier_actions',
+      connectionName: 'zapiermcp',
+      identifier: 'user_123',
+      toolInput: { app: 'slack' },
+    });
+
+    // Enable all actions for the app
+    const enabled = await actions.executeTool({
+      toolName: 'zapiermcp_enable_zapier_action',
+      connectionName: 'zapiermcp',
+      identifier: 'user_123',
+      toolInput: { app: 'slack' },
+    });
+    console.log(enabled.data?.result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    # Search for apps by name
+    apps = actions.execute_tool(
+        tool_name="zapiermcp_discover_zapier_actions",
+        connection_name="zapiermcp",
+        identifier="user_123",
+        tool_input={"app": "slack"},
+    )
+
+    # Enable all actions for the app
+    enabled = actions.execute_tool(
+        tool_name="zapiermcp_enable_zapier_action",
+        connection_name="zapiermcp",
+        identifier="user_123",
+        tool_input={"app": "slack"},
+    )
+    print(enabled.data["result"])
+    ```
+  </TabItem>
+</Tabs>
+
+Pass a specific `action` key alongside `app` to enable only one action instead of all.
+
+</details>
+
+<details>
+<summary>List enabled actions and execute a read action</summary>
+
+Always list enabled actions first to get the exact `app` and `action` keys before calling execute tools.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // List all enabled actions
+    const actions_list = await actions.executeTool({
+      toolName: 'zapiermcp_list_enabled_zapier_actions',
+      connectionName: 'zapiermcp',
+      identifier: 'user_123',
+      toolInput: {},
+    });
+
+    // Execute a read action using natural language instructions
+    const result = await actions.executeTool({
+      toolName: 'zapiermcp_execute_zapier_read_action',
+      connectionName: 'zapiermcp',
+      identifier: 'user_123',
+      toolInput: {
+        app: 'gmail',
+        action: 'find_email',
+        instructions: 'Find the latest email from noreply@example.com',
+        output: 'subject and body of the email',
+      },
+    });
+    console.log(result.data?.result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    # List all enabled actions
+    actions_list = actions.execute_tool(
+        tool_name="zapiermcp_list_enabled_zapier_actions",
+        connection_name="zapiermcp",
+        identifier="user_123",
+        tool_input={},
+    )
+
+    # Execute a read action using natural language instructions
+    result = actions.execute_tool(
+        tool_name="zapiermcp_execute_zapier_read_action",
+        connection_name="zapiermcp",
+        identifier="user_123",
+        tool_input={
+            "app": "gmail",
+            "action": "find_email",
+            "instructions": "Find the latest email from noreply@example.com",
+            "output": "subject and body of the email",
+        },
+    )
+    print(result.data["result"])
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Execute a write action</summary>
+
+Use `zapiermcp_execute_zapier_write_action` to create or modify data in a connected app. The `instructions` and `output` fields accept natural language.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.executeTool({
+      toolName: 'zapiermcp_execute_zapier_write_action',
+      connectionName: 'zapiermcp',
+      identifier: 'user_123',
+      toolInput: {
+        app: 'slack',
+        action: 'send_channel_message',
+        instructions: 'Send a message to #general saying the weekly report is ready',
+        output: 'confirmation that the message was sent',
+      },
+    });
+    console.log(result.data?.result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.execute_tool(
+        tool_name="zapiermcp_execute_zapier_write_action",
+        connection_name="zapiermcp",
+        identifier="user_123",
+        tool_input={
+            "app": "slack",
+            "action": "send_channel_message",
+            "instructions": "Send a message to #general saying the weekly report is ready",
+            "output": "confirmation that the message was sent",
+        },
+    )
+    print(result.data["result"])
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="caution" title="Write actions modify data">
+  `zapiermcp_execute_zapier_write_action` creates or modifies records in the connected app. Confirm the `action` key from `zapiermcp_list_enabled_zapier_actions` before calling this tool.
+</Aside>
+
+</details>
+
+<details>
+<summary>Create and reuse a Zapier Skill</summary>
+
+Skills are named, versioned markdown documents that define how to accomplish a multi-step task. Save a workflow once and execute it by name in future calls.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // Save a skill
+    await actions.executeTool({
+      toolName: 'zapiermcp_create_zapier_skill',
+      connectionName: 'zapiermcp',
+      identifier: 'user_123',
+      toolInput: {
+        name: 'weekly-report',
+        description: 'Sends the weekly summary to Slack and logs it in Google Sheets',
+        content: '1. Execute slack/send_channel_message to #reports\n2. Execute google-sheets/create_spreadsheet_row',
+      },
+    });
+
+    // Retrieve and execute the skill later
+    const skill = await actions.executeTool({
+      toolName: 'zapiermcp_get_zapier_skill',
+      connectionName: 'zapiermcp',
+      identifier: 'user_123',
+      toolInput: { name: 'weekly-report' },
+    });
+    console.log(skill.data?.result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    # Save a skill
+    actions.execute_tool(
+        tool_name="zapiermcp_create_zapier_skill",
+        connection_name="zapiermcp",
+        identifier="user_123",
+        tool_input={
+            "name": "weekly-report",
+            "description": "Sends the weekly summary to Slack and logs it in Google Sheets",
+            "content": "1. Execute slack/send_channel_message to #reports\n2. Execute google-sheets/create_spreadsheet_row",
+        },
+    )
+
+    # Retrieve and execute the skill later
+    skill = actions.execute_tool(
+        tool_name="zapiermcp_get_zapier_skill",
+        connection_name="zapiermcp",
+        identifier="user_123",
+        tool_input={"name": "weekly-report"},
+    )
+    print(skill.data["result"])
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
