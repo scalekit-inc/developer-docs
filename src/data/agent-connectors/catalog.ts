@@ -7,11 +7,6 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
-  adzvisermcp: {
-    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/adzviser.svg',
-    authType: 'OAuth 2.0',
-    categories: ['marketing', 'analytics', 'advertising'],
-  },
   commonroommcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/commonroom.svg',
     authType: 'OAuth 2.0',
@@ -150,7 +145,7 @@ export const catalog: Record<string, ProviderMeta> = {
   parallelaitaskmcp: {
     iconUrl: 'https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/parallel-ai.svg',
     authType: 'Bearer Token',
-    categories: ['productivity', 'ai', 'developer-tools', 'data'],
+    categories: ['productivity', 'ai', 'developer_tools', 'data'],
   },
   calendly: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/calendly.svg',

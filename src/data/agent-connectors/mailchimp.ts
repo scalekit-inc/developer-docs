@@ -1,1243 +1,1338 @@
 import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
+  // ─── Account ──────────────────────────────────────────────────────────────────
+  {
+    name: 'mailchimp_ping',
+    description:
+      'Health check — returns a simple "Everything\'s Chimpy!" response if your API key is valid.',
+    params: [],
+  },
   {
     name: 'mailchimp_account_info',
-    description: `Retrieve details about the connected Mailchimp account, including username, contact info, and plan details.`,
-    params: [
-      {
-        name: 'fields',
-        type: 'string',
-        required: false,
-        description: `Comma-separated list of fields to return.`,
-      },
-    ],
+    description:
+      'Retrieve details about the authenticated Mailchimp account, including plan, contact info, and industry.',
+    params: [],
   },
+
+  // ─── Audiences (Lists) ────────────────────────────────────────────────────────
   {
-    name: 'mailchimp_automation_get',
-    description: `Retrieve details about a specific classic automation in Mailchimp.`,
-    params: [
-      {
-        name: 'workflow_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the automation. Get it from \`mailchimp_automations_list\`.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_automation_pause',
-    description: `Pause all emails in a Mailchimp classic automation.`,
-    params: [
-      {
-        name: 'workflow_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the automation. Get it from \`mailchimp_automations_list\`.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_automation_start',
-    description: `Start all emails in a Mailchimp classic automation.`,
-    params: [
-      {
-        name: 'workflow_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the automation. Get it from \`mailchimp_automations_list\`.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_automations_list',
-    description: `Return a summary of all classic automations (Email Series) in the Mailchimp account.`,
+    name: 'mailchimp_lists_list',
+    description:
+      'List all Mailchimp audiences (lists) in the account with pagination and filtering options.',
     params: [
       {
         name: 'count',
-        type: 'integer',
+        type: 'number',
         required: false,
-        description: `Number of records per page.`,
-      },
-      {
-        name: 'fields',
-        type: 'string',
-        required: false,
-        description: `Comma-separated fields to return.`,
+        description: 'Number of audiences to return (default 10, max 1000).',
       },
       {
         name: 'offset',
-        type: 'integer',
+        type: 'number',
         required: false,
-        description: `Number of records to skip.`,
-      },
-      {
-        name: 'status',
-        type: 'string',
-        required: false,
-        description: `Filter by automation status: \`save\`, \`paused\`, \`sending\`.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_batch_status_get',
-    description: `Check the status of a Mailchimp batch operation. Use this to poll the result of a previously submitted batch request.`,
-    params: [
-      {
-        name: 'batch_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the batch operation. Returned when a batch is created via the Mailchimp API.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_campaign_content_get',
-    description: `Retrieve the content (HTML, plain text, or template) of a Mailchimp campaign.`,
-    params: [
-      {
-        name: 'campaign_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the campaign. Get it from \`mailchimp_campaigns_list\`.`,
-      },
-      {
-        name: 'fields',
-        type: 'string',
-        required: false,
-        description: `Comma-separated fields to return.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_campaign_content_set',
-    description: `Set the HTML or plain text content of a Mailchimp campaign.`,
-    params: [
-      {
-        name: 'campaign_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the campaign. Get it from \`mailchimp_campaigns_list\`.`,
-      },
-      {
-        name: 'html',
-        type: 'string',
-        required: false,
-        description: `Full HTML content for the campaign.`,
-      },
-      {
-        name: 'plain_text',
-        type: 'string',
-        required: false,
-        description: `Plain text version of the campaign content.`,
-      },
-      {
-        name: 'template_id',
-        type: 'string',
-        required: false,
-        description: `ID of a saved Mailchimp template to use. Get it from \`mailchimp_templates_list\`.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_campaign_create',
-    description: `Create a new Mailchimp campaign (regular, plaintext, A/B split, RSS, or variate).`,
-    params: [
-      {
-        name: 'list_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the audience to send to. Get it from \`mailchimp_lists_list\`.`,
-      },
-      {
-        name: 'type',
-        type: 'string',
-        required: true,
-        description: `Campaign type: \`regular\`, \`plaintext\`, \`absplit\`, \`rss\`, \`variate\`.`,
-      },
-      {
-        name: 'from_name',
-        type: 'string',
-        required: false,
-        description: `The 'from' name for the campaign.`,
-      },
-      {
-        name: 'preview_text',
-        type: 'string',
-        required: false,
-        description: `Preview text displayed in the inbox.`,
-      },
-      {
-        name: 'reply_to',
-        type: 'string',
-        required: false,
-        description: `The reply-to email address.`,
-      },
-      {
-        name: 'segment_id',
-        type: 'string',
-        required: false,
-        description: `ID of a segment to send to (optional). Get it from \`mailchimp_segments_list\`.`,
-      },
-      {
-        name: 'subject_line',
-        type: 'string',
-        required: false,
-        description: `The subject line for the campaign.`,
-      },
-      {
-        name: 'title',
-        type: 'string',
-        required: false,
-        description: `The internal title for this campaign (not shown to subscribers).`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_campaign_delete',
-    description: `Remove a campaign from a Mailchimp account. Only campaigns in draft or removed status can be deleted.`,
-    params: [
-      {
-        name: 'campaign_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the campaign to delete. Get it from \`mailchimp_campaigns_list\`.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_campaign_get',
-    description: `Retrieve details about a specific Mailchimp campaign.`,
-    params: [
-      {
-        name: 'campaign_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the campaign. Get it from \`mailchimp_campaigns_list\`.`,
-      },
-      {
-        name: 'fields',
-        type: 'string',
-        required: false,
-        description: `Comma-separated fields to return.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_campaign_schedule',
-    description: `Schedule a Mailchimp campaign to be sent at a specific time.`,
-    params: [
-      {
-        name: 'campaign_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the campaign to schedule. Get it from \`mailchimp_campaigns_list\`.`,
-      },
-      {
-        name: 'schedule_time',
-        type: 'string',
-        required: true,
-        description: `UTC datetime to send the campaign in ISO 8601 format (e.g., \`2026-05-01T14:00:00+00:00\`).`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_campaign_send',
-    description: `Send a Mailchimp campaign immediately. The campaign must be in \`save\` status with valid content and recipients.`,
-    params: [
-      {
-        name: 'campaign_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the campaign to send. Get it from \`mailchimp_campaigns_list\`.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_campaign_test',
-    description: `Send a test email for a Mailchimp campaign to one or more email addresses.`,
-    params: [
-      {
-        name: 'campaign_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the campaign. Get it from \`mailchimp_campaigns_list\`.`,
-      },
-      {
-        name: 'test_emails',
-        type: 'string',
-        required: true,
-        description: `JSON array of email addresses to send the test to.`,
-      },
-      {
-        name: 'send_type',
-        type: 'string',
-        required: false,
-        description: `Email format for the test: \`html\` or \`plaintext\`.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_campaign_unschedule',
-    description: `Cancel a scheduled Mailchimp campaign and return it to draft status.`,
-    params: [
-      {
-        name: 'campaign_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the scheduled campaign. Get it from \`mailchimp_campaigns_list\`.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_campaign_update',
-    description: `Update the settings of a Mailchimp campaign that has not yet been sent.`,
-    params: [
-      {
-        name: 'campaign_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the campaign. Get it from \`mailchimp_campaigns_list\`.`,
-      },
-      { name: 'from_name', type: 'string', required: false, description: `Updated 'from' name.` },
-      { name: 'list_id', type: 'string', required: false, description: `Updated audience ID.` },
-      { name: 'preview_text', type: 'string', required: false, description: `New preview text.` },
-      {
-        name: 'reply_to',
-        type: 'string',
-        required: false,
-        description: `Updated reply-to email address.`,
-      },
-      { name: 'subject_line', type: 'string', required: false, description: `New subject line.` },
-      {
-        name: 'title',
-        type: 'string',
-        required: false,
-        description: `New internal campaign title.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_campaigns_list',
-    description: `Return a list of all campaigns in the Mailchimp account, with optional filters.`,
-    params: [
-      {
-        name: 'count',
-        type: 'integer',
-        required: false,
-        description: `Number of records per page.`,
-      },
-      {
-        name: 'fields',
-        type: 'string',
-        required: false,
-        description: `Comma-separated fields to return.`,
-      },
-      { name: 'list_id', type: 'string', required: false, description: `Filter by audience ID.` },
-      {
-        name: 'offset',
-        type: 'integer',
-        required: false,
-        description: `Number of records to skip.`,
-      },
-      {
-        name: 'sort_dir',
-        type: 'string',
-        required: false,
-        description: `Sort direction: \`ASC\` or \`DESC\`.`,
+        description: 'Pagination offset.',
       },
       {
         name: 'sort_field',
         type: 'string',
         required: false,
-        description: `Sort field: \`create_time\` or \`send_time\`.`,
+        description: 'Sort audiences by field: `date_created` or `campaign_last_sent`.',
       },
       {
-        name: 'status',
+        name: 'sort_dir',
         type: 'string',
         required: false,
-        description: `Filter by status: \`save\`, \`paused\`, \`schedule\`, \`sending\`, \`sent\`.`,
+        description: 'Sort direction: `ASC` or `DESC`.',
       },
       {
-        name: 'type',
+        name: 'before_date_created',
         type: 'string',
         required: false,
-        description: `Filter by campaign type: \`regular\`, \`plaintext\`, \`absplit\`, \`rss\`, \`variate\`.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_list_create',
-    description: `Create a new Mailchimp audience (list). Requires a contact address and campaign defaults.`,
-    params: [
-      {
-        name: 'contact_address',
-        type: 'string',
-        required: true,
-        description: `The street address for the contact address.`,
-      },
-      {
-        name: 'contact_city',
-        type: 'string',
-        required: true,
-        description: `The city for the contact address.`,
-      },
-      {
-        name: 'contact_company',
-        type: 'string',
-        required: true,
-        description: `The company name for the contact address (required by Mailchimp).`,
-      },
-      {
-        name: 'contact_country',
-        type: 'string',
-        required: true,
-        description: `The two-letter ISO country code for the contact address (e.g. \`US\`).`,
-      },
-      {
-        name: 'contact_state',
-        type: 'string',
-        required: true,
-        description: `The state or province for the contact address.`,
-      },
-      {
-        name: 'contact_zip',
-        type: 'string',
-        required: true,
-        description: `The postal/ZIP code for the contact address.`,
-      },
-      {
-        name: 'email_type_option',
-        type: 'boolean',
-        required: true,
-        description: `Whether to allow subscribers to choose email format (HTML or plain text).`,
-      },
-      {
-        name: 'from_email',
-        type: 'string',
-        required: true,
-        description: `The default sender email address for campaigns.`,
-      },
-      {
-        name: 'from_name',
-        type: 'string',
-        required: true,
-        description: `The default display name for the campaign sender.`,
-      },
-      { name: 'name', type: 'string', required: true, description: `The name of the audience.` },
-      {
-        name: 'permission_reminder',
-        type: 'string',
-        required: true,
-        description: `A reminder for subscribers about why they were added.`,
-      },
-      {
-        name: 'language',
-        type: 'string',
-        required: false,
-        description: `The default language for the audience (e.g. \`en\`, \`fr\`).`,
-      },
-      {
-        name: 'subject',
-        type: 'string',
-        required: false,
-        description: `The default subject line for campaigns.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_list_delete',
-    description: `Permanently delete a Mailchimp audience and all its members.`,
-    params: [
-      {
-        name: 'list_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the audience to delete. Get it from \`mailchimp_lists_list\`.`,
+        description: 'Filter audiences created before this ISO 8601 datetime.',
       },
     ],
   },
   {
     name: 'mailchimp_list_get',
-    description: `Retrieve information about a specific Mailchimp audience (list) by its ID.`,
+    description: 'Retrieve details about a specific Mailchimp audience by its list ID.',
     params: [
       {
         name: 'list_id',
         type: 'string',
         required: true,
-        description: `The ID of the audience. Get it from \`mailchimp_lists_list\`.`,
+        description: 'The unique ID of the audience. Get it from `mailchimp_lists_list`.',
       },
       {
         name: 'fields',
         type: 'string',
         required: false,
-        description: `Comma-separated fields to return.`,
+        description: 'Comma-separated list of fields to include in the response.',
       },
     ],
   },
   {
-    name: 'mailchimp_list_member_add',
-    description: `Add a new member to a Mailchimp audience.`,
+    name: 'mailchimp_list_create',
+    description:
+      'Create a new Mailchimp audience. Requires a contact address and campaign defaults. Note: free plans allow only one audience.',
     params: [
       {
-        name: 'email_address',
+        name: 'name',
         type: 'string',
         required: true,
-        description: `The member's email address.`,
+        description: 'The name of the audience.',
       },
       {
-        name: 'list_id',
+        name: 'permission_reminder',
         type: 'string',
         required: true,
-        description: `The ID of the audience. Get it from \`mailchimp_lists_list\`.`,
+        description:
+          'A reminder for subscribers about why they were added (e.g. "You subscribed to our newsletter.").',
       },
       {
-        name: 'status',
+        name: 'from_name',
         type: 'string',
         required: true,
-        description: `Subscription status: \`subscribed\`, \`unsubscribed\`, \`cleaned\`, \`pending\`.`,
+        description: 'Default sender display name for campaigns.',
       },
       {
-        name: 'first_name',
+        name: 'from_email',
+        type: 'string',
+        required: true,
+        description: 'Default sender email address (must be verified).',
+      },
+      {
+        name: 'email_type_option',
+        type: 'boolean',
+        required: true,
+        description: 'Set to `true` to let subscribers choose HTML or plain text email format.',
+      },
+      {
+        name: 'contact_company',
+        type: 'string',
+        required: true,
+        description: 'Company name for the audience contact address.',
+      },
+      {
+        name: 'contact_address',
+        type: 'string',
+        required: true,
+        description: 'Street address for the audience contact address.',
+      },
+      {
+        name: 'contact_city',
+        type: 'string',
+        required: true,
+        description: 'City for the audience contact address.',
+      },
+      {
+        name: 'contact_state',
+        type: 'string',
+        required: true,
+        description: 'State or province for the audience contact address.',
+      },
+      {
+        name: 'contact_zip',
+        type: 'string',
+        required: true,
+        description: 'ZIP or postal code for the audience contact address.',
+      },
+      {
+        name: 'contact_country',
+        type: 'string',
+        required: true,
+        description: 'Two-letter ISO country code for the audience contact address (e.g. `US`).',
+      },
+      {
+        name: 'subject',
         type: 'string',
         required: false,
-        description: `Member's first name (stored in FNAME merge field).`,
+        description: 'Default campaign subject line.',
       },
       {
-        name: 'last_name',
+        name: 'language',
         type: 'string',
         required: false,
-        description: `Member's last name (stored in LNAME merge field).`,
-      },
-      {
-        name: 'tags',
-        type: 'string',
-        required: false,
-        description: `JSON array of tag names to apply to the member.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_list_member_archive',
-    description: `Archive a member in a Mailchimp audience (soft delete). The member's data is preserved but they will not receive campaigns. The \`subscriber_hash\` is the MD5 hash of the lowercase email.`,
-    params: [
-      {
-        name: 'list_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the audience. Get it from \`mailchimp_lists_list\`.`,
-      },
-      {
-        name: 'subscriber_hash',
-        type: 'string',
-        required: true,
-        description: `MD5 hash of the member's lowercase email address.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_list_member_delete_permanent',
-    description: `Permanently delete a member from a Mailchimp audience. This removes all of their data and cannot be undone. Use \`mailchimp_list_member_archive\` for a reversible soft delete.`,
-    params: [
-      {
-        name: 'list_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the audience. Get it from \`mailchimp_lists_list\`.`,
-      },
-      {
-        name: 'subscriber_hash',
-        type: 'string',
-        required: true,
-        description: `MD5 hash of the member's lowercase email address.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_list_member_get',
-    description: `Retrieve information about a specific member in a Mailchimp audience. The \`subscriber_hash\` is the MD5 hash of the member's lowercase email address.`,
-    params: [
-      {
-        name: 'list_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the audience. Get it from \`mailchimp_lists_list\`.`,
-      },
-      {
-        name: 'subscriber_hash',
-        type: 'string',
-        required: true,
-        description: `MD5 hash of the member's lowercase email address.`,
-      },
-      {
-        name: 'fields',
-        type: 'string',
-        required: false,
-        description: `Comma-separated fields to return.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_list_member_tags_get',
-    description: `Retrieve the tags assigned to a specific member in a Mailchimp audience.`,
-    params: [
-      {
-        name: 'list_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the audience. Get it from \`mailchimp_lists_list\`.`,
-      },
-      {
-        name: 'subscriber_hash',
-        type: 'string',
-        required: true,
-        description: `MD5 hash of the member's lowercase email address.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_list_member_tags_update',
-    description: `Add or remove tags for a specific member in a Mailchimp audience. Provide a JSON array of tag objects with \`name\` and \`status\` (\`active\` to add, \`inactive\` to remove).`,
-    params: [
-      {
-        name: 'list_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the audience. Get it from \`mailchimp_lists_list\`.`,
-      },
-      {
-        name: 'subscriber_hash',
-        type: 'string',
-        required: true,
-        description: `MD5 hash of the member's lowercase email address.`,
-      },
-      {
-        name: 'tags',
-        type: 'string',
-        required: true,
-        description: `JSON array of tag objects. Each has \`name\` (string) and \`status\` (\`active\` to add, \`inactive\` to remove).`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_list_member_update',
-    description: `Update an existing member's data in a Mailchimp audience. The \`subscriber_hash\` is the MD5 hash of the member's lowercase email address.`,
-    params: [
-      {
-        name: 'list_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the audience. Get it from \`mailchimp_lists_list\`.`,
-      },
-      {
-        name: 'subscriber_hash',
-        type: 'string',
-        required: true,
-        description: `MD5 hash of the member's lowercase email address.`,
-      },
-      {
-        name: 'email_address',
-        type: 'string',
-        required: false,
-        description: `Updated email address.`,
-      },
-      {
-        name: 'first_name',
-        type: 'string',
-        required: false,
-        description: `Updated first name (FNAME merge field).`,
-      },
-      {
-        name: 'last_name',
-        type: 'string',
-        required: false,
-        description: `Updated last name (LNAME merge field).`,
-      },
-      {
-        name: 'status',
-        type: 'string',
-        required: false,
-        description: `New subscription status: \`subscribed\`, \`unsubscribed\`, \`cleaned\`, \`pending\`.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_list_member_upsert',
-    description: `Add a new member or update an existing member in a Mailchimp audience (idempotent). The \`subscriber_hash\` is the MD5 hash of the lowercase email address.`,
-    params: [
-      {
-        name: 'email_address',
-        type: 'string',
-        required: true,
-        description: `The member's email address.`,
-      },
-      {
-        name: 'list_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the audience. Get it from \`mailchimp_lists_list\`.`,
-      },
-      {
-        name: 'status_if_new',
-        type: 'string',
-        required: true,
-        description: `Status for new members: \`subscribed\`, \`unsubscribed\`, \`cleaned\`, \`pending\`.`,
-      },
-      {
-        name: 'subscriber_hash',
-        type: 'string',
-        required: true,
-        description: `MD5 hash of the member's lowercase email address.`,
-      },
-      {
-        name: 'first_name',
-        type: 'string',
-        required: false,
-        description: `First name (FNAME merge field).`,
-      },
-      {
-        name: 'last_name',
-        type: 'string',
-        required: false,
-        description: `Last name (LNAME merge field).`,
-      },
-      {
-        name: 'status',
-        type: 'string',
-        required: false,
-        description: `Status for existing members.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_list_members_list',
-    description: `Return a list of members in a Mailchimp audience, with optional filters by status.`,
-    params: [
-      {
-        name: 'list_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the audience. Get it from \`mailchimp_lists_list\`.`,
-      },
-      {
-        name: 'count',
-        type: 'integer',
-        required: false,
-        description: `Number of records per page (max 1000).`,
-      },
-      {
-        name: 'fields',
-        type: 'string',
-        required: false,
-        description: `Comma-separated fields to return.`,
-      },
-      {
-        name: 'offset',
-        type: 'integer',
-        required: false,
-        description: `Number of records to skip.`,
-      },
-      {
-        name: 'sort_dir',
-        type: 'string',
-        required: false,
-        description: `Sort direction: \`ASC\` or \`DESC\`.`,
-      },
-      {
-        name: 'sort_field',
-        type: 'string',
-        required: false,
-        description: `Field to sort by: \`last_changed\` or \`timestamp_opt\`.`,
-      },
-      {
-        name: 'status',
-        type: 'string',
-        required: false,
-        description: `Filter by member status: \`subscribed\`, \`unsubscribed\`, \`cleaned\`, \`pending\`, \`transactional\`, \`archived\`.`,
+        description: 'Default language for the audience (ISO 639-1 code, e.g. `en`).',
       },
     ],
   },
   {
     name: 'mailchimp_list_update',
-    description: `Update an existing Mailchimp audience's name or settings.`,
+    description:
+      'Update settings for a Mailchimp audience such as name, permission reminder, or sender details.',
     params: [
       {
         name: 'list_id',
         type: 'string',
         required: true,
-        description: `The ID of the audience. Get it from \`mailchimp_lists_list\`.`,
+        description: 'The unique ID of the audience. Get it from `mailchimp_lists_list`.',
       },
       {
-        name: 'from_email',
+        name: 'name',
         type: 'string',
         required: false,
-        description: `Updated sender email address.`,
+        description: 'Updated audience name.',
+      },
+      {
+        name: 'permission_reminder',
+        type: 'string',
+        required: false,
+        description: 'Updated permission reminder text.',
       },
       {
         name: 'from_name',
         type: 'string',
         required: false,
-        description: `Updated sender display name.`,
+        description: 'Updated default sender display name.',
       },
-      { name: 'name', type: 'string', required: false, description: `New name for the audience.` },
       {
-        name: 'permission_reminder',
+        name: 'from_email',
         type: 'string',
         required: false,
-        description: `Updated permission reminder.`,
+        description: 'Updated default sender email address.',
       },
     ],
   },
   {
-    name: 'mailchimp_lists_list',
-    description: `Return a list of all Mailchimp audiences (lists) in the account.`,
+    name: 'mailchimp_list_delete',
+    description:
+      'Permanently delete a Mailchimp audience and all its member data. This action is irreversible.',
     params: [
       {
-        name: 'count',
-        type: 'integer',
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the audience to delete.',
+      },
+    ],
+  },
+
+  // ─── Members ──────────────────────────────────────────────────────────────────
+  {
+    name: 'mailchimp_list_members_list',
+    description:
+      'List all members of a Mailchimp audience with filtering by status, segment, and pagination.',
+    params: [
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the audience. Get it from `mailchimp_lists_list`.',
+      },
+      {
+        name: 'status',
+        type: 'string',
         required: false,
-        description: `Number of records to return per page (max 1000).`,
+        description:
+          'Filter by subscription status: `subscribed`, `unsubscribed`, `cleaned`, `pending`, or `transactional`.',
+      },
+      {
+        name: 'count',
+        type: 'number',
+        required: false,
+        description: 'Number of members to return (default 10, max 1000).',
+      },
+      {
+        name: 'offset',
+        type: 'number',
+        required: false,
+        description: 'Pagination offset.',
+      },
+      {
+        name: 'email_address',
+        type: 'string',
+        required: false,
+        description: 'Filter to a specific email address.',
+      },
+      {
+        name: 'since_last_changed',
+        type: 'string',
+        required: false,
+        description: 'Filter members changed after this ISO 8601 datetime.',
+      },
+      {
+        name: 'segment_id',
+        type: 'string',
+        required: false,
+        description: 'Filter members in a specific segment.',
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_list_member_get',
+    description:
+      'Retrieve information about a specific audience member by their MD5-hashed email address.',
+    params: [
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the audience.',
+      },
+      {
+        name: 'subscriber_hash',
+        type: 'string',
+        required: true,
+        description:
+          "The MD5 hash of the member's email address (lowercase). Get it from `mailchimp_list_members_list`.",
       },
       {
         name: 'fields',
         type: 'string',
         required: false,
-        description: `Comma-separated fields to return.`,
-      },
-      {
-        name: 'offset',
-        type: 'integer',
-        required: false,
-        description: `Number of records to skip.`,
-      },
-      {
-        name: 'sort_dir',
-        type: 'string',
-        required: false,
-        description: `Sort direction: \`ASC\` or \`DESC\`.`,
-      },
-      {
-        name: 'sort_field',
-        type: 'string',
-        required: false,
-        description: `Field to sort results by: \`date_created\` or \`campaign_last_sent\`.`,
+        description: 'Comma-separated list of fields to include.',
       },
     ],
   },
   {
-    name: 'mailchimp_ping',
-    description: `Check the health of the Mailchimp API. Returns a health status string.`,
-    params: [],
-  },
-  {
-    name: 'mailchimp_report_click_details',
-    description: `Return click details and statistics for links in a Mailchimp campaign.`,
+    name: 'mailchimp_list_member_add',
+    description: 'Add a new member to a Mailchimp audience.',
     params: [
       {
-        name: 'campaign_id',
+        name: 'list_id',
         type: 'string',
         required: true,
-        description: `The ID of the campaign. Get it from \`mailchimp_campaigns_list\`.`,
+        description: 'The unique ID of the audience.',
       },
       {
-        name: 'count',
-        type: 'integer',
-        required: false,
-        description: `Number of records per page.`,
-      },
-      {
-        name: 'offset',
-        type: 'integer',
-        required: false,
-        description: `Number of records to skip.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_report_email_activity',
-    description: `Return per-subscriber email activity for a specific Mailchimp campaign, including opens, clicks, and bounces.`,
-    params: [
-      {
-        name: 'campaign_id',
+        name: 'email_address',
         type: 'string',
         required: true,
-        description: `The ID of the campaign. Get it from \`mailchimp_campaigns_list\`.`,
+        description: "The member's email address.",
       },
       {
-        name: 'count',
-        type: 'integer',
-        required: false,
-        description: `Number of records per page.`,
-      },
-      {
-        name: 'fields',
-        type: 'string',
-        required: false,
-        description: `Comma-separated fields to return.`,
-      },
-      {
-        name: 'offset',
-        type: 'integer',
-        required: false,
-        description: `Number of records to skip.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_report_get',
-    description: `Retrieve the report summary for a specific Mailchimp campaign, including opens, clicks, bounces, and unsubscribes.`,
-    params: [
-      {
-        name: 'campaign_id',
+        name: 'status',
         type: 'string',
         required: true,
-        description: `The ID of the campaign. Get it from \`mailchimp_campaigns_list\`.`,
+        description: 'Subscription status: `subscribed`, `unsubscribed`, `cleaned`, or `pending`.',
       },
       {
-        name: 'fields',
+        name: 'first_name',
         type: 'string',
         required: false,
-        description: `Comma-separated fields to return.`,
+        description: "Member's first name.",
+      },
+      {
+        name: 'last_name',
+        type: 'string',
+        required: false,
+        description: "Member's last name.",
+      },
+      {
+        name: 'tags',
+        type: 'string',
+        required: false,
+        description: 'JSON array of tags to apply (e.g. `["vip","beta"]`).',
       },
     ],
   },
   {
-    name: 'mailchimp_report_open_details',
-    description: `Return a list of members who opened a specific Mailchimp campaign.`,
+    name: 'mailchimp_list_member_update',
+    description: "Update an existing audience member's details such as email, status, or name.",
     params: [
       {
-        name: 'campaign_id',
+        name: 'list_id',
         type: 'string',
         required: true,
-        description: `The ID of the campaign. Get it from \`mailchimp_campaigns_list\`.`,
+        description: 'The unique ID of the audience.',
       },
       {
-        name: 'count',
-        type: 'integer',
-        required: false,
-        description: `Number of records per page.`,
-      },
-      {
-        name: 'offset',
-        type: 'integer',
-        required: false,
-        description: `Number of records to skip.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_report_unsubscribes',
-    description: `Return a list of members who unsubscribed from a specific Mailchimp campaign.`,
-    params: [
-      {
-        name: 'campaign_id',
+        name: 'subscriber_hash',
         type: 'string',
         required: true,
-        description: `The ID of the campaign. Get it from \`mailchimp_campaigns_list\`.`,
+        description: "MD5 hash of the member's email address (lowercase).",
       },
       {
-        name: 'count',
-        type: 'integer',
+        name: 'status',
+        type: 'string',
         required: false,
-        description: `Number of records per page.`,
+        description:
+          'Updated subscription status: `subscribed`, `unsubscribed`, `cleaned`, or `pending`.',
       },
       {
-        name: 'offset',
-        type: 'integer',
+        name: 'email_address',
+        type: 'string',
         required: false,
-        description: `Number of records to skip.`,
+        description: 'Updated email address.',
+      },
+      {
+        name: 'first_name',
+        type: 'string',
+        required: false,
+        description: 'Updated first name.',
+      },
+      {
+        name: 'last_name',
+        type: 'string',
+        required: false,
+        description: 'Updated last name.',
       },
     ],
   },
   {
-    name: 'mailchimp_reports_list',
-    description: `Return a list of campaign reports in the Mailchimp account.`,
+    name: 'mailchimp_list_member_upsert',
+    description:
+      "Add or update a member in an audience. Creates the member if they don't exist; updates them if they do.",
     params: [
       {
-        name: 'count',
-        type: 'integer',
-        required: false,
-        description: `Number of records per page.`,
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the audience.',
       },
       {
-        name: 'fields',
+        name: 'subscriber_hash',
+        type: 'string',
+        required: true,
+        description: "MD5 hash of the member's email address (lowercase).",
+      },
+      {
+        name: 'email_address',
+        type: 'string',
+        required: true,
+        description: "The member's email address.",
+      },
+      {
+        name: 'status_if_new',
+        type: 'string',
+        required: true,
+        description:
+          'Status to set if this is a new subscriber: `subscribed`, `unsubscribed`, `cleaned`, or `pending`.',
+      },
+      {
+        name: 'status',
         type: 'string',
         required: false,
-        description: `Comma-separated fields to return.`,
+        description: 'Updated subscription status for existing members.',
       },
       {
-        name: 'offset',
-        type: 'integer',
+        name: 'first_name',
+        type: 'string',
         required: false,
-        description: `Number of records to skip.`,
+        description: 'First name.',
+      },
+      {
+        name: 'last_name',
+        type: 'string',
+        required: false,
+        description: 'Last name.',
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_list_member_archive',
+    description:
+      'Archive a member from a Mailchimp audience (sets status to unsubscribed without permanently deleting).',
+    params: [
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the audience.',
+      },
+      {
+        name: 'subscriber_hash',
+        type: 'string',
+        required: true,
+        description: "MD5 hash of the member's email address (lowercase).",
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_list_member_delete_permanent',
+    description: 'Permanently delete a member from a Mailchimp audience. This cannot be undone.',
+    params: [
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the audience.',
+      },
+      {
+        name: 'subscriber_hash',
+        type: 'string',
+        required: true,
+        description: "MD5 hash of the member's email address (lowercase).",
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_list_member_tags_get',
+    description: 'Retrieve all tags applied to a specific audience member.',
+    params: [
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the audience.',
+      },
+      {
+        name: 'subscriber_hash',
+        type: 'string',
+        required: true,
+        description: "MD5 hash of the member's email address (lowercase).",
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_list_member_tags_update',
+    description: 'Add or remove tags on a specific audience member.',
+    params: [
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the audience.',
+      },
+      {
+        name: 'subscriber_hash',
+        type: 'string',
+        required: true,
+        description: "MD5 hash of the member's email address (lowercase).",
+      },
+      {
+        name: 'tags',
+        type: 'string',
+        required: true,
+        description:
+          'JSON array of tag objects, each with `name` and `status` (`active` or `inactive`). Example: `[{"name":"vip","status":"active"}]`.',
+      },
+    ],
+  },
+
+  // ─── Segments ─────────────────────────────────────────────────────────────────
+  {
+    name: 'mailchimp_segments_list',
+    description: 'List all segments in a Mailchimp audience.',
+    params: [
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the audience. Get it from `mailchimp_lists_list`.',
       },
       {
         name: 'type',
         type: 'string',
         required: false,
-        description: `Filter by campaign type: \`regular\`, \`absplit\`, \`variate\`, \`rss\`, \`plaintext\`.`,
+        description: 'Filter by segment type: `saved`, `static`, or `fuzzy`.',
       },
-    ],
-  },
-  {
-    name: 'mailchimp_segment_create',
-    description: `Create a new static or saved segment in a Mailchimp audience.`,
-    params: [
       {
-        name: 'list_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the audience. Get it from \`mailchimp_lists_list\`.`,
+        name: 'count',
+        type: 'number',
+        required: false,
+        description: 'Number of segments to return.',
       },
-      { name: 'name', type: 'string', required: true, description: `Name of the segment.` },
       {
-        name: 'options',
+        name: 'offset',
+        type: 'number',
+        required: false,
+        description: 'Pagination offset.',
+      },
+      {
+        name: 'fields',
         type: 'string',
         required: false,
-        description: `JSON object defining conditions for a saved segment. See Mailchimp docs for condition format.`,
-      },
-      {
-        name: 'static_segment',
-        type: 'string',
-        required: false,
-        description: `JSON array of email addresses to add to a static segment.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_segment_delete',
-    description: `Delete a segment from a Mailchimp audience.`,
-    params: [
-      {
-        name: 'list_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the audience. Get it from \`mailchimp_lists_list\`.`,
-      },
-      {
-        name: 'segment_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the segment to delete. Get it from \`mailchimp_segments_list\`.`,
+        description: 'Comma-separated list of fields to include.',
       },
     ],
   },
   {
     name: 'mailchimp_segment_get',
-    description: `Retrieve details about a specific segment in a Mailchimp audience.`,
+    description: 'Retrieve details about a specific audience segment.',
     params: [
       {
         name: 'list_id',
         type: 'string',
         required: true,
-        description: `The ID of the audience. Get it from \`mailchimp_lists_list\`.`,
+        description: 'The unique ID of the audience.',
       },
       {
         name: 'segment_id',
         type: 'string',
         required: true,
-        description: `The ID of the segment. Get it from \`mailchimp_segments_list\`.`,
+        description: 'The unique ID of the segment. Get it from `mailchimp_segments_list`.',
       },
     ],
   },
   {
-    name: 'mailchimp_segment_members_list',
-    description: `Return a list of members in a specific segment of a Mailchimp audience.`,
+    name: 'mailchimp_segment_create',
+    description:
+      'Create a new segment in a Mailchimp audience. Provide either `options` for a saved/conditional segment or `static_segment` for a static list of emails.',
     params: [
       {
         name: 'list_id',
         type: 'string',
         required: true,
-        description: `The ID of the audience. Get it from \`mailchimp_lists_list\`.`,
+        description: 'The unique ID of the audience.',
       },
       {
-        name: 'segment_id',
+        name: 'name',
         type: 'string',
         required: true,
-        description: `The ID of the segment. Get it from \`mailchimp_segments_list\`.`,
+        description: 'Name for the segment.',
       },
       {
-        name: 'count',
-        type: 'integer',
+        name: 'static_segment',
+        type: 'string',
         required: false,
-        description: `Number of records per page.`,
+        description:
+          'JSON array of email addresses for a static segment (e.g. `["a@example.com","b@example.com"]`).',
       },
       {
-        name: 'offset',
-        type: 'integer',
+        name: 'options',
+        type: 'object',
         required: false,
-        description: `Number of records to skip.`,
+        description: 'Conditions object for a saved/conditional segment.',
       },
     ],
   },
   {
     name: 'mailchimp_segment_update',
-    description: `Update the name or conditions of a segment in a Mailchimp audience.`,
+    description: "Update an existing audience segment's name or member conditions.",
     params: [
       {
         name: 'list_id',
         type: 'string',
         required: true,
-        description: `The ID of the audience. Get it from \`mailchimp_lists_list\`.`,
+        description: 'The unique ID of the audience.',
       },
       {
         name: 'segment_id',
         type: 'string',
         required: true,
-        description: `The ID of the segment. Get it from \`mailchimp_segments_list\`.`,
+        description: 'The unique ID of the segment.',
       },
-      { name: 'name', type: 'string', required: false, description: `New name for the segment.` },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: 'Updated segment name.',
+      },
       {
         name: 'static_segment',
         type: 'string',
         required: false,
-        description: `Updated JSON array of emails for a static segment.`,
+        description: 'Updated JSON array of email addresses for a static segment.',
       },
     ],
   },
   {
-    name: 'mailchimp_segments_list',
-    description: `Return a list of segments for a specific Mailchimp audience.`,
+    name: 'mailchimp_segment_delete',
+    description: 'Delete a segment from a Mailchimp audience.',
     params: [
       {
         name: 'list_id',
         type: 'string',
         required: true,
-        description: `The ID of the audience. Get it from \`mailchimp_lists_list\`.`,
+        description: 'The unique ID of the audience.',
+      },
+      {
+        name: 'segment_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the segment to delete.',
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_segment_members_list',
+    description: 'List all members of a specific audience segment.',
+    params: [
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the audience.',
+      },
+      {
+        name: 'segment_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the segment.',
       },
       {
         name: 'count',
-        type: 'integer',
+        type: 'number',
         required: false,
-        description: `Number of records per page.`,
-      },
-      {
-        name: 'fields',
-        type: 'string',
-        required: false,
-        description: `Comma-separated fields to return.`,
+        description: 'Number of members to return.',
       },
       {
         name: 'offset',
-        type: 'integer',
+        type: 'number',
         required: false,
-        description: `Number of records to skip.`,
+        description: 'Pagination offset.',
       },
+    ],
+  },
+
+  // ─── Campaigns ────────────────────────────────────────────────────────────────
+  {
+    name: 'mailchimp_campaigns_list',
+    description:
+      'List all campaigns in the Mailchimp account with filtering by type, status, and date.',
+    params: [
       {
         name: 'type',
         type: 'string',
         required: false,
-        description: `Filter by segment type: \`static\` or \`saved\`.`,
+        description:
+          'Filter by campaign type: `regular`, `plaintext`, `absplit`, `rss`, or `variate`.',
       },
-    ],
-  },
-  {
-    name: 'mailchimp_template_create',
-    description: `Create a new user-defined HTML template in Mailchimp.`,
-    params: [
       {
-        name: 'html',
-        type: 'string',
-        required: true,
-        description: `The HTML content for the template.`,
-      },
-      { name: 'name', type: 'string', required: true, description: `A name for the template.` },
-      {
-        name: 'folder_id',
+        name: 'status',
         type: 'string',
         required: false,
-        description: `ID of a folder to place the template in.`,
+        description: 'Filter by status: `save`, `paused`, `schedule`, `sending`, or `sent`.',
       },
-    ],
-  },
-  {
-    name: 'mailchimp_template_delete',
-    description: `Permanently delete a user-defined template from Mailchimp.`,
-    params: [
-      {
-        name: 'template_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the template to delete. Get it from \`mailchimp_templates_list\`.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_template_get',
-    description: `Retrieve information about a specific template in the Mailchimp account.`,
-    params: [
-      {
-        name: 'template_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the template. Get it from \`mailchimp_templates_list\`.`,
-      },
-      {
-        name: 'fields',
-        type: 'string',
-        required: false,
-        description: `Comma-separated fields to return.`,
-      },
-    ],
-  },
-  {
-    name: 'mailchimp_template_update',
-    description: `Update a user-defined template's name or HTML content in Mailchimp.`,
-    params: [
-      {
-        name: 'template_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the template. Get it from \`mailchimp_templates_list\`.`,
-      },
-      {
-        name: 'html',
-        type: 'string',
-        required: false,
-        description: `New HTML content for the template.`,
-      },
-      { name: 'name', type: 'string', required: false, description: `New name for the template.` },
-    ],
-  },
-  {
-    name: 'mailchimp_templates_list',
-    description: `Return a list of templates in the Mailchimp account, including user-created and Mailchimp base templates.`,
-    params: [
       {
         name: 'count',
-        type: 'integer',
+        type: 'number',
         required: false,
-        description: `Number of records per page.`,
-      },
-      {
-        name: 'fields',
-        type: 'string',
-        required: false,
-        description: `Comma-separated fields to return.`,
+        description: 'Number of campaigns to return.',
       },
       {
         name: 'offset',
-        type: 'integer',
+        type: 'number',
         required: false,
-        description: `Number of records to skip.`,
+        description: 'Pagination offset.',
       },
       {
-        name: 'sort_dir',
+        name: 'list_id',
         type: 'string',
         required: false,
-        description: `Sort direction: \`ASC\` or \`DESC\`.`,
+        description: 'Filter campaigns by audience ID.',
+      },
+      {
+        name: 'before_send_time',
+        type: 'string',
+        required: false,
+        description: 'Filter campaigns scheduled before this ISO 8601 datetime.',
+      },
+      {
+        name: 'since_send_time',
+        type: 'string',
+        required: false,
+        description: 'Filter campaigns scheduled after this ISO 8601 datetime.',
       },
       {
         name: 'sort_field',
         type: 'string',
         required: false,
-        description: `Sort field: \`date_created\`.`,
+        description: 'Sort by field: `create_time` or `send_time`.',
       },
+    ],
+  },
+  {
+    name: 'mailchimp_campaign_get',
+    description: 'Retrieve details about a specific campaign by its ID.',
+    params: [
+      {
+        name: 'campaign_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the campaign. Get it from `mailchimp_campaigns_list`.',
+      },
+      {
+        name: 'fields',
+        type: 'string',
+        required: false,
+        description: 'Comma-separated list of fields to include.',
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_campaign_create',
+    description:
+      'Create a new Mailchimp campaign. Use `mailchimp_campaign_content_set` to add HTML content before sending.',
+    params: [
+      {
+        name: 'type',
+        type: 'string',
+        required: true,
+        description: 'Campaign type: `regular`, `plaintext`, `absplit`, `rss`, or `variate`.',
+      },
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: 'The audience ID to send this campaign to.',
+      },
+      {
+        name: 'subject_line',
+        type: 'string',
+        required: false,
+        description: 'Subject line for the campaign.',
+      },
+      {
+        name: 'preview_text',
+        type: 'string',
+        required: false,
+        description: 'Preview text shown in inbox previews.',
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: 'Internal campaign title (not shown to subscribers).',
+      },
+      {
+        name: 'from_name',
+        type: 'string',
+        required: false,
+        description: 'Sender display name.',
+      },
+      {
+        name: 'reply_to',
+        type: 'string',
+        required: false,
+        description: 'Reply-to email address.',
+      },
+      {
+        name: 'segment_id',
+        type: 'string',
+        required: false,
+        description: 'Send only to members of this segment ID.',
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_campaign_update',
+    description:
+      'Update settings for an existing campaign such as subject line, sender name, or audience.',
+    params: [
+      {
+        name: 'campaign_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the campaign.',
+      },
+      {
+        name: 'subject_line',
+        type: 'string',
+        required: false,
+        description: 'Updated subject line.',
+      },
+      {
+        name: 'preview_text',
+        type: 'string',
+        required: false,
+        description: 'Updated preview text.',
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: 'Updated campaign title.',
+      },
+      {
+        name: 'from_name',
+        type: 'string',
+        required: false,
+        description: 'Updated sender display name.',
+      },
+      {
+        name: 'reply_to',
+        type: 'string',
+        required: false,
+        description: 'Updated reply-to email address.',
+      },
+      {
+        name: 'list_id',
+        type: 'string',
+        required: false,
+        description: 'Updated audience ID.',
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_campaign_delete',
+    description: 'Delete a campaign. Only campaigns with status `save` or `paused` can be deleted.',
+    params: [
+      {
+        name: 'campaign_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the campaign to delete.',
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_campaign_content_get',
+    description: 'Retrieve the HTML and plain-text content of a campaign.',
+    params: [
+      {
+        name: 'campaign_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the campaign.',
+      },
+      {
+        name: 'fields',
+        type: 'string',
+        required: false,
+        description: 'Comma-separated list of fields to include.',
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_campaign_content_set',
+    description: 'Set the HTML content for a campaign. Call this before sending.',
+    params: [
+      {
+        name: 'campaign_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the campaign.',
+      },
+      {
+        name: 'html',
+        type: 'string',
+        required: false,
+        description: 'Raw HTML for the campaign body.',
+      },
+      {
+        name: 'plain_text',
+        type: 'string',
+        required: false,
+        description: 'Plain text version of the campaign.',
+      },
+      {
+        name: 'template_id',
+        type: 'string',
+        required: false,
+        description: 'ID of a saved template to use as the campaign content.',
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_campaign_send',
+    description:
+      'Send a campaign immediately. The campaign must have a subject line, content, and a valid recipient list.',
+    params: [
+      {
+        name: 'campaign_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the campaign to send.',
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_campaign_schedule',
+    description: 'Schedule a campaign to send at a specific time. Requires a paid Mailchimp plan.',
+    params: [
+      {
+        name: 'campaign_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the campaign.',
+      },
+      {
+        name: 'schedule_time',
+        type: 'string',
+        required: true,
+        description:
+          'The UTC datetime to send the campaign in ISO 8601 format (e.g. `2024-12-01T10:00:00Z`).',
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_campaign_unschedule',
+    description: 'Cancel a scheduled campaign and return it to draft status.',
+    params: [
+      {
+        name: 'campaign_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the scheduled campaign.',
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_campaign_test',
+    description: 'Send a test email for a campaign to one or more addresses.',
+    params: [
+      {
+        name: 'campaign_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the campaign.',
+      },
+      {
+        name: 'test_emails',
+        type: 'string',
+        required: true,
+        description:
+          'JSON-encoded array of email addresses to send the test to (e.g. `["you@example.com"]`).',
+      },
+      {
+        name: 'send_type',
+        type: 'string',
+        required: false,
+        description: 'Email format to send: `html` (default) or `plaintext`.',
+      },
+    ],
+  },
+
+  // ─── Templates ────────────────────────────────────────────────────────────────
+  {
+    name: 'mailchimp_templates_list',
+    description: 'List all email templates in the Mailchimp account.',
+    params: [
       {
         name: 'type',
         type: 'string',
         required: false,
-        description: `Filter by template type: \`user\`, \`base\`, \`gallery\`.`,
+        description: 'Filter by template type: `user`, `gallery`, or `base`.',
+      },
+      {
+        name: 'category',
+        type: 'string',
+        required: false,
+        description: 'Filter by template category.',
+      },
+      {
+        name: 'count',
+        type: 'number',
+        required: false,
+        description: 'Number of templates to return.',
+      },
+      {
+        name: 'offset',
+        type: 'number',
+        required: false,
+        description: 'Pagination offset.',
+      },
+      {
+        name: 'sort_field',
+        type: 'string',
+        required: false,
+        description: 'Sort by `date_created` or `name`.',
+      },
+      {
+        name: 'sort_dir',
+        type: 'string',
+        required: false,
+        description: 'Sort direction: `ASC` or `DESC`.',
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_template_get',
+    description: 'Retrieve details about a specific email template by its ID.',
+    params: [
+      {
+        name: 'template_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the template. Get it from `mailchimp_templates_list`.',
+      },
+      {
+        name: 'fields',
+        type: 'string',
+        required: false,
+        description: 'Comma-separated list of fields to include.',
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_template_create',
+    description: 'Create a new custom HTML email template.',
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: 'Name for the template.',
+      },
+      {
+        name: 'html',
+        type: 'string',
+        required: true,
+        description: 'HTML content of the template.',
+      },
+      {
+        name: 'folder_id',
+        type: 'string',
+        required: false,
+        description: 'ID of the folder to place the template in.',
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_template_update',
+    description: "Update an existing email template's name or HTML content.",
+    params: [
+      {
+        name: 'template_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the template.',
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: 'Updated template name.',
+      },
+      {
+        name: 'html',
+        type: 'string',
+        required: false,
+        description: 'Updated HTML content.',
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_template_delete',
+    description: 'Delete a custom email template.',
+    params: [
+      {
+        name: 'template_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the template to delete.',
+      },
+    ],
+  },
+
+  // ─── Reports ──────────────────────────────────────────────────────────────────
+  {
+    name: 'mailchimp_reports_list',
+    description: 'List campaign reports for the account with filtering by type and date.',
+    params: [
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description:
+          'Filter by campaign type: `regular`, `plaintext`, `absplit`, `rss`, or `variate`.',
+      },
+      {
+        name: 'count',
+        type: 'number',
+        required: false,
+        description: 'Number of reports to return.',
+      },
+      {
+        name: 'offset',
+        type: 'number',
+        required: false,
+        description: 'Pagination offset.',
+      },
+      {
+        name: 'since_send_time',
+        type: 'string',
+        required: false,
+        description: 'Filter reports for campaigns sent after this ISO 8601 datetime.',
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_report_get',
+    description: 'Retrieve the summary report for a specific sent campaign.',
+    params: [
+      {
+        name: 'campaign_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the campaign. Get it from `mailchimp_campaigns_list`.',
+      },
+      {
+        name: 'fields',
+        type: 'string',
+        required: false,
+        description: 'Comma-separated list of fields to include.',
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_report_click_details',
+    description:
+      'Retrieve click activity details for a sent campaign, showing which links were clicked.',
+    params: [
+      {
+        name: 'campaign_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the campaign.',
+      },
+      {
+        name: 'count',
+        type: 'number',
+        required: false,
+        description: 'Number of results to return.',
+      },
+      {
+        name: 'offset',
+        type: 'number',
+        required: false,
+        description: 'Pagination offset.',
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_report_open_details',
+    description:
+      'Retrieve open activity details for a sent campaign, showing who opened the email.',
+    params: [
+      {
+        name: 'campaign_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the campaign.',
+      },
+      {
+        name: 'count',
+        type: 'number',
+        required: false,
+        description: 'Number of results to return.',
+      },
+      {
+        name: 'offset',
+        type: 'number',
+        required: false,
+        description: 'Pagination offset.',
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_report_email_activity',
+    description:
+      'Retrieve per-subscriber email activity (opens, clicks, bounces) for a sent campaign.',
+    params: [
+      {
+        name: 'campaign_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the campaign.',
+      },
+      {
+        name: 'count',
+        type: 'number',
+        required: false,
+        description: 'Number of results to return.',
+      },
+      {
+        name: 'offset',
+        type: 'number',
+        required: false,
+        description: 'Pagination offset.',
+      },
+      {
+        name: 'since',
+        type: 'string',
+        required: false,
+        description: 'Filter activity since this ISO 8601 datetime.',
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_report_unsubscribes',
+    description: 'Retrieve the list of members who unsubscribed from a sent campaign.',
+    params: [
+      {
+        name: 'campaign_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the campaign.',
+      },
+      {
+        name: 'count',
+        type: 'number',
+        required: false,
+        description: 'Number of results to return.',
+      },
+      {
+        name: 'offset',
+        type: 'number',
+        required: false,
+        description: 'Pagination offset.',
+      },
+    ],
+  },
+
+  // ─── Automations ──────────────────────────────────────────────────────────────
+  {
+    name: 'mailchimp_automations_list',
+    description: 'List all classic automation workflows in the Mailchimp account.',
+    params: [
+      {
+        name: 'count',
+        type: 'number',
+        required: false,
+        description: 'Number of automations to return.',
+      },
+      {
+        name: 'offset',
+        type: 'number',
+        required: false,
+        description: 'Pagination offset.',
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: 'Filter by status: `save`, `paused`, or `sending`.',
+      },
+      {
+        name: 'before_create_time',
+        type: 'string',
+        required: false,
+        description: 'Filter automations created before this ISO 8601 datetime.',
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_automation_get',
+    description: 'Retrieve details about a specific classic automation workflow.',
+    params: [
+      {
+        name: 'workflow_id',
+        type: 'string',
+        required: true,
+        description:
+          'The unique ID of the automation workflow. Get it from `mailchimp_automations_list`.',
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_automation_start',
+    description: 'Start all emails in a paused or saved automation workflow.',
+    params: [
+      {
+        name: 'workflow_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the automation workflow.',
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_automation_pause',
+    description: 'Pause all emails in an active automation workflow.',
+    params: [
+      {
+        name: 'workflow_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the automation workflow.',
+      },
+    ],
+  },
+
+  // ─── Batch ────────────────────────────────────────────────────────────────────
+  {
+    name: 'mailchimp_batch_status_get',
+    description: 'Check the status of a batch operation by its batch ID.',
+    params: [
+      {
+        name: 'batch_id',
+        type: 'string',
+        required: true,
+        description: 'The unique ID of the batch operation.',
       },
     ],
   },
