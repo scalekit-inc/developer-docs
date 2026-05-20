@@ -26,32 +26,36 @@ seeAlso:
       url: 'https://github.com/scalekit-inc/scalekit-express-example'
 ---
 
-import { TabItem, Aside } from '@astrojs/starlight/components'
-import Tabs from '@components/ui/Tabs.astro'
-import {
-  SSOClaudeCodeSection,
-  SSOCodexSection,
-  SSOGitHubCopilotCLISection,
-  CursorCodingAgentSection,
-  SkillsCLICodingAgentSection
-} from '@/components/templates'
+import { Steps, Aside } from '@astrojs/starlight/components'
+import SupportedAgents from '@components/ui/SupportedAgents.astro'
 
-Use AI coding agents like Claude Code, GitHub Copilot CLI, Cursor, and OpenCode to add Scalekit's Modular SSO to your existing applications. This guide shows you how to configure these agents so they analyze your codebase, apply SSO patterns, and generate production-ready code that integrates enterprise identity providers and follows security best practices while reducing implementation time from hours to minutes.
+Use AI coding agents to add Scalekit's Modular SSO to your existing applications. The agent analyzes your codebase, applies SSO patterns, and generates production-ready code that integrates enterprise identity providers.
 
-<Tabs syncKey="coding-agent">
-  <TabItem label="Claude Code" icon="claude">
-    <SSOClaudeCodeSection />
-  </TabItem>
-  <TabItem label="Codex" icon="codex">
-    <SSOCodexSection />
-  </TabItem>
-  <TabItem label="GitHub Copilot CLI" icon="githubcopilot">
-    <SSOGitHubCopilotCLISection />
-  </TabItem>
-  <TabItem label="Cursor" icon="cursor">
-    <CursorCodingAgentSection />
-  </TabItem>
-  <TabItem label="40+ agents" icon="sparkle">
-    <SkillsCLICodingAgentSection />
-  </TabItem>
-</Tabs>
+```bash showLineNumbers=false frame="none"
+npx @scalekit-inc/cli setup
+```
+
+<SupportedAgents hideCommand />
+
+<Steps>
+1. ## Generate SSO implementation
+
+   Copy this prompt into your coding agent:
+
+   ```md wrap showLineNumbers=false title="SSO implementation prompt"
+   Add Scalekit SSO to my app — initialize ScalekitClient, generate an SSO authorization URL for a given organization, handle the SSO callback to validate and exchange the code for user identity, and integrate the SSO user into my existing session system. Code only.
+   ```
+
+   <Aside type="caution" title="Review generated code">
+   Always review AI-generated authentication code before deployment. Verify that environment variables, token validation logic, and error handling match your security requirements.
+   </Aside>
+
+2. ## Verify the implementation
+
+   Check that generated files include:
+   - Scalekit client initialization with environment credentials
+   - SSO authorization URL generation for organization-based routing
+   - SSO callback handler that validates the authorization code and retrieves user identity
+   - Integration logic that maps SSO user identity into your existing session system
+
+</Steps>

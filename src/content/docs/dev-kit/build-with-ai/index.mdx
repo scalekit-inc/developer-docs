@@ -11,72 +11,19 @@ sidebar:
   order: 1
 ---
 
-import { TabItem } from '@astrojs/starlight/components'
-import Tabs from '@components/ui/Tabs.astro'
 import FoldCard from '@components/ui/FoldCard.astro'
 import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
+import SupportedAgents from '@components/ui/SupportedAgents.astro'
 
-Pick the auth feature you need below. Each page gives you a ready-to-paste prompt for your coding agent — Claude Code, Cursor, GitHub Copilot CLI, or OpenCode. The agent reads your codebase, applies consistent patterns, and generates production-ready auth code in minutes.
+Pick the auth feature you need below. Each page gives you a ready-to-paste prompt for your coding agent. The agent reads your codebase, applies consistent patterns, and generates production-ready auth code in minutes.
 
-<Tabs syncKey="coding-agent">
-  <TabItem label="Claude Code" icon="claude">
-    ```bash title="Step 1 — Add the marketplace (Claude REPL)" showLineNumbers=false
-    /plugin marketplace add scalekit-inc/claude-code-authstack
-    ```
+```bash showLineNumbers=false frame="none"
+npx @scalekit-inc/cli setup
+```
 
-    ```bash title="Step 2 — Install your auth plugin (Claude REPL)" showLineNumbers=false
-    # options: agentkit, saaskit
-    /plugin install agentkit@scalekit-auth-stack
-    ```
+<SupportedAgents hideCommand />
 
-    Now ask your agent to implement Scalekit auth in natural language.
-  </TabItem>
-  <TabItem label="Codex" icon="codex">
-    ```bash title="Step 1 — Install the Scalekit Auth Stack" frame="terminal" showLineNumbers=false
-    curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash
-    ```
-
-    Step 2 — Restart Codex, open **Plugin Directory**, select **Scalekit Auth Stack**, and enable your auth plugin.
-
-    Now ask your agent to implement Scalekit auth in natural language.
-  </TabItem>
-  <TabItem label="GitHub Copilot CLI" icon="githubcopilot">
-    ```bash title="Step 1 — Add the marketplace" frame="terminal" showLineNumbers=false
-    copilot plugin marketplace add scalekit-inc/github-copilot-authstack
-    ```
-
-    ```bash title="Step 2 — Install your auth plugin" frame="terminal" showLineNumbers=false
-    # options: agentkit, saaskit
-    copilot plugin install agentkit@scalekit-auth-stack
-    ```
-
-    Now ask your agent to implement Scalekit auth in natural language.
-  </TabItem>
-  <TabItem label="Cursor" icon="cursor">
-    The Scalekit Auth Stack is pending Cursor Marketplace review. Install it locally in Cursor:
-
-    ```bash title="Step 1 — Install the Scalekit Auth Stack" frame="terminal" showLineNumbers=false
-    curl -fsSL https://raw.githubusercontent.com/scalekit-inc/cursor-authstack/main/install.sh | bash
-    ```
-
-    Step 2 — Restart Cursor, open **Settings > Cursor Settings > Plugins**, and enable your auth plugin.
-
-    Now ask your agent to implement Scalekit auth in natural language.
-  </TabItem>
-  <TabItem label="40+ agents" icon="sparkle">
-    Works with OpenCode, Windsurf, Cline, Gemini CLI, Codex, and 35+ more agents via the [Vercel Skills CLI](https://vercel.com/docs/agent-resources/skills).
-
-    ```bash title="Step 1 — Browse available skills" frame="terminal" showLineNumbers=false
-    npx skills add scalekit-inc/skills --list
-    ```
-
-    ```bash title="Step 2 — Install a specific skill" frame="terminal" showLineNumbers=false
-    npx skills add scalekit-inc/skills --skill adding-mcp-oauth
-    ```
-
-    Now ask your agent to implement Scalekit auth in natural language.
-  </TabItem>
-</Tabs>
+The CLI detects your installed coding agents and configures them with Scalekit authentication plugins. Then ask your agent to implement Scalekit auth in natural language.
 
 <ResponsiveCardGrid columnsDesktop={3} columnsLarge={3}>
   <FoldCard

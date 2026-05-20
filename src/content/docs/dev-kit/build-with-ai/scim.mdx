@@ -26,32 +26,36 @@ seeAlso:
       url: 'https://github.com/scalekit-inc/scalekit-express-example'
 ---
 
-import { TabItem, Aside } from '@astrojs/starlight/components'
-import Tabs from '@components/ui/Tabs.astro'
-import {
-  SCIMClaudeCodeSection,
-  SCIMCodexSection,
-  SCIMGitHubCopilotCLISection,
-  CursorCodingAgentSection,
-  SkillsCLICodingAgentSection
-} from '@/components/templates'
+import { Steps, Aside } from '@astrojs/starlight/components'
+import SupportedAgents from '@components/ui/SupportedAgents.astro'
 
-Use AI coding agents like Claude Code, GitHub Copilot CLI, Cursor, and OpenCode to add Scalekit's SCIM directory sync to your applications. This guide shows you how to configure these agents so they analyze your codebase, apply SCIM patterns, and generate production-ready code for user provisioning, deprovisioning, and lifecycle management that follows security best practices and reduces implementation time from hours to minutes.
+Use AI coding agents to add Scalekit's SCIM directory sync to your applications. The agent analyzes your codebase, applies SCIM patterns, and generates production-ready code for user provisioning and lifecycle management.
 
-<Tabs syncKey="coding-agent">
-  <TabItem label="Claude Code" icon="claude">
-    <SCIMClaudeCodeSection />
-  </TabItem>
-  <TabItem label="Codex" icon="codex">
-    <SCIMCodexSection />
-  </TabItem>
-  <TabItem label="GitHub Copilot CLI" icon="githubcopilot">
-    <SCIMGitHubCopilotCLISection />
-  </TabItem>
-  <TabItem label="Cursor" icon="cursor">
-    <CursorCodingAgentSection />
-  </TabItem>
-  <TabItem label="40+ agents" icon="sparkle">
-    <SkillsCLICodingAgentSection />
-  </TabItem>
-</Tabs>
+```bash showLineNumbers=false frame="none"
+npx @scalekit-inc/cli setup
+```
+
+<SupportedAgents hideCommand />
+
+<Steps>
+1. ## Generate SCIM implementation
+
+   Copy this prompt into your coding agent:
+
+   ```md wrap showLineNumbers=false title="SCIM implementation prompt"
+   Add Scalekit SCIM directory sync to my app — set up the webhook endpoint to receive SCIM events, validate the webhook signature, and handle user provisioning and deprovisioning events to create, update, and delete users in my database. Code only.
+   ```
+
+   <Aside type="caution" title="Review generated code">
+   Always review AI-generated SCIM code before deployment. Verify that webhook signature validation, event handling logic, and database operations match your security requirements.
+   </Aside>
+
+2. ## Verify the implementation
+
+   Check that generated files include:
+   - Webhook endpoint that receives SCIM events from Scalekit
+   - Webhook signature validation to authenticate incoming requests
+   - User provisioning handler that creates or updates users in your database
+   - Deprovisioning handler that deletes or deactivates users
+
+</Steps>

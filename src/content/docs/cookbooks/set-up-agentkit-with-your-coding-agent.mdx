@@ -17,10 +17,10 @@ authors:
     picture: '/images/blog/authors/saif.png'
 ---
 
-import { TabItem, Aside } from '@astrojs/starlight/components'
-import Tabs from '@components/ui/Tabs.astro'
+import { Aside } from '@astrojs/starlight/components'
+import SupportedAgents from '@components/ui/SupportedAgents.astro'
 
-Install the Scalekit Auth Stack plugin into your coding agent and paste one prompt. The agent generates client initialization, connected account management, OAuth authorization, and token handling — no boilerplate required.
+Install the Scalekit Auth Stack into your coding agent and paste one prompt. The agent generates client initialization, connected account management, OAuth authorization, and token handling — no boilerplate required.
 
 ## Before you start
 
@@ -28,55 +28,19 @@ Install the Scalekit Auth Stack plugin into your coding agent and paste one prom
 - A connector configured under **AgentKit** > **Connections** (for example, `gmail`)
 - Your API credentials from **Developers → API Credentials**
 
-## Pick your coding agent
+## Set up your coding agent
 
-<Tabs syncKey="coding-agent">
-  <TabItem label="Claude Code" icon="claude">
-    ```bash title="Terminal" frame="terminal" showLineNumbers=false
-    claude plugin marketplace add scalekit-inc/claude-code-authstack && claude plugin install agentkit@scalekit-auth-stack
-    ```
+```bash showLineNumbers=false frame="none"
+npx @scalekit-inc/cli setup
+```
 
-    Installing the plugin sets up Scalekit's MCP server and triggers an OAuth authorization flow in your browser. Complete the authorization before continuing — this gives Claude Code direct access to your Scalekit environment to search docs, manage connections, and check connected account status.
+<SupportedAgents hideCommand />
 
-    Then paste this prompt:
-    ```md title="Implementation prompt" wrap showLineNumbers=false
-    Configure Scalekit agent authentication for [connector-name]. Provide code to create a connected account, generate an authorization link, retrieve the token, and call the API on behalf of the user.
-    ```
-  </TabItem>
-  <TabItem label="Codex" icon="codex">
-    ```bash title="Terminal" frame="terminal" showLineNumbers=false
-    curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash
-    ```
-    Restart Codex → Plugin Directory → **Scalekit Auth Stack** → install **agentkit**. If a browser authorization prompt appears, complete the OAuth flow before continuing. Then paste the implementation prompt above.
-  </TabItem>
-  <TabItem label="GitHub Copilot CLI" icon="githubcopilot">
-    ```bash title="Terminal" frame="terminal" showLineNumbers=false
-    copilot plugin marketplace add scalekit-inc/github-copilot-authstack
-    copilot plugin install agentkit@scalekit-auth-stack
-    ```
-    Then run:
-    ```bash title="Terminal" frame="terminal" showLineNumbers=false wrap
-    copilot "Configure Scalekit agent authentication for [connector-name]. Provide code to create a connected account, generate an authorization link, retrieve the token, and call the API on behalf of the user."
-    ```
-  </TabItem>
-  <TabItem label="Cursor" icon="cursor">
-    <Aside type="note" title="Marketplace under review">
-      Scalekit Auth Stack is under review on Cursor Marketplace. Use the local installer below until it's live.
-    </Aside>
-    ```bash title="Terminal" frame="terminal" showLineNumbers=false
-    curl -fsSL https://raw.githubusercontent.com/scalekit-inc/cursor-authstack/main/install.sh | bash
-    ```
-    Reload Cursor → **Settings → Plugins** → enable **AgentKit**. If a browser authorization prompt appears, complete the OAuth flow before continuing. Open chat (Cmd+L / Ctrl+L) and paste the implementation prompt above.
-  </TabItem>
-  <TabItem label="40+ agents" icon="sparkle">
-    ```bash title="Terminal" frame="terminal" showLineNumbers=false
-    npx skills add scalekit-inc/skills --skill integrating-agentkit
-    ```
-    Then ask your agent to configure Scalekit authentication for your connector and generate connected account, auth link, and token-fetch code.
+Then paste this prompt into your coding agent:
 
-    Supported agents include Claude Code, Cursor, GitHub Copilot CLI, OpenCode, Windsurf, Cline, Gemini CLI, Codex, and 30+ others.
-  </TabItem>
-</Tabs>
+```md title="Implementation prompt" wrap showLineNumbers=false
+Configure Scalekit agent authentication for [connector-name]. Provide code to create a connected account, generate an authorization link, retrieve the token, and call the API on behalf of the user.
+```
 
 ## Verify the setup
 
