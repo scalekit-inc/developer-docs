@@ -87,6 +87,7 @@ export { default as SectionAfterSetupBraveSearchCommonWorkflows } from './_secti
 export { default as SectionAfterSetupCalendlyCommonWorkflows } from './_section-after-setup-calendly-common-workflows.mdx'
 export { default as SectionAfterSetupChorusCommonWorkflows } from './_section-after-setup-chorus-common-workflows.mdx'
 export { default as SectionAfterSetupClariCopilotCommonWorkflows } from './_section-after-setup-clari_copilot-common-workflows.mdx'
+export { default as SectionAfterSetupClickhouseCommonWorkflows } from './_section-after-setup-clickhouse-common-workflows.mdx'
 export { default as SectionAfterSetupClickupCommonWorkflows } from './_section-after-setup-clickup-common-workflows.mdx'
 export { default as SectionAfterSetupCloseCommonWorkflows } from './_section-after-setup-close-common-workflows.mdx'
 export { default as SectionAfterSetupConfluenceCommonWorkflows } from './_section-after-setup-confluence-common-workflows.mdx'
