@@ -1,0 +1,247 @@
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+<details>
+<summary>Get your service ID</summary>
+
+Every ClickHouse tool requires a `serviceId`. Fetch it first by listing the services in your organization.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const orgs = await actions.executeTool({
+      toolName: 'clickhouse_get_organizations',
+      connectionName: 'clickhouse',
+      identifier: 'user_123',
+      toolInput: {},
+    });
+    const orgId = orgs.data?.result?.[0]?.id;
+
+    const services = await actions.executeTool({
+      toolName: 'clickhouse_get_services_list',
+      connectionName: 'clickhouse',
+      identifier: 'user_123',
+      toolInput: { organizationId: orgId },
+    });
+    const serviceId = services.data?.result?.[0]?.id;
+    console.log('Service ID:', serviceId);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    orgs = actions.execute_tool(
+        tool_name="clickhouse_get_organizations",
+        connection_name="clickhouse",
+        identifier="user_123",
+        tool_input={},
+    )
+    org_id = orgs.data["result"][0]["id"]
+
+    services = actions.execute_tool(
+        tool_name="clickhouse_get_services_list",
+        connection_name="clickhouse",
+        identifier="user_123",
+        tool_input={"organizationId": org_id},
+    )
+    service_id = services.data["result"][0]["id"]
+    print("Service ID:", service_id)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Explore schema before querying</summary>
+
+List databases and tables to understand the data model before writing queries.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // List databases
+    const dbs = await actions.executeTool({
+      toolName: 'clickhouse_list_databases',
+      connectionName: 'clickhouse',
+      identifier: 'user_123',
+      toolInput: { serviceId: '<your-service-id>' },
+    });
+
+    // List tables in a database
+    const tables = await actions.executeTool({
+      toolName: 'clickhouse_list_tables',
+      connectionName: 'clickhouse',
+      identifier: 'user_123',
+      toolInput: {
+        serviceId: '<your-service-id>',
+        database: 'default',
+      },
+    });
+    console.log(tables.data?.result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    # List databases
+    dbs = actions.execute_tool(
+        tool_name="clickhouse_list_databases",
+        connection_name="clickhouse",
+        identifier="user_123",
+        tool_input={"serviceId": "<your-service-id>"},
+    )
+
+    # List tables in a database
+    tables = actions.execute_tool(
+        tool_name="clickhouse_list_tables",
+        connection_name="clickhouse",
+        identifier="user_123",
+        tool_input={
+            "serviceId": "<your-service-id>",
+            "database": "default",
+        },
+    )
+    print(tables.data["result"])
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Run a SELECT query</summary>
+
+Execute read-only SQL against your ClickHouse service. Only `SELECT` statements are permitted.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.executeTool({
+      toolName: 'clickhouse_run_select_query',
+      connectionName: 'clickhouse',
+      identifier: 'user_123',
+      toolInput: {
+        serviceId: '<your-service-id>',
+        query: 'SELECT event, count() AS cnt FROM events GROUP BY event ORDER BY cnt DESC LIMIT 10',
+        timeoutSeconds: 30,
+      },
+    });
+    console.log(result.data?.result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.execute_tool(
+        tool_name="clickhouse_run_select_query",
+        connection_name="clickhouse",
+        identifier="user_123",
+        tool_input={
+            "serviceId": "<your-service-id>",
+            "query": "SELECT event, count() AS cnt FROM events GROUP BY event ORDER BY cnt DESC LIMIT 10",
+            "timeoutSeconds": 30,
+        },
+    )
+    print(result.data["result"])
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="note" title="Only SELECT is allowed">
+  `clickhouse_run_select_query` rejects INSERT, UPDATE, DELETE, and DDL statements. Use it for read-only data retrieval and analytics.
+</Aside>
+
+</details>
+
+<details>
+<summary>Check organization costs</summary>
+
+Retrieve billing and usage data for a ClickHouse Cloud organization over a date range (max 31 days per request).
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const costs = await actions.executeTool({
+      toolName: 'clickhouse_get_organization_cost',
+      connectionName: 'clickhouse',
+      identifier: 'user_123',
+      toolInput: {
+        organizationId: '<your-org-id>',
+        from: '2025-01-01',
+        to: '2025-01-31',
+      },
+    });
+    console.log(costs.data?.result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    costs = actions.execute_tool(
+        tool_name="clickhouse_get_organization_cost",
+        connection_name="clickhouse",
+        identifier="user_123",
+        tool_input={
+            "organizationId": "<your-org-id>",
+            "from": "2025-01-01",
+            "to": "2025-01-31",
+        },
+    )
+    print(costs.data["result"])
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>List and inspect ClickPipes</summary>
+
+ClickPipes are managed data ingestion pipelines. List all pipelines for a service and get detailed status for a specific one.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const pipes = await actions.executeTool({
+      toolName: 'clickhouse_list_clickpipes',
+      connectionName: 'clickhouse',
+      identifier: 'user_123',
+      toolInput: { serviceId: '<your-service-id>' },
+    });
+
+    const pipeId = pipes.data?.result?.[0]?.id;
+    const pipe = await actions.executeTool({
+      toolName: 'clickhouse_get_clickpipe',
+      connectionName: 'clickhouse',
+      identifier: 'user_123',
+      toolInput: {
+        serviceId: '<your-service-id>',
+        clickPipeId: pipeId,
+      },
+    });
+    console.log(pipe.data?.result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    pipes = actions.execute_tool(
+        tool_name="clickhouse_list_clickpipes",
+        connection_name="clickhouse",
+        identifier="user_123",
+        tool_input={"serviceId": "<your-service-id>"},
+    )
+    pipe_id = pipes.data["result"][0]["id"]
+
+    pipe = actions.execute_tool(
+        tool_name="clickhouse_get_clickpipe",
+        connection_name="clickhouse",
+        identifier="user_123",
+        tool_input={
+            "serviceId": "<your-service-id>",
+            "clickPipeId": pipe_id,
+        },
+    )
+    print(pipe.data["result"])
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
