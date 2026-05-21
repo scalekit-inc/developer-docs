@@ -90,7 +90,7 @@ export const sidebar = [
         items: [
           'guides/custom-domain',
           'fsa/guides/login-page-branding',
-          'fsa/guides/organization-logo-branding',
+          'fsa/guides/organization-branding',
           'guides/email-providers',
           'guides/dashboard/custom-email-templates',
           'authenticate/manage-users-orgs/custom-user-attributes',
