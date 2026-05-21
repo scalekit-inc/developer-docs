@@ -12,6 +12,11 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'API Key',
     categories: ['CRM & Sales', 'Analytics'],
   },
+  adobemarketingagentmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/adobe.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Marketing', 'Analytics', 'AI'],
+  },
   adzvisermcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/adzviser.svg',
     authType: 'OAuth 2.0',

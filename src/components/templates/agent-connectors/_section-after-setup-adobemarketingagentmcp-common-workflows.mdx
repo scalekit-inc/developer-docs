@@ -1,0 +1,189 @@
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+### Send a query to the Adobe Marketing AI assistant
+
+Use `adobemarketingagentmcp_adobe-marketing-agent-mcp-widget` to ask questions about your campaigns, audiences, journeys, and Analytics data in plain English.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.executeTool({
+      connectionName: 'adobemarketingagentmcp',
+      identifier: 'user_123',
+      toolName: 'adobemarketingagentmcp_adobe-marketing-agent-mcp-widget',
+      toolInput: {
+        query: 'What are my top performing audience segments this month?',
+      },
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.execute_tool(
+        connection_name="adobemarketingagentmcp",
+        identifier="user_123",
+        tool_name="adobemarketingagentmcp_adobe-marketing-agent-mcp-widget",
+        tool_input={
+            "query": "What are my top performing audience segments this month?",
+        },
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+### Switch sandbox and dataview
+
+Use `adobemarketingagentmcp_core-switch_sandbox_dataview` to update the active Adobe Experience Platform sandbox and Customer Journey Analytics dataview in a single call.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.executeTool({
+      connectionName: 'adobemarketingagentmcp',
+      identifier: 'user_123',
+      toolName: 'adobemarketingagentmcp_core-switch_sandbox_dataview',
+      toolInput: {
+        sandboxName: 'prod',
+        dataviewName: 'My Analytics View',
+      },
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.execute_tool(
+        connection_name="adobemarketingagentmcp",
+        identifier="user_123",
+        tool_name="adobemarketingagentmcp_core-switch_sandbox_dataview",
+        tool_input={
+            "sandboxName": "prod",
+            "dataviewName": "My Analytics View",
+        },
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+### Poll an async task
+
+Some Adobe Marketing operations run asynchronously. Submit a query with `execution_mode: "async"`, then poll with `adobemarketingagentmcp_core-get_task` until the task completes.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // Step 1 — submit async query
+    const submitted = await actions.executeTool({
+      connectionName: 'adobemarketingagentmcp',
+      identifier: 'user_123',
+      toolName: 'adobemarketingagentmcp_adobe-marketing-agent-mcp-widget',
+      toolInput: {
+        query: 'Generate a full audience overlap report',
+        execution_mode: 'async',
+      },
+    });
+    const taskId = submitted.data?.task_id;
+
+    // Step 2 — poll until complete
+    let cursor = 0;
+    while (true) {
+      const status = await actions.executeTool({
+        connectionName: 'adobemarketingagentmcp',
+        identifier: 'user_123',
+        toolName: 'adobemarketingagentmcp_core-get_task',
+        toolInput: { task_id: taskId, cursor },
+      });
+      cursor = status.data?.cursor ?? cursor;
+      if (status.data?.status === 'completed') {
+        console.log(status.data.result);
+        break;
+      }
+      await new Promise(r => setTimeout(r, 2000));
+    }
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import time
+
+    # Step 1 — submit async query
+    submitted = actions.execute_tool(
+        connection_name="adobemarketingagentmcp",
+        identifier="user_123",
+        tool_name="adobemarketingagentmcp_adobe-marketing-agent-mcp-widget",
+        tool_input={
+            "query": "Generate a full audience overlap report",
+            "execution_mode": "async",
+        },
+    )
+    task_id = submitted.data.get("task_id")
+
+    # Step 2 — poll until complete
+    cursor = 0
+    while True:
+        status = actions.execute_tool(
+            connection_name="adobemarketingagentmcp",
+            identifier="user_123",
+            tool_name="adobemarketingagentmcp_core-get_task",
+            tool_input={"task_id": task_id, "cursor": cursor},
+        )
+        cursor = status.data.get("cursor", cursor)
+        if status.data.get("status") == "completed":
+            print(status.data.get("result"))
+            break
+        time.sleep(2)
+    ```
+  </TabItem>
+</Tabs>
+
+### Read and clear user preferences
+
+User preferences (sandbox, dataview, org, region) persist for 90 days. Use `adobemarketingagentmcp_core-user_preferences` to read or clear them.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // Read current preferences
+    const prefs = await actions.executeTool({
+      connectionName: 'adobemarketingagentmcp',
+      identifier: 'user_123',
+      toolName: 'adobemarketingagentmcp_core-user_preferences',
+      toolInput: { action: 'get' },
+    });
+    console.log(prefs.data);
+
+    // Clear all preferences
+    await actions.executeTool({
+      connectionName: 'adobemarketingagentmcp',
+      identifier: 'user_123',
+      toolName: 'adobemarketingagentmcp_core-user_preferences',
+      toolInput: { action: 'clear' },
+    });
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    # Read current preferences
+    prefs = actions.execute_tool(
+        connection_name="adobemarketingagentmcp",
+        identifier="user_123",
+        tool_name="adobemarketingagentmcp_core-user_preferences",
+        tool_input={"action": "get"},
+    )
+    print(prefs.data)
+
+    # Clear all preferences
+    actions.execute_tool(
+        connection_name="adobemarketingagentmcp",
+        identifier="user_123",
+        tool_name="adobemarketingagentmcp_core-user_preferences",
+        tool_input={"action": "clear"},
+    )
+    ```
+  </TabItem>
+</Tabs>
