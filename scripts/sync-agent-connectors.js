@@ -1260,7 +1260,7 @@ function generateMdxContent(provider, tools) {
   lines.push(`  label: '${providerName.replace(/'/g, "''")}'`)
   lines.push(`overviewTitle: 'Quickstart'`)
   if (iconSrc) lines.push(`connectorIcon: ${iconSrc}`)
-  if (authTypeLabel) lines.push(`connectorAuthType: ${authTypeLabel}`)
+  if (authTypeLabel) lines.push(`connectorAuthType: ${authTypeLabel.replace(/'/g, "''")}`)
   if (categories.length) lines.push(`connectorCategories: [${categories.join(', ')}]`)
 
   // Static head CSS
