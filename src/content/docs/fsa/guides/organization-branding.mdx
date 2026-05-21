@@ -1,6 +1,6 @@
 ---
 title: "Organization branding"
-description: "Show each customer's logo and name on your hosted login page, admin portal, and end-user app pages."
+description: "Show each customer's logo on your hosted login page, admin portal, and end-user app."
 tags: [branding, organization, logo, customization, login-page, admin-portal]
 sidebar:
   label: "Organization branding"
@@ -18,29 +18,39 @@ head:
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 import InstallSDK from '@components/templates/_installsdk.mdx';
 
-When a user from Acme Corp signs in, they see Acme Corp's logo instead of your platform's logo. Organization branding replaces your workspace branding with the individual customer's logo and name across three surfaces: the hosted login page, the admin portal, and the end-user app.
-
-## Where it appears
+When a user from Acme Corp signs in, they see Acme Corp's logo instead of your platform's logo. Organization branding replaces the workspace logo with each customer's own logo across three surfaces, without changing colors, layout, or any other workspace setting.
 
 | Surface | What changes |
 |---|---|
-| **Hosted login page** (`/a`) | Logo and "Login to \{org name\}" heading on the login page only. The signup page always shows your workspace logo. |
-| **Admin portal** (`/portals`) | Logo in the portal header. The title remains "Admin Portal". |
-| **End-user app** (`/ui`) | Logo in the top navigation header. |
+| **Hosted login page** | Replaces the workspace logo and updates the heading to "Login to \{org name\}". The sign-up page always shows your workspace logo. |
+| **Admin portal** | Replaces the logo in the portal header. The title remains "Admin Portal". |
+| **End-user app** | Replaces the logo in the top navigation header. |
 
 ## Enable the feature
 
-Organization branding is controlled by a feature flag in **Customization > Branding > Organization branding** in your Scalekit dashboard. Toggle it on to activate it for your environment.
+Toggle **Organization branding** on in **Customization > Branding** in your Scalekit dashboard.
 
-Once enabled, any organization that has a `logo_url` set will display its own logo on the surfaces above. Organizations without a `logo_url` continue to show your workspace logo.
+![Scalekit Branding settings page with the Organization Branding toggle](@/assets/docs/fsa/organizations/organization_branding_configuration.png)
+
+Once enabled, any organization with a `logo_url` shows its own logo on the surfaces above. Organizations without one continue to show your workspace logo — there is no broken image state.
+
+<Aside type="note">
+The flag must be enabled at the environment level. Setting `logo_url` on an organization has no effect unless the environment-level flag is on.
+</Aside>
 
 ## Set an organization's logo
 
-Set `logo_url` when creating or updating an organization. The URL must be publicly accessible, as Scalekit does not host or proxy logo images.
+The `logo_url` must point to a publicly accessible image. Scalekit does not host or proxy logo images. To remove a logo, set it to an empty string; the surface falls back to your workspace logo.
+
+### From the dashboard
+
+Open an organization, click **Edit**, and fill in the **Logo URL** field.
+
+![Edit Organization dialog showing the Slug and Logo URL fields](@/assets/docs/fsa/organizations/update-organization-slug-logo.png)
+
+### With the SDK
 
 <InstallSDK />
-
-### When creating an organization
 
 <Tabs syncKey="tech-stack">
 <TabItem label="Node.js" value="nodejs">
@@ -81,71 +91,17 @@ if err != nil {
 </TabItem>
 <TabItem label="Java" value="java">
 ```java title="Create organization with logo"
-// Requires scalekit-sdk-java v2.1.2+
-CreateOrganization createOrg = CreateOrganization.newBuilder()
+// Requires scalekit-sdk-java v2.1.1+
+CreateOrganization create = CreateOrganization.newBuilder()
     .setDisplayName("Acme Corporation")
     .setLogoUrl("https://cdn.acmecorp.com/logo.png")
     .build();
 
-Organization organization = scalekitClient.organizations().create(createOrg);
+Organization organization = scalekitClient.organizations().create(create);
 ```
 </TabItem>
 </Tabs>
-
-### When updating an existing organization
-
-<Tabs syncKey="tech-stack">
-<TabItem label="Node.js" value="nodejs">
-```javascript title="Update org logo"
-await scalekit.organization.updateOrganization(
-  'org_12345',
-  { logoUrl: 'https://cdn.acmecorp.com/logo.png' }
-);
-```
-</TabItem>
-<TabItem label="Python" value="python">
-```python title="Update org logo"
-from scalekit.v1.organizations.organizations_pb2 import UpdateOrganization
-
-scalekit_client.organization.update_organization(
-    organization_id='org_12345',
-    organization=UpdateOrganization(logo_url='https://cdn.acmecorp.com/logo.png')
-)
-```
-</TabItem>
-<TabItem label="Go" value="go">
-```go title="Update org logo"
-logoURL := "https://cdn.acmecorp.com/logo.png"
-
-scalekitClient.Organization().UpdateOrganization(
-    ctx,
-    "org_12345",
-    &scalekit.UpdateOrganization{LogoUrl: &logoURL},
-)
-```
-</TabItem>
-<TabItem label="Java" value="java">
-```java title="Update org logo"
-// Requires scalekit-sdk-java v2.1.2+
-UpdateOrganization update = UpdateOrganization.newBuilder()
-    .setLogoUrl("https://cdn.acmecorp.com/logo.png")
-    .build();
-
-scalekitClient.organizations().updateById("org_12345", update);
-```
-</TabItem>
-</Tabs>
-
-To remove a logo, set `logo_url` to an empty string. The surface falls back to your workspace logo.
-
-## Fallback behavior
-
-If organization branding is enabled but an organization has no `logo_url`, the hosted surfaces fall back to your workspace logo. There is no broken image state; the feature degrades gracefully per organization.
-
-<Aside type="note">
-Organization branding requires the feature flag to be enabled at the environment level. Enabling it for individual organizations without the environment-level flag has no effect.
-</Aside>
 
 ## Relationship to workspace branding
 
-Workspace branding (configured in **Customization > Branding**) sets your platform's default logo, colors, and layout. Organization branding overrides the logo and display name only. Colors, border radius, and layout remain unchanged from your workspace settings.
+Workspace branding (configured in **Customization > Branding**) sets your platform's default logo, colors, and layout. Organization branding overrides the logo only. Colors, border radius, and layout remain unchanged from your workspace settings.
