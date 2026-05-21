@@ -141,6 +141,26 @@ Organization widgets let your customers manage their organization's settings, me
 
     ![](@/assets/docs/hosted-widgets/org_scim.png)
 
+5. ### Verify organization domains
+
+    Your customers can add and verify organization domains directly from the **Domain Verification** widget. They enter a domain, publish the displayed DNS TXT record at their DNS provider, and click **Verify** — Scalekit polls automatically and updates the status to **DNS Verified** once the record is found.
+
+    <Aside>
+    Domain Verification widget visibility depends on the organization's feature entitlements. It appears only if the `domain_verification` feature is enabled for the organization. Enable it in the Scalekit dashboard at **Dashboard > Organizations > [Org] > Settings > Features**, or programmatically via [`updateOrganization`](/authenticate/manage-users-orgs/organization-domains/#enable-self-serve-dns-verification-for-an-organization).
+    </Aside>
+
+    For the verification status lifecycle and webhook events, see [Organization domains](/authenticate/manage-users-orgs/organization-domains/).
+
+6. ### Manage session policy
+
+    Your customers can view and configure their organization's session policy — setting custom absolute and idle session timeouts that override your application defaults. Scalekit always enforces the stricter of the two.
+
+    <Aside>
+    Session policy widget visibility depends on the organization's feature entitlements. It appears only if the `session_policy` feature is enabled for the organization. Enable it in the Scalekit dashboard or programmatically via [`updateOrganizationSettings`](/authenticate/manage-organizations/organization-session-policy/#prerequisites).
+    </Aside>
+
+    For the full configuration options and API examples, see [Organization session policy](/authenticate/manage-organizations/organization-session-policy/).
+
 </Steps>
 
 
@@ -182,9 +202,11 @@ Hosted Widgets enforce access using **Scalekit permissions**. You can map these 
 | `sk_org_sso_manage` | View and modify SSO configuration for an organization |
 | `sk_org_scim_read` | View SCIM configuration for an organization |
 | `sk_org_scim_manage` | View and modify SCIM configuration for an organization |
+| `sk_org_session_policy_read` | View session policy for an organization |
+| `sk_org_session_policy_manage` | View and manage session policy for an organization |
 
 <Aside>
-Scalekit creates **Admin** and **Member** roles for every environment by default. Scalekit permissions are mapped to these two roles by default. The Admin role has all Scalekit permissions and can access all Hosted Widgets. The Member role has limited access to organization widgets and can only view organization settings and organization members. Both roles have access to user widgets.
+Scalekit creates **Admin** and **Member** roles for every environment by default. Scalekit permissions are mapped to these two roles by default. The Admin role has all Scalekit permissions — including `sk_org_session_policy_manage` — and can access all Hosted Widgets. The Member role has limited access to organization widgets and can only view organization settings and organization members. Both roles have access to user widgets.
 
 You can customize the permission mapping for these roles or create a [custom role](/authenticate/authz/create-roles-permissions/) and assign Scalekit permissions to control access to Hosted Widgets.
 </Aside>

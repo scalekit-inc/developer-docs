@@ -191,7 +191,7 @@ Organization updatedOrganization = scalekitClient.organizations()
 
 ## Configure organization features
 
-Enable enterprise features for your organizations to support authentication methods like SSO and user provisioning through SCIM.
+Enable enterprise features for your organizations to support authentication methods like SSO, user provisioning through SCIM, self-serve [domain verification](/authenticate/manage-users-orgs/organization-domains/), and [custom session policies](/authenticate/manage-organizations/organization-session-policy/).
 
 <Tabs syncKey="tech-stack">
 <TabItem label="Node.js" value="nodejs">
@@ -204,6 +204,14 @@ const settings = {
     },
     {
       name: 'dir_sync',
+      enabled: true,
+    },
+    {
+      name: 'domain_verification',
+      enabled: true,
+    },
+    {
+      name: 'session_policy',
       enabled: true,
     },
   ],
@@ -220,6 +228,8 @@ await scalekit.organization.updateOrganizationSettings(
 settings = [
     {"sso": True},
     {"dir_sync": True},
+    {"domain_verification": True},
+    {"session_policy": True},
 ]
 
 scalekit_client.organization.update_organization_settings(
@@ -234,6 +244,8 @@ settings := scalekit.OrganizationSettings{
     Features: []scalekit.OrganizationSettingsFeature{
         {Name: "sso", Enabled: true},
         {Name: "dir_sync", Enabled: true},
+        {Name: "domain_verification", Enabled: true},
+        {Name: "session_policy", Enabled: true},
     },
 }
 
@@ -253,6 +265,14 @@ List<OrganizationSettingsFeature> settings = Arrays.asList(
         .build(),
     OrganizationSettingsFeature.newBuilder()
         .setName("dir_sync")
+        .setEnabled(true)
+        .build(),
+    OrganizationSettingsFeature.newBuilder()
+        .setName("domain_verification")
+        .setEnabled(true)
+        .build(),
+    OrganizationSettingsFeature.newBuilder()
+        .setName("session_policy")
         .setEnabled(true)
         .build()
 );
@@ -372,9 +392,11 @@ Configure advanced authentication and access control policies to meet your organ
 
 Organization admins will be able to configure which authentication methods are available to their organization members. For example, they can restrict access to only enterprise SSO for enhanced security, or allow a combination of SSO and passwordless authentication for flexible user access.
 
-### Session settings <Badge type="note" text="Coming soon" />
+### Session settings
 
-Organization admins will be able to configure session settings for all their organization members. They can set session timeout, idle timeout, and other session-related settings that align with their organization's security policies and compliance requirements.
+Enable the `session_policy` feature for an organization to let its admins configure custom absolute and idle session timeouts via the Hosted Widget or the Scalekit dashboard. Scalekit always enforces the stricter of the org policy and your application-level defaults.
+
+See [Organization session policy](/authenticate/manage-organizations/organization-session-policy/) for configuration steps and SDK examples.
 
 ## What's next?
 

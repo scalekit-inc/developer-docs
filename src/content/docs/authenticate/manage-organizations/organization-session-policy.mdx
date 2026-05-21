@@ -11,6 +11,18 @@ prev:
 next:
   label: "Hosted UI widgets"
   link: "/authenticate/manage-users-orgs/hosted-widgets/"
+seeAlso:
+  expanded: true
+  items:
+    - title: "Manage user sessions"
+      icon: "document"
+      url: "/authenticate/fsa/manage-session/"
+    - title: "Hosted UI widgets"
+      icon: "puzzle"
+      url: "/authenticate/manage-users-orgs/hosted-widgets/"
+    - title: "Configure organization features"
+      icon: "setting"
+      url: "/fsa/guides/manage-organization/#configure-organization-features"
 head:
   - tag: style
     content: |
@@ -25,9 +37,47 @@ By default, all organizations inherit the session policy configured at the appli
 
 Scalekit always enforces the **stricter of the two** (application vs. organization) at session creation time, so organization policies can only tighten — not relax — your application-level defaults.
 
+## How it works
+
+Each organization can either inherit the application session policy or define its own. The two settings you can customize per organization are:
+
+| Setting | Behavior |
+|---|---|
+| **Absolute session timeout** | Maximum session lifetime regardless of activity. Scalekit applies `min(app value, org value)`. |
+| **Idle session timeout** | Inactivity period after which the session expires. Enabled if either the app or org has it on; duration is `min()` across all enabled values. |
+
+**Access token lifetime** is not configurable at the org level — it remains an application-level setting only.
+
+### Validation rules
+
+When setting a custom policy, the values must satisfy this chain:
+
+```
+org absolute session timeout > org idle session timeout > app access token expiry
+```
+
+Scalekit returns a validation error if:
+- The org idle session timeout is shorter than the application's access token expiry.
+- The org absolute session timeout is shorter than the application's access token expiry.
+- The org idle session timeout is longer than the org absolute session timeout.
+
+### Multi-org user resolution
+
+When a user belongs to multiple organizations, Scalekit computes the effective policy across all their memberships at session creation time using the strictest values:
+
+| Setting | Resolution |
+|---|---|
+| Absolute session timeout | `min()` across all orgs the user belongs to |
+| Idle session timeout (toggle) | Enabled if **any** org has it enabled |
+| Idle session timeout (duration) | `min()` across all orgs where idle timeout is enabled |
+
 ## Prerequisites
 
 Organization-level session policies are controlled by the `session_policy` feature flag. Enable it on the organization before applying a custom policy.
+
+<Aside type="note" title="Disabling does not delete the custom policy">
+If you disable the `session_policy` feature flag for an organization, the custom policy is preserved but hidden from the Hosted Widget and dashboard. Re-enabling restores the org admin's access to manage it.
+</Aside>
 
 <Tabs syncKey="tech-stack">
   <TabItem value="node" label="Node.js">
@@ -83,6 +133,23 @@ scalekitClient.organizations().updateOrganizationSettings(
   </TabItem>
 </Tabs>
 
+## Configure via dashboard
+
+Once the `session_policy` feature is enabled for an organization, you can configure its session policy directly in the Scalekit dashboard.
+
+1. Go to **Dashboard > Organizations** and open the organization.
+2. Click the **Session Policy** tab.
+3. Select **Custom** to apply org-specific settings (or **Application** to revert to defaults).
+4. Set the **Absolute session timeout** — the maximum session lifetime, regardless of activity.
+5. Optionally enable **Idle session timeout** and set the inactivity period.
+6. Click **Save**.
+
+![](@/assets/docs/manage-organizations/organization-session-policy.png)
+
+<Aside type="note" title="Stricter-wins">
+The dashboard shows the per-org values you set here. The effective policy applied at session creation is always the stricter of this and your application-level settings.
+</Aside>
+
 ## Session policy fields
 
 | Field | Description |
@@ -93,10 +160,6 @@ scalekitClient.organizations().updateOrganizationSettings(
 | `idleSessionTimeoutEnabled` | Whether idle timeout is active for this organization |
 | `idleSessionTimeout` | Time after which an idle session expires |
 | `idleSessionTimeoutUnit` | Unit for idle timeout: `MINUTES`, `HOURS`, or `DAYS` |
-
-<Aside type="note" title="Stricter-wins logic">
-When both application-level and organization-level policies are active, Scalekit applies the lower value for absolute timeout and idle timeout independently. Setting `policySource: APPLICATION` discards any previously stored custom values.
-</Aside>
 
 ## Get the current session policy
 
@@ -306,3 +369,7 @@ scalekitClient.organizations().updateOrganizationSessionPolicy("org_12345", poli
 
   </TabItem>
 </Tabs>
+
+## Expose to org admins via Hosted Widgets
+
+You can let your customers manage their own session policy through [Hosted Widgets](/authenticate/manage-users-orgs/hosted-widgets/) — the embedded self-service UI Scalekit provides for organization admins. When the `session_policy` feature is enabled for an organization, the Session Policy widget becomes available in the Hosted Widget. Access is controlled by the `sk_org_session_policy_read` and `sk_org_session_policy_manage` permissions.
