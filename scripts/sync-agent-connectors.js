@@ -757,7 +757,7 @@ function resolveAuthType(authPatterns) {
   const first = (authPatterns || [])[0]
   if (!first) return 'OAuth 2.0'
   const type = first.type || ''
-  if (type === 'OAUTH') return 'OAuth 2.0'
+  if (type === 'OAUTH') return first.display_name || 'OAuth 2.0'
   if (type === 'API_KEY') return 'API Key'
   if (type === 'BEARER') return 'Bearer Token'
   return first.display_name || 'OAuth 2.0'
@@ -916,8 +916,16 @@ function generateCapabilityBullets(tools, providerName) {
 function generateAuthSection(authPattern, providerName) {
   const type = authPattern.type || 'UNKNOWN'
   if (type === 'OAUTH') {
+    const authLabel = authPattern.display_name || 'OAuth 2.0'
+    const isMcp = authPattern.is_mcp === true
+    if (isMcp) {
+      return (
+        `This connector uses **${authLabel}**. Scalekit handles dynamic client registration and PKCE-based authorization — ` +
+        `your agent code never handles tokens directly. You only pass a \`connectionName\` and a user \`identifier\`.`
+      )
+    }
     return (
-      `This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to ${providerName}, ` +
+      `This connector uses **${authLabel}**. Scalekit acts as the OAuth client: it redirects your user to ${providerName}, ` +
       `obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — ` +
       `you only pass a \`connectionName\` and a user \`identifier\`.\n\n` +
       `You supply your ${providerName} **Connected App** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.`
