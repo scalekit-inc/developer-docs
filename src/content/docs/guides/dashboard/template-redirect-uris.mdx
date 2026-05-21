@@ -1,8 +1,12 @@
 ---
 title: "Template redirect URLs"
 description: "Use {{slug}} and metadata variables in redirect URLs to dynamically expand per-organization callback, logout, and initiate login URLs at runtime."
+tags: [redirect-url, template, slug, metadata, oauth, callback, multi-tenant]
 sidebar:
   label: "Template redirect URLs"
+next:
+  label: "Sign in with magic link or Email OTP"
+  link: "/authenticate/auth-methods/passwordless/"
 head:
   - tag: style
     attrs:
@@ -40,7 +44,7 @@ For example, `https://{{slug}}/oauth/callback` expands to `https://auth.megasoft
 | `{{external_id}}` | Organization's external ID from your system. | `megasoft-123` |
 | `{{custom_domain}}` | Any key stored in the organization's metadata. | Set `metadata.custom_domain = "auth.megasoft.com"` |
 
-<Aside type="note">
+<Aside type="note" title="Pass organization_id in the authorization request">
 Pass `organization_id` in the authorization request so Scalekit can resolve the template using that organization's slug and metadata, and validate the resulting redirect URI. If no organization is in scope, the template is not expanded and the request is rejected.
 </Aside>
 
@@ -61,7 +65,7 @@ Supported patterns:
 | Custom domain | `https://{{custom_domain}}/callback` | Value comes from org metadata |
 | Path variable | `https://yourapp.com/{{slug}}/callback` | Variable in the path component |
 
-<Aside type="caution">
+<Aside type="caution" title="DNS label constraint">
 Template variables cannot span part of a DNS label. `https://app-{{slug}}.yourapp.com` is not valid; the placeholder must occupy the entire DNS label or the entire host.
 </Aside>
 
@@ -82,7 +86,7 @@ Open an organization, click **Edit**, and fill in the **Slug** field.
 <InstallSDK />
 
 <Tabs syncKey="tech-stack">
-<TabItem label="Node.js" value="nodejs">
+<TabItem label="Node.js" value="node">
 ```javascript title="Create organization with slug and metadata"
 const organization = await scalekit.organization.createOrganization(
   'Megasoft',
