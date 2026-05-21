@@ -539,6 +539,10 @@ This guide shows you how to store these tokens securely with encryption and prop
 
     Shorter timeouts provide better security, while longer timeouts reduce authentication interruptions.
 
+    <Aside type="note" title="Per-organization overrides">
+    Organizations can override the absolute and idle session timeouts above with their own custom values. Scalekit always applies the stricter of the two at session creation. Access token lifetime is not configurable at the org level. See [Organization session policy](/authenticate/manage-organizations/organization-session-policy/).
+    </Aside>
+
 4. ## Manage sessions remotely <Badge text="API" />
 
     Beyond client-side session management, Scalekit provides powerful APIs to manage user sessions remotely from your backend application. This enables you to build features like active session management in user account settings, security incident response, or administrative session control.
@@ -664,8 +668,3 @@ This guide shows you how to store these tokens securely with encryption and prop
 
 Your application continuously validates the access token for each incoming request. When the token is valid, the user's session remains active. If the access token expires, your middleware transparently refreshes it using the stored refresh token—users never notice this happening. If the refresh token itself expires or becomes invalid, users are prompted to sign in again.
 
-## Organization session policy
-
-Enterprise customers sometimes require session durations that differ from your application defaults. Scalekit lets you set a custom session policy per organization — controlling absolute timeout and idle timeout independently — while always applying the stricter of the two values at session creation.
-
-[Learn how to configure organization session policies →](/authenticate/manage-organizations/organization-session-policy/)

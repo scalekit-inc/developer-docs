@@ -55,6 +55,10 @@ This webhook is triggered when a new organization is created. The event type is 
         {
           "enabled": false,
           "name": "dir_sync"
+        },
+        {
+          "enabled": false,
+          "name": "domain_verification"
         }
       ]
     }
@@ -71,7 +75,7 @@ This webhook is triggered when a new organization is created. The event type is 
 | `create_time` | string | Timestamp of when the organization was created  |
 | `update_time` | string \| null | Timestamp of when the organization was last updated |
 | `metadata` | object \| null | Additional metadata associated with the organization |
-| `settings` | object \| null | Organization settings including feature flags (sso, dir_sync) |
+| `settings` | object \| null | Organization settings including feature flags (sso, dir_sync, domain_verification, session_policy) |
 | `settings.features` | array | Array of feature objects with enabled status and name |
 
 ### `organization.updated`
@@ -104,6 +108,10 @@ This webhook is triggered when an organization is updated. The event type is `or
         {
           "enabled": false,
           "name": "dir_sync"
+        },
+        {
+          "enabled": false,
+          "name": "domain_verification"
         }
       ]
     }
@@ -120,7 +128,7 @@ This webhook is triggered when an organization is updated. The event type is `or
 | `create_time` | string | Timestamp of when the organization was created  |
 | `update_time` | string \| null | Timestamp of when the organization was last updated |
 | `metadata` | object \| null | Additional metadata associated with the organization |
-| `settings` | object \| null | Organization settings including feature flags (sso, dir_sync) |
+| `settings` | object \| null | Organization settings including feature flags (sso, dir_sync, domain_verification, session_policy) |
 | `settings.features` | array | Array of feature objects with enabled status and name |
 
 ### `organization.deleted`
@@ -154,6 +162,10 @@ This webhook is triggered when an organization is deleted. The event type is `or
         {
           "enabled": false,
           "name": "dir_sync"
+        },
+        {
+          "enabled": false,
+          "name": "domain_verification"
         }
       ]
     }
@@ -171,5 +183,175 @@ This webhook is triggered when an organization is deleted. The event type is `or
 | `deleted_at` | string \| null | Timestamp of when the organization was deleted |
 | `update_time` | string \| null | Timestamp of when the organization was last updated |
 | `metadata` | object \| null | Additional metadata associated with the organization |
-| `settings` | object \| null | Organization settings including feature flags (sso, dir_sync) |
+| `settings` | object \| null | Organization settings including feature flags (sso, dir_sync, domain_verification, session_policy) |
 | `settings.features` | array | Array of feature objects with enabled status and name |
+
+----
+
+## Organization domain events
+
+These events fire whenever a domain is added, verified, or removed against an organization. They share a common payload shape derived from the Domain object. See [Organization domains](/authenticate/manage-users-orgs/organization-domains/) for the underlying workflow.
+
+### `organization.domain_created`
+
+This webhook is triggered when a domain is added to an organization. The event type is `organization.domain_created`.
+
+```json title="organization.domain_created"
+{
+  "spec_version": "1",
+  "id": "evt_94567862441607493",
+  "object": "Domain",
+  "environment_id": "env_74418471961625391",
+  "occurred_at": "2025-10-14T09:27:18.488720586Z",
+  "organization_id": "org_83544995172188677",
+  "type": "organization.domain_created",
+  "data": {
+    "id": "dom_9a8b7c6d5e4f",
+    "domain": "zapcorp.com",
+    "domain_type": "ORGANIZATION_DOMAIN",
+    "organization_id": "org_83544995172188677",
+    "environment_id": "env_74418471961625391",
+    "txt_record_key": "_scalekit-verify",
+    "txt_record_secret": "scalekit-verification=sk_dvr_8f2c4a1e9b6d7e3f",
+    "verification_status": "PENDING",
+    "verification_method": "DNS",
+    "updated_at": "2025-10-14T09:27:18.488720586Z"
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier for the domain |
+| `domain` | string | The registered domain name (lowercase) |
+| `domain_type` | string | `ORGANIZATION_DOMAIN` or `ALLOWED_EMAIL_DOMAIN` |
+| `organization_id` | string | Identifier of the organization that owns the domain |
+| `environment_id` | string | Identifier of the Scalekit environment |
+| `txt_record_key` | string | DNS record name used for DNS verification |
+| `txt_record_secret` | string | DNS record value used for DNS verification |
+| `verification_status` | string | `PENDING`, `VERIFIED`, or `FAILED` |
+| `verification_method` | string | `ADMIN`, `DNS`, or `NOT_APPLICABLE` |
+| `updated_at` | string | Timestamp of the most recent change to the domain |
+
+### `organization.domain_dns_verification_success`
+
+This webhook is triggered when DNS verification succeeds — Scalekit reads the matching TXT record and transitions the domain to `verification_status: VERIFIED`. The event type is `organization.domain_dns_verification_success`. Admin (manual) verification does not emit this event.
+
+```json title="organization.domain_dns_verification_success"
+{
+  "spec_version": "1",
+  "id": "evt_94568078213382471",
+  "object": "Domain",
+  "environment_id": "env_74418471961625391",
+  "occurred_at": "2025-10-14T09:31:42.098914861Z",
+  "organization_id": "org_83544995172188677",
+  "type": "organization.domain_dns_verification_success",
+  "data": {
+    "id": "dom_9a8b7c6d5e4f",
+    "domain": "zapcorp.com",
+    "domain_type": "ORGANIZATION_DOMAIN",
+    "organization_id": "org_83544995172188677",
+    "environment_id": "env_74418471961625391",
+    "txt_record_key": "_scalekit-verify",
+    "txt_record_secret": "scalekit-verification=sk_dvr_8f2c4a1e9b6d7e3f",
+    "verification_status": "VERIFIED",
+    "verification_method": "DNS",
+    "updated_at": "2025-10-14T09:31:42.098914861Z"
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier for the domain |
+| `domain` | string | The registered domain name |
+| `domain_type` | string | `ORGANIZATION_DOMAIN` or `ALLOWED_EMAIL_DOMAIN` |
+| `organization_id` | string | Identifier of the organization that owns the domain |
+| `environment_id` | string | Identifier of the Scalekit environment |
+| `txt_record_key` | string | DNS record name used for DNS verification |
+| `txt_record_secret` | string | DNS record value used for DNS verification |
+| `verification_status` | string | `VERIFIED` |
+| `verification_method` | string | `DNS` |
+| `updated_at` | string | Timestamp of the verification |
+
+### `organization.domain_dns_verification_failed`
+
+This webhook is triggered when DNS verification expires before Scalekit can find the matching TXT record, and the domain transitions to `verification_status: FAILED`. The event type is `organization.domain_dns_verification_failed`.
+
+```json title="organization.domain_dns_verification_failed"
+{
+  "spec_version": "1",
+  "id": "evt_94568215982113405",
+  "object": "Domain",
+  "environment_id": "env_74418471961625391",
+  "occurred_at": "2025-10-16T09:27:18.488720586Z",
+  "organization_id": "org_83544995172188677",
+  "type": "organization.domain_dns_verification_failed",
+  "data": {
+    "id": "dom_9a8b7c6d5e4f",
+    "domain": "zapcorp.com",
+    "domain_type": "ORGANIZATION_DOMAIN",
+    "organization_id": "org_83544995172188677",
+    "environment_id": "env_74418471961625391",
+    "txt_record_key": "_scalekit-verify",
+    "txt_record_secret": "scalekit-verification=sk_dvr_8f2c4a1e9b6d7e3f",
+    "verification_status": "FAILED",
+    "verification_method": "DNS",
+    "updated_at": "2025-10-16T09:27:18.488720586Z"
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier for the domain |
+| `domain` | string | The registered domain name |
+| `domain_type` | string | `ORGANIZATION_DOMAIN` or `ALLOWED_EMAIL_DOMAIN` |
+| `organization_id` | string | Identifier of the organization that owns the domain |
+| `environment_id` | string | Identifier of the Scalekit environment |
+| `txt_record_key` | string | DNS record name the customer was asked to publish |
+| `txt_record_secret` | string | DNS record value the customer was asked to publish |
+| `verification_status` | string | `FAILED` |
+| `verification_method` | string | `DNS` |
+| `updated_at` | string | Timestamp the domain was marked failed |
+
+### `organization.domain_deleted`
+
+This webhook is triggered when a domain is removed from an organization. The event type is `organization.domain_deleted`.
+
+```json title="organization.domain_deleted"
+{
+  "spec_version": "1",
+  "id": "evt_94568318877245912",
+  "object": "Domain",
+  "environment_id": "env_74418471961625391",
+  "occurred_at": "2025-10-16T11:14:09.337417Z",
+  "organization_id": "org_83544995172188677",
+  "type": "organization.domain_deleted",
+  "data": {
+    "id": "dom_9a8b7c6d5e4f",
+    "domain": "zapcorp.com",
+    "domain_type": "ORGANIZATION_DOMAIN",
+    "organization_id": "org_83544995172188677",
+    "environment_id": "env_74418471961625391",
+    "txt_record_key": "_scalekit-verify",
+    "txt_record_secret": "scalekit-verification=sk_dvr_8f2c4a1e9b6d7e3f",
+    "verification_status": "VERIFIED",
+    "verification_method": "DNS",
+    "updated_at": "2025-10-16T11:14:09.337417Z"
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier for the domain |
+| `domain` | string | The registered domain name |
+| `domain_type` | string | `ORGANIZATION_DOMAIN` or `ALLOWED_EMAIL_DOMAIN` |
+| `organization_id` | string | Identifier of the organization the domain belonged to |
+| `environment_id` | string | Identifier of the Scalekit environment |
+| `txt_record_key` | string | DNS record name that was issued for verification |
+| `txt_record_secret` | string | DNS record value that was issued for verification |
+| `verification_status` | string | Last known verification status before deletion |
+| `verification_method` | string | Method recorded at the time of deletion |
+| `updated_at` | string | Timestamp of the deletion |
