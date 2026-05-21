@@ -91,33 +91,40 @@ You can let your customers manage their own session policy through [Hosted Widge
    <Tabs syncKey="tech-stack">
      <TabItem value="node" label="Node.js">
 
-   ```javascript
-   const policy = await scalekit.organization.getOrganizationSessionPolicy('org_12345');
+   ```javascript title="Get session policy"
+   try {
+     const policy = await scalekit.organization.getOrganizationSessionPolicy('org_12345');
 
-   // policySource: 1 = APPLICATION (inheriting defaults), 2 = CUSTOM (org-specific values active)
-   console.log('Policy source:', policy.policySource);
-   console.log('Absolute timeout (minutes):', policy.absoluteSessionTimeout);
-   console.log('Idle timeout enabled:', policy.idleSessionTimeoutEnabled);
+     // policySource: 1 = APPLICATION (inheriting defaults), 2 = CUSTOM (org-specific values active)
+     console.log('Policy source:', policy.policySource);
+     console.log('Absolute timeout (minutes):', policy.absoluteSessionTimeout);
+     console.log('Idle timeout enabled:', policy.idleSessionTimeoutEnabled);
+   } catch (error) {
+     console.error('Failed to get session policy:', error.message);
+   }
    ```
 
      </TabItem>
      <TabItem value="python" label="Python">
 
-   ```python
+   ```python title="Get session policy"
    from scalekit.v1.organizations.organizations_pb2 import SessionPolicyType
 
-   response, _ = scalekit_client.organization.get_organization_session_policy('org_12345')
-   policy = response.policy
+   try:
+       response, _ = scalekit_client.organization.get_organization_session_policy('org_12345')
+       policy = response.policy
 
-   if policy.policy_source == SessionPolicyType.CUSTOM:
-       print('Absolute timeout (minutes):', policy.absolute_session_timeout.value)
-       print('Idle timeout enabled:', policy.idle_session_timeout_enabled.value)
+       if policy.policy_source == SessionPolicyType.CUSTOM:
+           print('Absolute timeout (minutes):', policy.absolute_session_timeout.value)
+           print('Idle timeout enabled:', policy.idle_session_timeout_enabled.value)
+   except Exception as e:
+       print('Failed to get session policy:', e)
    ```
 
      </TabItem>
      <TabItem value="go" label="Go">
 
-   ```go
+   ```go title="Get session policy"
    policy, err := scalekitClient.Organization().GetOrganizationSessionPolicy(ctx, "org_12345")
    if err != nil {
        log.Fatal(err)
@@ -132,16 +139,20 @@ You can let your customers manage their own session policy through [Hosted Widge
      </TabItem>
      <TabItem value="java" label="Java">
 
-   ```java
+   ```java title="Get session policy"
    import com.scalekit.grpc.scalekit.v1.organizations.OrganizationSessionPolicySettings;
    import com.scalekit.grpc.scalekit.v1.organizations.SessionPolicyType;
 
-   OrganizationSessionPolicySettings policy =
-       scalekitClient.organizations().getOrganizationSessionPolicy("org_12345");
+   try {
+       OrganizationSessionPolicySettings policy =
+           scalekitClient.organizations().getOrganizationSessionPolicy("org_12345");
 
-   if (policy.getPolicySource() == SessionPolicyType.CUSTOM) {
-       System.out.println("Absolute timeout (minutes): " + policy.getAbsoluteSessionTimeout().getValue());
-       System.out.println("Idle timeout enabled: " + policy.getIdleSessionTimeoutEnabled().getValue());
+       if (policy.getPolicySource() == SessionPolicyType.CUSTOM) {
+           System.out.println("Absolute timeout (minutes): " + policy.getAbsoluteSessionTimeout().getValue());
+           System.out.println("Idle timeout enabled: " + policy.getIdleSessionTimeoutEnabled().getValue());
+       }
+   } catch (Exception e) {
+       System.err.println("Failed to get session policy: " + e.getMessage());
    }
    ```
 
@@ -155,43 +166,50 @@ You can let your customers manage their own session policy through [Hosted Widge
    <Tabs syncKey="tech-stack">
      <TabItem value="node" label="Node.js">
 
-   ```javascript
-   const updated = await scalekit.organization.updateOrganizationSessionPolicy('org_12345', {
-     policySource: 'CUSTOM',
-     absoluteSessionTimeout: 480,
-     absoluteSessionTimeoutUnit: 'MINUTES',
-     idleSessionTimeoutEnabled: true,
-     idleSessionTimeout: 60,
-     idleSessionTimeoutUnit: 'MINUTES',
-   });
+   ```javascript title="Set custom session policy"
+   try {
+     const updated = await scalekit.organization.updateOrganizationSessionPolicy('org_12345', {
+       policySource: 'CUSTOM',
+       absoluteSessionTimeout: 480,
+       absoluteSessionTimeoutUnit: 'MINUTES',
+       idleSessionTimeoutEnabled: true,
+       idleSessionTimeout: 60,
+       idleSessionTimeoutUnit: 'MINUTES',
+     });
 
-   console.log('Policy updated:', updated.policySource);
+     console.log('Policy updated:', updated.policySource);
+   } catch (error) {
+     console.error('Failed to update session policy:', error.message);
+   }
    ```
 
      </TabItem>
      <TabItem value="python" label="Python">
 
-   ```python
+   ```python title="Set custom session policy"
    from scalekit.v1.organizations.organizations_pb2 import SessionPolicyType
    from scalekit.v1.commons.commons_pb2 import TimeUnit
 
-   response, _ = scalekit_client.organization.update_organization_session_policy(
-       organization_id='org_12345',
-       policy_source=SessionPolicyType.CUSTOM,
-       absolute_session_timeout=480,
-       absolute_session_timeout_unit=TimeUnit.MINUTES,
-       idle_session_timeout_enabled=True,
-       idle_session_timeout=60,
-       idle_session_timeout_unit=TimeUnit.MINUTES,
-   )
+   try:
+       response, _ = scalekit_client.organization.update_organization_session_policy(
+           organization_id='org_12345',
+           policy_source=SessionPolicyType.CUSTOM,
+           absolute_session_timeout=480,
+           absolute_session_timeout_unit=TimeUnit.MINUTES,
+           idle_session_timeout_enabled=True,
+           idle_session_timeout=60,
+           idle_session_timeout_unit=TimeUnit.MINUTES,
+       )
 
-   print('Policy updated:', response.policy.policy_source)
+       print('Policy updated:', response.policy.policy_source)
+   except Exception as e:
+       print('Failed to update session policy:', e)
    ```
 
      </TabItem>
      <TabItem value="go" label="Go">
 
-   ```go
+   ```go title="Set custom session policy"
    timeout := int32(480)
    idleTimeout := int32(60)
    idleEnabled := true
@@ -214,26 +232,30 @@ You can let your customers manage their own session policy through [Hosted Widge
      </TabItem>
      <TabItem value="java" label="Java">
 
-   ```java
+   ```java title="Set custom session policy"
    import com.google.protobuf.Int32Value;
    import com.google.protobuf.BoolValue;
    import com.scalekit.grpc.scalekit.v1.commons.TimeUnit;
    import com.scalekit.grpc.scalekit.v1.organizations.OrganizationSessionPolicySettings;
    import com.scalekit.grpc.scalekit.v1.organizations.SessionPolicyType;
 
-   OrganizationSessionPolicySettings policy = OrganizationSessionPolicySettings.newBuilder()
-       .setPolicySource(SessionPolicyType.CUSTOM)
-       .setAbsoluteSessionTimeout(Int32Value.of(480))
-       .setAbsoluteSessionTimeoutUnit(TimeUnit.MINUTES)
-       .setIdleSessionTimeoutEnabled(BoolValue.of(true))
-       .setIdleSessionTimeout(Int32Value.of(60))
-       .setIdleSessionTimeoutUnit(TimeUnit.MINUTES)
-       .build();
+   try {
+       OrganizationSessionPolicySettings policy = OrganizationSessionPolicySettings.newBuilder()
+           .setPolicySource(SessionPolicyType.CUSTOM)
+           .setAbsoluteSessionTimeout(Int32Value.of(480))
+           .setAbsoluteSessionTimeoutUnit(TimeUnit.MINUTES)
+           .setIdleSessionTimeoutEnabled(BoolValue.of(true))
+           .setIdleSessionTimeout(Int32Value.of(60))
+           .setIdleSessionTimeoutUnit(TimeUnit.MINUTES)
+           .build();
 
-   OrganizationSessionPolicySettings updated =
-       scalekitClient.organizations().updateOrganizationSessionPolicy("org_12345", policy);
+       OrganizationSessionPolicySettings updated =
+           scalekitClient.organizations().updateOrganizationSessionPolicy("org_12345", policy);
 
-   System.out.println("Policy updated: " + updated.getPolicySource());
+       System.out.println("Policy updated: " + updated.getPolicySource());
+   } catch (Exception e) {
+       System.err.println("Failed to update session policy: " + e.getMessage());
+   }
    ```
 
      </TabItem>
@@ -246,28 +268,35 @@ You can let your customers manage their own session policy through [Hosted Widge
    <Tabs syncKey="tech-stack">
      <TabItem value="node" label="Node.js">
 
-   ```javascript
-   await scalekit.organization.updateOrganizationSessionPolicy('org_12345', {
-     policySource: 'APPLICATION',
-   });
+   ```javascript title="Revert to application defaults"
+   try {
+     await scalekit.organization.updateOrganizationSessionPolicy('org_12345', {
+       policySource: 'APPLICATION',
+     });
+   } catch (error) {
+     console.error('Failed to revert session policy:', error.message);
+   }
    ```
 
      </TabItem>
      <TabItem value="python" label="Python">
 
-   ```python
+   ```python title="Revert to application defaults"
    from scalekit.v1.organizations.organizations_pb2 import SessionPolicyType
 
-   scalekit_client.organization.update_organization_session_policy(
-       organization_id='org_12345',
-       policy_source=SessionPolicyType.APPLICATION,
-   )
+   try:
+       scalekit_client.organization.update_organization_session_policy(
+           organization_id='org_12345',
+           policy_source=SessionPolicyType.APPLICATION,
+       )
+   except Exception as e:
+       print('Failed to revert session policy:', e)
    ```
 
      </TabItem>
      <TabItem value="go" label="Go">
 
-   ```go
+   ```go title="Revert to application defaults"
    _, err := scalekitClient.Organization().UpdateOrganizationSessionPolicy(ctx, "org_12345", scalekit.OrganizationSessionPolicy{
        PolicySource: scalekit.SessionPolicySourceApplication,
    })
@@ -279,15 +308,19 @@ You can let your customers manage their own session policy through [Hosted Widge
      </TabItem>
      <TabItem value="java" label="Java">
 
-   ```java
+   ```java title="Revert to application defaults"
    import com.scalekit.grpc.scalekit.v1.organizations.OrganizationSessionPolicySettings;
    import com.scalekit.grpc.scalekit.v1.organizations.SessionPolicyType;
 
-   OrganizationSessionPolicySettings policy = OrganizationSessionPolicySettings.newBuilder()
-       .setPolicySource(SessionPolicyType.APPLICATION)
-       .build();
+   try {
+       OrganizationSessionPolicySettings policy = OrganizationSessionPolicySettings.newBuilder()
+           .setPolicySource(SessionPolicyType.APPLICATION)
+           .build();
 
-   scalekitClient.organizations().updateOrganizationSessionPolicy("org_12345", policy);
+       scalekitClient.organizations().updateOrganizationSessionPolicy("org_12345", policy);
+   } catch (Exception e) {
+       System.err.println("Failed to revert session policy: " + e.getMessage());
+   }
    ```
 
      </TabItem>
