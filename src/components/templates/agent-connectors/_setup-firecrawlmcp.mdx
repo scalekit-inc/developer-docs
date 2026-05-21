@@ -1,0 +1,49 @@
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+
+Register your Firecrawl API key with Scalekit so it can authenticate and proxy scraping requests on behalf of your users. Firecrawl MCP uses API key authentication — there is no redirect URI or OAuth flow.
+
+<Steps>
+1. ### Get a Firecrawl API key
+
+   - Go to [firecrawl.dev](https://firecrawl.dev) and sign in or create a free account.
+   - In the dashboard, go to **API Keys** and click **+ Create New Key**.
+   - Copy the key — it starts with `fc-`.
+
+2. ### Create a connection in Scalekit
+
+   - In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** → **Connections** → **Create Connection**.
+   - Search for **Firecrawl MCP** and click **Create**.
+   - Note the **Connection name** — use this as `connection_name` in your code (e.g., `firecrawlmcp`).
+
+3. ### Add a connected account
+
+   Connected accounts link a specific user identifier in your system to a Firecrawl API key. Add them via the dashboard for testing, or via the Scalekit API in production.
+
+   **Via dashboard (for testing)**
+
+   - Open the connection and click the **Connected Accounts** tab → **Add account**.
+   - Fill in **Your User's ID** and **API Key**, then click **Save**.
+
+   **Via API (for production)**
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```typescript
+       await scalekit.actions.upsertConnectedAccount({
+         connectionName: 'firecrawlmcp',
+         identifier: 'user_123',
+         credentials: { token: 'fc-...' },
+       });
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```python
+       scalekit_client.actions.upsert_connected_account(
+           connection_name="firecrawlmcp",
+           identifier="user_123",
+           credentials={"token": "fc-..."}
+       )
+       ```
+     </TabItem>
+   </Tabs>
+</Steps>
