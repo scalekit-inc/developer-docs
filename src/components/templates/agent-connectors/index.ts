@@ -147,6 +147,7 @@ export { default as SectionAfterSetupTrelloCommonWorkflows } from './_section-af
 export { default as SectionAfterSetupTwitterCommonWorkflows } from './_section-after-setup-twitter-common-workflows.mdx'
 export { default as SectionAfterSetupVercelCommonWorkflows } from './_section-after-setup-vercel-common-workflows.mdx'
 export { default as SectionAfterSetupXeroCommonWorkflows } from './_section-after-setup-xero-common-workflows.mdx'
+export { default as SectionAfterSetupZapiermcpCommonWorkflows } from './_section-after-setup-zapiermcp-common-workflows.mdx'
 export { default as SectionAfterSetupZendeskCommonWorkflows } from './_section-after-setup-zendesk-common-workflows.mdx'
 export { default as SectionAfterSetupZoomCommonWorkflows } from './_section-after-setup-zoom-common-workflows.mdx'
 export { default as SectionAfterToolListSalesforceMetadataApiSoap } from './_section-after-tool-list-salesforce-metadata-api-soap.mdx'

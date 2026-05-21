@@ -319,7 +319,7 @@ export const catalog: Record<string, ProviderMeta> = {
   },
   zendesk: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/zendesk.svg',
-    authType: 'API KEY',
+    authType: 'API Key',
     categories: ['Customer Support', 'Communication'],
   },
   googleforms: {
