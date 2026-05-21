@@ -334,6 +334,7 @@ export const redirects = {
   // =============================================================================
   // DEV KIT REDIRECTS
   // =============================================================================
+  '/dev-kit': '/dev-kit/build-with-ai/',
   '/dev-kit/mcp/': '/dev-kit/ai-assisted-development/scalekit-mcp-server/',
   '/dev-kit/guides/testing/sso-simulator': '/dev-kit/tools/sso-simulator/',
   '/dev-kit/nodejs': '/dev-kit/sdks/',
