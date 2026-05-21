@@ -30,7 +30,7 @@ import InstallSDK from '@components/templates/_installsdk.mdx';
 
 Multi-tenant applications often need a different callback URL for each customer. Instead of registering a separate redirect URI for every organization, you can register a single template that Scalekit expands per organization at runtime.
 
-For example, `https://{{slug}}/oauth/callback` expands to `https://app.acmecorp.com/oauth/callback` for Acme Corp and `https://app.betacorp.com/oauth/callback` for Beta Corp — without any additional configuration.
+For example, `https://{{slug}}/oauth/callback` expands to `https://app.acmecorp.com/oauth/callback` for Acme Corp and `https://app.betacorp.com/oauth/callback` for Beta Corp, without any additional configuration.
 
 ## Available template variables
 
@@ -38,10 +38,9 @@ For example, `https://{{slug}}/oauth/callback` expands to `https://app.acmecorp.
 |---|---|---|
 | `{{slug}}` | Organization's slug field. Can be a single DNS label (`acme`) or a full hostname (`app.acmecorp.com`). | `app.acmecorp.com` |
 | `{{external_id}}` | Organization's external ID from your system. | `acme-corp-123` |
-| `{{display_name}}` | Organization's display name. | `Acme Corporation` |
 | `{{custom_domain}}` | Any key stored in the organization's metadata. | Set `metadata.custom_domain = "app.acmecorp.com"` |
 
-Template variables are resolved from the organization in scope for the current authentication request. If no organization is in scope (for example, an environment-wide login with no `organization_id` parameter), the template is not expanded and the request is rejected.
+Template variables are resolved from the organization in scope for the current authentication request. If no organization is in scope, the template is not expanded and the request is rejected.
 
 ## Supported URI patterns
 
@@ -53,148 +52,78 @@ Template variables are resolved from the organization in scope for the current a
 | Path with variable | `https://yourapp.com/{{slug}}/callback` | Variable in the path component |
 
 <Aside type="caution">
-Template variables cannot be embedded inside a DNS label — `https://app-{{slug}}.yourapp.com` is not valid. The placeholder must occupy the entire DNS label or the entire host.
+Template variables cannot span part of a DNS label. `https://app-{{slug}}.yourapp.com` is not valid. The placeholder must occupy the entire DNS label or the entire host.
 </Aside>
 
 ## Register template URIs
 
-Add template URIs the same way you add static URIs: **Dashboard > Authentication > Redirects**, then type the template string directly into the input field. Template URIs are valid in all four redirect fields:
+Add template URIs the same way you add static URIs: **Dashboard > Authentication > Redirects**, then type the template string directly into the input field. Template URIs are valid in all three redirect fields:
 
-- **Allowed callback URLs** — where Scalekit sends users after authentication
-- **Post logout URL** — where Scalekit sends users after logout
-- **Initiate login URL** — where Scalekit sends IdP-initiated login requests
+- **Allowed callback URLs** - where Scalekit sends users after authentication
+- **Post logout URL** - where Scalekit sends users after logout
+- **Initiate login URL** - where Scalekit sends IdP-initiated login requests
 
-## Configure org slug
+At runtime, Scalekit looks up the organization in scope, substitutes each `{{variable}}` with its resolved value, validates the expanded URL against registered templates, and redirects the user. For logout, the organization is resolved from the active session. If the session has expired, template expansion is skipped and the redirect is rejected.
 
-`{{slug}}` expands to the organization's `slug` field. Set it when creating or updating an organization. The slug must be a valid DNS hostname — it can be a single label (`acme`) or a dotted hostname (`app.acmecorp.com`, up to 253 characters).
+## Configure org slug and metadata
+
+Set the organization's `slug` for `{{slug}}` templates, or store any key in `metadata` to use as a custom variable like `{{custom_domain}}`.
 
 <InstallSDK />
 
 <Tabs syncKey="tech-stack">
 <TabItem label="Node.js" value="nodejs">
-```javascript title="Set org slug"
-const updatedOrg = await scalekit.organization.updateOrganization(
-  'org_12345',
-  { slug: 'app.acmecorp.com' }
-);
+```javascript title="Set slug and metadata"
+await scalekit.organization.updateOrganization('org_12345', {
+  slug: 'app.acmecorp.com',
+  metadata: {
+    custom_domain: 'app.acmecorp.com',
+  },
+});
 ```
 </TabItem>
 <TabItem label="Python" value="python">
-```python title="Set org slug"
+```python title="Set slug and metadata"
 from scalekit.v1.organizations.organizations_pb2 import UpdateOrganization
 
-updated_org = scalekit_client.organization.update_organization(
+scalekit_client.organization.update_organization(
     organization_id='org_12345',
     organization=UpdateOrganization(
-        slug='app.acmecorp.com'
+        slug='app.acmecorp.com',
+        metadata={'custom_domain': 'app.acmecorp.com'},
     )
 )
 ```
 </TabItem>
 <TabItem label="Go" value="go">
-```go title="Set org slug"
+```go title="Set slug and metadata"
 slug := "app.acmecorp.com"
 
-updatedOrg, err := scalekitClient.Organization.UpdateOrganization(
+scalekitClient.Organization.UpdateOrganization(
     ctx,
     "org_12345",
     &scalekit.UpdateOrganization{
         Slug: &slug,
-    },
-)
-if err != nil {
-    log.Fatal(err)
-}
-```
-</TabItem>
-<TabItem label="Java" value="java">
-```java title="Set org slug"
-UpdateOrganization update = UpdateOrganization.newBuilder()
-    .setSlug("app.acmecorp.com")
-    .build();
-
-Organization updatedOrg = scalekitClient.organizations()
-    .updateById("org_12345", update);
-```
-</TabItem>
-</Tabs>
-
-## Configure custom metadata variables
-
-Any key in an organization's `metadata` map is available as a template variable using its lowercase key name. This lets you define arbitrary variables like `{{custom_domain}}`, `{{tenant_id}}`, or `{{region}}`.
-
-<Tabs syncKey="tech-stack">
-<TabItem label="Node.js" value="nodejs">
-```javascript title="Set custom_domain in org metadata"
-const updatedOrg = await scalekit.organization.updateOrganization(
-  'org_12345',
-  {
-    metadata: {
-      custom_domain: 'app.acmecorp.com',
-    },
-  }
-);
-```
-</TabItem>
-<TabItem label="Python" value="python">
-```python title="Set custom_domain in org metadata"
-from scalekit.v1.organizations.organizations_pb2 import UpdateOrganization
-
-updated_org = scalekit_client.organization.update_organization(
-    organization_id='org_12345',
-    organization=UpdateOrganization(
-        metadata={'custom_domain': 'app.acmecorp.com'}
-    )
-)
-```
-</TabItem>
-<TabItem label="Go" value="go">
-```go title="Set custom_domain in org metadata"
-updatedOrg, err := scalekitClient.Organization.UpdateOrganization(
-    ctx,
-    "org_12345",
-    &scalekit.UpdateOrganization{
         Metadata: map[string]string{
             "custom_domain": "app.acmecorp.com",
         },
     },
 )
-if err != nil {
-    log.Fatal(err)
-}
 ```
 </TabItem>
 <TabItem label="Java" value="java">
-```java title="Set custom_domain in org metadata"
+```java title="Set slug and metadata"
+// Requires scalekit-sdk-java v2.1.2+
 UpdateOrganization update = UpdateOrganization.newBuilder()
+    .setSlug("app.acmecorp.com")
     .putMetadata("custom_domain", "app.acmecorp.com")
     .build();
 
-Organization updatedOrg = scalekitClient.organizations()
-    .updateById("org_12345", update);
+scalekitClient.organizations().updateById("org_12345", update);
 ```
 </TabItem>
 </Tabs>
 
-After setting `metadata.custom_domain`, you can register `https://{{custom_domain}}/oauth/callback` as a redirect URI, and Scalekit will expand it using the organization's metadata value at runtime.
-
 <Aside type="note">
-Built-in variables (`slug`, `external_id`, `display_name`) always take precedence over metadata keys. If an org has both `metadata.slug` and a slug field, the slug field wins.
+Built-in variables (`slug`, `external_id`) always take precedence over metadata keys with the same name.
 </Aside>
-
-## Post-logout redirect URIs
-
-Template URIs are supported in **Post logout URL** the same way they are in callback URLs. Register a template like `https://{{slug}}/logout` in **Dashboard > Authentication > Redirects > Post logout URL**.
-
-At logout time, Scalekit resolves the organization from the active user session and expands the template before validating the `post_logout_redirect_uri` parameter. If the session has expired or no session is present, template expansion is skipped and the logout redirect is rejected.
-
-## How expansion works
-
-When a user authenticates with an organization in scope, Scalekit:
-
-1. Looks up the organization's attributes (`slug`, `external_id`, `display_name`, `metadata`).
-2. Substitutes each `{{variable}}` in the registered template with its resolved value.
-3. Validates the expanded URI against the registered templates and static URIs.
-4. Redirects the user to the expanded URI.
-
-The expanded URI must be a valid HTTPS URL with DNS-safe label values. If any variable resolves to a value that would produce an invalid URL, the request is rejected.

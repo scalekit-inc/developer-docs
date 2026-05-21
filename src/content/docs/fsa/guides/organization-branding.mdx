@@ -18,7 +18,7 @@ head:
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 import InstallSDK from '@components/templates/_installsdk.mdx';
 
-When a user from Acme Corp signs in, they see Acme Corp's logo — not your platform's logo. Organization branding replaces your workspace branding with the individual customer's logo and name across three surfaces: the hosted login page, the admin portal, and the end-user app.
+When a user from Acme Corp signs in, they see Acme Corp's logo instead of your platform's logo. Organization branding replaces your workspace branding with the individual customer's logo and name across three surfaces: the hosted login page, the admin portal, and the end-user app.
 
 ## Where it appears
 
@@ -36,7 +36,7 @@ Once enabled, any organization that has a `logo_url` set will display its own lo
 
 ## Set an organization's logo
 
-Set `logo_url` when creating or updating an organization. The URL must be publicly accessible — Scalekit does not host or proxy logo images.
+Set `logo_url` when creating or updating an organization. The URL must be publicly accessible, as Scalekit does not host or proxy logo images.
 
 <InstallSDK />
 
@@ -47,13 +47,8 @@ Set `logo_url` when creating or updating an organization. The URL must be public
 ```javascript title="Create organization with logo"
 const organization = await scalekit.organization.createOrganization(
   'Acme Corporation',
-  {
-    externalId: 'acme-corp-123',
-    logoUrl: 'https://cdn.acmecorp.com/logo.png',
-  }
+  { logoUrl: 'https://cdn.acmecorp.com/logo.png' }
 );
-
-console.log('Organization created:', organization.id);
 ```
 </TabItem>
 <TabItem label="Python" value="python">
@@ -63,12 +58,9 @@ from scalekit.v1.organizations.organizations_pb2 import CreateOrganization
 organization = scalekit_client.organization.create_organization(
     CreateOrganization(
         display_name='Acme Corporation',
-        external_id='acme-corp-123',
         logo_url='https://cdn.acmecorp.com/logo.png',
     )
 )
-
-print(f'Organization created: {organization.id}')
 ```
 </TabItem>
 <TabItem label="Go" value="go">
@@ -79,62 +71,6 @@ organization, err := scalekitClient.Organization.CreateOrganization(
     ctx,
     "Acme Corporation",
     scalekit.CreateOrganizationOptions{
-        ExternalId: "acme-corp-123",
-        LogoUrl:    &logoURL,
-    },
-)
-if err != nil {
-    log.Fatal(err)
-}
-
-fmt.Printf("Organization created: %s\n", organization.ID)
-```
-</TabItem>
-<TabItem label="Java" value="java">
-```java title="Create organization with logo"
-CreateOrganization createOrg = CreateOrganization.newBuilder()
-    .setDisplayName("Acme Corporation")
-    .setExternalId("acme-corp-123")
-    .setLogoUrl("https://cdn.acmecorp.com/logo.png")
-    .build();
-
-Organization organization = scalekitClient.organizations().create(createOrg);
-System.out.println("Organization created: " + organization.getId());
-```
-</TabItem>
-</Tabs>
-
-### When updating an existing organization
-
-<Tabs syncKey="tech-stack">
-<TabItem label="Node.js" value="nodejs">
-```javascript title="Update org logo"
-const updatedOrg = await scalekit.organization.updateOrganization(
-  'org_12345',
-  { logoUrl: 'https://cdn.acmecorp.com/logo.png' }
-);
-```
-</TabItem>
-<TabItem label="Python" value="python">
-```python title="Update org logo"
-from scalekit.v1.organizations.organizations_pb2 import UpdateOrganization
-
-updated_org = scalekit_client.organization.update_organization(
-    organization_id='org_12345',
-    organization=UpdateOrganization(
-        logo_url='https://cdn.acmecorp.com/logo.png'
-    )
-)
-```
-</TabItem>
-<TabItem label="Go" value="go">
-```go title="Update org logo"
-logoURL := "https://cdn.acmecorp.com/logo.png"
-
-updatedOrg, err := scalekitClient.Organization.UpdateOrganization(
-    ctx,
-    "org_12345",
-    &scalekit.UpdateOrganization{
         LogoUrl: &logoURL,
     },
 )
@@ -144,13 +80,58 @@ if err != nil {
 ```
 </TabItem>
 <TabItem label="Java" value="java">
+```java title="Create organization with logo"
+// Requires scalekit-sdk-java v2.1.2+
+CreateOrganization createOrg = CreateOrganization.newBuilder()
+    .setDisplayName("Acme Corporation")
+    .setLogoUrl("https://cdn.acmecorp.com/logo.png")
+    .build();
+
+Organization organization = scalekitClient.organizations().create(createOrg);
+```
+</TabItem>
+</Tabs>
+
+### When updating an existing organization
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js" value="nodejs">
+```javascript title="Update org logo"
+await scalekit.organization.updateOrganization(
+  'org_12345',
+  { logoUrl: 'https://cdn.acmecorp.com/logo.png' }
+);
+```
+</TabItem>
+<TabItem label="Python" value="python">
+```python title="Update org logo"
+from scalekit.v1.organizations.organizations_pb2 import UpdateOrganization
+
+scalekit_client.organization.update_organization(
+    organization_id='org_12345',
+    organization=UpdateOrganization(logo_url='https://cdn.acmecorp.com/logo.png')
+)
+```
+</TabItem>
+<TabItem label="Go" value="go">
+```go title="Update org logo"
+logoURL := "https://cdn.acmecorp.com/logo.png"
+
+scalekitClient.Organization.UpdateOrganization(
+    ctx,
+    "org_12345",
+    &scalekit.UpdateOrganization{LogoUrl: &logoURL},
+)
+```
+</TabItem>
+<TabItem label="Java" value="java">
 ```java title="Update org logo"
+// Requires scalekit-sdk-java v2.1.2+
 UpdateOrganization update = UpdateOrganization.newBuilder()
     .setLogoUrl("https://cdn.acmecorp.com/logo.png")
     .build();
 
-Organization updatedOrg = scalekitClient.organizations()
-    .updateById("org_12345", update);
+scalekitClient.organizations().updateById("org_12345", update);
 ```
 </TabItem>
 </Tabs>
@@ -159,7 +140,7 @@ To remove a logo, set `logo_url` to an empty string. The surface falls back to y
 
 ## Fallback behavior
 
-If organization logo branding is enabled but an organization has no `logo_url`, the hosted surfaces fall back to your workspace logo. There is no broken image state — the feature degrades gracefully per organization.
+If organization branding is enabled but an organization has no `logo_url`, the hosted surfaces fall back to your workspace logo. There is no broken image state; the feature degrades gracefully per organization.
 
 <Aside type="note">
 Organization branding requires the feature flag to be enabled at the environment level. Enabling it for individual organizations without the environment-level flag has no effect.
@@ -167,4 +148,4 @@ Organization branding requires the feature flag to be enabled at the environment
 
 ## Relationship to workspace branding
 
-Workspace branding (configured in **Customization > Branding**) sets your platform's default logo, colors, and layout. Organization branding overrides the logo and display name only — colors, border radius, and layout remain unchanged from your workspace settings.
+Workspace branding (configured in **Customization > Branding**) sets your platform's default logo, colors, and layout. Organization branding overrides the logo and display name only. Colors, border radius, and layout remain unchanged from your workspace settings.
