@@ -24,6 +24,7 @@ export const sidebar = [
           'authenticate/fsa/manage-session',
           'authenticate/fsa/logout',
           'guides/dashboard/redirects',
+          'guides/dashboard/org-redirect-urls',
         ],
       },
       {
@@ -90,6 +91,7 @@ export const sidebar = [
         items: [
           'guides/custom-domain',
           'fsa/guides/login-page-branding',
+          'fsa/guides/organization-branding',
           'guides/email-providers',
           'guides/dashboard/custom-email-templates',
           'authenticate/manage-users-orgs/custom-user-attributes',

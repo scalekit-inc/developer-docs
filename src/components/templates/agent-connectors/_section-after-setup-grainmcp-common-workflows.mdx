@@ -1,0 +1,148 @@
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+### Search meeting transcripts
+
+Use `grainmcp_search_in_transcripts` to find relevant segments across all meeting recordings using hybrid semantic and keyword search.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const segments = await actions.executeTool({
+      connectionName: 'grainmcp',
+      identifier: 'user_123',
+      toolName: 'grainmcp_search_in_transcripts',
+      toolInput: {
+        search_queries: ['pricing objection', 'competitor mention'],
+        limit: 10,
+      },
+    });
+    console.log(segments);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    segments = actions.execute_tool(
+        connection_name="grainmcp",
+        identifier="user_123",
+        tool_name="grainmcp_search_in_transcripts",
+        tool_input={
+            "search_queries": ["pricing objection", "competitor mention"],
+            "limit": 10,
+        },
+    )
+    print(segments)
+    ```
+  </TabItem>
+</Tabs>
+
+### Fetch meeting notes and action items
+
+Use `grainmcp_fetch_meeting_notes` and `grainmcp_fetch_meeting_action_items` to retrieve AI-generated notes and extracted action items for a specific meeting.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // Fetch AI notes
+    const notes = await actions.executeTool({
+      connectionName: 'grainmcp',
+      identifier: 'user_123',
+      toolName: 'grainmcp_fetch_meeting_notes',
+      toolInput: { meeting_id: 'meeting_abc123' },
+    });
+
+    // Fetch action items
+    const actions_result = await actions.executeTool({
+      connectionName: 'grainmcp',
+      identifier: 'user_123',
+      toolName: 'grainmcp_fetch_meeting_action_items',
+      toolInput: { meeting_id: 'meeting_abc123' },
+    });
+    console.log(notes, actions_result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    # Fetch AI notes
+    notes = actions.execute_tool(
+        connection_name="grainmcp",
+        identifier="user_123",
+        tool_name="grainmcp_fetch_meeting_notes",
+        tool_input={"meeting_id": "meeting_abc123"},
+    )
+
+    # Fetch action items
+    action_items = actions.execute_tool(
+        connection_name="grainmcp",
+        identifier="user_123",
+        tool_name="grainmcp_fetch_meeting_action_items",
+        tool_input={"meeting_id": "meeting_abc123"},
+    )
+    print(notes, action_items)
+    ```
+  </TabItem>
+</Tabs>
+
+### Create a clip and add it to a story
+
+Use `grainmcp_create_clip` to extract a video segment from a recording, then `grainmcp_add_clips_to_story` to curate it into a shareable story.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // Step 1 — create a clip
+    const clip = await actions.executeTool({
+      connectionName: 'grainmcp',
+      identifier: 'user_123',
+      toolName: 'grainmcp_create_clip',
+      toolInput: {
+        meeting_id: 'meeting_abc123',
+        clip_title: 'Customer feedback on pricing',
+        start_ms: 300000,
+        end_ms: 360000,
+      },
+    });
+    const clipId = clip.data?.id;
+
+    // Step 2 — add to an existing story
+    await actions.executeTool({
+      connectionName: 'grainmcp',
+      identifier: 'user_123',
+      toolName: 'grainmcp_add_clips_to_story',
+      toolInput: {
+        story_id: 'story_xyz789',
+        clip_ids: [clipId],
+      },
+    });
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    # Step 1 — create a clip
+    clip = actions.execute_tool(
+        connection_name="grainmcp",
+        identifier="user_123",
+        tool_name="grainmcp_create_clip",
+        tool_input={
+            "meeting_id": "meeting_abc123",
+            "clip_title": "Customer feedback on pricing",
+            "start_ms": 300000,
+            "end_ms": 360000,
+        },
+    )
+    clip_id = clip.data.get("id")
+
+    # Step 2 — add to an existing story
+    actions.execute_tool(
+        connection_name="grainmcp",
+        identifier="user_123",
+        tool_name="grainmcp_add_clips_to_story",
+        tool_input={
+            "story_id": "story_xyz789",
+            "clip_ids": [clip_id],
+        },
+    )
+    ```
+  </TabItem>
+</Tabs>

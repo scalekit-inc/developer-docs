@@ -144,14 +144,7 @@ export const tools: Tool[] = [
   {
     name: 'clickhouse_list_databases',
     description: `List all databases in a ClickHouse service. Use the returned database names with list_tables and run_select_query.`,
-    params: [
-      {
-        name: 'serviceId',
-        type: 'string',
-        required: true,
-        description: `The unique identifier of the ClickHouse service`,
-      },
-    ],
+    params: [{ name: 'serviceId', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'clickhouse_list_service_backups',

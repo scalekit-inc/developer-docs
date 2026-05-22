@@ -128,13 +128,13 @@ export const tools: Tool[] = [
         name: 'description',
         type: 'string',
         required: false,
-        description: `A human-readable description of this Compass component.`,
+        description: `The full description of the Jira issue.`,
       },
       {
         name: 'labels',
         type: 'array',
         required: false,
-        description: `Labels to attach to this Compass component.`,
+        description: `List of space labels to filter by.`,
       },
       {
         name: 'ownerId',
@@ -911,7 +911,7 @@ export const tools: Tool[] = [
       },
       {
         name: 'labels',
-        type: 'array',
+        type: 'string',
         required: false,
         description: `List of space labels to filter by.`,
       },

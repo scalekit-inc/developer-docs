@@ -7,6 +7,16 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
+  adobemarketingagentmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/adobe.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Marketing', 'Analytics', 'AI'],
+  },
+  grainmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/grain.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Transcription', 'Collaboration', 'AI'],
+  },
   leadiq: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/leadiq.svg',
     authType: 'API Key',
@@ -14,62 +24,62 @@ export const catalog: Record<string, ProviderMeta> = {
   },
   adzvisermcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/adzviser.svg',
-    authType: 'OAuth 2.0',
+    authType: 'OAuth 2.1/DCR',
     categories: ['Marketing', 'Analytics'],
   },
   commonroommcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/commonroom.svg',
-    authType: 'OAuth 2.0',
+    authType: 'OAuth 2.1/DCR',
     categories: ['Marketing', 'Analytics', 'CRM & Sales'],
   },
   fellowaimcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/fellowai.svg',
-    authType: 'OAuth 2.0',
+    authType: 'OAuth 2.1/DCR',
     categories: ['Productivity', 'Project Management'],
   },
   supermetricsmcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/supermetrics.svg',
-    authType: 'OAuth 2.0',
+    authType: 'OAuth 2.1/DCR',
     categories: ['Marketing', 'Analytics', 'CRM & Sales'],
   },
   customeriomcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/customerio.svg',
-    authType: 'OAuth 2.0',
+    authType: 'OAuth 2.1/DCR',
     categories: ['Marketing', 'Analytics', 'CRM & Sales'],
   },
   zapiermcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/zapier.svg',
-    authType: 'OAuth 2.0',
+    authType: 'OAuth 2.1/DCR',
     categories: ['Automation', 'Productivity', 'Developer Tools'],
   },
   clickhouse: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/clickhouse.svg',
-    authType: 'OAuth 2.0',
+    authType: 'OAuth 2.1/DCR',
     categories: ['Analytics', 'Developer Tools', 'Databases'],
   },
   atlassianmcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/atlassian.svg',
-    authType: 'OAuth 2.0',
+    authType: 'OAuth 2.1/DCR',
     categories: ['Project Management', 'Productivity', 'Collaboration'],
   },
   ahrefsmcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/ahrefs.svg',
-    authType: 'OAuth 2.0',
+    authType: 'OAuth 2.1/DCR',
     categories: ['Marketing', 'CRM & Sales'],
   },
   clarifymcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/clarify.svg',
-    authType: 'OAuth 2.0',
+    authType: 'OAuth 2.1/DCR',
     categories: ['CRM & Sales', 'Productivity', 'Analytics'],
   },
   bitlymcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/bitly.svg',
-    authType: 'OAuth 2.0',
+    authType: 'OAuth 2.1/DCR',
     categories: ['Marketing', 'CRM & Sales'],
   },
   klaviyomcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/klaviyo.svg',
-    authType: 'OAuth 2.0',
+    authType: 'OAuth 2.1/DCR',
     categories: ['Marketing', 'CRM & Sales'],
   },
   googledwd: {
@@ -109,7 +119,7 @@ export const catalog: Record<string, ProviderMeta> = {
   },
   posthogmcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/posthog-1.svg',
-    authType: 'OAuth 2.0',
+    authType: 'OAuth 2.1/DCR',
     categories: ['Analytics'],
   },
   box: {
@@ -214,7 +224,7 @@ export const catalog: Record<string, ProviderMeta> = {
   },
   granolamcp: {
     iconUrl: 'https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/granola.svg',
-    authType: 'OAuth 2.0',
+    authType: 'OAuth 2.1/DCR',
     categories: ['AI', 'Automation', 'Communication', 'Transcription'],
   },
   twitter: {
@@ -319,7 +329,7 @@ export const catalog: Record<string, ProviderMeta> = {
   },
   zendesk: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/zendesk.svg',
-    authType: 'API Key',
+    authType: 'API KEY',
     categories: ['Customer Support', 'Communication'],
   },
   googleforms: {
