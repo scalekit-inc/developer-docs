@@ -1,0 +1,53 @@
+import { Aside } from '@astrojs/starlight/components'
+
+export const sectionTitle = 'Required and optional scopes'
+
+HubSpot's OAuth connection requires one scope and supports up to 23 optional scopes. Grant only the scopes your tools actually need — a smaller scope set means a simpler consent screen and a faster app review for public listings.
+
+### Required scope
+
+`oauth` — included automatically on every HubSpot connection. You do not need to add it manually.
+
+### Optional scopes
+
+Add scopes that match the tools you plan to call. Common choices:
+
+| Scope | Enables |
+| --- | --- |
+| `crm.objects.contacts.read` | Read contacts |
+| `crm.objects.contacts.write` | Create and update contacts |
+| `crm.objects.companies.read` | Read companies |
+| `crm.objects.companies.write` | Create and update companies |
+| `crm.objects.deals.read` | Read deals |
+| `crm.objects.deals.write` | Create and update deals |
+| `crm.objects.line_items.read` | Read line items |
+| `crm.objects.line_items.write` | Create and update line items |
+| `crm.objects.quotes.read` | Read quotes |
+| `crm.lists.read` | Read contact lists |
+| `crm.lists.write` | Create and manage contact lists |
+| `tickets` | Read and write support tickets |
+| `forms` | Read forms and form submissions |
+| `automation` | Read and trigger workflows and engagements |
+| `e-commerce` | Products and orders |
+
+See HubSpot's [scope reference](https://developers.hubspot.com/docs/api/working-with-oauth#scopes) for the full list.
+
+### Configure optional scopes in your HubSpot app
+
+In your HubSpot app, go to **Auth** > **Auth settings** > **Scopes**. You'll see three categories: **Required scopes** (always requested), **Conditionally required scopes**, and **Optional scopes** (requested only when the user's account has access to them).
+
+![HubSpot Scopes page showing Required, Conditionally required, and Optional scopes sections](@/assets/docs/agent-connectors/hubspot/optional-scopes.png)
+
+Click **Add new scope** and select the optional scopes your app needs. Optional scopes let users without access to a feature still install your app — HubSpot simply skips those scopes at consent time.
+
+### Enable the same optional scopes in Scalekit
+
+![Selecting optional scopes in Scalekit](@/assets/docs/agent-connectors/hubspot/add-scopes.gif)
+
+1. Open the connection in **AgentKit** > **Connections**.
+2. In the **Permissions** field, enter the scopes you need, space-separated. Example for a read-only CRM flow: `crm.objects.contacts.read crm.objects.companies.read crm.objects.deals.read`.
+3. Make sure the scope set here matches exactly what you've configured in your HubSpot app. A mismatch causes an `invalid_scope` error when the user authorizes.
+
+<Aside type="tip" title="Keep scope sets aligned">
+  Your Scalekit connection, your HubSpot app, and any SDK calls must use the same scope set. The safest workflow: configure scopes in your HubSpot app first, then copy them into Scalekit's **Permissions** field.
+</Aside>
