@@ -24,7 +24,7 @@ export const sidebar = [
           'authenticate/fsa/manage-session',
           'authenticate/fsa/logout',
           'guides/dashboard/redirects',
-          'guides/dashboard/template-redirect-uris',
+          'guides/dashboard/org-redirect-urls',
         ],
       },
       {
