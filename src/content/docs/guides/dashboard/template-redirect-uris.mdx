@@ -72,15 +72,14 @@ Template variables cannot span part of a DNS label. `https://app-{{slug}}.yourap
 
 At runtime, Scalekit substitutes each `{{variable}}` with its resolved value, validates the expanded URL against registered templates, and redirects the user. For logout, the organization is resolved from the active session; if the session has expired, template expansion is skipped and the redirect is rejected.
 
-## Set slug and metadata for an organization
+## Set slug or metadata for an organization
 
-Set `slug` on an organization to expand `{{slug}}` templates. Store any key in organization `metadata` to use it as a custom variable like `{{custom_domain}}`.
+Set `slug` on an organization to expand `{{slug}}` templates. Store any key in organization `metadata` to use it as a custom variable like `{{custom_domain}}`. Setting just one is enough — use whichever fits your registered URL pattern.
 
 ### Via dashboard
 
-Open an organization, click **Edit**, and fill in the **Slug** field.
-
-![Create Organization dialog showing the Slug and Logo URL fields](@/assets/docs/fsa/organizations/create-organization-slug-logo.png)
+Navigate to **Organizations > Select an organization > Overview > Edit**. Add the organization slug in the **Slug** field.
+![Create Organization dialog showing the Slug field](@/assets/docs/template-redirect-uris/2026-05-22-12-46-21.png)
 
 ### Via SDK
 
@@ -89,6 +88,7 @@ Open an organization, click **Edit**, and fill in the **Slug** field.
 <Tabs syncKey="tech-stack">
 <TabItem label="Node.js" value="node">
 ```javascript title="Create organization with slug and metadata"
+// Set slug, metadata, or both — each enables a different template variable.
 const organization = await scalekit.organization.createOrganization(
   'Megasoft',
   {
@@ -100,6 +100,7 @@ const organization = await scalekit.organization.createOrganization(
 </TabItem>
 <TabItem label="Python" value="python">
 ```python title="Create organization with slug and metadata"
+# Set slug, metadata, or both — each enables a different template variable.
 from scalekit.v1.organizations.organizations_pb2 import CreateOrganization
 
 organization = scalekit_client.organization.create_organization(
@@ -113,19 +114,27 @@ organization = scalekit_client.organization.create_organization(
 </TabItem>
 <TabItem label="Go" value="go">
 ```go title="Create organization with slug and metadata"
+// Set slug, metadata, or both — each enables a different template variable.
 slug := "auth.megasoft.com"
 
-scalekitClient.Organization().CreateOrganization(
+_, err := scalekitClient.Organization().CreateOrganization(
     ctx,
     "Megasoft",
     scalekit.CreateOrganizationOptions{
         Slug: &slug,
+        Metadata: map[string]interface{}{
+            "custom_domain": "auth.megasoft.com",
+        },
     },
 )
+if err != nil {
+    log.Fatal(err)
+}
 ```
 </TabItem>
 <TabItem label="Java" value="java">
 ```java title="Create organization with slug and metadata"
+// Set slug, metadata, or both — each enables a different template variable.
 // Requires scalekit-sdk-java v2.1.3+
 CreateOrganization create = CreateOrganization.newBuilder()
     .setDisplayName("Megasoft")
