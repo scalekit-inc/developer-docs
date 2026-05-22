@@ -7,504 +7,534 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
-  'adobemarketingagentmcp': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/adobe.svg",
-    authType: "OAuth 2.1/DCR",
-    categories: ["Marketing","Analytics","AI"],
-  },
-  'grainmcp': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/grain.svg",
-    authType: "OAuth 2.1/DCR",
-    categories: ["Transcription","Collaboration","AI"],
-  },
-  'leadiq': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/leadiq.svg",
-    authType: "API Key",
-    categories: ["CRM & Sales","Analytics"],
-  },
-  'adzvisermcp': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/adzviser.svg",
-    authType: "OAuth 2.1/DCR",
-    categories: ["Marketing","Analytics"],
-  },
-  'commonroommcp': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/commonroom.svg",
-    authType: "OAuth 2.1/DCR",
-    categories: ["Marketing","Analytics","CRM & Sales"],
-  },
-  'fellowaimcp': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/fellowai.svg",
-    authType: "OAuth 2.1/DCR",
-    categories: ["Productivity","Project Management"],
-  },
-  'supermetricsmcp': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/supermetrics.svg",
-    authType: "OAuth 2.1/DCR",
-    categories: ["Marketing","Analytics","CRM & Sales"],
-  },
-  'customeriomcp': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/customerio.svg",
-    authType: "OAuth 2.1/DCR",
-    categories: ["Marketing","Analytics","CRM & Sales"],
-  },
-  'zapiermcp': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/zapier.svg",
-    authType: "OAuth 2.1/DCR",
-    categories: ["Automation","Productivity","Developer Tools"],
-  },
-  'clickhouse': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/clickhouse.svg",
-    authType: "OAuth 2.1/DCR",
-    categories: ["Analytics","Developer Tools","Databases"],
-  },
-  'atlassianmcp': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/atlassian.svg",
-    authType: "OAuth 2.1/DCR",
-    categories: ["Project Management","Productivity","Collaboration"],
-  },
-  'ahrefsmcp': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/ahrefs.svg",
-    authType: "OAuth 2.1/DCR",
-    categories: ["Marketing","CRM & Sales"],
-  },
-  'clarifymcp': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/clarify.svg",
-    authType: "OAuth 2.1/DCR",
-    categories: ["CRM & Sales","Productivity","Analytics"],
-  },
-  'bitlymcp': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/bitly.svg",
-    authType: "OAuth 2.1/DCR",
-    categories: ["Marketing","CRM & Sales"],
-  },
-  'klaviyomcp': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/klaviyo.svg",
-    authType: "OAuth 2.1/DCR",
-    categories: ["Marketing","CRM & Sales"],
-  },
-  'googledwd': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/google.svg",
-    authType: "Service Account (DWD)",
-    categories: ["Productivity","Communication"],
-  },
-  'xero': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/xero.svg",
-    authType: "OAuth 2.0",
-    categories: ["Accounting & Finance"],
-  },
-  'mailchimp': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/mailchimp.svg",
-    authType: "OAuth 2.0",
-    categories: ["Marketing","Automation","Analytics"],
-  },
-  'datadog': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/datadog.svg",
-    authType: "API Key",
-    categories: ["Developer Tools","Monitoring"],
-  },
-  'quickbooks': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/Quickbooks.svg",
-    authType: "OAuth 2.0",
-    categories: ["Accounting & Finance"],
-  },
-  'tableau': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/tableau.svg",
-    authType: "API Key",
-    categories: ["Analytics","Productivity"],
-  },
-  'heyreach': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/heyreach.svg",
-    authType: "API Key",
-    categories: ["CRM & Sales"],
-  },
-  'posthogmcp': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/posthog-1.svg",
-    authType: "OAuth 2.1/DCR",
-    categories: ["Analytics"],
-  },
-  'box': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/box.svg",
-    authType: "OAuth 2.0",
-    categories: ["Productivity","Files & Documents"],
-  },
-  'bigqueryserviceaccount': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/bigquery.svg",
-    authType: "Service Account",
-    categories: ["Analytics","Databases"],
-  },
-  'close': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/close.svg",
-    authType: "OAuth 2.0",
-    categories: ["CRM & Sales","Communication"],
-  },
-  'miro': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/Miro.svg",
-    authType: "OAuth 2.0",
-    categories: ["Productivity","Collaboration","Design"],
-  },
-  'bitbucket': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/bitbucket.svg",
-    authType: "OAuth 2.0",
-    categories: ["Developer Tools","Collaboration"],
-  },
-  'dynamo': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/dynamo.svg",
-    authType: "Bearer Token",
-    categories: ["Accounting & Finance","CRM & Sales","Databases"],
-  },
-  'databricksworkspace': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/databricks-1.svg",
-    authType: "Service Principal (OAuth 2.0)",
-    categories: ["Analytics","Automation","Databases"],
-  },
-  'diarize': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/diarize.svg",
-    authType: "Bearer Token",
-    categories: ["Transcription","Media","Productivity","Analytics"],
-  },
-  'parallelaitaskmcp': {
-    iconUrl: "https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/parallel-ai.svg",
-    authType: "Bearer Token",
-    categories: ["Productivity","AI","Developer Tools"],
-  },
-  'calendly': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/calendly.svg",
-    authType: "OAuth 2.0",
-    categories: ["Productivity","Calendar"],
-  },
-  'apifymcp': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/apify.svg",
-    authType: "Bearer Token",
-    categories: ["AI","Automation","Developer Tools"],
-  },
-  'evertrace': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/evertrace.png",
-    authType: "Bearer Token",
-    categories: ["CRM & Sales"],
-  },
-  'figma': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/figma.svg",
-    authType: "OAuth 2.0",
-    categories: ["Design","Collaboration"],
-  },
-  'jiminny': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/jiminny.svg",
-    authType: "Bearer Token",
-    categories: ["CRM & Sales","AI","Automation","Transcription"],
-  },
-  'pagerduty': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/pagerduty.svg",
-    authType: "OAuth 2.0",
-    categories: ["Developer Tools","Monitoring"],
-  },
-  'vercel': {
-    iconUrl: "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/vercel.svg",
-    authType: "OAuth 2.0",
-    categories: ["Developer Tools"],
-  },
-  'gitlab': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/gitlab.svg",
-    authType: "OAuth 2.0",
-    categories: ["Developer Tools","Collaboration"],
-  },
-  'pipedrive': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/pipedrive.svg",
-    authType: "OAuth 2.0",
-    categories: ["CRM & Sales"],
-  },
-  'linkedin': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/linkedin.svg",
-    authType: "OAuth 2.0",
-    categories: ["CRM & Sales"],
-  },
-  'outreach': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/outreach.png",
-    authType: "OAuth 2.0",
-    categories: ["CRM & Sales"],
-  },
-  'granolamcp': {
-    iconUrl: "https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/granola.svg",
-    authType: "OAuth 2.1/DCR",
-    categories: ["AI","Automation","Communication","Transcription"],
-  },
-  'twitter': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/X.svg",
-    authType: "Bearer Token",
-    categories: ["Communication","Marketing"],
-  },
-  'discord': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/discord.svg",
-    authType: "OAuth 2.0",
-    categories: ["Communication","Collaboration"],
-  },
-  'phantombuster': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/phantombuster.svg",
-    authType: "API Key",
-    categories: ["AI","Automation"],
-  },
-  'affinity': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/affinity.svg",
-    authType: "Bearer Token",
-    categories: ["CRM & Sales"],
-  },
-  'supadata': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/supadata.svg",
-    authType: "API Key",
-    categories: ["Analytics","Search"],
-  },
-  'granola': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/granola.svg",
-    authType: "Bearer Token",
-    categories: ["AI","Automation","Communication","Transcription"],
-  },
-  'brave': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/brave.svg",
-    authType: "API Key",
-    categories: ["Analytics","Search"],
-  },
-  'harvestapi': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/harvestapi.svg",
-    authType: "API Key",
-    categories: ["Marketing","Analytics"],
-  },
-  'exa': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/exa.svg",
-    authType: "API Key",
-    categories: ["Analytics","AI","Automation","Search"],
-  },
-  'snowflakekeyauth': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/snowflake.svg",
-    authType: "Bearer Token",
-    categories: ["Analytics","Databases"],
-  },
-  'attio': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/attio.svg",
-    authType: "OAuth 2.0",
-    categories: ["CRM & Sales"],
-  },
-  'apollo': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/apollo.svg",
-    authType: "OAuth 2.0",
-    categories: ["CRM & Sales"],
-  },
-  'vimeo': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/vimeo.svg",
-    authType: "OAuth 2.0",
-    categories: ["Media"],
-  },
-  'youtube': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/youtube.svg",
-    authType: "OAuth 2.0",
-    categories: ["Media","Marketing"],
-  },
-  'googleslides': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/google_slides.svg",
-    authType: "OAuth 2.0",
-    categories: ["Files & Documents"],
-  },
-  'attention': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/attention.svg",
-    authType: "API Key",
-    categories: ["AI","Automation","CRM & Sales"],
-  },
-  'clari_copilot': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/clari.svg",
-    authType: "API Key",
-    categories: ["CRM & Sales","AI","Automation","Transcription"],
-  },
-  'chorus': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/chorus.svg",
-    authType: "Basic Auth",
-    categories: ["CRM & Sales","AI","Automation","Transcription"],
-  },
-  'google_ads': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/google_ads.png",
-    authType: "OAuth 2.0",
-    categories: ["Marketing","CRM & Sales"],
-  },
-  'servicenow': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/servicenow.svg",
-    authType: "OAuth 2.0",
-    categories: ["Customer Support","Communication"],
-  },
-  'zendesk': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/zendesk.svg",
-    authType: "API KEY",
-    categories: ["Customer Support","Communication"],
-  },
-  'googleforms': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/google_forms.svg",
-    authType: "OAuth 2.0",
-    categories: ["Files & Documents"],
-  },
-  'microsoftword': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/word.svg",
-    authType: "OAuth 2.0",
-    categories: ["Files & Documents"],
-  },
-  'microsoftexcel': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/excel.svg",
-    authType: "OAuth 2.0",
-    categories: ["Files & Documents","Analytics"],
-  },
-  'onenote': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/onenote.svg",
-    authType: "OAuth 2.0",
-    categories: ["Files & Documents"],
-  },
-  'snowflake': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/snowflake.svg",
-    authType: "OAuth 2.0",
-    categories: ["Analytics","Databases"],
-  },
-  'onedrive': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/onedrive.svg",
-    authType: "OAuth 2.0",
-    categories: ["Files & Documents"],
-  },
-  'bigquery': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/bigquery.svg",
-    authType: "OAuth 2.0",
-    categories: ["Analytics","Databases"],
-  },
-  'airtable': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/airtable.svg",
-    authType: "OAuth 2.0",
-    categories: ["Project Management","Analytics"],
-  },
-  'clickup': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/clickup.svg",
-    authType: "OAuth 2.0",
-    categories: ["Project Management","Collaboration","Productivity"],
-  },
-  'fathom': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/fathom.svg",
-    authType: "API Key",
-    categories: ["AI","Automation","Communication","Transcription"],
-  },
-  'googlemeet': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/google_meet.svg",
-    authType: "OAuth 2.0",
-    categories: ["Communication","Calendar"],
-  },
-  'googlesheets': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/google_sheets.svg",
-    authType: "OAuth 2.0",
-    categories: ["Files & Documents","Analytics"],
-  },
-  'intercom': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/intercom.svg",
-    authType: "OAuth 2.0",
-    categories: ["Customer Support","Communication"],
-  },
-  'monday': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/monday.svg",
-    authType: "OAuth 2.0",
-    categories: ["Project Management","Collaboration","Productivity"],
-  },
-  'sharepoint': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/sharepoint.svg",
-    authType: "OAuth 2.0",
-    categories: ["Files & Documents"],
-  },
-  'outlook': {
-    iconUrl: "https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/outlook.svg",
-    authType: "OAuth 2.0",
-    categories: ["Communication","Calendar"],
-  },
-  'confluence': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/confluence.svg",
-    authType: "OAuth 2.0",
-    categories: ["Project Management","Files & Documents","Collaboration"],
-  },
-  'gong': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/gong.svg",
-    authType: "OAuth 2.0",
-    categories: ["CRM & Sales","AI","Automation","Transcription"],
-  },
-  'slack': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/slack.svg",
-    authType: "OAuth 2.0",
-    categories: ["Communication","Collaboration"],
-  },
-  'hubspot': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/hub_spot.svg",
-    authType: "OAuth 2.0",
-    categories: ["CRM & Sales"],
-  },
-  'salesforce': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/sales_force.svg",
-    authType: "OAuth 2.0",
-    categories: ["CRM & Sales"],
-  },
-  'googledocs': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/google_docs.svg",
-    authType: "OAuth 2.0",
-    categories: ["Files & Documents"],
-  },
-  'googledrive': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/google_drive.svg",
-    authType: "OAuth 2.0",
-    categories: ["Files & Documents"],
-  },
-  'microsoftteams': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/microsoft-teams.svg",
-    authType: "OAuth 2.0",
-    categories: ["Communication","Collaboration"],
-  },
-  'zoom': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/zoom.svg",
-    authType: "OAuth 2.0",
-    categories: ["Communication","Calendar"],
-  },
-  'linear': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/linear.svg",
-    authType: "OAuth 2.0",
-    categories: ["Developer Tools","Project Management"],
-  },
-  'jira': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/jira.svg",
-    authType: "OAuth 2.0",
-    categories: ["Developer Tools","Project Management"],
-  },
-  'dropbox': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/drop_box.svg",
-    authType: "OAuth 2.0",
-    categories: ["Files & Documents"],
-  },
-  'asana': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/asana-n.svg",
-    authType: "OAuth 2.0",
-    categories: ["Project Management","Collaboration","Productivity"],
-  },
-  'trello': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/trello_n.svg",
-    authType: "OAuth 1.0a",
-    categories: ["Project Management","Collaboration","Productivity"],
-  },
-  'github': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/github.png",
-    authType: "OAuth 2.0",
-    categories: ["Developer Tools","Collaboration"],
-  },
-  'notion': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/notion.svg",
-    authType: "OAuth 2.0",
-    categories: ["Project Management","Files & Documents","Collaboration"],
-  },
-  'freshdesk': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/freshdesk.png",
-    authType: "Basic Auth",
-    categories: ["Customer Support","Communication"],
-  },
-  'googlecalendar': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/google_calendar.svg",
-    authType: "OAuth 2.0",
-    categories: ["Communication","Calendar"],
-  },
-  'gmail': {
-    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/gmail.svg",
-    authType: "OAuth 2.0",
-    categories: ["Communication"],
+  makemcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/make.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Automation', 'Productivity', 'Developer Tools'],
+  },
+  lucidmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/lucid.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Design', 'Productivity', 'Collaboration'],
+  },
+  jotformmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/jotform.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Productivity', 'Automation'],
+  },
+  gustomcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/gusto.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Accounting & Finance', 'Productivity'],
+  },
+  tavilymcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/tavily.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Search', 'AI', 'Developer Tools'],
+  },
+  firecrawlmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/firecrawl.svg',
+    authType: 'Bearer Token',
+    categories: ['AI', 'Developer Tools', 'Search'],
+  },
+  adobemarketingagentmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/adobe.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Marketing', 'Analytics', 'AI'],
+  },
+  grainmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/grain.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Transcription', 'Collaboration', 'AI'],
+  },
+  leadiq: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/leadiq.svg',
+    authType: 'API Key',
+    categories: ['CRM & Sales', 'Analytics'],
+  },
+  adzvisermcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/adzviser.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Marketing', 'Analytics'],
+  },
+  commonroommcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/commonroom.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Marketing', 'Analytics', 'CRM & Sales'],
+  },
+  fellowaimcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/fellowai.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Productivity', 'Project Management'],
+  },
+  supermetricsmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/supermetrics.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Marketing', 'Analytics', 'CRM & Sales'],
+  },
+  customeriomcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/customerio.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Marketing', 'Analytics', 'CRM & Sales'],
+  },
+  zapiermcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/zapier.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Automation', 'Productivity', 'Developer Tools'],
+  },
+  clickhouse: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/clickhouse.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Analytics', 'Developer Tools', 'Databases'],
+  },
+  atlassianmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/atlassian.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Project Management', 'Productivity', 'Collaboration'],
+  },
+  ahrefsmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/ahrefs.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Marketing', 'CRM & Sales'],
+  },
+  clarifymcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/clarify.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['CRM & Sales', 'Productivity', 'Analytics'],
+  },
+  bitlymcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/bitly.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Marketing', 'CRM & Sales'],
+  },
+  klaviyomcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/klaviyo.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Marketing', 'CRM & Sales'],
+  },
+  googledwd: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/google.svg',
+    authType: 'Service Account (DWD)',
+    categories: ['Productivity', 'Communication'],
+  },
+  xero: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/xero.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Accounting & Finance'],
+  },
+  mailchimp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/mailchimp.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Marketing', 'Automation', 'Analytics'],
+  },
+  datadog: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/datadog.svg',
+    authType: 'API Key',
+    categories: ['Developer Tools', 'Monitoring'],
+  },
+  quickbooks: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/Quickbooks.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Accounting & Finance'],
+  },
+  tableau: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/tableau.svg',
+    authType: 'API Key',
+    categories: ['Analytics', 'Productivity'],
+  },
+  heyreach: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/heyreach.svg',
+    authType: 'API Key',
+    categories: ['CRM & Sales'],
+  },
+  posthogmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/posthog-1.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Analytics'],
+  },
+  box: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/box.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Productivity', 'Files & Documents'],
+  },
+  bigqueryserviceaccount: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/bigquery.svg',
+    authType: 'Service Account',
+    categories: ['Analytics', 'Databases'],
+  },
+  close: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/close.svg',
+    authType: 'OAuth 2.0',
+    categories: ['CRM & Sales', 'Communication'],
+  },
+  miro: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/Miro.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Productivity', 'Collaboration', 'Design'],
+  },
+  bitbucket: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/bitbucket.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Developer Tools', 'Collaboration'],
+  },
+  dynamo: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/dynamo.svg',
+    authType: 'Bearer Token',
+    categories: ['Accounting & Finance', 'CRM & Sales', 'Databases'],
+  },
+  databricksworkspace: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/databricks-1.svg',
+    authType: 'Service Principal (OAuth 2.0)',
+    categories: ['Analytics', 'Automation', 'Databases'],
+  },
+  diarize: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/diarize.svg',
+    authType: 'Bearer Token',
+    categories: ['Transcription', 'Media', 'Productivity', 'Analytics'],
+  },
+  parallelaitaskmcp: {
+    iconUrl: 'https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/parallel-ai.svg',
+    authType: 'Bearer Token',
+    categories: ['Productivity', 'AI', 'Developer Tools'],
+  },
+  calendly: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/calendly.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Productivity', 'Calendar'],
+  },
+  apifymcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/apify.svg',
+    authType: 'Bearer Token',
+    categories: ['AI', 'Automation', 'Developer Tools'],
+  },
+  evertrace: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/evertrace.png',
+    authType: 'Bearer Token',
+    categories: ['CRM & Sales'],
+  },
+  figma: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/figma.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Design', 'Collaboration'],
+  },
+  jiminny: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/jiminny.svg',
+    authType: 'Bearer Token',
+    categories: ['CRM & Sales', 'AI', 'Automation', 'Transcription'],
+  },
+  pagerduty: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/pagerduty.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Developer Tools', 'Monitoring'],
+  },
+  vercel: {
+    iconUrl: 'https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/vercel.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Developer Tools'],
+  },
+  gitlab: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/gitlab.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Developer Tools', 'Collaboration'],
+  },
+  pipedrive: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/pipedrive.svg',
+    authType: 'OAuth 2.0',
+    categories: ['CRM & Sales'],
+  },
+  linkedin: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/linkedin.svg',
+    authType: 'OAuth 2.0',
+    categories: ['CRM & Sales'],
+  },
+  outreach: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/outreach.png',
+    authType: 'OAuth 2.0',
+    categories: ['CRM & Sales'],
+  },
+  granolamcp: {
+    iconUrl: 'https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/granola.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['AI', 'Automation', 'Communication', 'Transcription'],
+  },
+  twitter: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/X.svg',
+    authType: 'Bearer Token',
+    categories: ['Communication', 'Marketing'],
+  },
+  discord: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/discord.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Communication', 'Collaboration'],
+  },
+  phantombuster: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/phantombuster.svg',
+    authType: 'API Key',
+    categories: ['AI', 'Automation'],
+  },
+  affinity: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/affinity.svg',
+    authType: 'Bearer Token',
+    categories: ['CRM & Sales'],
+  },
+  supadata: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/supadata.svg',
+    authType: 'API Key',
+    categories: ['Analytics', 'Search'],
+  },
+  granola: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/granola.svg',
+    authType: 'Bearer Token',
+    categories: ['AI', 'Automation', 'Communication', 'Transcription'],
+  },
+  brave: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/brave.svg',
+    authType: 'API Key',
+    categories: ['Analytics', 'Search'],
+  },
+  harvestapi: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/harvestapi.svg',
+    authType: 'API Key',
+    categories: ['Marketing', 'Analytics'],
+  },
+  exa: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/exa.svg',
+    authType: 'API Key',
+    categories: ['Analytics', 'AI', 'Automation', 'Search'],
+  },
+  snowflakekeyauth: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/snowflake.svg',
+    authType: 'Bearer Token',
+    categories: ['Analytics', 'Databases'],
+  },
+  attio: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/attio.svg',
+    authType: 'OAuth 2.0',
+    categories: ['CRM & Sales'],
+  },
+  apollo: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/apollo.svg',
+    authType: 'OAuth 2.0',
+    categories: ['CRM & Sales'],
+  },
+  vimeo: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/vimeo.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Media'],
+  },
+  youtube: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/youtube.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Media', 'Marketing'],
+  },
+  googleslides: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/google_slides.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Files & Documents'],
+  },
+  attention: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/attention.svg',
+    authType: 'API Key',
+    categories: ['AI', 'Automation', 'CRM & Sales'],
+  },
+  clari_copilot: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/clari.svg',
+    authType: 'API Key',
+    categories: ['CRM & Sales', 'AI', 'Automation', 'Transcription'],
+  },
+  chorus: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/chorus.svg',
+    authType: 'Basic Auth',
+    categories: ['CRM & Sales', 'AI', 'Automation', 'Transcription'],
+  },
+  google_ads: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/google_ads.png',
+    authType: 'OAuth 2.0',
+    categories: ['Marketing', 'CRM & Sales'],
+  },
+  servicenow: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/servicenow.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Customer Support', 'Communication'],
+  },
+  zendesk: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/zendesk.svg',
+    authType: 'API KEY',
+    categories: ['Customer Support', 'Communication'],
+  },
+  googleforms: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/google_forms.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Files & Documents'],
+  },
+  microsoftword: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/word.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Files & Documents'],
+  },
+  microsoftexcel: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/excel.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Files & Documents', 'Analytics'],
+  },
+  onenote: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/onenote.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Files & Documents'],
+  },
+  snowflake: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/snowflake.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Analytics', 'Databases'],
+  },
+  onedrive: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/onedrive.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Files & Documents'],
+  },
+  bigquery: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/bigquery.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Analytics', 'Databases'],
+  },
+  airtable: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/airtable.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Project Management', 'Analytics'],
+  },
+  clickup: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/clickup.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Project Management', 'Collaboration', 'Productivity'],
+  },
+  fathom: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/fathom.svg',
+    authType: 'API Key',
+    categories: ['AI', 'Automation', 'Communication', 'Transcription'],
+  },
+  googlemeet: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/google_meet.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Communication', 'Calendar'],
+  },
+  googlesheets: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/google_sheets.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Files & Documents', 'Analytics'],
+  },
+  intercom: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/intercom.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Customer Support', 'Communication'],
+  },
+  monday: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/monday.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Project Management', 'Collaboration', 'Productivity'],
+  },
+  sharepoint: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/sharepoint.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Files & Documents'],
+  },
+  outlook: {
+    iconUrl: 'https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/outlook.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Communication', 'Calendar'],
+  },
+  confluence: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/confluence.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Project Management', 'Files & Documents', 'Collaboration'],
+  },
+  gong: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/gong.svg',
+    authType: 'OAuth 2.0',
+    categories: ['CRM & Sales', 'AI', 'Automation', 'Transcription'],
+  },
+  slack: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/slack.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Communication', 'Collaboration'],
+  },
+  hubspot: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/hub_spot.svg',
+    authType: 'OAuth 2.0',
+    categories: ['CRM & Sales'],
+  },
+  salesforce: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/sales_force.svg',
+    authType: 'OAuth 2.0',
+    categories: ['CRM & Sales'],
+  },
+  googledocs: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/google_docs.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Files & Documents'],
+  },
+  googledrive: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/google_drive.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Files & Documents'],
+  },
+  microsoftteams: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/microsoft-teams.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Communication', 'Collaboration'],
+  },
+  zoom: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/zoom.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Communication', 'Calendar'],
+  },
+  linear: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/linear.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Developer Tools', 'Project Management'],
+  },
+  jira: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/jira.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Developer Tools', 'Project Management'],
+  },
+  dropbox: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/drop_box.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Files & Documents'],
+  },
+  asana: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/asana-n.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Project Management', 'Collaboration', 'Productivity'],
+  },
+  trello: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/trello_n.svg',
+    authType: 'OAuth 1.0a',
+    categories: ['Project Management', 'Collaboration', 'Productivity'],
+  },
+  github: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/github.png',
+    authType: 'OAuth 2.0',
+    categories: ['Developer Tools', 'Collaboration'],
+  },
+  notion: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/notion.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Project Management', 'Files & Documents', 'Collaboration'],
+  },
+  freshdesk: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/freshdesk.png',
+    authType: 'Basic Auth',
+    categories: ['Customer Support', 'Communication'],
+  },
+  googlecalendar: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/google_calendar.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Communication', 'Calendar'],
+  },
+  gmail: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/gmail.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Communication'],
   },
 }

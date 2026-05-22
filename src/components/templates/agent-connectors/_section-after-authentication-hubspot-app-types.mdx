@@ -1,0 +1,21 @@
+import { Aside } from '@astrojs/starlight/components'
+
+export const sectionTitle = 'Choosing a HubSpot app type'
+
+HubSpot has three app shapes. The shape you choose determines which OAuth flow, scope format, and Scalekit configuration apply.
+
+| App type | OAuth redirect | Scope format | Use with Scalekit |
+| --- | --- | --- | --- |
+| Public app | Supported | Modern (`crm.objects.contacts.read`) | Recommended |
+| Private app | Not supported | N/A — static API token only | Not supported |
+| Legacy / developer-account app | Supported | Bare strings (`contacts`, `automation`) | Supported — enter bare strings in **Permissions** |
+
+**Public apps** are the standard choice for production integrations. They support the OAuth redirect flow that Scalekit manages, and they use the modern dotted scope format.
+
+**Private apps** issue static API tokens and have no OAuth redirect endpoint. Scalekit's HubSpot connector requires an OAuth flow, so Private apps are not compatible.
+
+**Legacy apps** (older apps created in HubSpot developer test accounts before the current console) still support OAuth but use an older scope vocabulary. If you already have a legacy app, you can connect it — you just need to enter the older bare scope strings exactly as HubSpot lists them in that app's **Auth** > **Scopes** page.
+
+<Aside type="caution" title="Legacy app scope strings">
+  Legacy HubSpot apps reject the modern `crm.objects.*` format. Copy scope strings from your app's **Auth** > **Scopes** screen in HubSpot and paste them into Scalekit's **Permissions** field as-is.
+</Aside>
