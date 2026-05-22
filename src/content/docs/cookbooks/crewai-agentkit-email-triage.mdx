@@ -1,0 +1,356 @@
+---
+title: 'Build a multi-agent email triage crew with CrewAI'
+description: 'Use CrewAI multi-agent orchestration with Scalekit-authenticated Gmail tools to scan, classify, and draft replies to emails.'
+date: 2026-07-12
+tags: ['Agent auth', 'Python']
+sidebar:
+  label: 'CrewAI email triage'
+tableOfContents: true
+excerpt: >
+  CrewAI lets you split complex workflows across specialized agents, but
+  each agent still needs authenticated access to user tools like Gmail. This
+  cookbook shows how to wire Scalekit OAuth into a CrewAI crew via MCP,
+  then build a three-agent pipeline that scans, classifies, and drafts
+  replies to a user's unread emails.
+featured: false
+authors:
+  - name: 'Saif'
+    title: 'Developer Advocate'
+    url: 'https://www.linkedin.com/in/saif-shines/'
+    picture: '/images/blog/authors/saif.png'
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+CrewAI's strength is multi-agent orchestration — you define specialized agents and let them collaborate on a shared workflow. But the moment those agents need to call Gmail, Slack, or GitHub on behalf of a real user, you're stuck managing OAuth tokens, refresh cycles, and per-user credential storage before you write any agent logic.
+
+Scalekit eliminates that plumbing. It stores OAuth sessions per user, refreshes tokens automatically, and exposes authenticated tools over MCP. Your CrewAI code never touches a token — it connects to a Scalekit MCP URL and gets back ready-to-use tools.
+
+This cookbook builds a three-agent email triage crew: one agent scans unread emails, another classifies them by priority, and a third drafts replies for the high-priority items. All Gmail access goes through Scalekit.
+
+**What this recipe covers:**
+
+- **Scalekit MCP integration** — generate a per-user MCP URL that exposes authenticated Gmail tools
+- **CrewAI MCPServerAdapter** — connect CrewAI to the MCP server so agents can discover and call Gmail tools
+- **Multi-agent pipeline** — define three agents with distinct roles that run in sequence
+- **First-run authorization** — handle the OAuth flow when a user hasn't connected Gmail yet
+
+The complete source is available in the [crewai-scalekit-example](https://github.com/scalekit-developers/crewai-scalekit-example) repository.
+
+### 1. Set up a Gmail connection in Scalekit
+
+In the [Scalekit Dashboard](https://app.scalekit.com):
+
+1. Go to **AgentKit** → **Connections** → **Create Connection** and select **Gmail**.
+2. Note the **Connection name** — your code references it by this exact string.
+3. Go to **AgentKit** → **MCP Configs** and create a config (for example `gmail-user-tools`) that includes Gmail tools. This config name goes into your environment variables.
+
+### 2. Install dependencies
+
+```bash
+pip install crewai crewai-tools scalekit-sdk-python python-dotenv
+```
+
+`crewai-tools` provides `MCPServerAdapter`, which connects CrewAI to any MCP server. `scalekit-sdk-python` generates the authenticated MCP URL for each user.
+
+### 3. Configure credentials
+
+```bash
+cp .env.example .env
+```
+
+```bash title=".env"
+# Scalekit — get these at app.scalekit.com → Settings → API Credentials
+SCALEKIT_ENV_URL=https://your-env.scalekit.dev
+SCALEKIT_CLIENT_ID=skc_...
+SCALEKIT_CLIENT_SECRET=your-secret
+
+# User identifier from your application
+SCALEKIT_USER_IDENTIFIER=user_123
+
+# MCP config name — must match the config in the Scalekit Dashboard
+SCALEKIT_MCP_CONFIG_NAME=gmail-user-tools
+
+# LLM — any OpenAI-compatible endpoint
+OPENAI_API_KEY=sk-...
+```
+
+### 4. Initialize Scalekit and ensure authorization
+
+```python
+import os
+import scalekit.client
+from dotenv import find_dotenv, load_dotenv
+
+load_dotenv(find_dotenv())
+
+scalekit_client = scalekit.client.ScalekitClient(
+    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+    env_url=os.getenv("SCALEKIT_ENV_URL"),
+)
+actions = scalekit_client.actions
+
+USER_ID = os.getenv("SCALEKIT_USER_IDENTIFIER", "user_123")
+```
+
+Before calling any Gmail tool, check whether the user has an active connected account. If not, print an authorization link and wait for them to complete OAuth in the browser:
+
+```python
+response = actions.get_or_create_connected_account(
+    connection_name="gmail",
+    identifier=USER_ID,
+)
+if response.connected_account.status != "ACTIVE":
+    link = actions.get_authorization_link(
+        connection_name="gmail",
+        identifier=USER_ID,
+    )
+    print(f"\n[gmail] Authorization required.")
+    print(f"Open this link:\n\n  {link.link}\n")
+    input("Press Enter after authorizing...")
+```
+
+After the first successful authorization, `get_or_create_connected_account` returns an active account on all subsequent runs. Scalekit refreshes expired tokens automatically.
+
+### 5. Connect to Gmail tools via MCP
+
+Generate a per-user MCP URL that exposes the tools defined in your MCP config:
+
+```python
+inst_response = actions.mcp.ensure_instance(
+    config_name=os.getenv("SCALEKIT_MCP_CONFIG_NAME", "gmail-user-tools"),
+    user_identifier=USER_ID,
+)
+mcp_url = inst_response.instance.url
+```
+
+`ensure_instance` creates an MCP instance for this user if one doesn't exist, or returns the existing one. The URL is stable — you can cache it across requests.
+
+CrewAI's `MCPServerAdapter` connects to the MCP URL and discovers all available tools:
+
+```python
+from crewai_tools import MCPServerAdapter
+
+with MCPServerAdapter({"url": mcp_url, "transport": "streamable-http"}) as tools:
+    # `tools` is a list of CrewAI-compatible tool objects
+    print(f"Discovered {len(tools)} Gmail tools")
+```
+
+### 6. Define the agents
+
+Three agents, each with a specific role. Only the Inbox Scanner needs direct access to Gmail tools — the other agents work with the data it produces:
+
+```python
+from crewai import Agent, LLM
+
+llm = LLM(
+    model=os.getenv("LLM_MODEL", "gpt-4o"),
+    base_url=os.getenv("OPENAI_BASE_URL"),
+    api_key=os.getenv("OPENAI_API_KEY"),
+)
+
+scanner = Agent(
+    role="Inbox Scanner",
+    goal="Fetch the user's latest unread emails and extract key metadata.",
+    backstory=(
+        "You are an efficient assistant that reads a Gmail inbox and "
+        "returns a structured summary of unread messages including "
+        "subject, sender, date, and a one-line preview."
+    ),
+    tools=tools,  # Gmail tools from MCPServerAdapter
+    llm=llm,
+    verbose=True,
+)
+
+prioritizer = Agent(
+    role="Email Prioritizer",
+    goal="Classify each email by urgency: high, medium, or low.",
+    backstory=(
+        "You are an expert at triaging incoming messages. You consider "
+        "sender importance, subject keywords, and time sensitivity to "
+        "assign a priority level to each email."
+    ),
+    llm=llm,
+    verbose=True,
+)
+
+drafter = Agent(
+    role="Reply Drafter",
+    goal="Draft short, professional replies for high-priority emails.",
+    backstory=(
+        "You are a concise writer who drafts polite, on-point email "
+        "replies. You focus only on high-priority items and keep each "
+        "draft under 100 words."
+    ),
+    llm=llm,
+    verbose=True,
+)
+```
+
+<Aside type="tip" title="Tool assignment">
+  Only assign Gmail tools to agents that need them. The Prioritizer and Drafter operate on data from the Scanner's output — they don't need direct Gmail access. This keeps the agent scopes clean and reduces unnecessary tool-calling overhead.
+</Aside>
+
+### 7. Define tasks and run the crew
+
+Each task describes what the agent should do and what output to expect. CrewAI runs them in sequence — each task receives the output of the previous one:
+
+```python
+from crewai import Crew, Process, Task
+
+scan_task = Task(
+    description=(
+        "Fetch the last 5 unread emails from Gmail. For each email, "
+        "return: subject, sender name, sender email, date, and a "
+        "one-sentence preview of the body."
+    ),
+    expected_output=(
+        "A numbered list of 5 emails with subject, sender, date, "
+        "and preview for each."
+    ),
+    agent=scanner,
+)
+
+prioritize_task = Task(
+    description=(
+        "Take the list of emails from the Inbox Scanner and classify "
+        "each one as high, medium, or low priority. Consider sender "
+        "importance, urgency cues in the subject, and whether the email "
+        "requires a response."
+    ),
+    expected_output=(
+        "The same list of emails, each now tagged with a priority "
+        "level (high / medium / low) and a brief reason."
+    ),
+    agent=prioritizer,
+)
+
+draft_task = Task(
+    description=(
+        "For each email marked as high priority by the Prioritizer, "
+        "draft a short, professional reply (under 100 words). Skip "
+        "medium and low priority emails."
+    ),
+    expected_output=(
+        "A list of draft replies, one per high-priority email, "
+        "including the original subject line and the draft text."
+    ),
+    agent=drafter,
+)
+
+crew = Crew(
+    agents=[scanner, prioritizer, drafter],
+    tasks=[scan_task, prioritize_task, draft_task],
+    process=Process.sequential,
+    verbose=True,
+)
+
+result = crew.kickoff()
+print(result)
+```
+
+### 8. Run and test
+
+```bash
+python agent.py
+```
+
+On first run, you see an authorization prompt:
+
+```text
+[gmail] Authorization required.
+Open this link:
+
+  https://auth.scalekit.dev/connect/...
+
+Press Enter after authorizing...
+```
+
+After completing OAuth in the browser and pressing Enter, the crew runs:
+
+```text
+[ok] MCP instance ready: https://mcp.scalekit.dev/...
+Discovered 15 Gmail tools
+
+ [Inbox Scanner] Fetching unread emails...
+ [Email Prioritizer] Classifying 5 emails...
+ [Reply Drafter] Drafting replies for 2 high-priority emails...
+
+============================================================
+CREW RESULT
+============================================================
+## High-Priority Emails — Draft Replies
+
+1. Subject: "Q1 roadmap feedback needed"
+   From: Sarah Chen
+   Priority: HIGH
+   Draft: "Hi Sarah, thanks for flagging this. I'll review the
+   roadmap doc this afternoon and share my comments by EOD."
+
+2. Subject: "Production incident — action required"
+   From: PagerDuty
+   Priority: HIGH
+   Draft: "Acknowledged. I'm looking into the alert now and will
+   update the incident channel within 15 minutes."
+```
+
+On subsequent runs, the authorization step is skipped entirely.
+
+## Common mistakes
+
+<details>
+<summary>Connection name mismatch</summary>
+
+- **Symptom**: `get_or_create_connected_account` returns an error or creates a new connection instead of finding the existing one
+- **Cause**: The connection name in your code does not match the name in the Scalekit Dashboard exactly
+- **Fix**: Copy the connection name from **AgentKit → Connections** in the dashboard and paste it into your code. Case and spacing matter.
+
+</details>
+
+<details>
+<summary>MCP config not found</summary>
+
+- **Symptom**: `ensure_instance` raises a `not found` error
+- **Cause**: `SCALEKIT_MCP_CONFIG_NAME` does not match any config in the dashboard
+- **Fix**: Go to **AgentKit → MCP Configs** and verify the config name. Create one if it doesn't exist — it needs to include the Gmail tools you want exposed.
+
+</details>
+
+<details>
+<summary>Nullable schema fields crash CrewAI</summary>
+
+- **Symptom**: `TypeError` or `ValidationError` when CrewAI parses tool schemas containing `{"type": ["string", "null"]}`
+- **Cause**: CrewAI's built-in JSON Schema converter does not handle nullable union types
+- **Fix**: Apply the monkey-patch from the [sample repo](https://github.com/scalekit-developers/crewai-scalekit-example/blob/main/agent.py#L28-L43) at the top of your script. This adds nullable type handling to `crewai.utilities.pydantic_schema_utils`.
+
+</details>
+
+<details>
+<summary>Missing or wrong LLM API key</summary>
+
+- **Symptom**: `AuthenticationError` or `401` from the LLM provider
+- **Cause**: `OPENAI_API_KEY` is not set, or points to the wrong provider
+- **Fix**: Verify your API key is valid. If using a LiteLLM proxy or custom endpoint, set both `OPENAI_API_KEY` and `OPENAI_BASE_URL`. The `LLM_MODEL` variable defaults to `gpt-4o` — change it to match your provider.
+
+</details>
+
+## Production notes
+
+**User ID from session** — The sample hardcodes `USER_ID = "user_123"`. In production, replace this with the real user identifier from your application's session or JWT. A mismatch means Scalekit looks up the wrong user's Gmail connection.
+
+**Token freshness** — Scalekit refreshes expired OAuth tokens before returning them. You do not need to track token expiry or call a refresh endpoint. The MCP URL stays valid as long as the MCP instance exists.
+
+**MCP instance reuse** — `ensure_instance` is idempotent. Call it on every request — it returns the existing instance rather than creating a new one. The URL is stable and safe to cache.
+
+**Rate limits** — Gmail API has per-user daily quotas. If your crew runs frequently, add rate-limiting logic or use Scalekit's built-in tool pagination to limit the number of emails fetched per run.
+
+**Error handling** — In production, wrap `crew.kickoff()` in a try/except to handle LLM failures, MCP connection errors, and tool execution failures gracefully. Log the raw error for debugging.
+
+## Next steps
+
+- **Add more connectors** — extend the crew with Slack, GitHub, or Calendar tools. Create additional connections in the dashboard, include them in your MCP config, and pass the expanded tool set to the Scanner agent. See [all supported connectors](/agentkit/connectors/).
+- **Try the AgentKit CrewAI example** — for a shorter, single-agent version of this pattern, see the [CrewAI example page](/agentkit/examples/crewai/).
+- **Explore other frameworks** — Scalekit works with LangChain, Google ADK, Vercel AI SDK, and more. See [AgentKit code samples](/agentkit/examples/) for the full list.
+- **Handle re-authorization** — if a user revokes Gmail access, `get_or_create_connected_account` returns an inactive account. Add a re-authorization path to recover gracefully.
+- **Review the AgentKit quickstart** — for a broader overview of connections, tools, and MCP, see the [AgentKit quickstart](/agentkit/quickstart/).
