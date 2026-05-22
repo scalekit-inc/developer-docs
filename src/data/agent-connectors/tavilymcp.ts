@@ -1,0 +1,276 @@
+import type { Tool } from '../../types/agent-connectors'
+
+export const tools: Tool[] = [
+  {
+    name: 'tavilymcp_tavily_crawl',
+    description: `Crawl a website from a starting URL and extract page content with configurable depth and breadth.`,
+    params: [
+      {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `The root URL to begin the crawl`,
+      },
+      {
+        name: 'allow_external',
+        type: 'boolean',
+        required: false,
+        description: `Whether to return external links in the final response`,
+      },
+      {
+        name: 'extract_depth',
+        type: 'string',
+        required: false,
+        description: `Advanced extraction retrieves more data, including tables and embedded content, with higher success but may increase latency`,
+      },
+      {
+        name: 'format',
+        type: 'string',
+        required: false,
+        description: `The format of the extracted web page content. markdown returns content in markdown format. text returns plain text and may increase latency.`,
+      },
+      {
+        name: 'include_favicon',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include the favicon URL for each result`,
+      },
+      {
+        name: 'instructions',
+        type: 'string',
+        required: false,
+        description: `Natural language instructions for the crawler. Instructions specify which types of pages the crawler should return.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Total number of links the crawler will process before stopping`,
+      },
+      {
+        name: 'max_breadth',
+        type: 'integer',
+        required: false,
+        description: `Max number of links to follow per level of the tree (i.e., per page)`,
+      },
+      {
+        name: 'max_depth',
+        type: 'integer',
+        required: false,
+        description: `Max depth of the crawl. Defines how far from the base URL the crawler can explore.`,
+      },
+      {
+        name: 'select_domains',
+        type: 'array',
+        required: false,
+        description: `Regex patterns to restrict crawling to specific domains or subdomains (e.g., ^docs\\.example\\.com$)`,
+      },
+      {
+        name: 'select_paths',
+        type: 'array',
+        required: false,
+        description: `Regex patterns to select only URLs with specific path patterns (e.g., /docs/.*, /api/v1.*)`,
+      },
+    ],
+  },
+  {
+    name: 'tavilymcp_tavily_extract',
+    description: `Extract raw content from one or more URLs in markdown or plain text format.`,
+    params: [
+      {
+        name: 'urls',
+        type: 'array',
+        required: true,
+        description: `List of URLs to extract content from`,
+      },
+      {
+        name: 'extract_depth',
+        type: 'string',
+        required: false,
+        description: `Use 'advanced' for LinkedIn, protected sites, or tables/embedded content`,
+      },
+      { name: 'format', type: 'string', required: false, description: `Output format` },
+      {
+        name: 'include_favicon',
+        type: 'boolean',
+        required: false,
+        description: `Include favicon URLs`,
+      },
+      {
+        name: 'include_images',
+        type: 'boolean',
+        required: false,
+        description: `Include images from pages`,
+      },
+      {
+        name: 'query',
+        type: 'string',
+        required: false,
+        description: `Query to rerank content chunks by relevance`,
+      },
+    ],
+  },
+  {
+    name: 'tavilymcp_tavily_map',
+    description: `Map a website's URL structure starting from a base URL.`,
+    params: [
+      {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `The root URL to begin the mapping`,
+      },
+      {
+        name: 'allow_external',
+        type: 'boolean',
+        required: false,
+        description: `Whether to return external links in the final response`,
+      },
+      {
+        name: 'instructions',
+        type: 'string',
+        required: false,
+        description: `Natural language instructions for the crawler`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Total number of links the crawler will process before stopping`,
+      },
+      {
+        name: 'max_breadth',
+        type: 'integer',
+        required: false,
+        description: `Max number of links to follow per level of the tree (i.e., per page)`,
+      },
+      {
+        name: 'max_depth',
+        type: 'integer',
+        required: false,
+        description: `Max depth of the mapping. Defines how far from the base URL the crawler can explore`,
+      },
+      {
+        name: 'select_domains',
+        type: 'array',
+        required: false,
+        description: `Regex patterns to restrict crawling to specific domains or subdomains (e.g., ^docs\\.example\\.com$)`,
+      },
+      {
+        name: 'select_paths',
+        type: 'array',
+        required: false,
+        description: `Regex patterns to select only URLs with specific path patterns (e.g., /docs/.*, /api/v1.*)`,
+      },
+    ],
+  },
+  {
+    name: 'tavilymcp_tavily_research',
+    description: `Run comprehensive multi-source research on a topic or question.`,
+    params: [
+      {
+        name: 'input',
+        type: 'string',
+        required: true,
+        description: `A comprehensive description of the research task`,
+      },
+      {
+        name: 'model',
+        type: 'string',
+        required: false,
+        description: `Defines the degree of depth of the research. 'mini' is good for narrow tasks with few subtopics. 'pro' is good for broad tasks with many subtopics`,
+      },
+    ],
+  },
+  {
+    name: 'tavilymcp_tavily_search',
+    description: `Search the web for current information and return snippets with source URLs.`,
+    params: [
+      { name: 'query', type: 'string', required: true, description: `Search query` },
+      {
+        name: 'country',
+        type: 'string',
+        required: false,
+        description: `Boost search results from a specific country. Must be a full country name (e.g., 'United States', 'Japan', 'Germany'). ISO country codes (e.g., 'us', 'jp') are not supported. Available only if topic is general. See https://docs.tavily.com/documentation/api-reference/search for the full list of supported countries.`,
+      },
+      {
+        name: 'end_date',
+        type: 'string',
+        required: false,
+        description: `Will return all results before the specified end date. Required to be written in the format YYYY-MM-DD`,
+      },
+      {
+        name: 'exact_match',
+        type: 'string',
+        required: false,
+        description: `Only return results containing the exact phrase(s) in quotes in your query`,
+      },
+      {
+        name: 'exclude_domains',
+        type: 'array',
+        required: false,
+        description: `List of domains to specifically exclude, if the user asks to exclude a domain set this to the domain of the site`,
+      },
+      {
+        name: 'include_domains',
+        type: 'array',
+        required: false,
+        description: `A list of domains to specifically include in the search results, if the user asks to search on specific sites set this to the domain of the site`,
+      },
+      {
+        name: 'include_favicon',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include the favicon URL for each result`,
+      },
+      {
+        name: 'include_image_descriptions',
+        type: 'boolean',
+        required: false,
+        description: `Include a list of query-related images and their descriptions in the response`,
+      },
+      {
+        name: 'include_images',
+        type: 'boolean',
+        required: false,
+        description: `Include a list of query-related images in the response`,
+      },
+      {
+        name: 'include_raw_content',
+        type: 'boolean',
+        required: false,
+        description: `Include the cleaned and parsed HTML content of each search result`,
+      },
+      {
+        name: 'max_results',
+        type: 'integer',
+        required: false,
+        description: `The maximum number of search results to return`,
+      },
+      {
+        name: 'search_depth',
+        type: 'string',
+        required: false,
+        description: `The depth of the search. 'basic' for generic results, 'advanced' for more thorough search, 'fast' for optimized low latency with high relevance, 'ultra-fast' for prioritizing latency above all else`,
+      },
+      {
+        name: 'start_date',
+        type: 'string',
+        required: false,
+        description: `Will return all results after the specified start date. Required to be written in the format YYYY-MM-DD.`,
+      },
+      {
+        name: 'time_range',
+        type: 'string',
+        required: false,
+        description: `The time range back from the current date to include in the search results`,
+      },
+      {
+        name: 'topic',
+        type: 'string',
+        required: false,
+        description: `The category of the search. This will determine which of our agents will be used for the search`,
+      },
+    ],
+  },
+]
