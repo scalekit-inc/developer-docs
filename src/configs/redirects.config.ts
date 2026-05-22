@@ -88,8 +88,6 @@ export const redirects = {
   '/reference/sso/sso-integration-errors/': '/sso/reference/sso-integration-errors/',
   '/reference/redirects/': '/guides/dashboard/redirects/',
 
-  '/guides/dashboard/template-redirect-uris/': '/guides/dashboard/org-redirect-urls/',
-
   // Best practices
   '/best-practices/redirect-uri': '/guides/dashboard/redirects/',
   '/best-practices/manage-client-secrets': '/guides/client-credentials-practices/',
