@@ -1,0 +1,231 @@
+---
+title: "Organization-specific redirect URLs"
+description: "Register one redirect URL pattern that Scalekit resolves to an organization-specific URL at runtime."
+tags: [redirect-url, template, slug, metadata, oauth, callback, multi-tenant]
+sidebar:
+  label: "Org-specific redirect URLs"
+prev:
+  label: "Configure redirect URLs"
+  link: "/guides/dashboard/redirects/"
+next:
+  label: "Sign in with magic link or Email OTP"
+  link: "/authenticate/auth-methods/passwordless/"
+head:
+  - tag: style
+    attrs:
+      type: text/css
+    content: |
+      table {
+        word-wrap: break-word;
+        table-layout: fixed;
+      }
+      td {
+        word-wrap: break-word;
+        vertical-align: top;
+        padding: 8px;
+      }
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import InstallSDK from '@components/templates/_installsdk.mdx';
+
+Multi-tenant applications often need a different callback URL for each customer. Instead of registering a separate redirect URL for every organization, you can register a single template that Scalekit expands per organization at runtime.
+
+For example, `https://{{slug}}/oauth/callback` expands to `https://auth.megasoft.com/oauth/callback` for Megasoft and `https://auth.betacorp.com/oauth/callback` for Beta Corp, with no additional configuration needed.
+
+## Available template variables
+
+| Variable | Source | Example value |
+|---|---|---|
+| `{{slug}}` | Organization's slug field. Can be a single DNS label (`megasoft`) or a full hostname (`auth.megasoft.com`). | `auth.megasoft.com` |
+| `{{external_id}}` | Organization's external ID from your system. | `megasoft-123` |
+| `{{custom_domain}}` | Any key stored in the organization's metadata. | `metadata.custom_domain = "auth.megasoft.com"` |
+
+
+## Register an organization-specific URL
+
+Add organization-specific URLs in **Dashboard > Authentication > Redirects** and type the URL pattern directly into the input field. These URLs are valid in all three redirect fields:
+
+- **Allowed callback URLs**: where Scalekit sends users after authentication
+- **Post logout URL**: where Scalekit sends users after logout
+- **Initiate login URL**: where Scalekit sends IdP-initiated login requests
+
+![](@/assets/docs/template-redirect-uris/2026-05-22-12-22-55.png)
+
+Supported patterns for redirect URLs:
+
+| Pattern | Example | Notes |
+|---|---|---|
+| Subdomain | `https://{{slug}}.yourapp.com/callback` | `{{slug}}` is a single DNS label such as `acme` |
+| Full host | `https://{{slug}}/callback` | `{{slug}}` is a full hostname such as `auth.megasoft.com` |
+| Custom domain | `https://{{custom_domain}}/callback` | Value comes from org metadata |
+| Path variable | `https://yourapp.com/{{slug}}/callback` | Variable in the path component |
+
+<Aside type="caution" title="DNS label constraint">
+Template variables cannot span part of a DNS label. `https://app-{{slug}}.yourapp.com` is not valid; the placeholder must occupy the entire DNS label or the entire host.
+</Aside>
+
+At runtime, Scalekit substitutes each `{{variable}}` with its resolved value, validates the expanded URL against registered templates, and redirects the user. For logout, the organization is resolved from the active session; if the session has expired, template expansion is skipped and the redirect is rejected.
+
+## Set slug or metadata for an organization
+
+Set `slug` on an organization to expand `{{slug}}` templates. Store any key in organization `metadata` to use it as a custom variable like `{{custom_domain}}`. Setting just one is enough — use whichever fits your registered URL pattern.
+
+### Via dashboard
+
+Navigate to **Organizations > Select an organization > Overview > Edit**. Add the organization slug in the **Slug** field.
+![Create Organization dialog showing the Slug field](@/assets/docs/template-redirect-uris/2026-05-22-12-46-21.png)
+
+### Via SDK
+
+<InstallSDK />
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js" value="node">
+```javascript title="Create organization with slug and metadata"
+// Set slug, metadata, or both — each enables a different template variable.
+const organization = await scalekit.organization.createOrganization(
+  'Megasoft',
+  {
+    slug: 'auth.megasoft.com',
+    metadata: { custom_domain: 'auth.megasoft.com' },
+  }
+);
+```
+</TabItem>
+<TabItem label="Python" value="python">
+```python title="Create organization with slug and metadata"
+# Set slug, metadata, or both — each enables a different template variable.
+from scalekit.v1.organizations.organizations_pb2 import CreateOrganization
+
+organization = scalekit_client.organization.create_organization(
+    CreateOrganization(
+        display_name='Megasoft',
+        slug='auth.megasoft.com',
+        metadata={'custom_domain': 'auth.megasoft.com'},
+    )
+)
+```
+</TabItem>
+<TabItem label="Go" value="go">
+```go title="Create organization with slug and metadata"
+// Set slug, metadata, or both — each enables a different template variable.
+slug := "auth.megasoft.com"
+
+_, err := scalekitClient.Organization().CreateOrganization(
+    ctx,
+    "Megasoft",
+    scalekit.CreateOrganizationOptions{
+        Slug: &slug,
+        Metadata: map[string]interface{}{
+            "custom_domain": "auth.megasoft.com",
+        },
+    },
+)
+if err != nil {
+    log.Fatal(err)
+}
+```
+</TabItem>
+<TabItem label="Java" value="java">
+```java title="Create organization with slug and metadata"
+// Set slug, metadata, or both — each enables a different template variable.
+// Requires scalekit-sdk-java v2.1.3+
+CreateOrganization create = CreateOrganization.newBuilder()
+    .setDisplayName("Megasoft")
+    .setSlug("auth.megasoft.com")
+    .putMetadata("custom_domain", "auth.megasoft.com")
+    .build();
+
+scalekitClient.organizations().create(create);
+```
+</TabItem>
+</Tabs>
+
+## Pass organization_id and redirect URL in the authorization request
+
+Pass the organization-specific `redirect_uri` and `organization_id` in the authorization request. Scalekit validates the redirect URL against the registered pattern using the organization's slug or metadata. See [set up login flow](/authenticate/fsa/implement-login/#set-up-login-flow) for the full auth call reference.
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js" value="node">
+```javascript title="Authorization URL with organization_id" ins={1,5}
+const redirectUri = 'https://auth.megasoft.com/oauth/callback';
+const options = {
+  scopes: ['openid', 'profile', 'email'],
+  state: sessionStorage.oauthState,
+  organizationId: 'org_12345',
+};
+
+const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
+res.redirect(authorizationUrl);
+```
+</TabItem>
+<TabItem label="Python" value="python">
+```python title="Authorization URL with organization_id" ins={1,5}
+redirect_uri = 'https://auth.megasoft.com/oauth/callback'
+options = AuthorizationUrlOptions(
+    scopes=['openid', 'profile', 'email'],
+    state=session['oauth_state'],
+    organization_id='org_12345',
+)
+
+authorization_url = scalekit_client.get_authorization_url(redirect_uri, options)
+return redirect(authorization_url)
+```
+</TabItem>
+<TabItem label="Go" value="go">
+```go title="Authorization URL with organization_id" ins={1,5}
+redirectUri := "https://auth.megasoft.com/oauth/callback"
+options := scalekit.AuthorizationUrlOptions{
+    Scopes:         []string{"openid", "profile", "email"},
+    State:          state,
+    OrganizationId: "org_12345",
+}
+
+authorizationUrl := scalekitClient.GetAuthorizationUrl(redirectUri, options)
+http.Redirect(w, r, authorizationUrl, http.StatusFound)
+```
+</TabItem>
+<TabItem label="Java" value="java">
+```java title="Authorization URL with organization_id" ins={1,5}
+String redirectUri = "https://auth.megasoft.com/oauth/callback";
+AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+options.setScopes(List.of("openid", "profile", "email"));
+options.setState(state);
+options.setOrganizationId("org_12345");
+
+String authorizationUrl = scalekitClient.getAuthorizationUrl(redirectUri, options);
+response.sendRedirect(authorizationUrl);
+```
+</TabItem>
+</Tabs>
+
+If no organization is in scope, the template is not expanded and the request is rejected.
+
+## A worked example
+
+1. **Register the URL pattern**
+
+   In **Dashboard > Authentication > Redirects > Allowed callback URLs**, add the URL as `https://{{slug}}/oauth/callback`.
+
+2. **Set the organization's slug**
+
+   For Megasoft, set `slug` to `auth.megasoft.com` (see [Set slug and metadata for an organization](#set-slug-and-metadata-for-an-organization) above).
+
+3. **Pass the org-specific redirect URL and `organization_id` in the authorization request**
+
+   When a Megasoft user signs in, Scalekit validates the `redirect_uri` against the registered pattern using the organization's slug:
+
+   ```
+   https://<SCALEKIT_ENV_URL>/oauth/authorize?client_id=...&redirect_uri=https://auth.megasoft.com/oauth/callback&organization_id=org_megasoft_123&...
+   ```
+
+4. **Scalekit validates and redirects**
+
+   Scalekit matches `https://auth.megasoft.com/oauth/callback` against the registered pattern `https://{{slug}}/oauth/callback` using Megasoft's slug and redirects the user.
