@@ -1,12 +1,16 @@
 ---
 title: "Organization branding"
-description: "Show each customer's logo on your hosted login page, admin portal, and end-user app."
+description: "Show each customer's logo and name on your hosted login page, admin portal, and hosted widgets."
 tags: [branding, organization, logo, customization, login-page, admin-portal]
 sidebar:
   label: "Organization branding"
-next:
-  label: "Personalize email delivery"
-  link: "/guides/email-providers/"
+  seeAlso:
+    expanded: true
+    label: "Related guides"
+    items:
+      - title: "Brand your login page"
+        icon: "book"
+        url: "/fsa/guides/login-page-branding/"
 head:
   - tag: style
     content: |
@@ -18,42 +22,40 @@ head:
       }
 ---
 
-import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 import InstallSDK from '@components/templates/_installsdk.mdx';
 
-When a user from Acme Corp signs in, they see Acme Corp's logo instead of your platform's logo. Organization branding replaces the workspace logo with each customer's own logo across three surfaces, without changing colors, layout, or any other workspace setting.
+Organization branding lets you brand the end-user-facing UI to match your customers' branding. Once enabled, Scalekit replaces your application branding with the customer's logo and name across three interfaces: the login page, admin portal, and hosted widgets. When a user from Acme Corp signs in, they see Acme Corp's logo and name instead of your application's logo and name.
 
-| Surface | What changes |
+## Where it appears
+
+| Interface | What changes |
 |---|---|
-| **Hosted login page** | Replaces the workspace logo and updates the heading to "Login to \{org name\}". The sign-up page always shows your workspace logo. |
-| **Admin portal** | Replaces the logo in the portal header. The title remains "Admin Portal". |
-| **End-user app** | Replaces the logo in the top navigation header. |
+| **Login page** | Organization logo and `Login to {Organization name}` heading on the login page. |
+| **Admin portal** | Organization logo in the portal header. |
+| **Hosted widgets** | Organization logo in the widgets header. |
 
-## Enable the feature
+## Enable organization branding
+Navigate to **Customization > Branding > Organization branding** in your Scalekit dashboard. Toggle it on and click **Save**.
 
-Toggle **Organization branding** on in **Customization > Branding** in your Scalekit dashboard.
+   ![Scalekit Branding settings page with the Organization Branding toggle](@/assets/docs/fsa/organizations/organization_branding_configuration.png)
 
-![Scalekit Branding settings page with the Organization Branding toggle](@/assets/docs/fsa/organizations/organization_branding_configuration.png)
+Once enabled, any organization with a Logo URL shows its own logo on the interfaces above. Organizations without one continue to show your application logo, there is no broken image state.
 
-Once enabled, any organization with a `logo_url` shows its own logo on the surfaces above. Organizations without one continue to show your workspace logo — there is no broken image state.
+## Set the organization's logo URL
+You can set the logo for an organization by adding logo URL. The URL should be publicly accessible.
 
-<Aside type="note" title="Environment-level flag required">
-The flag must be enabled at the environment level. Setting `logo_url` on an organization has no effect unless the environment-level flag is on.
-</Aside>
-
-## Set an organization's logo
-
-The `logo_url` must point to a publicly accessible image. Scalekit does not host or proxy logo images. To remove a logo, set it to an empty string; the surface falls back to your workspace logo.
-
-### From the dashboard
-
-Open an organization, click **Edit**, and fill in the **Logo URL** field.
-
+### Via dashboard
+1. Navigate to **Organizations > Select the organization > Overview > Edit** in your Scalekit dashboard.
+2. Add **Logo URL** for the organization and save.
 ![Edit Organization dialog showing the Slug and Logo URL fields](@/assets/docs/fsa/organizations/update-organization-slug-logo.png)
 
-### With the SDK
+### Via SDK
+Use the examples below to set and remove Logo URL for an organization.
 
 <InstallSDK />
+
+#### Set logo while creating an organization
 
 <Tabs syncKey="tech-stack">
 <TabItem label="Node.js" value="node">
@@ -105,6 +107,96 @@ Organization organization = scalekitClient.organizations().create(create);
 </TabItem>
 </Tabs>
 
-## Relationship to workspace branding
+#### Set logo when updating an existing organization
 
-Workspace branding (configured in **Customization > Branding**) sets your platform's default logo, colors, and layout. Organization branding overrides the logo only. Colors, border radius, and layout remain unchanged from your workspace settings.
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js" value="node">
+```javascript title="Update org logo"
+await scalekit.organization.updateOrganization(
+  'org_12345',
+  { logoUrl: 'https://cdn.acmecorp.com/logo.png' }
+);
+```
+</TabItem>
+<TabItem label="Python" value="python">
+```python title="Update org logo"
+from scalekit.v1.organizations.organizations_pb2 import UpdateOrganization
+
+scalekit_client.organization.update_organization(
+    organization_id='org_12345',
+    organization=UpdateOrganization(logo_url='https://cdn.acmecorp.com/logo.png')
+)
+```
+</TabItem>
+<TabItem label="Go" value="go">
+```go title="Update org logo"
+logoURL := "https://cdn.acmecorp.com/logo.png"
+
+scalekitClient.Organization().UpdateOrganization(
+    ctx,
+    "org_12345",
+    &scalekit.UpdateOrganization{LogoUrl: &logoURL},
+)
+```
+</TabItem>
+<TabItem label="Java" value="java">
+```java title="Update org logo"
+// Requires scalekit-sdk-java v2.1.3+
+UpdateOrganization update = UpdateOrganization.newBuilder()
+    .setLogoUrl("https://cdn.acmecorp.com/logo.png")
+    .build();
+
+scalekitClient.organizations().updateById("org_12345", update);
+```
+</TabItem>
+</Tabs>
+
+#### Remove an organization's logo
+
+Set `logo_url` to an empty string to remove a logo. The hosted interfaces fall back to your workspace logo immediately.
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js" value="node">
+```javascript title="Remove org logo"
+await scalekit.organization.updateOrganization(
+  'org_12345',
+  { logoUrl: '' }
+);
+```
+</TabItem>
+<TabItem label="Python" value="python">
+```python title="Remove org logo"
+from scalekit.v1.organizations.organizations_pb2 import UpdateOrganization
+
+scalekit_client.organization.update_organization(
+    organization_id='org_12345',
+    organization=UpdateOrganization(logo_url='')
+)
+```
+</TabItem>
+<TabItem label="Go" value="go">
+```go title="Remove org logo"
+emptyURL := ""
+
+scalekitClient.Organization().UpdateOrganization(
+    ctx,
+    "org_12345",
+    &scalekit.UpdateOrganization{LogoUrl: &emptyURL},
+)
+```
+</TabItem>
+<TabItem label="Java" value="java">
+```java title="Remove org logo"
+// Requires scalekit-sdk-java v2.1.3+
+UpdateOrganization update = UpdateOrganization.newBuilder()
+    .setLogoUrl("")
+    .build();
+
+scalekitClient.organizations().updateById("org_12345", update);
+```
+</TabItem>
+</Tabs>
+
+## Understand fallback behavior
+
+If organization branding is enabled but an organization has no logo URL, the hosted interfaces fall back to your application logo. There is no broken image state; the feature degrades gracefully per organization.
