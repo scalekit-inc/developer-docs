@@ -1,0 +1,114 @@
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+### Discover available data sources
+
+Use `supermetricsmcp_data_source_discovery` to list all marketing and advertising data sources connected to the user's Supermetrics account.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const sources = await actions.executeTool({
+      connectionName: 'supermetricsmcp',
+      identifier: 'user_123',
+      toolName: 'supermetricsmcp_data_source_discovery',
+      toolInput: {},
+    });
+    console.log(sources);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    sources = actions.execute_tool(
+        connection_name="supermetricsmcp",
+        identifier="user_123",
+        tool_name="supermetricsmcp_data_source_discovery",
+        tool_input={},
+    )
+    print(sources)
+    ```
+  </TabItem>
+</Tabs>
+
+### Query marketing analytics data
+
+Use `supermetricsmcp_data_query` to pull structured metrics and dimensions from a connected data source. Call `field_discovery` first to find valid field names, and `get_today` to resolve relative date references.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const report = await actions.executeTool({
+      connectionName: 'supermetricsmcp',
+      identifier: 'user_123',
+      toolName: 'supermetricsmcp_data_query',
+      toolInput: {
+        ds_id: 'GA4',
+        fields: ['Sessions', 'Conversions', 'Date'],
+        date_range_type: 'last_30_days',
+        max_rows: 100,
+      },
+    });
+    console.log(report);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    report = actions.execute_tool(
+        connection_name="supermetricsmcp",
+        identifier="user_123",
+        tool_name="supermetricsmcp_data_query",
+        tool_input={
+            "ds_id": "GA4",
+            "fields": ["Sessions", "Conversions", "Date"],
+            "date_range_type": "last_30_days",
+            "max_rows": 100,
+        },
+    )
+    print(report)
+    ```
+  </TabItem>
+</Tabs>
+
+### Create an ad campaign
+
+Use `supermetricsmcp_campaign_create` to create a new advertising campaign on a supported platform. Call `accounts_discovery` first to find the correct account ID.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const campaign = await actions.executeTool({
+      connectionName: 'supermetricsmcp',
+      identifier: 'user_123',
+      toolName: 'supermetricsmcp_campaign_create',
+      toolInput: {
+        ds_id: 'FA',
+        account_id: 'act_123456789',
+        name: 'Q1 Brand Awareness',
+        status: 'PAUSED',
+        budget_amount: '50.00',
+        budget_type: 'DAILY',
+      },
+    });
+    console.log(campaign);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    campaign = actions.execute_tool(
+        connection_name="supermetricsmcp",
+        identifier="user_123",
+        tool_name="supermetricsmcp_campaign_create",
+        tool_input={
+            "ds_id": "FA",
+            "account_id": "act_123456789",
+            "name": "Q1 Brand Awareness",
+            "status": "PAUSED",
+            "budget_amount": "50.00",
+            "budget_type": "DAILY",
+        },
+    )
+    print(campaign)
+    ```
+  </TabItem>
+</Tabs>

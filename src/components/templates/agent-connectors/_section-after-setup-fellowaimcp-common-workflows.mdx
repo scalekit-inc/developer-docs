@@ -1,0 +1,108 @@
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+### Search for recent meetings
+
+Use `fellowaimcp_search_meetings` to find meetings by title, date range, participants, or content. Set `user_has_calendar_event: true` to search only the current user's own meetings.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const meetings = await actions.executeTool({
+      connectionName: 'fellowaimcp',
+      identifier: 'user_123',
+      toolName: 'fellowaimcp_search_meetings',
+      toolInput: {
+        from_date: '2024-01-01',
+        to_date: '2024-01-31',
+        user_has_calendar_event: true,
+        has_summary: true,
+      },
+    });
+    console.log(meetings);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    meetings = actions.execute_tool(
+        connection_name="fellowaimcp",
+        identifier="user_123",
+        tool_name="fellowaimcp_search_meetings",
+        tool_input={
+            "from_date": "2024-01-01",
+            "to_date": "2024-01-31",
+            "user_has_calendar_event": True,
+            "has_summary": True,
+        },
+    )
+    print(meetings)
+    ```
+  </TabItem>
+</Tabs>
+
+### Get a meeting summary
+
+Use `fellowaimcp_get_meeting_summary` to retrieve AI-generated summaries for one or more meetings, including key points, decisions, and action items.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const summary = await actions.executeTool({
+      connectionName: 'fellowaimcp',
+      identifier: 'user_123',
+      toolName: 'fellowaimcp_get_meeting_summary',
+      toolInput: {
+        meeting_ids: ['meeting_abc123'],
+      },
+    });
+    console.log(summary);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    summary = actions.execute_tool(
+        connection_name="fellowaimcp",
+        identifier="user_123",
+        tool_name="fellowaimcp_get_meeting_summary",
+        tool_input={
+            "meeting_ids": ["meeting_abc123"],
+        },
+    )
+    print(summary)
+    ```
+  </TabItem>
+</Tabs>
+
+### Fetch overdue action items
+
+Use `fellowaimcp_get_action_items` to retrieve action items assigned to the user, filtered by status or date range.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const actionItems = await actions.executeTool({
+      connectionName: 'fellowaimcp',
+      identifier: 'user_123',
+      toolName: 'fellowaimcp_get_action_items',
+      toolInput: {
+        is_overdue: true,
+      },
+    });
+    console.log(actionItems);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    action_items = actions.execute_tool(
+        connection_name="fellowaimcp",
+        identifier="user_123",
+        tool_name="fellowaimcp_get_action_items",
+        tool_input={
+            "is_overdue": True,
+        },
+    )
+    print(action_items)
+    ```
+  </TabItem>
+</Tabs>

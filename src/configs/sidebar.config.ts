@@ -24,6 +24,7 @@ export const sidebar = [
           'authenticate/fsa/manage-session',
           'authenticate/fsa/logout',
           'guides/dashboard/redirects',
+          'guides/dashboard/org-redirect-urls',
         ],
       },
       {
@@ -51,6 +52,7 @@ export const sidebar = [
           'authenticate/manage-organizations/remove-users-from-organization',
           'authenticate/manage-users-orgs/delete-users-and-organizations',
           'authenticate/fsa/user-management-settings',
+          'authenticate/manage-organizations/organization-session-policy',
           'authenticate/manage-users-orgs/hosted-widgets',
         ],
       },
@@ -89,6 +91,7 @@ export const sidebar = [
         items: [
           'guides/custom-domain',
           'fsa/guides/login-page-branding',
+          'fsa/guides/organization-branding',
           'guides/email-providers',
           'guides/dashboard/custom-email-templates',
           'authenticate/manage-users-orgs/custom-user-attributes',

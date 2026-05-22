@@ -1,0 +1,263 @@
+---
+title: "Organization branding"
+description: "Show each customer's logo and name on your hosted login page, admin portal, and hosted widgets."
+tags: [branding, organization, logo, customization, login-page, admin-portal]
+sidebar:
+  label: "Organization branding"
+  seeAlso:
+    expanded: true
+    label: "Related guides"
+    items:
+      - title: "Brand your login page"
+        icon: "book"
+        url: "/fsa/guides/login-page-branding/"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import InstallSDK from '@components/templates/_installsdk.mdx';
+
+Organization branding lets you brand the end-user-facing UI to match your customers' branding. Once enabled, Scalekit replaces your application branding with the customer's logo and name across three interfaces: the login page, admin portal, and hosted widgets. When a user from Acme Corp organization signs in, they see Acme Corp's logo and name instead of your application's logo and name.
+
+## Where it appears
+
+| Interface | What changes |
+|---|---|
+| **Login page** | Organization logo and `Login to {Organization name}` heading on the login page. |
+| **Admin portal** | Organization logo in the portal header. |
+| **Hosted widgets** | Organization logo in the widgets header. |
+
+## Enable organization branding
+Navigate to **Customization > Branding > Organization branding** in your Scalekit dashboard. Toggle it on and click **Save**.
+
+   ![Scalekit Branding settings page with the Organization Branding toggle](@/assets/docs/fsa/organizations/organization_branding_configuration.png)
+
+Once enabled, any organization with a Logo URL shows its own logo on the interfaces above. Organizations without one continue to show your application logo, there is no broken image state.
+
+## Set the organization's logo URL
+
+You can set the logo for an organization by adding a logo URL via dashboard or SDK. The logo file must meet these requirements:
+
+- **Publicly accessible URL**: Scalekit fetches the image from the URL you provide.
+- **Allowed formats**: PNG, JPG, SVG, GIF.
+- **Recommended minimum height**: 36px. Smaller logos may look pixelated in the login page, admin portal, and hosted widgets.
+
+### Via dashboard
+1. Navigate to **Organizations > Select the organization > Overview > Edit** in your Scalekit dashboard.
+2. Add **Logo URL** for the organization and save.
+![Edit Organization dialog showing the Slug and Logo URL fields](@/assets/docs/fsa/organizations/update-organization-slug-logo.png)
+
+### Via SDK
+Use the examples below to set and remove Logo URL for an organization.
+
+<InstallSDK />
+
+#### Set logo while creating an organization
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js" value="node">
+```javascript title="Create organization with logo"
+const organization = await scalekit.organization.createOrganization(
+  'Acme Corporation',
+  { logoUrl: 'https://cdn.acmecorp.com/logo.png' }
+);
+```
+</TabItem>
+<TabItem label="Python" value="python">
+```python title="Create organization with logo"
+from scalekit.v1.organizations.organizations_pb2 import CreateOrganization
+
+organization = scalekit_client.organization.create_organization(
+    CreateOrganization(
+        display_name='Acme Corporation',
+        logo_url='https://cdn.acmecorp.com/logo.png',
+    )
+)
+```
+</TabItem>
+<TabItem label="Go" value="go">
+```go title="Create organization with logo"
+logoURL := "https://cdn.acmecorp.com/logo.png"
+
+organization, err := scalekitClient.Organization().CreateOrganization(
+    ctx,
+    "Acme Corporation",
+    scalekit.CreateOrganizationOptions{
+        LogoUrl: &logoURL,
+    },
+)
+if err != nil {
+    log.Fatal(err)
+}
+```
+</TabItem>
+<TabItem label="Java" value="java">
+```java title="Create organization with logo"
+// Requires scalekit-sdk-java v2.1.3+
+CreateOrganization create = CreateOrganization.newBuilder()
+    .setDisplayName("Acme Corporation")
+    .setLogoUrl("https://cdn.acmecorp.com/logo.png")
+    .build();
+
+Organization organization = scalekitClient.organizations().create(create);
+```
+</TabItem>
+</Tabs>
+
+#### Set logo when updating an existing organization
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js" value="node">
+```javascript title="Update org logo"
+await scalekit.organization.updateOrganization(
+  'org_12345',
+  { logoUrl: 'https://cdn.acmecorp.com/logo.png' }
+);
+```
+</TabItem>
+<TabItem label="Python" value="python">
+```python title="Update org logo"
+from scalekit.v1.organizations.organizations_pb2 import UpdateOrganization
+
+scalekit_client.organization.update_organization(
+    organization_id='org_12345',
+    organization=UpdateOrganization(logo_url='https://cdn.acmecorp.com/logo.png')
+)
+```
+</TabItem>
+<TabItem label="Go" value="go">
+```go title="Update org logo"
+logoURL := "https://cdn.acmecorp.com/logo.png"
+
+scalekitClient.Organization().UpdateOrganization(
+    ctx,
+    "org_12345",
+    &scalekit.UpdateOrganization{LogoUrl: &logoURL},
+)
+```
+</TabItem>
+<TabItem label="Java" value="java">
+```java title="Update org logo"
+// Requires scalekit-sdk-java v2.1.3+
+UpdateOrganization update = UpdateOrganization.newBuilder()
+    .setLogoUrl("https://cdn.acmecorp.com/logo.png")
+    .build();
+
+scalekitClient.organizations().updateById("org_12345", update);
+```
+</TabItem>
+</Tabs>
+
+#### Remove an organization's logo
+
+Set `logo_url` to an empty string to remove a logo. The hosted interfaces fall back to your application logo immediately.
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js" value="node">
+```javascript title="Remove org logo"
+await scalekit.organization.updateOrganization(
+  'org_12345',
+  { logoUrl: '' }
+);
+```
+</TabItem>
+<TabItem label="Python" value="python">
+```python title="Remove org logo"
+from scalekit.v1.organizations.organizations_pb2 import UpdateOrganization
+
+scalekit_client.organization.update_organization(
+    organization_id='org_12345',
+    organization=UpdateOrganization(logo_url='')
+)
+```
+</TabItem>
+<TabItem label="Go" value="go">
+```go title="Remove org logo"
+emptyURL := ""
+
+scalekitClient.Organization().UpdateOrganization(
+    ctx,
+    "org_12345",
+    &scalekit.UpdateOrganization{LogoUrl: &emptyURL},
+)
+```
+</TabItem>
+<TabItem label="Java" value="java">
+```java title="Remove org logo"
+// Requires scalekit-sdk-java v2.1.3+
+UpdateOrganization update = UpdateOrganization.newBuilder()
+    .setLogoUrl("")
+    .build();
+
+scalekitClient.organizations().updateById("org_12345", update);
+```
+</TabItem>
+</Tabs>
+
+## Show the organization's logo on the login page
+
+For the organization's logo and `Login to {Organization name}` heading to appear, your authorization request must include `organization_id`. Without it, Scalekit has no organization in scope and the login page renders with your application branding instead.
+
+Pass `organization_id` when building the authorization URL in your [login flow](/authenticate/fsa/implement-login/#set-up-login-flow):
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js" value="node">
+```javascript title="Authorization URL with organization_id" ins={4}
+const options = {
+  scopes: ['openid', 'profile', 'email'],
+  state: sessionStorage.oauthState,
+  organizationId: 'org_12345',
+};
+
+const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
+res.redirect(authorizationUrl);
+```
+</TabItem>
+<TabItem label="Python" value="python">
+```python title="Authorization URL with organization_id" ins={4}
+options = AuthorizationUrlOptions(
+    scopes=['openid', 'profile', 'email'],
+    state=session['oauth_state'],
+    organization_id='org_12345',
+)
+
+authorization_url = scalekit_client.get_authorization_url(redirect_uri, options)
+return redirect(authorization_url)
+```
+</TabItem>
+<TabItem label="Go" value="go">
+```go title="Authorization URL with organization_id" ins={4}
+options := scalekit.AuthorizationUrlOptions{
+    Scopes:         []string{"openid", "profile", "email"},
+    State:          state,
+    OrganizationId: "org_12345",
+}
+
+authorizationUrl := scalekitClient.GetAuthorizationUrl(redirectUri, options)
+http.Redirect(w, r, authorizationUrl, http.StatusFound)
+```
+</TabItem>
+<TabItem label="Java" value="java">
+```java title="Authorization URL with organization_id" ins={4}
+AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+options.setScopes(List.of("openid", "profile", "email"));
+options.setState(state);
+options.setOrganizationId("org_12345");
+
+String authorizationUrl = scalekitClient.getAuthorizationUrl(redirectUri, options);
+response.sendRedirect(authorizationUrl);
+```
+</TabItem>
+</Tabs>
+
+## Understand fallback behavior
+
+If organization branding is enabled but an organization has no logo URL, the hosted interfaces fall back to your application logo. There is no broken image state; the feature degrades gracefully per organization.
