@@ -1,0 +1,612 @@
+---
+title: 'xmcp quickstart'
+description: 'Build an MCP server with xmcp framework and Scalekit OAuth 2.1 authentication. xmcp handles transport, routing, and bundling so you focus on tools.'
+tags: [mcp-auth, quickstart, xmcp, nodejs, typescript, oauth2, ai-agents]
+sidebar:
+  order: 4
+  label: 'Add auth to xmcp server'
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+prev: false
+next:
+  label: 'MCP OAuth 2.1 implementation guide'
+  link: '/authenticate/mcp/quickstart/'
+browseCentral:
+  label: 'Add auth to xmcp server'
+  category:
+    - 'MCP authentication'
+  filterType:
+    - 'code-sample'
+  icon: 'code'
+seeAlso:
+  label: 'Code samples'
+  expanded: true
+  items:
+    - title: 'Browse code sample'
+      icon: 'github'
+      url: 'https://github.com/scalekit-developers/xmcp-scalekit-example'
+---
+
+import { Steps, Aside, Badge } from '@astrojs/starlight/components';
+import IconTdesignSequence from '~icons/tdesign/sequence';
+
+This guide shows you how to build an MCP server with [xmcp](https://xmcp.dev) and secure it with Scalekit OAuth 2.1. xmcp is a TypeScript MCP framework that handles transport setup, bundling, and hot reload — you write tools as plain functions and add auth via a middleware file.
+
+Use this quickstart when you want a framework that manages MCP protocol details for you. xmcp gives you file-based routing for tools, built-in Streamable HTTP transport, and a middleware convention that keeps auth separate from business logic. The full code is available on <a href="https://github.com/scalekit-developers/xmcp-scalekit-example" target="_blank" rel="noreferrer">GitHub</a>.
+
+**Prerequisites**
+
+- A [Scalekit account](https://app.scalekit.com) with permission to manage MCP servers
+- **Node.js 18+** installed locally
+- Basic understanding of TypeScript and OAuth
+
+<details>
+<summary><IconTdesignSequence style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Review the xmcp MCP authorization flow</summary>
+
+```d2 pad=36
+title: "xmcp MCP with Scalekit" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+MCP Client -> MCP Server: POST /mcp
+MCP Server -> MCP Client: 401 + WWW-Authenticate header
+MCP Client -> MCP Server: GET /.well-known/oauth-protected-resource
+MCP Server -> MCP Client: Resource metadata (authorization_servers)
+MCP Client -> Scalekit: OAuth Authorization Code + PKCE
+Scalekit -> MCP Client: Issue Bearer token
+MCP Client -> MCP Server: POST /mcp with Bearer token
+MCP Server -> Scalekit: Verify token via JWKS
+MCP Server -> MCP Client: Tool response
+```
+
+</details>
+
+<Steps>
+
+1. ## Register your MCP server in Scalekit
+
+   Create a protected resource entry so Scalekit can issue and validate tokens for your server.
+
+   1. Navigate to **[Dashboard](https://app.scalekit.com) > MCP Servers > Add MCP Server**.
+   2. Enter a descriptive name (for example, `xmcp Demo`).
+   3. Set **Server URL** to `http://localhost:3001`.
+   4. Ensure **Allow dynamic client registration** is checked — this is required for MCP clients like Claude Desktop and Cursor to connect automatically.
+   5. Click **Save** to create the server.
+
+   After saving, note the **Resource ID** shown below the server name (for example, `res_...`). You'll need it in the next step.
+
+2. ## Create your project
+
+   Scaffold a new xmcp project and add the dependencies for Scalekit authentication.
+
+   ```bash title="Terminal" frame="terminal"
+   mkdir xmcp-scalekit-example
+   cd xmcp-scalekit-example
+   ```
+
+   Create `package.json`:
+
+   ```json title="package.json"
+   {
+     "name": "xmcp-scalekit-example",
+     "private": true,
+     "scripts": {
+       "dev": "xmcp dev",
+       "build": "xmcp build",
+       "start": "node dist/http.js"
+     },
+     "dependencies": {
+       "xmcp": "^0.6.10",
+       "@scalekit-sdk/node": "^2.6.2",
+       "jose": "^5.2.0",
+       "express": "^4.22.1",
+       "zod": "^4.0.10"
+     },
+     "devDependencies": {
+       "@types/express": "^4.17.25",
+       "@types/node": "^22.19.2",
+       "typescript": "^5.9.3"
+     }
+   }
+   ```
+
+   Install dependencies:
+
+   ```bash title="Terminal" frame="terminal"
+   npm install
+   ```
+
+3. ## Configure environment variables
+
+   Create a `.env` file with your Scalekit credentials from step 1.
+
+   ```bash title="Terminal" frame="terminal"
+   cat <<'EOF' > .env
+   SCALEKIT_ENVIRONMENT_URL=https://<your-env>.scalekit.com
+   SCALEKIT_CLIENT_ID=<your-client-id>
+   SCALEKIT_CLIENT_SECRET=<your-client-secret>
+   SCALEKIT_RESOURCE_ID=<resource-id-from-dashboard>
+   BASE_URL=http://localhost:3001
+   PORT=3001
+   EOF
+
+   open .env
+   ```
+
+   | Variable | Description |
+   |----------|-------------|
+   | `SCALEKIT_ENVIRONMENT_URL` | Your Scalekit environment URL from **Dashboard > Settings > API Credentials** |
+   | `SCALEKIT_CLIENT_ID` | Client ID from **Dashboard > Settings > API Credentials** |
+   | `SCALEKIT_CLIENT_SECRET` | Client secret from **Dashboard > Settings > API Credentials** |
+   | `SCALEKIT_RESOURCE_ID` | Resource ID from **Dashboard > MCP Servers** (the `res_...` value shown below the server name) |
+   | `BASE_URL` | Public URL where your server is reachable. Must match the Server URL registered in Scalekit |
+   | `PORT` | Local port for the server |
+
+   <Aside type="caution" title="Resource ID is required">
+     Without <code>SCALEKIT_RESOURCE_ID</code>, the server cannot serve the resource-specific authorization server metadata that includes the <code>registration_endpoint</code>. MCP clients that rely on Dynamic Client Registration (DCR) — including Claude Desktop and Cursor — will fail to connect.
+   </Aside>
+
+4. ## Enable Streamable HTTP transport
+
+   Create `xmcp.config.ts` at the project root to enable Streamable HTTP mode. By default xmcp uses stdio; setting `http: true` starts an Express-based HTTP server.
+
+   ```typescript title="xmcp.config.ts"
+   import { XmcpConfig } from "xmcp";
+
+   const config: XmcpConfig = {
+     http: true,
+     paths: {
+       prompts: false,
+       resources: false,
+     },
+   };
+
+   export default config;
+   ```
+
+5. ## Add the Scalekit auth provider
+
+   Create `src/lib/scalekit-auth.ts` — this is the auth provider that handles JWT verification and OAuth discovery endpoints.
+
+   The provider returns an xmcp `Middleware` object with a `router` (for discovery endpoints) and a `middleware` (for token validation on `/mcp`).
+
+   ```typescript title="src/lib/scalekit-auth.ts" wrap collapse={1-10, 26-51, 86-144} {"Key: JWKS resolution tries AS metadata first": 176-201} {"Key: AS metadata proxy with DCR support": 230-270} {"Key: Issuer must be environmentUrl, not resource path": 304-308}
+   import {
+     Router,
+     Request,
+     Response,
+     NextFunction,
+     type RequestHandler,
+   } from "express";
+   import { createContext, type Middleware } from "xmcp";
+   import { createRemoteJWKSet, jwtVerify, errors } from "jose";
+   import { Scalekit } from "@scalekit-sdk/node";
+
+   // --- Types ---
+
+   export interface ScalekitConfig {
+     readonly environmentUrl: string;
+     readonly clientId: string;
+     readonly clientSecret: string;
+     readonly baseURL: string;
+     readonly resourceId?: string;
+     readonly docsURL?: string;
+     readonly scopes?: readonly string[];
+   }
+
+   export interface JWTClaims {
+     readonly sub: string;
+     readonly iss: string;
+     readonly aud?: string | readonly string[];
+     readonly exp: number;
+     readonly iat: number;
+     readonly scope?: string;
+     readonly sid?: string;
+     readonly org_id?: string;
+   }
+
+   export interface Session {
+     readonly userId: string;
+     readonly scopes: readonly string[];
+     readonly organizationId?: string;
+     readonly expiresAt: Date;
+     readonly issuedAt: Date;
+     readonly claims: JWTClaims;
+   }
+
+   interface SessionContext {
+     session: Session | null;
+   }
+
+   interface ClientContext {
+     client: Scalekit;
+   }
+
+   const sessionContext = createContext<SessionContext>({
+     name: "scalekit-context-session",
+   });
+
+   const clientContext = createContext<ClientContext>({
+     name: "scalekit-context-client",
+   });
+
+   // --- Public accessors (call from tools) ---
+
+   export function getSession(): Session {
+     const ctx = sessionContext.getContext();
+     if (!ctx.session) {
+       throw new Error(
+         "[Scalekit] No session. Is the request authenticated?"
+       );
+     }
+     return ctx.session;
+   }
+
+   export function getClient(): Scalekit {
+     const { client } = clientContext.getContext();
+     if (!client) {
+       throw new Error(
+         "[Scalekit] Client not initialized."
+       );
+     }
+     return client;
+   }
+
+   // --- JWT helpers ---
+
+   async function verifyScalekitToken(
+     token: string,
+     jwksUrl: URL,
+     issuer: string
+   ) {
+     const JWKS = createRemoteJWKSet(jwksUrl);
+     const { payload } = await jwtVerify(token, JWKS, {
+       issuer,
+       clockTolerance: 30,
+     });
+     if (!payload.sub) throw new Error("Missing sub claim");
+     return payload as unknown as JWTClaims;
+   }
+
+   function claimsToSession(claims: JWTClaims): Session {
+     return {
+       userId: claims.sub,
+       scopes: claims.scope ? claims.scope.split(" ") : [],
+       organizationId: claims.org_id,
+       expiresAt: new Date(claims.exp * 1000),
+       issuedAt: new Date(claims.iat * 1000),
+       claims,
+     };
+   }
+
+   function extractBearerToken(
+     header: string | undefined
+   ): string | null {
+     if (!header) return null;
+     const parts = header.split(" ");
+     if (parts.length !== 2 || parts[0].toLowerCase() !== "bearer")
+       return null;
+     return parts[1];
+   }
+
+   // --- Provider factory ---
+
+   export function scalekitProvider(
+     config: ScalekitConfig
+   ): Middleware {
+     const client = new Scalekit(
+       config.environmentUrl,
+       config.clientId,
+       config.clientSecret
+     );
+
+     clientContext.provider({ client }, () => {});
+     sessionContext.provider({ session: null }, () => {});
+
+     const envUrl = config.environmentUrl.replace(/\/$/, "");
+     const authServerBase = config.resourceId
+       ? `${envUrl}/resources/${config.resourceId}`
+       : envUrl;
+
+     // Pre-fetch JWKS URI — try OAuth AS metadata first.
+     // Resource-specific paths serve /.well-known/oauth-authorization-server
+     // but NOT /.well-known/openid-configuration.
+     let resolvedJwksUri: URL | null = null;
+     (async () => {
+       try {
+         const urls = [
+           `${authServerBase}/.well-known/oauth-authorization-server`,
+           `${authServerBase}/.well-known/openid-configuration`,
+         ];
+         for (const url of urls) {
+           const response = await fetch(url);
+           if (response.ok) {
+             const meta = (await response.json()) as {
+               jwks_uri?: string;
+             };
+             if (meta.jwks_uri) {
+               resolvedJwksUri = new URL(meta.jwks_uri);
+               console.log(
+                 "[Scalekit] Resolved JWKS URI:",
+                 resolvedJwksUri.toString()
+               );
+               return;
+             }
+           }
+         }
+       } catch (e) {
+         console.warn("[Scalekit] Could not pre-fetch JWKS URI:", e);
+       }
+     })();
+
+     return {
+       middleware: buildMiddleware(
+         config,
+         authServerBase,
+         () => resolvedJwksUri
+       ),
+       router: buildRouter(config, authServerBase),
+     };
+   }
+
+   // --- Router (discovery endpoints) ---
+
+   function buildRouter(
+     config: ScalekitConfig,
+     authServerBase: string
+   ): Router {
+     const router = Router();
+     const baseUrl = config.baseURL.replace(/\/$/, "");
+
+     // RFC 9728: Protected Resource Metadata
+     router.get(
+       "/.well-known/oauth-protected-resource",
+       (_req: Request, res: Response) => {
+         res.json({
+           resource: baseUrl,
+           authorization_servers: [authServerBase],
+           bearer_methods_supported: ["header"],
+           ...(config.scopes &&
+             config.scopes.length > 0 && {
+               scopes_supported: config.scopes,
+             }),
+         });
+       }
+     );
+
+     // RFC 8414: Authorization Server Metadata (proxied from Scalekit)
+     // Tries /.well-known/oauth-authorization-server first because
+     // resource-specific paths include registration_endpoint for DCR.
+     router.get(
+       "/.well-known/oauth-authorization-server",
+       async (_req: Request, res: Response) => {
+         try {
+           const asUrl = `${authServerBase}/.well-known/oauth-authorization-server`;
+           const asRes = await fetch(asUrl);
+           if (asRes.ok) {
+             res.json(await asRes.json());
+             return;
+           }
+           const oidcUrl = `${authServerBase}/.well-known/openid-configuration`;
+           const oidcRes = await fetch(oidcUrl);
+           if (oidcRes.ok) {
+             res.json(await oidcRes.json());
+             return;
+           }
+           res.status(502).json({
+             error: "Failed to fetch authorization server metadata",
+           });
+         } catch {
+           res.status(502).json({
+             error: "Failed to fetch authorization server metadata",
+           });
+         }
+       }
+     );
+
+     return router;
+   }
+
+   // --- Middleware (token validation) ---
+
+   function buildMiddleware(
+     config: ScalekitConfig,
+     authServerBase: string,
+     getJwksUri: () => URL | null
+   ): RequestHandler {
+     const wwwAuth =
+       'Bearer resource_metadata="/.well-known/oauth-protected-resource"';
+
+     return async (
+       req: Request,
+       res: Response,
+       next: NextFunction
+     ) => {
+       if (!req.path.startsWith("/mcp")) {
+         next();
+         return;
+       }
+
+       const token = extractBearerToken(req.headers.authorization);
+       if (!token) {
+         res.setHeader("WWW-Authenticate", wwwAuth);
+         res.status(401).json({
+           error: "unauthorized",
+           error_description: "Missing or invalid bearer token",
+         });
+         return;
+       }
+
+       try {
+         const jwksUrl =
+           getJwksUri() ||
+           new URL(`${authServerBase}/.well-known/jwks`);
+
+         // Validate against environmentUrl — Scalekit always sets
+         // the environment URL as the JWT issuer, not the
+         // resource-specific path.
+         const claims = await verifyScalekitToken(
+           token,
+           jwksUrl,
+           config.environmentUrl.replace(/\/$/, "")
+         );
+
+         const session = claimsToSession(claims);
+         sessionContext.provider({ session }, () => next());
+       } catch {
+         res.setHeader(
+           "WWW-Authenticate",
+           `${wwwAuth}, error="invalid_token"`
+         );
+         res.status(401).json({
+           error: "invalid_token",
+           error_description: "Token verification failed",
+         });
+       }
+     };
+   }
+   ```
+
+   Three details that are easy to get wrong:
+
+   - **JWKS resolution:** Resource-specific paths on Scalekit serve `/.well-known/oauth-authorization-server` but return 404 for `/.well-known/openid-configuration`. The provider tries both in order.
+   - **AS metadata proxy:** The resource-specific `oauth-authorization-server` response includes the `registration_endpoint` that DCR clients need. The environment-level `openid-configuration` does not.
+   - **Issuer validation:** Scalekit JWTs always have the environment URL as `iss`, not the resource-specific path. The middleware validates against `config.environmentUrl`, not `authServerBase`.
+
+6. ## Wire the middleware
+
+   Create `src/middleware.ts` — this is the file xmcp looks for to apply auth middleware to all requests.
+
+   ```typescript title="src/middleware.ts"
+   import { scalekitProvider } from "./lib/scalekit-auth";
+
+   export default scalekitProvider({
+     environmentUrl: process.env.SCALEKIT_ENVIRONMENT_URL!,
+     clientId: process.env.SCALEKIT_CLIENT_ID!,
+     clientSecret: process.env.SCALEKIT_CLIENT_SECRET!,
+     baseURL: process.env.BASE_URL || "http://localhost:3001",
+     resourceId: process.env.SCALEKIT_RESOURCE_ID,
+     scopes: ["openid", "profile", "email"],
+   });
+   ```
+
+   <Aside type="note" title="xmcp middleware convention">
+     xmcp automatically loads <code>src/middleware.ts</code> as a special entry point. Tools cannot import from this file directly — shared code like <code>getSession()</code> lives in <code>src/lib/</code> instead.
+   </Aside>
+
+7. ## Add tools
+
+   xmcp uses file-based routing — each file in `src/tools/` becomes an MCP tool. Create two tools that use the authenticated session.
+
+   ```typescript title="src/tools/whoami.ts"
+   import { type ToolMetadata } from "xmcp";
+   import { getSession } from "../lib/scalekit-auth";
+
+   export const metadata: ToolMetadata = {
+     name: "whoami",
+     description:
+       "Returns the authenticated user's session information",
+   };
+
+   export default function whoami(): string {
+     const session = getSession();
+     return JSON.stringify(
+       {
+         userId: session.userId,
+         scopes: session.scopes,
+         organizationId: session.organizationId || "N/A",
+         expiresAt: session.expiresAt.toISOString(),
+         issuedAt: session.issuedAt.toISOString(),
+       },
+       null,
+       2
+     );
+   }
+   ```
+
+   ```typescript title="src/tools/greet.ts"
+   import { z } from "zod";
+   import { type InferSchema, type ToolMetadata } from "xmcp";
+   import { getSession } from "../lib/scalekit-auth";
+
+   export const schema = {
+     name: z.string().describe("The name to greet"),
+   };
+
+   export const metadata: ToolMetadata = {
+     name: "greet",
+     description: "Greet the user with their Scalekit identity",
+   };
+
+   export default function greet({
+     name,
+   }: InferSchema<typeof schema>): string {
+     const session = getSession();
+     return `Hello, ${name}! Your user ID is ${session.userId}`;
+   }
+   ```
+
+8. ## Start the server
+
+   ```bash title="Terminal" frame="terminal"
+   npm run dev
+   ```
+
+   You should see:
+
+   ```
+   ✔ MCP Server running on http://127.0.0.1:3001/mcp
+   [Scalekit] Resolved JWKS URI: https://<your-env>.scalekit.com/keys
+   ```
+
+   The JWKS log confirms the server successfully connected to Scalekit and can validate tokens.
+
+9. ## Test with MCP Inspector
+
+   Verify the full flow using MCP Inspector.
+
+   ```bash title="Terminal" frame="terminal"
+   npx @modelcontextprotocol/inspector@latest
+   ```
+
+   In the Inspector UI:
+
+   1. Set transport to **Streamable HTTP**, URL to `http://localhost:3001/mcp`, connection to **Direct**
+
+   2. Get an access token using client credentials:
+
+      ```bash title="Terminal" frame="terminal"
+      curl -s -X POST "$SCALEKIT_ENVIRONMENT_URL/oauth/token" \
+        -H "Content-Type: application/x-www-form-urlencoded" \
+        -d "grant_type=client_credentials\
+      &client_id=$SCALEKIT_CLIENT_ID\
+      &client_secret=$SCALEKIT_CLIENT_SECRET" | jq .access_token -r
+      ```
+
+   3. Enable the **Authorization** custom header and set its value to `Bearer <token>`
+
+   4. Click **Connect** — you should see `whoami` and `greet` in the Tools tab
+
+   <Aside type="tip" title="Connect from Claude Code">
+     MCP clients that support OAuth 2.1 handle the full flow automatically — DCR, authorization code + PKCE, and token refresh. For Claude Code:
+
+     ```bash frame="none" showLineNumbers=false
+     claude mcp add --transport http xmcp-server http://localhost:3001/mcp
+     ```
+   </Aside>
+
+</Steps>
+
+You now have a working xmcp MCP server with Scalekit OAuth 2.1 authentication. Add more tools by creating files in `src/tools/`, and access the authenticated user from any tool via `getSession()`. For production deployment, build with `npm run build` and run the compiled output with `npm start`.
