@@ -24,64 +24,22 @@ next:
 
 import { Steps, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
 
-An **organization domain** is a domain your customer owns — such as `acmecorp.com` — that is registered with Scalekit and associated with that customer's organization. Proving domain ownership unlocks two key features:
+An **organization domain** is a domain your customer owns — such as `acmecorp.com`. Proving domain ownership unlocks two key features:
 
-- **Home Realm Discovery (SSO)**: When a user signs in with an email address matching a registered domain, Scalekit automatically routes them to that organization's SSO identity provider. No manual organization selection needed.
-- **SCIM provisioning**: Scalekit only processes SCIM user lifecycle events (create, update, deactivate) for users whose email domain matches a registered organization domain. This ensures only the organization that owns a domain can manage those users.
+- **[Home Realm Discovery (SSO)](/authenticate/auth-methods/enterprise-sso/#identify-and-enforce-sso-for-organization-users)**: When a user signs in with an email address matching a registered domain, Scalekit automatically routes them to that organization's SSO identity provider.
+- **[SCIM Provisioning](/authenticate/manage-users-orgs/scim-provisioning/)**: Scalekit only processes SCIM user lifecycle events (create, update, deactivate) for users whose email domain matches a registered organization domain. This ensures only the organization that owns a domain can manage those users.
 
-Without domain verification, an attacker could claim ownership of a domain, set up a fake SSO page (impersonating Okta, Azure AD, etc.), and intercept real user credentials. DNS-based verification ensures only the legitimate domain owner can register a domain in Scalekit.
-
-<Aside type="note" title="Different from allowed email domains">
-Organization domains (`ORGANIZATION_DOMAIN`) are verified via DNS and enable SSO routing and SCIM. [Allowed email domains](/authenticate/manage-users-orgs/email-domain-rules/) (`ALLOWED_EMAIL_DOMAIN`) let users auto-join an organization via the organization switcher, with no DNS verification required.
-</Aside>
-
-## How verification works
-
-When a domain is added with type `ORGANIZATION_DOMAIN`, Scalekit issues a unique DNS TXT record that the domain owner must publish. Scalekit's background verifier then polls the domain's DNS until the record appears or the verification window expires.
-
-**DNS TXT record to publish:**
-
-| Field | Value |
-|-------|-------|
-| **Type** | `TXT` |
-| **Name** | `@` (apex of the domain) |
-| **Value** | `<txt_record_key>=<txt_record_secret>` |
-| **TTL** | `500` |
-
-Both `txt_record_key` (e.g., `acme-corp-verify-dom_88351abc`) and `txt_record_secret` (a UUID) are returned in the API response when a domain is created. If you are building your own UI around the API, use these values to render instructions for the org admin.
-
-**Verification lifecycle:**
-
-```d2
-direction: right
-
-add: "Domain added\n(PENDING)"
-dns: "DNS check\n(background)"
-verified: "VERIFIED"
-failed: "FAILED\n(window expired)"
-
-add -> dns: "Scalekit polls DNS"
-dns -> verified: "TXT record found"
-dns -> failed: "Not found before\nexpiry"
-```
-
-- `PENDING` — domain was added, DNS check is in progress.
-- `VERIFIED` — TXT record confirmed. SSO routing and SCIM are active for this domain.
-- `FAILED` — verification window expired without a DNS match. The domain can be deleted and re-added.
-
-Domains added directly via the Scalekit Dashboard or API by your team are marked as `ADMIN`-verified — no DNS challenge is required. This is suitable for organizations whose domain ownership you have already confirmed through other means.
-
-## Add and verify a domain
+## Add and verify an organization domain
 
 ### Via Admin Portal <Badge text="No-code" variant="tip" />
 
-The Admin Portal gives the IT admin of a customer organization a self-serve way to add and verify their domain — without involving your engineering team. This is the recommended approach for production onboarding.
+The Admin Portal gives the admin of a customer organization a self-serve way to add and verify their domain — without involving your engineering team. This is the recommended approach for production onboarding.
 
 <Steps>
 
 1. ### Enable domain verification for the organization
 
-   Turn on the `domain_verification` feature for the organization. You can do this in the Scalekit Dashboard (navigate to **Organizations** → select the organization → **Overview** → toggle **Domain Verification**), or via the API:
+   Turn on the `Domain Verification` feature for the organization. You can do this in the Scalekit Dashboard (navigate to **Organizations** → select the organization → **Overview** → toggle **Domain Verification**), or via the API:
 
    ```sh title="Enable domain_verification feature" frame="terminal" showLineNumbers=false
    curl --request PATCH \
@@ -93,70 +51,48 @@ The Admin Portal gives the IT admin of a customer organization a self-serve way 
      }'
    ```
 
-2. ### Generate and share an Admin Portal link
+2. ### Generate an Admin Portal link and embed in your app
 
-   Generate a portal link scoped to the `domain_verification` feature and share it with your customer's IT admin:
+   Generate a admin portal link and embed in your application:
 
    ```sh title="Generate portal link for domain verification" frame="terminal" showLineNumbers=false
-   curl 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/<organization_id>/portal_links?features=domain_verification' \
+   curl 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/<organization_id>/portal_links' \
      --header 'Authorization: Bearer <ACCESS_TOKEN>'
    ```
 
-   Share the returned link URL via email, Slack, or any channel. The link expires after 7 days.
+3. ### Organization admin adds the domain and publishes the DNS record
 
-3. ### IT admin adds the domain and publishes the DNS record
-
-   The admin opens the portal link, clicks **Add domain**, and enters their domain name. The portal displays the TXT record to add:
-
-   | Field | Value |
-   |-------|-------|
-   | Type | `TXT` |
-   | Name | `@` |
-   | Value | `<txt_record_key>=<txt_record_secret>` |
-   | TTL | `500` |
-
-   The admin adds this record in their DNS provider (e.g., Cloudflare, Route 53, GoDaddy). Propagation typically takes a few minutes but can take up to 48 hours.
+   The admin opens the portal link, clicks **Add domain**, and enters their domain name. The portal displays the TXT record to add and verify domain ownership. The admin adds this record in their DNS provider (e.g., Cloudflare, Route 53, GoDaddy). Propagation typically takes a few minutes but can take up to 48 hours.
+  
+    ![Domain verification via admin portal](@/assets/docs/organization-domains/2026-05-26-19-01-37.png)
 
 4. ### Scalekit verifies the DNS record
 
    Scalekit polls the domain's DNS automatically. Once the TXT record is detected, the domain status changes to **Verified** and SSO routing and SCIM become active.
 
-   The admin can also click **Verify now** in the portal to trigger an immediate check rather than waiting for the next scheduled poll.
-
 </Steps>
 
 ### Via Hosted Widgets <Badge text="No-code" variant="tip" />
 
-Embed the Domain Verification widget directly in your app's settings UI so end-users can manage their organization's domains without leaving your product.
+Firstly, turn on the `domain_verification` feature for the organization.Redirect the end users to [Hosted widgets](/authenticate/manage-users-orgs/hosted-widgets/) directly to manage their organization's domains. The domain verification flow inside the widget is identical to the Admin Portal: the user enters a domain, the widget displays the TXT record to publish, and Scalekit verifies in the background.
 
-The widget is gated by Scalekit permissions on the user's organization role:
-
-| Permission | Access |
-|---|---|
-| `sk_org_settings_read` | View the **Manage Domains** tab — list verified and pending domains |
-| `sk_org_settings_write` | Full access — add a domain, trigger verification, delete a domain |
-
-These are the same settings permissions that already gate the Organization Settings widget. No new permission slugs are required for domain verification.
-
-The domain verification flow inside the widget is identical to the Admin Portal: the user enters a domain, the widget displays the TXT record to publish, and Scalekit verifies in the background (with an optional **Verify now** button for immediate checks).
-
-For embedding mechanics, see [Hosted UI widgets](/authenticate/manage-users-orgs/hosted-widgets/).
+![Domain verification via hosted widgets](@/assets/docs/organization-domains/2026-05-26-19-06-40.png)
 
 ### Via Scalekit Dashboard <Badge text="No-code" variant="tip" />
 
-Your team can add organization domains directly from the Scalekit Dashboard — useful for initial setup or when you have already verified ownership through other means.
+Your team can add organization domains directly from the Scalekit Dashboard, useful for initial setup or when you have already verified ownership through other means.
 
 1. Go to **Dashboard > Organizations** and select the target organization.
 2. Navigate to **Overview** > **Organization Domains**.
 3. Click **Add domain** and enter the domain name.
 
-Domains added this way are marked as **Admin-verified** — no DNS challenge is issued. They become active for SSO routing and SCIM immediately.
+![Domain verification via dashboard](@/assets/docs/organization-domains/2026-05-26-19-09-32.png)
+
+Domains added this way are marked as **Admin-verified**, no DNS verification is required. They become active for SSO routing and SCIM immediately.
 
 ### Via API <Badge text="API" variant="note" />
 
-Add and manage organization domains programmatically. Before starting, complete the [Scalekit setup guide](/authenticate/set-up-scalekit/).
-
-Domains created via the API are also **Admin-verified** by default. The API response includes `txt_record_key` and `txt_record_secret` — use these if you want to render the DNS verification instructions in your own UI.
+Add and manage organization domains programmatically. Domains created via the API are also **Admin-verified** by default, no DNS verification is required. Use this when you have already confirmed domain ownership through another process and want to activate SSO routing or SCIM immediately.
 
 <Tabs syncKey="tech-stack">
 <TabItem label="cURL">
@@ -328,21 +264,21 @@ Subscribe to these webhook events to react to domain lifecycle changes in your a
 
 | Event | Fires when |
 |-------|-----------|
-| `organization.domain_created` | A domain is added to an organization (any method) |
+| `organization.domain_created` | A domain is added to an organization via any method |
 | `organization.domain_deleted` | A domain is removed from an organization |
-| `organization.domain_dns_verification_success` | The background DNS check confirms TXT record ownership |
-| `organization.domain_dns_verification_failed` | The verification window expires without a successful DNS match |
+| `organization.domain_dns_verification_success` | The DNS check confirms domain ownership |
+| `organization.domain_dns_verification_failed` | The DNS verification window expired without a successful DNS match |
 
-See [Organization events](/reference/webhooks/organization-events/) for the full event payload schema.
+See [Organization domain events](/reference/webhooks/organization-events/#organization-domain-events) for the full event payload schema.
 
 ## Common scenarios
 
 <details>
-<summary>How is this different from allowed email domains?</summary>
+<summary>How is organization domains different from allowed email domains?</summary>
 
-[Allowed email domains](/authenticate/manage-users-orgs/email-domain-rules/) (`ALLOWED_EMAIL_DOMAIN`) let users with a matching email address see and join the organization via the organization switcher. They are auto-verified — no DNS record is required.
+[Allowed email domains](/authenticate/manage-users-orgs/email-domain-rules/#configure-allowed-email-domains) let users with a matching email address see and join the organization via the organization switcher.
 
-Organization domains (`ORGANIZATION_DOMAIN`) require DNS verification and unlock SSO routing (Home Realm Discovery) and SCIM event filtering. The distinction is about what the domain enables, not just who can join.
+Organization domains prove domain ownership by an organization and unlock SSO routing (Home Realm Discovery) and SCIM provisioning. The distinction is about what the domain enables, not just who can join.
 
 </details>
 
@@ -360,6 +296,6 @@ If the window expires before the record propagates, the domain status moves to `
 <details>
 <summary>Can I verify a domain without DNS?</summary>
 
-Yes. Domains added via the Scalekit Dashboard or API are marked as **Admin-verified** — no DNS record is required. Use this when you have already confirmed domain ownership through another process (contract, business verification, etc.) and want to activate SSO routing or SCIM immediately.
+Yes. Domains added via the Scalekit Dashboard or API are marked as **Admin-verified**, no DNS verification is required. Use this when you have already confirmed domain ownership through another process (contract, business verification, etc.) and want to activate SSO routing or SCIM immediately.
 
 </details>

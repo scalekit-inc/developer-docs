@@ -193,8 +193,8 @@ This webhook is triggered when a domain is added to an organization. The event t
     "id": "dom_1234567890",
     "domain": "acmecorp.com",
     "domain_type": "ORGANIZATION_DOMAIN",
-    "verification_status": "PENDING",
-    "verification_method": "DNS",
+    "verification_status": "VERIFIED",
+    "verification_method": "ADMIN",
     "create_time": "2024-01-15T11:00:00.123456789Z",
     "update_time": "2024-01-15T11:00:00.123456789Z"
   }
@@ -206,8 +206,8 @@ This webhook is triggered when a domain is added to an organization. The event t
 | `id` | string | Unique identifier for the domain (`dom_` prefix) |
 | `domain` | string | The domain name that was added |
 | `domain_type` | string | `ORGANIZATION_DOMAIN` for SSO/SCIM domains; `ALLOWED_EMAIL_DOMAIN` for auto-join domains |
-| `verification_status` | string | Current status: `PENDING`, `VERIFIED`, or `FAILED` |
-| `verification_method` | string | How the domain was verified: `DNS` (TXT record), `ADMIN` (added by the B2B app team), or `NOT_APPLICABLE` |
+| `verification_status` | string | Current status: `PENDING`, `VERIFIED`|
+| `verification_method` | string | How the domain was verified: `DNS` (TXT record), `ADMIN` (added by the B2B app team), or `NOT_APPLICABLE`(for allowed email domains) |
 | `create_time` | string | Timestamp of when the domain was added |
 | `update_time` | string | Timestamp of the last status update |
 
@@ -248,7 +248,7 @@ This webhook is triggered when a domain is removed from an organization. The eve
 
 ### `organization.domain_dns_verification_success`
 
-This webhook is triggered when Scalekit's background DNS check successfully confirms that the organization has published the required TXT record for a domain. The event type is `organization.domain_dns_verification_success`
+This webhook is triggered when Scalekit's background DNS check successfully confirms that the organization has published the required TXT record for an organization domain. The event type is `organization.domain_dns_verification_success`
 
 ```json title="organization.domain_dns_verification_success"
 {
@@ -283,7 +283,7 @@ This webhook is triggered when Scalekit's background DNS check successfully conf
 
 ### `organization.domain_dns_verification_failed`
 
-This webhook is triggered when the domain verification window expires without a successful DNS TXT record match. The event type is `organization.domain_dns_verification_failed`
+This webhook is triggered when the domain verification window expires without a successful DNS TXT record match for an organization domain. The event type is `organization.domain_dns_verification_failed`
 
 ```json title="organization.domain_dns_verification_failed"
 {
