@@ -37,13 +37,13 @@ import InstallSDK from '@components/templates/_installsdk.mdx';
 
 Multi-tenant applications often need a different callback URL for each customer. Instead of registering a separate redirect URL for every organization, you can register a single template that Scalekit expands per organization at runtime.
 
-For example, `https://{{slug}}/oauth/callback` expands to `https://auth.megasoft.com/oauth/callback` for Megasoft and `https://auth.betacorp.com/oauth/callback` for Beta Corp, with no additional configuration needed.
+For example, `https://{{org_slug}}/oauth/callback` expands to `https://auth.megasoft.com/oauth/callback` for Megasoft and `https://auth.betacorp.com/oauth/callback` for Beta Corp, with no additional configuration needed.
 
 ## Available template variables
 
 | Variable | Source | Example value |
 |---|---|---|
-| `{{slug}}` | Organization's slug field. Can be a single DNS label (`megasoft`) or a full hostname (`auth.megasoft.com`). | `auth.megasoft.com` |
+| `{{org_slug}}` | Organization's slug field. Can be a single DNS label (`megasoft`) or a full hostname (`auth.megasoft.com`). | `auth.megasoft.com` |
 | `{{external_id}}` | Organization's external ID from your system. | `megasoft-123` |
 | `{{custom_domain}}` | Any key stored in the organization's metadata. | `metadata.custom_domain = "auth.megasoft.com"` |
 
@@ -62,20 +62,20 @@ Supported patterns for redirect URLs:
 
 | Pattern | Example | Notes |
 |---|---|---|
-| Subdomain | `https://{{slug}}.yourapp.com/callback` | `{{slug}}` is a single DNS label such as `acme` |
-| Full host | `https://{{slug}}/callback` | `{{slug}}` is a full hostname such as `auth.megasoft.com` |
+| Subdomain | `https://{{org_slug}}.yourapp.com/callback` | `{{org_slug}}` is a single DNS label such as `acme` |
+| Full host | `https://{{org_slug}}/callback` | `{{org_slug}}` is a full hostname such as `auth.megasoft.com` |
 | Custom domain | `https://{{custom_domain}}/callback` | Value comes from org metadata |
-| Path variable | `https://yourapp.com/{{slug}}/callback` | Variable in the path component |
+| Path variable | `https://yourapp.com/{{org_slug}}/callback` | Variable in the path component |
 
 <Aside type="caution" title="DNS label constraint">
-Template variables cannot span part of a DNS label. `https://app-{{slug}}.yourapp.com` is not valid; the placeholder must occupy the entire DNS label or the entire host.
+Template variables cannot span part of a DNS label. `https://app-{{org_slug}}.yourapp.com` is not valid; the placeholder must occupy the entire DNS label or the entire host.
 </Aside>
 
 At runtime, Scalekit substitutes each `{{variable}}` with its resolved value, validates the expanded URL against registered templates, and redirects the user. For logout, the organization is resolved from the active session; if the session has expired, template expansion is skipped and the redirect is rejected.
 
 ## Set slug or metadata for an organization
 
-Set `slug` on an organization to expand `{{slug}}` templates. Store any key in organization `metadata` to use it as a custom variable like `{{custom_domain}}`. Setting just one is enough — use whichever fits your registered URL pattern.
+Set `slug` on an organization to expand `{{org_slug}}` templates. Store any key in organization `metadata` to use it as a custom variable like `{{custom_domain}}`. Setting just one is enough — use whichever fits your registered URL pattern.
 
 ### Via dashboard
 
@@ -212,7 +212,7 @@ If no organization is in scope, the template is not expanded and the request is 
 
 1. **Register the URL pattern**
 
-   In **Dashboard > Authentication > Redirects > Allowed callback URLs**, add the URL as `https://{{slug}}/oauth/callback`.
+   In **Dashboard > Authentication > Redirects > Allowed callback URLs**, add the URL as `https://{{org_slug}}/oauth/callback`.
 
 2. **Set the organization's slug**
 
@@ -228,4 +228,4 @@ If no organization is in scope, the template is not expanded and the request is 
 
 4. **Scalekit validates and redirects**
 
-   Scalekit matches `https://auth.megasoft.com/oauth/callback` against the registered pattern `https://{{slug}}/oauth/callback` using Megasoft's slug and redirects the user.
+   Scalekit matches `https://auth.megasoft.com/oauth/callback` against the registered pattern `https://{{org_slug}}/oauth/callback` using Megasoft's slug and redirects the user.
