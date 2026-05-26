@@ -1,0 +1,274 @@
+---
+title: 'Route LLM calls through FastRouter with Scalekit AgentKit tools'
+description: 'Build a Node.js agent that uses FastRouter as its LLM provider and Scalekit AgentKit for per-user OAuth-connected tools — Gmail, GitHub, Slack, and more — without writing OAuth code per integration.'
+date: 2026-05-26
+tags: ['Agent auth', 'Gmail', 'FastRouter', 'Tool calling', 'AgentKit']
+sidebar:
+  label: 'Tool calling with FastRouter'
+tableOfContents: true
+excerpt: >
+  Connect FastRouter's OpenAI-compatible API to per-user OAuth tools via Scalekit AgentKit. The agent discovers available tools, runs an agentic loop through FastRouter, and executes each tool call via Scalekit — no per-integration OAuth code required.
+featured: false
+authors:
+  - name: 'Saif'
+    title: 'Developer Advocate'
+    url: 'https://www.linkedin.com/in/saif-shines/'
+    picture: '/images/blog/authors/saif.png'
+---
+
+import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Build an agent that routes LLM calls through [FastRouter](https://fastrouter.ai) and executes OAuth-connected tools through Scalekit AgentKit. FastRouter provides an OpenAI-compatible chat completions API, so the integration requires only one configuration change: point the OpenAI SDK's `baseURL` at FastRouter. Scalekit handles OAuth token storage, tool discovery, and tool execution for every connected service.
+
+The sample repository is **[fastrouter-scalekit-demo](https://github.com/scalekit-developers/fastrouter-scalekit-demo)** on GitHub.
+
+## What you are building
+
+- **FastRouter as the LLM provider** — All chat completions go through FastRouter's OpenAI-compatible endpoint. Switch models by changing one environment variable.
+- **Scalekit AgentKit for tool access** — `listScopedTools` returns per-user tool schemas ready to pass directly to FastRouter. `executeTool` runs each tool server-side and returns structured results.
+- **B2B OAuth without custom OAuth code** — Scalekit handles the OAuth flow, token storage, and refresh for each connected service. Your agent gets an auth link, waits for the user to authorize, and receives a verified, active connected account.
+- **Agentic loop** — The agent calls FastRouter, receives tool calls, executes them through Scalekit, and feeds results back — repeating until FastRouter returns a final answer.
+
+## Prerequisites
+
+- Scalekit account with AgentKit enabled — [create one at app.scalekit.com](https://app.scalekit.com)
+- At least one AgentKit connection configured (Gmail, GitHub, or Slack)
+- FastRouter account and API key — [sign up at fastrouter.ai](https://fastrouter.ai)
+- Node.js 20 or later
+
+## Clone and run the sample
+
+<Steps>
+
+1. **Clone the repository and install dependencies.**
+
+   ```sh
+   git clone https://github.com/scalekit-developers/fastrouter-scalekit-demo
+   cd fastrouter-scalekit-demo
+   npm install
+   ```
+
+2. **Copy the example environment file and fill in your credentials.**
+
+   ```sh
+   cp .env.example .env
+   ```
+
+   Open `.env` and set these values:
+
+   ```sh
+   # Scalekit — find these in your Scalekit dashboard under API Keys
+   SCALEKIT_ENVIRONMENT_URL=https://your-env.scalekit.dev
+   SCALEKIT_CLIENT_ID=your_client_id
+   SCALEKIT_CLIENT_SECRET=your_client_secret
+
+   # The AgentKit connection to use — must match a connection name in your dashboard
+   SCALEKIT_CONNECTION_NAME=gmail
+
+   # FastRouter — find your API key at fastrouter.ai/dashboard
+   FASTROUTER_API_KEY=sk-v1-...
+   FASTROUTER_MODEL=openai/gpt-4o-mini
+   ```
+
+   `SCALEKIT_CONNECTION_NAME` must match the exact connection name in your Scalekit dashboard under **AgentKit → Connections**.
+
+3. **Run the agent.**
+
+   ```sh
+   npm start
+   ```
+
+4. **Authorize the connection on first run.**
+
+   The agent prints an authorization link if the connected account is not yet active:
+
+   ```
+   Authorization required.
+   Open this link and complete the flow:
+
+   https://your-env.scalekit.dev/magicLink/...
+
+   Waiting for callback on http://localhost:3000/callback ...
+   ```
+
+   Open the link in your browser and complete the OAuth flow. The agent detects the callback automatically and continues — no manual step required.
+
+</Steps>
+
+After authorization, the agent loads tools, calls FastRouter, and prints a final answer:
+
+```
+Connected account is now active.
+Loaded 17 scoped tools from Scalekit.
+Model requested 1 tool call(s).
+
+→ Executing gmail_list_messages
+  args: {"maxResults":5,"q":"is:unread"}
+
+Final answer:
+
+Here are your 5 most recent unread emails: ...
+```
+
+## How the agent works
+
+Three pieces connect FastRouter to Scalekit tools.
+
+### B2B OAuth connects user accounts without custom token code
+
+Scalekit handles the full OAuth flow. Your agent calls `getOrCreateConnectedAccount` to check whether the user's account is already connected, then calls `getAuthorizationLink` to get an auth URL if it isn't.
+
+```typescript
+const userVerifyUrl = 'http://localhost:3000/callback';
+
+const { connectedAccount } = await scalekit.actions.getOrCreateConnectedAccount({
+  connectionName: 'gmail',
+  identifier: 'user_123',
+  userVerifyUrl,
+});
+
+if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
+  const { link } = await scalekit.actions.getAuthorizationLink({
+    connectionName: 'gmail',
+    identifier: 'user_123',
+    userVerifyUrl,
+  });
+  // Show link to user, wait for callback
+}
+```
+
+`userVerifyUrl` is where Scalekit redirects after the OAuth flow completes. The sample runs a minimal HTTP server on `localhost:3000` to catch that redirect, extract the `auth_request_id` parameter, and call `verifyConnectedAccountUser` to mark the account active:
+
+```typescript
+async function waitForCallback(port: number): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const server = http.createServer((req, res) => {
+      const url = new URL(req.url ?? '/', `http://localhost:${port}`);
+      const authRequestId = url.searchParams.get('auth_request_id');
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.end('<html><body><h2>Authorization complete — return to your terminal.</h2></body></html>');
+      server.close();
+      if (authRequestId) resolve(authRequestId);
+      else reject(new Error('No auth_request_id in callback'));
+    });
+    server.listen(port);
+  });
+}
+
+const authRequestId = await waitForCallback(3000);
+await scalekit.actions.verifyConnectedAccountUser({
+  authRequestId,
+  identifier: 'user_123',
+});
+```
+
+<Aside type="tip">
+In a production web app, replace `localhost:3000/callback` with your server's callback endpoint. Scalekit posts the `auth_request_id` there, and your handler calls `verifyConnectedAccountUser` to complete account activation.
+</Aside>
+
+### Tool discovery returns schemas in FastRouter's expected format
+
+`listScopedTools` returns only the tools the connected account has permission to use. Map each tool's `input_schema` to the `parameters` field FastRouter expects:
+
+```typescript
+const { tools } = await scalekit.tools.listScopedTools('user_123', {
+  filter: { connectionNames: ['gmail'] },
+  pageSize: 100,
+});
+
+const fastRouterTools = tools
+  .map((t) => t.tool?.definition)
+  .filter((def): def is NonNullable<typeof def> => Boolean(def?.name))
+  .map((def) => ({
+    type: 'function' as const,
+    function: {
+      name: String(def.name),
+      description: String(def.description ?? ''),
+      parameters: def.input_schema ?? { type: 'object', properties: {} },
+    },
+  }));
+```
+
+FastRouter uses the same function-calling format as OpenAI. No additional schema transformation is needed.
+
+### The agentic loop runs until the model stops requesting tools
+
+Pass the tool list to FastRouter and execute each tool call through Scalekit until the model returns a response with no tool calls:
+
+```typescript
+const messages: OpenAI.ChatCompletionMessageParam[] = [
+  { role: 'system', content: 'You are a helpful assistant. Use tools when they help. Do not invent tool results.' },
+  { role: 'user', content: 'Fetch my last 5 unread emails and summarize them.' },
+];
+
+for (let turn = 0; turn < 8; turn++) {
+  const response = await fastRouter.chat.completions.create({
+    model: 'openai/gpt-4o-mini',
+    messages,
+    tools: fastRouterTools,
+    tool_choice: 'auto',
+  });
+
+  const message = response.choices[0].message;
+  messages.push(message);
+
+  // No tool calls means a final answer
+  if (!message.tool_calls?.length) {
+    console.log(message.content);
+    return;
+  }
+
+  // Execute each tool call and append the result
+  for (const call of message.tool_calls) {
+    const result = await scalekit.actions.executeTool({
+      toolName: call.function.name,
+      identifier: 'user_123',
+      connector: 'gmail',
+      toolInput: JSON.parse(call.function.arguments),
+    });
+
+    messages.push({
+      role: 'tool',
+      tool_call_id: call.id,
+      content: JSON.stringify(result.data ?? {}),
+    });
+  }
+}
+```
+
+`executeTool` runs the tool server-side using the connected account's stored OAuth tokens. Your agent never handles raw access tokens.
+
+## Customize the agent
+
+**Change the connection.** Set `SCALEKIT_CONNECTION_NAME` to any connection configured in your Scalekit dashboard:
+
+| Value | What it connects |
+|-------|-----------------|
+| `gmail` | Gmail read/send |
+| `github` | Repositories, issues, pull requests |
+| `slack` | Channels, messages, users |
+
+**Change the model.** Set `FASTROUTER_MODEL` in `.env` to any model FastRouter supports. The agent uses the same code regardless of which model you choose.
+
+**Change the prompt.** Pass a prompt as a CLI argument to override the default:
+
+```sh
+npm start "List all GitHub pull requests assigned to me"
+```
+
+Or set `USER_PROMPT` in `.env` to change the default.
+
+**Support multiple connections.** Call `listScopedTools` with multiple connection names to give the model tools from all of them at once:
+
+```typescript
+const { tools } = await scalekit.tools.listScopedTools('user_123', {
+  filter: { connectionNames: ['gmail', 'github', 'slack'] },
+});
+```
+
+## Next steps
+
+- **[Scalekit AgentKit overview](/agentkit)** — Understand connected accounts, tool discovery, and tool execution in depth.
+- **[AgentKit connections](/agentkit/connectors)** — Set up Gmail, GitHub, Slack, and other connections.
+- **[OpenAI example](/agentkit/examples/openai)** — See the same tool-calling pattern with OpenAI directly.
+- **[LiteLLM inbox triage cookbook](/cookbooks/litellm-agentkit-inbox-triage)** — A more complex multi-connection agent with a web approval interface.
