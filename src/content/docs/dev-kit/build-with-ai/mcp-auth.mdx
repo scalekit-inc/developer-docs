@@ -1,7 +1,7 @@
 ---
 title: 'MCP quickstart with AI coding agents'
 description: 'Use AI coding agents to add OAuth 2.1 authentication to your MCP servers in minutes'
-tags: [mcp-auth, quickstart, ai-agents, oauth2, coding-agents, automation]
+tags: [saaskit, mcp-auth, quickstart, ai-agents, oauth2, coding-agents, automation]
 sidebar:
   label: 'MCP auth'
 tableOfContents: false
@@ -29,41 +29,44 @@ seeAlso:
       url: 'https://github.com/scalekit-inc/mcp-demo'
 ---
 
-import { TabItem, Aside } from '@astrojs/starlight/components'
-import Tabs from '@components/ui/Tabs.astro'
-import {
-  MCPAuthClaudeCodeSection,
-  MCPAuthCodexSection,
-  MCPAuthGitHubCopilotCLISection,
-  CursorCodingAgentSection,
-  SkillsCLICodingAgentSection
-} from '@/components/templates'
+import { Steps, Aside } from '@astrojs/starlight/components'
+import SupportedAgents from '@components/ui/SupportedAgents.astro'
 
-Use AI coding agents like Claude Code, GitHub Copilot CLI, Cursor, and OpenCode to add Scalekit's OAuth 2.1 authentication to your MCP servers. This guide shows you how to configure these agents so they analyze your codebase, apply consistent authentication patterns, and generate production-ready code that integrates OAuth 2.1 end-to-end, reduces implementation time from hours to minutes, and follows security best practices.
+Use AI coding agents to add Scalekit's OAuth 2.1 authentication to your MCP servers. The agent analyzes your codebase, applies consistent authentication patterns, and generates production-ready code that integrates OAuth 2.1 end-to-end.
 
 **Prerequisites**
 
 - A [Scalekit account](https://app.scalekit.com) with MCP server management access
 - Basic familiarity with OAuth 2.1 and MCP server architecture
-- Terminal access for installing coding agent tools
 
-<Tabs syncKey="coding-agent">
-  <TabItem label="Claude Code" icon="claude">
-    <MCPAuthClaudeCodeSection />
-  </TabItem>
-  <TabItem label="Codex" icon="codex">
-    <MCPAuthCodexSection />
-  </TabItem>
-  <TabItem label="GitHub Copilot CLI" icon="githubcopilot">
-    <MCPAuthGitHubCopilotCLISection />
-  </TabItem>
-  <TabItem label="Cursor" icon="cursor">
-    <CursorCodingAgentSection />
-  </TabItem>
-  <TabItem label="40+ agents" icon="sparkle">
-    <SkillsCLICodingAgentSection />
-  </TabItem>
-</Tabs>
+```bash showLineNumbers=false frame="none"
+npx @scalekit-inc/cli setup
+```
+
+<SupportedAgents hideCommand />
+
+<Steps>
+1. ## Generate authentication implementation
+
+   Copy this prompt into your coding agent:
+
+   ```md wrap showLineNumbers=false title="MCP Auth implementation prompt"
+   Add OAuth 2.1 authentication to my MCP server using Scalekit. Initialize ScalekitClient with environment credentials, implement /.well-known/ metadata endpoint for discovery, and add authentication middleware that validates JWT bearer tokens on all MCP requests. Code only.
+   ```
+
+   <Aside type="caution" title="Review generated code">
+   Always review AI-generated authentication code before deployment. Verify that environment variables, token validation logic, and error handling match your security requirements.
+   </Aside>
+
+2. ## Verify the implementation
+
+   Check that generated files include:
+   - Authentication middleware with JWT validation
+   - Environment variable configuration (`.env.example`)
+   - OAuth discovery endpoint (`/.well-known/oauth-authorization-server`)
+   - Error handling for invalid or expired tokens
+
+</Steps>
 
 ## Next steps
 

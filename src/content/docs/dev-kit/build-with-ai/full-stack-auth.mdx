@@ -1,7 +1,7 @@
 ---
 title: 'Coding agents: Add full-stack auth to your app'
 description: 'Let your coding agents guide you into implementing Scalekit full-stack authentication in minutes'
-tags: [full-stack-auth, quickstart]
+tags: [saaskit, full-stack-auth, quickstart]
 sidebar:
   label: 'Full stack auth'
 tableOfContents: false
@@ -29,32 +29,37 @@ seeAlso:
       url: '/authenticate/fsa/quickstart/'
 ---
 
-import { TabItem, Aside } from '@astrojs/starlight/components'
-import Tabs from '@components/ui/Tabs.astro'
-import {
-  FSAClaudeCodeSection,
-  FSACodexSection,
-  FSAGitHubCopilotCLISection,
-  CursorCodingAgentSection,
-  SkillsCLICodingAgentSection
-} from '@/components/templates'
+import { Steps, Aside } from '@astrojs/starlight/components'
+import SupportedAgents from '@components/ui/SupportedAgents.astro'
 
-Use AI coding agents like Claude Code, GitHub Copilot CLI, Cursor, and OpenCode to implement Scalekit's full-stack authentication end-to-end in your web applications. This guide shows you how to configure these agents so they analyze your codebase, apply consistent authentication patterns, and generate production-ready code for login, session management, and logout that follows security best practices while reducing implementation time from hours to minutes.
+Use AI coding agents to implement Scalekit's full-stack authentication in your web applications. The agent analyzes your codebase and generates production-ready code for login, session management, and logout.
 
-<Tabs syncKey="coding-agent">
-  <TabItem label="Claude Code" icon="claude">
-    <FSAClaudeCodeSection />
-  </TabItem>
-  <TabItem label="Codex" icon="codex">
-    <FSACodexSection />
-  </TabItem>
-  <TabItem label="GitHub Copilot CLI" icon="githubcopilot">
-    <FSAGitHubCopilotCLISection />
-  </TabItem>
-  <TabItem label="Cursor" icon="cursor">
-    <CursorCodingAgentSection />
-  </TabItem>
-  <TabItem label="40+ agents" icon="sparkle">
-    <SkillsCLICodingAgentSection />
-  </TabItem>
-</Tabs>
+```bash showLineNumbers=false frame="none"
+npx @scalekit-inc/cli setup
+```
+
+<SupportedAgents hideCommand />
+
+<Steps>
+1. ## Generate authentication implementation
+
+   Copy this prompt into your coding agent:
+
+   ```md wrap showLineNumbers=false title="Full Stack Auth implementation prompt"
+   Implement Scalekit full-stack auth — initialize ScalekitClient with environment credentials, implement the login redirect, handle the OAuth callback to exchange the code for tokens, store the session securely, and add a logout endpoint that clears the session. Code only.
+   ```
+
+   <Aside type="caution" title="Review generated code">
+   Always review AI-generated authentication code before deployment. Verify that environment variables, token validation logic, and error handling match your security requirements.
+   </Aside>
+
+2. ## Verify the implementation
+
+   Check that generated files include:
+   - Scalekit client initialization with environment credentials
+   - Login route that redirects to Scalekit's authorization endpoint
+   - OAuth callback route that exchanges the code for tokens
+   - Secure session storage with proper cookie attributes
+   - Logout endpoint that clears the session
+
+</Steps>
