@@ -361,6 +361,7 @@ export const sidebar = [
           'authenticate/mcp/fastmcp-quickstart',
           'authenticate/mcp/fastapi-fastmcp-quickstart',
           'authenticate/mcp/expressjs-quickstart',
+          'authenticate/mcp/xmcp-quickstart',
         ],
       },
       {
