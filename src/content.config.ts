@@ -21,6 +21,7 @@ export const collections = {
               connectorIcon: z.string().optional(),
               connectorAuthType: z.string().optional(),
               connectorCategories: z.array(z.string()).optional(),
+              descriptionHtml: z.string().optional(),
             }),
           )
           .merge(

@@ -39,6 +39,22 @@ function loadCapabilityOverrides() {
 const CAPABILITY_OVERRIDES = loadCapabilityOverrides()
 
 // ---------------------------------------------------------------------------
+// Description HTML overrides — hand-curated anchor-enriched descriptions
+// ---------------------------------------------------------------------------
+
+function loadDescriptionHtmlOverrides() {
+  const overridesPath = path.join(__dirname, '../src/data/agent-connectors/description-html.json')
+  try {
+    const raw = fs.readFileSync(overridesPath, 'utf8')
+    return JSON.parse(raw)
+  } catch {
+    return {}
+  }
+}
+
+const DESCRIPTION_HTML_OVERRIDES = loadDescriptionHtmlOverrides()
+
+// ---------------------------------------------------------------------------
 // Env loader (using dotenv)
 // ---------------------------------------------------------------------------
 
@@ -1256,6 +1272,8 @@ function generateMdxContent(provider, tools) {
   }
   descClean = descClean.replace(/'/g, "''")
   lines.push(`description: '${descClean}'`)
+  const descriptionHtml = DESCRIPTION_HTML_OVERRIDES[providerSlug]
+  if (descriptionHtml) lines.push(`descriptionHtml: '${descriptionHtml.replace(/'/g, "''")}'`)
   lines.push('sidebar:')
   lines.push(`  label: '${providerName.replace(/'/g, "''")}'`)
   lines.push(`overviewTitle: 'Quickstart'`)
