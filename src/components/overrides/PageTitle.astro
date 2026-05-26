@@ -1,6 +1,7 @@
 ---
 import StarlightPageActionsPageTitle from 'starlight-page-actions/overrides/PageTitle.astro'
 import { AGENT_PLUGIN_HEADER } from '@/configs/agent-instructions'
+import { sanitizeDescriptionHtml } from '@/utils/sanitize-description-html'
 const {
   title,
   description,
@@ -9,6 +10,7 @@ const {
   connectorAuthType,
   connectorCategories,
 } = Astro.locals.starlightRoute.entry.data
+const safeDescriptionHtml = descriptionHtml ? sanitizeDescriptionHtml(descriptionHtml) : undefined
 const isConnectorPage = Boolean(connectorIcon)
 ---
 
@@ -28,8 +30,8 @@ const isConnectorPage = Boolean(connectorIcon)
                 <span class="connector-chip cat-chip">{cat}</span>
               ))}
             </div>
-            {descriptionHtml ? (
-              <p class="page-description" set:html={descriptionHtml} />
+            {safeDescriptionHtml ? (
+              <p class="page-description" set:html={safeDescriptionHtml} />
             ) : (
               description && <p class="page-description">{description}</p>
             )}

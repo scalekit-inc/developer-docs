@@ -6,6 +6,7 @@ import { videosSchema } from 'starlight-videos/schemas'
 import { githubReleasesLoader } from 'astro-loader-github-releases'
 import { githubFilesLoader } from './loaders/github-files-loader'
 import { blogSchema } from 'starlight-blog/schema'
+import { sanitizeDescriptionHtml } from './utils/sanitize-description-html'
 
 export const collections = {
   docs: defineCollection({
@@ -21,7 +22,10 @@ export const collections = {
               connectorIcon: z.string().optional(),
               connectorAuthType: z.string().optional(),
               connectorCategories: z.array(z.string()).optional(),
-              descriptionHtml: z.string().optional(),
+              descriptionHtml: z
+                .string()
+                .optional()
+                .transform((v) => (v ? sanitizeDescriptionHtml(v) : v)),
             }),
           )
           .merge(
