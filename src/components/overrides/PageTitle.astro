@@ -1,8 +1,14 @@
 ---
 import StarlightPageActionsPageTitle from 'starlight-page-actions/overrides/PageTitle.astro'
 import { AGENT_PLUGIN_HEADER } from '@/configs/agent-instructions'
-const { title, description, connectorIcon, connectorAuthType, connectorCategories } =
-  Astro.locals.starlightRoute.entry.data
+const {
+  title,
+  description,
+  descriptionHtml,
+  connectorIcon,
+  connectorAuthType,
+  connectorCategories,
+} = Astro.locals.starlightRoute.entry.data
 const isConnectorPage = Boolean(connectorIcon)
 ---
 
@@ -22,7 +28,11 @@ const isConnectorPage = Boolean(connectorIcon)
                 <span class="connector-chip cat-chip">{cat}</span>
               ))}
             </div>
-            {description && <p class="page-description">{description}</p>}
+            {descriptionHtml ? (
+              <p class="page-description" set:html={descriptionHtml} />
+            ) : (
+              description && <p class="page-description">{description}</p>
+            )}
           </div>
         </div>
         {/* display:contents lets the action buttons become direct flex children,
@@ -34,7 +44,11 @@ const isConnectorPage = Boolean(connectorIcon)
     ) : (
       <>
         <StarlightPageActionsPageTitle />
-        {description && <p class="page-description">{description}</p>}
+        {descriptionHtml ? (
+          <p class="page-description" set:html={descriptionHtml} />
+        ) : (
+          description && <p class="page-description">{description}</p>
+        )}
       </>
     )
   }
@@ -57,6 +71,11 @@ const isConnectorPage = Boolean(connectorIcon)
     color: var(--sl-color-gray-2);
     font-size: var(--sl-text-sm);
     line-height: 1.6;
+  }
+
+  .page-description :global(a) {
+    color: inherit !important;
+    text-decoration: underline;
   }
 
   .page-title-wrapper :global(.actions-container) {
