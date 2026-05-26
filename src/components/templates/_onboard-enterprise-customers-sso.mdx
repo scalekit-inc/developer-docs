@@ -226,23 +226,47 @@ Before onboarding enterprise customers, ensure you have completed the [Full Stac
 
    After SSO is configured, verify the organization's email domains to enable automatic SSO routing. When domains are verified, users with matching email addresses are automatically redirected to their organization's SSO login.
 
-   **Verification methods:**
-
-   - **DNS verification** <Badge text="Coming soon" variant="note" />: Organization admins add a DNS TXT record to prove domain ownership through the admin portal
-   - **Manual verification**: Request domain verification through the Scalekit dashboard when domain ownership is already established
-
-   To manually verify a domain:
-
-   - Navigate to **Dashboard > Organizations** and select the organization
-   - Go to **Overview > Organization Domains**
-   - Add the domain (e.g., `megacorp.com`) through the dashboard
-
-   Once verified, users with email addresses from that domain (e.g., `user@megacorp.com`) can authenticate using their organization's SSO.
-
    <Aside type="note" title="Home realm discovery">
    Domain verification enables home realm discovery, where Scalekit automatically determines which identity provider to use based on the user's email domain.
    </Aside>
+
+   ### Manual verification (no DNS required)
+
+   Domains added via the Scalekit Dashboard or API are marked as **Admin-verified** — no DNS challenge is required. Use this when you have already confirmed domain ownership through another process (contract, business verification, etc.) and want to activate SSO routing immediately.
+
+   **Via Scalekit Dashboard:**
+
+   - Navigate to **Dashboard > Organizations** and select the organization
+   - Go to **Overview > Organization Domains**
+   - Click **Add domain** and enter the domain name (e.g., `megacorp.com`)
+
    ![Organization domain verification in dashboard](@/assets/docs/_onboard-enterprise-customers-sso/org_domain.png)
+
+   **Via API:**
+
+   ```sh frame="terminal" showLineNumbers=false
+   curl 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/<organization_id>/domains' \
+     --request POST \
+     --header 'Authorization: Bearer <ACCESS_TOKEN>' \
+     --header 'Content-Type: application/json' \
+     --data '{
+       "domain": "megacorp.com",
+       "domain_type": "ORGANIZATION_DOMAIN"
+     }'
+   ```
+
+   ### DNS verification (self-serve for org admins)
+
+   DNS verification lets your customer's IT admin prove domain ownership by publishing a TXT record — without involving your team. Scalekit displays the TXT record to publish, then polls DNS automatically until verified.
+
+   1. Enable the `domain_verification` feature for the organization (Dashboard org **Overview** → toggle **Domain Verification**, or via the API).
+   2. Generate an Admin Portal link and share it with the org admin.
+   3. The admin enters the domain in the portal, copies the displayed TXT record, and adds it to their DNS provider (e.g., Cloudflare, Route 53, GoDaddy).
+   4. Scalekit detects the TXT record automatically and marks the domain as **Verified**.
+
+   See [Organization domains](/authenticate/manage-users-orgs/organization-domains/) for the full step-by-step guide and SDK code examples.
+
+   Once verified, users with email addresses from that domain (e.g., `user@megacorp.com`) can authenticate using their organization's SSO.
 
 </Steps>
 
