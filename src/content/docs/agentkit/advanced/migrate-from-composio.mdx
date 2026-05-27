@@ -4,7 +4,8 @@ description: 'Map Composio concepts to Scalekit AgentKit equivalents and update 
 sidebar:
   label: 'Migrate from Composio'
 tags: [agentkit, migration, composio, tool-calling]
-tableOfContents: true
+tableOfContents:
+  maxHeadingLevel: 3
 head:
   - tag: style
     content: |
@@ -45,14 +46,14 @@ This guide maps Composio concepts to their Scalekit AgentKit equivalents and wal
 | `COMPOSIO_SEARCH_TOOLS` | No equivalent | Use `listScopedTools` with connection name filters |
 | `COMPOSIO_REMOTE_WORKBENCH` | No equivalent | No remote sandbox execution |
 
-## Step 1: Set up Scalekit
+## 1. Set up Scalekit
 
 <Steps>
-1. ## Create a Scalekit account
+1. **Create a Scalekit account**
 
    Sign up at [app.scalekit.com](https://app.scalekit.com) and copy your API credentials from **Dashboard > Developers > Settings > API Credentials**.
 
-2. ## Set environment variables
+2. **Set environment variables**
 
    Replace Composio's environment variable with Scalekit's three credentials.
 
@@ -68,7 +69,7 @@ This guide maps Composio concepts to their Scalekit AgentKit equivalents and wal
    SCALEKIT_ENV_URL=https://your-env.scalekit.com
    ```
 
-3. ## Install the SDK
+3. **Install the SDK**
 
    <Tabs syncKey="tech-stack">
      <TabItem label="Python">
@@ -95,7 +96,7 @@ This guide maps Composio concepts to their Scalekit AgentKit equivalents and wal
      </TabItem>
    </Tabs>
 
-4. ## Initialize the client
+4. **Initialize the client**
 
    Composio uses a session-based model with per-framework provider packages. Scalekit uses a single client instance.
 
@@ -150,7 +151,7 @@ This guide maps Composio concepts to their Scalekit AgentKit equivalents and wal
 
 </Steps>
 
-## Step 2: Configure connections
+## 2. Configure connections
 
 In Composio, auth configs are created programmatically or via the dashboard. In Scalekit, you configure **connections** in the dashboard.
 
@@ -168,11 +169,11 @@ For each Composio toolkit your agent uses (Gmail, Slack, GitHub, etc.), create a
   Some connectors offer a **Use Scalekit credentials** option that lets you skip OAuth app registration during development. Switch to your own credentials before production. See [Bring your own OAuth](/agentkit/advanced/bring-your-own-oauth/).
 </Aside>
 
-## Step 3: Migrate authentication
+## 3. Migrate authentication
 
 Both platforms create per-user records (connected accounts) and generate OAuth links. The SDK methods differ.
 
-### Create a connected account and authorize
+#### Create a connected account and authorize
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Python">
@@ -235,7 +236,7 @@ if (connectedAccount?.status !== 'ACTIVE') {
 
 **Key difference:** Composio can trigger auth in-chat automatically. With Scalekit, your app explicitly creates the connected account and sends the authorization link to the user. Once the user completes the OAuth flow, the connected account becomes `ACTIVE` and your agent can execute tools.
 
-### Check connected account status
+#### Check connected account status
 
 Composio tracks two statuses (`ACTIVE` and `INACTIVE`). Scalekit uses more granular states:
 
@@ -249,9 +250,9 @@ Composio tracks two statuses (`ACTIVE` and `INACTIVE`). Scalekit uses more granu
 
 Check status before executing tools. If the account is not `ACTIVE`, generate a new authorization link.
 
-## Step 4: Migrate tool calls
+## 4. Migrate tool calls
 
-### List available tools
+#### List available tools
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Python">
@@ -287,7 +288,7 @@ const { tools } = await scalekit.tools.listScopedTools('user_123', {
   </TabItem>
 </Tabs>
 
-### Execute a tool
+#### Execute a tool
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Python">
@@ -349,7 +350,7 @@ Composio and Scalekit may name tools differently for the same connector. Browse 
 
 Tool input schemas may also differ. Check each tool's parameters in the connector catalog and update your agent's tool input accordingly.
 
-## Step 5: Migrate MCP
+## 5. Migrate MCP
 
 Both platforms support MCP (Model Context Protocol) for framework-agnostic tool discovery and execution.
 
@@ -390,7 +391,7 @@ Once you have the per-user URL:
 
 **Key difference:** Composio uses a single URL with the user ID as a query parameter. Scalekit generates a unique, pre-authenticated URL per user — no API key in the client config.
 
-## Step 6: Migrate custom tools
+## 6. Migrate custom tools
 
 In Composio, custom tools are defined in code with decorators and stored in memory — they're lost on restart. In Scalekit, custom tools use **API Proxy mode** (`actions.request`). The proxy is available out of the box for every connector with no extra configuration. You define the tool contract in your application code and call the provider's REST endpoint through Scalekit, which injects the user's credentials automatically.
 
@@ -423,7 +424,7 @@ const response = await scalekit.actions.request({
   </TabItem>
 </Tabs>
 
-## Step 7: Add custom connectors
+## 7. Add custom connectors
 
 If your agent connects to an API or MCP server that isn't in Scalekit's built-in catalog, you can add your own connector. Custom connectors support OAuth 2.0, API keys, bearer tokens, and other auth types. Once created, they work exactly like built-in connectors — same connected account flow, same `actions.request()` proxy, same MCP tool calling.
 
