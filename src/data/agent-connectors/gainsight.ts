@@ -429,7 +429,7 @@ export const tools: Tool[] = [
         name: 'limit',
         type: 'integer',
         required: false,
-        description: `Maximum number of records to return per call (1–5000). Default: 100.`,
+        description: `Maximum number of records to return per call (1–5000). Default: 50.`,
       },
       {
         name: 'offset',
@@ -693,7 +693,7 @@ export const tools: Tool[] = [
         name: 'limit',
         type: 'integer',
         required: false,
-        description: `Maximum number of records to return per call (1–5000). Default: 100.`,
+        description: `Maximum number of records to return per call (1–5000). Default: 50.`,
       },
       {
         name: 'offset',
@@ -732,16 +732,28 @@ export const tools: Tool[] = [
         description: `GSID of the Timeline activity to update. Returned as activityId in the gainsight_timeline_create response.`,
       },
       {
-        name: 'activity_type_id',
+        name: 'notes',
         type: 'string',
         required: true,
-        description: `GSID of the activity type. Required to identify the record type on update. Find it via gainsight_object_describe on the activity_timeline object.`,
+        description: `Body text of the activity. Accepts plain text or HTML.`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: true,
+        description: `Title of the activity shown in the Timeline feed. Maximum 255 characters.`,
       },
       {
         name: 'activity_date',
         type: 'string',
         required: false,
         description: `Date and time of the activity in ISO 8601 format, e.g. 2024-01-15T10:30:00.000+0000.`,
+      },
+      {
+        name: 'activity_type_id',
+        type: 'string',
+        required: false,
+        description: `GSID of the activity type. Required to identify the record type on update. Find it via gainsight_object_describe on the activity_timeline object.`,
       },
       {
         name: 'company_name',
@@ -754,18 +766,6 @@ export const tools: Tool[] = [
         type: 'array',
         required: false,
         description: `Updated list of internal Gainsight user names attending this activity.`,
-      },
-      {
-        name: 'notes',
-        type: 'string',
-        required: false,
-        description: `Body text of the activity. Accepts plain text or HTML.`,
-      },
-      {
-        name: 'subject',
-        type: 'string',
-        required: false,
-        description: `Title of the activity shown in the Timeline feed. Maximum 255 characters.`,
       },
     ],
   },

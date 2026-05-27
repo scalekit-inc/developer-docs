@@ -7,6 +7,11 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
+  cloudfaremcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/cloudflare.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Developer Tools', 'Automation'],
+  },
   airopsmcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/airops.svg',
     authType: 'API Key',
