@@ -7,6 +7,21 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
+  airopsmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/airops.svg',
+    authType: 'API Key',
+    categories: ['AI', 'Marketing', 'Analytics'],
+  },
+  sanitymcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/sanity.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Developer Tools', 'Files & Documents', 'Productivity'],
+  },
+  fiscalaimcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/fiscalai.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Analytics', 'AI', 'Accounting & Finance'],
+  },
   otteraimcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/otterai.svg',
     authType: 'OAuth 2.1/DCR',
