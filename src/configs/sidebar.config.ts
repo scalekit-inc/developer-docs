@@ -203,6 +203,10 @@ export const sidebar = [
         label: 'Go live',
         items: ['agentkit/advanced/custom-domain', 'agentkit/advanced/launch-checklist'],
       },
+      {
+        label: 'Migrations',
+        items: [{ label: 'Composio', link: 'agentkit/advanced/migrate-from-composio' }],
+      },
     ],
   },
   {
