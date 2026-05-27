@@ -120,7 +120,24 @@ Register and manage applications in Scalekit. Each application gets its own OAut
 
    For definitions, validation rules, custom URI schemes, and environment-specific behavior, see [Redirect URL configuration](/guides/dashboard/redirects/).
 
-5. ## Delete an application
+5. ## Configure custom scopes
+
+   Scalekit includes `openid`, `email`, `profile`, and `offline_access` as default scopes. If your application needs additional scopes — such as `todo:read` or `data:read` — in the access token during an OAuth authorization flow, define them in the application's **Advanced Settings**.
+
+   To configure a custom scope:
+   1. Open the application and go to the **Advanced Settings** tab
+   2. Under **Define Scopes**, select an existing scope or type a new one and add it
+   3. Click **Save**
+
+   When initiating the authorization request, pass the custom scope in the `scope` parameter alongside the standard scopes:
+
+   ```
+   scope=openid profile email offline_access todo:read
+   ```
+
+   Scalekit includes the requested scopes in the access token, provided they are configured for the application.
+
+6. ## Delete an application
 
    Delete applications from the bottom of the configuration page.
 
