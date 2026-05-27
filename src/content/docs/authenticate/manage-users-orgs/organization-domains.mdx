@@ -1,0 +1,392 @@
+---
+title: Organization domains
+description: Verify ownership of customer domains so Scalekit can route Home Realm Discovery (SSO) and SCIM provisioning to the right organization.
+tags: [organizations, domains, sso, scim, verification, multi-tenant]
+tableOfContents: true
+sidebar:
+  label: Organization domains
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+prev:
+  link: '/authenticate/manage-users-orgs/email-domain-rules/'
+  label: 'Configure email domain rules'
+next:
+  link: '/authenticate/manage-users-orgs/jit-provisioning/'
+  label: 'JIT provisioning'
+---
+
+import { Steps, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+
+An **organization domain** is a domain your customer owns — such as `acmecorp.com`. Proving domain ownership unlocks two key features:
+
+- **[Home Realm Discovery (SSO)](/authenticate/auth-methods/enterprise-sso/#identify-and-enforce-sso-for-organization-users)**: When a user signs in with an email address matching a registered domain, Scalekit automatically routes them to that organization's SSO identity provider.
+- **[SCIM Provisioning](/authenticate/manage-users-orgs/scim-provisioning/)**: Scalekit only processes SCIM user lifecycle events (create, update, deactivate) for users whose email domain matches a registered organization domain. This ensures only the organization that owns a domain can manage those users.
+
+## Add and verify an organization domain
+
+### Via Admin Portal <Badge text="No-code" variant="tip" />
+
+The Admin Portal gives the admin of a customer organization a self-serve way to add and verify their domain — without involving your engineering team. This is the recommended approach for production onboarding.
+
+<Steps>
+
+1. ### Enable domain verification for the organization
+
+   Turn on the `Domain Verification` feature for the organization. You can do this in the Scalekit Dashboard (navigate to **Organizations** → select the organization → **Overview** → toggle **Domain Verification**), or via the API:
+
+   <Tabs syncKey="tech-stack">
+   <TabItem label="cURL">
+
+   ```sh title="Enable domain_verification feature" frame="terminal" showLineNumbers=false
+   curl --request PATCH \
+     'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/<organization_id>/settings' \
+     --header 'Authorization: Bearer <ACCESS_TOKEN>' \
+     --header 'Content-Type: application/json' \
+     --data '{
+       "features": [{ "name": "domain_verification", "enabled": true }]
+     }'
+   ```
+
+   </TabItem>
+   <TabItem label="Node.js">
+
+   ```ts title="Enable domain_verification feature"
+   await scalekit.organization.updateOrganizationSettings(organizationId, {
+     features: [{ name: 'domain_verification', enabled: true }],
+   });
+   ```
+
+   </TabItem>
+   <TabItem label="Python">
+
+   ```python title="Enable domain_verification feature"
+   scalekit_client.organization.update_organization_settings(
+       organization_id,
+       [{"name": "domain_verification", "enabled": True}],
+   )
+   ```
+
+   </TabItem>
+   <TabItem label="Go">
+
+   ```go title="Enable domain_verification feature"
+   err = scalekitClient.Organization.UpdateOrganizationSettings(
+       ctx,
+       organizationID,
+       scalekit.OrganizationSettings{
+           Features: []scalekit.OrganizationSettingsFeature{
+               {Name: "domain_verification", Enabled: true},
+           },
+       },
+   )
+   ```
+
+   </TabItem>
+   <TabItem label="Java">
+
+   ```java title="Enable domain_verification feature"
+   scalekitClient.organizations().updateOrganizationSettings(
+       organizationId,
+       List.of(new Feature().setName("domain_verification").setEnabled(true))
+   );
+   ```
+
+   </TabItem>
+   </Tabs>
+
+2. ### Generate an Admin Portal link and embed in your app
+
+   Generate an admin portal link and embed in your application:
+
+   <Tabs syncKey="tech-stack">
+   <TabItem label="cURL">
+
+   ```sh title="Generate portal link for domain verification" frame="terminal" showLineNumbers=false
+   curl 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/<organization_id>/portal_links' \
+     --header 'Authorization: Bearer <ACCESS_TOKEN>'
+   ```
+
+   </TabItem>
+   <TabItem label="Node.js">
+
+   ```ts title="Generate portal link for domain verification"
+   const link = await scalekit.organization.generatePortalLink(organizationId);
+   // Redirect the org admin to link.location
+   ```
+
+   </TabItem>
+   <TabItem label="Python">
+
+   ```python title="Generate portal link for domain verification"
+   link = scalekit_client.organization.generate_portal_link(organization_id)
+   # Redirect the org admin to link.location
+   ```
+
+   </TabItem>
+   <TabItem label="Go">
+
+   ```go title="Generate portal link for domain verification"
+   link, err := scalekitClient.Organization().GeneratePortalLink(ctx, organizationID)
+   // Redirect the org admin to link.Link.Location
+   ```
+
+   </TabItem>
+   <TabItem label="Java">
+
+   ```java title="Generate portal link for domain verification"
+   Link link = scalekitClient.organizations().generatePortalLink(
+       organizationId,
+       Arrays.asList(Feature.domain_verification)
+   );
+   // Redirect the org admin to link.getLocation()
+   ```
+
+   </TabItem>
+   </Tabs>
+
+3. ### Organization admin adds the domain and publishes the DNS record
+
+   The admin opens the portal link, clicks **Add domain**, and enters their domain name. The portal displays the TXT record to add and verify domain ownership. The admin adds this record in their DNS provider (e.g., Cloudflare, Route 53, GoDaddy). Propagation typically takes a few minutes but can take up to 48 hours.
+  
+    ![Domain verification via admin portal](@/assets/docs/organization-domains/2026-05-26-19-01-37.png)
+
+4. ### Scalekit verifies the DNS record
+
+   Scalekit polls the domain's DNS automatically. Once the TXT record is detected, the domain status changes to **Verified** and SSO routing and SCIM become active.
+
+</Steps>
+
+### Via Hosted Widgets <Badge text="No-code" variant="tip" />
+
+Firstly, turn on the `Domain Verification` feature for the organization. Then, redirect the end users to [Hosted widgets](/authenticate/manage-users-orgs/hosted-widgets/) to manage their organization's domains. The domain verification flow inside the widget is identical to the Admin Portal: the user enters a domain, the widget displays the TXT record to publish, and Scalekit verifies in the background.
+
+![Domain verification via hosted widgets](@/assets/docs/organization-domains/2026-05-26-19-06-40.png)
+
+### Via Scalekit Dashboard <Badge text="No-code" variant="tip" />
+
+Your team can add organization domains directly from the Scalekit Dashboard, useful for initial setup or when you have already verified ownership through other means.
+
+1. Go to **Dashboard > Organizations** and select the target organization.
+2. Navigate to **Overview** > **Organization Domains**.
+3. Click **Add domain** and enter the domain name.
+
+![Domain verification via dashboard](@/assets/docs/organization-domains/2026-05-26-19-09-32.png)
+
+Domains added this way are marked as **Admin-verified**, no DNS verification is required. They become active for SSO routing and SCIM immediately.
+
+### Via API <Badge text="API" variant="note" />
+
+Add and manage organization domains programmatically. Domains created via the API are also **Admin-verified** by default, no DNS verification is required. Use this when you have already confirmed domain ownership through another process and want to activate SSO routing or SCIM immediately.
+
+<Tabs syncKey="tech-stack">
+<TabItem label="cURL">
+
+```sh title="Manage organization domains" frame="terminal" showLineNumbers=false
+# 1. Add an organization domain
+curl 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/<organization_id>/domains' \
+  --request POST \
+  --header 'Authorization: Bearer <ACCESS_TOKEN>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "domain": "acmecorp.com",
+    "domain_type": "ORGANIZATION_DOMAIN"
+  }'
+
+# 2. List all organization domains
+curl 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/<organization_id>/domains?domain_type=ORGANIZATION_DOMAIN' \
+  --header 'Authorization: Bearer <ACCESS_TOKEN>'
+
+# 3. Get details of a specific domain
+curl 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/<organization_id>/domains/<domain_id>' \
+  --header 'Authorization: Bearer <ACCESS_TOKEN>'
+
+# 4. Delete a domain
+curl 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/<organization_id>/domains/<domain_id>' \
+  --request DELETE \
+  --header 'Authorization: Bearer <ACCESS_TOKEN>'
+```
+
+</TabItem>
+<TabItem label="Node.js">
+
+```ts title="Manage organization domains"
+import { Scalekit } from '@scalekit-sdk/node';
+
+const scalekit = new Scalekit(
+  process.env.SCALEKIT_ENVIRONMENT_URL,
+  process.env.SCALEKIT_CLIENT_ID,
+  process.env.SCALEKIT_CLIENT_SECRET,
+);
+
+// 1. Add an organization domain
+const newDomain = await scalekit.organization.createDomain(organizationId, {
+  domain: 'acmecorp.com',
+  domainType: 'ORGANIZATION_DOMAIN',
+});
+// newDomain.txtRecordKey and newDomain.txtRecordSecret contain the DNS record values
+
+// 2. List all organization domains
+const { domains } = await scalekit.organization.listDomains(organizationId, {
+  domainType: 'ORGANIZATION_DOMAIN',
+});
+
+// 3. Get a specific domain
+const domain = await scalekit.organization.getDomain(organizationId, domainId);
+
+// 4. Delete a domain
+await scalekit.organization.deleteDomain(organizationId, domainId);
+```
+
+</TabItem>
+<TabItem label="Python">
+
+```python title="Manage organization domains"
+from scalekit import Scalekit
+import os
+
+scalekit_client = Scalekit(
+    environment_url=os.environ.get("SCALEKIT_ENVIRONMENT_URL"),
+    client_id=os.environ.get("SCALEKIT_CLIENT_ID"),
+    client_secret=os.environ.get("SCALEKIT_CLIENT_SECRET"),
+)
+
+# 1. Add an organization domain
+new_domain = scalekit_client.organization.create_domain(
+    organization_id,
+    domain="acmecorp.com",
+    domain_type="ORGANIZATION_DOMAIN",
+)
+# new_domain.txt_record_key and new_domain.txt_record_secret contain the DNS record values
+
+# 2. List all organization domains
+domains = scalekit_client.organization.list_domains(
+    organization_id, domain_type="ORGANIZATION_DOMAIN"
+)
+
+# 3. Get a specific domain
+domain = scalekit_client.organization.get_domain(organization_id, domain_id)
+
+# 4. Delete a domain
+scalekit_client.organization.delete_domain(organization_id, domain_id)
+```
+
+</TabItem>
+<TabItem label="Go">
+
+```go title="Manage organization domains"
+import (
+    "context"
+    "os"
+
+    "github.com/scalekit/sdk-go"
+)
+
+scalekitClient := scalekit.New(
+    os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+    os.Getenv("SCALEKIT_CLIENT_ID"),
+    os.Getenv("SCALEKIT_CLIENT_SECRET"),
+)
+
+ctx := context.Background()
+
+// 1. Add an organization domain
+newDomain, err := scalekitClient.Organization().CreateDomain(ctx, organizationID, scalekit.CreateDomainOptions{
+    Domain:     "acmecorp.com",
+    DomainType: "ORGANIZATION_DOMAIN",
+})
+// newDomain.TxtRecordKey and newDomain.TxtRecordSecret contain the DNS record values
+
+// 2. List all organization domains
+domains, err := scalekitClient.Organization().ListDomains(ctx, organizationID, scalekit.ListDomainsOptions{
+    DomainType: "ORGANIZATION_DOMAIN",
+})
+
+// 3. Get a specific domain
+domain, err := scalekitClient.Organization().GetDomain(ctx, organizationID, domainID)
+
+// 4. Delete a domain
+err = scalekitClient.Organization().DeleteDomain(ctx, organizationID, domainID)
+```
+
+</TabItem>
+<TabItem label="Java">
+
+```java title="Manage organization domains"
+import com.scalekit.client.Scalekit;
+
+Scalekit scalekitClient = new Scalekit(
+    System.getenv("SCALEKIT_ENVIRONMENT_URL"),
+    System.getenv("SCALEKIT_CLIENT_ID"),
+    System.getenv("SCALEKIT_CLIENT_SECRET")
+);
+
+// 1. Add an organization domain
+Domain newDomain = scalekitClient.organizations()
+    .createDomain(organizationId, new CreateDomainOptions()
+        .setDomain("acmecorp.com")
+        .setDomainType("ORGANIZATION_DOMAIN"));
+// newDomain.getTxtRecordKey() and newDomain.getTxtRecordSecret() contain the DNS record values
+
+// 2. List all organization domains
+List<Domain> domains = scalekitClient.organizations()
+    .listDomains(organizationId, new ListDomainsOptions()
+        .setDomainType("ORGANIZATION_DOMAIN"));
+
+// 3. Get a specific domain
+Domain domain = scalekitClient.organizations().getDomain(organizationId, domainId);
+
+// 4. Delete a domain
+scalekitClient.organizations().deleteDomain(organizationId, domainId);
+```
+
+</TabItem>
+</Tabs>
+
+## Listen for organization domain events
+
+Subscribe to these webhook events to react to domain lifecycle changes in your application:
+
+| Event | Fires when |
+|-------|-----------|
+| `organization.domain_created` | A domain is added to an organization via any method |
+| `organization.domain_deleted` | A domain is removed from an organization |
+| `organization.domain_dns_verification_success` | The DNS check confirms domain ownership |
+| `organization.domain_dns_verification_failed` | The DNS verification window expired without a successful DNS match |
+
+See [Organization domain events](/reference/webhooks/organization-events/#organization-domain-events) for the full event payload schema.
+
+## Common scenarios
+
+<details>
+<summary>How is organization domains different from allowed email domains?</summary>
+
+[Allowed email domains](/authenticate/manage-users-orgs/email-domain-rules/#configure-allowed-email-domains) let users with a matching email address see and join the organization via the organization switcher.
+
+Organization domains prove domain ownership by an organization and unlock SSO routing (Home Realm Discovery) and SCIM provisioning. The distinction is about what the domain enables, not just who can join.
+
+</details>
+
+<details>
+<summary>What happens if DNS hasn't propagated yet?</summary>
+
+DNS propagation can take anywhere from a few minutes to 48 hours depending on the TTL and the DNS provider.
+
+Scalekit polls the domain on a scheduled interval and retries automatically until the TXT record is found or the verification window expires. The org admin can also click **Verify now** in the Admin Portal or Hosted Widget to trigger an immediate check at any time.
+
+If the window expires before the record propagates, the domain status moves to `FAILED`. Delete the domain and add it again to get a fresh verification token and restart the process.
+
+</details>
+
+<details>
+<summary>Can I verify a domain without DNS?</summary>
+
+Yes. Domains added via the Scalekit Dashboard or API are marked as **Admin-verified**, no DNS verification is required. Use this when you have already confirmed domain ownership through another process (contract, business verification, etc.) and want to activate SSO routing or SCIM immediately.
+
+</details>
