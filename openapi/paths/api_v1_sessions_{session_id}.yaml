@@ -1,0 +1,46 @@
+get:
+  description: >-
+    Retrieves comprehensive details for a specific user session including
+    authentication status, device information, and expiration timelines. Use
+    this endpoint to fetch current session metadata for security audits, session
+    validation, or to display session information in user account management
+    interfaces. Returns all session properties including the user ID,
+    authenticated organizations, device details with browser/OS information, IP
+    address and geolocation, and all relevant timestamps (creation, last
+    activity, idle expiration, absolute expiration, and actual expiration if
+    applicable).
+  tags:
+    - Sessions
+  summary: Get session details
+  operationId: SessionService_GetSession
+  parameters:
+    - schema:
+        type: string
+      description: Unique identifier for the session. Must start with 'ses_' prefix.
+      name: session_id
+      in: path
+      required: true
+  responses:
+    '200':
+      description: Successfully retrieved session details
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/sessionsSessionDetails.yaml
+  x-codeSamples:
+    - label: Node.js SDK
+      lang: javascript
+      source:
+        $ref: ../code_samples/javascript/api_v1_sessions_{session_id}/get.js
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: ../code_samples/python/api_v1_sessions_{session_id}/get.py
+    - label: Go SDK
+      lang: go
+      source:
+        $ref: ../code_samples/go/api_v1_sessions_{session_id}/get.go
+    - label: Java SDK
+      lang: java
+      source:
+        $ref: ../code_samples/java/api_v1_sessions_{session_id}/get.java

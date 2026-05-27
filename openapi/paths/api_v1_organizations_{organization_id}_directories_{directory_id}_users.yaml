@@ -1,0 +1,86 @@
+get:
+  description: >-
+    Retrieves a list of all users within a specified directory for an
+    organization. This endpoint allows you to view user accounts associated with
+    your connected Directory Providers.
+  tags:
+    - Directory
+  summary: List directory users
+  operationId: DirectoryService_ListDirectoryUsers
+  parameters:
+    - schema:
+        type: string
+      description: Unique identifier of the organization
+      name: organization_id
+      in: path
+      required: true
+    - schema:
+        type: string
+      description: Unique identifier of the directory within the organization
+      name: directory_id
+      in: path
+      required: true
+    - schema:
+        type: integer
+        format: int64
+      description: >-
+        Number of users to return per page. Maximum value is 30. If not
+        specified, defaults to 10
+      name: page_size
+      in: query
+    - schema:
+        type: string
+      description: >-
+        Token for pagination. Use the value returned in the 'next_page_token'
+        field of the previous response to retrieve the next page of results
+      name: page_token
+      in: query
+    - schema:
+        type: boolean
+      description: >-
+        If set to true, the response will include the full user payload with all
+        available details. If false or not specified, only essential user
+        information will be returned
+      name: include_detail
+      in: query
+    - schema:
+        type: string
+      description: Filter users by their membership in a specific directory group
+      name: directory_group_id
+      in: query
+    - schema:
+        type: string
+        format: date-time
+      description: >-
+        Filter users that were updated after the specified timestamp. Use ISO
+        8601 format
+      name: updated_after
+      in: query
+  responses:
+    '200':
+      description: Successfully retrieved the list of users from the specified directory
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/directoriesListDirectoryUsersResponse.yaml
+  x-codeSamples:
+    - label: Node.js SDK
+      lang: javascript
+      source:
+        $ref: >-
+          ../code_samples/javascript/api_v1_organizations_{organization_id}_directories_{directory_id}_users/get.js
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: >-
+          ../code_samples/python/api_v1_organizations_{organization_id}_directories_{directory_id}_users/get.py
+    - label: Go SDK
+      lang: go
+      source:
+        $ref: >-
+          ../code_samples/go/api_v1_organizations_{organization_id}_directories_{directory_id}_users/get.go
+    - label: Java SDK
+      lang: java
+      source:
+        $ref: >-
+          ../code_samples/java/api_v1_organizations_{organization_id}_directories_{directory_id}_users/get.java

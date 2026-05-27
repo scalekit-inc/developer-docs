@@ -1,0 +1,35 @@
+post:
+  description: >-
+    Creates a time-limited magic link for connecting or re-authorizing a
+    third-party account. The link directs users to the OAuth authorization flow
+    for the specified connector. Returns the generated link URL and expiration
+    timestamp. Links typically expire after a short duration for security.
+  tags:
+    - Connected Accounts
+  summary: Generate authentication magic link
+  operationId: ConnectedAccountService_GetMagicLinkForConnectedAccount
+  responses:
+    '200':
+      description: Magic link generated successfully with authorization URL and expiry time
+      content:
+        application/json:
+          schema:
+            $ref: >-
+              ../components/schemas/connected_accountsGetMagicLinkForConnectedAccountResponse.yaml
+    '400':
+      description: Invalid request - missing required parameters or invalid connector
+      content:
+        application/json:
+          schema: {}
+    '401':
+      description: Authentication required - missing or invalid access token
+      content:
+        application/json:
+          schema: {}
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: >-
+            ../components/schemas/connected_accountsGetMagicLinkForConnectedAccountRequest.yaml
+    required: true

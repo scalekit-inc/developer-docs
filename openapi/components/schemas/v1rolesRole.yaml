@@ -1,0 +1,74 @@
+type: object
+properties:
+  default_creator:
+    description: Indicates if this role is the default creator role for new organizations.
+    type: boolean
+    examples:
+      - true
+  default_member:
+    description: Indicates if this role is the default member role for new users.
+    type: boolean
+    examples:
+      - true
+  dependent_roles_count:
+    description: >-
+      Number of roles that extend from this role (dependent roles count).
+      Read-only field.
+    type: integer
+    format: int32
+    examples:
+      - 3
+  description:
+    description: >-
+      Detailed description of the role's purpose and capabilities. Maximum 2000
+      characters.
+    type: string
+    examples:
+      - Can create, edit, and publish content but cannot delete or manage users
+  display_name:
+    description: >-
+      Human-readable display name for the role. Used in user interfaces and
+      reports.
+    type: string
+    examples:
+      - Content Editor
+  extends:
+    description: >-
+      Name of the base role that this role extends. Enables hierarchical role
+      inheritance.
+    type: string
+    examples:
+      - admin_role
+  id:
+    description: Unique system-generated identifier for the role. Immutable once created.
+    type: string
+    readOnly: true
+    examples:
+      - role_1234abcd5678efgh
+  is_org_role:
+    description: Indicates if this role is an organization role.
+    type: boolean
+    examples:
+      - true
+  name:
+    description: >-
+      Unique name identifier for the role. Must be alphanumeric with
+      underscores, 1-100 characters.
+    type: string
+    examples:
+      - content_editor
+  permissions:
+    description: >-
+      List of permissions with role source information. Only included when
+      'include' parameter is specified in the request.
+    type: array
+    items:
+      type: object
+      $ref: ./rolesRolePermission.yaml
+    examples:
+      - - description: Read Content
+          name: read:content
+          role_name: admin_role
+        - description: Write Content
+          name: write:content
+          role_name: editor_role

@@ -17,6 +17,11 @@
     "format:check": "prettier --check '**/*.{md,mdx,js,ts,astro,css,vue}'",
     "format": "prettier --write '**/*.{md,mdx,js,ts,astro,css,vue}'",
     "reorder-swagger": "node scripts/reorder-swagger.js public/api/scalekit.scalar.json",
+    "split-api": "redocly split public/api/scalekit.scalar.yaml --outDir=openapi && redocly bundle agentkit --remove-unused-components && redocly bundle saaskit --remove-unused-components",
+    "split-api:lint": "redocly lint openapi/agentkit.yaml && redocly lint openapi/saaskit.yaml",
+    "bundle:agentkit": "redocly bundle agentkit --remove-unused-components --output public/api/agentkit.scalar.yaml",
+    "bundle:saaskit": "redocly bundle saaskit --remove-unused-components --output public/api/saaskit.scalar.yaml",
+    "bundle:apis": "pnpm run bundle:agentkit && pnpm run bundle:saaskit",
     "sync-agent-connectors": "node scripts/sync-agent-connectors.js"
   },
   "dependencies": {
@@ -67,6 +72,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.8",
+    "@redocly/cli": "^2.31.2",
     "@scalar/openapi-to-markdown": "^0.5.6",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

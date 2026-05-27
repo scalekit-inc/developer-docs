@@ -1,0 +1,163 @@
+type: object
+properties:
+  custom_attributes:
+    description: >-
+      Custom attributes for extended user profile data and application-specific
+      information. This field stores business-specific user data like
+      department, job title, security clearances, project assignments, or any
+      other organizational attributes your application requires. Unlike system
+      metadata, these attributes are typically managed by administrators or
+      applications and are visible to end users for personalization and business
+      logic. Keys must be 3-25 characters, values must be 1-256 characters, with
+      a maximum of 20 key-value pairs.
+    type: object
+    additionalProperties:
+      type: string
+    examples:
+      - department: engineering
+        security_clearance: level2
+  email_verified:
+    description: >-
+      Indicates if the user's email address has been verified. Automatically
+      updated by the system.
+    type: boolean
+    readOnly: true
+    examples:
+      - true
+  external_identities:
+    description: List of external identity connections associated with the user profile.
+    type: array
+    items:
+      type: object
+      $ref: ./commonsExternalIdentity.yaml
+    readOnly: true
+  family_name:
+    description: >-
+      The user's family name (last name or surname). This field stores the
+      user's last name and is combined with the given name to create the full
+      display name. The family name is used in formal communications, user
+      listings, and organizational directories throughout the system. Maximum
+      255 characters allowed.
+    type: string
+    examples:
+      - Doe
+  gender:
+    description: >-
+      The user's gender identity information. This field stores the user's
+      gender identity for personalization, compliance reporting, or
+      organizational analytics purposes. This field supports any string value to
+      accommodate diverse gender identities and should be handled with
+      appropriate privacy considerations according to your organization's
+      policies and applicable regulations.
+    type: string
+    examples:
+      - male
+  given_name:
+    description: >-
+      The user's given name (first name). This field stores the user's first
+      name and is used for personalization, display purposes, and when
+      generating the full display name. The given name appears in user
+      interfaces, formal communications, and user listings throughout the
+      system. Maximum 255 characters allowed.
+    type: string
+    examples:
+      - John
+  groups:
+    description: >-
+      The list of group names the user belongs to within the organization. This
+      field stores the user's group memberships for role-based access control,
+      team assignments, and organizational structure. Groups are typically used
+      for permission management, collaborative access, and organizational
+      hierarchy. Each group name represents a distinct organizational unit or
+      team that the user is associated with.
+    type: array
+    items:
+      type: string
+    examples:
+      - - admin
+        - developer
+  id:
+    description: >-
+      Unique system-generated identifier for the user profile. Immutable and
+      read-only.
+    type: string
+    readOnly: true
+    examples:
+      - usr_profile_1234abcd5678efgh
+  locale:
+    description: >-
+      The user's preferred language and region settings using BCP-47 format
+      codes. This field customizes the user's experience with localized content,
+      date formats, number formatting, and UI language throughout the system.
+      When not specified, the user inherits the organization's default locale
+      settings. Common values include `en-US`, `en-GB`, `fr-FR`, `de-DE`, and
+      `es-ES`.
+    type: string
+    examples:
+      - en-US
+  metadata:
+    description: >-
+      Raw attributes received from identity providers during authentication.
+      This field stores the original user profile data as received from external
+      IdP systems (SAML, OIDC, etc.) including provider-specific claims and
+      attributes. These fields preserve the complete set of attributes received
+      from the identity source and are used for mapping, synchronization, and
+      audit purposes. Keys must be 3-25 characters, values must be 1-256
+      characters, with a maximum of 20 key-value pairs.
+    type: object
+    additionalProperties:
+      type: string
+    examples:
+      - department: engineering
+        employee_type: full-time
+        idp_user_id: '12345'
+  name:
+    description: >-
+      The user's complete display name in formatted form. This field stores the
+      full name as a single string and is typically used when you want to set
+      the complete name rather than using separate given and family names. This
+      name appears in user interfaces, reports, directory listings, and anywhere
+      a formatted display name is needed. This field serves as a formatted
+      display name that complements the individual given_name and family_name
+      fields.
+    type: string
+    examples:
+      - John Michael Doe
+  phone_number:
+    description: >-
+      The user's phone number in E.164 international format. This field stores
+      the phone number for user contact and identification purposes. The phone
+      number must include the country code and be formatted according to E.164
+      standards (e.g., `+1` for US numbers). This field is optional.
+    type: string
+    examples:
+      - '+14155552671'
+  phone_number_verified:
+    description: >-
+      Indicates if the user's phone number has been verified. Automatically
+      updated by the system.
+    type: boolean
+    readOnly: true
+    examples:
+      - true
+  picture:
+    description: >-
+      The URL to the user's profile picture or avatar image. This field stores
+      the location of the user's profile photo that appears in user interfaces,
+      directory listings, and collaborative features throughout the system. The
+      URL should point to a publicly accessible image file. Supported formats
+      typically include JPEG, PNG, and GIF. This image is used for visual
+      identification and personalization across the platform.
+    type: string
+    examples:
+      - https://example.com/avatar.jpg
+  preferred_username:
+    description: >-
+      The user's preferred username for display and identification purposes.
+      This field stores a custom username that the user prefers to be known by,
+      which may differ from their email or formal name. This username appears in
+      user interfaces, mentions, informal communications, and collaborative
+      features throughout the system. Maximum 512 characters allowed.
+    type: string
+    examples:
+      - johndoe

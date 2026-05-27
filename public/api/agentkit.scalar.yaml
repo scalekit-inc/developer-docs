@@ -1,0 +1,2586 @@
+openapi: 3.1.1
+info:
+  title: AgentKit APIs
+  description: |
+    # Overview
+
+    The AgentKit API gives your AI agents authenticated access to third-party apps — sending emails, reading calendars, creating tickets, querying databases, and more. Your agent calls a tool; Scalekit handles the OAuth flow, token storage, and API call.
+
+    **Base URLs:**
+
+    ```
+    https://{your-subdomain}.scalekit.dev (Development)
+    https://{your-subdomain}.scalekit.com (Production)
+    ```
+
+    ## Quickstart
+
+    ### 1. Get an access token
+
+    Use your API credentials from the [Scalekit Dashboard](https://app.scalekit.com) → **Developers → Settings → API Credentials**.
+
+    ```sh
+    curl -X POST https://<SCALEKIT_ENVIRONMENT_URL>/oauth/token \
+      -H 'Content-Type: application/x-www-form-urlencoded' \
+      -d 'client_id={client_id}' \
+      -d 'client_secret={client_secret}' \
+      -d 'grant_type=client_credentials'
+    ```
+
+    ### 2. List connected accounts
+
+    ```sh
+    curl https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/connected_accounts \
+      -H 'Authorization: Bearer {access_token}'
+    ```
+
+    ### 3. Execute a tool on behalf of a user
+
+    ```sh
+    curl -X POST https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/execute_tool \
+      -H 'Authorization: Bearer {access_token}' \
+      -H 'Content-Type: application/json' \
+      -d '{
+        "connected_account_id": "{connected_account_id}",
+        "tool_name": "gmail_fetch_emails",
+        "tool_input": { "max_results": 5 }
+      }'
+    ```
+
+    ## SDKs
+
+    ```sh
+    npm install @scalekit-sdk/node    # Node.js
+    pip install scalekit-sdk-python    # Python
+    ```
+
+    For the full product guide, see the [AgentKit documentation](https://docs.scalekit.com/agentkit/quickstart/).
+
+    ---
+
+    Looking for SSO, SCIM, directory sync, or user management APIs? See the [SaaSKit API reference](https://docs.scalekit.com/saaskit/apis/). For the complete endpoint list across both products, see [All APIs](https://docs.scalekit.com/apis/).
+  contact:
+    name: Scalekit Inc
+    url: https://scalekit.com
+    email: support@scalekit.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0
+  version: 1.0.0
+servers:
+  - url: https://$SCALEKIT_ENVIRONMENT_URL
+security:
+  - oauth2: []
+tags:
+  - name: Connected Accounts
+    description: Manage connected accounts for third-party integrations and OAuth connections. Connected accounts represent authenticated access to external services like Google, Notion, Slack, and other applications.
+  - name: Connectors
+    description: Manage built-in and custom connectors (providers) that agents can use to authenticate against third-party services.
+  - name: Tool Calling
+    description: Execute tools on behalf of users via their connected accounts. Supports both named/pre-defined tools and custom API proxy calls.
+  - name: MCP
+    description: High-level MCP server management.
+  - name: MCP Configurations
+    description: Create and manage reusable MCP configurations.
+  - name: MCP Instances
+    description: Create, manage, and interact with live MCP server instances.
+externalDocs:
+  description: AgentKit Docs
+  url: https://docs.scalekit.com/agentkit/quickstart/
+paths:
+  /api/v1/connected_accounts:
+    get:
+      description: Retrieves a paginated list of connected accounts for third-party integrations. Filter by organization, user, connector type, provider, or identifier. Returns OAuth tokens, API keys, and connection status for each account. Use pagination tokens to navigate through large result sets.
+      tags:
+        - Connected Accounts
+      summary: List connected accounts
+      operationId: ConnectedAccountService_ListConnectedAccounts
+      parameters:
+        - schema:
+            type: string
+          description: Filter by organization ID. Returns only connected accounts associated with this organization.
+          name: organization_id
+          in: query
+        - schema:
+            type: string
+          description: Filter by user ID. Returns only connected accounts associated with this user.
+          name: user_id
+          in: query
+        - schema:
+            type: string
+          description: Filter by connector type (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.
+          name: connector
+          in: query
+        - schema:
+            type: string
+          description: Filter by account identifier. The unique identifier for the connected account within the third-party service (e.g., email address, workspace ID).
+          name: identifier
+          in: query
+        - schema:
+            type: string
+          description: Filter by OAuth provider. The authentication provider name such as 'google', 'microsoft', 'github', etc.
+          name: provider
+          in: query
+        - schema:
+            type: integer
+            format: int64
+          description: Maximum number of connected accounts to return per page. Must be between 0 and 100. Default is typically 10.
+          name: page_size
+          in: query
+        - schema:
+            type: string
+          description: Pagination token from a previous response. Use the next_page_token value from ListConnectedAccountsResponse to fetch the next page.
+          name: page_token
+          in: query
+        - schema:
+            type: string
+          description: Text search query to filter connected accounts by name, identifier, or other searchable fields. Case-insensitive.
+          name: query
+          in: query
+      responses:
+        '200':
+          description: Successfully retrieved the list of connected accounts with their authentication details and status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connected_accountsListConnectedAccountsResponse'
+        '400':
+          description: Invalid request - occurs when query parameters are malformed or validation fails
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required - missing or invalid access token
+          content:
+            application/json:
+              schema: {}
+      x-codeSamples:
+        - label: Node.js SDK
+          lang: javascript
+          source: |
+            // Coming soon — accurate SDK snippets for List connected accounts will be added via scalekit-code-doctor (SK-399)
+        - label: Python SDK
+          lang: python
+          source: |
+            # Coming soon — accurate SDK snippets for List connected accounts will be added via scalekit-code-doctor (SK-399)
+        - label: Go SDK
+          lang: go
+          source: |
+            // Coming soon — accurate SDK snippets for List connected accounts will be added via scalekit-code-doctor (SK-399)
+        - label: Java SDK
+          lang: java
+          source: |
+            // Coming soon — accurate SDK snippets for List connected accounts will be added via scalekit-code-doctor (SK-399)
+    put:
+      description: Updates authentication credentials and configuration for an existing connected account. Modify OAuth tokens, refresh tokens, access scopes, or API configuration settings. Specify the account by ID, or by combination of organization/user, connector, and identifier. Returns the updated account with new token expiry and status information.
+      tags:
+        - Connected Accounts
+      summary: Update connected account credentials
+      operationId: ConnectedAccountService_UpdateConnectedAccount
+      responses:
+        '200':
+          description: Connected account updated successfully with new credentials or configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connected_accountsUpdateConnectedAccountResponse'
+        '400':
+          description: Invalid request - missing required fields, invalid authorization details, or validation failed
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required - missing or invalid access token
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Connected account not found - the specified account does not exist
+          content:
+            application/json:
+              schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/connected_accountsUpdateConnectedAccountRequest'
+        required: true
+    post:
+      description: Creates a new connected account with OAuth tokens or API credentials for third-party service integration. Supply authorization details including access tokens, refresh tokens, scopes, and optional API configuration. The account can be scoped to an organization or user. Returns the created account with its unique identifier and authentication status.
+      tags:
+        - Connected Accounts
+      summary: Create a connected account
+      operationId: ConnectedAccountService_CreateConnectedAccount
+      responses:
+        '201':
+          description: Connected account created successfully with authentication credentials stored securely
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connected_accountsCreateConnectedAccountResponse'
+        '400':
+          description: Invalid request - missing required fields, invalid authorization details, or validation failed
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required - missing or invalid access token
+          content:
+            application/json:
+              schema: {}
+        '409':
+          description: Conflict - connected account with the same identifier already exists
+          content:
+            application/json:
+              schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/connected_accountsCreateConnectedAccountRequest'
+        required: true
+  /api/v1/connected_accounts/auth:
+    get:
+      description: Retrieves complete authentication details for a connected account including OAuth tokens, refresh tokens, scopes, and API configuration. Query by account ID or by combination of organization/user, connector, and identifier. Returns sensitive credential information - use appropriate access controls.
+      tags:
+        - Connected Accounts
+      summary: Get connected account auth credentials
+      operationId: ConnectedAccountService_GetConnectedAccountAuth
+      parameters:
+        - schema:
+            type: string
+          description: Organization ID for the connector
+          name: organization_id
+          in: query
+        - schema:
+            type: string
+          description: User ID for the connector
+          name: user_id
+          in: query
+        - schema:
+            type: string
+          description: Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.
+          name: connector
+          in: query
+        - schema:
+            type: string
+          description: The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).
+          name: identifier
+          in: query
+        - schema:
+            type: string
+          description: Unique identifier for the connected account
+          name: id
+          in: query
+      responses:
+        '200':
+          description: Successfully retrieved connected account with full authentication details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connected_accountsGetConnectedAccountByIdentifierResponse'
+        '400':
+          description: Invalid request - missing required query parameters
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required - missing or invalid access token
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Connected account not found - no account matches the specified criteria
+          content:
+            application/json:
+              schema: {}
+  /api/v1/connected_accounts/details:
+    get:
+      description: Returns metadata for a connected account including status, connector type, provider, and configuration without exposing stored authorization credentials. Look up by account ID, or by a combination of organization (or user), connector, and external identifier.
+      tags:
+        - Connected Accounts
+      summary: Get connected account metadata
+      operationId: ConnectedAccountService_GetConnectedAccountDetails
+      parameters:
+        - schema:
+            type: string
+          description: Organization ID for the connector
+          name: organization_id
+          in: query
+        - schema:
+            type: string
+          description: User ID for the connector
+          name: user_id
+          in: query
+        - schema:
+            type: string
+          description: Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.
+          name: connector
+          in: query
+        - schema:
+            type: string
+          description: The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).
+          name: identifier
+          in: query
+        - schema:
+            type: string
+          description: Unique identifier for the connected account
+          name: id
+          in: query
+      responses:
+        '200':
+          description: Successfully retrieved connected account details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connected_accountsGetConnectedAccountByIdentifierResponse'
+        '400':
+          description: Invalid request - missing required query parameters
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required - missing or invalid access token
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Connected account not found - no account matches the specified criteria
+          content:
+            application/json:
+              schema: {}
+  /api/v1/connected_accounts/magic_link:
+    post:
+      description: Creates a time-limited magic link for connecting or re-authorizing a third-party account. The link directs users to the OAuth authorization flow for the specified connector. Returns the generated link URL and expiration timestamp. Links typically expire after a short duration for security.
+      tags:
+        - Connected Accounts
+      summary: Generate authentication magic link
+      operationId: ConnectedAccountService_GetMagicLinkForConnectedAccount
+      responses:
+        '200':
+          description: Magic link generated successfully with authorization URL and expiry time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connected_accountsGetMagicLinkForConnectedAccountResponse'
+        '400':
+          description: Invalid request - missing required parameters or invalid connector
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required - missing or invalid access token
+          content:
+            application/json:
+              schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/connected_accountsGetMagicLinkForConnectedAccountRequest'
+        required: true
+  /api/v1/connected_accounts/user/verify:
+    post:
+      description: Confirms the user assertion and activates the connected account after the user completes third-party OAuth. Called by the B2B app server with auth_request_id and identifier. Validates that the asserted identifier matches the one stored on the auth request and promotes pending tokens to live.
+      tags:
+        - Connected Accounts
+      summary: Verify connected account user
+      operationId: ConnectedAccountService_VerifyConnectedAccountUser
+      responses:
+        '200':
+          description: Verification successful; connected account is now ACTIVE
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connected_accountsVerifyConnectedAccountUserResponse'
+        '400':
+          description: Invalid request - missing or malformed fields
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Unauthorized - invalid or missing access token
+          content:
+            application/json:
+              schema: {}
+        '403':
+          description: Forbidden - identifier mismatch
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not found - no pending flow for the given auth_request_id or already consumed
+          content:
+            application/json:
+              schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/connected_accountsVerifyConnectedAccountUserRequest'
+        required: true
+  /api/v1/connected_accounts:delete:
+    post:
+      description: Permanently removes a connected account and revokes all associated authentication credentials. Identify the account by ID, or by combination of organization/user, connector, and identifier. This action cannot be undone. All OAuth tokens and API keys for this account will be invalidated.
+      tags:
+        - Connected Accounts
+      summary: Delete a connected account
+      operationId: ConnectedAccountService_DeleteConnectedAccount
+      responses:
+        '200':
+          description: Connected account deleted successfully and all credentials revoked
+          content:
+            application/json:
+              schema: {}
+        '400':
+          description: Invalid request - malformed parameters or validation failed
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required - missing or invalid access token
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Connected account not found - the specified account does not exist
+          content:
+            application/json:
+              schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/connected_accountsDeleteConnectedAccountRequest'
+        required: true
+  /api/v1/connected_accounts:search:
+    get:
+      description: Search for connected accounts in your environment using a text query that matches against identifiers, providers, or connectors. The search performs case-insensitive matching across account details. Returns paginated results with account status and authentication type information.
+      tags:
+        - Connected Accounts
+      summary: Search connected accounts
+      operationId: ConnectedAccountService_SearchConnectedAccounts
+      parameters:
+        - schema:
+            type: string
+          description: Search term to match against connected account identifiers, providers, or connectors. Must be at least 3 characters. Case insensitive.
+          name: query
+          in: query
+        - schema:
+            type: integer
+            format: int64
+          description: Maximum number of connected accounts to return per page. Value must be between 1 and 30.
+          name: page_size
+          in: query
+        - schema:
+            type: string
+          description: Token from a previous response for pagination. Provide this to retrieve the next page of results.
+          name: page_token
+          in: query
+        - schema:
+            type: string
+          description: Connection ID to filter connected accounts
+          name: connection_id
+          in: query
+      responses:
+        '200':
+          description: Successfully retrieved matching connected accounts with pagination support
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connected_accountsSearchConnectedAccountsResponse'
+        '400':
+          description: Invalid request - query parameter is too short (minimum 3 characters) or validation failed
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required - missing or invalid access token
+          content:
+            application/json:
+              schema: {}
+  /api/v1/custom-providers:
+    post:
+      description: Creates an environment-scoped custom provider (connector) with authentication patterns and optional proxy configuration. The returned identifier must be used for all subsequent update and delete operations on this provider.
+      tags:
+        - Connectors
+      summary: Create a custom provider
+      operationId: ProviderService_CreateCustomProvider
+      responses:
+        '201':
+          description: Returns the newly created custom provider, including its system-generated identifier and configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/providersCreateProviderResponse'
+        '400':
+          description: Invalid request - the provider payload failed validation (e.g. missing required fields or invalid proxy URL)
+          content:
+            application/json:
+              schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Details of the custom connected app provider to create. Identifier is derived by the system and the identifier returned in the response must be used for update and delete operations.
+              $ref: '#/components/schemas/v1providersCreateCustomProvider'
+        required: true
+  /api/v1/custom-providers/{identifier}:
+    put:
+      description: Updates an existing environment-scoped custom provider (connector) by its identifier. Only the fields provided in the request are modified.
+      tags:
+        - Connectors
+      summary: Update a custom provider
+      operationId: ProviderService_UpdateCustomProvider
+      parameters:
+        - schema:
+            type: string
+          description: Identifier of the custom connected app provider to update.
+          name: identifier
+          in: path
+          required: true
+      responses:
+        '200':
+          description: Returns the updated custom provider with its current configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/providersUpdateProviderResponse'
+        '400':
+          description: Invalid request - the update payload failed validation
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found - no custom provider exists with the given identifier
+          content:
+            application/json:
+              schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Fields to update for the custom connected app provider. This aligns with the create custom provider payload.
+              $ref: '#/components/schemas/v1providersUpdateCustomProvider'
+        required: true
+    delete:
+      description: Deletes an environment-scoped custom provider (connector) by its identifier. This operation is permanent and removes the provider definition from the environment.
+      tags:
+        - Connectors
+      summary: Delete a custom provider
+      operationId: ProviderService_DeleteCustomProvider
+      parameters:
+        - schema:
+            type: string
+          name: identifier
+          in: path
+          required: true
+      responses:
+        '200':
+          description: The custom provider was successfully deleted (no content returned)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/providersDeleteProviderResponse'
+        '404':
+          description: Not Found - no custom provider exists with the given identifier
+          content:
+            application/json:
+              schema: {}
+  /api/v1/execute_tool:
+    post:
+      description: Executes a tool action using authentication credentials from a connected account. Specify the tool by name and provide required parameters as JSON. The connected account can be identified by ID, or by combination of organization/user, connector, and identifier. Returns the execution result data and a unique execution ID for tracking. Use this endpoint to perform actions like sending emails, creating calendar events, or managing resources in external services.
+      tags:
+        - Tool Calling
+      summary: Execute a tool using a connected account
+      operationId: ToolService_ExecuteTool
+      responses:
+        '200':
+          description: Tool executed successfully with result data and execution ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/toolsExecuteToolResponse'
+        '400':
+          description: Invalid request - occurs when tool name is missing, parameters are malformed, or tool definition validation fails
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required - missing or invalid access token
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Tool or connected account not found - occurs when the specified tool name or connected account does not exist
+          content:
+            application/json:
+              schema: {}
+        '500':
+          description: Tool execution failed - occurs when the external service returns an error or the tool encounters a runtime exception
+          content:
+            application/json:
+              schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/toolsExecuteToolRequest'
+        required: true
+      x-codeSamples:
+        - label: Node.js SDK
+          lang: javascript
+          source: |
+            // Coming soon — accurate SDK snippets for Execute tool (Tool Calling) will be added via scalekit-code-doctor (SK-399)
+        - label: Python SDK
+          lang: python
+          source: |
+            # Coming soon — accurate SDK snippets for Execute tool (Tool Calling) will be added via scalekit-code-doctor (SK-399)
+        - label: Go SDK
+          lang: go
+          source: |
+            // Coming soon — accurate SDK snippets for Execute tool (Tool Calling) will be added via scalekit-code-doctor (SK-399)
+        - label: Java SDK
+          lang: java
+          source: |
+            // Coming soon — accurate SDK snippets for Execute tool (Tool Calling) will be added via scalekit-code-doctor (SK-399)
+  /api/v1/mcp:
+    get:
+      description: Returns a list of existing MCPs, optionally filtered by connected_account_identifier and link_token.
+      tags:
+        - MCP
+      summary: List MCPs
+      operationId: McpService_ListMcp
+      parameters:
+        - schema:
+            type: string
+          description: Filter by connected account identifier
+          name: filter.connected_account_identifier
+          in: query
+        - schema:
+            type: string
+          description: Filter by link token
+          name: filter.link_token
+          in: query
+      responses:
+        '200':
+          description: List of MCPs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mcpListMcpResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema: {}
+    post:
+      description: Creates a new MCP for the configuration. If same configuration exists, it will return the existing MCP.
+      tags:
+        - MCP
+      summary: Create or retrieve MCP
+      operationId: McpService_CreateMcp
+      responses:
+        '200':
+          description: The created or existing MCP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mcpCreateMcpResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: MCP tool configuration to create or update
+              $ref: '#/components/schemas/mcpMcp'
+        required: true
+  /api/v1/mcp/{mcp_id}:
+    get:
+      description: Returns the existing MCP with the given ID.
+      tags:
+        - MCP
+      summary: Get MCP by ID
+      operationId: McpService_GetMcp
+      parameters:
+        - schema:
+            type: string
+          description: ID of the MCP to retrieve
+          name: mcp_id
+          in: path
+          required: true
+      responses:
+        '200':
+          description: The requested MCP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mcpGetMcpResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found - MCP does not exist
+          content:
+            application/json:
+              schema: {}
+    delete:
+      description: Deletes the MCP with the given ID.
+      tags:
+        - MCP
+      summary: Delete MCP by ID
+      operationId: McpService_DeleteMcp
+      parameters:
+        - schema:
+            type: string
+          description: ID of the MCP to delete
+          name: mcp_id
+          in: path
+          required: true
+      responses:
+        '200':
+          description: MCP deleted successfully
+          content:
+            application/json:
+              schema: {}
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found - MCP does not exist
+          content:
+            application/json:
+              schema: {}
+  /api/v1/mcp/configs:
+    get:
+      description: Lists MCP configurations for the current environment with optional filters for id, name prefix, and provider.
+      tags:
+        - MCP Configurations
+      summary: List MCP configurations
+      operationId: McpService_ListMcpConfigs
+      parameters:
+        - schema:
+            type: string
+          description: Filter by MCP configuration id
+          name: filter.id
+          in: query
+        - schema:
+            type: string
+          description: Case-insensitive prefix search on configuration name (minimum 3 characters)
+          name: filter.name
+          in: query
+        - schema:
+            type: string
+          description: Filter configs that include this provider
+          name: filter.provider
+          in: query
+        - schema:
+            type: string
+          description: Look ahead text search on config name
+          name: search
+          in: query
+        - schema:
+            type: integer
+            format: int64
+          description: Number of configs to return per page (max 30)
+          name: page_size
+          in: query
+        - schema:
+            type: string
+          description: Pagination token to fetch the next or previous page
+          name: page_token
+          in: query
+      responses:
+        '200':
+          description: Paginated list of MCP configurations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mcpListMcpConfigsResponse'
+        '400':
+          description: Invalid request - bad filter or pagination parameters
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema: {}
+    post:
+      description: Creates a new MCP configuration with a set of connections and tools.
+      tags:
+        - MCP Configurations
+      summary: Create a new MCP configuration
+      operationId: McpService_CreateMcpConfig
+      responses:
+        '201':
+          description: The newly created MCP configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mcpCreateMcpConfigResponse'
+        '400':
+          description: Invalid request - missing required fields or invalid connection/tool mappings
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required - missing or invalid access token
+          content:
+            application/json:
+              schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: MCP configuration details to create
+              $ref: '#/components/schemas/mcpMcpConfig'
+        required: true
+  /api/v1/mcp/configs/{config_id}:
+    get:
+      description: Returns a single MCP configuration for the current environment by ID.
+      tags:
+        - MCP Configurations
+      summary: Fetch an MCP configuration
+      operationId: McpService_GetMcpConfig
+      parameters:
+        - schema:
+            type: string
+          description: ID of the MCP configuration to fetch
+          name: config_id
+          in: path
+          required: true
+      responses:
+        '200':
+          description: The requested MCP configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mcpGetMcpConfigResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found - MCP configuration does not exist
+          content:
+            application/json:
+              schema: {}
+    put:
+      description: Updates the name, description, and connection-to-tool mappings for an existing MCP configuration.
+      tags:
+        - MCP Configurations
+      summary: Update an existing MCP configuration
+      operationId: McpService_UpdateMcpConfig
+      parameters:
+        - schema:
+            type: string
+          description: ID of the MCP configuration to update
+          name: config_id
+          in: path
+          required: true
+      responses:
+        '200':
+          description: The updated MCP configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mcpUpdateMcpConfigResponse'
+        '400':
+          description: Invalid request - malformed payload or invalid mappings
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found - MCP configuration does not exist
+          content:
+            application/json:
+              schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/McpServiceUpdateMcpConfigBody'
+        required: true
+    delete:
+      description: Deletes the MCP configuration and any associated mappings and instances in the current environment.
+      tags:
+        - MCP Configurations
+      summary: Delete an MCP configuration
+      operationId: McpService_DeleteMcpConfig
+      parameters:
+        - schema:
+            type: string
+          description: ID of the MCP configuration to delete
+          name: config_id
+          in: path
+          required: true
+      responses:
+        '200':
+          description: MCP configuration and associated data deleted successfully
+          content:
+            application/json:
+              schema: {}
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found - MCP configuration does not exist
+          content:
+            application/json:
+              schema: {}
+  /api/v1/mcp/instances:
+    get:
+      description: Lists MCP instances for the current environment with optional filters for instance id, name, configuration, and text search across name or user identifier.
+      tags:
+        - MCP Instances
+      summary: List MCP instances
+      operationId: McpService_ListMcpInstances
+      parameters:
+        - schema:
+            type: string
+          description: Filter by MCP instance id
+          name: filter.id
+          in: query
+        - schema:
+            type: string
+          description: Filter by exact instance name
+          name: filter.name
+          in: query
+        - schema:
+            type: string
+          description: Filter by MCP configuration name
+          name: filter.config_name
+          in: query
+        - schema:
+            type: string
+          description: Filter by user identifier
+          name: filter.user_identifier
+          in: query
+        - schema:
+            type: string
+          description: Case-insensitive look-ahead search across instance name and user identifier
+          name: search
+          in: query
+        - schema:
+            type: integer
+            format: int64
+          description: Number of instances to return per page (max 30)
+          name: page_size
+          in: query
+        - schema:
+            type: string
+          description: Pagination token to fetch the next or previous page
+          name: page_token
+          in: query
+      responses:
+        '200':
+          description: Paginated list of MCP instances
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mcpListMcpInstancesResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema: {}
+    post:
+      description: Returns an existing MCP instance for the given configuration, name, and user identifier or creates one if none exists.
+      tags:
+        - MCP Instances
+      summary: Get or create an MCP instance
+      operationId: McpService_EnsureMcpInstance
+      responses:
+        '200':
+          description: The existing or newly created MCP instance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mcpEnsureMcpInstanceResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/mcpEnsureMcpInstanceRequest'
+        required: true
+  /api/v1/mcp/instances/{instance_id}:
+    get:
+      description: Returns a single MCP instance for the current environment by ID.
+      tags:
+        - MCP Instances
+      summary: Fetch an MCP instance
+      operationId: McpService_GetMcpInstance
+      parameters:
+        - schema:
+            type: string
+          description: ID of the MCP instance to fetch
+          name: instance_id
+          in: path
+          required: true
+      responses:
+        '200':
+          description: The requested MCP instance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mcpGetMcpInstanceResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found - MCP instance does not exist
+          content:
+            application/json:
+              schema: {}
+    delete:
+      description: Deletes a single MCP instance in the current environment.
+      tags:
+        - MCP Instances
+      summary: Delete an MCP instance
+      operationId: McpService_DeleteMcpInstance
+      parameters:
+        - schema:
+            type: string
+          description: ID of the MCP instance to delete
+          name: instance_id
+          in: path
+          required: true
+      responses:
+        '200':
+          description: MCP instance deleted successfully
+          content:
+            application/json:
+              schema: {}
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found - MCP instance does not exist
+          content:
+            application/json:
+              schema: {}
+    patch:
+      description: Updates attributes of an MCP instance. Currently only the config name can be changed, which rebuilds the instance mappings.
+      tags:
+        - MCP Instances
+      summary: Update an MCP instance
+      operationId: McpService_UpdateMcpInstance
+      parameters:
+        - schema:
+            type: string
+          description: ID of the MCP instance to update
+          name: instance_id
+          in: path
+          required: true
+      responses:
+        '200':
+          description: The updated MCP instance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mcpUpdateMcpInstanceResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found - MCP instance does not exist
+          content:
+            application/json:
+              schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/McpServiceUpdateMcpInstanceBody'
+        required: true
+  /api/v1/mcp/instances/{instance_id}:get_auth_state:
+    post:
+      description: Returns the connected account status and fresh authentication links for each connection mapped to the MCP instance.
+      tags:
+        - MCP Instances
+      summary: Fetch connection auth state for an MCP instance
+      operationId: McpService_GetMcpInstanceAuthState
+      parameters:
+        - schema:
+            type: string
+          description: ID of the MCP instance whose connection statuses are requested
+          name: instance_id
+          in: path
+          required: true
+        - schema:
+            type: boolean
+          description: Whether to generate fresh authentication links for each connection
+          name: include_auth_links
+          in: query
+      responses:
+        '200':
+          description: Authentication state for each connection in the MCP instance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mcpGetMcpInstanceAuthStateResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found - MCP instance does not exist
+          content:
+            application/json:
+              schema: {}
+webhooks:
+  connected_account.created:
+    post:
+      summary: Connected Account Created
+      description: Triggered when a new connected account is created
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_101531404017336586
+              type: connected_account.created
+              object: ConnectedAccount
+              occurred_at: '2025-12-01T10:23:52.702980847Z'
+              environment_id: env_88640229614813449
+              data:
+                authorization_type: OAUTH
+                connection_id: conn_100668583155073286
+                id: ca_101531404000559370
+                identifier: Bruce
+                provider: CANVA
+                status: PENDING_AUTH
+      responses:
+        '200':
+          description: Webhook received successfully
+  connected_account.updated:
+    post:
+      summary: Connected Account Updated
+      description: Triggered when a connected account is updated
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_101652975398683158
+              type: connected_account.updated
+              object: ConnectedAccount
+              occurred_at: '2025-12-02T06:31:34.895815554Z'
+              environment_id: env_88640229614813449
+              display_name: Connected account updated
+              data:
+                authorization_type: OAUTH
+                connection_id: conn_100510054016352776
+                id: ca_100510623602835982
+                identifier: Pranesh
+                provider: SUPABASE
+                status: PENDING_AUTH
+      responses:
+        '200':
+          description: Webhook received successfully
+  connected_account.deleted:
+    post:
+      summary: Connected Account Deleted
+      description: Triggered when a connected account is deleted
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_101653010731500290
+              type: connected_account.deleted
+              object: ConnectedAccount
+              occurred_at: '2025-12-02T06:31:55.954027187Z'
+              environment_id: env_88640229614813449
+              display_name: connected account deleted
+              data:
+                authorization_type: OAUTH
+                connection_id: conn_101644109747323155
+                id: ca_101649788113519113
+                identifier: Clark
+                last_used_at: '2025-12-02T06:00:01.374253Z'
+                provider: GOOGLE_ADS
+                status: ACTIVE
+                token_expires_at: '2025-12-02T06:59:57.237447Z'
+      responses:
+        '200':
+          description: Webhook received successfully
+  connected_account.magic_link_generated:
+    post:
+      summary: Connected Account Magic Link Generated
+      description: Triggered when a magic link is generated for OAuth flow
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_101652975398683158
+              type: connected_account.magic_link_generated
+              object: ConnectedAccount
+              occurred_at: '2025-12-02T06:31:34.895815554Z'
+              environment_id: env_88640229614813448
+              data:
+                authorization_type: OAUTH
+                connection_id: conn_100510054016352776
+                id: ca_100510623602835982
+                identifier: Pranesh
+                provider: SUPABASE
+                status: PENDING_AUTH
+      responses:
+        '200':
+          description: Webhook received successfully
+  connected_account.oauth_tokens_fetched:
+    post:
+      summary: Connected Account OAuth Tokens Fetched
+      description: Triggered when OAuth tokens are successfully fetched
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_101649795042509316
+              type: connected_account.oauth_tokens_fetched
+              object: ConnectedAccount
+              occurred_at: '2025-12-02T05:59:59.250126407Z'
+              environment_id: env_88640229614813449
+              data:
+                authorization_type: OAUTH
+                connection_id: conn_101644109747323155
+                id: ca_101649788113519113
+                identifier: Clark
+                provider: GOOGLE_ADS
+                status: ACTIVE
+                token_expires_at: '2025-12-02T06:59:57.237447778Z'
+      responses:
+        '200':
+          description: Webhook received successfully
+  connected_account.token_refresh_succeeded:
+    post:
+      summary: Connected Account Token Refresh Succeeded
+      description: Triggered when token refresh succeeds
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_101651946317808143
+              type: connected_account.token_refresh_succeeded
+              object: ConnectedAccount
+              occurred_at: '2025-12-02T06:21:21.517480021Z'
+              environment_id: env_88640229614813449
+              data:
+                authorization_type: OAUTH
+                connection_id: conn_101644109747323155
+                id: ca_101644170698948883
+                identifier: Pranesh
+                last_used_at: '2025-12-02T06:21:21.393723232Z'
+                provider: GOOGLE_ADS
+                status: ACTIVE
+                token_expires_at: '2025-12-02T07:21:20.508197312Z'
+      responses:
+        '200':
+          description: Webhook received successfully
+  connected_account.token_refresh_failed:
+    post:
+      summary: Connected Account Token Refresh Failed
+      description: Triggered when token refresh fails
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_101649795042509316
+              type: connected_account.token_refresh_failed
+              object: ConnectedAccount
+              occurred_at: '2025-12-02T05:59:59.250126407Z'
+              environment_id: env_88640229614813445
+              data:
+                authorization_type: OAUTH
+                connection_id: conn_101644109747323155
+                id: ca_101649788113519113
+                identifier: Clark
+                provider: GOOGLE_ADS
+                status: ACTIVE
+                token_expires_at: '2025-12-02T06:59:57.237447778Z'
+      responses:
+        '200':
+          description: Webhook received successfully
+  connected_account.oauth_succeeded:
+    post:
+      summary: Connected Account OAuth Succeeded
+      description: Triggered when OAuth authentication succeeds
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_101649484227871236
+              type: connected_account.oauth_succeeded
+              object: ConnectedAccount
+              occurred_at: '2025-12-02T05:56:53.994604757Z'
+              environment_id: env_88640229614813449
+              data:
+                authorization_type: OAUTH
+                connection_id: conn_101644109747323155
+                id: ca_101649474950005257
+                identifier: Bruce
+                provider: GOOGLE_ADS
+                status: ACTIVE
+                token_expires_at: '2025-12-02T06:56:52.976081699Z'
+      responses:
+        '200':
+          description: Webhook received successfully
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://$SCALEKIT_ENVIRONMENT_URL/oauth/token
+          scopes:
+            '': No scope required for client credentials flow
+  schemas:
+    connected_accountsConnectorType:
+      description: |-
+        - OAUTH: OAuth 2.0 authorization with access and refresh tokens
+         - API_KEY: Static API key authentication
+         - BASIC_AUTH: HTTP Basic Authentication (username/password)
+         - BEARER_TOKEN: Bearer token authentication
+         - CUSTOM: Custom authentication mechanism
+         - BASIC: Basic authentication (alias)
+         - OAUTH_M2M: OAuth 2.0 client credentials (machine-to-machine)
+         - TRELLO_OAUTH1: Trello token-based OAuth1-style browser authorization
+         - GOOGLE_DWD: Google Domain-Wide Delegation
+      type: string
+      title: Type of authentication mechanism used for the connected account
+      enum:
+        - OAUTH
+        - API_KEY
+        - BASIC_AUTH
+        - BEARER_TOKEN
+        - CUSTOM
+        - BASIC
+        - OAUTH_M2M
+        - TRELLO_OAUTH1
+        - GOOGLE_DWD
+    connected_accountsConnectorStatus:
+      description: |-
+        - ACTIVE: Account is connected and credentials are valid
+         - EXPIRED: Access token has expired and needs refresh
+         - PENDING_AUTH: Account awaiting user authorization (re-auth initiated)
+         - PENDING_VERIFICATION: OAuth complete; awaiting user identity verification
+        before activation
+         - DISCONNECTED: Account has been manually disconnected
+      type: string
+      title: Status of a connected account indicating its current state
+      enum:
+        - ACTIVE
+        - EXPIRED
+        - PENDING_AUTH
+        - PENDING_VERIFICATION
+        - DISCONNECTED
+    connected_accountsConnectedAccountForList:
+      type: object
+      title: Connected account summary for list operations - excludes sensitive authorization details
+      properties:
+        authorization_type:
+          description: Authorization mechanism type.
+          $ref: '#/components/schemas/connected_accountsConnectorType'
+        connection_id:
+          description: Parent connection configuration reference.
+          type: string
+          examples:
+            - conn_24834495392086178
+        connector:
+          description: Connector identifier.
+          type: string
+          examples:
+            - notion
+        id:
+          description: Unique connected account identifier.
+          type: string
+          examples:
+            - ca_24834495392086178
+        identifier:
+          description: The unique identifier for this account in the third-party service.
+          type: string
+          examples:
+            - user@example.com
+        last_used_at:
+          description: Last usage timestamp.
+          type: string
+          format: date-time
+          examples:
+            - '2024-03-20T14:30:00Z'
+        provider:
+          description: OAuth provider name (e.g., 'google', 'microsoft').
+          type: string
+          examples:
+            - google
+        status:
+          description: Current connection status.
+          $ref: '#/components/schemas/connected_accountsConnectorStatus'
+        token_expires_at:
+          description: Token expiration timestamp.
+          type: string
+          format: date-time
+          examples:
+            - '2024-12-31T23:59:59Z'
+        updated_at:
+          description: Last modification timestamp.
+          type: string
+          format: date-time
+          examples:
+            - '2024-03-20T15:04:05Z'
+    connected_accountsListConnectedAccountsResponse:
+      type: object
+      properties:
+        connected_accounts:
+          description: List of connected accounts matching the filter criteria. Excludes sensitive authorization details for security.
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/connected_accountsConnectedAccountForList'
+        next_page_token:
+          description: Pagination token for retrieving the next page. Empty if this is the last page. Pass this value to page_token in the next request.
+          type: string
+          examples:
+            - eyJvZmZzZXQiOjIwfQ==
+        prev_page_token:
+          description: Pagination token for retrieving the previous page. Empty if this is the first page. Pass this value to page_token to go back.
+          type: string
+          examples:
+            - eyJvZmZzZXQiOjB9
+        total_size:
+          description: Total count of connected accounts matching the filter criteria across all pages. Use for calculating pagination.
+          type: integer
+          format: int64
+          examples:
+            - 100
+    connected_accountsGoogleDWDAuth:
+      description: |-
+        Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections.
+        Send only subject in requests; access_token, scopes, and token_expires_at are response-only.
+      type: object
+      properties:
+        access_token:
+          description: OAuth access token acquired via the jwt-bearer grant. Present in responses only.
+          type: string
+          readOnly: true
+          examples:
+            - ya29.a0AfH6SMBx...
+        scopes:
+          description: OAuth scopes granted to this token. Present in responses only.
+          type: array
+          items:
+            type: string
+          readOnly: true
+          examples:
+            - - openid
+              - https://www.googleapis.com/auth/userinfo.email
+        subject:
+          description: Email address of the Google Workspace user to impersonate via Domain-Wide Delegation.
+          type: string
+          examples:
+            - user@example.com
+        token_expires_at:
+          description: When the access token expires. Present in responses only.
+          type: string
+          format: date-time
+          readOnly: true
+    connected_accountsOauthToken:
+      type: object
+      title: OAuth 2.0 access and refresh tokens with scopes
+      properties:
+        access_token:
+          description: OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
+          type: string
+          examples:
+            - ya29.a0AfH6SMBx...
+        domain:
+          description: Associated domain for workspace or organization-scoped OAuth connections (e.g., Google Workspace domain).
+          type: string
+          examples:
+            - example.com
+        refresh_token:
+          description: OAuth refresh token for obtaining new access tokens. Long-lived and used to maintain persistent authorization.
+          type: string
+          examples:
+            - 1//0gHJxZ-Lb2...
+        scopes:
+          description: List of granted OAuth scopes defining the permissions and access levels for this connection.
+          type: array
+          items:
+            type: string
+          examples:
+            - - https://www.googleapis.com/auth/drive.readonly
+              - https://www.googleapis.com/auth/userinfo.email
+    connected_accountsStaticAuth:
+      type: object
+      title: Static authentication credentials for API keys, bearer tokens, or basic auth
+      properties:
+        details:
+          description: Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
+          type: object
+          examples:
+            - api_key: sk_live_...
+              api_secret: ...
+    connected_accountsAuthorizationDetails:
+      type: object
+      title: Authentication credentials container supporting multiple auth types
+      properties:
+        google_dwd:
+          title: Google Domain-Wide Delegation credentials
+          $ref: '#/components/schemas/connected_accountsGoogleDWDAuth'
+        oauth_token:
+          title: OAuth 2.0 credentials
+          $ref: '#/components/schemas/connected_accountsOauthToken'
+        static_auth:
+          title: Static authentication credentials
+          $ref: '#/components/schemas/connected_accountsStaticAuth'
+    v1connected_accountsUpdateConnectedAccount:
+      type: object
+      title: Payload for updating an existing connected account - all fields optional
+      properties:
+        api_config:
+          description: Updated JSON configuration for API-specific settings. Merges with existing configuration - only provided fields are modified.
+          type: object
+          examples:
+            - rate_limit: 2000
+              timeout: 60
+        authorization_details:
+          description: Updated authentication credentials. Provide new OAuth tokens (e.g., after refresh) or updated static auth details. Only included fields will be modified.
+          $ref: '#/components/schemas/connected_accountsAuthorizationDetails'
+          examples:
+            - oauth_token:
+                access_token: ya29.new_token...
+                refresh_token: 1//0g...
+                scopes:
+                  - email
+                  - profile
+                  - calendar
+    connected_accountsUpdateConnectedAccountRequest:
+      type: object
+      properties:
+        connected_account:
+          description: Details of the connected account to update
+          $ref: '#/components/schemas/v1connected_accountsUpdateConnectedAccount'
+          examples:
+            - authorization_details:
+                oauth_token:
+                  access_token: ...
+                  refresh_token: ...
+                  scopes:
+                    - read
+                    - write
+              authorization_type: OAUTH2
+        connector:
+          description: Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.
+          type: string
+          examples:
+            - notion
+        id:
+          description: Unique identifier for the connected account to update
+          type: string
+          examples:
+            - ca_123
+        identifier:
+          description: The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).
+          type: string
+          examples:
+            - user@example.com
+        organization_id:
+          description: Organization ID for the connector
+          type: string
+          examples:
+            - org_121312434123312
+        user_id:
+          description: User ID for the connector
+          type: string
+          examples:
+            - user_121312434123312
+    connected_accountsConnectedAccount:
+      type: object
+      properties:
+        api_config:
+          description: Optional JSON configuration for connector-specific API settings such as rate limits, custom endpoints, or feature flags.
+          type: object
+          examples:
+            - base_url: https://api.custom-domain.com
+              rate_limit: 1000
+              timeout: 30
+        authorization_details:
+          description: Sensitive authentication credentials including access tokens, refresh tokens, and scopes. Contains either OAuth tokens or static auth details.
+          $ref: '#/components/schemas/connected_accountsAuthorizationDetails'
+        authorization_type:
+          description: Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+          $ref: '#/components/schemas/connected_accountsConnectorType'
+        connection_id:
+          description: Reference to the parent connection configuration. Links this account to a specific connector setup in your environment.
+          type: string
+          examples:
+            - conn_24834495392086178
+        connector:
+          description: Connector identifier (e.g., 'notion', 'slack', 'salesforce'). Indicates which third-party application this account connects to.
+          type: string
+          examples:
+            - notion
+        id:
+          description: Unique Scalekit-generated identifier for this connected account. Always prefixed with 'ca_'.
+          type: string
+          examples:
+            - ca_24834495392086178
+        identifier:
+          description: The unique identifier for this account in the third-party service. Typically an email address, user ID, or workspace identifier.
+          type: string
+          examples:
+            - user@example.com
+        last_used_at:
+          description: Timestamp when this connected account was last used to make an API call. Useful for tracking active connections.
+          type: string
+          format: date-time
+          examples:
+            - '2024-03-20T14:30:00Z'
+        provider:
+          description: OAuth provider name (e.g., 'google', 'microsoft', 'github'). Identifies which authentication service manages this connection.
+          type: string
+          examples:
+            - google
+        status:
+          description: Current status of the connected account. Indicates if the account is active, expired, pending authorization, or pending user identity verification.
+          $ref: '#/components/schemas/connected_accountsConnectorStatus'
+        token_expires_at:
+          description: Expiration timestamp for the access token. After this time, the token must be refreshed or re-authorized.
+          type: string
+          format: date-time
+          examples:
+            - '2024-12-31T23:59:59Z'
+        updated_at:
+          description: Timestamp when this connected account was last modified. Updated whenever credentials or configuration changes.
+          type: string
+          format: date-time
+          examples:
+            - '2024-03-20T15:04:05Z'
+    connected_accountsUpdateConnectedAccountResponse:
+      type: object
+      properties:
+        connected_account:
+          description: The updated connected account with refreshed credentials, new token expiry, and modified configuration settings.
+          $ref: '#/components/schemas/connected_accountsConnectedAccount'
+    v1connected_accountsCreateConnectedAccount:
+      type: object
+      title: Payload for creating a new connected account - authorization details are optional
+      properties:
+        api_config:
+          description: Optional JSON configuration for connector-specific API settings such as rate limits, custom API endpoints, timeouts, or feature flags.
+          type: object
+          examples:
+            - base_url: https://api.custom-domain.com
+              rate_limit: 1000
+              timeout: 30
+        authorization_details:
+          description: Optional authentication credentials for the connected account. Include OAuth tokens (access_token, refresh_token, scopes) or static auth details (API keys, bearer tokens). Can be provided later via update.
+          $ref: '#/components/schemas/connected_accountsAuthorizationDetails'
+          examples:
+            - oauth_token:
+                access_token: ya29.a0...
+                refresh_token: 1//0g...
+                scopes:
+                  - email
+                  - profile
+    connected_accountsCreateConnectedAccountRequest:
+      type: object
+      properties:
+        connected_account:
+          description: Details of the connected account to create
+          $ref: '#/components/schemas/v1connected_accountsCreateConnectedAccount'
+          examples:
+            - authorization_details:
+                oauth_token:
+                  access_token: ...
+                  refresh_token: ...
+                  scopes:
+                    - read
+                    - write
+              authorization_type: OAUTH2
+        connector:
+          description: Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.
+          type: string
+          examples:
+            - notion
+        identifier:
+          description: The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).
+          type: string
+          examples:
+            - user@example.com
+        organization_id:
+          description: Organization ID for the connector
+          type: string
+          examples:
+            - org_121312434123312
+        user_id:
+          description: User ID for the connector
+          type: string
+          examples:
+            - user_121312434123312
+    connected_accountsCreateConnectedAccountResponse:
+      type: object
+      properties:
+        connected_account:
+          description: The newly created connected account with its unique identifier, status, and complete authorization details including access tokens.
+          $ref: '#/components/schemas/connected_accountsConnectedAccount'
+    connected_accountsGetConnectedAccountByIdentifierResponse:
+      type: object
+      properties:
+        connected_account:
+          description: The connected account with complete details including sensitive authorization credentials (access tokens, refresh tokens, scopes). Handle with appropriate access controls.
+          $ref: '#/components/schemas/connected_accountsConnectedAccount'
+    connected_accountsGetMagicLinkForConnectedAccountRequest:
+      type: object
+      properties:
+        connector:
+          description: Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.
+          type: string
+          examples:
+            - notion
+        id:
+          description: Unique identifier for the connected account
+          type: string
+          examples:
+            - ca_123
+        identifier:
+          description: The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).
+          type: string
+          examples:
+            - user@example.com
+        organization_id:
+          description: Organization ID for the connector
+          type: string
+          examples:
+            - org_121312434123312
+        state:
+          description: Optional opaque state value. State added to the user verify redirect URL query params to validate the user verification
+          type: string
+          examples:
+            - QVNDSUFyY2hhYml0dGVyXzE2ODQ5NzIwNzI0NTY=
+        user_id:
+          description: User ID for the connector
+          type: string
+          examples:
+            - user_121312434123312
+        user_verify_url:
+          description: B2B app's user verify redirect URL
+          type: string
+          examples:
+            - https://app.yourapp.com/user/verify/callback
+    connected_accountsGetMagicLinkForConnectedAccountResponse:
+      type: object
+      properties:
+        expiry:
+          description: Expiry timestamp for the authentication link
+          type: string
+          format: date-time
+          examples:
+            - '2024-03-20T15:04:05Z'
+        link:
+          description: Authentication link for the connector
+          type: string
+          examples:
+            - https://notion.com/oauth/authorize?client_id=...
+    connected_accountsVerifyConnectedAccountUserRequest:
+      type: object
+      required:
+        - auth_request_id
+        - identifier
+      properties:
+        auth_request_id:
+          description: Auth request ID as base64url-encoded opaque token from the user verify redirect URL query params
+          type: string
+          examples:
+            - QVNDSUFyY2hhYml0dGVyXzE2ODQ5NzIwNzI0NTY=
+        identifier:
+          description: Current logged in user's connected account identifier
+          type: string
+          examples:
+            - user@example.com
+    connected_accountsVerifyConnectedAccountUserResponse:
+      type: object
+      properties:
+        post_user_verify_redirect_url:
+          description: URL to redirect the user to after successful verification
+          type: string
+          examples:
+            - https://env1.example.com/connect/success
+    connected_accountsDeleteConnectedAccountRequest:
+      type: object
+      properties:
+        connector:
+          description: Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.
+          type: string
+          examples:
+            - notion
+        id:
+          description: Unique identifier for the connected account to delete
+          type: string
+          examples:
+            - ca_123
+        identifier:
+          description: The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).
+          type: string
+          examples:
+            - user@example.com
+        organization_id:
+          description: Organization ID for the connector
+          type: string
+          examples:
+            - org_121312434123312
+        user_id:
+          description: User ID for the connector
+          type: string
+          examples:
+            - user_121312434123312
+    connected_accountsSearchConnectedAccountsResponse:
+      type: object
+      properties:
+        connected_accounts:
+          description: List of connected accounts matching the search query. Excludes sensitive authorization details.
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/connected_accountsConnectedAccountForList'
+        next_page_token:
+          description: Pagination token for the next page. Empty if this is the last page.
+          type: string
+          examples:
+            - eyJvZmZzZXQiOjMwfQ==
+        prev_page_token:
+          description: Pagination token for the previous page. Empty if this is the first page.
+          type: string
+          examples:
+            - eyJvZmZzZXQiOjB9
+        total_size:
+          description: Total count of accounts matching the search query across all pages.
+          type: integer
+          format: int64
+          examples:
+            - 100
+    v1providersCreateCustomProvider:
+      type: object
+      properties:
+        auth_patterns:
+          description: Authentication patterns for the connected app provider
+          type: array
+          items:
+            type: object
+        description:
+          description: Description of the connected app provider
+          type: string
+          examples:
+            - Connect to Google Workspace for email and calendar integration
+        display_name:
+          description: Display name for the connected app provider
+          type: string
+          examples:
+            - Google Workspace
+        icon_src:
+          description: URL for the provider icon. Should be an SVG image sized 800x800 pixels for best rendering experience.
+          type: string
+          examples:
+            - https://example.com/images/my-connector.svg
+        metadata:
+          description: Custom key-value metadata for this provider. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+          type: object
+          additionalProperties:
+            type: string
+          examples:
+            - api_version: v2
+              region: us-east-1
+        proxy_enabled:
+          description: This flag indicates whether proxying is turned on for the connected app provider. When enabled, requests are routed through the provider proxy instead of being sent directly.
+          type: boolean
+          examples:
+            - true
+        proxy_url:
+          description: Proxy URL for the connected app provider. Must start with https://
+          type: string
+          examples:
+            - https://mcp.example.com/mcp
+    providersProvider:
+      type: object
+      title: Provider represents a connected app provider
+      properties:
+        auth_patterns:
+          type: array
+          items:
+            type: object
+        categories:
+          type: array
+          items:
+            type: string
+        coming_soon:
+          type: boolean
+        description:
+          type: string
+        display_name:
+          type: string
+        display_priority:
+          type: integer
+          format: int32
+        icon_src:
+          type: string
+        id:
+          type: string
+        identifier:
+          type: string
+        is_custom:
+          description: Indicates whether the provider is environment-scoped (custom provider)
+          type: boolean
+          examples:
+            - false
+        is_custom_mcp:
+          description: Indicates whether this is an environment-scoped MCP-based custom provider
+          type: boolean
+          examples:
+            - false
+        metadata:
+          description: Custom key-value metadata stored for this provider. Returned for all providers; defaults to {} when no metadata has been set.
+          type: object
+          additionalProperties:
+            type: string
+          examples:
+            - api_version: v2
+              region: us-east-1
+        proxy_enabled:
+          type: boolean
+        proxy_url:
+          type: string
+    providersCreateProviderResponse:
+      type: object
+      properties:
+        provider:
+          $ref: '#/components/schemas/providersProvider'
+    v1providersUpdateCustomProvider:
+      type: object
+      properties:
+        auth_patterns:
+          description: Authentication patterns for the connected app provider
+          type: array
+          items:
+            type: object
+        description:
+          description: Description of the connected app provider
+          type: string
+          examples:
+            - Connect to Google Workspace for email and calendar integration
+        display_name:
+          description: Display name for the connected app provider
+          type: string
+          examples:
+            - Google Workspace
+        icon_src:
+          description: URL for the provider icon. Should be an SVG image sized 800x800 pixels for best rendering experience.
+          type: string
+          examples:
+            - https://example.com/images/my-connector.svg
+        metadata:
+          description: Custom key-value metadata for this provider. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+          type: object
+          additionalProperties:
+            type: string
+          examples:
+            - api_version: v2
+              region: us-east-1
+        proxy_enabled:
+          description: This flag indicates whether proxying is turned on for the connected app provider. When enabled, requests are routed through the provider proxy instead of being sent directly.
+          type: boolean
+          examples:
+            - true
+        proxy_url:
+          description: Proxy URL for the connected app provider. Must start with https://
+          type: string
+          examples:
+            - https://mcp.example.com/mcp
+    providersUpdateProviderResponse:
+      type: object
+      properties:
+        provider:
+          $ref: '#/components/schemas/providersProvider'
+    providersDeleteProviderResponse:
+      type: object
+    toolsExecuteToolRequest:
+      type: object
+      properties:
+        agent_run_id:
+          description: Optional. Customer-supplied identifier grouping multiple tool calls into a single agent run. Useful for correlating logs across an agentic workflow.
+          type: string
+          examples:
+            - run_abc123
+        connected_account_id:
+          description: Optional. The unique ID of the connected account. Use this to directly identify the connected account instead of using identifier + connector combination.
+          type: string
+          examples:
+            - ca_123
+        connector:
+          description: Optional. The name of the connector/provider (e.g., 'Google Workspace', 'Slack', 'Notion'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed. Use this in combination with identifier to identify the connected account.
+          type: string
+          examples:
+            - Google Workspace
+        identifier:
+          description: Optional. The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier). Use this in combination with connector to identify the connected account.
+          type: string
+          examples:
+            - user@example.com
+        organization_id:
+          description: Optional. The organization ID to scope the connected account lookup. Use this to narrow down the search when the same identifier exists across multiple organizations.
+          type: string
+          examples:
+            - org_123
+        params:
+          description: JSON object containing the parameters required for tool execution. The structure depends on the specific tool being executed.
+          type: object
+          examples:
+            - body: Hello World
+              subject: Hello
+              to: user@example.com
+        tool_name:
+          description: Name of the tool to execute
+          type: string
+          examples:
+            - send_email
+        user_id:
+          description: Optional. The user ID to scope the connected account lookup. Use this to narrow down the search when the same identifier exists across multiple users.
+          type: string
+          examples:
+            - user_123
+    toolsExecuteToolResponse:
+      type: object
+      properties:
+        data:
+          description: Free-flowing JSON parameters for the tool execution
+          type: object
+          examples:
+            - body: Hello World
+              subject: Hello
+              to: user@example.com
+        execution_id:
+          description: Unique identifier for the tool execution
+          type: string
+          examples:
+            - '123456789'
+    mcpToolMapping:
+      type: object
+      properties:
+        connection_name:
+          description: Connection name for the tool
+          type: string
+          examples:
+            - MY-GMAIL
+        status:
+          description: Authentication status of the tool
+          type: string
+          readOnly: true
+          examples:
+            - ACTIVE
+        tool_names:
+          description: List of tool names
+          type: array
+          items:
+            type: string
+          examples:
+            - - GMAIL_FETCH_MAILS
+              - LIST_DRAFTS
+    mcpMcp:
+      type: object
+      properties:
+        connected_account_identifier:
+          description: Identifier for the connected account
+          type: string
+          examples:
+            - account_123
+        id:
+          description: Unique ID of the tool
+          type: string
+          readOnly: true
+          examples:
+            - res_123
+        tool_mappings:
+          description: Provider name (e.g. GOOGLE)
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/mcpToolMapping'
+          examples:
+            - GOOGLE
+        url:
+          description: Unique ID of the tool
+          type: string
+          readOnly: true
+          examples:
+            - https://example.com/mcp/v1/abc
+    mcpListMcpResponse:
+      type: object
+      properties:
+        mcps:
+          description: List of MCPs
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/mcpMcp'
+    mcpCreateMcpResponse:
+      type: object
+      properties:
+        mcp:
+          description: The MCP server details
+          $ref: '#/components/schemas/mcpMcp'
+    mcpGetMcpResponse:
+      type: object
+      properties:
+        mcp:
+          description: The MCP details
+          $ref: '#/components/schemas/mcpMcp'
+    mcpMcpConfigConnectionToolMapping:
+      type: object
+      properties:
+        connected_account_id:
+          description: Connected account backing this connection in the MCP instance context
+          type: string
+        connected_account_status:
+          description: Authentication status for the connected account
+          type: string
+        connection_id:
+          description: Unique ID of the connection
+          type: string
+          readOnly: true
+        connection_name:
+          description: Developer-assigned connection name
+          type: string
+        provider:
+          description: Provider name for this connection
+          type: string
+          readOnly: true
+        tools:
+          description: List of tool names linked to this connection (empty = all tools)
+          type: array
+          items:
+            type: string
+    mcpMcpConfig:
+      type: object
+      properties:
+        connection_tool_mappings:
+          description: List of connection-to-tool mappings for this MCP config
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/mcpMcpConfigConnectionToolMapping'
+        description:
+          description: Description of the MCP configuration
+          type: string
+          examples:
+            - Summarizes daily emails and posts to Slack
+        id:
+          description: Unique ID of the MCP config
+          type: string
+          readOnly: true
+          examples:
+            - cfg_85630864460904897
+        name:
+          description: Unique name for the MCP configuration
+          type: string
+          examples:
+            - daily-summarizer
+    mcpListMcpConfigsResponse:
+      type: object
+      properties:
+        configs:
+          description: List of MCP configurations
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/mcpMcpConfig'
+        next_page_token:
+          description: Pagination token to fetch the next page
+          type: string
+        prev_page_token:
+          description: Pagination token to fetch the previous page
+          type: string
+        total_size:
+          description: Total number of configs matching the filter
+          type: integer
+          format: int64
+    mcpCreateMcpConfigResponse:
+      type: object
+      properties:
+        config:
+          description: The created MCP configuration
+          $ref: '#/components/schemas/mcpMcpConfig'
+    mcpGetMcpConfigResponse:
+      type: object
+      properties:
+        config:
+          description: The requested MCP configuration
+          $ref: '#/components/schemas/mcpMcpConfig'
+    McpServiceUpdateMcpConfigBody:
+      type: object
+      properties:
+        connection_tool_mappings:
+          description: Updated list of connection-to-tool mappings for this MCP config
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/mcpMcpConfigConnectionToolMapping'
+        description:
+          description: Updated description for the MCP configuration
+          type: string
+          examples:
+            - Updated daily summarizer config
+    mcpUpdateMcpConfigResponse:
+      type: object
+      properties:
+        config:
+          description: The updated MCP configuration
+          $ref: '#/components/schemas/mcpMcpConfig'
+    mcpMcpInstance:
+      type: object
+      properties:
+        config:
+          description: Configuration backing this instance
+          $ref: '#/components/schemas/mcpMcpConfig'
+        id:
+          description: Unique ID of the MCP instance
+          type: string
+          readOnly: true
+          examples:
+            - inst_88630864544790977
+        last_used_at:
+          description: Timestamp when the instance was last used
+          type: string
+          format: date-time
+          examples:
+            - '0001-01-01T00:00:00Z'
+        name:
+          description: Display name of the instance
+          type: string
+          examples:
+            - daily-digest
+        updated_at:
+          description: Timestamp when the instance was last updated
+          type: string
+          format: date-time
+          examples:
+            - '2025-10-07T12:21:00Z'
+        url:
+          description: URL to reach the MCP instance
+          type: string
+          examples:
+            - https://example.com/mcp/v1/abc123
+        user_identifier:
+          description: Identifier for the user who owns or uses this instance
+          type: string
+          examples:
+            - akshay.parihar
+    mcpListMcpInstancesResponse:
+      type: object
+      properties:
+        instances:
+          description: List of MCP instances
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/mcpMcpInstance'
+        next_page_token:
+          description: Pagination token to fetch the next page
+          type: string
+        prev_page_token:
+          description: Pagination token to fetch the previous page
+          type: string
+        total_size:
+          description: Total number of instances matching the filter
+          type: integer
+          format: int64
+    mcpEnsureMcpInstanceRequest:
+      type: object
+      properties:
+        config_name:
+          description: Name of the MCP configuration to associate with the instance
+          type: string
+          examples:
+            - daily-summarizer
+        name:
+          description: Display name for the MCP instance
+          type: string
+          examples:
+            - daily-digest
+        user_identifier:
+          description: Identifier for the end user requesting the instance
+          type: string
+          examples:
+            - akshay.parihar
+    mcpEnsureMcpInstanceResponse:
+      type: object
+      properties:
+        instance:
+          description: Details of the MCP instance
+          $ref: '#/components/schemas/mcpMcpInstance'
+    mcpGetMcpInstanceResponse:
+      type: object
+      properties:
+        instance:
+          description: The requested MCP instance
+          $ref: '#/components/schemas/mcpMcpInstance'
+    McpServiceUpdateMcpInstanceBody:
+      type: object
+      properties:
+        config_name:
+          description: New MCP configuration name to attach to the instance
+          type: string
+          examples:
+            - daily-summarizer
+        name:
+          description: New display name for the MCP instance
+          type: string
+          examples:
+            - daily-digest-updated
+    mcpUpdateMcpInstanceResponse:
+      type: object
+      properties:
+        instance:
+          description: Updated MCP instance
+          $ref: '#/components/schemas/mcpMcpInstance'
+    mcpMcpInstanceConnectionAuthState:
+      type: object
+      properties:
+        authentication_link:
+          description: Magic link for reconnecting the connected account
+          type: string
+        connected_account_id:
+          description: Connected account backing the connection
+          type: string
+        connected_account_status:
+          description: Current authentication status of the connected account
+          type: string
+        connection_id:
+          description: Underlying connection identifier
+          type: string
+        connection_name:
+          description: Developer-assigned connection name
+          type: string
+        provider:
+          description: Provider backing the connection
+          type: string
+    mcpGetMcpInstanceAuthStateResponse:
+      type: object
+      properties:
+        connections:
+          description: Status of each connection mapped to the instance
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/mcpMcpInstanceConnectionAuthState'
+    ScalekitEvent:
+      type: object
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          example: evt_1234567890abcdef
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+          minLength: 1
+          maxLength: 32
+        type:
+          type: string
+          example: organization.created
+          description: The event type
+          enum:
+            - organization.created
+            - organization.updated
+            - organization.deleted
+            - organization.sso_created
+            - organization.sso_deleted
+            - organization.sso_enabled
+            - organization.sso_disabled
+            - user.signup
+            - user.login
+            - user.logout
+            - user.organization_invitation
+            - user.organization_membership_created
+            - user.organization_membership_updated
+            - user.organization_membership_deleted
+            - organization.directory.user_created
+            - organization.directory.user_updated
+            - organization.directory.user_deleted
+            - organization.directory.group_created
+            - organization.directory.group_updated
+            - organization.directory.group_deleted
+            - organization.directory_enabled
+            - organization.directory_disabled
+            - role.created
+            - role.updated
+            - role.deleted
+            - permission.created
+            - permission.updated
+            - permission.deleted
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+          example: '2024-01-01T00:00:00Z'
+        environment_id:
+          type: string
+          pattern: ^env_
+          example: env_1234567890abcdef
+          description: The environment ID where the event occurred
+          minLength: 1
+          maxLength: 32
+        organization_id:
+          type: string
+          pattern: ^org_
+          example: org_1234567890abcdef
+          description: The organization ID (if applicable)
+          minLength: 1
+          maxLength: 32
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - Organization
+            - Connection
+            - Role
+            - Directory
+            - DirectoryUser
+            - DirectoryGroup
+            - Permission
+            - OrgMembership
+            - User
+          example: Organization
+        data:
+          type: object
+          description: The event payload (structure varies by event type)
+          additionalProperties: true
+          example:
+            id: org_1234567890abcdef
+            name: Example Organization
+            created_at: '2024-01-01T00:00:00Z'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
+          example: Organization Created
+          minLength: 1
+          maxLength: 200

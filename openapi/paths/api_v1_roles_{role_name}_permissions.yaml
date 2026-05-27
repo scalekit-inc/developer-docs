@@ -1,0 +1,107 @@
+get:
+  description: >-
+    Retrieves all permissions directly assigned to the specified role, excluding
+    permissions inherited from base roles. Use this endpoint to view the
+    explicit permission assignments for a role, which is useful for
+    understanding direct role capabilities, auditing permission assignments, or
+    managing role-permission relationships. Provide the role name as a path
+    parameter, and the response will include only the permissions that are
+    directly assigned to that role. This operation does not include inherited
+    permissions from role hierarchies - use ListEffectiveRolePermissions to see
+    the complete set of permissions including inheritance. Returns a list of
+    permission objects with their names, descriptions, and assignment metadata.
+  tags:
+    - Roles
+  summary: List permissions for role
+  operationId: RolesService_ListRolePermissions
+  parameters:
+    - schema:
+        type: string
+      description: Name of the role
+      name: role_name
+      in: path
+      required: true
+  responses:
+    '200':
+      description: >-
+        Successfully retrieved role permissions. Returns a list of all
+        permissions directly assigned to the specified role, excluding inherited
+        permissions.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/rolesListRolePermissionsResponse.yaml
+  x-codeSamples:
+    - label: Node.js SDK
+      lang: javascript
+      source:
+        $ref: ../code_samples/javascript/api_v1_roles_{role_name}_permissions/get.js
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: ../code_samples/python/api_v1_roles_{role_name}_permissions/get.py
+    - label: Go SDK
+      lang: go
+      source:
+        $ref: ../code_samples/go/api_v1_roles_{role_name}_permissions/get.go
+    - label: Java SDK
+      lang: java
+      source:
+        $ref: ../code_samples/java/api_v1_roles_{role_name}_permissions/get.java
+post:
+  description: >-
+    Adds one or more permissions to the specified role while preserving existing
+    permission assignments. Use this endpoint to grant additional capabilities
+    to a role without affecting its current permission set. Provide the role
+    name as a path parameter and a list of permission names in the request body.
+    The system will validate that all specified permissions exist in the
+    environment and add them to the role. Existing permission assignments remain
+    unchanged, making this operation safe for incremental permission management.
+    This is useful for gradually expanding role capabilities or adding new
+    permissions as your system evolves. Returns the updated list of all
+    permissions now assigned to the role.
+  tags:
+    - Roles
+  summary: Add permissions to role
+  operationId: RolesService_AddPermissionsToRole
+  parameters:
+    - schema:
+        type: string
+      description: Name of the role
+      name: role_name
+      in: path
+      required: true
+  responses:
+    '200':
+      description: >-
+        Permissions added to role successfully. Returns the complete list of all
+        permissions now assigned to the role, including both existing and newly
+        added permissions.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/rolesAddPermissionsToRoleResponse.yaml
+  x-codeSamples:
+    - label: Node.js SDK
+      lang: javascript
+      source:
+        $ref: >-
+          ../code_samples/javascript/api_v1_roles_{role_name}_permissions/post.js
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: ../code_samples/python/api_v1_roles_{role_name}_permissions/post.py
+    - label: Go SDK
+      lang: go
+      source:
+        $ref: ../code_samples/go/api_v1_roles_{role_name}_permissions/post.go
+    - label: Java SDK
+      lang: java
+      source:
+        $ref: ../code_samples/java/api_v1_roles_{role_name}_permissions/post.java
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/RolesServiceAddPermissionsToRoleBody.yaml
+    required: true

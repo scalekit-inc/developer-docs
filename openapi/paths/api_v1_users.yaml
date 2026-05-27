@@ -1,0 +1,51 @@
+get:
+  description: >-
+    Retrieves a paginated list of all users across your entire environment. Use
+    this endpoint to view all users regardless of their organization
+    memberships. This is useful for administrative purposes, user audits, or
+    when you need to see all users in your Scalekit environment. Supports
+    pagination for large user bases.
+  tags:
+    - Users
+  summary: List all users in environment
+  operationId: UserService_ListUsers
+  parameters:
+    - schema:
+        type: integer
+        format: int64
+      description: >-
+        Maximum number of organizations to return per page. Must be between 10
+        and 100
+      name: page_size
+      in: query
+    - schema:
+        type: string
+      description: >-
+        Pagination token from the previous response. Use to retrieve the next
+        page of organizations
+      name: page_token
+      in: query
+  responses:
+    '200':
+      description: List of users.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/usersListUsersResponse.yaml
+  x-codeSamples:
+    - label: Node.js SDK
+      lang: javascript
+      source:
+        $ref: ../code_samples/javascript/api_v1_users/get.js
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: ../code_samples/python/api_v1_users/get.py
+    - label: Go SDK
+      lang: go
+      source:
+        $ref: ../code_samples/go/api_v1_users/get.go
+    - label: Java SDK
+      lang: java
+      source:
+        $ref: ../code_samples/java/api_v1_users/get.java

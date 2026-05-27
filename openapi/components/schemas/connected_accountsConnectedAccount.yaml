@@ -1,0 +1,86 @@
+type: object
+properties:
+  api_config:
+    description: >-
+      Optional JSON configuration for connector-specific API settings such as
+      rate limits, custom endpoints, or feature flags.
+    type: object
+    examples:
+      - base_url: https://api.custom-domain.com
+        rate_limit: 1000
+        timeout: 30
+  authorization_details:
+    description: >-
+      Sensitive authentication credentials including access tokens, refresh
+      tokens, and scopes. Contains either OAuth tokens or static auth details.
+    $ref: ./connected_accountsAuthorizationDetails.yaml
+  authorization_type:
+    description: >-
+      Type of authorization mechanism used. Specifies whether this connection
+      uses OAuth, API keys, bearer tokens, or other auth methods.
+    $ref: ./connected_accountsConnectorType.yaml
+  connection_id:
+    description: >-
+      Reference to the parent connection configuration. Links this account to a
+      specific connector setup in your environment.
+    type: string
+    examples:
+      - conn_24834495392086178
+  connector:
+    description: >-
+      Connector identifier (e.g., 'notion', 'slack', 'salesforce'). Indicates
+      which third-party application this account connects to.
+    type: string
+    examples:
+      - notion
+  id:
+    description: >-
+      Unique Scalekit-generated identifier for this connected account. Always
+      prefixed with 'ca_'.
+    type: string
+    examples:
+      - ca_24834495392086178
+  identifier:
+    description: >-
+      The unique identifier for this account in the third-party service.
+      Typically an email address, user ID, or workspace identifier.
+    type: string
+    examples:
+      - user@example.com
+  last_used_at:
+    description: >-
+      Timestamp when this connected account was last used to make an API call.
+      Useful for tracking active connections.
+    type: string
+    format: date-time
+    examples:
+      - '2024-03-20T14:30:00Z'
+  provider:
+    description: >-
+      OAuth provider name (e.g., 'google', 'microsoft', 'github'). Identifies
+      which authentication service manages this connection.
+    type: string
+    examples:
+      - google
+  status:
+    description: >-
+      Current status of the connected account. Indicates if the account is
+      active, expired, pending authorization, or pending user identity
+      verification.
+    $ref: ./connected_accountsConnectorStatus.yaml
+  token_expires_at:
+    description: >-
+      Expiration timestamp for the access token. After this time, the token must
+      be refreshed or re-authorized.
+    type: string
+    format: date-time
+    examples:
+      - '2024-12-31T23:59:59Z'
+  updated_at:
+    description: >-
+      Timestamp when this connected account was last modified. Updated whenever
+      credentials or configuration changes.
+    type: string
+    format: date-time
+    examples:
+      - '2024-03-20T15:04:05Z'

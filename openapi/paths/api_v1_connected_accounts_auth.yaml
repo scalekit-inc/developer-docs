@@ -1,0 +1,66 @@
+get:
+  description: >-
+    Retrieves complete authentication details for a connected account including
+    OAuth tokens, refresh tokens, scopes, and API configuration. Query by
+    account ID or by combination of organization/user, connector, and
+    identifier. Returns sensitive credential information - use appropriate
+    access controls.
+  tags:
+    - Connected Accounts
+  summary: Get connected account auth credentials
+  operationId: ConnectedAccountService_GetConnectedAccountAuth
+  parameters:
+    - schema:
+        type: string
+      description: Organization ID for the connector
+      name: organization_id
+      in: query
+    - schema:
+        type: string
+      description: User ID for the connector
+      name: user_id
+      in: query
+    - schema:
+        type: string
+      description: >-
+        Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric
+        characters, spaces, hyphens, underscores, and colons are allowed.
+      name: connector
+      in: query
+    - schema:
+        type: string
+      description: >-
+        The unique identifier for the connected account within the third-party
+        service (e.g., email address, user ID, workspace identifier).
+      name: identifier
+      in: query
+    - schema:
+        type: string
+      description: Unique identifier for the connected account
+      name: id
+      in: query
+  responses:
+    '200':
+      description: >-
+        Successfully retrieved connected account with full authentication
+        details
+      content:
+        application/json:
+          schema:
+            $ref: >-
+              ../components/schemas/connected_accountsGetConnectedAccountByIdentifierResponse.yaml
+    '400':
+      description: Invalid request - missing required query parameters
+      content:
+        application/json:
+          schema: {}
+    '401':
+      description: Authentication required - missing or invalid access token
+      content:
+        application/json:
+          schema: {}
+    '404':
+      description: Connected account not found - no account matches the specified criteria
+      content:
+        application/json:
+          schema: {}

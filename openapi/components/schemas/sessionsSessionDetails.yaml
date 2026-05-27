@@ -1,0 +1,122 @@
+type: object
+properties:
+  absolute_expires_at:
+    description: >-
+      Hard expiration timestamp for the session regardless of user activity. The
+      session will be forcibly terminated at this time. This represents the
+      maximum session lifetime from creation.
+    type: string
+    format: date-time
+    examples:
+      - '2025-01-22T10:30:00Z'
+  authenticated_clients:
+    description: >-
+      Details of the authenticated clients for this session: client ID and
+      organization context.
+    type: array
+    items:
+      type: object
+      $ref: ./sessionsAuthenticatedClients.yaml
+  authenticated_organizations:
+    description: >-
+      List of organization IDs that have been authenticated for this user within
+      the current session. Contains all organizations where the user has
+      successfully completed SSO or authentication.
+    type: array
+    items:
+      type: string
+    examples:
+      - - org_123
+        - org_456
+  created_at:
+    description: >-
+      Timestamp indicating when the session was created. This is set once at
+      session creation and remains constant throughout the session lifetime.
+    type: string
+    format: date-time
+    examples:
+      - '2025-01-15T10:30:00Z'
+  device:
+    description: >-
+      Complete device metadata associated with this session including browser,
+      operating system, device type, and geographic location based on IP
+      address.
+    $ref: ./sessionsDeviceDetails.yaml
+  expired_at:
+    description: >-
+      Timestamp when the session was terminated. Null if the session is still
+      active. Set when the session expires due to reaching idle_expires_at or
+      absolute_expires_at timeout, or when administratively revoked. Not set for
+      user-initiated logout (see logout_at instead).
+    type: string
+    format: date-time
+    examples:
+      - '2025-01-15T12:00:00Z'
+  idle_expires_at:
+    description: >-
+      Projected expiration timestamp if the session remains idle without user
+      activity. This timestamp is recalculated with each user activity. Session
+      will be automatically terminated at this time if no activity occurs.
+    type: string
+    format: date-time
+    examples:
+      - '2025-01-15T11:30:00Z'
+  last_active_at:
+    description: >-
+      Timestamp of the most recent user activity detected in this session.
+      Updated on each API request or user interaction. Used to determine if a
+      session has exceeded the idle timeout threshold.
+    type: string
+    format: date-time
+    examples:
+      - '2025-01-15T10:55:30Z'
+  logout_at:
+    description: >-
+      Timestamp when the user explicitly logged out from the session. Null if
+      the user has not logged out. When set, indicates the session ended due to
+      explicit user logout rather than timeout.
+    type: string
+    format: date-time
+    examples:
+      - '2025-01-15T14:00:00Z'
+  organization_id:
+    description: >-
+      Organization ID for the user's most recently active organization within
+      this session. This represents the primary organization context for the
+      current session.
+    type: string
+    examples:
+      - org_1234567890123456
+  session_id:
+    description: >-
+      Unique identifier for the session. System-generated read-only field used
+      to reference this session.
+    type: string
+    examples:
+      - ses_1234567890123456
+  status:
+    description: >-
+      Current operational status of the session. Possible values: 'active'
+      (session is valid and requests are allowed), 'expired' (session terminated
+      due to idle or absolute timeout), 'revoked' (session was administratively
+      revoked), 'logout' (user explicitly logged out). Use this to determine if
+      the session can be used for new requests.
+    type: string
+    examples:
+      - active
+  updated_at:
+    description: >-
+      Timestamp indicating when the session was last updated. Updated whenever
+      session state changes such as organization context changes or metadata
+      updates.
+    type: string
+    format: date-time
+    examples:
+      - '2025-01-15T10:45:00Z'
+  user_id:
+    description: >-
+      Unique identifier for the user who owns and is authenticated within this
+      session.
+    type: string
+    examples:
+      - usr_1234567890123456

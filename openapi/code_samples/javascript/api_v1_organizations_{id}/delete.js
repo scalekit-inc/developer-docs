@@ -1,0 +1,1 @@
+await scalekit.organization.deleteOrganization(organizationId);

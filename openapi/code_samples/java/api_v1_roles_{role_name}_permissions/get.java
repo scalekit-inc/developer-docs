@@ -1,0 +1,1 @@
+ListRolePermissionsResponse res = scalekitClient.permissions().listRolePermissions("admin");

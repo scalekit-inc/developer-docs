@@ -1,0 +1,165 @@
+post:
+  description: >-
+    Adds an existing user to an organization and assigns them specific roles and
+    permissions. Use this endpoint when you want to grant an existing user
+    access to a particular organization. You can specify roles, metadata, and
+    other membership details during the invitation process.
+  tags:
+    - Users
+  summary: Add existing user to organization
+  operationId: UserService_CreateMembership
+  parameters:
+    - schema:
+        type: string
+      description: >-
+        Unique identifier of the target organization. Must start with 'org_' and
+        be 1-32 characters long.
+      name: organization_id
+      in: path
+      required: true
+    - schema:
+        type: string
+      description: System-generated user ID. Must start with 'usr_' (19-25 characters)
+      name: id
+      in: path
+      required: true
+    - schema:
+        type: string
+      description: >-
+        External system identifier from connected directories. Must be unique
+        across the system
+      name: external_id
+      in: query
+    - schema:
+        type: boolean
+      description: If true, sends an activation email to the user. Defaults to true.
+      name: send_invitation_email
+      in: query
+  responses:
+    '201':
+      description: >-
+        User successfully added to the organization. Returns details of the
+        updated membership details
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/usersCreateMembershipResponse.yaml
+  x-codeSamples:
+    - label: Node.js SDK
+      lang: javascript
+      source:
+        $ref: >-
+          ../code_samples/javascript/api_v1_memberships_organizations_{organization_id}_users_{id}/post.js
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: >-
+          ../code_samples/python/api_v1_memberships_organizations_{organization_id}_users_{id}/post.py
+    - label: Go SDK
+      lang: go
+      source:
+        $ref: >-
+          ../code_samples/go/api_v1_memberships_organizations_{organization_id}_users_{id}/post.go
+    - label: Java SDK
+      lang: java
+      source:
+        $ref: >-
+          ../code_samples/java/api_v1_memberships_organizations_{organization_id}_users_{id}/post.java
+  requestBody:
+    content:
+      application/json:
+        schema:
+          description: Membership details to create. Required fields must be provided.
+          required:
+            - membership
+          $ref: ../components/schemas/v1usersCreateMembership.yaml
+    required: true
+delete:
+  description: >-
+    Removes a user from an organization by user ID or external ID. If the user
+    has no memberships left and cascade is true, the user is also deleted. This
+    action is irreversible and may also remove related group memberships.
+  tags:
+    - Users
+  summary: Delete organization membership for user
+  operationId: UserService_DeleteMembership
+  parameters:
+    - schema:
+        type: string
+      description: >-
+        Unique organization identifier. Must start with 'org_' and be 1-32
+        characters long
+      name: organization_id
+      in: path
+      required: true
+    - schema:
+        type: string
+      description: System-generated user ID. Must start with 'usr_' (19-25 characters)
+      name: id
+      in: path
+      required: true
+    - schema:
+        type: string
+      description: >-
+        External system identifier from connected directories. Must match
+        existing records
+      name: external_id
+      in: query
+  responses:
+    '200':
+      description: User successfully marked for deletion. No content returned
+      content:
+        application/json:
+          schema: {}
+  x-codeSamples:
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: >-
+          ../code_samples/python/api_v1_memberships_organizations_{organization_id}_users_{id}/delete.py
+patch:
+  description: >-
+    Updates a user's membership details within an organization by user ID or
+    external ID. You can update roles and membership metadata.
+  tags:
+    - Users
+  summary: Update organization membership for user
+  operationId: UserService_UpdateMembership
+  parameters:
+    - schema:
+        type: string
+      description: >-
+        Unique identifier of the organization containing the membership. Must
+        start with 'org_' and be 1-32 characters long.
+      name: organization_id
+      in: path
+      required: true
+    - schema:
+        type: string
+      description: >-
+        System-generated user ID. Must start with 'usr_' and be 19-25 characters
+        long.
+      name: id
+      in: path
+      required: true
+    - schema:
+        type: string
+      description: Your application's unique identifier for this user.
+      name: external_id
+      in: query
+  responses:
+    '200':
+      description: Membership updated successfully. Returns the updated user object.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/usersUpdateMembershipResponse.yaml
+  requestBody:
+    content:
+      application/json:
+        schema:
+          description: Membership fields to update. Only specified fields will be modified.
+          $ref: ../components/schemas/v1usersUpdateMembership.yaml
+          examples:
+            - role: admin
+    required: true

@@ -1,0 +1,80 @@
+patch:
+  description: >-
+    Resends an invitation email to a user who has a pending or expired
+    invitation in the specified organization. If the invitation has expired, a
+    new invitation will be automatically created and sent. If the invitation is
+    still valid, a reminder email will be sent instead. Use this endpoint when a
+    user hasn't responded to their initial invitation and you need to send them
+    a reminder or when the original invitation has expired. The invitation email
+    includes a secure magic link that allows the user to complete their account
+    setup and join the organization. Each resend operation increments the resent
+    counter.
+  tags:
+    - Users
+  summary: Resend user invitation email
+  operationId: UserService_ResendInvite
+  parameters:
+    - schema:
+        type: string
+      description: >-
+        Unique identifier of the organization containing the pending invitation.
+        Must start with 'org_' and be 1-32 characters long.
+      name: organization_id
+      in: path
+      required: true
+    - schema:
+        type: string
+      description: >-
+        System-generated user ID of the user who has a pending invitation. Must
+        start with 'usr_' and be 19-25 characters long.
+      name: id
+      in: path
+      required: true
+  responses:
+    '200':
+      description: >-
+        Successfully resent the invitation email. Returns the updated invitation
+        object with organization ID, user ID, membership status, timestamps, and
+        resent count. If expired, a new invitation is created; otherwise, the
+        existing one is resent.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/usersResendInviteResponse.yaml
+    '400':
+      description: >-
+        Invalid request — common causes include user ID or organization ID is
+        invalid, full-stack authentication is disabled, user profile is missing,
+        invite already accepted, or missing expiry time in user management
+        settings.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/errdetailsErrorInfo.yaml
+    '404':
+      description: >-
+        Resource not found — the specified user, organization, membership, or
+        invitation could not be found in the specified environment. Verify that
+        all IDs are correct and that the resources exist before attempting to
+        resend an invitation.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/errdetailsErrorInfo.yaml
+    '500':
+      description: >-
+        Internal server error — an unexpected error occurred while processing
+        the invitation resend request. This may be due to database connectivity
+        issues, problems generating the secure magic link, email delivery
+        service failures, or transaction errors during invitation processing.
+        Contact support if the problem persists.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/errdetailsErrorInfo.yaml
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/UserServiceResendInviteBody.yaml
+    required: true

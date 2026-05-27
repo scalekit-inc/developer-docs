@@ -1,0 +1,71 @@
+get:
+  description: >-
+    Retrieves the session policy for an organization. Returns
+    session_policy='APPLICATION' if the organization inherits the
+    application-level defaults, or session_policy='CUSTOM' with the configured
+    values if a custom policy is active.
+  tags:
+    - Organizations
+  summary: Get organization session policy
+  operationId: OrganizationService_GetOrganizationSessionPolicy
+  parameters:
+    - schema:
+        type: string
+      description: >-
+        The unique identifier of the organization whose session policy is being
+        requested.
+      name: organization_id
+      in: path
+      required: true
+  responses:
+    '200':
+      description: Session policy retrieved successfully.
+      content:
+        application/json:
+          schema:
+            $ref: >-
+              ../components/schemas/organizationsGetOrganizationSessionPolicyResponse.yaml
+    '404':
+      description: Organization not found.
+      content:
+        application/json:
+          schema: {}
+patch:
+  description: >-
+    Sets a custom session policy for an organization or reverts to
+    application-level settings. Send session_policy='APPLICATION' to revert to
+    application defaults. Send session_policy='CUSTOM' with timeout values to
+    activate a custom policy.
+  tags:
+    - Organizations
+  summary: Update organization session policy
+  operationId: OrganizationService_UpdateOrganizationSessionPolicy
+  parameters:
+    - schema:
+        type: string
+      description: >-
+        The unique identifier of the organization whose session policy is being
+        updated.
+      name: organization_id
+      in: path
+      required: true
+  responses:
+    '200':
+      description: Session policy updated successfully.
+      content:
+        application/json:
+          schema:
+            $ref: >-
+              ../components/schemas/organizationsUpdateOrganizationSessionPolicyResponse.yaml
+    '404':
+      description: Organization not found.
+      content:
+        application/json:
+          schema: {}
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: >-
+            ../components/schemas/OrganizationServiceUpdateOrganizationSessionPolicyBody.yaml
+    required: true

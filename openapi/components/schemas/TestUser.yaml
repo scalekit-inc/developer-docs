@@ -1,0 +1,27 @@
+type: object
+properties:
+  enabled:
+    type: boolean
+    description: Whether test user mode is enabled for this environment.
+    example: true
+  emails:
+    type: array
+    items:
+      type: string
+      format: email
+    description: >-
+      Explicit list of test user email addresses. Each email must contain
+      '+sktest' in the local part (e.g. alice+sktest@example.com). Maximum 5
+      emails per environment (configurable server-side).
+    example:
+      - alice+sktest@example.com
+      - bob+sktest@example.com
+  static_confirmation_code:
+    type: string
+    pattern: ^[0-9]{6}$
+    minLength: 6
+    maxLength: 6
+    description: >-
+      Six-digit static OTP code used in place of a real verification email for
+      matched test users.
+    example: '424242'

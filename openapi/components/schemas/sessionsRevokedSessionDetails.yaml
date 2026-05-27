@@ -1,0 +1,77 @@
+type: object
+properties:
+  absolute_expires_at:
+    description: >-
+      The absolute expiration timestamp that was configured for this session
+      before revocation. Represents the hard deadline regardless of activity.
+    type: string
+    format: date-time
+    examples:
+      - '2025-01-22T10:30:00Z'
+  created_at:
+    description: >-
+      Timestamp indicating when the session was originally created before
+      revocation.
+    type: string
+    format: date-time
+    examples:
+      - '2025-01-15T10:30:00Z'
+  expired_at:
+    description: >-
+      Timestamp when the session was actually terminated. Set to the revocation
+      time when the session is revoked.
+    type: string
+    format: date-time
+    examples:
+      - '2025-01-15T12:00:00Z'
+  idle_expires_at:
+    description: >-
+      The idle expiration timestamp that was configured for this session before
+      revocation. Represents when the session would have expired due to
+      inactivity.
+    type: string
+    format: date-time
+    examples:
+      - '2025-01-15T11:30:00Z'
+  last_active_at:
+    description: >-
+      Timestamp of the last recorded user activity in this session before
+      revocation. Helps identify inactive sessions that were revoked.
+    type: string
+    format: date-time
+    examples:
+      - '2025-01-15T10:55:30Z'
+  logout_at:
+    description: >-
+      Timestamp when the user explicitly logged out (if applicable). Null if the
+      session was revoked without prior logout.
+    type: string
+    format: date-time
+    examples:
+      - '2025-01-15T14:00:00Z'
+  session_id:
+    description: >-
+      Unique identifier for the revoked session. System-generated read-only
+      field.
+    type: string
+    examples:
+      - ses_1234567890123456
+  status:
+    description: >-
+      Status of the session after revocation. Always 'revoked' since only active
+      sessions can be revoked. Sessions that were already expired or logged out
+      are not included in the revocation response.
+    type: string
+    examples:
+      - revoked
+  updated_at:
+    description: Timestamp indicating when the session was last modified before revocation.
+    type: string
+    format: date-time
+    examples:
+      - '2025-01-15T10:45:00Z'
+  user_id:
+    description: Unique identifier for the user who owned this session.
+    type: string
+    examples:
+      - usr_1234567890123456

@@ -1,0 +1,68 @@
+put:
+  description: >-
+    Updates an existing environment-scoped custom provider (connector) by its
+    identifier. Only the fields provided in the request are modified.
+  tags:
+    - Connectors
+  summary: Update a custom provider
+  operationId: ProviderService_UpdateCustomProvider
+  parameters:
+    - schema:
+        type: string
+      description: Identifier of the custom connected app provider to update.
+      name: identifier
+      in: path
+      required: true
+  responses:
+    '200':
+      description: Returns the updated custom provider with its current configuration
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/providersUpdateProviderResponse.yaml
+    '400':
+      description: Invalid request - the update payload failed validation
+      content:
+        application/json:
+          schema: {}
+    '404':
+      description: Not Found - no custom provider exists with the given identifier
+      content:
+        application/json:
+          schema: {}
+  requestBody:
+    content:
+      application/json:
+        schema:
+          description: >-
+            Fields to update for the custom connected app provider. This aligns
+            with the create custom provider payload.
+          $ref: ../components/schemas/v1providersUpdateCustomProvider.yaml
+    required: true
+delete:
+  description: >-
+    Deletes an environment-scoped custom provider (connector) by its identifier.
+    This operation is permanent and removes the provider definition from the
+    environment.
+  tags:
+    - Connectors
+  summary: Delete a custom provider
+  operationId: ProviderService_DeleteCustomProvider
+  parameters:
+    - schema:
+        type: string
+      name: identifier
+      in: path
+      required: true
+  responses:
+    '200':
+      description: The custom provider was successfully deleted (no content returned)
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/providersDeleteProviderResponse.yaml
+    '404':
+      description: Not Found - no custom provider exists with the given identifier
+      content:
+        application/json:
+          schema: {}

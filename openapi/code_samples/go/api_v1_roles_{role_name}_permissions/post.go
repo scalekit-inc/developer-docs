@@ -1,0 +1,1 @@
+resp, err := scalekitClient.Permission().AddPermissionsToRole(ctx, "role_admin", []string{"perm.read", "perm.write"})

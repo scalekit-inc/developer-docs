@@ -1,0 +1,166 @@
+get:
+  description: >+
+    Retrieves a paginated list of all domains configured for the specified
+    organization.
+
+
+    Domain types:
+
+    - ALLOWED_EMAIL_DOMAIN: Trusted domains used to suggest the organization in
+    the organization switcher during sign-in/sign-up (auth-method agnostic).
+
+    - ORGANIZATION_DOMAIN: SSO discovery domains used to route users to the
+    correct SSO provider and enforce SSO.
+
+  tags:
+    - Domains
+  summary: List Domains
+  operationId: DomainService_ListDomains
+  parameters:
+    - schema:
+        type: string
+      description: >-
+        Scalekit-generated unique identifier for the organization. Use either
+        this or external_id to identify the organization.
+      name: organization_id
+      in: path
+      required: true
+    - schema:
+        type: string
+      description: >-
+        Optional comma-separated list of additional fields to include in the
+        response (e.g., 'verification_details').
+      name: include
+      in: query
+    - schema:
+        type: integer
+        format: int32
+      description: >-
+        Maximum number of domains to return per page. Default is 30, maximum is
+        100.
+      name: page_size
+      in: query
+    - schema:
+        type: integer
+        format: int32
+      description: Page number to retrieve (0-based). Use 0 for the first page.
+      name: page_number
+      in: query
+    - schema:
+        type: string
+        enum:
+          - ALLOWED_EMAIL_DOMAIN
+          - ORGANIZATION_DOMAIN
+      description: >
+        The domain type.
+
+        - ALLOWED_EMAIL_DOMAIN: trusted domain used to suggest the organization
+        in the organization switcher during sign-in/sign-up.
+
+        - ORGANIZATION_DOMAIN: SSO discovery domain used to route users to the
+        correct SSO provider and enforce SSO.
+      name: domain_type
+      in: query
+  responses:
+    '200':
+      description: Successfully retrieved the list of domains.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/domainsListDomainResponse.yaml
+  x-codeSamples:
+    - label: Node.js SDK
+      lang: javascript
+      source:
+        $ref: >-
+          ../code_samples/javascript/api_v1_organizations_{organization_id}_domains/get.js
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: >-
+          ../code_samples/python/api_v1_organizations_{organization_id}_domains/get.py
+    - label: Go SDK
+      lang: go
+      source:
+        $ref: >-
+          ../code_samples/go/api_v1_organizations_{organization_id}_domains/get.go
+    - label: Java SDK
+      lang: java
+      source:
+        $ref: >-
+          ../code_samples/java/api_v1_organizations_{organization_id}_domains/get.java
+post:
+  description: >+
+    Creates and associates a domain with an organization.
+
+
+    Use one of the following domain types:
+
+    - ALLOWED_EMAIL_DOMAIN: Adds a trusted email domain for organization
+    suggestions in the organization switcher during sign-in/sign-up (auth-method
+    agnostic).
+
+    - ORGANIZATION_DOMAIN: Enables SSO domain discovery. If a user signs in with
+    a matching email domain, Scalekit redirects them to the organization’s SSO
+    provider and enforces SSO.
+
+
+    The domain must be a valid business domain that you control.
+    Public/disposable domains (e.g., gmail.com) are blocked for security.
+
+  tags:
+    - Domains
+  summary: Create Domain
+  operationId: DomainService_CreateDomain
+  parameters:
+    - schema:
+        type: string
+      description: >-
+        Scalekit-generated unique identifier for the organization. Use either
+        this or external_id to identify the organization.
+      name: organization_id
+      in: path
+      required: true
+  responses:
+    '200':
+      description: Successfully created the domain.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/domainsCreateDomainResponse.yaml
+    '400':
+      description: >-
+        Invalid request — common causes invalid domain format, public or
+        disposable domain, or domain already exists.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/errdetailsErrorInfo.yaml
+  x-codeSamples:
+    - label: Node.js SDK
+      lang: javascript
+      source:
+        $ref: >-
+          ../code_samples/javascript/api_v1_organizations_{organization_id}_domains/post.js
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: >-
+          ../code_samples/python/api_v1_organizations_{organization_id}_domains/post.py
+    - label: Go SDK
+      lang: go
+      source:
+        $ref: >-
+          ../code_samples/go/api_v1_organizations_{organization_id}_domains/post.go
+    - label: Java SDK
+      lang: java
+      source:
+        $ref: >-
+          ../code_samples/java/api_v1_organizations_{organization_id}_domains/post.java
+  requestBody:
+    content:
+      application/json:
+        schema:
+          description: Domain configuration including the domain name and type.
+          $ref: ../components/schemas/v1domainsCreateDomain.yaml
+    required: true

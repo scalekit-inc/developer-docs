@@ -286,8 +286,12 @@ const lines = [
   '',
   '## Optional',
   '',
-  `- [API reference markdown](${BASE_URL}/apis.md): LLM-friendly Markdown from the Scalekit OpenAPI specification`,
-  `- [OpenAPI Specification](${BASE_URL}/api/scalekit.scalar.json): OpenAPI Specification for Scalekit REST API`,
+  `- [API reference markdown — all endpoints](${BASE_URL}/apis.md): LLM-friendly Markdown from the full Scalekit OpenAPI specification`,
+  `- [AgentKit API reference markdown](${BASE_URL}/agentkit/apis.md): AgentKit APIs — connected accounts, tool execution, webhooks`,
+  `- [SaaSKit API reference markdown](${BASE_URL}/saaskit/apis.md): SaaSKit APIs — SSO, SCIM, directories, sessions, roles, users`,
+  `- [OpenAPI Specification — all endpoints](${BASE_URL}/api/scalekit.scalar.json): OpenAPI Specification for Scalekit REST API`,
+  `- [AgentKit OpenAPI Specification](${BASE_URL}/api/agentkit.scalar.json): OpenAPI Specification for AgentKit REST API`,
+  `- [SaaSKit OpenAPI Specification](${BASE_URL}/api/saaskit.scalar.json): OpenAPI Specification for SaaSKit REST API`,
   '',
 ]
 

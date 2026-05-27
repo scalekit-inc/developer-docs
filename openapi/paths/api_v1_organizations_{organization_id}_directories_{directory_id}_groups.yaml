@@ -1,0 +1,84 @@
+get:
+  description: >-
+    Retrieves all groups from a specified directory. Use this endpoint to view
+    group structures from your connected identity provider.
+  tags:
+    - Directory
+  summary: List directory groups
+  operationId: DirectoryService_ListDirectoryGroups
+  parameters:
+    - schema:
+        type: string
+      description: Unique identifier of the organization
+      name: organization_id
+      in: path
+      required: true
+    - schema:
+        type: string
+      description: Unique identifier of the directory
+      name: directory_id
+      in: path
+      required: true
+    - schema:
+        type: integer
+        format: int64
+      description: >-
+        Number of groups to return per page. Maximum value is 30. If not
+        specified, defaults to 10
+      name: page_size
+      in: query
+    - schema:
+        type: string
+      description: >-
+        Token for pagination. Use the value returned in the 'next_page_token'
+        field of the previous response
+      name: page_token
+      in: query
+    - schema:
+        type: string
+        format: date-time
+      description: Filter groups updated after this timestamp. Use ISO 8601 format
+      name: updated_after
+      in: query
+    - schema:
+        type: boolean
+      description: >-
+        If true, includes full group details. If false or not specified, returns
+        basic information only
+      name: include_detail
+      in: query
+    - schema:
+        type: boolean
+      description: >-
+        If true, returns group and its details from external provider (default:
+        false)
+      name: include_external_groups
+      in: query
+  responses:
+    '200':
+      description: Successfully retrieved the list of groups from the specified directory
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/directoriesListDirectoryGroupsResponse.yaml
+  x-codeSamples:
+    - label: Node.js SDK
+      lang: javascript
+      source:
+        $ref: >-
+          ../code_samples/javascript/api_v1_organizations_{organization_id}_directories_{directory_id}_groups/get.js
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: >-
+          ../code_samples/python/api_v1_organizations_{organization_id}_directories_{directory_id}_groups/get.py
+    - label: Go SDK
+      lang: go
+      source:
+        $ref: >-
+          ../code_samples/go/api_v1_organizations_{organization_id}_directories_{directory_id}_groups/get.go
+    - label: Java SDK
+      lang: java
+      source:
+        $ref: >-
+          ../code_samples/java/api_v1_organizations_{organization_id}_directories_{directory_id}_groups/get.java

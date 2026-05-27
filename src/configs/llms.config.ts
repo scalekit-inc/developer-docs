@@ -195,14 +195,34 @@ Start with the Quickstart Collection, then follow the developer's question to th
   // Add external resources not included in main documentation
   optionalLinks: [
     {
-      label: 'API reference markdown',
+      label: 'API reference markdown (all endpoints)',
       url: '/apis.md',
-      description: 'LLM-friendly Markdown generated from the Scalekit OpenAPI specification',
+      description: 'LLM-friendly Markdown generated from the full Scalekit OpenAPI specification',
     },
     {
-      label: 'OpenAPI Specification',
+      label: 'AgentKit API reference markdown',
+      url: '/agentkit/apis.md',
+      description: 'LLM-friendly Markdown for AgentKit APIs — connected accounts, tool execution, webhooks',
+    },
+    {
+      label: 'SaaSKit API reference markdown',
+      url: '/saaskit/apis.md',
+      description: 'LLM-friendly Markdown for SaaSKit APIs — SSO, SCIM, directories, sessions, roles, users',
+    },
+    {
+      label: 'OpenAPI Specification (all endpoints)',
       url: '/api/scalekit.scalar.json',
       description: 'OpenAPI Specification for Scalekit REST API',
+    },
+    {
+      label: 'AgentKit OpenAPI Specification',
+      url: '/api/agentkit.scalar.json',
+      description: 'OpenAPI Specification for AgentKit REST API',
+    },
+    {
+      label: 'SaaSKit OpenAPI Specification',
+      url: '/api/saaskit.scalar.json',
+      description: 'OpenAPI Specification for SaaSKit REST API',
     },
     {
       label: 'Postman Collection',

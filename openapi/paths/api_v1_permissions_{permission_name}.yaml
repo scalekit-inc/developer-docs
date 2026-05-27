@@ -1,0 +1,148 @@
+get:
+  description: >-
+    Retrieves complete information for a specific permission by its unique name
+    identifier. Use this endpoint to view permission details including
+    description, creation time, and last update time. Provide the permission
+    name in the path parameter following the format 'action:resource' (for
+    example, 'read:documents'). This operation is useful for auditing permission
+    definitions, understanding permission purposes, or verifying permission
+    existence before assignment. Returns the complete permission object with all
+    metadata and system-generated timestamps.
+  tags:
+    - Permissions
+  summary: Retrieve permission details
+  operationId: RolesService_GetPermission
+  parameters:
+    - schema:
+        type: string
+      description: Name of the permission
+      name: permission_name
+      in: path
+      required: true
+  responses:
+    '200':
+      description: >-
+        Successfully retrieved permission details. Returns the complete
+        permission object including name, description, creation time, and update
+        time.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/rolesGetPermissionResponse.yaml
+  x-codeSamples:
+    - label: Node.js SDK
+      lang: javascript
+      source:
+        $ref: ../code_samples/javascript/api_v1_permissions_{permission_name}/get.js
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: ../code_samples/python/api_v1_permissions_{permission_name}/get.py
+    - label: Go SDK
+      lang: go
+      source:
+        $ref: ../code_samples/go/api_v1_permissions_{permission_name}/get.go
+    - label: Java SDK
+      lang: java
+      source:
+        $ref: ../code_samples/java/api_v1_permissions_{permission_name}/get.java
+put:
+  description: >-
+    Modifies an existing permission's attributes including description and
+    metadata. Use this endpoint to update permission descriptions or clarify
+    permission purposes after creation. The permission is identified by its
+    unique name in the path parameter, and only the fields you specify in the
+    request body will be updated. Note that the permission name itself cannot be
+    changed as it serves as the immutable identifier. This operation is useful
+    for maintaining clear documentation of permission purposes or updating
+    descriptions to reflect changes in system functionality. Returns the updated
+    permission object with modified timestamps.
+  tags:
+    - Permissions
+  summary: Update permission details
+  operationId: RolesService_UpdatePermission
+  parameters:
+    - schema:
+        type: string
+      description: Name of the permission
+      name: permission_name
+      in: path
+      required: true
+  responses:
+    '200':
+      description: >-
+        Permission updated successfully. Returns the modified permission object
+        with updated description and timestamps.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/rolesUpdatePermissionResponse.yaml
+  x-codeSamples:
+    - label: Node.js SDK
+      lang: javascript
+      source:
+        $ref: ../code_samples/javascript/api_v1_permissions_{permission_name}/put.js
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: ../code_samples/python/api_v1_permissions_{permission_name}/put.py
+    - label: Go SDK
+      lang: go
+      source:
+        $ref: ../code_samples/go/api_v1_permissions_{permission_name}/put.go
+    - label: Java SDK
+      lang: java
+      source:
+        $ref: ../code_samples/java/api_v1_permissions_{permission_name}/put.java
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/v1rolesCreatePermission.yaml
+    required: true
+delete:
+  description: >-
+    Permanently removes a permission from the environment using its unique name
+    identifier. Use this endpoint when you need to clean up unused permissions
+    or remove access controls that are no longer relevant. The permission is
+    identified by its name in the path parameter following the format
+    'action:resource'. This operation cannot be undone, so ensure no active
+    roles depend on the permission before deletion. If the permission is
+    currently assigned to any roles, you may need to remove those assignments
+    first or update the roles to use alternative permissions. Returns no content
+    on successful deletion.
+  tags:
+    - Permissions
+  summary: Delete permission
+  operationId: RolesService_DeletePermission
+  parameters:
+    - schema:
+        type: string
+      description: Name of the permission
+      name: permission_name
+      in: path
+      required: true
+  responses:
+    '200':
+      description: Permission successfully deleted. No content returned.
+      content:
+        application/json:
+          schema: {}
+  x-codeSamples:
+    - label: Node.js SDK
+      lang: javascript
+      source:
+        $ref: >-
+          ../code_samples/javascript/api_v1_permissions_{permission_name}/delete.js
+    - label: Python SDK
+      lang: python
+      source:
+        $ref: ../code_samples/python/api_v1_permissions_{permission_name}/delete.py
+    - label: Go SDK
+      lang: go
+      source:
+        $ref: ../code_samples/go/api_v1_permissions_{permission_name}/delete.go
+    - label: Java SDK
+      lang: java
+      source:
+        $ref: ../code_samples/java/api_v1_permissions_{permission_name}/delete.java

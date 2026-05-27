@@ -1,0 +1,1 @@
+res = scalekit_client.roles.list_dependent_roles(role_name="admin")
