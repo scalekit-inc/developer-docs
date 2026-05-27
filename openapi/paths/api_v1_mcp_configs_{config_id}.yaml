@@ -1,0 +1,114 @@
+get:
+  description: Returns a single MCP configuration for the current environment by ID.
+  tags:
+    - MCP Configurations
+  summary: Fetch an MCP configuration
+  operationId: McpService_GetMcpConfig
+  parameters:
+    - schema:
+        type: string
+      description: ID of the MCP configuration to fetch
+      name: config_id
+      in: path
+      required: true
+  responses:
+    '200':
+      description: The requested MCP configuration
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/mcpGetMcpConfigResponse.yaml
+    '400':
+      description: Invalid request
+      content:
+        application/json:
+          schema: {}
+    '401':
+      description: Authentication required
+      content:
+        application/json:
+          schema: {}
+    '404':
+      description: Not Found - MCP configuration does not exist
+      content:
+        application/json:
+          schema: {}
+put:
+  description: >-
+    Updates the name, description, and connection-to-tool mappings for an
+    existing MCP configuration.
+  tags:
+    - MCP Configurations
+  summary: Update an existing MCP configuration
+  operationId: McpService_UpdateMcpConfig
+  parameters:
+    - schema:
+        type: string
+      description: ID of the MCP configuration to update
+      name: config_id
+      in: path
+      required: true
+  responses:
+    '200':
+      description: The updated MCP configuration
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/mcpUpdateMcpConfigResponse.yaml
+    '400':
+      description: Invalid request - malformed payload or invalid mappings
+      content:
+        application/json:
+          schema: {}
+    '401':
+      description: Authentication required
+      content:
+        application/json:
+          schema: {}
+    '404':
+      description: Not Found - MCP configuration does not exist
+      content:
+        application/json:
+          schema: {}
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/McpServiceUpdateMcpConfigBody.yaml
+    required: true
+delete:
+  description: >-
+    Deletes the MCP configuration and any associated mappings and instances in
+    the current environment.
+  tags:
+    - MCP Configurations
+  summary: Delete an MCP configuration
+  operationId: McpService_DeleteMcpConfig
+  parameters:
+    - schema:
+        type: string
+      description: ID of the MCP configuration to delete
+      name: config_id
+      in: path
+      required: true
+  responses:
+    '200':
+      description: MCP configuration and associated data deleted successfully
+      content:
+        application/json:
+          schema: {}
+    '400':
+      description: Invalid request
+      content:
+        application/json:
+          schema: {}
+    '401':
+      description: Authentication required
+      content:
+        application/json:
+          schema: {}
+    '404':
+      description: Not Found - MCP configuration does not exist
+      content:
+        application/json:
+          schema: {}

@@ -67,6 +67,9 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0
   version: 1.0.0
 paths:
+  # =============================================================================
+  # CONNECTED ACCOUNTS
+  # =============================================================================
   /api/v1/connected_accounts:
     $ref: paths/api_v1_connected_accounts.yaml
   /api/v1/connected_accounts/auth:
@@ -81,17 +84,83 @@ paths:
     $ref: paths/api_v1_connected_accounts:delete.yaml
   /api/v1/connected_accounts:search:
     $ref: paths/api_v1_connected_accounts:search.yaml
+
+  # =============================================================================
+  # CONNECTORS
+  # =============================================================================
+  # Code samples for these operations will be added in a follow-up via scalekit-code-doctor (post SK-399).
+  /api/v1/custom-providers:
+    $ref: paths/api_v1_custom-providers.yaml
+  /api/v1/custom-providers/{identifier}:
+    $ref: paths/api_v1_custom-providers_{identifier}.yaml
+
+  # =============================================================================
+  # TOOL CALLING
+  # =============================================================================
   /api/v1/execute_tool:
     $ref: paths/api_v1_execute_tool.yaml
+
+  # =============================================================================
+  # MCP
+  # =============================================================================
+  # Code samples for these operations will be added in a follow-up via scalekit-code-doctor (post SK-399).
+  /api/v1/mcp:
+    $ref: paths/api_v1_mcp.yaml
+  /api/v1/mcp/{mcp_id}:
+    $ref: paths/api_v1_mcp_{mcp_id}.yaml
+
+  # =============================================================================
+  # MCP CONFIGURATIONS
+  # =============================================================================
+  # Code samples for these operations will be added in a follow-up via scalekit-code-doctor (post SK-399).
+  /api/v1/mcp/configs:
+    $ref: paths/api_v1_mcp_configs.yaml
+  /api/v1/mcp/configs/{config_id}:
+    $ref: paths/api_v1_mcp_configs_{config_id}.yaml
+
+  # =============================================================================
+  # MCP INSTANCES
+  # =============================================================================
+  # Code samples for these operations will be added in a follow-up via scalekit-code-doctor (post SK-399).
+  /api/v1/mcp/instances:
+    $ref: paths/api_v1_mcp_instances.yaml
+  /api/v1/mcp/instances/{instance_id}:
+    $ref: paths/api_v1_mcp_instances_{instance_id}.yaml
+  /api/v1/mcp/instances/{instance_id}:get_auth_state:
+    $ref: paths/api_v1_mcp_instances_{instance_id}:get_auth_state.yaml
+
 tags:
-  - description: >-
+  - name: Connected Accounts
+    description: >-
       Manage connected accounts for third-party integrations and OAuth
       connections. Connected accounts represent authenticated access to external
       services like Google, Notion, Slack, and other applications.
-    name: Connected Accounts
+
+  - name: Connectors
+    description: >-
+      Manage built-in and custom connectors (providers) that agents can use to
+      authenticate against third-party services.
+
+  - name: Tool Calling
+    description: >-
+      Execute tools on behalf of users via their connected accounts. Supports
+      both named/pre-defined tools and custom API proxy calls.
+
+  - name: MCP
+    description: >-
+      High-level MCP server management.
+
+  - name: MCP Configurations
+    description: >-
+      Create and manage reusable MCP configurations.
+
+  - name: MCP Instances
+    description: >-
+      Create, manage, and interact with live MCP server instances.
 externalDocs:
   description: AgentKit Docs
   url: https://docs.scalekit.com/agentkit/quickstart/
+
 openapi: 3.1.1
 servers:
   - url: https://$SCALEKIT_ENVIRONMENT_URL
