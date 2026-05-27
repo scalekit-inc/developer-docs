@@ -54,14 +54,6 @@ This guide maps Composio concepts to their Scalekit AgentKit equivalents and wal
 
 2. ## Set environment variables
 
-   Replace Composio's environment variable with Scalekit's three credentials.
-
-   **Before (Composio):**
-   ```bash
-   COMPOSIO_API_KEY=your_composio_key
-   ```
-
-   **After (Scalekit):**
    ```bash
    SCALEKIT_CLIENT_ID=your_client_id
    SCALEKIT_CLIENT_SECRET=your_client_secret
@@ -72,23 +64,11 @@ This guide maps Composio concepts to their Scalekit AgentKit equivalents and wal
 
    <Tabs syncKey="tech-stack">
      <TabItem label="Python">
-   **Before (Composio):**
-   ```bash
-   pip install composio composio_openai  # or composio_langchain, etc.
-   ```
-
-   **After (Scalekit):**
    ```bash
    pip install scalekit-sdk-python
    ```
      </TabItem>
      <TabItem label="Node.js">
-   **Before (Composio):**
-   ```bash
-   npm install @composio/core @composio/openai  # or @composio/langchain, etc.
-   ```
-
-   **After (Scalekit):**
    ```bash
    npm install @scalekit-sdk/node
    ```
@@ -97,20 +77,10 @@ This guide maps Composio concepts to their Scalekit AgentKit equivalents and wal
 
 4. ## Initialize the client
 
-   Composio uses a session-based model with per-framework provider packages. Scalekit uses a single client instance.
+   Scalekit uses a single client instance. There is no session object — you pass `identifier` on each API call.
 
    <Tabs syncKey="tech-stack">
      <TabItem label="Python">
-   **Before (Composio):**
-   ```python
-   from composio import Composio
-   from composio_openai import OpenAIAgentsProvider
-
-   composio = Composio(provider=OpenAIAgentsProvider())
-   session = composio.create(user_id="user_123")
-   ```
-
-   **After (Scalekit):**
    ```python
    import os
    import scalekit.client
@@ -124,16 +94,6 @@ This guide maps Composio concepts to their Scalekit AgentKit equivalents and wal
    ```
      </TabItem>
      <TabItem label="Node.js">
-   **Before (Composio):**
-   ```typescript
-   import { Composio } from "@composio/core";
-   import { OpenAIAgentsProvider } from "@composio/openai";
-
-   const composio = new Composio({ provider: new OpenAIAgentsProvider() });
-   const session = await composio.create("user_123");
-   ```
-
-   **After (Scalekit):**
    ```typescript
    import { ScalekitClient } from '@scalekit-sdk/node';
 
@@ -145,8 +105,6 @@ This guide maps Composio concepts to their Scalekit AgentKit equivalents and wal
    ```
      </TabItem>
    </Tabs>
-
-   **Key difference:** Composio creates a user-scoped session upfront (`composio.create(user_id)`), then all calls inherit that context. Scalekit is stateless — you pass `identifier` on each API call. There is no session object to manage or persist.
 
 </Steps>
 
