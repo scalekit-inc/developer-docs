@@ -1,6 +1,6 @@
 ---
-title: 'Route LLM calls through FastRouter with Scalekit AgentKit tools'
-description: 'Build a Node.js agent that uses FastRouter as its LLM provider and Scalekit AgentKit for per-user OAuth-connected tools — Gmail, GitHub, Slack, and more — without writing OAuth code per integration.'
+title: 'FastRouter + Scalekit AgentKit tool calling'
+description: 'Build a Node.js agent that routes LLM calls through FastRouter and uses Scalekit AgentKit for per-user OAuth tools.'
 date: 2026-05-26
 tags: ['Agent auth', 'Gmail', 'FastRouter', 'Tool calling', 'AgentKit']
 sidebar:
@@ -118,8 +118,18 @@ Three pieces connect FastRouter to Scalekit tools.
 
 Scalekit handles the full OAuth flow. Your agent calls `getOrCreateConnectedAccount` to check whether the user's account is already connected, then calls `getAuthorizationLink` to get an auth URL if it isn't.
 
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js">
+
 ```typescript
+import { ConnectorStatus } from '@scalekit-sdk/node/lib/pkg/grpc/scalekit/v1/connected_accounts/connected_accounts_pb';
+import crypto from 'node:crypto';
+
 const userVerifyUrl = 'http://localhost:3000/callback';
+
+// Generate a random state value and store it (e.g. in a secure cookie or session)
+// to validate on the OAuth callback and prevent CSRF / account mix-up attacks.
+const state = crypto.randomUUID();
 
 const { connectedAccount } = await scalekit.actions.getOrCreateConnectedAccount({
   connectionName: 'gmail',
@@ -132,38 +142,180 @@ if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
     connectionName: 'gmail',
     identifier: 'user_123',
     userVerifyUrl,
+    state,
   });
-  // Show link to user, wait for callback
+  // Show link to user, then wait for the browser redirect callback
 }
 ```
 
-`userVerifyUrl` is where Scalekit redirects after the OAuth flow completes. The sample runs a minimal HTTP server on `localhost:3000` to catch that redirect, extract the `auth_request_id` parameter, and call `verifyConnectedAccountUser` to mark the account active:
+</TabItem>
+<TabItem label="Python">
+
+```python
+import secrets
+
+user_verify_url = "http://localhost:3000/callback"
+
+# Generate and store a state value (e.g. in a secure, HTTP-only cookie) for CSRF protection
+state = secrets.token_urlsafe(32)
+
+response = scalekit_client.actions.get_or_create_connected_account(
+    connection_name="gmail",
+    identifier="user_123",
+    user_verify_url=user_verify_url,
+)
+
+if response.connected_account.status != "ACTIVE":
+    link_resp = scalekit_client.actions.get_authorization_link(
+        connection_name="gmail",
+        identifier="user_123",
+        user_verify_url=user_verify_url,
+        state=state,
+    )
+    # Show link_resp.link to the user
+```
+
+</TabItem>
+<TabItem label="Go">
+
+```go
+import (
+    "context"
+    "crypto/rand"
+    "encoding/hex"
+    "fmt"
+    "log"
+)
+
+userVerifyURL := "http://localhost:3000/callback"
+
+// generate state for CSRF protection (store it for callback validation)
+b := make([]byte, 16)
+rand.Read(b)
+state := hex.EncodeToString(b)
+
+resp, err := scalekitClient.Actions.GetOrCreateConnectedAccount(
+    context.Background(), "gmail", "user_123",
+)
+if err != nil {
+    log.Fatal(err)
+}
+
+if resp.ConnectedAccount.Status != "ACTIVE" {
+    link, _ := scalekitClient.Actions.GetAuthorizationLink(
+        context.Background(), "gmail", "user_123",
+    )
+    fmt.Println("Authorize:", link.Link)
+    // In real code pass state and userVerifyURL via options if the SDK supports it
+}
+```
+
+</TabItem>
+<TabItem label="Java">
+
+```java
+import java.util.UUID;
+
+// Generate state for CSRF protection (store for later validation in callback)
+String state = UUID.randomUUID().toString();
+
+ConnectedAccountResponse response = scalekitClient.actions()
+    .getOrCreateConnectedAccount("gmail", "user_123");
+
+ConnectedAccount account = response.getConnectedAccount();
+if (!"ACTIVE".equals(account.getStatus())) {
+    AuthorizationLink link = scalekitClient.actions()
+        .getAuthorizationLink("gmail", "user_123");
+    System.out.println("Authorize: " + link.getLink());
+    // Pass state and userVerifyUrl here when the Java SDK overload supports it
+}
+```
+
+</TabItem>
+</Tabs>
+
+`userVerifyUrl` is where Scalekit redirects the user's browser after the OAuth flow completes (GET request with `auth_request_id` and `state` query parameters). The sample runs a minimal HTTP server on `localhost:3000` to catch that redirect, validate the `state` against the original value, extract the `auth_request_id`, and call `verifyConnectedAccountUser` to mark the account active:
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js">
 
 ```typescript
-async function waitForCallback(port: number): Promise<string> {
+async function waitForCallback(port: number, expectedState: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const server = http.createServer((req, res) => {
       const url = new URL(req.url ?? '/', `http://localhost:${port}`);
       const authRequestId = url.searchParams.get('auth_request_id');
+      const returnedState = url.searchParams.get('state');
+
       res.writeHead(200, { 'Content-Type': 'text/html' });
       res.end('<html><body><h2>Authorization complete — return to your terminal.</h2></body></html>');
       server.close();
-      if (authRequestId) resolve(authRequestId);
-      else reject(new Error('No auth_request_id in callback'));
+
+      if (authRequestId && returnedState === expectedState) {
+        resolve(authRequestId);
+      } else {
+        reject(new Error('Invalid or missing auth_request_id or state in callback'));
+      }
     });
     server.listen(port);
   });
 }
 
-const authRequestId = await waitForCallback(3000);
+const authRequestId = await waitForCallback(3000, state);
 await scalekit.actions.verifyConnectedAccountUser({
   authRequestId,
   identifier: 'user_123',
 });
 ```
 
-<Aside type="tip">
-In a production web app, replace `localhost:3000/callback` with your server's callback endpoint. Scalekit posts the `auth_request_id` there, and your handler calls `verifyConnectedAccountUser` to complete account activation.
+</TabItem>
+<TabItem label="Python">
+
+```python
+# In your web framework callback handler (e.g. FastAPI):
+# 1. Validate that the "state" query param matches the value you stored earlier
+# 2. Then exchange the auth_request_id (never trust identity from the URL alone)
+
+result = scalekit_client.actions.verify_connected_account_user(
+    auth_request_id=auth_request_id,
+    identifier="user_123",
+)
+# redirect to result.post_user_verify_redirect_url
+```
+
+</TabItem>
+<TabItem label="Go">
+
+```go
+// In your HTTP handler for the callback:
+// - Read state and auth_request_id from query params
+// - Validate state against the one you generated and stored
+// - Then call verify
+
+resp, err := scalekitClient.Actions.VerifyConnectedAccountUser(
+    context.Background(),
+    authRequestID,
+    "user_123",
+)
+```
+
+</TabItem>
+<TabItem label="Java">
+
+```java
+// In your servlet / controller callback handler:
+// 1. Validate state query param matches the stored value
+// 2. Call verify only on success
+
+VerifyConnectedAccountUserResponse resp = scalekitClient.actions()
+    .verifyConnectedAccountUser(authRequestId, "user_123");
+```
+
+</TabItem>
+</Tabs>
+
+<Aside type="tip" title="Production callback endpoint">
+In a production web app, replace `localhost:3000/callback` with your server's callback endpoint. Scalekit redirects the browser to it with `auth_request_id` and `state` query params. Your handler must validate the state before calling `verifyConnectedAccountUser` to complete account activation.
 </Aside>
 
 ### Tool discovery returns schemas in FastRouter's expected format
