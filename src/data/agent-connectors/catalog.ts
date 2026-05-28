@@ -7,6 +7,66 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
+  cloudfaremcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/cloudflare.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Developer Tools', 'Automation'],
+  },
+  airopsmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/airops.svg',
+    authType: 'API Key',
+    categories: ['AI', 'Marketing', 'Analytics'],
+  },
+  sanitymcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/sanity.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Developer Tools', 'Files & Documents', 'Productivity'],
+  },
+  fiscalaimcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/fiscalai.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Analytics', 'AI', 'Accounting & Finance'],
+  },
+  otteraimcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/otterai.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Transcription', 'Productivity', 'Collaboration'],
+  },
+  webflowmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/webflow.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Design', 'Developer Tools', 'Productivity'],
+  },
+  revealedaimcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/revealedai.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['CRM & Sales', 'Analytics', 'AI'],
+  },
+  cartamcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/carta.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Accounting & Finance', 'Analytics', 'Productivity'],
+  },
+  candidmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/candid.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Search', 'AI', 'Databases'],
+  },
+  salesloft: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/salesloft.svg',
+    authType: 'OAuth 2.0',
+    categories: ['CRM & Sales', 'Automation', 'Communication'],
+  },
+  gainsight: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/gainsight.svg',
+    authType: 'API Key',
+    categories: ['CRM & Sales', 'Customer Support', 'Analytics'],
+  },
+  biorendermcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/biorendermcp.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['AI', 'Design', 'Search'],
+  },
   makemcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/make.svg',
     authType: 'OAuth 2.1/DCR',
