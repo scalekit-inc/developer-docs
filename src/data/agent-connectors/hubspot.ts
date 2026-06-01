@@ -1172,6 +1172,72 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_email_statistics_histogram',
+    description: `Retrieve a time-series histogram of marketing email statistics (opens, clicks, deliveries, etc.) bucketed by a specified interval over a time range.`,
+    params: [
+      {
+        name: 'endTimestamp',
+        type: 'string',
+        required: true,
+        description: `End of the time range for the histogram in ISO 8601 date-time format`,
+      },
+      {
+        name: 'interval',
+        type: 'string',
+        required: true,
+        description: `Time bucket interval for grouping histogram data`,
+      },
+      {
+        name: 'startTimestamp',
+        type: 'string',
+        required: true,
+        description: `Start of the time range for the histogram in ISO 8601 date-time format`,
+      },
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor to get the next set of results`,
+      },
+      {
+        name: 'emailIds',
+        type: 'array',
+        required: false,
+        description: `List of marketing email IDs to filter histogram data by`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_email_statistics_list',
+    description: `Retrieve aggregated send, open, click, and other statistics for marketing emails over a specified time range. Optionally filter by specific email IDs.`,
+    params: [
+      {
+        name: 'endTimestamp',
+        type: 'string',
+        required: true,
+        description: `End of the time range for statistics in ISO 8601 date-time format`,
+      },
+      {
+        name: 'startTimestamp',
+        type: 'string',
+        required: true,
+        description: `Start of the time range for statistics in ISO 8601 date-time format`,
+      },
+      {
+        name: 'emailIds',
+        type: 'array',
+        required: false,
+        description: `List of marketing email IDs to filter statistics by`,
+      },
+      {
+        name: 'property',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of metric properties to include in the response`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_email_update',
     description: `Update an existing email engagement in HubSpot CRM by email ID. Provide any fields to update — only the fields you include will be changed.`,
     params: [
@@ -1421,6 +1487,54 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `JSON array of objects to update in HubSpot batch format.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_marketing_email_get',
+    description: `Retrieve a single marketing email by its ID, including subject, body, send configuration, and metadata.`,
+    params: [
+      {
+        name: 'emailId',
+        type: 'string',
+        required: true,
+        description: `The ID of the marketing email to retrieve`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `Whether to return the email even if it has been archived`,
+      },
+      {
+        name: 'includedProperties',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of property names to include in the response, limiting which fields are returned`,
+      },
+      {
+        name: 'includeStats',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include send, open, click, and other statistics in the response`,
+      },
+      {
+        name: 'marketingCampaignNames',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include the names of marketing campaigns associated with the email`,
+      },
+      {
+        name: 'variantStats',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include statistics broken down by A/B test variant`,
+      },
+      {
+        name: 'workflowNames',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include the names of workflows in which this email is used`,
       },
     ],
   },

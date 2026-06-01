@@ -7,6 +7,46 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
+  sybilmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/sybill.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['CRM & Sales', 'AI', 'Analytics'],
+  },
+  ticktickmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/ticktick .svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Productivity', 'Project Management'],
+  },
+  tinyfishmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/tinyfish.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Automation', 'AI', 'Developer Tools'],
+  },
+  zenrowsmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/zenrows.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Developer Tools', 'Automation'],
+  },
+  mercurymcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/mercury.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Accounting & Finance', 'Analytics', 'Productivity'],
+  },
+  lunarcrushmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/lunarcrush.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Analytics', 'AI', 'Accounting & Finance'],
+  },
+  firefliesmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/fireflies.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Transcription', 'Productivity', 'Collaboration'],
+  },
+  googlelooker: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/googlelooker.svg',
+    authType: 'OAuth 2.0',
+    categories: ['analytics', 'business_intelligence', 'data_visualization', 'productivity'],
+  },
   cloudfaremcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/cloudflare.svg',
     authType: 'OAuth 2.1/DCR',
@@ -305,7 +345,7 @@ export const catalog: Record<string, ProviderMeta> = {
   linkedin: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/linkedin.svg',
     authType: 'OAuth 2.0',
-    categories: ['CRM & Sales'],
+    categories: ['CRM & Sales', 'Marketing', 'Communication'],
   },
   outreach: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/outreach.png',
