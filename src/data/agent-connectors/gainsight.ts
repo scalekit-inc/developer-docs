@@ -219,7 +219,7 @@ export const tools: Tool[] = [
         name: 'object_name',
         type: 'string',
         required: true,
-        description: `Gainsight MDA object name, e.g. Company, activity_timeline, call_to_action, or a custom object like MyObj__gc.`,
+        description: `Gainsight MDA object name. Use exact names: Company, call_to_action, activity_timeline, or custom objects ending in __gc (e.g. MyObj__gc).`,
       },
       {
         name: 'children_level',

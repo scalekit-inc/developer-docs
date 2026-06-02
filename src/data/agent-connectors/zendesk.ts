@@ -527,6 +527,12 @@ export const tools: Tool[] = [
         description: `Search query string using Zendesk search syntax (e.g., 'type:ticket status:open assignee:me')`,
       },
       {
+        name: 'include',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of additional data to sideload with results. Supported values: users, groups, organizations, tickets.`,
+      },
+      {
         name: 'page',
         type: 'number',
         required: false,

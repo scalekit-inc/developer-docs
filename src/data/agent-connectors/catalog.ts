@@ -7,6 +7,26 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
+  slitemcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/slite.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Collaboration', 'Productivity', 'Files & Documents'],
+  },
+  scarpflymcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/scrapfly.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Search', 'AI', 'Developer Tools'],
+  },
+  tallymcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/tally.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Productivity', 'Automation'],
+  },
+  swaggermcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/swagger.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Developer Tools', 'Productivity'],
+  },
   sybilmcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/sybill.svg',
     authType: 'OAuth 2.1/DCR',
