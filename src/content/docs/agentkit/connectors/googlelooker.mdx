@@ -1,13 +1,13 @@
 ---
-title: 'LinkedIn connector'
+title: 'Google Looker connector'
 tableOfContents: true
-description: 'Connect to LinkedIn to manage posts, ads, organizations, analytics, and professional profiles from your AI workflows.'
+description: 'Connect to Google Looker or self-hosted Looker Core. Browse dashboards, run Looks, query LookML models, and access BI data programmatically.'
 sidebar:
-  label: 'LinkedIn'
+  label: 'Google Looker'
 overviewTitle: 'Quickstart'
-connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/linkedin.svg
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/googlelooker.svg
 connectorAuthType: OAuth 2.0
-connectorCategories: [CRM & Sales, Marketing, Communication]
+connectorCategories: [analytics, business_intelligence, data_visualization, productivity]
 head:
   - tag: style
     content: |
@@ -20,9 +20,10 @@ head:
 ---
 
 import ToolList from '@/components/ToolList.astro'
-import { tools } from '@/data/agent-connectors/linkedin'
+import { tools } from '@/data/agent-connectors/googlelooker'
 import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
 import { AgentKitCredentials } from '@components/templates'
+import { SetupGooglelookerSection } from '@components/templates'
 import { QuickstartGenericOauthSection } from '@components/templates'
 
 <Steps>
@@ -48,9 +49,20 @@ import { QuickstartGenericOauthSection } from '@components/templates'
 
    <AgentKitCredentials />
 
-3. ### Authorize and make your first call
+3. ### Set up the connector
 
-   <QuickstartGenericOauthSection connector="linkedin" toolName="linkedin_ad_accounts_search" providerName="LinkedIn" />
+   Register your Google Looker credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupGooglelookerSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="googlelooker" toolName="googlelooker_list_dashboards" providerName="Google Looker" />
 
 </Steps>
 
@@ -58,12 +70,9 @@ import { QuickstartGenericOauthSection } from '@components/templates'
 
 Connect this agent connector to let your agent:
 
-- **Create reaction, organization post, ad account** — Create a reaction (like, praise, empathy, etc.) on a LinkedIn post or comment
-- **Like post** — Like a LinkedIn post on behalf of a person or organization
-- **Delete post, campaign, comment** — Delete a UGC post from LinkedIn by its ID
-- **Update ad account, creative, campaign group** — Partially update a LinkedIn ad account's name or status
-- **Search ad accounts, organization, member** — Search LinkedIn ad accounts by status or name
-- **List posts, post comments, campaign groups** — List posts by a specific author (person or organization URN)
+- **Run look, inline query** — Run a saved Look and return the results in the specified format
+- **List models, looks, folders** — List all available LookML models in the Looker instance
+- **Get look results, dashboard** — Run a saved Look and return results in the specified format
 
 ## Tool list
 
