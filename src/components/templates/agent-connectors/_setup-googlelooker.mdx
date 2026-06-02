@@ -1,0 +1,80 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with the Google Looker connector so Scalekit handles the OAuth flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically.
+
+<Steps>
+1. ### Create a Google Looker instance
+
+   Google Looker (Google Cloud core) runs as a managed service in your Google Cloud project. You must create an instance before setting up OAuth credentials.
+
+   - Go to [Google Cloud Console](https://console.cloud.google.com/) and select or create a project.
+
+   - In the navigation menu, go to **Looker** (or search for "Looker" in the search bar).
+
+   - Click **Create Instance** and follow the setup wizard. Note your instance hostname — it will look like `your-company.cloud.looker.com`. You will need this when adding connected accounts in Scalekit.
+
+     ![Google Cloud Looker instance creation page showing setup steps](@/assets/docs/agent-connectors/googlelooker/create-instance.png)
+
+   <Aside type="note" title="Instance creation takes time">
+     A new Looker instance can take 30–60 minutes to provision. Wait until the status shows **Active** before proceeding.
+   </Aside>
+
+2. ### Create OAuth credentials in Google Cloud Console
+
+   Google Looker uses Google OAuth 2.0. You need OAuth client credentials from the same Google Cloud project that hosts your Looker instance.
+
+   - In [Google Cloud Console](https://console.cloud.google.com/), go to **APIs & Services** > **Credentials**.
+
+   - Click **Create Credentials** > **OAuth client ID**.
+
+   - Select **Web application** as the application type.
+
+   - Copy the redirect URI from Scalekit (see next step) and paste it under **Authorized redirect URIs**.
+
+   - Click **Create**. Copy the **Client ID** and **Client Secret**.
+
+   <Aside type="tip" title="Get the redirect URI first">
+     Open the Scalekit dashboard (step 3) to copy the redirect URI before creating the OAuth client. You can always edit the OAuth client to add the URI after creation.
+   </Aside>
+
+3. ### Add credentials in Scalekit
+
+   - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Search for **Google Looker** and click **Create**.
+
+     ![Google Looker connector search in Scalekit dashboard](@/assets/docs/agent-connectors/googlelooker/scalekit-search-googlelooker.png)
+
+   - Copy the **Redirect URI** shown on the configuration page. Go back to Google Cloud Console and add this URI to your OAuth client's authorized redirect URIs.
+
+   - Return to Scalekit and enter your credentials:
+     - **Client ID** (from Google Cloud Console)
+     - **Client Secret** (from Google Cloud Console)
+
+     ![Google Looker connection configuration in Scalekit](@/assets/docs/agent-connectors/googlelooker/add-credentials.png)
+
+   - Keep **Access Type** set to **Offline** to receive a refresh token for long-lived access.
+
+   - Click **Save**.
+
+4. ### Add a connected account
+
+   Each end-user who connects their Looker instance needs a connected account. The **Looker Instance Hostname** is required — this is the hostname of the Looker instance the user is accessing (without `https://`), for example `your-company.cloud.looker.com`.
+
+   **Via the Scalekit dashboard (for testing)**
+
+   - Go to **Connected Accounts** > **Add Account**.
+   - Enter the **User ID** and **Looker Instance Hostname**, then click **Save**.
+   - Complete the Google OAuth flow in the popup to authorize access.
+
+   **Via the SDK (for production)**
+
+   Generate an authorization link and redirect your user to it. After the user authorizes, Scalekit stores the token automatically.
+
+   ```typescript
+   const { link } = await scalekit.actions.getAuthorizationLink({
+     connectionName: 'googlelooker',
+     identifier: 'user_123',
+     state: { instanceUrl: 'your-company.cloud.looker.com' },
+   })
+   // Redirect the user to `link` to complete OAuth
+   ```
+</Steps>
