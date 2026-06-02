@@ -10,7 +10,7 @@ export const catalog: Record<string, ProviderMeta> = {
   context7mcp: {
     iconUrl: 'https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/context7.svg',
     authType: 'API Key',
-    categories: ['productivity', 'ai', 'documentation', 'developer-tools'],
+    categories: ['AI', 'Developer Tools', 'Productivity'],
   },
   slitemcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/slite.svg',
