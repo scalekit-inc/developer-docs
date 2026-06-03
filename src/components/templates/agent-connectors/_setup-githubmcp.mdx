@@ -1,0 +1,38 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your GitHub credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
+
+<Steps>
+1. ### Set up auth redirects
+
+   - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **GitHub MCP** and click **Create**.
+
+   - Click **Use your own credentials** and copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+     ![Copy redirect URI from Scalekit dashboard](@/assets/docs/agent-connectors/githubmcp/use-own-credentials-redirect-uri.png)
+
+   - Go to [GitHub Developer Settings](https://github.com/settings/developers) and open your OAuth app.
+
+   - Under **General**, paste the copied URI into the **Authorization callback URL** field and click **Save application**.
+
+     ![Add callback URL in GitHub OAuth app settings](@/assets/docs/agent-connectors/githubmcp/add-redirect-uri.gif)
+
+2. ### Get client credentials
+
+   In [GitHub Developer Settings](https://github.com/settings/developers), open your OAuth app:
+
+   - **Client ID** — listed on the app's main settings page
+   - **Client Secret** — click **Generate a new client secret** if you don't have one
+
+3. ### Add credentials in Scalekit
+
+   - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** and open the connection you created.
+
+   - Enter your credentials:
+     - Client ID (from your GitHub OAuth app)
+     - Client Secret (from your GitHub OAuth app)
+
+     ![Add credentials for GitHub MCP in Scalekit dashboard](@/assets/docs/agent-connectors/githubmcp/add-credentials.png)
+
+   - Click **Save**.
+</Steps>
