@@ -7,6 +7,21 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
+  todoistmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/todoist.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Productivity', 'Project Management'],
+  },
+  planemcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/plane.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Project Management', 'Productivity'],
+  },
+  githubmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/github.png',
+    authType: 'OAuth 2.1',
+    categories: ['Developer Tools', 'Collaboration'],
+  },
   context7mcp: {
     iconUrl: 'https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/context7.svg',
     authType: 'API Key',
@@ -70,7 +85,7 @@ export const catalog: Record<string, ProviderMeta> = {
   googlelooker: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/googlelooker.svg',
     authType: 'OAuth 2.0',
-    categories: ['analytics', 'business_intelligence', 'data_visualization', 'productivity'],
+    categories: ['Analytics', 'Databases', 'Productivity'],
   },
   cloudfaremcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/cloudflare.svg',

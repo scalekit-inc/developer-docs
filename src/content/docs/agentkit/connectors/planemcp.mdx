@@ -1,13 +1,13 @@
 ---
-title: 'Google Looker connector'
+title: 'Plane MCP connector'
 tableOfContents: true
-description: 'Connect to Google Looker or self-hosted Looker Core. Browse dashboards, run Looks, query LookML models, and access BI data programmatically.'
+description: 'Connect to Plane MCP. Manage projects, work items, cycles, modules, epics, and initiatives in your Plane workspace from AI workflows.'
 sidebar:
-  label: 'Google Looker'
+  label: 'Plane MCP'
 overviewTitle: 'Quickstart'
-connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/googlelooker.svg
-connectorAuthType: OAuth 2.0
-connectorCategories: [Analytics, Databases, Productivity]
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/plane.svg
+connectorAuthType: OAuth 2.1/DCR
+connectorCategories: [Project Management, Productivity]
 head:
   - tag: style
     content: |
@@ -20,10 +20,9 @@ head:
 ---
 
 import ToolList from '@/components/ToolList.astro'
-import { tools } from '@/data/agent-connectors/googlelooker'
+import { tools } from '@/data/agent-connectors/planemcp'
 import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
 import { AgentKitCredentials } from '@components/templates'
-import { SetupGooglelookerSection } from '@components/templates'
 import { QuickstartGenericOauthSection } from '@components/templates'
 
 <Steps>
@@ -49,20 +48,9 @@ import { QuickstartGenericOauthSection } from '@components/templates'
 
    <AgentKitCredentials />
 
-3. ### Set up the connector
+3. ### Authorize and make your first call
 
-   Register your Google Looker credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
-
-   <details>
-   <summary>Dashboard setup steps</summary>
-
-   <SetupGooglelookerSection />
-
-   </details>
-
-4. ### Authorize and make your first call
-
-   <QuickstartGenericOauthSection connector="googlelooker" toolName="googlelooker_list_dashboards" providerName="Google Looker" />
+   <QuickstartGenericOauthSection connector="planemcp" toolName="planemcp_get_me" providerName="Plane MCP" />
 
 </Steps>
 
@@ -70,9 +58,12 @@ import { QuickstartGenericOauthSection } from '@components/templates'
 
 Connect this agent connector to let your agent:
 
-- **Run look, inline query** — Run a saved Look and return the results in the specified format
-- **List models, looks, folders** — List all available LookML models in the Looker instance
-- **Get look results, dashboard** — Run a saved Look and return results in the specified format
+- **Update workspace features, work log, work item type** — Enable or disable feature flags for the workspace
+- **Module unarchive, retrieve, remove work item from** — Restore an archived module to active status
+- **Cycle unarchive, retrieve, remove work item from** — Restore an archived cycle to active status
+- **Items transfer cycle work** — Move all incomplete work items from one cycle to another
+- **Search work items** — Search for work items by name or description across the workspace
+- **Page retrieve workspace, retrieve project** — Retrieve the content and metadata of a workspace-level page
 
 ## Tool list
 
