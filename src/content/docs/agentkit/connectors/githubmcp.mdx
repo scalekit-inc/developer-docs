@@ -1,0 +1,82 @@
+---
+title: 'GitHub MCP connector'
+tableOfContents: true
+description: 'Connect to GitHub MCP. Manage repositories, issues, pull requests, branches, and files directly from your AI workflows.'
+sidebar:
+  label: 'GitHub MCP'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/github.png
+connectorAuthType: OAuth 2.1
+connectorCategories: [Developer Tools, Collaboration]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/githubmcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials, SetupGithubmcpSection, QuickstartGenericOauthSection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your GitHub credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupGithubmcpSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="githubmcp" toolName="githubmcp_get_me" providerName="GitHub MCP" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Update pull request branch, pull request** — Update a pull request branch with the latest changes from the base branch
+- **Write sub issue, pull request review, issue** — Add, remove, or reorder a sub-issue under a parent issue in a GitHub repository
+- **Search users, repositories, pull requests** — Search for GitHub users by username, name, or other profile information
+- **Run secret scanning** — Scan files or content for exposed secrets such as API keys, passwords, and tokens
+- **Review request copilot, add comment to pending** — Request a GitHub Copilot automated code review for a pull request
+- **Files push** — Push multiple files to a GitHub repository in a single commit
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

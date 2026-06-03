@@ -588,6 +588,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_contact_sequence_enrollments_get',
+    description: `Retrieve all sequence enrollments for a specific contact, showing which sequences they are currently enrolled in.`,
+    params: [
+      {
+        name: 'contact_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the contact whose sequence enrollments to retrieve.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_contact_update',
     description: `Update an existing contact in HubSpot CRM by contact ID. Provide any fields to update.`,
     params: [
@@ -1946,6 +1958,85 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_sequence_enroll',
+    description: `Enroll a contact into a HubSpot sequence. Requires the sequence ID, contact ID, sender email, and the enrolling user's ID.`,
+    params: [
+      {
+        name: 'contact_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the contact to enroll in the sequence.`,
+      },
+      {
+        name: 'sender_email',
+        type: 'string',
+        required: true,
+        description: `The email address of the sender enrolling the contact.`,
+      },
+      {
+        name: 'sequence_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the sequence to enroll the contact in.`,
+      },
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the HubSpot user enrolling the contact.`,
+      },
+      {
+        name: 'sender_alias_address',
+        type: 'string',
+        required: false,
+        description: `An alias email address used by the sender when enrolling the contact.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_sequence_get',
+    description: `Retrieve details of a specific sequence by ID, including its steps, status, and settings.`,
+    params: [
+      {
+        name: 'sequence_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the sequence to retrieve.`,
+      },
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the HubSpot user associated with the sequence.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_sequences_list',
+    description: `List all sequences in HubSpot. Returns a paginated list of sequences with their IDs, names, and status.`,
+    params: [
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the HubSpot user whose sequences to list.`,
+      },
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Cursor token for the next page of results.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of sequences to return per page.`,
+      },
+      { name: 'name', type: 'string', required: false, description: `Filter sequences by name.` },
+    ],
+  },
+  {
     name: 'hubspot_task_complete',
     description: `Mark a HubSpot task as completed or update its status. Use the task ID from hubspot_tasks_search or hubspot_task_create.`,
     params: [
@@ -2227,6 +2318,72 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Full-text search term across ticket properties`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_workflow_enroll',
+    description: `Enroll a contact into a HubSpot workflow by workflow ID and the contact's email address.`,
+    params: [
+      {
+        name: 'email',
+        type: 'string',
+        required: true,
+        description: `The email address of the contact to enroll in the workflow.`,
+      },
+      {
+        name: 'workflow_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the workflow to enroll the contact into.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_workflow_get',
+    description: `Retrieve details of a specific automation workflow by flow ID, including its trigger, actions, and enrollment criteria.`,
+    params: [
+      {
+        name: 'flow_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the workflow to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_workflow_unenroll',
+    description: `Remove a contact from a HubSpot workflow by workflow ID and the contact's email address.`,
+    params: [
+      {
+        name: 'email',
+        type: 'string',
+        required: true,
+        description: `The email address of the contact to unenroll from the workflow.`,
+      },
+      {
+        name: 'workflow_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the workflow to unenroll the contact from.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_workflows_list',
+    description: `List all automation workflows in HubSpot. Returns workflow IDs, names, types, and enabled status.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Cursor token for the next page of results.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of workflows to return per page.`,
       },
     ],
   },
