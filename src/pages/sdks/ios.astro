@@ -7,9 +7,14 @@ import { LinkButton } from 'starlight-theme-nova/components'
 // iOS SDK uses git tags (no GitHub Releases) — fetch from tags API
 const tagsHeaders: Record<string, string> = { 'User-Agent': 'scalekit-docs' }
 if (import.meta.env.GITHUB_TOKEN) tagsHeaders['Authorization'] = `Bearer ${import.meta.env.GITHUB_TOKEN}`
-const tagsRes = await fetch('https://api.github.com/repos/scalekit-inc/scalekit-sdk-ios/tags', { headers: tagsHeaders })
-const tags: { name: string }[] = tagsRes.ok ? await tagsRes.json() : []
-const latestTag = tags[0]?.name ?? null
+let latestTag: string | null = null
+try {
+  const tagsRes = await fetch('https://api.github.com/repos/scalekit-inc/scalekit-sdk-ios/tags', { headers: tagsHeaders })
+  const tags: { name: string }[] = tagsRes.ok ? await tagsRes.json() : []
+  latestTag = tags[0]?.name ?? null
+} catch {
+  // network or parse failure — badge omitted, page still renders
+}
 
 
 const frontmatter = {
