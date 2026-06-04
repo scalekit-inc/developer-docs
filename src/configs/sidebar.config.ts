@@ -522,6 +522,10 @@ export const sidebar = [
         // Note: No SDK reference yet - only Overview page
       },
       {
+        label: 'iOS SDK',
+        link: '/sdks/ios/',
+      },
+      {
         label: 'APIs',
         link: '/apis/#description/overview',
         attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
