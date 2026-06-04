@@ -64,7 +64,6 @@ export const collections = {
         'scalekit-inc/scalekit-sdk-go',
         'scalekit-inc/scalekit-sdk-java',
         'scalekit-inc/scalekit-expo-sdk',
-        'scalekit-inc/scalekit-sdk-ios',
       ],
       entryReturnType: 'byRelease',
       // githubToken defaults to GITHUB_TOKEN environment variable if not provided
