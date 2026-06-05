@@ -61,19 +61,29 @@ See [Authorize a user](/agentkit/tools/authorize/) for production auth handling.
 
 ## Build and run the agent
 
-Generate a per-user MCP URL, then pass it to `MCPServerAdapter`. CrewAI discovers all available Gmail tools from the MCP server:
+Get the Virtual MCP Server URL and mint a session token, then pass both to `MCPServerAdapter`. CrewAI discovers all available Gmail tools from the MCP server:
 
 ```python
 from crewai import Agent, Crew, LLM, Task
 from crewai_tools import MCPServerAdapter
+from datetime import timedelta
 
-inst_response = actions.mcp.ensure_instance(
-    config_name=os.getenv("SCALEKIT_MCP_CONFIG_NAME", "gmail-user-tools"),
-    user_identifier="user_123",
+# Retrieve config_id by listing Virtual MCP Servers filtered by name
+list_response = actions.mcp.list_configs(filter_name="gmail-user-tools")
+mcp_server_url = list_response.configs[0].mcp_server_url
+mcp_id = list_response.configs[0].id
+
+token_response = actions.mcp.create_session_token(
+    mcp_config_id=mcp_id,
+    identifier="user_123",
+    expiry=timedelta(hours=1),
 )
-mcp_url = inst_response.instance.url
 
-with MCPServerAdapter({"url": mcp_url, "transport": "streamable-http"}) as tools:
+with MCPServerAdapter({
+    "url": mcp_server_url,
+    "headers": {"Authorization": f"Bearer {token_response.token}"},
+    "transport": "streamable-http",
+}) as tools:
     agent = Agent(
         role="Email Assistant",
         goal="Fetch and summarize the user's unread emails",
@@ -105,6 +115,6 @@ with MCPServerAdapter({"url": mcp_url, "transport": "streamable-http"}) as tools
 
 CrewAI's real strength is multi-agent orchestration. For a full example that splits email triage across three specialized agents (scanner, prioritizer, drafter), see the [CrewAI email triage cookbook](/cookbooks/crewai-agentkit-email-triage/).
 
-## Generate the MCP URL
+## Get the MCP server URL
 
-The `ensure_instance` call above requires an MCP config that includes Gmail tools. Create one in the Scalekit Dashboard under **AgentKit → MCP Configs**. See [Generate user MCP URLs](/agentkit/mcp/generate-user-urls/) for details.
+The code above reads `mcp_server_url` from a Virtual MCP Server config. Create a config in the Scalekit Dashboard under **AgentKit → MCP Configs**. See [Virtual MCP Servers](/agentkit/mcp/overview/) for setup details.

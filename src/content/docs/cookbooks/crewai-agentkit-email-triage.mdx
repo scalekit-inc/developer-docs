@@ -30,7 +30,7 @@ This cookbook builds a three-agent email triage crew: one agent scans unread ema
 
 **What this recipe covers:**
 
-- **Scalekit MCP integration** — generate a per-user MCP URL that exposes authenticated Gmail tools
+- **Scalekit MCP integration** — get a Virtual MCP Server URL and mint a session token that authenticates Gmail tools for a specific user
 - **CrewAI MCPServerAdapter** — connect CrewAI to the MCP server so agents can discover and call Gmail tools
 - **Multi-agent pipeline** — define three agents with distinct roles that run in sequence
 - **First-run authorization** — handle the OAuth flow when a user hasn't connected Gmail yet
@@ -115,24 +115,34 @@ After the first successful authorization, `get_or_create_connected_account` retu
 
 ### 5. Connect to Gmail tools via MCP
 
-Generate a per-user MCP URL that exposes the tools defined in your MCP config:
-
-```python
-inst_response = actions.mcp.ensure_instance(
-    config_name=os.getenv("SCALEKIT_MCP_CONFIG_NAME", "gmail-user-tools"),
-    user_identifier=USER_ID,
-)
-mcp_url = inst_response.instance.url
-```
-
-`ensure_instance` creates an MCP instance for this user if one doesn't exist, or returns the existing one. The URL is stable — you can cache it across requests.
-
-CrewAI's `MCPServerAdapter` connects to the MCP URL and discovers all available tools:
+Get the Virtual MCP Server URL and mint a session token, then pass both to `MCPServerAdapter`:
 
 ```python
 from crewai_tools import MCPServerAdapter
+from datetime import timedelta
 
-with MCPServerAdapter({"url": mcp_url, "transport": "streamable-http"}) as tools:
+# Retrieve config_id by listing Virtual MCP Servers filtered by name
+list_response = actions.mcp.list_configs(filter_name=os.getenv("SCALEKIT_MCP_CONFIG_NAME", "gmail-user-tools"))
+mcp_server_url = list_response.configs[0].mcp_server_url
+mcp_id = list_response.configs[0].id
+
+token_response = actions.mcp.create_session_token(
+    mcp_config_id=mcp_id,
+    identifier=USER_ID,
+    expiry=timedelta(hours=1),
+)
+```
+
+Mint a fresh session token before each agent run. The Virtual MCP Server URL is static — it stays the same across all sessions.
+
+CrewAI's `MCPServerAdapter` connects to the MCP server and discovers all available tools:
+
+```python
+with MCPServerAdapter({
+    "url": mcp_server_url,
+    "headers": {"Authorization": f"Bearer {token_response.token}"},
+    "transport": "streamable-http",
+}) as tools:
     # `tools` is a list of CrewAI-compatible tool objects
     print(f"Discovered {len(tools)} Gmail tools")
 ```
@@ -270,7 +280,7 @@ Press Enter after authorizing...
 After completing OAuth in the browser and pressing Enter, the crew runs:
 
 ```text
-[ok] MCP instance ready: https://mcp.scalekit.dev/...
+[ok] Session token minted
 Discovered 15 Gmail tools
 
  [Inbox Scanner] Fetching unread emails...
@@ -311,7 +321,7 @@ On subsequent runs, the authorization step is skipped entirely.
 <details>
 <summary>MCP config not found</summary>
 
-- **Symptom**: `ensure_instance` raises a `not found` error
+- **Symptom**: `list_configs` returns an empty list
 - **Cause**: `SCALEKIT_MCP_CONFIG_NAME` does not match any config in the dashboard
 - **Fix**: Go to **AgentKit → MCP Configs** and verify the config name. Create one if it doesn't exist — it needs to include the Gmail tools you want exposed.
 
@@ -339,9 +349,9 @@ On subsequent runs, the authorization step is skipped entirely.
 
 **User ID from session** — The sample hardcodes `USER_ID = "user_123"`. In production, replace this with the real user identifier from your application's session or JWT. A mismatch means Scalekit looks up the wrong user's Gmail connection.
 
-**Token freshness** — Scalekit refreshes expired OAuth tokens before returning them. You do not need to track token expiry or call a refresh endpoint. The MCP URL stays valid as long as the MCP instance exists.
+**Token freshness** — Scalekit refreshes expired OAuth tokens before returning them. Mint a fresh session token before each agent run — session tokens are short-lived and scoped to a single run.
 
-**MCP instance reuse** — `ensure_instance` is idempotent. Call it on every request — it returns the existing instance rather than creating a new one. The URL is stable and safe to cache.
+**MCP server URL is static** — The Virtual MCP Server URL (`mcp_server_url`) is stable and the same for all users. Cache it once per config. Only the session token is per-run.
 
 **Rate limits** — Gmail API has per-user daily quotas. If your crew runs frequently, add rate-limiting logic or use Scalekit's built-in tool pagination to limit the number of emails fetched per run.
 

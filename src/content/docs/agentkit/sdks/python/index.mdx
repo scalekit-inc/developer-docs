@@ -273,9 +273,9 @@ messages = response.json()["messages"]
 
 ## MCP server provisioning
 
-`actions.mcp` generates per-user MCP-compatible server URLs. Any MCP-compatible agent framework (LangChain, Google ADK, Anthropic, OpenAI, and others) can connect to these URLs directly.
+`actions.mcp` manages Virtual MCP Servers. Any MCP-compatible agent framework (LangChain, Google ADK, Anthropic, OpenAI, and others) can connect to these servers directly.
 
-**Two-step model:** Create a **config** once (defines which connectors and tools to expose), then call `ensure_instance` per user to get their personal MCP server URL.
+**Two-step model:** Create a **config** once (defines which connectors and tools to expose) to get a static Virtual MCP Server URL. Before each agent run, mint a short-lived session token to authenticate the user.
 
 ### Configs
 
@@ -337,109 +337,58 @@ Returns UpdateMcpConfigResponse.
 
 Returns DeleteMcpConfigResponse.
 
-### Instances
+### Session tokens
 
-#### actions.mcp.ensure_instance
+#### actions.mcp.list_mcp_connected_accounts
 
-Creates an MCP instance for this user if one doesn't exist, or returns the existing one. Call this on every session; it's idempotent.
-
-The `instance.url` field is the MCP server URL to give to the user's agent or IDE.
+Returns the connection status for each connector configured in a Virtual MCP Server, for a specific user. Call this before minting a session token to verify all connections are `ACTIVE`.
 
 <MethodParams label="Input schema" params={[
-  { name: 'config_name', type: 'str', required: true, description: 'Name of the config to instantiate' },
-  { name: 'user_identifier', type: 'str', required: true, description: 'User identifier (e.g. email)' },
-  { name: 'name', type: 'str', required: false, description: 'Display name for the instance' },
+  { name: 'config_id', type: 'str', required: true, description: 'Virtual MCP Server config ID from list_configs or create_config' },
+  { name: 'identifier', type: 'str', required: true, description: 'User identifier' },
 ]} />
 
-<MethodReturns type="EnsureMcpInstanceResponse" fields={[
-  { name: 'instance.url', type: 'str', description: 'MCP server URL for agent or IDE' },
-  { name: 'instance.id', type: 'str', description: 'Instance ID' },
-  { name: 'instance.name', type: 'str', description: 'Display name' },
-  { name: 'instance.user_identifier', type: 'str', description: 'User identifier' },
-  { name: 'instance.config', type: 'object', description: 'The config this instance was created from' },
-  { name: 'instance.last_used_at', type: 'datetime', description: 'Last usage timestamp' },
-  { name: 'instance.updated_at', type: 'datetime', description: 'Last update timestamp' },
+<MethodReturns type="ListMcpConnectedAccountsResponse" fields={[
+  { name: 'connected_accounts', type: 'list', description: 'One entry per connector configured in the Virtual MCP Server' },
+  { name: 'connected_accounts[].connection_name', type: 'str', description: 'Connector slug' },
+  { name: 'connected_accounts[].connected_account_status', type: 'str', description: 'ACTIVE, PENDING, EXPIRED, REVOKED, or ERROR' },
 ]} />
 
 ```python title="Example"
-instance = actions.mcp.ensure_instance(
-    config_name="email-agent",
-    user_identifier="user@example.com",
+accounts_response = scalekit_client.actions.mcp.list_mcp_connected_accounts(
+    config_id=mcp_id,
+    identifier="user@example.com",
 )
-mcp_url = instance.instance.url
-# Give mcp_url to the user's agent or IDE
+for account in accounts_response.connected_accounts:
+    if account.connected_account_status != "ACTIVE":
+        print(f"{account.connection_name} is not active — prompt user to authorize")
 ```
 
-#### actions.mcp.get_instance_auth_state
+#### actions.mcp.create_session_token
 
-Returns authorization status per connector. Use `include_auth_links=True` to generate fresh auth links for connections that need authorization or re-authorization.
+Mints a short-lived session token scoped to a user and a Virtual MCP Server config. Pass the token as a bearer auth header when connecting to the MCP server. Mint a fresh token before each agent run.
 
 <MethodParams label="Input schema" params={[
-  { name: 'instance_id', type: 'str', required: true, description: 'Instance ID' },
-  { name: 'include_auth_links', type: 'bool', required: false, description: 'Generate auth links for unauthorized connections' },
+  { name: 'mcp_config_id', type: 'str', required: true, description: 'Virtual MCP Server config ID' },
+  { name: 'identifier', type: 'str', required: true, description: 'User identifier' },
+  { name: 'expiry', type: 'timedelta', required: false, description: 'Token lifetime (default: 1 hour). Set longer than the expected agent run duration.' },
 ]} />
 
-<MethodReturns type="GetMcpInstanceAuthStateResponse" fields={[
-  { name: 'connections', type: 'list', description: 'List of McpInstanceConnectionAuthState, one per configured connector' },
-  { name: 'connections[].connection_id', type: 'str', description: 'Connection ID' },
-  { name: 'connections[].connection_name', type: 'str', description: 'Connector slug' },
-  { name: 'connections[].provider', type: 'str', description: 'Provider slug' },
-  { name: 'connections[].connected_account_id', type: 'str', description: 'Connected account ID, if authorized' },
-  { name: 'connections[].connected_account_status', type: 'str', description: 'ACTIVE, INACTIVE, or PENDING' },
-  { name: 'connections[].authentication_link', type: 'str', description: 'Auth link to send to the user when status is not ACTIVE' },
+<MethodReturns type="CreateMcpSessionTokenResponse" fields={[
+  { name: 'token', type: 'str', description: 'Bearer token to pass as Authorization header' },
 ]} />
 
 ```python title="Example"
-auth_state = actions.mcp.get_instance_auth_state(
-    instance_id=instance.instance.id,
-    include_auth_links=True,
+from datetime import timedelta
+
+token_response = scalekit_client.actions.mcp.create_session_token(
+    mcp_config_id=mcp_id,
+    identifier="user@example.com",
+    expiry=timedelta(hours=1),
 )
-for conn in auth_state.connections:
-    if conn.connected_account_status != "ACTIVE":
-        # Send conn.authentication_link to the user to authorize
-        print(f"{conn.connection_name}: {conn.authentication_link}")
+token = token_response.token
+# Pass as: {"Authorization": f"Bearer {token}"}
 ```
-
-#### actions.mcp.get_instance
-
-<MethodParams label="Input schema" params={[
-  { name: 'instance_id', type: 'str', required: true, description: 'MCP instance ID from ensure_instance or list_instances' },
-]} />
-
-Returns GetMcpInstanceResponse.
-
-#### actions.mcp.list_instances
-
-<MethodParams label="Input schema" params={[
-  { name: 'page_size', type: 'int', required: false, description: 'Maximum instances per page (server default if omitted)' },
-  { name: 'page_token', type: 'str', required: false, description: 'Opaque cursor from a previous list response' },
-  { name: 'filter_user_identifier', type: 'str', required: false, description: 'Filter by user' },
-  { name: 'filter_config_name', type: 'str', required: false, description: 'Filter by config name' },
-  { name: 'filter_name', type: 'str', required: false, description: 'Filter by MCP instance display name' },
-  { name: 'filter_id', type: 'str', required: false, description: 'Filter by MCP instance ID' },
-]} />
-
-Returns ListMcpInstancesResponse.
-
-#### actions.mcp.update_instance
-
-At least one of `name` or `config_name` is required.
-
-<MethodParams label="Input schema" params={[
-  { name: 'instance_id', type: 'str', required: true, description: 'MCP instance ID to update' },
-  { name: 'name', type: 'str', required: false, description: 'New display name for this instance' },
-  { name: 'config_name', type: 'str', required: false, description: 'Switch the instance to a different config by name' },
-]} />
-
-Returns UpdateMcpInstanceResponse.
-
-#### actions.mcp.delete_instance
-
-<MethodParams label="Input schema" params={[
-  { name: 'instance_id', type: 'str', required: true, description: 'MCP instance ID to delete' },
-]} />
-
-Returns DeleteMcpInstanceResponse.
 
 ---
 
@@ -448,7 +397,7 @@ Returns DeleteMcpInstanceResponse.
 Pre-built integrations for LangChain and Google ADK. Use these when your agent runs in one of these frameworks and you prefer native tool objects over an MCP URL.
 
 <Aside type="note" title="MCP is the recommended path">
-  `actions.mcp.ensure_instance` generates a URL compatible with any MCP-supporting framework. Use framework adapters only when native tool objects are required.
+  Virtual MCP Servers expose a static URL compatible with any MCP-supporting framework. Use framework adapters only when native tool objects are required.
 </Aside>
 
 ### LangChain

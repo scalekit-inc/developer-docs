@@ -28,36 +28,49 @@ Connect a Mastra agent to Scalekit tools using MCP. Mastra has native MCP suppor
 npm install @scalekit-sdk/node @mastra/core @mastra/mcp @ai-sdk/openai
 ```
 
-## Get a per-user MCP URL
+## Get the MCP server URL and session token
 
-Generate a Scalekit MCP URL for the user. This requires the Python SDK. Call this from your backend and pass the URL to your Mastra application:
+Retrieve the Virtual MCP Server URL and mint a session token before each agent run. Call this from your backend and pass both to your Mastra application:
 
 ```python
-# Backend (Python): generate once per user session
-inst_response = actions.mcp.ensure_instance(
-    config_name="your-mcp-config",
-    user_identifier="user_123",
+from datetime import timedelta
+
+# Backend (Python): run before each agent session
+# Retrieve config_id by listing Virtual MCP Servers filtered by name
+list_response = actions.mcp.list_configs(filter_name="your-mcp-config")
+mcp_server_url = list_response.configs[0].mcp_server_url
+mcp_id = list_response.configs[0].id
+
+token_response = actions.mcp.create_session_token(
+    mcp_config_id=mcp_id,
+    identifier="user_123",
+    expiry=timedelta(hours=1),
 )
-mcp_url = inst_response.instance.url
-# Pass mcp_url to your Mastra app (e.g. via environment variable or API response)
+# Pass mcp_server_url and token_response.token to your Mastra app
 ```
 
-See [Configure an MCP server](/agentkit/mcp/configure-mcp-server/) and [Generate user MCP URLs](/agentkit/mcp/generate-user-urls/) to set up the config and generate the URL.
+See [Virtual MCP Servers](/agentkit/mcp/overview/) to set up the config.
 
 ## Build the agent
 
-Pass the MCP URL to `MCPClient`. Mastra fetches the tool list and schemas automatically:
+Pass the MCP URL and session token to `MCPClient`. Mastra fetches the tool list and schemas automatically:
 
 ```typescript
 import { Agent } from '@mastra/core/agent';
 import { MCPClient } from '@mastra/mcp';
 import { openai } from '@ai-sdk/openai';
 
-const mcpUrl = process.env.SCALEKIT_MCP_URL!; // set from your backend
+const mcpUrl = process.env.SCALEKIT_MCP_URL!;       // mcp_server_url from your backend
+const mcpToken = process.env.SCALEKIT_MCP_TOKEN!;    // session token from your backend
 
 const mcp = new MCPClient({
   servers: {
-    scalekit: { url: new URL(mcpUrl) },
+    scalekit: {
+      url: new URL(mcpUrl),
+      requestInit: {
+        headers: { Authorization: `Bearer ${mcpToken}` },
+      },
+    },
   },
 });
 
