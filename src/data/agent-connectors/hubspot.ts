@@ -2097,8 +2097,14 @@ export const tools: Tool[] = [
   },
   {
     name: 'hubspot_quote_create',
-    description: `Create a new quote in HubSpot for a deal.`,
+    description: `Create a new quote in HubSpot. Requires a title and language. Optionally associate with a deal and set expiration date, currency, status, and additional properties. Returns the created quote ID.`,
     params: [
+      {
+        name: 'hs_expiration_date',
+        type: 'string',
+        required: true,
+        description: `Expiration date of the quote (YYYY-MM-DD format)`,
+      },
       {
         name: 'hs_language',
         type: 'string',
@@ -2113,16 +2119,28 @@ export const tools: Tool[] = [
         description: `ID of the deal to associate this quote with`,
       },
       {
-        name: 'hs_expiration_date',
+        name: 'hs_currency',
         type: 'string',
         required: false,
-        description: `Expiration date of the quote (YYYY-MM-DD format)`,
+        description: `Currency code for the quote (e.g. USD, EUR).`,
+      },
+      {
+        name: 'hs_sender_company_name',
+        type: 'string',
+        required: false,
+        description: `Sender company name shown on the quote.`,
       },
       {
         name: 'hs_status',
         type: 'string',
         required: false,
         description: `Status of the quote (DRAFT, PENDING_APPROVAL, APPROVED, REJECTED)`,
+      },
+      {
+        name: 'properties',
+        type: 'object',
+        required: false,
+        description: `Additional HubSpot quote properties as a JSON object.`,
       },
     ],
   },

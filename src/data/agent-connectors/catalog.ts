@@ -7,6 +7,16 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
+  eracontextmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/eracontext.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Accounting & Finance', 'AI', 'Productivity'],
+  },
+  plainmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/plain.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Customer Support', 'Productivity'],
+  },
   pylonmcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/pylon.svg',
     authType: 'OAuth 2.1/DCR',
