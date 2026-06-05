@@ -1,235 +1,114 @@
 ---
-title: Configure an MCP server
-description: Define which connectors and tools your MCP server exposes by creating an MCP config, a reusable template Scalekit uses to generate per-user MCP URLs.
-tags: [agentkit, mcp, model-context-protocol, tools, connectors]
+title: Manage MCP servers
+description: Create, list, update, and delete Virtual MCP Servers — scoped MCP endpoints that expose handpicked tools to your agents.
+tags: [agentkit, mcp, model-context-protocol, tools, connectors, virtual-mcp]
 sidebar:
-  label: Configure an MCP server
+  label: Manage servers
 tableOfContents: true
 prev:
-  label: "Build custom tools"
-  link: "/agentkit/tools/custom-tools"
+  label: "Overview"
+  link: "/agentkit/mcp/overview"
 next:
-  label: "Generate user MCP URLs"
-  link: "/agentkit/mcp/generate-user-urls"
+  label: "Connect to an MCP server"
+  link: "/agentkit/mcp/connect-mcp-client"
 ---
 
-import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
-
-Suppose you ship an agent that reads a user's email and creates calendar events from chat. You want an **MCP client** (for example LangChain or Claude Desktop) to call those tools **without** storing users' OAuth tokens in the MCP client or in browser code, and **without** writing a custom tool-calling loop in your app. Scalekit keeps tokens server-side. An **MCP config** is the single template that lists which [connections](/agentkit/connections/) (for example Gmail and Google Calendar) and which tools appear on the MCP server. This page shows how to create that config. [Generate user MCP URLs](/agentkit/mcp/generate-user-urls/) and [Connect an MCP client](/agentkit/mcp/connect-mcp-client/) cover the steps that follow.
-
-| Use MCP when | Use the SDK when |
-|---|---|
-| You want any MCP-compatible framework to connect | You need fine-grained control over tool execution |
-| You're exposing tools to external agents or Claude Desktop | You're building a custom agent loop |
-| You want to expose different tool sets to different agent roles | You need to mix Scalekit tools with custom logic |
-
-The SDK approach gives your code direct control: you call `execute_tool`, manage the response, and drive the agent loop. The MCP approach inverts this: you generate a pre-authenticated URL per user and hand it to any MCP-compatible agent or framework. The agent discovers available tools itself and executes them through the MCP protocol. Your application code doesn't manage the loop.
-
-## How it works
-
-Two objects are central to this model:
-
-| Object | What it is | Created |
-|---|---|---|
-| **MCP config** | A reusable template that defines which connections and tools are exposed | Once, by your app |
-| **MCP instance** | A per-user instantiation of a config, with its own URL | Once per user |
-
-You create a config once. For each user, Scalekit generates a unique, pre-authenticated URL from that config. The agent connects to the URL. Scalekit routes tool calls using the user's authorized credentials.
-
-### One-time setup
-
-Declare the MCP config once with `create_config`: which connections and tools appear on the server.
-
-```d2 pad=48
-direction: right
-
-title: "How Scalekit MCP tool access works: one-time setup" {
-  near: top-center
-  shape: text
-  style.font-size: 22
-}
-
-one_time: {
-  label: "ONE-TIME SETUP"
-  style.fill: "#E3F2FD"
-  style.font-size: 16
-
-  your_app: "Your App" {
-    shape: oval
-    style.fill: "#FFE0B2"
-    style.font-size: 16
-  }
-  mcp_config: "MCP Config\ngmail_fetch_mails\ngooglecalendar_create_event" {
-    shape: rectangle
-    style.font-size: 16
-  }
-  your_app -> mcp_config: create_config()
-}
-
-next_flow: "Next: Per-user →" {
-  shape: text
-  style.font-size: 14
-  link: "#per-user"
-}
-
-one_time.mcp_config -> next_flow: ensure_instance()
-```
-
-### Per-user
-
-Call `ensure_instance` for each user. They authorize OAuth for each connection (`auth link`) until every connection is active. You receive a pre-authenticated MCP URL for that user.
-
-```d2 pad=48
-direction: right
-
-title: "How Scalekit MCP tool access works: per-user" {
-  near: top-center
-  shape: text
-  style.font-size: 22
-}
-
-prev_flow: "← One-time setup" {
-  shape: text
-  style.font-size: 14
-  link: "#one-time-setup"
-}
-
-per_user: {
-  label: "PER-USER"
-  style.fill: "#E8F5E9"
-  style.font-size: 16
-
-  instance: "Per-user instance\nmcp.scalekit.com\n/u/john-doe/..." {
-    shape: rectangle
-    style.font-size: 16
-  }
-  user_auth: "User authorizes" {
-    shape: oval
-    style.fill: "#FFE0B2"
-    style.font-size: 16
-  }
-  instance -> user_auth: auth link
-}
-
-next_flow: "Next: Runtime →" {
-  shape: text
-  style.font-size: 14
-  link: "#runtime"
-}
-
-prev_flow -> per_user.instance
-per_user.user_auth -> next_flow: MCP URL
-```
-
-### Runtime
-
-Point your MCP client at that URL (the diagram labels it **AI Agent (MCP URL)**). Tool calls flow to the providers Scalekit proxies using that user's tokens.
-
-```d2 pad=48
-direction: right
-
-title: "How Scalekit MCP tool access works: runtime" {
-  near: top-center
-  shape: text
-  style.font-size: 22
-}
-
-prev_flow: "← Per-user" {
-  shape: text
-  style.font-size: 14
-  link: "#per-user"
-}
-
-restart_flow: "↺ One-time setup" {
-  shape: text
-  style.font-size: 14
-  link: "#one-time-setup"
-}
-
-runtime: {
-  label: "RUNTIME"
-  style.fill: "#F3E5F5"
-  style.font-size: 16
-
-  agent: "AI Agent\n(MCP URL)" {
-    shape: rectangle
-    style.font-size: 16
-  }
-  gmail: Gmail {
-    shape: rectangle
-    style.fill: "#B2EBF2"
-    style.font-size: 16
-  }
-  gcal: "Google Calendar" {
-    shape: rectangle
-    style.fill: "#B2EBF2"
-    style.font-size: 16
-  }
-  agent -> gmail: tool calls
-  agent -> gcal: tool calls
-}
-
-prev_flow -> runtime.agent
-runtime.agent -> restart_flow
-```
+import { Aside } from '@astrojs/starlight/components';
 
 ## Prerequisites
 
-Before creating a config, configure the connections you want to expose. Each `connection_name` in the config must already exist in **AgentKit** > **Connections**.
+Before creating a Virtual MCP Server, configure the connections you want to expose. Each `connection_name` in the server must already exist in **AgentKit** > **Connections**.
 
 See [Configure a connection](/agentkit/connections/) if you haven't set these up yet.
 
-## Create an MCP config
+## Create a Virtual MCP Server
 
-An MCP config declares which connections and tools your server exposes. Create it once (not once per user).
+A Virtual MCP Server declares which connections and tools it exposes. Create it once — not once per user. The response includes a static `mcp_server_url` you'll use when connecting agents.
 
 ```python
 import os
-import scalekit.client
-from scalekit.actions.types import McpConfigConnectionToolMapping
+from scalekit import ScalekitClient
+from scalekit.actions.models.mcp_config import McpConfigConnectionToolMapping
 
-scalekit_client = scalekit.client.ScalekitClient(
-    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
-    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
-    env_url=os.getenv("SCALEKIT_ENV_URL"),
+scalekit_client = ScalekitClient(
+    env_url=os.environ["SCALEKIT_ENV_URL"],
+    client_id=os.environ["SCALEKIT_CLIENT_ID"],
+    client_secret=os.environ["SCALEKIT_CLIENT_SECRET"],
 )
-actions = scalekit_client.actions
 
-cfg_response = actions.mcp.create_config(
-    name="email-calendar-assistant",
-    description="Reads email and creates calendar reminders",
+GMAIL_TOOLS = ["gmail_fetch_mails"]
+GCAL_TOOLS = [
+    "googlecalendar_list_calendars",
+    "googlecalendar_list_events",
+    "googlecalendar_get_event_by_id",
+    "googlecalendar_create_event",
+    "googlecalendar_update_event",
+]
+
+vmcp_response = scalekit_client.actions.mcp.create_config(
+    name="email-calendar-demo",
     connection_tool_mappings=[
         McpConfigConnectionToolMapping(
-            connection_name="MY_GMAIL",
-            tools=["gmail_fetch_mails"],
+            connection_name="gmail",
+            tools=GMAIL_TOOLS,
         ),
         McpConfigConnectionToolMapping(
-            connection_name="MY_CALENDAR",
-            tools=["googlecalendar_create_event"],
+            connection_name="googlecalendar",
+            tools=GCAL_TOOLS,
         ),
     ],
 )
-config_name = cfg_response.config.name
-print("Config created:", config_name)
+
+config_id = vmcp_response.config.id
+mcp_server_url = vmcp_response.config.mcp_server_url
+print("MCP server URL:", mcp_server_url)
+print("Config ID:", config_id)
 ```
 
-<Aside type="tip" title="One config, many use cases">
-  Create multiple configs for different agent roles: a customer support config that exposes ticketing tools, a sales config that exposes CRM tools. Each config produces a different URL with a different tool set.
-</Aside>
+**Selecting tools**: The `tools` array in each `McpConfigConnectionToolMapping` controls exactly which tools are exposed. Omit `tools` to expose all tools for a connector. To find available tool names, browse **AgentKit** > **Catalog**, or open the connection from **AgentKit** > **Connections** and review its tools.
 
-## Whitelist specific tools
+## List Virtual MCP Servers
 
-The `tools` array in each `McpConfigConnectionToolMapping` controls exactly which tools are exposed on the server. To find the available tool names for a connector, call `list_tools` or browse the provider in **AgentKit** > **Catalog**, or open the connection from **AgentKit** > **Connections** and review its tools.
+Retrieve all Virtual MCP Servers in your environment. Use `filter_name` or `filter_id` to narrow results.
 
 ```python
-# Expose all tools for a connector; omit tools to expose everything
-McpConfigConnectionToolMapping(connection_name="MY_GMAIL")
+list_response = scalekit_client.actions.mcp.list_configs()
+for config in list_response.configs:
+    print(config.id, config.name, config.mcp_server_url)
 
-# Expose only specific tools
-McpConfigConnectionToolMapping(
-    connection_name="MY_GMAIL",
-    tools=["gmail_fetch_mails", "gmail_send_mail"],
+# Filter by name
+list_response = scalekit_client.actions.mcp.list_configs(filter_name="email-calendar-demo")
+```
+
+## Update a Virtual MCP Server
+
+You can update the description or connection tool mappings of an existing Virtual MCP Server.
+
+```python
+from scalekit.actions.models.mcp_config import McpConfigConnectionToolMapping
+
+scalekit_client.actions.mcp.update_config(
+    config_id=config_id,
+    description="Updated: Reads email and creates reminders",
+    connection_tool_mappings=[
+        McpConfigConnectionToolMapping(
+            connection_name="gmail",
+            tools=["gmail_fetch_mails", "gmail_send_mail"],
+        ),
+        McpConfigConnectionToolMapping(
+            connection_name="googlecalendar",
+            tools=["googlecalendar_create_event", "googlecalendar_list_events"],
+        ),
+    ],
 )
 ```
 
-Full working code for all MCP steps is on [GitHub](https://github.com/scalekit-inc/python-connect-demos/tree/main/mcp).
+Only update a Virtual MCP Server when no agent sessions are actively running against it. Updating while sessions are in progress can cause tools to become unavailable mid-execution. For significant changes, create a new Virtual MCP Server with the updated configuration and swap the `mcp_server_url` in your agent definition — this lets existing sessions complete against the old server while new sessions use the updated one.
+
+## Delete a Virtual MCP Server
+
+```python
+scalekit_client.actions.mcp.delete_config(config_id=config_id)
+```
+
+Deleting a Virtual MCP Server immediately removes the `mcp_server_url`. Any agent currently connected to that URL will lose access to tools. Ensure no active sessions are running before deleting.

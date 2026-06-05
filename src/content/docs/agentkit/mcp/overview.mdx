@@ -1,0 +1,48 @@
+---
+title: Virtual MCP servers
+description: Create scoped MCP endpoints with handpicked tools for your AI agents — ideal for background, cron, and interactive agents.
+tags: [agentkit, mcp, model-context-protocol, virtual-mcp, tools, connectors]
+sidebar:
+  label: Overview
+tableOfContents: true
+prev:
+  label: "Build custom tools"
+  link: "/agentkit/tools/custom-tools"
+next:
+  label: "Manage MCP servers"
+  link: "/agentkit/mcp/configure-mcp-server"
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Scalekit lets you create **Virtual MCP servers** by handpicking exactly the tools your agent needs. A Virtual MCP Server is a scoped MCP endpoint that exposes only the tools you select — no other capabilities are visible to the agent. This makes it ideal for background long-running agents, cron-based agents, and interactive agents such as Claude Managed Agents, OpenAI Agents, and Hermes Agents.
+
+## What is a Virtual MCP server?
+
+A Virtual MCP server is a Scalekit-hosted MCP endpoint scoped to a specific set of connections and tools. You define which connectors (for example Gmail and Google Calendar) and which tools from those connectors appear on the server. Agents connect to the server URL using short-lived session tokens; Scalekit routes each tool call using the authorized credentials for that user.
+
+## Use cases
+
+Virtual MCP Servers work across agent types and execution models:
+
+- **Background agents** — long-running agents that process data or take actions without a user present, such as summarizing overnight emails or syncing records between services.
+- **Cron-based agents** — scheduled agents that run on a timer on behalf of a user, such as a daily briefing agent that reads new emails and creates calendar events.
+- **Interactive agents** — chat assistants or copilots that take real actions mid-conversation, such as booking a meeting or drafting a reply, using the current user's connected accounts.
+- **Multi-user SaaS apps** — a single Virtual MCP Server definition shared across all users. Each user connects their own accounts once; at runtime each agent session receives a scoped session token for that user only.
+
+## How it works
+
+Two objects drive the model:
+
+| Object | What it is | Lifetime |
+|---|---|---|
+| **Virtual MCP server** | A scoped endpoint declaring which connections and tools are exposed | Created once per agent role |
+| **Session token** | A short-lived credential scoped to a specific user | Minted before each agent run |
+
+The flow has three stages:
+
+1. **Create a Virtual MCP Server** — Declare which connections (for example Gmail, Google Calendar) and tools the server exposes. You get a static `mcp_server_url`. Do this once per agent, not once per user.
+
+2. **Ensure the user has authorized all connections** — Before the agent runs, confirm that the user on whose behalf the agent is acting has authorized every connection the server uses (for example Gmail, Google Calendar). If any connection is unauthorized, prompt the user to complete the OAuth flow first. See [Authorize user connections](/agentkit/tools/authorize/).
+
+3. **Connect the agent at runtime** — Before each run, mint a short-lived session token for the user. Pass the `mcp_server_url` and token to your agent as bearer auth.
