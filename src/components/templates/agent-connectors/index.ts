@@ -161,6 +161,7 @@ export { default as SectionAfterSetupSalesforceCommonWorkflows } from './_sectio
 export { default as SectionAfterSetupServicenowCommonWorkflows } from './_section-after-setup-servicenow-common-workflows.mdx'
 export { default as SectionAfterSetupSharepointCommonWorkflows } from './_section-after-setup-sharepoint-common-workflows.mdx'
 export { default as SectionAfterSetupSlackCommonWorkflows } from './_section-after-setup-slack-common-workflows.mdx'
+export { default as SectionAfterSetupSlackmcpCommonWorkflows } from './_section-after-setup-slackmcp-common-workflows.mdx'
 export { default as SectionAfterSetupSnowflakeCommonWorkflows } from './_section-after-setup-snowflake-common-workflows.mdx'
 export { default as SectionAfterSetupSnowflakekeyauthCommonWorkflows } from './_section-after-setup-snowflakekeyauth-common-workflows.mdx'
 export { default as SectionAfterSetupSupadataCommonWorkflows } from './_section-after-setup-supadata-common-workflows.mdx'

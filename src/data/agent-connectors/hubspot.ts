@@ -1503,6 +1503,150 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_list_create',
+    description: `Create a new HubSpot CRM list for contacts, companies, or deals. Supports static (MANUAL), one-time snapshot (SNAPSHOT), and auto-updating dynamic (DYNAMIC) lists.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Display name of the list. Must be unique across all public lists in the portal.`,
+      },
+      {
+        name: 'objectTypeId',
+        type: 'string',
+        required: true,
+        description: `Object type the list will contain. Use 0-1 for contacts, 0-2 for companies, 0-3 for deals.`,
+      },
+      {
+        name: 'processingType',
+        type: 'string',
+        required: true,
+        description: `How list membership is determined. MANUAL for static lists, SNAPSHOT for a one-time filter run, DYNAMIC for continuously updated lists.`,
+      },
+      {
+        name: 'customProperties',
+        type: 'string',
+        required: false,
+        description: `Custom key-value metadata to attach to the list.`,
+      },
+      {
+        name: 'filterBranch',
+        type: 'string',
+        required: false,
+        description: `Nested filter tree defining membership criteria for DYNAMIC or SNAPSHOT lists.`,
+      },
+      {
+        name: 'listFolderId',
+        type: 'integer',
+        required: false,
+        description: `ID of the folder to place this list in. Defaults to the root folder if omitted.`,
+      },
+      {
+        name: 'listPermissions',
+        type: 'string',
+        required: false,
+        description: `Teams and users that should have edit access to this list, identified by their numeric HubSpot IDs.`,
+      },
+      {
+        name: 'membershipSettings',
+        type: 'string',
+        required: false,
+        description: `Controls whether unassigned records are included in the list and which team owns the membership.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_list_delete',
+    description: `Permanently delete a HubSpot CRM list by its list ID. This removes the list definition but does not delete the records it contains.`,
+    params: [
+      {
+        name: 'listId',
+        type: 'string',
+        required: true,
+        description: `The ID of the list to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_list_filters_update',
+    description: `Replace the filter branch of a DYNAMIC HubSpot list. The new filterBranch fully replaces the existing definition — include any filters you want to keep. The list immediately begins reprocessing its membership after the update.`,
+    params: [
+      {
+        name: 'filterBranch',
+        type: 'string',
+        required: true,
+        description: `The new filter branch definition that replaces the existing one. Must be a complete OR root branch with nested AND branches.`,
+      },
+      {
+        name: 'listId',
+        type: 'string',
+        required: true,
+        description: `The ID of the list whose filters should be updated.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_list_memberships_add',
+    description: `Add one or more records to a MANUAL HubSpot list by their record IDs.`,
+    params: [
+      {
+        name: 'listId',
+        type: 'string',
+        required: true,
+        description: `ID of the list to add contacts to.`,
+      },
+      {
+        name: 'recordIds',
+        type: 'string',
+        required: true,
+        description: `JSON array of contact record IDs to add to the list.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_list_memberships_remove',
+    description: `Remove one or more records from a MANUAL HubSpot list by their record IDs.`,
+    params: [
+      {
+        name: 'listId',
+        type: 'string',
+        required: true,
+        description: `ID of the list to remove contacts from.`,
+      },
+      {
+        name: 'recordIds',
+        type: 'string',
+        required: true,
+        description: `JSON array of contact record IDs to remove from the list.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_list_name_update',
+    description: `Rename a HubSpot CRM list. The new name must be unique across all public lists in the portal. Optionally return filter definitions in the response by setting includeFilters to true.`,
+    params: [
+      {
+        name: 'listId',
+        type: 'string',
+        required: true,
+        description: `The ID of the list to update.`,
+      },
+      {
+        name: 'listName',
+        type: 'string',
+        required: true,
+        description: `The new name for the list.`,
+      },
+      {
+        name: 'includeFilters',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include filter branch definitions in the response.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_marketing_email_get',
     description: `Retrieve a single marketing email by its ID, including subject, body, send configuration, and metadata.`,
     params: [
@@ -1843,6 +1987,61 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_product_update',
+    description: `Update an existing product in the HubSpot product library by its product ID.`,
+    params: [
+      {
+        name: 'product_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the product to update.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `New description of the product.`,
+      },
+      {
+        name: 'hs_cost_of_goods_sold',
+        type: 'string',
+        required: false,
+        description: `Cost of goods sold for the product.`,
+      },
+      {
+        name: 'hs_recurring_billing_period',
+        type: 'string',
+        required: false,
+        description: `Billing period for recurring products (e.g. P1M for monthly, P1Y for annual).`,
+      },
+      {
+        name: 'hs_sku',
+        type: 'string',
+        required: false,
+        description: `New stock keeping unit (SKU) identifier for the product.`,
+      },
+      {
+        name: 'idProperty',
+        type: 'string',
+        required: false,
+        description: `The name of a unique property to use as the identifier instead of the default productId.`,
+      },
+      { name: 'name', type: 'string', required: false, description: `New name of the product.` },
+      {
+        name: 'price',
+        type: 'string',
+        required: false,
+        description: `New unit price of the product.`,
+      },
+      {
+        name: 'properties',
+        type: 'string',
+        required: false,
+        description: `Arbitrary key-value pairs of any HubSpot product properties to update.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_products_batch_archive',
     description: `Archive (soft delete) a product in HubSpot CRM using the batch archive API. Archived records are hidden from the UI but can be restored.`,
     params: [
@@ -1942,6 +2141,55 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Comma-separated list of quote properties to include in response`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_quote_update',
+    description: `Update an existing quote in HubSpot by its quote ID. Use this to change the title, status, expiration date, or currency of a quote.`,
+    params: [
+      {
+        name: 'quote_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the quote to update.`,
+      },
+      {
+        name: 'hs_currency',
+        type: 'string',
+        required: false,
+        description: `Currency code for the quote (ISO 4217).`,
+      },
+      {
+        name: 'hs_expiration_date',
+        type: 'string',
+        required: false,
+        description: `New expiration date for the quote (YYYY-MM-DD).`,
+      },
+      {
+        name: 'hs_language',
+        type: 'string',
+        required: false,
+        description: `Language of the quote (ISO 639-1 code).`,
+      },
+      {
+        name: 'hs_status',
+        type: 'string',
+        required: false,
+        description: `New status of the quote.`,
+      },
+      { name: 'hs_title', type: 'string', required: false, description: `New title of the quote.` },
+      {
+        name: 'idProperty',
+        type: 'string',
+        required: false,
+        description: `The name of a unique property to use as the identifier instead of the default quoteId.`,
+      },
+      {
+        name: 'properties',
+        type: 'string',
+        required: false,
+        description: `Arbitrary key-value pairs of any HubSpot quote properties to update.`,
       },
     ],
   },
@@ -2322,6 +2570,180 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_workflow_create',
+    description: `Create a new automation workflow in HubSpot. Use type CONTACT_FLOW for contact-based workflows. The workflow starts disabled by default unless isEnabled is set to true.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Display name of the workflow.`,
+      },
+      {
+        name: 'objectTypeId',
+        type: 'string',
+        required: true,
+        description: `Object type the workflow operates on.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: true,
+        description: `Workflow type. Use CONTACT_FLOW for contact-based workflows.`,
+      },
+      {
+        name: 'actions',
+        type: 'string',
+        required: false,
+        description: `Array of action steps in the workflow. Each action type can be STATIC_BRANCH, LIST_BRANCH, AB_TEST_BRANCH, CUSTOM_CODE, WEBHOOK, or SINGLE_CONNECTION.`,
+      },
+      {
+        name: 'blockedDates',
+        type: 'string',
+        required: false,
+        description: `Dates on which workflow actions are suppressed.`,
+      },
+      {
+        name: 'canEnrollFromSalesforce',
+        type: 'boolean',
+        required: false,
+        description: `Whether contacts can be enrolled from Salesforce. Only applicable for CONTACT_FLOW type.`,
+      },
+      {
+        name: 'customProperties',
+        type: 'string',
+        required: false,
+        description: `Custom metadata key-value pairs attached to the workflow.`,
+      },
+      {
+        name: 'dataSources',
+        type: 'string',
+        required: false,
+        description: `Data sources the workflow can reference, such as associated objects.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Optional description of the workflow's purpose.`,
+      },
+      {
+        name: 'enrollmentCriteria',
+        type: 'string',
+        required: false,
+        description: `Criteria for enrolling contacts into the workflow.`,
+      },
+      {
+        name: 'enrollmentSchedule',
+        type: 'string',
+        required: false,
+        description: `Schedule for re-enrollment checks.`,
+      },
+      {
+        name: 'eventAnchor',
+        type: 'string',
+        required: false,
+        description: `The anchor point for date-based workflows, referencing a contact property or a static date.`,
+      },
+      {
+        name: 'flowType',
+        type: 'string',
+        required: false,
+        description: `Flow sub-type. Use WORKFLOW for standard automation or ACTION_SET for action-only flows.`,
+      },
+      {
+        name: 'goalFilterBranch',
+        type: 'string',
+        required: false,
+        description: `Filter branch defining the goal criteria that unenrolls contacts when met. Only for CONTACT_FLOW.`,
+      },
+      {
+        name: 'isEnabled',
+        type: 'boolean',
+        required: false,
+        description: `Whether the workflow is active immediately after creation. Defaults to false.`,
+      },
+      {
+        name: 'startActionId',
+        type: 'string',
+        required: false,
+        description: `The ID of the first action to execute in the workflow.`,
+      },
+      {
+        name: 'suppressionFilterBranch',
+        type: 'string',
+        required: false,
+        description: `Filter branch defining contacts to exclude from enrollment. Only for PLATFORM_FLOW type.`,
+      },
+      {
+        name: 'suppressionListIds',
+        type: 'string',
+        required: false,
+        description: `Array of list IDs whose members are excluded from workflow enrollment.`,
+      },
+      {
+        name: 'timeWindows',
+        type: 'string',
+        required: false,
+        description: `Time windows that restrict when workflow actions can execute.`,
+      },
+      {
+        name: 'unEnrollmentSetting',
+        type: 'string',
+        required: false,
+        description: `Controls when and how contacts are unenrolled. Only for CONTACT_FLOW.`,
+      },
+      {
+        name: 'uuid',
+        type: 'string',
+        required: false,
+        description: `Optional stable identifier for the workflow, preserved across revisions.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_workflow_delete',
+    description: `Permanently delete a HubSpot workflow by its workflow ID. This action cannot be undone.`,
+    params: [
+      {
+        name: 'flow_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the workflow to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_workflow_email_campaigns_get',
+    description: `Retrieve email campaigns associated with one or more HubSpot workflows. Filter by flow IDs to see which email campaigns a specific workflow sends.`,
+    params: [
+      {
+        name: 'flowId',
+        type: 'string',
+        required: true,
+        description: `Comma-separated list of flow IDs to filter email campaigns by specific workflows.`,
+      },
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from the previous response to fetch the next page.`,
+      },
+      {
+        name: 'before',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from the previous response to fetch the previous page.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per page.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_workflow_enroll',
     description: `Enroll a contact into a HubSpot workflow by workflow ID and the contact's email address.`,
     params: [
@@ -2352,6 +2774,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_workflow_get_v3',
+    description: `Retrieve metadata for a specific v3 workflow by its v3 workflow ID, including name, type, enabled status, and optionally validation errors and statistics.`,
+    params: [
+      {
+        name: 'workflow_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the v3 workflow to retrieve.`,
+      },
+      {
+        name: 'errors',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include validation errors and warnings in the response.`,
+      },
+      {
+        name: 'stats',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include workflow statistics in the response.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_workflow_unenroll',
     description: `Remove a contact from a HubSpot workflow by workflow ID and the contact's email address.`,
     params: [
@@ -2366,6 +2812,126 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The ID of the workflow to unenroll the contact from.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_workflow_update',
+    description: `Replace a HubSpot workflow's full definition by flow ID. Requires the current revisionId for optimistic locking — fetch it first with Get Workflow. Provide all required fields (actions, blockedDates, customProperties, timeWindows, type, isEnabled) plus the revisionId.`,
+    params: [
+      {
+        name: 'flow_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the workflow to update.`,
+      },
+      {
+        name: 'isEnabled',
+        type: 'boolean',
+        required: true,
+        description: `Whether the workflow should be active after the update.`,
+      },
+      {
+        name: 'revisionId',
+        type: 'string',
+        required: true,
+        description: `The current revision ID of the workflow, used for optimistic locking to prevent concurrent overwrites.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: true,
+        description: `Workflow type. Must match the existing workflow type.`,
+      },
+      {
+        name: 'actions',
+        type: 'string',
+        required: false,
+        description: `Array of action steps in the workflow. Replaces the existing actions. Each action type can be STATIC_BRANCH, LIST_BRANCH, AB_TEST_BRANCH, CUSTOM_CODE, WEBHOOK, or SINGLE_CONNECTION.`,
+      },
+      {
+        name: 'blockedDates',
+        type: 'string',
+        required: false,
+        description: `Array of date ranges during which the workflow will not send actions.`,
+      },
+      {
+        name: 'canEnrollFromSalesforce',
+        type: 'boolean',
+        required: false,
+        description: `Whether contacts can be enrolled from Salesforce. Only applicable for CONTACT_FLOW type.`,
+      },
+      {
+        name: 'customProperties',
+        type: 'string',
+        required: false,
+        description: `Custom metadata key-value pairs attached to the workflow.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Updated description of the workflow's purpose.`,
+      },
+      {
+        name: 'enrollmentCriteria',
+        type: 'string',
+        required: false,
+        description: `How contacts are enrolled into the workflow.`,
+      },
+      {
+        name: 'enrollmentSchedule',
+        type: 'string',
+        required: false,
+        description: `Schedule for re-enrollment checks.`,
+      },
+      {
+        name: 'goalFilterBranch',
+        type: 'string',
+        required: false,
+        description: `Filter branch defining the goal criteria that unenrolls contacts when met. Only for CONTACT_FLOW workflows.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `New display name for the workflow.`,
+      },
+      {
+        name: 'startActionId',
+        type: 'string',
+        required: false,
+        description: `The ID of the first action to execute in the workflow.`,
+      },
+      {
+        name: 'suppressionFilterBranch',
+        type: 'string',
+        required: false,
+        description: `Filter branch defining contacts to exclude from enrollment. Only for PLATFORM_FLOW workflows.`,
+      },
+      {
+        name: 'suppressionListIds',
+        type: 'string',
+        required: false,
+        description: `Array of list IDs whose members are excluded from workflow enrollment.`,
+      },
+      {
+        name: 'timeWindows',
+        type: 'string',
+        required: false,
+        description: `Time windows that restrict when workflow actions can execute.`,
+      },
+      {
+        name: 'unEnrollmentSetting',
+        type: 'string',
+        required: false,
+        description: `Controls when and how contacts are unenrolled from the workflow. Only for CONTACT_FLOW workflows.`,
+      },
+      {
+        name: 'uuid',
+        type: 'string',
+        required: false,
+        description: `Optional stable identifier for the workflow, useful for tracking across revisions.`,
       },
     ],
   },
@@ -2386,5 +2952,10 @@ export const tools: Tool[] = [
         description: `Maximum number of workflows to return per page.`,
       },
     ],
+  },
+  {
+    name: 'hubspot_workflows_list_v3',
+    description: `List all v3 (v2) automation workflows in HubSpot. Returns the workflow IDs required by the Enroll in Workflow and Unenroll from Workflow tools. Use this instead of List Workflows when you need to enroll or unenroll a contact.`,
+    params: [],
   },
 ]
