@@ -48,7 +48,7 @@ pip install anthropic scalekit-sdk-python python-dotenv
 
 Run this once to create your Virtual MCP Server and Claude Managed Agent. Save the returned `mcp_id` and `agent_id` — you reuse them for every user and every session.
 
-```python
+```python title="builder.py"
 import os
 import anthropic
 from scalekit import ScalekitClient
@@ -130,7 +130,7 @@ The agent definition references the `mcp_server_url` but carries no auth credent
 
 Each user authorizes their Gmail and Google Calendar accounts once. All future agent sessions for that user reuse those connections.
 
-```python
+```python title="executor_setup.py"
 import os
 from scalekit import ScalekitClient
 from dotenv import load_dotenv
@@ -172,7 +172,7 @@ Run the following for each agent execution.
 
    Before minting a token, confirm all connections are still `"ACTIVE"`. OAuth tokens for connected accounts can expire or be revoked.
 
-   ```python
+   ```python title="executor.py"
    accounts_response = scalekit_client.actions.mcp.list_mcp_connected_accounts(
        mcp_id=mcp_id,
        identifier=identifier,
@@ -191,7 +191,7 @@ Run the following for each agent execution.
 
    Mint a short-lived session token and store it in an Anthropic vault. Claude Managed Agents access the MCP server using the vault credential — not a direct bearer header.
 
-   ```python
+   ```python title="executor.py"
    from datetime import timedelta
 
    configs_response = scalekit_client.actions.mcp.list_configs(filter_id=mcp_id)
@@ -230,7 +230,7 @@ Run the following for each agent execution.
 
    Pass `vault_ids` to the session so the agent can authenticate against the MCP server.
 
-   ```python
+   ```python title="executor.py"
    session = anthropic_client.beta.sessions.create(
        agent=agent_id,
        environment_id=os.environ["ANTHROPIC_ENVIRONMENT_ID"],
