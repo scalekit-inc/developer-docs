@@ -1,29 +1,29 @@
 ---
-title: Manage MCP servers
-description: Create, list, update, and delete Virtual MCP Servers — scoped MCP endpoints that expose handpicked tools to your agents.
+title: Set up and connect a Virtual MCP server
+description: Create a Virtual MCP Server, verify user connections, mint session tokens, and connect your agent using bearer auth.
 tags: [agentkit, mcp, model-context-protocol, tools, connectors, virtual-mcp]
 sidebar:
-  label: Manage servers
+  label: Set up and connect
 tableOfContents: true
 prev:
   label: "Overview"
   link: "/agentkit/mcp/overview"
 next:
-  label: "Connect to an MCP server"
-  link: "/agentkit/mcp/connect-mcp-client"
+  label: "Add your own connector"
+  link: "/agentkit/bring-your-own-connector/overview"
 ---
 
-import { Aside } from '@astrojs/starlight/components';
+import { Aside, Steps } from '@astrojs/starlight/components';
 
 ## Prerequisites
 
-Before creating a Virtual MCP Server, configure the connections you want to expose. Each `connection_name` in the server must already exist in **AgentKit** > **Connections**.
+Before creating a Virtual MCP Server, configure the connections you want to expose. Each `connection_name` you reference must already exist in **AgentKit > Connections**.
 
-See [Configure a connection](/agentkit/connections/) if you haven't set these up yet.
+See [Configure a connection](/agentkit/connections/) if you haven't done this yet.
 
-## Create a Virtual MCP Server
+## Create a Virtual MCP server
 
-A Virtual MCP Server declares which connections and tools it exposes. Create it once — not once per user. The response includes a static `mcp_server_url` you'll use when connecting agents.
+Create the server once per agent role — not once per user. The response includes a static `mcp_server_url` you reuse for every user and every session.
 
 ```python
 import os
@@ -36,60 +36,110 @@ scalekit_client = ScalekitClient(
     client_secret=os.environ["SCALEKIT_CLIENT_SECRET"],
 )
 
-GMAIL_TOOLS = ["gmail_fetch_mails"]
-GCAL_TOOLS = [
-    "googlecalendar_list_calendars",
-    "googlecalendar_list_events",
-    "googlecalendar_get_event_by_id",
-    "googlecalendar_create_event",
-    "googlecalendar_update_event",
-]
-
 vmcp_response = scalekit_client.actions.mcp.create_config(
-    name="email-calendar-demo",
+    name="email-calendar-agent",
     connection_tool_mappings=[
         McpConfigConnectionToolMapping(
             connection_name="gmail",
-            tools=GMAIL_TOOLS,
+            tools=["gmail_fetch_mails"],
         ),
         McpConfigConnectionToolMapping(
             connection_name="googlecalendar",
-            tools=GCAL_TOOLS,
+            tools=[
+                "googlecalendar_list_events",
+                "googlecalendar_create_event",
+            ],
         ),
     ],
 )
 
 config_id = vmcp_response.config.id
 mcp_server_url = vmcp_response.config.mcp_server_url
-print("MCP server URL:", mcp_server_url)
-print("Config ID:", config_id)
 ```
 
-**Selecting tools**: The `tools` array in each `McpConfigConnectionToolMapping` controls exactly which tools are exposed. Omit `tools` to expose all tools for a connector. To find available tool names, browse **AgentKit** > **Catalog**, or open the connection from **AgentKit** > **Connections** and review its tools.
+Save `config_id` and `mcp_server_url`. You pass these to every agent session.
 
-## List Virtual MCP Servers
+**Selecting tools**: Each `McpConfigConnectionToolMapping` controls which tools from a connection appear on the server. Omit `tools` to expose all tools for that connection. To find available tool names, browse **AgentKit > Catalog** or open the connection from **AgentKit > Connections**.
 
-Retrieve all Virtual MCP Servers in your environment. Use `filter_name` or `filter_id` to narrow results.
+## Connect an agent
+
+Run these steps before each agent session.
+
+<Steps>
+
+1. ## Check that connections are active
+
+   Verify all connections are still active for this user before minting a token. OAuth credentials can expire or be revoked at any time.
+
+   ```python
+   accounts_response = scalekit_client.actions.mcp.list_mcp_connected_accounts(
+       config_id=config_id,
+       identifier="user_123",      # your app's unique identifier for this user
+       include_auth_link=True,     # include re-auth URLs for any inactive connections
+   )
+
+   for account in accounts_response.connected_accounts:
+       if account.connected_account_status != "active":
+           print(f"{account.connection_name} needs auth: {account.authentication_link}")
+   ```
+
+   `identifier` is any string that uniquely identifies a user in your system — an email, user ID, or UUID. Use the same value consistently across all calls.
+
+   If any connection is not `"active"`, surface the `authentication_link` to the user before proceeding. See [Authorize user connections](/agentkit/tools/authorize/).
+
+2. ## Mint a session token
+
+   Mint a fresh token before every agent run. Never reuse a token from a previous session.
+
+   ```python
+   from datetime import timedelta
+
+   token_response = scalekit_client.actions.mcp.create_session_token(
+       mcp_config_id=config_id,
+       identifier="user_123",
+       expiry=timedelta(hours=1),
+   )
+
+   token = token_response.token
+   ```
+
+   Set `expiry` longer than the expected agent run duration. For a task that typically takes 20 minutes, a 30-minute expiry is sufficient.
+
+3. ## Pass the token to your agent
+
+   Pass `mcp_server_url` and the session token to your agent framework using bearer auth.
+
+   ```python
+   mcp_server = {
+       "url": mcp_server_url,
+       "headers": {"Authorization": f"Bearer {token}"},
+   }
+   ```
+
+   How you register the MCP server depends on your framework. For a complete end-to-end example using Claude Managed Agents — including vault-based auth injection and response streaming — see [Claude Managed Agents](/agentkit/examples/claude-managed-agents/).
+
+</Steps>
+
+## Manage servers
+
+**List servers**
 
 ```python
-list_response = scalekit_client.actions.mcp.list_configs()
-for config in list_response.configs:
+configs = scalekit_client.actions.mcp.list_configs()
+for config in configs.configs:
     print(config.id, config.name, config.mcp_server_url)
 
 # Filter by name
-list_response = scalekit_client.actions.mcp.list_configs(filter_name="email-calendar-demo")
+configs = scalekit_client.actions.mcp.list_configs(filter_name="email-calendar-agent")
 ```
 
-## Update a Virtual MCP Server
+**Update a server**
 
-You can update the description or connection tool mappings of an existing Virtual MCP Server.
+You can update `description` or `connection_tool_mappings` on an existing server. Only do this when no agent sessions are actively running — updating mid-session can cause tools to become unavailable. For significant changes, create a new server and swap the `mcp_server_url` in your agent definition so existing sessions complete cleanly.
 
 ```python
-from scalekit.actions.models.mcp_config import McpConfigConnectionToolMapping
-
 scalekit_client.actions.mcp.update_config(
     config_id=config_id,
-    description="Updated: Reads email and creates reminders",
     connection_tool_mappings=[
         McpConfigConnectionToolMapping(
             connection_name="gmail",
@@ -103,12 +153,10 @@ scalekit_client.actions.mcp.update_config(
 )
 ```
 
-Only update a Virtual MCP Server when no agent sessions are actively running against it. Updating while sessions are in progress can cause tools to become unavailable mid-execution. For significant changes, create a new Virtual MCP Server with the updated configuration and swap the `mcp_server_url` in your agent definition — this lets existing sessions complete against the old server while new sessions use the updated one.
-
-## Delete a Virtual MCP Server
+**Delete a server**
 
 ```python
 scalekit_client.actions.mcp.delete_config(config_id=config_id)
 ```
 
-Deleting a Virtual MCP Server immediately removes the `mcp_server_url`. Any agent currently connected to that URL will lose access to tools. Ensure no active sessions are running before deleting.
+Deleting a server immediately invalidates the `mcp_server_url`. Any agent connected to that URL loses tool access. Confirm no active sessions are running before deleting.

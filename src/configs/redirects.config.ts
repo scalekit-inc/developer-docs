@@ -381,7 +381,9 @@ export const redirects = {
 
   // Removed agentkit/mcp pages
   '/agentkit/mcp/tool-access-via-mcp': '/agentkit/mcp/overview/',
-  '/agentkit/mcp/generate-user-urls': '/agentkit/mcp/connect-mcp-client/',
+  '/agentkit/mcp/generate-user-urls': '/agentkit/mcp/configure-mcp-server/',
+  '/agentkit/mcp/connect-mcp-client': '/agentkit/mcp/configure-mcp-server/',
+  '/agentkit/mcp/connect-mcp-client/': '/agentkit/mcp/configure-mcp-server/',
 
   // Legacy framework pages moved to /agentkit/examples/
   '/agentkit/frameworks': '/agentkit/examples/',

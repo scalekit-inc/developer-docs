@@ -187,8 +187,7 @@ export const sidebar = [
         collapsed: false,
         items: [
           { label: 'Overview', link: 'agentkit/mcp/overview' },
-          { label: 'Manage servers', link: 'agentkit/mcp/configure-mcp-server' },
-          { label: 'Connect to MCP', link: 'agentkit/mcp/connect-mcp-client' },
+          { label: 'Set up and connect', link: 'agentkit/mcp/configure-mcp-server' },
         ],
       },
       {
