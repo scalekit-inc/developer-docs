@@ -27,12 +27,12 @@ pip install scalekit-sdk-python
 
 ```python
 import os
-import scalekit.client
+from scalekit import ScalekitClient
 
-scalekit_client = scalekit.client.ScalekitClient(
-    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
-    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
-    env_url=os.getenv("SCALEKIT_ENV_URL"),
+scalekit_client = ScalekitClient(
+    env_url=os.environ["SCALEKIT_ENV_URL"],
+    client_id=os.environ["SCALEKIT_CLIENT_ID"],
+    client_secret=os.environ["SCALEKIT_CLIENT_SECRET"],
 )
 
 actions = scalekit_client.actions
@@ -294,7 +294,7 @@ messages = response.json()["messages"]
 ]} />
 
 ```python title="Example"
-from scalekit.actions.types import McpConfigConnectionToolMapping
+from scalekit.actions.models.mcp_config import McpConfigConnectionToolMapping
 
 config = actions.mcp.create_config(
     name="email-agent",
