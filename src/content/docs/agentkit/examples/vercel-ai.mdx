@@ -90,7 +90,7 @@ console.log(text);
 
 ## Use MCP instead
 
-The Vercel AI SDK supports MCP via `experimental_createMCPClient`. Pass a Scalekit-generated MCP URL to connect without any tool schema setup:
+The Vercel AI SDK supports MCP via `experimental_createMCPClient`. Pass the Virtual MCP Server URL and a session token to connect without any tool schema setup:
 
 ```typescript
 import { experimental_createMCPClient, generateText } from 'ai';
@@ -98,8 +98,9 @@ import { openai } from '@ai-sdk/openai';
 
 const mcpClient = await experimental_createMCPClient({
   transport: {
-    type: 'sse',
-    url: mcpUrl,  // from actions.mcp.ensure_instance()
+    type: 'streamable-http',
+    url: mcpUrl,     // mcp_server_url from Virtual MCP Server config
+    headers: { Authorization: `Bearer ${mcpToken}` },
   },
 });
 
@@ -115,4 +116,4 @@ await mcpClient.close();
 console.log(text);
 ```
 
-See [Generate user MCP URLs](/agentkit/mcp/generate-user-urls/) to get `mcpUrl`.
+See [Virtual MCP Servers](/agentkit/mcp/overview/) for setup details and how to get `mcpUrl` and `mcpToken`.

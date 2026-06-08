@@ -39,7 +39,7 @@ This guide maps Composio concepts to their Scalekit AgentKit equivalents and wal
 | Provider package (`composio_openai`) | No equivalent | Scalekit uses a single SDK for all frameworks |
 | `session.tools()` | `listScopedTools()` | Get tools a user is authorized to call |
 | `session.tools.execute()` | `executeTool()` | Execute a tool on behalf of a user |
-| `session.mcp.url` | **MCP instance URL** | Per-user MCP endpoint |
+| `session.mcp.url` | **Virtual MCP Server URL + session token** | Static server URL with a short-lived bearer token per agent run |
 | Custom tool (in-memory) | **Custom tool** (API Proxy) | Defined in your app code using `actions.request()` |
 | `executeToolRequest` (proxy) | `actions.request()` | Proxied REST API call |
 | Trigger | No equivalent | Scalekit does not support event-driven triggers |
@@ -328,26 +328,27 @@ Both platforms support MCP (Model Context Protocol) for framework-agnostic tool 
 
 **After (Scalekit):**
 
-In Scalekit, MCP requires a two-step setup:
+Scalekit MCP uses Virtual MCP Servers:
 
-1. **Create an MCP config** — define which connections and tools the server exposes (one-time)
-2. **Generate a per-user MCP URL** — each user gets a unique, pre-authenticated endpoint
+1. **Create an MCP config** — define which connections and tools the server exposes (one-time). This gives you a static `mcp_server_url`.
+2. **Mint a session token** — before each agent run, call `create_session_token` for the user. Pass it as a bearer auth header.
 
-See [Configure an MCP server](/agentkit/mcp/configure-mcp-server/) and [Generate user MCP URLs](/agentkit/mcp/generate-user-urls/) for the full setup.
-
-Once you have the per-user URL:
+See [Virtual MCP Servers](/agentkit/mcp/overview/) for the full setup.
 
 ```json
 {
   "mcpServers": {
     "scalekit": {
-      "url": "<PER_USER_MCP_URL>"
+      "url": "<MCP_SERVER_URL>",
+      "headers": {
+        "Authorization": "Bearer <SESSION_TOKEN>"
+      }
     }
   }
 }
 ```
 
-**Key difference:** Composio uses a single URL with the user ID as a query parameter. Scalekit generates a unique, pre-authenticated URL per user — no API key in the client config.
+**Key difference:** Composio embeds the user ID in the URL. Scalekit uses a static server URL shared across all users, with a short-lived session token per agent run for authentication.
 
 ## 6. Migrate custom tools
 
@@ -399,7 +400,7 @@ See [Add your own connector](/agentkit/bring-your-own-connector/overview/) for t
 - [ ] Tool names updated from uppercase to lowercase
 - [ ] `executeTool` calls updated with `identifier` and `connection_name`
 - [ ] Tool input schemas verified against the Scalekit connector catalog
-- [ ] MCP config created and per-user URLs generated (if using MCP)
+- [ ] MCP config created and session token flow implemented (if using MCP)
 - [ ] Custom tools ported to `actions.request()` (if applicable)
 - [ ] Agent tested end-to-end with a test user
 - [ ] Users re-authorized through Scalekit's OAuth flow

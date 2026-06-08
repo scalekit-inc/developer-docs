@@ -183,12 +183,11 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Agent tools over MCP',
+        label: 'Virtual MCP servers',
         collapsed: false,
         items: [
-          { label: 'Configure an MCP server', link: 'agentkit/mcp/configure-mcp-server' },
-          { label: 'Generate user MCP URLs', link: 'agentkit/mcp/generate-user-urls' },
-          { label: 'Connect an MCP client', link: 'agentkit/mcp/connect-mcp-client' },
+          { label: 'Overview', link: 'agentkit/mcp/overview' },
+          { label: 'Set up and connect', link: 'agentkit/mcp/configure-mcp-server' },
         ],
       },
       {

@@ -379,6 +379,12 @@ export const redirects = {
   '/agentkit/bring-your-own-connector/using-tool-proxy':
     '/agentkit/bring-your-own-connector/making-tool-calls/',
 
+  // Removed agentkit/mcp pages
+  '/agentkit/mcp/tool-access-via-mcp': '/agentkit/mcp/overview/',
+  '/agentkit/mcp/generate-user-urls': '/agentkit/mcp/configure-mcp-server/',
+  '/agentkit/mcp/connect-mcp-client': '/agentkit/mcp/configure-mcp-server/',
+  '/agentkit/mcp/connect-mcp-client/': '/agentkit/mcp/configure-mcp-server/',
+
   // Legacy framework pages moved to /agentkit/examples/
   '/agentkit/frameworks': '/agentkit/examples/',
   '/agentkit/frameworks/anthropic': '/agentkit/examples/anthropic/',
