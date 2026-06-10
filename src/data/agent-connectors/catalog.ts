@@ -7,6 +7,46 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
+  dropboxmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/drop_box.svg',
+    authType: 'OAuth 2.1',
+    categories: ['Files & Documents', 'Productivity'],
+  },
+  mixmaxmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/mixmax.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Communication', 'Marketing', 'CRM & Sales'],
+  },
+  neonmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/neon.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Databases', 'Developer Tools', 'AI'],
+  },
+  redshift: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/redshift.svg',
+    authType: 'Trusted IDP',
+    categories: ['Analytics', 'Databases'],
+  },
+  nocodbmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/nocodb.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Databases', 'Productivity', 'Collaboration'],
+  },
+  pandadocmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/pandadoc.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Productivity', 'Automation', 'Files & Documents'],
+  },
+  mailerlitemcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/mailerlite.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Marketing', 'Automation', 'Communication'],
+  },
+  zoominfo: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/zoominfo.svg',
+    authType: 'OAuth 2.0',
+    categories: ['CRM & Sales', 'Analytics', 'Marketing'],
+  },
   eracontextmcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/eracontext.svg',
     authType: 'OAuth 2.1/DCR',
