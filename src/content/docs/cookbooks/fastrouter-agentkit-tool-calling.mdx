@@ -119,12 +119,21 @@ Three pieces connect FastRouter to Scalekit tools.
 
 Scalekit handles the full OAuth flow. Your agent calls `getOrCreateConnectedAccount` to check whether the user's account is already connected, then calls `getAuthorizationLink` to get an auth URL if it isn't.
 
+<Aside type="note" title="SDK language support">
+The AgentKit SDK currently supports Node.js and Python. Go and Java support is planned for a later release, so this guide includes only those two language tabs.
+</Aside>
+
 <Tabs syncKey="tech-stack">
 <TabItem label="Node.js">
 
 ```typescript
 import { ConnectorStatus } from '@scalekit-sdk/node/lib/pkg/grpc/scalekit/v1/connected_accounts/connected_accounts_pb';
 import crypto from 'node:crypto';
+
+const connectionName = process.env.SCALEKIT_CONNECTION_NAME;
+if (!connectionName) {
+  throw new Error('SCALEKIT_CONNECTION_NAME is required');
+}
 
 const userVerifyUrl = 'http://localhost:3000/callback';
 
@@ -133,14 +142,14 @@ const userVerifyUrl = 'http://localhost:3000/callback';
 const state = crypto.randomUUID();
 
 const { connectedAccount } = await scalekit.actions.getOrCreateConnectedAccount({
-  connectionName: process.env.SCALEKIT_CONNECTION_NAME!,
+  connectionName,
   identifier: 'user_123',
   userVerifyUrl,
 });
 
 if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
   const { link } = await scalekit.actions.getAuthorizationLink({
-    connectionName: process.env.SCALEKIT_CONNECTION_NAME!,
+    connectionName,
     identifier: 'user_123',
     userVerifyUrl,
     state,
@@ -156,7 +165,7 @@ if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
 import os
 import secrets
 
-connection_name = os.environ.get("SCALEKIT_CONNECTION_NAME")
+connection_name = os.environ["SCALEKIT_CONNECTION_NAME"]
 user_verify_url = "http://localhost:3000/callback"
 
 # Generate and store a state value (e.g. in a secure, HTTP-only cookie) for CSRF protection
@@ -243,7 +252,7 @@ In a production web app, replace `localhost:3000/callback` with your server's ca
 
 ```typescript
 const { tools } = await scalekit.tools.listScopedTools('user_123', {
-  filter: { connectionNames: [process.env.SCALEKIT_CONNECTION_NAME!] },
+  filter: { connectionNames: [connectionName] },
   pageSize: 100,
 });
 
@@ -294,7 +303,7 @@ for (let turn = 0; turn < 8; turn++) {
     const result = await scalekit.actions.executeTool({
       toolName: call.function.name,
       identifier: 'user_123',
-      connector: process.env.SCALEKIT_CONNECTION_NAME!,
+      connector: connectionName,
       toolInput: JSON.parse(call.function.arguments),
     });
 
