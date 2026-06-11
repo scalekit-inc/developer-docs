@@ -1,0 +1,54 @@
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+
+Register your You.com API key with Scalekit so it can authenticate and proxy search requests on behalf of your users. You.com MCP uses API key authentication — there is no redirect URI or OAuth flow.
+
+<Steps>
+1. ### Get a You.com API key
+
+   - Go to [you.platform](https://you.platform) and sign in or create an account.
+   - In the left sidebar, under **API Management**, click **API Keys**.
+   - Enter a name for your key (e.g. `Agent Auth`) and click **Create**.
+
+   ![You.com API Keys page showing the Create new key form and existing keys list](@/assets/docs/agent-connectors/youmcp/create-api-key.png)
+
+   - Copy the generated key — it starts with `ydc-sk-`.
+
+2. ### Create a connection in Scalekit
+
+   - In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** → **Connections** → **Create Connection**.
+   - Search for **You.com MCP** and click **Create**.
+   - Note the **Connection name** — use this as `connection_name` in your code (e.g., `youmcp`).
+
+3. ### Add a connected account
+
+   Connected accounts link a specific user identifier in your system to a You.com API key. Add them via the dashboard for testing, or via the Scalekit API in production.
+
+   **Via dashboard (for testing)**
+
+   - Open the connection and click the **Connected Accounts** tab → **Add account**.
+   - Fill in **Your User's ID** and **API Key**, then click **Save**.
+
+   **Via API (for production)**
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```ts
+       await scalekit.connect.upsertConnectedAccount({
+         connectionName: 'youmcp',
+         identifier: 'user@example.com',
+         credentials: { apiKey: 'ydc-sk-...' },
+       })
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```python
+       scalekit_client.connect.upsert_connected_account(
+           connection_name="youmcp",
+           identifier="user@example.com",
+           credentials={"api_key": "ydc-sk-..."},
+       )
+       ```
+     </TabItem>
+   </Tabs>
+
+</Steps>
