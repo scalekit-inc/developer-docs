@@ -189,9 +189,9 @@ Scalekit lets you add user invitation features to your app, allowing users to in
       @app.route('/login')
       def login():
           redirect_uri = 'http://localhost:3000/auth/callback'
-          options = AuthorizationUrlOptions(
-              scopes=['openid', 'profile', 'email', 'offline_access']
-          )
+          options = AuthorizationUrlOptions()
+          options.scopes = ['openid', 'profile', 'email', 'offline_access']
+          options.state = session['oauth_state']
 
           authorization_url = scalekit_client.get_authorization_url(redirect_uri, options)
           return redirect(authorization_url)

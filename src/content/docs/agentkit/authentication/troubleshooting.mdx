@@ -1,778 +1,392 @@
 ---
-title: Authentication Troubleshooting
-description: Debug and resolve common authentication issues with AgentKit, including OAuth failures, token problems, and provider-specific errors.
-tags: [agentauth, authentication, troubleshooting, oauth, guide]
+title: Troubleshoot connection errors
+description: Diagnose connection failures, connected account issues, and tool execution errors in AgentKit.
+tags: [agentauth, connections, troubleshooting, oauth, guide]
 sidebar:
   order: 6
   label: "Troubleshooting"
 tableOfContents:
-  maxHeadingLevel: 3
-head:
-  - tag: meta
-    attrs:
-      name: robots
-      content: noindex
+  maxHeadingLevel: 2
 ---
 
-import { Card, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
-This guide helps you diagnose and resolve common authentication issues with AgentKit. Use the troubleshooting steps below to quickly identify and fix problems with connected accounts, OAuth flows, and token management.
+Use this guide when a connection fails during OAuth, a connected account shows an unexpected status, or a tool call fails. Start with the diagnostics below, then open the matching scenario.
 
-## Quick diagnostics
+For connection setup errors (redirect URI mismatch, session expiry, token exchange failures), also see [Common scenarios on Configure connections](/agentkit/connections/#common-scenarios).
 
-Start with these quick checks to identify the issue:
+## Start with diagnostics
 
-### Check connected account status
+Check the connected account status first. That tells you whether the user never finished OAuth, still needs identity verification, tokens expired, or the account is disconnected.
 
 <Tabs syncKey="tech-stack">
-<TabItem value="python" label="Python">
+  <TabItem label="Python">
 
 ```python
-# Get connected account status
-account = actions.get_connected_account(
+account = scalekit_client.actions.get_connected_account(
     identifier="user_123",
-    connection_name="gmail"
+    connection_name="gmail",
 )
 
-print(f"Status: {account.status}")
-print(f"Provider: {account.connection_name}")
-print(f"Created: {account.created_at}")
-print(f"Updated: {account.updated_at}")
-
-# Status values:
-# - PENDING: User hasn't completed authentication
-# - ACTIVE: Connection is active and working
-# - EXPIRED: Tokens expired, refresh may be needed
-# - REVOKED: User revoked access
-# - ERROR: Authentication error occurred
+print(account.status)  # ACTIVE, EXPIRED, PENDING_AUTH, PENDING_VERIFICATION, or DISCONNECTED
+print(account.scopes)
 ```
 
-</TabItem>
-<TabItem value="node" label="Node.js">
+  </TabItem>
+  <TabItem label="Node.js">
 
-```javascript
-// Get connected account status
+```typescript
 const account = await scalekit.actions.getConnectedAccount({
   identifier: 'user_123',
-  connectionName: 'gmail'
+  connectionName: 'gmail',
 });
 
-console.log(`Status: ${account.status}`);
-console.log(`Provider: ${account.connectionName}`);
-console.log(`Created: ${account.createdAt}`);
-console.log(`Updated: ${account.updatedAt}`);
-
-// Status values:
-// - PENDING: User hasn't completed authentication
-// - ACTIVE: Connection is active and working
-// - EXPIRED: Tokens expired, refresh may be needed
-// - REVOKED: User revoked access
-// - ERROR: Authentication error occurred
+console.log(account.status); // ACTIVE, EXPIRED, PENDING_AUTH, PENDING_VERIFICATION, or DISCONNECTED
+console.log(account.scopes);
 ```
 
-</TabItem>
-<TabItem value="go" label="Go">
-
-```go
-// Get connected account status
-account, err := scalekitClient.Actions.GetConnectedAccount(
-    context.Background(),
-    "user_123",
-    "gmail",
-)
-if err != nil {
-    log.Printf("Error getting account: %v", err)
-    return
-}
-
-fmt.Printf("Status: %s\n", account.Status)
-fmt.Printf("Provider: %s\n", account.ConnectionName)
-fmt.Printf("Created: %s\n", account.CreatedAt)
-fmt.Printf("Updated: %s\n", account.UpdatedAt)
-```
-
-</TabItem>
-<TabItem value="java" label="Java">
-
-```java
-// Get connected account status
-ConnectedAccount account = scalekitClient.actions().getConnectedAccount(
-    "user_123",
-    "gmail"
-);
-
-System.out.println("Status: " + account.getStatus());
-System.out.println("Provider: " + account.getConnectionName());
-System.out.println("Created: " + account.getCreatedAt());
-System.out.println("Updated: " + account.getUpdatedAt());
-```
-
-</TabItem>
+  </TabItem>
 </Tabs>
 
-### Test tool execution
+| Status | Meaning |
+|--------|---------|
+| `ACTIVE` | Credentials are valid; tool calls should work |
+| `EXPIRED` | Access token expired and needs refresh or re-authentication |
+| `PENDING_AUTH` | User has not finished OAuth, or re-authentication is in progress |
+| `PENDING_VERIFICATION` | OAuth succeeded; user identity verification is still required |
+| `DISCONNECTED` | Account was manually disconnected |
 
-Try executing a simple tool to verify the connection:
+If status is `ACTIVE` but a tool still fails, run a read-only tool (for example `gmail_get_profile`) to confirm the connection end to end. The error message usually points to scopes, credentials, or provider rate limits.
 
-```python
-# Test with a simple read operation
-try:
-    result = actions.execute_tool(
-        identifier="user_123",
-        tool_name='gmail_get_profile',  # Simple read-only operation
-        tool_input={}
-    )
-    print("✓ Connection working:", result)
-except Exception as e:
-    print("✗ Connection failed:", str(e))
-    # Error message provides clues about the issue
-```
+## Connected account status
 
-## Common authentication errors
+<details>
+<summary>Status is `PENDING_AUTH`</summary>
 
-### PENDING status - User hasn't authenticated
-
-**Symptom:** Connected account status shows `PENDING`
-
-**Cause:** User created the connected account but hasn't completed OAuth flow
-
-**Solution:**
-
-<Steps>
-1. Generate a new authorization link
-2. Send it to the user via email, notification, or in-app message
-3. User clicks link and completes authentication
-4. Status changes to `ACTIVE`
-</Steps>
+The user has not finished OAuth, or you initiated re-authentication and the user has not completed it yet. Generate an authorization link and send it through your app (email, in-app prompt, or settings page).
 
 <Tabs syncKey="tech-stack">
-<TabItem value="python" label="Python">
+  <TabItem label="Python">
 
 ```python
-# Generate authorization link for pending account
-if account.status == "PENDING":
-    link_response = actions.get_authorization_link(
+if account.status == "PENDING_AUTH":
+    link = scalekit_client.actions.get_authorization_link(
         connection_name="gmail",
-        identifier="user_123"
+        identifier="user_123",
     )
-
-    print(f"Send this link to user: {link_response.link}")
-
-    # In production:
-    # - Send email with the link
-    # - Show in-app notification
-    # - Display in user's settings page
+    print(link.link)
 ```
 
-</TabItem>
-<TabItem value="node" label="Node.js">
+  </TabItem>
+  <TabItem label="Node.js">
 
-```javascript
-// Generate authorization link for pending account
-if (account.status === 'PENDING') {
-  const linkResponse = await scalekit.actions.getAuthorizationLink({
+```typescript
+if (account.status === 'PENDING_AUTH') {
+  const link = await scalekit.actions.getAuthorizationLink({
     connectionName: 'gmail',
-    identifier: 'user_123'
+    identifier: 'user_123',
   });
-
-  console.log(`Send this link to user: ${linkResponse.link}`);
-
-  // In production:
-  // - Send email with the link
-  // - Show in-app notification
-  // - Display in user's settings page
+  console.log(link.link);
 }
 ```
 
-</TabItem>
-<TabItem value="go" label="Go">
-
-```go
-// Generate authorization link for pending account
-if account.Status == "PENDING" {
-    linkResponse, err := scalekitClient.Actions.GetAuthorizationLink(
-        context.Background(),
-        "gmail",
-        "user_123",
-    )
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    fmt.Printf("Send this link to user: %s\n", linkResponse.Link)
-}
-```
-
-</TabItem>
-<TabItem value="java" label="Java">
-
-```java
-// Generate authorization link for pending account
-if ("PENDING".equals(account.getStatus())) {
-    AuthorizationLink linkResponse = scalekitClient.actions().getAuthorizationLink(
-        "gmail",
-        "user_123"
-    );
-
-    System.out.println("Send this link to user: " + linkResponse.getLink());
-}
-```
-
-</TabItem>
+  </TabItem>
 </Tabs>
 
-### EXPIRED status - Tokens need refresh
+Status changes to `ACTIVE` after the user completes OAuth (or to `PENDING_VERIFICATION` if your connection requires identity verification).
 
-**Symptom:** Connected account status shows `EXPIRED`
+</details>
 
-**Causes:**
-- Access token expired and automatic refresh failed
-- Refresh token became invalid
-- Provider temporarily unavailable during refresh
+<details>
+<summary>Status is `PENDING_VERIFICATION`</summary>
 
-**Solutions:**
+OAuth succeeded, but Scalekit is waiting for the user to complete identity verification before the account becomes `ACTIVE`. Send the user through your verification flow.
 
-**Option 1: Try manual refresh**
+See [Verify user identity](/agentkit/user-verification/) for configuration and API calls. After verification succeeds, status should move to `ACTIVE`.
+
+</details>
+
+<details>
+<summary>Status is `EXPIRED`</summary>
+
+The access token expired and Scalekit could not refresh it automatically. Try a manual refresh first. If refresh fails, send the user a new authorization link.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
 
 ```python
-# Attempt manual token refresh
 try:
-    account = actions.refresh_connected_account(
+    account = scalekit_client.actions.refresh_connected_account(
         identifier="user_123",
-        connection_name="gmail"
-    )
-    if account.status == "ACTIVE":
-        print("✓ Refresh successful")
-    else:
-        print("⚠ Refresh failed, user re-authentication needed")
-except Exception as e:
-    print(f"✗ Refresh error: {e}")
-    # Proceed to Option 2
-```
-
-**Option 2: Request user re-authentication**
-
-```python
-# If refresh fails, generate new authorization link
-link_response = actions.get_authorization_link(
-    connection_name="gmail",
-    identifier="user_123"
-)
-
-# Notify user to re-authenticate
-print(f"Please re-authorize: {link_response.link}")
-```
-
-### REVOKED status - User revoked access
-
-**Symptom:** Connected account status shows `REVOKED`
-
-**Cause:** User revoked your application's access through the provider's settings (e.g., Google Account Settings, Microsoft Account Permissions)
-
-**Solution:** User must re-authenticate to restore access
-
-```python
-# For revoked accounts, only re-authentication works
-if account.status == "REVOKED":
-    link_response = actions.get_authorization_link(
         connection_name="gmail",
-        identifier="user_123"
     )
-
-    # Explain to user why re-authentication is needed
-    message = """
-    Your Gmail connection was disconnected.
-    This may have happened if you:
-    - Revoked access in your Google Account settings
-    - Changed your Google password
-    - Enabled 2FA on your Google account
-
-    Please reconnect: {link}
-    """.format(link=link_response.link)
-
-    print(message)
+    if account.status != "ACTIVE":
+        link = scalekit_client.actions.get_authorization_link(
+            connection_name="gmail",
+            identifier="user_123",
+        )
+        print(link.link)
+except Exception as exc:
+    print(exc)
 ```
 
-<Aside type="caution">
-When a user revokes access, any pending tool executions will fail. Ensure your application handles `REVOKED` status gracefully and notifies users promptly.
+  </TabItem>
+  <TabItem label="Node.js">
+
+```typescript
+try {
+  const refreshed = await scalekit.actions.refreshConnectedAccount({
+    identifier: 'user_123',
+    connectionName: 'gmail',
+  });
+  if (refreshed.status !== 'ACTIVE') {
+    const link = await scalekit.actions.getAuthorizationLink({
+      connectionName: 'gmail',
+      identifier: 'user_123',
+    });
+    console.log(link.link);
+  }
+} catch (error) {
+  console.error(error);
+}
+```
+
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Status is `DISCONNECTED`</summary>
+
+The connected account was manually disconnected in Scalekit or the user removed your application's access at the provider (for example **Google Account** > **Third-party access**). Re-authentication is the only fix.
+
+Send a new authorization link and explain that the user disconnected the integration. Pending tool executions fail until the user reconnects.
+
+<Aside type="caution" title="Handle disconnected accounts in your app">
+  Surface `DISCONNECTED` status in your UI and stop scheduling tool calls for that connected account until the user reconnects.
 </Aside>
 
-## OAuth flow issues
+</details>
 
-### Callback errors
+## OAuth flow errors
 
-**Symptom:** OAuth redirect fails or returns error
+<details>
+<summary>The provider returns an error on the callback URL</summary>
 
-**Common errors and solutions:**
+Read the `error` and `error_description` query parameters on the callback. Common values:
 
-| Error Code | Meaning | Solution |
-|------------|---------|----------|
-| `access_denied` | User cancelled OAuth flow | Normal behavior, offer retry option |
-| `invalid_request` | Malformed OAuth request | Check OAuth parameters and scopes |
-| `unauthorized_client` | OAuth client not authorized | Verify OAuth credentials in Scalekit dashboard |
-| `invalid_scope` | Requested scope not valid | Review and correct requested scopes |
-| `server_error` | Provider error | Retry after a few minutes, check provider status |
+| Error | Meaning | What to do |
+|-------|---------|------------|
+| `access_denied` | User cancelled consent | Offer to restart the flow |
+| `invalid_request` | Malformed authorization request | Check scopes and connection configuration |
+| `unauthorized_client` | OAuth client not authorized | Verify credentials in **AgentKit** > **Connections** |
+| `invalid_scope` | Scope not valid for this app | Update scopes on the connection and retry |
+| `server_error` | Provider-side failure | Retry after a few minutes; check provider status |
 
-**Debugging callback issues:**
+Log both parameters in development. Do not expose raw `error_description` text to end users.
 
-```python
-# In your OAuth callback handler
-def handle_oauth_callback(request):
-    error = request.args.get('error')
-    error_description = request.args.get('error_description')
-    code = request.args.get('code')
-    state = request.args.get('state')
+</details>
 
-    if error:
-        # Log the error for debugging
-        print(f"OAuth error: {error}")
-        print(f"Description: {error_description}")
+<details>
+<summary>`failed_to_exchange_token` after consent</summary>
 
-        # Handle specific errors
-        if error == 'access_denied':
-            return "You cancelled the authorization. Please try again."
-        elif error == 'invalid_scope':
-            return "Invalid permissions requested. Please contact support."
-        else:
-            return f"Authorization failed: {error_description}"
+Token exchange failed after the user approved access. See [Common scenarios on Configure connections](/agentkit/connections/#common-scenarios) for retry steps, status page checks, and what to send support.
 
-    if not code:
-        return "Missing authorization code"
+</details>
 
-    # Continue with normal flow
-    # Scalekit handles the code exchange automatically
-    return "Authorization successful!"
-```
+<details>
+<summary>Redirect URI mismatch</summary>
 
-### Redirect URI mismatch
-
-**Symptom:** Error message about redirect URI mismatch
-
-**Cause:** OAuth provider redirect URI doesn't match configured URI in connection
-
-**Solution:**
+The redirect URI in the provider's OAuth app must match the URI shown in Scalekit exactly — protocol, host, path, and trailing slashes included.
 
 <Steps>
-1. Check the redirect URI in Scalekit dashboard
-2. Navigate to **Connections** > Select connection > View **Redirect URI**
-3. Copy the exact Scalekit redirect URI
-4. Add it to your OAuth application in provider's console (Google, Microsoft, etc.)
-5. Ensure there are no trailing slashes or protocol mismatches (http vs https)
+1. Open **AgentKit** > **Connections** and select the connection
+2. Copy the **Redirect URI** from Scalekit
+3. Paste it into the provider's OAuth app settings (Google Cloud Console, Azure portal, and similar)
+4. Save both sides and restart the connection flow
 </Steps>
 
-<Aside type="tip" title="Common redirect URI issues">
-- **Trailing slashes**: `https://example.com/callback/` vs `https://example.com/callback`
-- **Protocol mismatch**: `http://` vs `https://`
-- **Port numbers**: Include port if required: `https://example.com:8080/callback`
-- **Subdomain changes**: Ensure subdomain matches exactly
+<Aside type="tip" title="Match the string exactly">
+  Watch for `http` vs `https`, missing or extra trailing slashes, and port numbers in local development.
 </Aside>
 
-### State parameter validation failure
+</details>
 
-**Symptom:** "Invalid state parameter" error
+<details>
+<summary>Session expired or invalid on the callback page</summary>
 
-**Cause:** State parameter doesn't match or is missing (CSRF protection)
+The OAuth verification session timed out before the provider redirected back. Close the window and start the connection flow again. No configuration change is required.
 
-**Solution:**
+See also [Common scenarios on Configure connections](/agentkit/connections/#common-scenarios).
 
-This is handled automatically by Scalekit, but if you encounter this:
+</details>
 
-1. Ensure cookies are enabled in the browser
-2. Check for clock skew between systems
-3. Verify user isn't switching browsers/devices mid-flow
-4. Try clearing browser cookies and restarting flow
+<details>
+<summary>Invalid state parameter</summary>
 
-## Provider-specific issues
+Scalekit validates the `state` parameter for CSRF protection. If you see this error:
 
-### Google Workspace
+1. Confirm cookies are enabled in the browser
+2. Finish the flow in the same browser you started it in
+3. Clear stale cookies and restart the flow
+4. Check for large clock skew between client and server
 
-**Issue: "Access blocked: Authorization Error"**
-
-**Causes:**
-- App not verified by Google
-- Using restricted scopes
-- Domain admin restrictions
-
-**Solutions:**
-- Complete Google's app verification process
-- Use less restrictive scopes during development
-- Contact domain admin to whitelist your app
-
-**Issue: "This app isn't verified"**
-
-**Solution:**
-- Click "Advanced" → "Go to [Your App] (unsafe)" for testing
-- Submit app for Google verification for production
-- Use Scalekit's shared credentials for quick testing
-
-### Microsoft 365
-
-**Issue: "AADSTS65001: User or administrator has not consented"**
-
-**Solution:**
-- Ensure required permissions are configured in Azure AD
-- Admin consent may be required for certain scopes
-- Check tenant-specific restrictions
-
-**Issue: "AADSTS50020: User account from identity provider does not exist"**
-
-**Solution:**
-- User must have a valid Microsoft 365 account
-- Check if user's tenant allows external app access
-- Verify user's email domain matches tenant
-
-### Slack
-
-**Issue: "OAuth access denied"**
-
-**Solution:**
-- User must have permission to install apps in their Slack workspace
-- Check workspace app approval settings
-- Ensure required scopes are not restricted by workspace admin
-
-**Issue: "Workspace installation restricted"**
-
-**Solution:**
-- Contact Slack workspace admin
-- Request app approval if workspace requires it
-- Use a different workspace for testing
+</details>
 
 ## Tool execution failures
 
-### Authentication errors during execution
+<details>
+<summary>Tool fails with an auth error but status is `ACTIVE`</summary>
 
-**Symptom:** Tool execution fails with authentication error despite `ACTIVE` status
+Work through these checks in order:
 
-**Debugging steps:**
-
-```python
-# Step 1: Verify account status
-account = actions.get_connected_account(
-    identifier="user_123",
-    connection_name="gmail"
-)
-print(f"Status: {account.status}")
-
-# Step 2: Try to refresh tokens
-try:
-    account = actions.refresh_connected_account(
-        identifier="user_123",
-        connection_name="gmail"
-    )
-    print("✓ Token refresh successful")
-except Exception as e:
-    print(f"✗ Token refresh failed: {e}")
-
-# Step 3: Check granted scopes
-print(f"Granted scopes: {account.scopes}")
-# Verify the required scope for your tool is included
-
-# Step 4: Try a simple read-only tool
-try:
-    result = actions.execute_tool(
-        identifier="user_123",
-        tool_name='gmail_get_profile',
-        tool_input={}
-    )
-    print("✓ Read operation successful")
-except Exception as e:
-    print(f"✗ Read operation failed: {e}")
-```
-
-### Insufficient permissions
-
-**Symptom:** "Insufficient permissions" or "Forbidden" error
-
-**Cause:** Required scope not granted during authentication
-
-**Solution:**
-
-<Steps>
-1. Check currently granted scopes
-2. Determine required scopes for the tool
-3. Request additional scopes by having user re-authenticate
-4. Update connection scopes if needed
-</Steps>
-
-```python
-# Check if specific scope is granted
-required_scope = "https://www.googleapis.com/auth/gmail.send"
-
-account = actions.get_connected_account(
-    identifier="user_123",
-    connection_name="gmail"
-)
-
-if required_scope not in account.scopes:
-    print(f"⚠ Missing required scope: {required_scope}")
-
-    # Generate new authorization link with required scopes
-    link_response = actions.get_authorization_link(
-        connection_name="gmail",
-        identifier="user_123"
-    )
-
-    print(f"User must re-authorize with additional permissions: {link_response.link}")
-```
-
-## Connection configuration issues
-
-### Invalid OAuth credentials
-
-**Symptom:** "Invalid client" or "Client authentication failed"
-
-**Cause:** OAuth client ID or client secret incorrect or revoked
-
-**Solution:**
-
-<Steps>
-1. Navigate to Scalekit dashboard → **Connections**
-2. Select the affected connection
-3. Verify OAuth credentials match provider's console
-4. If using BYOC (Bring Your Own Credentials), double-check:
-   - Client ID is correct
-   - Client Secret hasn't been regenerated
-   - OAuth application is active in provider's console
-5. Update credentials if needed
-6. Test connection with a new connected account
-</Steps>
-
-### Missing or incorrect scopes
-
-**Symptom:** Authorization succeeds but tool execution fails
-
-**Cause:** Connection configured with insufficient scopes
-
-**Solution:**
-
-```python
-# Check connection configuration in dashboard
-# Ensure these scopes are configured:
-
-# For Gmail:
-# - https://www.googleapis.com/auth/gmail.readonly  (read emails)
-# - https://www.googleapis.com/auth/gmail.send      (send emails)
-# - https://www.googleapis.com/auth/gmail.modify    (modify emails)
-
-# For Google Calendar:
-# - https://www.googleapis.com/auth/calendar.readonly  (read calendar)
-# - https://www.googleapis.com/auth/calendar.events    (manage events)
-
-# After updating scopes in connection, existing users must re-authenticate
-```
-
-## Rate limiting and quota issues
-
-### Provider rate limits exceeded
-
-**Symptom:** "Rate limit exceeded" or "Quota exceeded" errors
-
-**Causes:**
-- Too many requests in short time period
-- Shared quota limits (when using Scalekit's shared credentials)
-- Provider-specific rate limits
-
-**Solutions:**
-
-**Immediate:**
-- Implement exponential backoff and retry logic
-- Reduce request frequency
-- Batch operations where possible
-
-**Long-term:**
-- Use Bring Your Own Credentials for dedicated quotas
-- Implement request queuing
-- Cache frequently accessed data
-
-```python
-import time
-from typing import Any, Dict
-
-def execute_tool_with_retry(
-    identifier: str,
-    tool_name: str,
-    tool_input: Dict[str, Any],
-    max_retries: int = 3
-):
-    """Execute tool with exponential backoff retry logic"""
-    for attempt in range(max_retries):
-        try:
-            result = actions.execute_tool(
-                identifier=identifier,
-                tool_name=tool_name,
-                tool_input=tool_input
-            )
-            return result
-        except Exception as e:
-            if "rate limit" in str(e).lower() and attempt < max_retries - 1:
-                # Exponential backoff: 1s, 2s, 4s
-                wait_time = 2 ** attempt
-                print(f"Rate limited, retrying in {wait_time}s...")
-                time.sleep(wait_time)
-            else:
-                raise
-
-# Usage
-result = execute_tool_with_retry(
-    identifier="user_123",
-    tool_name="gmail_send_email",
-    tool_input={"to": "user@example.com", "subject": "Test", "body": "Hello"}
-)
-```
-
-## Network and connectivity issues
-
-### Timeout errors
-
-**Symptom:** Requests timeout or take too long
-
-**Causes:**
-- Network connectivity issues
-- Provider API slow response
-- Large data transfers
-
-**Solutions:**
-- Increase timeout settings in your application
-- Implement async processing for slow operations
-- Check provider status page for known issues
-- Retry with exponential backoff
-
-### SSL/TLS errors
-
-**Symptom:** SSL certificate verification failures
-
-**Causes:**
-- Outdated SSL certificates
-- Corporate proxy/firewall issues
-- System clock skew
-
-**Solutions:**
-- Update system CA certificates
-- Configure proxy settings if behind corporate firewall
-- Verify system clock is synchronized
-- Check firewall allows connections to Scalekit and provider domains
-
-## Debugging tools and techniques
-
-### Enable detailed logging
+1. Confirm status with `get_connected_account`
+2. Call `refresh_connected_account` / `refreshConnectedAccount`
+3. Compare `account.scopes` to the scopes your tool requires
+4. Run a read-only tool (for example `gmail_get_profile`) to isolate the failure
 
 <Tabs syncKey="tech-stack">
-<TabItem value="python" label="Python">
+  <TabItem label="Python">
 
 ```python
-import logging
-
-# Enable debug logging for Scalekit SDK
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger('scalekit')
-logger.setLevel(logging.DEBUG)
-
-# Now all API requests/responses will be logged
-result = actions.execute_tool(...)
-```
-
-</TabItem>
-<TabItem value="node" label="Node.js">
-
-```javascript
-// Enable debug mode in SDK initialization
-const scalekit = new ScalekitClient({
-  clientId: process.env.SCALEKIT_CLIENT_ID,
-  clientSecret: process.env.SCALEKIT_CLIENT_SECRET,
-  envUrl: process.env.SCALEKIT_ENV_URL,
-  debug: true  // Enable detailed logging
-});
-```
-
-</TabItem>
-<TabItem value="go" label="Go">
-
-```go
-// Enable debug logging
-scalekitClient := scalekit.NewScalekitClient(
-    scalekit.WithClientID(os.Getenv("SCALEKIT_CLIENT_ID")),
-    scalekit.WithClientSecret(os.Getenv("SCALEKIT_CLIENT_SECRET")),
-    scalekit.WithEnvURL(os.Getenv("SCALEKIT_ENV_URL")),
-    scalekit.WithDebug(true), // Enable debug mode
+account = scalekit_client.actions.get_connected_account(
+    identifier="user_123",
+    connection_name="gmail",
 )
+
+scalekit_client.actions.refresh_connected_account(
+    identifier="user_123",
+    connection_name="gmail",
+)
+
+result = scalekit_client.actions.execute_tool(
+    identifier="user_123",
+    tool_name="gmail_get_profile",
+    tool_input={},
+)
+print(result.data)
 ```
 
-</TabItem>
-<TabItem value="java" label="Java">
+  </TabItem>
+  <TabItem label="Node.js">
 
-```java
-// Enable debug logging
-ScalekitClient scalekitClient = new ScalekitClient.Builder()
-    .clientId(System.getenv("SCALEKIT_CLIENT_ID"))
-    .clientSecret(System.getenv("SCALEKIT_CLIENT_SECRET"))
-    .envUrl(System.getenv("SCALEKIT_ENV_URL"))
-    .debug(true)  // Enable debug mode
-    .build();
+```typescript
+const account = await scalekit.actions.getConnectedAccount({
+  identifier: 'user_123',
+  connectionName: 'gmail',
+});
+
+await scalekit.actions.refreshConnectedAccount({
+  identifier: 'user_123',
+  connectionName: 'gmail',
+});
+
+const result = await scalekit.actions.executeTool({
+  identifier: 'user_123',
+  toolName: 'gmail_get_profile',
+  toolInput: {},
+});
+console.log(result.data);
 ```
 
-</TabItem>
+  </TabItem>
 </Tabs>
 
-### Check Scalekit dashboard
+</details>
 
-The Scalekit dashboard provides detailed information:
+<details>
+<summary>Insufficient permissions or forbidden errors</summary>
 
-1. Navigate to **AgentKit** > **Connected Accounts**
-2. Find the affected connected account
-3. View:
-   - Current status and last updated time
-   - Authentication events and errors
-   - Token refresh history
-   - Tool execution logs
-   - Error messages and stack traces
+The user granted fewer scopes than your tool needs. Check granted scopes on the connected account, then send a new authorization link after you update scopes on the connection.
 
-### Test with curl
+See [Configure scopes](/agentkit/connections/#configure-scopes) on the connections page. After you add scopes to a connection, existing users must re-authenticate.
 
-Test authentication directly with curl to isolate issues:
+</details>
 
-```bash
-# Get connected account status
-curl -X GET "https://api.scalekit.com/v1/connect/accounts/{account_id}" \
-  -H "Authorization: Bearer YOUR_API_TOKEN"
+## Provider-specific errors
 
-# Refresh tokens
-curl -X POST "https://api.scalekit.com/v1/connect/accounts/{account_id}/refresh" \
-  -H "Authorization: Bearer YOUR_API_TOKEN"
+<details>
+<summary>Google: "Access blocked" or "This app isn't verified"</summary>
 
-# Execute tool
-curl -X POST "https://api.scalekit.com/v1/connect/tools/execute" \
-  -H "Authorization: Bearer YOUR_API_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "connected_account_id": "account_123",
-    "tool_name": "gmail_get_profile",
-    "tool_input": {}
-  }'
-```
+Google blocks unverified apps that request sensitive scopes, or the Workspace admin blocked third-party apps.
 
-## Getting help
+- During development, use test users or click **Advanced** > **Go to app (unsafe)** on the consent screen
+- For production, complete [Google app verification](https://support.google.com/cloud/answer/9110914) or use less restrictive scopes
+- Workspace admins may need to allowlist your OAuth client
 
-### Information to provide
+</details>
 
-When contacting support, include:
+<details>
+<summary>Microsoft 365: `AADSTS65001` consent errors</summary>
 
-- **Connected Account ID**: Found in dashboard or API response
-- **Connection Name**: Which provider (gmail, slack, etc.)
-- **Error Messages**: Complete error text and stack traces
-- **Timestamp**: When the error occurred
-- **Steps to Reproduce**: What actions led to the error
-- **Expected Behavior**: What should have happened
-- **Environment**: Development, staging, or production
+The tenant has not granted consent for the permissions your connection requests.
 
-### Support channels
+1. Open the app registration in Azure portal
+2. Confirm API permissions match your connection scopes
+3. Grant admin consent if the tenant requires it
+4. Retry the connection flow
 
-- **Documentation**: Check related guides in docs
-- **Dashboard Logs**: Review logs in Scalekit dashboard
-- **Support Portal**: Submit ticket with details above
-- **Developer Community**: Ask questions in community forums
-- **Email Support**: support@scalekit.com for critical issues
+</details>
 
-## Next steps
+<details>
+<summary>Microsoft 365: `AADSTS50020` user not found</summary>
 
-- [Scopes and Permissions](/agentkit/authentication/scopes-permissions) - Managing OAuth scopes
-- [Multi-Provider Authentication](/agentkit/authentication/multi-provider) - Managing multiple connections
+The signed-in account is not in the expected Microsoft 365 tenant, or the tenant blocks external applications. Confirm the user has a valid work or school account and that tenant policy allows your app.
+
+</details>
+
+<details>
+<summary>Slack: OAuth access denied or workspace restrictions</summary>
+
+The user may lack permission to install apps, or the workspace admin must approve the app first. Ask a workspace admin to approve the installation, or test with a workspace where you control app policy.
+
+</details>
+
+## Configuration and rate limits
+
+<details>
+<summary>Invalid client or client authentication failed</summary>
+
+OAuth credentials on the connection do not match the provider's console.
+
+<Steps>
+1. Open **AgentKit** > **Connections** and select the connection
+2. Compare **Client ID** and **Client Secret** to the provider's OAuth app
+3. Regenerate the secret in the provider console if it may have rotated
+4. Create a new connected account and retry OAuth
+</Steps>
+
+</details>
+
+<details>
+<summary>Authorization succeeds but tools fail on scope</summary>
+
+The connection is missing scopes your tools require. Update scopes in the connection form, then have users re-authenticate. Scopes on existing tokens do not expand automatically.
+
+</details>
+
+<details>
+<summary>Rate limit or quota exceeded</summary>
+
+The provider rejected requests because you exceeded its quota. Back off and retry with exponential delay, reduce call frequency, and cache read results where possible.
+
+Bring Your Own Credentials (BYOC) gives you a dedicated quota on providers that support separate OAuth apps. See your connector's setup guide for BYOC steps.
+
+</details>
+
+## Get help
+
+Open **AgentKit** > **Connected Accounts** in the dashboard and review status, refresh history, and tool execution logs for the affected account.
+
+When you contact [support](mailto:support@scalekit.com), include:
+
+- Connected account ID or user `identifier`
+- Connection name (for example `gmail`, `slack`)
+- Full error text and timestamp
+- Steps that reproduce the failure
+
+Related guides:
+
+- [Configure connections](/agentkit/connections/) — setup, scopes, and common OAuth errors
+- [Manage connected accounts](/agentkit/connected-accounts/) — per-user connection state and credentials

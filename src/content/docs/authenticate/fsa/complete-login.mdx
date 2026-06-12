@@ -459,6 +459,57 @@ Once users have successfully verified their identity using their chosen login me
       </details>
 
       <details>
+      <summary>Validate ID tokens without an SDK</summary>
+
+      Use this flow when you validate Scalekit ID tokens in a language without an official SDK (for example, Ruby on Rails or PHP). The Scalekit SDK validates tokens automatically when you call `authenticateWithCode`.
+
+      | Parameter | Value |
+      |-----------|-------|
+      | OpenID configuration | `https://<YOUR_ENVIRONMENT_URL>/.well-known/openid-configuration` |
+      | Issuer (`iss`) | Your Scalekit environment URL |
+      | JWKS URI (`jwks_uri`) | `https://<YOUR_ENVIRONMENT_URL>/keys` |
+      | Signing algorithm | `RS256` |
+
+      1. Fetch `/.well-known/openid-configuration` and read `issuer` and `jwks_uri`.
+      2. Fetch the JWKS document from `jwks_uri`.
+      3. Verify the JWT signature with **RS256** using the key whose `kid` matches the token header.
+      4. Validate `iss`, `aud`, and `exp`. The `aud` claim may be a string or an array of strings. Your application's client ID (`skc_...`) must appear in `aud` — reject the token if it does not.
+
+      <Aside type="note" title="Audience may be a string or array">
+        OIDC allows `aud` as either a single string or an array. When `aud` is an array, check that your client ID is included. Ruby's `verify_aud: true` with a string `aud` option handles both shapes in recent `jwt` gem versions; in other languages, normalize `aud` to a list before comparing.
+      </Aside>
+
+      ```ruby title="Ruby on Rails example"
+      require "jwt"
+      require "net/http"
+      require "json"
+
+      ENV_URL = ENV.fetch("SCALEKIT_ENV_URL")
+      CLIENT_ID = ENV.fetch("SCALEKIT_CLIENT_ID")
+
+      config = JSON.parse(Net::HTTP.get(URI("#{ENV_URL}/.well-known/openid-configuration")))
+      jwks = JSON.parse(Net::HTTP.get(URI(config["jwks_uri"])))
+
+      decoded, = JWT.decode(
+        id_token, nil, true,
+        algorithms: ["RS256"], jwks: jwks,
+        iss: config["issuer"], verify_iss: true,
+        aud: CLIENT_ID, verify_aud: true
+      )
+      ```
+
+      Confirm endpoints before wiring validation into your app:
+
+      ```bash
+      curl -s "https://<YOUR_ENVIRONMENT_URL>/.well-known/openid-configuration" | jq '{issuer, jwks_uri}'
+      curl -s "https://<YOUR_ENVIRONMENT_URL>/keys" | jq '.keys[] | {kid, alg, use}'
+      ```
+
+      See [ID token claims](/guides/idtoken-claims/) for the full claim list.
+
+      </details>
+
+      <details>
       <summary>Access token claims reference</summary>
 
       Access tokens contain authorization information including roles and permissions. Use these claims to make authorization decisions in your application.
@@ -532,6 +583,10 @@ An `IdToken` contains comprehensive profile information about the user. You can 
 
 Customize the login flow by passing different parameters when creating the authorization URL. These scenarios help you route users to specific organizations, force re-authentication, or direct users to signup.
 
+<Aside type="caution" title="Include state in production code">
+  The routing examples below omit `state` so the parameter focus stays visible. In production, always set `options.state` to a cryptographically random value, store it server-side before redirecting, and validate it on callback. See [Validate the `state` parameter](#validate-the-state-parameter-) above and [Initiate user login](/authenticate/fsa/implement-login/).
+</Aside>
+
 <details>
 <summary>How do I route users to a specific organization?</summary>
 
@@ -556,7 +611,9 @@ from scalekit import AuthorizationUrlOptions
 
 org_id = get_org_from_request(request)
 redirect_uri = 'https://your-app.com/auth/callback'
-options = AuthorizationUrlOptions(scopes=['openid','profile','email','offline_access'], organization_id=org_id)
+options = AuthorizationUrlOptions()
+options.scopes = ['openid', 'profile', 'email', 'offline_access']
+options.organization_id = org_id
 url = scalekit_client.get_authorization_url(redirect_uri, options)
 return redirect(url)
 ```
@@ -605,7 +662,9 @@ return res.redirect(url)
 <TabItem value="py" label="Python">
 ```python title="Flask" {2}
 redirect_uri = 'https://your-app.com/auth/callback'
-options = AuthorizationUrlOptions(scopes=['openid','profile','email','offline_access'], login_hint=user_email)
+options = AuthorizationUrlOptions()
+options.scopes = ['openid', 'profile', 'email', 'offline_access']
+options.login_hint = user_email
 url = scalekit_client.get_authorization_url(redirect_uri, options)
 return redirect(url)
 ```
@@ -652,7 +711,9 @@ return res.redirect(url)
 <TabItem value="py" label="Python">
 ```python title="Flask" {2}
 redirect_uri = 'https://your-app.com/auth/callback'
-options = AuthorizationUrlOptions(scopes=['openid','profile','email','offline_access'], connection_id='conn_123...')
+options = AuthorizationUrlOptions()
+options.scopes = ['openid', 'profile', 'email', 'offline_access']
+options.connection_id = 'conn_123...'
 url = scalekit_client.get_authorization_url(redirect_uri, options)
 return redirect(url)
 ```
@@ -698,7 +759,9 @@ return res.redirect(scalekit.getAuthorizationUrl(redirectUri, options))
 <TabItem value="py" label="Python">
 ```python title="Flask" {2}
 redirect_uri = 'https://your-app.com/auth/callback'
-options = AuthorizationUrlOptions(scopes=['openid','profile','email','offline_access'], prompt='login')
+options = AuthorizationUrlOptions()
+options.scopes = ['openid', 'profile', 'email', 'offline_access']
+options.prompt = 'login'
 return redirect(scalekit_client.get_authorization_url(redirect_uri, options))
 ```
 </TabItem>
@@ -742,7 +805,9 @@ return res.redirect(scalekit.getAuthorizationUrl(redirectUri, options))
 <TabItem value="py" label="Python">
 ```python title="Flask" {2}
 redirect_uri = 'https://your-app.com/auth/callback'
-options = AuthorizationUrlOptions(scopes=['openid','profile','email','offline_access'], prompt='select_account')
+options = AuthorizationUrlOptions()
+options.scopes = ['openid', 'profile', 'email', 'offline_access']
+options.prompt = 'select_account'
 return redirect(scalekit_client.get_authorization_url(redirect_uri, options))
 ```
 </TabItem>
@@ -786,7 +851,9 @@ return res.redirect(scalekit.getAuthorizationUrl(redirectUri, options))
 <TabItem value="py" label="Python">
 ```python title="Flask" {3}
 redirect_uri = 'https://your-app.com/auth/callback'
-options = AuthorizationUrlOptions(scopes=['openid','profile','email','offline_access'], prompt='create')
+options = AuthorizationUrlOptions()
+options.scopes = ['openid', 'profile', 'email', 'offline_access']
+options.prompt = 'create'
 return redirect(scalekit_client.get_authorization_url(redirect_uri, options))
 ```
 </TabItem>

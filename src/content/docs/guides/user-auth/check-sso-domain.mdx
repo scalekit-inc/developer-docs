@@ -104,9 +104,11 @@ Skip this check when:
 
            if len(connections) > 0:
                # Domain has active SSO - redirect to SSO login
+               options = AuthorizationUrlOptions()
+               options.login_hint = email
                authorization_url = scalekit_client.get_authorization_url(
                    redirect_uri=os.getenv("REDIRECT_URI"),
-                   options=AuthorizationUrlOptions(login_hint=email)
+                   options=options
                )
                return jsonify({
                    'ssoAvailable': True,

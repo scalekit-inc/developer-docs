@@ -203,6 +203,7 @@ export const sidebar = [
         items: [
           'agentkit/advanced/custom-domain',
           'agentkit/advanced/launch-checklist',
+          'agentkit/authentication/troubleshooting',
           { label: 'Migrate from Composio', link: 'agentkit/advanced/migrate-from-composio' },
         ],
       },
