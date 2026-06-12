@@ -17,7 +17,7 @@ For connection setup errors (redirect URI mismatch, session expiry, token exchan
 
 ## Start with diagnostics
 
-Check the connected account status first. That tells you whether the user never finished OAuth, tokens expired, or access was revoked.
+Check the connected account status first. That tells you whether the user never finished OAuth, still needs identity verification, tokens expired, or the account is disconnected.
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Python">
@@ -28,7 +28,7 @@ account = scalekit_client.actions.get_connected_account(
     connection_name="gmail",
 )
 
-print(account.status)  # PENDING, ACTIVE, EXPIRED, REVOKED, or ERROR
+print(account.status)  # ACTIVE, EXPIRED, PENDING_AUTH, PENDING_VERIFICATION, or DISCONNECTED
 print(account.scopes)
 ```
 
@@ -41,7 +41,7 @@ const account = await scalekit.actions.getConnectedAccount({
   connectionName: 'gmail',
 });
 
-console.log(account.status); // PENDING, ACTIVE, EXPIRED, REVOKED, or ERROR
+console.log(account.status); // ACTIVE, EXPIRED, PENDING_AUTH, PENDING_VERIFICATION, or DISCONNECTED
 console.log(account.scopes);
 ```
 
@@ -50,26 +50,26 @@ console.log(account.scopes);
 
 | Status | Meaning |
 |--------|---------|
-| `PENDING` | User started the flow but has not finished OAuth |
-| `ACTIVE` | Tokens are valid; tool calls should work |
-| `EXPIRED` | Access token expired and automatic refresh failed |
-| `REVOKED` | User removed your app's access at the provider |
-| `ERROR` | Authentication failed; check dashboard logs |
+| `ACTIVE` | Credentials are valid; tool calls should work |
+| `EXPIRED` | Access token expired and needs refresh or re-authentication |
+| `PENDING_AUTH` | User has not finished OAuth, or re-authentication is in progress |
+| `PENDING_VERIFICATION` | OAuth succeeded; user identity verification is still required |
+| `DISCONNECTED` | Account was manually disconnected |
 
 If status is `ACTIVE` but a tool still fails, run a read-only tool (for example `gmail_get_profile`) to confirm the connection end to end. The error message usually points to scopes, credentials, or provider rate limits.
 
 ## Connected account status
 
 <details>
-<summary>Status is `PENDING` after the user started connecting</summary>
+<summary>Status is `PENDING_AUTH`</summary>
 
-The user created a connected account but did not finish the provider consent screen. Generate a new authorization link and send it through your app (email, in-app prompt, or settings page).
+The user has not finished OAuth, or you initiated re-authentication and the user has not completed it yet. Generate an authorization link and send it through your app (email, in-app prompt, or settings page).
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Python">
 
 ```python
-if account.status == "PENDING":
+if account.status == "PENDING_AUTH":
     link = scalekit_client.actions.get_authorization_link(
         connection_name="gmail",
         identifier="user_123",
@@ -81,7 +81,7 @@ if account.status == "PENDING":
   <TabItem label="Node.js">
 
 ```typescript
-if (account.status === 'PENDING') {
+if (account.status === 'PENDING_AUTH') {
   const link = await scalekit.actions.getAuthorizationLink({
     connectionName: 'gmail',
     identifier: 'user_123',
@@ -93,7 +93,16 @@ if (account.status === 'PENDING') {
   </TabItem>
 </Tabs>
 
-Status changes to `ACTIVE` after the user completes OAuth.
+Status changes to `ACTIVE` after the user completes OAuth (or to `PENDING_VERIFICATION` if your connection requires identity verification).
+
+</details>
+
+<details>
+<summary>Status is `PENDING_VERIFICATION`</summary>
+
+OAuth succeeded, but Scalekit is waiting for the user to complete identity verification before the account becomes `ACTIVE`. Send the user through your verification flow.
+
+See [Verify user identity](/agentkit/user-verification/) for configuration and API calls. After verification succeeds, status should move to `ACTIVE`.
 
 </details>
 
@@ -148,14 +157,14 @@ try {
 </details>
 
 <details>
-<summary>Status is `REVOKED`</summary>
+<summary>Status is `DISCONNECTED`</summary>
 
-The user removed your application's access in the provider's account settings (for example **Google Account** > **Third-party access**). Re-authentication is the only fix.
+The connected account was manually disconnected in Scalekit or the user removed your application's access at the provider (for example **Google Account** > **Third-party access**). Re-authentication is the only fix.
 
 Send a new authorization link and explain that the user disconnected the integration. Pending tool executions fail until the user reconnects.
 
-<Aside type="caution" title="Handle revoked accounts in your app">
-  Surface `REVOKED` status in your UI and stop scheduling tool calls for that connected account until the user reconnects.
+<Aside type="caution" title="Handle disconnected accounts in your app">
+  Surface `DISCONNECTED` status in your UI and stop scheduling tool calls for that connected account until the user reconnects.
 </Aside>
 
 </details>
