@@ -105,6 +105,89 @@ console.log(result.data);
   </TabItem>
 </Tabs>
 
+## Understand tool response shape
+
+`execute_tool` / `executeTool` returns a **wrapper object**, not the provider payload directly. Tool output lives under `response.data` (Python) or `result.data` (Node.js). Keys inside `data` depend on the tool you called.
+
+When you integrate a new tool, log the full wrapper once, then read fields from `data`:
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+```python
+response = actions.execute_tool(
+    tool_name="googlecalendar_list_events",
+    identifier="user_123",
+    connection_name="googlecalendar",
+    tool_input={"max_results": 10},
+)
+
+# Security: Log only in development; production logs may expose user data.
+print(response.data)
+
+events = response.data.get("events", [])
+next_page_token = response.data.get("next_page_token")
+print(f"Found {len(events)} events")
+```
+  </TabItem>
+  <TabItem label="Node.js">
+```typescript
+const result = await scalekit.actions.executeTool({
+  toolName: 'googlecalendar_list_events',
+  identifier: 'user_123',
+  connector: 'googlecalendar',
+  toolInput: { max_results: 10 },
+});
+
+// Security: Log only in development; production logs may expose user data.
+console.log(result.data);
+
+const events = (result.data as { events?: unknown[] }).events ?? [];
+const nextPageToken = (result.data as { next_page_token?: string }).next_page_token;
+console.log(`Found ${events.length} events`);
+```
+  </TabItem>
+  <TabItem label="Go">
+```go
+result, err := scalekitClient.Actions.ExecuteTool(ctx, &toolspb.ExecuteToolRequest{
+    ToolName:       "googlecalendar_list_events",
+    Identifier:     "user_123",
+    ConnectionName: "googlecalendar",
+    ToolInput:      mustStruct(map[string]any{"max_results": 10}),
+})
+if err != nil {
+    return err
+}
+
+// Tool payload is in result.Data (structpb.Struct)
+events := result.Data.Fields["events"]
+nextPage := result.Data.Fields["next_page_token"]
+fmt.Println(events, nextPage)
+```
+  </TabItem>
+  <TabItem label="Java">
+```java
+ExecuteToolResponse result = scalekitClient.actions().executeTool(
+    ExecuteToolRequest.builder()
+        .toolName("googlecalendar_list_events")
+        .identifier("user_123")
+        .connectionName("googlecalendar")
+        .toolInput(Map.of("max_results", 10))
+        .build()
+);
+
+// Tool payload is in result.getData()
+Map<String, Object> data = result.getData();
+List<?> events = (List<?>) data.getOrDefault("events", List.of());
+String nextPageToken = (String) data.get("next_page_token");
+System.out.println(events.size() + " events");
+```
+  </TabItem>
+</Tabs>
+
+<Aside type="caution" title="Do not treat the wrapper as the tool payload">
+  A common integration mistake is parsing `response` as if it were a flat list of events. Always read `response.data` first, then extract tool-specific keys such as `events` and `next_page_token`.
+</Aside>
+
 ## Wire into your LLM
 
 The full agent loop: fetch scoped tools → pass to LLM → execute tool calls → feed results back.

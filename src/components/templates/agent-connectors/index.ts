@@ -177,6 +177,7 @@ export { default as SectionAfterSetupXeroCommonWorkflows } from './_section-afte
 export { default as SectionAfterSetupZapiermcpCommonWorkflows } from './_section-after-setup-zapiermcp-common-workflows.mdx'
 export { default as SectionAfterSetupZendeskCommonWorkflows } from './_section-after-setup-zendesk-common-workflows.mdx'
 export { default as SectionAfterSetupZoomCommonWorkflows } from './_section-after-setup-zoom-common-workflows.mdx'
+export { default as SectionAfterToolListSalesforceDashboardClone } from './_section-after-tool-list-salesforce-dashboard-clone.mdx'
 export { default as SectionAfterToolListSalesforceMetadataApiSoap } from './_section-after-tool-list-salesforce-metadata-api-soap.mdx'
 export { default as SectionBeforeToolListDatadogResourceIds } from './_section-before-tool-list-datadog-resource-ids.mdx'
 export { default as SectionBeforeToolListGoogledwdCommonWorkflows } from './_section-before-tool-list-googledwd-common-workflows.mdx'

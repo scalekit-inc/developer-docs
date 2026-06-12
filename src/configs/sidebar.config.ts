@@ -21,6 +21,7 @@ export const sidebar = [
         items: [
           'authenticate/fsa/implement-login',
           'authenticate/fsa/complete-login',
+          'authenticate/fsa/validate-oidc-tokens',
           'authenticate/fsa/manage-session',
           'authenticate/fsa/logout',
           'guides/dashboard/redirects',
@@ -203,6 +204,7 @@ export const sidebar = [
         items: [
           'agentkit/advanced/custom-domain',
           'agentkit/advanced/launch-checklist',
+          'agentkit/authentication/troubleshooting',
           { label: 'Migrate from Composio', link: 'agentkit/advanced/migrate-from-composio' },
         ],
       },
@@ -366,6 +368,7 @@ export const sidebar = [
           'authenticate/mcp/fastapi-fastmcp-quickstart',
           'authenticate/mcp/expressjs-quickstart',
           'authenticate/mcp/xmcp-quickstart',
+          'authenticate/mcp/cli-oauth-client',
         ],
       },
       {

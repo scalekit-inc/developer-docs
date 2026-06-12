@@ -88,9 +88,8 @@ Create a `/login` endpoint that constructs the authorization URL and redirects u
   @app.route('/login')
   def login():
       redirect_uri = 'http://localhost:3000/auth/callback'
-      options = AuthorizationUrlOptions(
-          scopes=['openid', 'profile', 'email', 'offline_access']
-      )
+      options = AuthorizationUrlOptions()
+      options.scopes = ['openid', 'profile', 'email', 'offline_access']
 
       authorization_url = scalekit_client.get_authorization_url(redirect_uri, options)
       return redirect(authorization_url)

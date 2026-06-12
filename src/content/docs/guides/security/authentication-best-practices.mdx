@@ -108,17 +108,17 @@ async def create_authorization_url(org_id, user_email):
     security_policy = await get_security_policy(org_id)
 
     # Apply conditional authentication requirements
-    options = AuthorizationUrlOptions(
-        scopes=['openid', 'profile', 'email', 'offline_access'],
-        organization_id=org_id,
-        login_hint=user_email,
-        state=generate_secure_state(),
+    options = AuthorizationUrlOptions()
+    options.scopes = ['openid', 'profile', 'email', 'offline_access']
+    options.organization_id = org_id
+    options.login_hint = user_email
+    options.state = generate_secure_state()
 
-        # Force re-authentication for high-security orgs
-        prompt='login' if security_policy.require_reauth else None,
-        max_age=security_policy.max_session_age or 3600,
-        acr_values=security_policy.required_auth_level or 'aal1'
-    )
+    # Force re-authentication for high-security orgs
+    if security_policy.require_reauth:
+        options.prompt = 'login'
+    options.max_age = security_policy.max_session_age or 3600
+    options.acr_values = security_policy.required_auth_level or 'aal1'
 
     return scalekit.get_authorization_url(redirect_uri, options)
 ```
