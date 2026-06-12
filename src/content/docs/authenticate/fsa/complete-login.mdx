@@ -473,10 +473,10 @@ Once users have successfully verified their identity using their chosen login me
       1. Fetch `/.well-known/openid-configuration` and read `issuer` and `jwks_uri`.
       2. Fetch the JWKS document from `jwks_uri`.
       3. Verify the JWT signature with **RS256** using the key whose `kid` matches the token header.
-      4. Validate `iss`, `aud`, and `exp`.
+      4. Validate `iss`, `aud`, and `exp`. The `aud` claim may be a string or an array of strings. Your application's client ID (`skc_...`) must appear in `aud` — reject the token if it does not.
 
-      <Aside type="note" title="Audience must match your client ID">
-        The `aud` claim must equal your application's client ID (`skc_...`). Reject the token if it does not match.
+      <Aside type="note" title="Audience may be a string or array">
+        OIDC allows `aud` as either a single string or an array. When `aud` is an array, check that your client ID is included. Ruby's `verify_aud: true` with a string `aud` option handles both shapes in recent `jwt` gem versions; in other languages, normalize `aud` to a list before comparing.
       </Aside>
 
       ```ruby title="Ruby on Rails example"
