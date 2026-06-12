@@ -459,6 +459,57 @@ Once users have successfully verified their identity using their chosen login me
       </details>
 
       <details>
+      <summary>Validate ID tokens without an SDK</summary>
+
+      Use this flow when you validate Scalekit ID tokens in a language without an official SDK (for example, Ruby on Rails or PHP). The Scalekit SDK validates tokens automatically when you call `authenticateWithCode`.
+
+      | Parameter | Value |
+      |-----------|-------|
+      | OpenID configuration | `https://<YOUR_ENVIRONMENT_URL>/.well-known/openid-configuration` |
+      | Issuer (`iss`) | Your Scalekit environment URL |
+      | JWKS URI (`jwks_uri`) | `https://<YOUR_ENVIRONMENT_URL>/keys` |
+      | Signing algorithm | `RS256` |
+
+      1. Fetch `/.well-known/openid-configuration` and read `issuer` and `jwks_uri`.
+      2. Fetch the JWKS document from `jwks_uri`.
+      3. Verify the JWT signature with **RS256** using the key whose `kid` matches the token header.
+      4. Validate `iss`, `aud`, and `exp`.
+
+      <Aside type="note" title="Audience must match your client ID">
+        The `aud` claim must equal your application's client ID (`skc_...`). Reject the token if it does not match.
+      </Aside>
+
+      ```ruby title="Ruby on Rails example"
+      require "jwt"
+      require "net/http"
+      require "json"
+
+      ENV_URL = ENV.fetch("SCALEKIT_ENV_URL")
+      CLIENT_ID = ENV.fetch("SCALEKIT_CLIENT_ID")
+
+      config = JSON.parse(Net::HTTP.get(URI("#{ENV_URL}/.well-known/openid-configuration")))
+      jwks = JSON.parse(Net::HTTP.get(URI(config["jwks_uri"])))
+
+      decoded, = JWT.decode(
+        id_token, nil, true,
+        algorithms: ["RS256"], jwks: jwks,
+        iss: config["issuer"], verify_iss: true,
+        aud: CLIENT_ID, verify_aud: true
+      )
+      ```
+
+      Confirm endpoints before wiring validation into your app:
+
+      ```bash
+      curl -s "https://<YOUR_ENVIRONMENT_URL>/.well-known/openid-configuration" | jq '{issuer, jwks_uri}'
+      curl -s "https://<YOUR_ENVIRONMENT_URL>/keys" | jq '.keys[] | {kid, alg, use}'
+      ```
+
+      See [ID token claims](/guides/idtoken-claims/) for the full claim list.
+
+      </details>
+
+      <details>
       <summary>Access token claims reference</summary>
 
       Access tokens contain authorization information including roles and permissions. Use these claims to make authorization decisions in your application.
