@@ -379,6 +379,12 @@ export const redirects = {
   '/agentkit/bring-your-own-connector/using-tool-proxy':
     '/agentkit/bring-your-own-connector/making-tool-calls/',
 
+  // Removed draft AgentKit authentication pages
+  '/agentkit/authentication/scopes-permissions': '/agentkit/connections/#configure-scopes',
+  '/agentkit/authentication/scopes-permissions/': '/agentkit/connections/#configure-scopes',
+  '/agentkit/authentication/multi-provider': '/agentkit/connected-accounts/',
+  '/agentkit/authentication/multi-provider/': '/agentkit/connected-accounts/',
+
   // Removed agentkit/mcp pages
   '/agentkit/mcp/tool-access-via-mcp': '/agentkit/mcp/overview/',
   '/agentkit/mcp/generate-user-urls': '/agentkit/mcp/configure-mcp-server/',
