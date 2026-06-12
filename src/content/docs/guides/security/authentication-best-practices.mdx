@@ -120,7 +120,7 @@ async def create_authorization_url(org_id, user_email):
     options.max_age = security_policy.max_session_age or 3600
     options.acr_values = security_policy.required_auth_level or 'aal1'
 
-    return scalekit.get_authorization_url(redirect_uri, options)
+    return scalekit_client.get_authorization_url(redirect_uri, options)
 ```
 </TabItem>
 <TabItem value="golang" label="Go">
@@ -532,7 +532,7 @@ from datetime import datetime, timedelta
 async def refresh_access_token(refresh_token, user_id):
     try:
         # Exchange refresh token for new tokens
-        token_response = await scalekit.exchange_code_for_tokens({
+        token_response = await scalekit_client.exchange_code_for_tokens({
             'refresh_token': refresh_token,
             'grant_type': 'refresh_token'
         })
