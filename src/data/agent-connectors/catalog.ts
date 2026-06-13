@@ -7,6 +7,11 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
+  erasermcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/eraser.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Design', 'Developer Tools'],
+  },
   devrevmcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/devrev.svg',
     authType: 'Bearer Token',
