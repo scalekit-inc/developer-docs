@@ -138,12 +138,14 @@ import { createOrgCustomer } from '@/lib/billing/create-org-customer';
 export async function POST(req: NextRequest) {
   const rawBody = await req.text();
   const secret = process.env.SCALEKIT_WEBHOOK_SECRET!;
-  const client = getScalekitClient();
+  const scalekit = getScalekitClient();
 
-  const headers: Record<string, string> = {};
-  req.headers.forEach((v, k) => { headers[k.toLowerCase()] = v; });
+  // Get the Scalekit signature header (do not use a full headers map for the new API)
+  const signature = req.headers.get('scalekit-signature') ?? '';
 
-  if (!client.verifyWebhookPayload(secret, headers, rawBody)) {
+  // Verify webhook signature using the current SDK: scalekit.webhooks.verifySignature(rawBody, signature, secret)
+  const isValid = await scalekit.webhooks.verifySignature(rawBody, signature, secret);
+  if (!isValid) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
   }
 
@@ -183,21 +185,31 @@ Return `200` after enqueueing work. Scalekit retries on non-2xx responses.
 Billing routes need the org context from the access token. Validate the token on every request and require the `oid` claim:
 
 ```ts title="lib/auth/require-session.ts"
-const claims = await client.validateToken(accessToken);
+import { decodeJwt } from 'jose';
 
-const organizationId = claims.oid;
+const isValid = await scalekit.validateAccessToken(accessToken);
+if (!isValid) {
+  throw new SessionError(401, 'Invalid or expired token');
+}
+
+// After successful validation, decode to read claims (e.g. `oid`, `sub`).
+// decodeJwt is safe here because validateAccessToken already performed
+// cryptographic signature validation + standard claim checks (exp, iss, aud).
+const claims = decodeJwt(accessToken);
+
+const organizationId = claims.oid as string | undefined;
 if (!organizationId) {
   throw new SessionError(403, 'Organization context required for billing');
 }
 
 return {
-  userId: claims.sub!,
+  userId: claims.sub as string,
   email: claims.email as string,
   organizationId,
 };
 ```
 
-Do not call `/userinfo` for billing context — `validateToken()` on the access token is the supported path for `oid`.
+Do not call `/userinfo` for billing context. Use `scalekit.validateAccessToken(accessToken)` (boolean) followed by a JWT decode (e.g. `decodeJwt` from `jose`) to read the `oid` claim from the access token. This matches the recommended pattern in the access control guide.
 
 ### 4. Authorize billing actions per organization
 
