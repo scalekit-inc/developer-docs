@@ -1,0 +1,48 @@
+{/* TODO: stub cloned from _setup-outlook.mdx for Microsoft 365. Review and update connector-specific references (URLs, scopes, app-registration steps) before merging. */}
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with the Microsoft 365 connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. Then complete the configuration in your application as follows:
+
+<Steps>
+1. ### Create the Microsoft 365 connection in Scalekit
+
+   - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Search for **Microsoft 365** and click **Create**.
+
+     {/* TODO: add screenshot — alt: "Search for Microsoft 365 and create a new connection", original src: @/assets/docs/agent-connectors/microsoft365/create-microsoft365-connection.png */}
+   - In the **Configure Microsoft 365 Connection** dialog, copy the **Redirect URI**. You will need this when registering your app in Azure.
+
+     {/* TODO: add screenshot — alt: "Copy the redirect URI from the Configure Microsoft 365 Connection dialog", original src: @/assets/docs/agent-connectors/microsoft365/configure-microsoft365-connection.png */}
+2. ### Register an application in Azure
+
+   - Sign into [portal.azure.com](https://portal.azure.com) and go to **Microsoft Entra ID** → **App registrations**.
+
+     {/* TODO: add screenshot — alt: "App registrations page in Azure portal", original src: @/assets/docs/agent-connectors/microsoft365/azure-app-registrations.png */}
+   - Click **New registration**. Enter a name for your app (for example, "Scalekit Microsoft 365 Connector").
+
+   - Under **Supported account types**, select **Accounts in any organizational directory (Any Microsoft Entra ID tenant - Multitenant) and personal Microsoft accounts**.
+
+   - Under **Redirect URI**, select **Web** and paste the redirect URI you copied from the Scalekit dashboard. Click **Register**.
+
+     {/* TODO: add screenshot — alt: "Paste the Scalekit redirect URI in Azure", original src: @/assets/docs/agent-connectors/microsoft365/azure-add-redirect-uri.png */}
+3. ### Get your client credentials
+
+   - From the app's **Overview** page, copy the **Application (client) ID**.
+
+     {/* TODO: add screenshot — alt: "Copy the Application (client) ID from the Azure app overview", original src: @/assets/docs/agent-connectors/microsoft365/azure-app-overview.png */}
+   - Go to **Certificates & secrets** in the left sidebar, then click **+ New client secret**.
+
+     {/* TODO: add screenshot — alt: "Certificates and secrets page in Azure portal", original src: @/assets/docs/agent-connectors/microsoft365/azure-certificates-secrets.png */}
+   - Enter a description (for example, "Secret for Scalekit Agent Actions"), set an expiry period, and click **Add**. Copy the secret **Value** immediately — it is only shown once.
+
+     {/* TODO: add screenshot — alt: "Add a client secret in Azure portal", original src: @/assets/docs/agent-connectors/microsoft365/azure-add-client-secret.png */}
+4. ### Add credentials in Scalekit
+
+   - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** and open the Microsoft 365 connection you created.
+
+   - Enter your credentials:
+     - **Client ID** — the Application (client) ID from the Azure app overview
+     - **Client Secret** — the secret value from Certificates & secrets
+     - **Scopes** — select the permissions your app needs (for example, `Calendars.Read`, `Calendars.ReadWrite`, `Mail.Read`, `Mail.ReadWrite`, `Mail.Send`, `Contacts.Read`, `Contacts.ReadWrite`, `User.Read`, `offline_access`). See [Microsoft Graph permissions reference](https://learn.microsoft.com/en-us/graph/permissions-reference) for the full list.
+
+   - Click **Save**.
+</Steps>
