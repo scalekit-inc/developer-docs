@@ -1515,7 +1515,32 @@ async function main() {
   console.log('🎉 Done!')
 }
 
-main().catch((err) => {
-  console.error('❌ Error:', err.message)
-  process.exit(1)
-})
+// Only run main() when invoked directly (e.g. `node scripts/sync-agent-connectors.js`).
+// Skips execution when this module is imported by sync-agent-connectors-local.js,
+// which reuses the pure helpers exported below.
+const invokedDirectly =
+  process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+if (invokedDirectly) {
+  main().catch((err) => {
+    console.error('❌ Error:', err.message)
+    process.exit(1)
+  })
+}
+
+// Public exports — consumed by scripts/sync-agent-connectors-local.js to reuse
+// the same MDX / .ts / catalog generators without changing this script's
+// runtime behaviour.
+export {
+  generateMdxContent,
+  generateTsDataFile,
+  generateCatalogFile,
+  toSafeIdentifier,
+  resolveAuthType,
+  normalizeConnectorCategories,
+  syncTemplateIndex,
+  SETUP_STEM_MAP,
+  USAGE_STEM_MAP,
+  QUICKSTART_STEM_MAP,
+  SECTION_ENTRIES,
+  CONNECTED_ACCOUNT_STEM_MAP,
+}
