@@ -1,0 +1,33 @@
+{/* TODO: stub cloned from _setup-atlassianmcp.mdx for Linear. Review and update connector-specific references (URLs, scopes, app-registration steps) before merging. */}
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Linear uses Dynamic Client Registration (DCR) — no client ID or secret is needed. The only step is registering your Scalekit redirect URI as an allowed domain in Atlassian Administration.
+
+<Steps>
+1. ### Copy the redirect URI from Scalekit
+
+   In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **Linear** and click **Create**. Copy the redirect URI — it looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+   {/* TODO: add screenshot — alt: "Copy redirect URI from Scalekit dashboard for Linear", original src: @/assets/docs/agent-connectors/linearmcp/copy-redirect-uri.png */}
+2. ### Open the Rovo MCP server settings in Atlassian
+
+   - Go to [admin.atlassian.com](https://admin.atlassian.com) and select your organisation.
+   - In the left sidebar, expand **Rovo** and click **Rovo access**.
+   - Click **Rovo MCP server** in the submenu.
+   - Select the **Domains** tab at the top of the page.
+
+   <Aside type="note" title="Admin access required">
+     You must be an Atlassian organisation admin to access these settings. If you don't see **Rovo** in the sidebar, your organisation may not have Rovo enabled.
+   </Aside>
+
+3. ### Add the redirect URI as a domain
+
+   - Under **Your domains**, click **Add domain**.
+
+   {/* TODO: add screenshot — alt: "Your domains section in Linear server administration", original src: @/assets/docs/agent-connectors/linearmcp/add-domain-redirect-uri.png */}
+   - In the **Add domain** dialog, paste the redirect URI from Scalekit into the **Domain** field.
+   - Accept the terms and click **Add**.
+
+   {/* TODO: add screenshot — alt: "Add domain dialog in Linear server", original src: @/assets/docs/agent-connectors/linearmcp/add-domain-modal.png */}
+   Once added, Scalekit automatically registers the OAuth client via DCR and handles token management for every user who authorizes the connection — no further configuration needed.
+</Steps>
