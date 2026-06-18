@@ -1221,7 +1221,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'microsoft365_onedrive_copy_drive_item',
-    description: `Copy a OneDrive file or folder to a new location asynchronously. The operation returns HTTP 202 Accepted with a monitor URL; the actual copy completes in the background. Provide the destination folder ID and an optional new name.`,
+    description: `Copy a file or folder in the signed-in user's personal OneDrive to a new location asynchronously. Returns HTTP 202 with a monitor URL; copy completes in the background. To copy an item in a specific drive by drive ID (e.g. a SharePoint document library), use microsoft365_onedrive_copy_item_in_drive instead.`,
     params: [
       {
         name: 'item_id',
@@ -1234,6 +1234,36 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The item ID of the destination folder for the copy. Use "root" to copy the item to the top level of OneDrive.`,
+      },
+      {
+        name: 'new_name',
+        type: 'string',
+        required: false,
+        description: `Optional name for the copied item in the destination. If omitted, the copy retains the original name.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_onedrive_copy_item_in_drive',
+    description: `Copy a file or folder in a specific drive to a new location asynchronously. Works across any drive accessible to the signed-in user, including SharePoint document libraries and Teams drives. Returns HTTP 202 with a monitor URL; the copy completes in the background. To copy an item in the signed-in user's personal OneDrive, use microsoft365_onedrive_copy_drive_item instead.`,
+    params: [
+      {
+        name: 'drive_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the drive containing the item to copy. Obtain drive IDs from microsoft365_onedrive_list_drives or microsoft365_sharepoint_list_drives.`,
+      },
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the file or folder to copy. Obtain item IDs from list or get item operations.`,
+      },
+      {
+        name: 'new_parent_id',
+        type: 'string',
+        required: true,
+        description: `The item ID of the destination folder for the copy. Use "root" to copy to the top level of the drive.`,
       },
       {
         name: 'new_name',
@@ -1269,7 +1299,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'microsoft365_onedrive_create_sharing_link',
-    description: `Create a sharing link for a OneDrive file or folder. Supports view-only, edit, and embed link types. The link can optionally be scoped to the organization, password-protected, or set with an expiration date.`,
+    description: `Create a sharing link for a file or folder in the signed-in user's personal OneDrive. Supports view-only, edit, and embed link types with optional org scope, password, and expiration. To create a sharing link for an item in a specific drive by drive ID (e.g. a SharePoint document library), use microsoft365_onedrive_create_sharing_link_in_drive instead.`,
     params: [
       {
         name: 'item_id',
@@ -1304,14 +1334,74 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoft365_onedrive_create_sharing_link_in_drive',
+    description: `Create a sharing link for a file or folder in a specific drive by drive ID. Works across any drive accessible to the signed-in user, including SharePoint document libraries and Teams drives. Supports view-only, edit, and embed link types with optional org scope, password, and expiration. To create a sharing link for an item in the signed-in user's personal OneDrive, use microsoft365_onedrive_create_sharing_link instead.`,
+    params: [
+      {
+        name: 'drive_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the drive containing the item to share. Obtain drive IDs from microsoft365_onedrive_list_drives or microsoft365_sharepoint_list_drives.`,
+      },
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the file or folder for which to create a sharing link. Obtain item IDs from list or get item operations.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: true,
+        description: `Type of sharing link to create. "view" is read-only, "edit" allows modifications, "embed" provides an HTML embed code for web pages.`,
+      },
+      {
+        name: 'expiration_date_time',
+        type: 'string',
+        required: false,
+        description: `Optional expiration date and time for the sharing link in ISO 8601 format. After this date/time the link will no longer work. Example: "2026-12-31T23:59:00Z".`,
+      },
+      {
+        name: 'password',
+        type: 'string',
+        required: false,
+        description: `Optional password to protect the sharing link. Recipients will need to enter this password to access the shared item.`,
+      },
+      {
+        name: 'scope',
+        type: 'string',
+        required: false,
+        description: `Scope of the sharing link. "anonymous" allows anyone with the link to access the item. "organization" restricts access to users within the same Microsoft 365 organization. Default: anonymous.`,
+      },
+    ],
+  },
+  {
     name: 'microsoft365_onedrive_delete_drive_item',
-    description: `Permanently delete a file or folder from OneDrive by its item ID. This action cannot be undone — the item is moved to the recycle bin and eventually purged. Use with caution.`,
+    description: `Delete a file or folder from the signed-in user's personal OneDrive by item ID. The item is moved to the recycle bin. To delete an item in a specific drive by drive ID (e.g. a SharePoint document library), use microsoft365_onedrive_delete_item_in_drive instead.`,
     params: [
       {
         name: 'item_id',
         type: 'string',
         required: true,
         description: `The unique ID of the OneDrive file or folder to delete. Obtain item IDs from list or get drive item operations. Deleting a folder also removes all its contents.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_onedrive_delete_item_in_drive',
+    description: `Delete a file or folder from a specific drive by drive ID and item ID. The item is moved to the recycle bin. Works across any drive accessible to the signed-in user, including SharePoint document libraries and Teams drives. Deleting a folder also removes all its contents. To delete an item from the signed-in user's personal OneDrive, use microsoft365_onedrive_delete_drive_item instead.`,
+    params: [
+      {
+        name: 'drive_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the drive containing the item to delete. Obtain drive IDs from microsoft365_onedrive_list_drives or microsoft365_sharepoint_list_drives.`,
+      },
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the file or folder to delete. Obtain item IDs from list or get item operations. Deleting a folder also removes all its contents.`,
       },
     ],
   },
@@ -1376,13 +1466,31 @@ export const tools: Tool[] = [
   },
   {
     name: 'microsoft365_onedrive_get_drive_item',
-    description: `Retrieve the metadata for a specific OneDrive file or folder by its item ID. Returns properties including name, size, creation date, last modified date, MIME type, and download URL.`,
+    description: `Retrieve metadata for a file or folder in the signed-in user's personal OneDrive by item ID. Returns name, size, creation date, last modified date, MIME type, and download URL. To get an item from a specific drive by drive ID (e.g. a SharePoint document library), use microsoft365_onedrive_get_item_in_drive instead.`,
     params: [
       {
         name: 'item_id',
         type: 'string',
         required: true,
         description: `The unique ID of the OneDrive file or folder to retrieve. Obtain item IDs from list or search operations.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_onedrive_get_item_in_drive',
+    description: `Retrieve metadata for a specific file or folder in a drive by drive ID and item ID. Works across any drive accessible to the signed-in user, including SharePoint document libraries and Teams drives. Returns name, size, creation date, last modified date, MIME type, and download URL. To get an item from the signed-in user's personal OneDrive, use microsoft365_onedrive_get_drive_item instead.`,
+    params: [
+      {
+        name: 'drive_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the drive containing the item. Obtain drive IDs from microsoft365_onedrive_list_drives or microsoft365_sharepoint_list_drives.`,
+      },
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the file or folder to retrieve. Obtain item IDs from list or search operations.`,
       },
     ],
   },
@@ -1484,7 +1592,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'microsoft365_onedrive_list_drive_items',
-    description: `List the children (files and folders) of a OneDrive folder by item ID. Use "root" as the item_id to list top-level drive contents. Supports OData filtering, sorting, pagination, and field selection.`,
+    description: `List the children (files and folders) of a folder in the signed-in user's personal OneDrive. Use "root" as the item_id to list top-level contents. To list children in a specific drive by drive ID (e.g. a SharePoint document library), use microsoft365_onedrive_list_items_in_drive instead.`,
     params: [
       {
         name: 'item_id',
@@ -1543,6 +1651,78 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoft365_onedrive_list_item_versions_in_drive',
+    description: `Retrieve the version history for a file in a specific drive by drive ID and item ID. Works across any drive accessible to the signed-in user, including SharePoint document libraries and Teams drives. Returns version ID, last modified time, size, and the identity of the user who made each change. To list versions in the signed-in user's personal OneDrive, use microsoft365_onedrive_list_versions instead.`,
+    params: [
+      {
+        name: 'drive_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the drive containing the file. Obtain drive IDs from microsoft365_onedrive_list_drives or microsoft365_sharepoint_list_drives.`,
+      },
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the file whose version history to list. Obtain item IDs from list or get item operations.`,
+      },
+      {
+        name: 'top',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of version entries to return per page. Accepts values 1–1000. Default: 25.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_onedrive_list_items_in_drive',
+    description: `List the children (files and folders) of a folder in a specific drive by drive ID. Works across any drive accessible to the signed-in user, including SharePoint document libraries and Teams drives. Use "root" as item_id to list top-level contents of the drive. To list items in the signed-in user's personal OneDrive, use microsoft365_onedrive_list_drive_items instead.`,
+    params: [
+      {
+        name: 'drive_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the drive containing the folder. Obtain drive IDs from microsoft365_onedrive_list_drives or microsoft365_sharepoint_list_drives.`,
+      },
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the folder whose children to list. Use "root" to list top-level contents of the drive.`,
+      },
+      {
+        name: '$filter',
+        type: 'string',
+        required: false,
+        description: `OData filter expression to narrow results. Example: "file ne null" returns only files; "folder ne null" returns only folders.`,
+      },
+      {
+        name: '$orderby',
+        type: 'string',
+        required: false,
+        description: `Property to sort results by. Example: "name asc" or "lastModifiedDateTime desc".`,
+      },
+      {
+        name: '$select',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of properties to return. Example: "id,name,size,lastModifiedDateTime" reduces response payload.`,
+      },
+      {
+        name: '$skip',
+        type: 'integer',
+        required: false,
+        description: `Number of items to skip for pagination. Use with $top to page through results.`,
+      },
+      {
+        name: '$top',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of items to return per page (default: 25). Accepts values 1–999.`,
+      },
+    ],
+  },
+  {
     name: 'microsoft365_onedrive_list_permissions',
     description: `Retrieve the list of permissions (sharing and access grants) for a specific OneDrive file or folder. Returns all permission objects including sharing links, individual user grants, and inherited permissions.`,
     params: [
@@ -1586,7 +1766,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'microsoft365_onedrive_list_versions',
-    description: `Retrieve the version history for a specific OneDrive file by its item ID. Returns a list of version objects including version ID, last modified time, size, and the identity of the user who made each change.`,
+    description: `Retrieve the version history for a file in the signed-in user's personal OneDrive by item ID. Returns version ID, last modified time, size, and the identity of the user who made each change. To list versions in a specific drive by drive ID (e.g. a SharePoint document library), use microsoft365_onedrive_list_item_versions_in_drive instead.`,
     params: [
       {
         name: 'item_id',
@@ -1627,6 +1807,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoft365_onedrive_resolve_shared_link',
+    description: `Resolve a OneDrive or SharePoint sharing URL (e.g. a link pasted from the browser) into a drive item, returning its full metadata including drive ID, item ID, name, and download URL. The sharing URL must be base64url-encoded before passing it as encoded_sharing_url. Encoding: base64url(url) with no padding, prefixed with "u!" — e.g. u!aHR0cHM6Ly4uLg.`,
+    params: [
+      {
+        name: 'encoded_sharing_url',
+        type: 'string',
+        required: true,
+        description: `The base64url-encoded sharing URL prefixed with "u!". To encode: take the full sharing URL, base64url-encode it (no padding), then prepend "u!". Example: "u!aHR0cHM6Ly9jb250b3NvLnNoYXJlcG9pbnQuY29tLy4uLg".`,
+      },
+    ],
+  },
+  {
     name: 'microsoft365_onedrive_restore_drive_item',
     description: `Restore a deleted OneDrive file or folder from the recycle bin back to its original location or an optionally specified destination. Provide new_parent_id and new_name to restore to a different location or with a different name.`,
     params: [
@@ -1652,8 +1844,38 @@ export const tools: Tool[] = [
   },
   {
     name: 'microsoft365_onedrive_search_drive_items',
-    description: `Search the signed-in user's OneDrive for files and folders matching a query string. Searches across file names, content, and metadata. Supports OData $top for result count and $select for field selection.`,
+    description: `Search the signed-in user's personal OneDrive (root) for files and folders matching a query string. Searches across file names, content, and metadata. To search within a specific drive by drive ID (e.g. a SharePoint document library), use microsoft365_onedrive_search_items_in_drive instead.`,
     params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Search query string to find files or folders by name or content. Example: "budget 2024" searches for items containing that text.`,
+      },
+      {
+        name: '$select',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of properties to return. Example: "id,name,size,webUrl" reduces response payload.`,
+      },
+      {
+        name: '$top',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return. Accepts values 1–999.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_onedrive_search_items_in_drive',
+    description: `Search for files and folders within a specific drive by drive ID. Works across any drive accessible to the signed-in user, including SharePoint document libraries and Teams drives. To search the signed-in user's personal OneDrive, use microsoft365_onedrive_search_drive_items instead.`,
+    params: [
+      {
+        name: 'drive_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the drive to search within. Obtain drive IDs from microsoft365_onedrive_list_drives or microsoft365_sharepoint_list_drives.`,
+      },
       {
         name: 'query',
         type: 'string',
@@ -4396,6 +4618,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoft365_sharepoint_list_drives',
+    description: `List all drives (document libraries) within a specific SharePoint site. Returns drive IDs, names, and types. Use the returned drive IDs with other drive item tools to access files within that library. To list all drives accessible to the signed-in user across all sites, use microsoft365_onedrive_list_drives instead.`,
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the SharePoint site whose drives to list. Obtain site IDs from microsoft365_sharepoint_get_site or microsoft365_sharepoint_list_sites.`,
+      },
+      {
+        name: '$select',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of drive properties to return. Example: "id,name,driveType" reduces response payload.`,
+      },
+    ],
+  },
+  {
     name: 'microsoft365_sharepoint_list_file_versions',
     description: `List all versions of a file in a SharePoint document library. Returns version metadata including version number, last modified time, size, and the user who made each change.`,
     params: [
@@ -4418,6 +4658,11 @@ export const tools: Tool[] = [
         description: `Maximum number of versions to return per page. Default is determined by the API.`,
       },
     ],
+  },
+  {
+    name: 'microsoft365_sharepoint_list_followed_sites',
+    description: `List all SharePoint sites that the signed-in user is following. Returns site IDs, names, URLs, and descriptions. Use the returned site IDs with microsoft365_sharepoint_get_site or microsoft365_sharepoint_list_drives to explore the site's content.`,
+    params: [],
   },
   {
     name: 'microsoft365_sharepoint_list_list_fields',
