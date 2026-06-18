@@ -849,4 +849,9 @@ export const catalog: Record<string, ProviderMeta> = {
       'Analytics',
     ],
   },
+  zendeskoauth: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/zendesk.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Customer Support', 'Communication'],
+  },
 }
