@@ -169,3 +169,17 @@ const { postUserVerifyRedirectUrl } =
 </Tabs>
 
 On success, the connected account is activated. Redirect the user using `post_user_verify_redirect_url`.
+
+## Troubleshooting
+
+<details>
+<summary>Error: <code>failed_to_exchange ... user_verify_url not configured for verification redirect</code></summary>
+
+This error means the connection is set to **Custom user verification**, but the authorization flow started without a `user_verify_url`. Scalekit completes the OAuth exchange but has nowhere to redirect the user for verification.
+
+Resolve it in one of two ways:
+
+- **In production**, pass `user_verify_url` when you generate the authorization link, and implement the [verification callback](#handle-the-verification-callback) at that URL.
+- **In development or internal testing**, set the mode to **Scalekit users only** in **AgentKit** > **User Verification**. This mode needs no `user_verify_url` and no verify route, as long as every authorizing user is signed in to your Scalekit dashboard.
+
+</details>
