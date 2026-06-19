@@ -48,7 +48,7 @@ Scalekit -> User: Proceed or block sign-up
 
 ```
 
-## Implementing interceptors
+## Implement interceptors
 
 You can define interceptors at several trigger points during authentication flows.
 
@@ -729,7 +729,9 @@ async def pre_signup(request: Request):
 
 ### Modify claims in session tokens
 
-Add custom claims to Access tokens issued by Scalekit. Fetch user metadata from your database and return claims in the `response.claims` object. Claims are automatically included in the access token after authentication.
+To include additional custom claims in the access token, use the `PRE_SESSION_CREATION` interceptor. This interceptor makes an API call to your configured endpoint with user and organization data from Scalekit. You can respond with the format below, and the claims are included in the access token under the `custom_claims` key. This interceptor fires on every path that creates a new session token: standard login and organization switch.
+
+If you need custom scope strings validated directly by your resource server (for example, Spring Security's `@PreAuthorize`), use [native custom scopes and permissions](/authenticate/authz/implement-access-control/) instead — `custom_claims` do not appear in the `scope` claim.
 
 <Tabs syncKey="tech-stack">
 <TabItem value="node" label="Node.js">
@@ -845,6 +847,15 @@ After the interceptor returns custom claims, Scalekit includes them in the acces
 <Aside type='note' title='Token size considerations'>
   Keep custom claims minimal to avoid exceeding JWT size limits. Store large datasets in your database and use claims only for frequently-accessed metadata that needs to be available in the token.
 </Aside>
+
+## Common scenarios
+
+<details>
+<summary>Does `PRE_SESSION_CREATION` fire on an invitee’s first login?</summary>
+
+Yes. It fires the same as any other path that creates a session token. Custom claims your interceptor returns are embedded in the issued access token. No additional configuration is required.
+
+</details>
 
 ### Provision a user into an existing organization
 Use the **Pre-signup** interceptor to provision a user into an existing organization instead of creating a new one during signup. This is useful when you want users from specific email domains to always join a pre-defined organization, avoiding duplicate organization creation. 
