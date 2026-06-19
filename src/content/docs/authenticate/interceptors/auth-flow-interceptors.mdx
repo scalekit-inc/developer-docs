@@ -729,7 +729,9 @@ async def pre_signup(request: Request):
 
 ### Modify claims in session tokens
 
-Add custom claims to Access tokens issued by Scalekit. Fetch user metadata from your database and return claims in the `response.claims` object. Claims are automatically included in the access token after authentication.
+Add custom claims to access tokens issued by Scalekit. Your `PRE_SESSION_CREATION` interceptor fires on every path that creates a new session token: standard login (password, SSO, social), magic link and email OTP, invitation magic link (including an invitee's first login), and organization switch. Fetch user metadata from your database and return claims in the `response.claims` object. Scalekit embeds them in the access token under the `custom_claims` key.
+
+If you need custom scope strings validated directly by your resource server (for example, Spring Security's `@PreAuthorize`), use [native custom scopes and permissions](/authenticate/authz/implement-access-control/) instead — `custom_claims` do not appear in the `scope` claim.
 
 <Tabs syncKey="tech-stack">
 <TabItem value="node" label="Node.js">
