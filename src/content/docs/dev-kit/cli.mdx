@@ -7,6 +7,8 @@ sidebar:
 tableOfContents: true
 ---
 
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
 The Scalekit CLI (`@scalekit-inc/cli`) installs the authstack plugin for your AI coding agents. Run one command and the CLI detects your active tools — Cursor, Claude Code, GitHub Copilot, Codex — and sets each one up automatically.
 
 ## Install
@@ -60,22 +62,47 @@ For each detected tool, the CLI installs two kits from the authstack plugin:
 
 For Cursor and Codex, the CLI downloads the plugin and copies it to the tool's local plugin directory. For Claude Code and GitHub Copilot, it runs the tool's native plugin marketplace commands.
 
-## Examples
+## Start building
 
-Preview what would be installed without making changes:
+After setup, tell your coding agent what you're building. The authstack plugin routes you to the right skill.
 
-```bash frame="terminal"
-scalekit setup --dry-run
-```
+<Tabs syncKey="authstack-goal">
+  <TabItem label="AgentKit">
+    Use AgentKit when building AI agents that call third-party apps (Gmail, Slack, Salesforce, etc.) on behalf of users.
 
-Install for Cursor without prompts (useful in CI or onboarding scripts):
+    Tell your agent:
 
-```bash frame="terminal"
-scalekit setup cursor -y
-```
+    ```
+    I want to add agent auth to my project. Help me get started with AgentKit.
+    ```
 
-Install the plugin only, skip the generic skills:
+    Or if you know what you're building:
 
-```bash frame="terminal"
-scalekit setup --skip-skills
-```
+    ```
+    I'm building an agent that needs to call Gmail and Slack on behalf of users. Set up AgentKit.
+    ```
+
+    The agent invokes `/agentkit:setup` and routes you to the right implementation skill based on what you're building.
+  </TabItem>
+  <TabItem label="SaaSKit">
+    Use SaaSKit when adding auth, SSO, SCIM, or sessions to a SaaS application.
+
+    Tell your agent:
+
+    ```
+    I want to add auth to my SaaS app. Help me get started with SaaSKit.
+    ```
+
+    Or if you know what you need:
+
+    ```
+    Add enterprise SSO (Okta, Azure AD) to my Next.js app using SaaSKit.
+    ```
+
+    ```
+    Set up SCIM provisioning for my SaaS app so enterprise customers can sync users.
+    ```
+
+    The agent invokes `/saaskit:setup` and routes you to the right skill for your framework and goal.
+  </TabItem>
+</Tabs>
