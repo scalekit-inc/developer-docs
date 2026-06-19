@@ -232,7 +232,6 @@ export const sidebar = [
       {
         label: 'Build with coding agents',
         items: [
-          'dev-kit/cli',
           'dev-kit/build-with-ai',
           'dev-kit/build-with-ai/full-stack-auth',
           'dev-kit/build-with-ai/mcp-auth',
@@ -244,6 +243,7 @@ export const sidebar = [
         label: 'AI tools',
         collapsed: false,
         items: [
+          'dev-kit/cli',
           'dev-kit/ai-assisted-development/scalekit-mcp-server',
           'dev-kit/resources/ai-assisted-setup',
           'dev-kit/ai-assisted-development/context7',
