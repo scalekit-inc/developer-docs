@@ -1,0 +1,177 @@
+---
+title: Troubleshooting
+description: Diagnose and fix common issues with a self-hosted Scalekit deployment on Kubernetes.
+sidebar:
+  label: Troubleshooting
+  order: 8
+  prev:
+    label: Upgrades and maintenance
+    link: /self-hosted/upgrades/
+tags: [self-hosted, troubleshooting, kubernetes, helm, debugging]
+tableOfContents:
+  maxHeadingLevel: 3
+---
+
+import { Code, Aside, Steps } from '@astrojs/starlight/components'
+
+export const registrySecretCmd = `kubectl create secret docker-registry artifact-registry-secret \\\n  --docker-server=<registry-server-url> \\\n  --docker-username=oauth2accesstoken \\\n  --docker-password=<your-registry-token> \\\n  -n \${NAMESPACE}`
+
+This guide helps you diagnose and resolve common issues when running Scalekit on your own Kubernetes cluster. Start with the quick diagnostics, then use the symptom/cause/solution sections below to fix specific problems.
+
+## Quick diagnostics
+
+Before investigating specific errors, run these basic checks to identify which pods are unhealthy and gather initial diagnostics.
+
+### Check pod status
+
+Set the namespace (the setup script defaults to `scalekit`):
+
+```bash
+# Set once for your deployment
+NAMESPACE=${NAMESPACE:-scalekit}
+```
+
+```bash
+kubectl get pods -n ${NAMESPACE}
+kubectl describe pod <pod-name> -n ${NAMESPACE}
+kubectl logs <pod-name> -n ${NAMESPACE} --tail=100
+```
+
+For the main Scalekit pod (multiple containers), specify the container:
+
+```bash
+# Main auth service
+kubectl logs <pod-name> -n ${NAMESPACE} -c scalekit --tail=100
+
+# Dashboard
+kubectl logs <pod-name> -n ${NAMESPACE} -c dashboard --tail=100
+
+# Svix (webhooks)
+kubectl logs <pod-name> -n ${NAMESPACE} -c svix --tail=100
+```
+
+<Aside type="tip" title="Useful kubectl flags">
+- Add `--previous` to see logs from the last crashed container.
+- Use `kubectl get events -n ${NAMESPACE} --sort-by=.lastTimestamp` for recent cluster events.
+</Aside>
+
+## Helm deployment issues
+
+### `ImagePullBackOff` or `ErrImagePull`
+
+**Symptom:** Pods fail to start with `ImagePullBackOff` or `ErrImagePull`.
+
+**Cause:** The cluster cannot pull images from the Scalekit container registry. This is almost always caused by a missing or expired registry secret.
+
+**Solution:**
+
+<Steps>
+1. Confirm the secret exists:
+   ```bash
+   kubectl get secret artifact-registry-secret -n ${NAMESPACE}
+   ```
+
+2. If it is missing, recreate it:
+   <Code lang="bash" code={registrySecretCmd} />
+
+3. Verify your registry token has not expired. Tokens from the distribution portal are time-limited.
+</Steps>
+
+<Aside type="caution" title="Token expiry breaks image pulls">
+  When the token expires, new deployments and upgrades will fail with `ImagePullBackOff`. Set a reminder to renew it before it lapses.
+</Aside>
+
+### Migration hook fails or times out
+
+**Symptom:** The `db-migrations` job fails or the Helm install hangs on the pre-install hook.
+
+**Cause:** The migration job cannot connect to PostgreSQL (wrong connection string, database does not exist, or network issue).
+
+**Solution:**
+
+<Steps>
+1. Check the job logs:
+   ```bash
+   kubectl get jobs -n ${NAMESPACE}
+   kubectl logs job/scalekit-db-migrations -n ${NAMESPACE}
+   ```
+
+2. Verify the `DATABASE_URL` secret is correct and points to a reachable PostgreSQL instance.
+
+3. Ensure the target databases (`scalekit`, `webhooks`, `openfga`) exist and the database user has full privileges.
+</Steps>
+
+<Aside type="note" title="Database creation">
+  The setup script prints the exact `CREATE DATABASE` commands. Run them on your PostgreSQL server if the databases are missing.
+</Aside>
+
+### Pod stuck in `CrashLoopBackOff`
+
+**Symptom:** The main Scalekit pod keeps crashing and restarting.
+
+**Cause:** A required secret is missing or a configuration value (hostnames, domains, credentials) is incorrect.
+
+**Solution:**
+
+1. Check the previous container logs for the exact error:
+   ```bash
+   kubectl logs <pod-name> -n ${NAMESPACE} -c scalekit --previous
+   ```
+
+2. Common causes:
+   - Missing keys in `authentication-secret` → Re-run `bash setup-secrets.sh`
+   - `database.host` or `redis.host` unreachable → Verify connectivity and values in `values.yaml`
+   - `domain` does not match your gateway hostname → Correct `values.yaml` and re-apply
+
+3. Once the cause is fixed, delete the pod (or the whole release) so Kubernetes restarts it with the updated configuration.
+
+## Gateway and ingress issues
+
+### Gateway has no external IP
+
+**Symptom:** `kubectl get gateway` shows no address or the Gateway stays in a pending state.
+
+**Cause:** The GatewayClass is missing, or the Gateway controller (e.g. GKE Gateway) is not running in the cluster.
+
+**Solution:**
+
+<Steps>
+1. Inspect the Gateway:
+   ```bash
+   kubectl get gateway -n ${NAMESPACE}
+   kubectl describe gateway scalekit -n ${NAMESPACE}
+   ```
+
+2. Verify a matching GatewayClass exists:
+   ```bash
+   kubectl get gatewayclass
+   ```
+
+3. Ensure `gateway.className` in your `values.yaml` exactly matches the installed GatewayClass name.
+</Steps>
+
+<Aside type="tip" title="GKE-specific">
+  On GKE, you must enable the GKE Gateway controller in your cluster settings before using Gateway API resources.
+</Aside>
+
+## Getting help
+
+If the issue is not covered here, gather the following information before contacting support:
+
+- **Namespace**: The Kubernetes namespace where Scalekit is deployed
+- **Error messages**: Full output from `kubectl logs`, `kubectl describe`, and Helm output
+- **Pod status**: Output of `kubectl get pods -n ${NAMESPACE}`
+- **Values used**: Relevant sections from your `values.yaml` (redact secrets)
+- **Steps to reproduce**: What you were doing when the issue occurred
+- **Environment**: Local (Minikube), GKE, or other cluster
+
+### Support channels
+
+- **Documentation**: Review the [quickstart](/self-hosted/quickstart/), [installation](/self-hosted/installation/), and [configuration](/self-hosted/configuration/) guides
+- **Community**: Join the [#ask-anything channel on Slack](https://join.slack.com/t/scalekit-community/shared_invite/zt-3gsxwr4hc-0tvhwT2b_qgVSIZQBQCWRw) (the Scalekit Community workspace)
+- **Support**: Submit a ticket through your Scalekit dashboard or contact support@scalekit.com for production issues
+
+## Next steps
+
+- [Upgrades and maintenance](/self-hosted/upgrades/)
+- [Configuration reference](/self-hosted/configuration/)
