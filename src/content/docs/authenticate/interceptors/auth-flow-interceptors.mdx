@@ -48,7 +48,7 @@ Scalekit -> User: Proceed or block sign-up
 
 ```
 
-## Implementing interceptors
+## Implement interceptors
 
 You can define interceptors at several trigger points during authentication flows.
 
@@ -847,6 +847,15 @@ After the interceptor returns custom claims, Scalekit includes them in the acces
 <Aside type='note' title='Token size considerations'>
   Keep custom claims minimal to avoid exceeding JWT size limits. Store large datasets in your database and use claims only for frequently-accessed metadata that needs to be available in the token.
 </Aside>
+
+## Common scenarios
+
+<details>
+<summary>Does `PRE_SESSION_CREATION` fire on an invitee’s first login?</summary>
+
+Yes. It fires the same as any other path that creates a session token. Custom claims your interceptor returns are embedded in the issued access token. No additional configuration is required.
+
+</details>
 
 ### Provision a user into an existing organization
 Use the **Pre-signup** interceptor to provision a user into an existing organization instead of creating a new one during signup. This is useful when you want users from specific email domains to always join a pre-defined organization, avoiding duplicate organization creation. 
