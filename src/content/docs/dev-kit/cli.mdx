@@ -1,0 +1,92 @@
+---
+title: Scalekit CLI
+description: Install and manage the authstack plugin for AI coding agents with the Scalekit CLI.
+sidebar:
+  label: CLI
+  order: 1
+tableOfContents: true
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+The Scalekit CLI (`@scalekit-inc/cli`) installs the authstack plugin for your AI coding agents. Run one command and the CLI detects your active tools — Cursor, Claude Code, GitHub Copilot, Codex — and sets each one up automatically.
+
+## Install
+
+<Tabs syncKey="cli-install">
+  <TabItem label="npx (one-off)">
+    ```bash frame="terminal"
+    npx @scalekit-inc/cli setup
+    ```
+  </TabItem>
+  <TabItem label="Global install">
+    ```bash frame="terminal"
+    npm install -g @scalekit-inc/cli
+    scalekit setup   # or: sk setup
+    ```
+  </TabItem>
+</Tabs>
+
+Running `setup` with no arguments launches an interactive wizard that detects your installed tools and installs the authstack plugin for each one.
+
+## Target a specific tool
+
+Pass the tool name to skip the wizard and install directly:
+
+```bash frame="terminal"
+scalekit setup cursor
+scalekit setup claude      # aliases: claude-code, cc
+scalekit setup codex       # alias: opencode
+scalekit setup copilot     # aliases: github-copilot, ghcp
+```
+
+## Command reference
+
+### `setup [tool]`
+
+Installs the authstack plugin for one or all detected coding agents.
+
+| Argument / flag | Description |
+|---|---|
+| `[tool]` | Target a specific agent: `cursor`, `claude`, `codex`, `copilot` (and their aliases). Omit to run the interactive wizard. |
+| `-y`, `--yes` | Skip confirmation prompts. Useful in scripts. |
+| `--dry-run` | Print the commands that would run without executing them. |
+| `--skip-skills` | Skip installing generic Scalekit skills (installs the plugin only). |
+
+### Supported tools
+
+| Tool | ID | Aliases |
+|---|---|---|
+| Cursor | `cursor` | — |
+| Claude Code | `claude` | `claude-code`, `cc` |
+| GitHub Copilot | `copilot` | `github-copilot`, `ghcp` |
+| Codex / OpenCode | `codex` | `opencode` |
+
+### What gets installed
+
+For each detected tool, the CLI installs two kits from the authstack plugin:
+
+- **AgentKit** — skills for building agents with delegated auth, scoped permissions, and tool calls
+- **SaaSKit** — skills for adding SSO, SCIM, MFA, sessions, and API auth to SaaS apps
+
+For Cursor and Codex, the CLI downloads the plugin and copies it to the tool's local plugin directory. For Claude Code and GitHub Copilot, it runs the tool's native plugin marketplace commands.
+
+## Examples
+
+Preview what would be installed without making changes:
+
+```bash frame="terminal"
+scalekit setup --dry-run
+```
+
+Install for Cursor without prompts (useful in CI or onboarding scripts):
+
+```bash frame="terminal"
+scalekit setup cursor -y
+```
+
+Install the plugin only, skip the generic skills:
+
+```bash frame="terminal"
+scalekit setup --skip-skills
+```

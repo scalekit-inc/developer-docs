@@ -232,6 +232,7 @@ export const sidebar = [
       {
         label: 'Build with coding agents',
         items: [
+          'dev-kit/cli',
           'dev-kit/build-with-ai',
           'dev-kit/build-with-ai/full-stack-auth',
           'dev-kit/build-with-ai/mcp-auth',
