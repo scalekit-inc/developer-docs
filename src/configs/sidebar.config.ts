@@ -117,7 +117,7 @@ export const sidebar = [
         link: 'guides/integrations',
       },
       {
-        label: 'Go Live',
+        label: 'Go live',
         items: [
           'authenticate/launch-checklist',
           'authenticate/run-e2e-tests',
