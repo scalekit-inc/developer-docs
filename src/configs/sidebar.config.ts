@@ -243,6 +243,7 @@ export const sidebar = [
         label: 'AI tools',
         collapsed: false,
         items: [
+          'dev-kit/cli',
           'dev-kit/ai-assisted-development/scalekit-mcp-server',
           'dev-kit/resources/ai-assisted-setup',
           'dev-kit/ai-assisted-development/context7',
