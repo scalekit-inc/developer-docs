@@ -1,43 +1,21 @@
-{/* TODO: stub cloned from _setup-atlassianmcp.mdx for Monday MCP. Review and update connector-specific references (URLs, scopes, app-registration steps) before merging. */}
 import { Steps, Aside } from '@astrojs/starlight/components'
 
-Monday MCP uses Dynamic Client Registration (DCR) with PKCE — no client ID or secret is needed. Scalekit registers the OAuth client automatically when your user first authorizes the connection.
+Monday MCP uses Dynamic Client Registration (DCR) with PKCE — no client ID or secret is needed. Scalekit registers the OAuth client automatically the first time a user authorizes the connection, so creating the connection in Scalekit is the only setup step.
 
 <Steps>
-1. ### Copy the redirect URI from Scalekit
+1. ### Create the Monday MCP connection in Scalekit
 
-   In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **Monday MCP** and click **Create**. Copy the redirect URI — it looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+   In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **Monday MCP** and click **Create**.
 
-   {/* TODO: add screenshot — alt: "Copy redirect URI from Scalekit dashboard for Monday MCP", original src: @/assets/docs/agent-connectors/mondaymcp/copy-redirect-uri.png */}
+   {/* TODO: add screenshot — alt: "Create the Monday MCP connection in the Scalekit dashboard", original src: @/assets/docs/agent-connectors/mondaymcp/create-connection.png */}
 
-2. ### Configure an OAuth app in monday.com
-
-   - Go to [monday.com Developer Center](https://developer.monday.com/) and sign in as an account admin.
-   - Click **My Apps** in the left sidebar, then click **Create app**.
-   - Give the app a name (for example, `Scalekit connector`) and click **Save**.
-   - In the app settings, select the **OAuth** tab.
-   - Under **Redirect URLs**, click **Add Redirect URL** and paste the redirect URI from Scalekit.
-   - Under **Scopes**, add the scopes your agent needs. Common scopes:
-     - `boards:read` — read boards and items
-     - `boards:write` — create and update boards and items
-     - `docs:read` — read monday.com Docs
-     - `docs:write` — create and update Docs
-     - `users:read` — read user and team information
-     - `workspaces:read` — read workspaces
-
-   <Aside type="note" title="Admin access required">
-     Only monday.com account admins can create apps in the Developer Center. If you do not see the Developer Center in your account, contact your monday.com administrator.
+   <Aside type="note" title="No OAuth app or credentials required">
+     Because Monday MCP supports DCR, you do not register an app in the monday.com Developer Center or paste a client ID and secret. Scalekit negotiates the OAuth client with the Monday MCP server at `https://mcp.monday.com/mcp` automatically.
    </Aside>
 
-   {/* TODO: add screenshot — alt: "OAuth tab in monday.com Developer Center showing redirect URL configuration", original src: @/assets/docs/agent-connectors/mondaymcp/monday-oauth-config.png */}
+2. ### Have your user authorize the connection
 
-3. ### Copy the client credentials into Scalekit
+   Send the user through the connection's authorization link (the magic link Scalekit generates, or the link returned by the SDK). The user signs in to monday.com and grants access.
 
-   - In monday.com Developer Center, still on the **OAuth** tab, copy the **Client ID** and **Client Secret**.
-   - Back in the Scalekit dashboard, paste them into the **Client ID** and **Client Secret** fields for the Monday MCP connection.
-   - Click **Save**.
-
-   {/* TODO: add screenshot — alt: "Scalekit connection form with Monday MCP client ID and secret fields", original src: @/assets/docs/agent-connectors/mondaymcp/scalekit-monday-credentials.png */}
-
-   Once saved, Scalekit uses DCR to manage token refresh automatically for every user who authorizes the connection — no further configuration is needed.
+   On first authorization, Scalekit completes Dynamic Client Registration and PKCE behind the scenes, then stores and refreshes tokens for every user who connects — no further configuration is needed.
 </Steps>
