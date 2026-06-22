@@ -338,6 +338,13 @@ export const sidebar = [
         autogenerate: { directory: 'guides/integrations/scim-integrations' },
       },
       createSpacing(),
+      createSectionHeader('Security'),
+      {
+        label: 'Encryption',
+        collapsed: true,
+        items: ['guides/security/byok-key-management'],
+      },
+      createSpacing(),
       createSectionHeader('Workflows'),
       {
         label: 'Webhooks',
