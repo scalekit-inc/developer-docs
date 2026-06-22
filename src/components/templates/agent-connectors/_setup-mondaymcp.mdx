@@ -1,0 +1,43 @@
+{/* TODO: stub cloned from _setup-atlassianmcp.mdx for Monday MCP. Review and update connector-specific references (URLs, scopes, app-registration steps) before merging. */}
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Monday MCP uses Dynamic Client Registration (DCR) with PKCE — no client ID or secret is needed. Scalekit registers the OAuth client automatically when your user first authorizes the connection.
+
+<Steps>
+1. ### Copy the redirect URI from Scalekit
+
+   In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **Monday MCP** and click **Create**. Copy the redirect URI — it looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+   {/* TODO: add screenshot — alt: "Copy redirect URI from Scalekit dashboard for Monday MCP", original src: @/assets/docs/agent-connectors/mondaymcp/copy-redirect-uri.png */}
+
+2. ### Configure an OAuth app in monday.com
+
+   - Go to [monday.com Developer Center](https://developer.monday.com/) and sign in as an account admin.
+   - Click **My Apps** in the left sidebar, then click **Create app**.
+   - Give the app a name (for example, `Scalekit connector`) and click **Save**.
+   - In the app settings, select the **OAuth** tab.
+   - Under **Redirect URLs**, click **Add Redirect URL** and paste the redirect URI from Scalekit.
+   - Under **Scopes**, add the scopes your agent needs. Common scopes:
+     - `boards:read` — read boards and items
+     - `boards:write` — create and update boards and items
+     - `docs:read` — read monday.com Docs
+     - `docs:write` — create and update Docs
+     - `users:read` — read user and team information
+     - `workspaces:read` — read workspaces
+
+   <Aside type="note" title="Admin access required">
+     Only monday.com account admins can create apps in the Developer Center. If you do not see the Developer Center in your account, contact your monday.com administrator.
+   </Aside>
+
+   {/* TODO: add screenshot — alt: "OAuth tab in monday.com Developer Center showing redirect URL configuration", original src: @/assets/docs/agent-connectors/mondaymcp/monday-oauth-config.png */}
+
+3. ### Copy the client credentials into Scalekit
+
+   - In monday.com Developer Center, still on the **OAuth** tab, copy the **Client ID** and **Client Secret**.
+   - Back in the Scalekit dashboard, paste them into the **Client ID** and **Client Secret** fields for the Monday MCP connection.
+   - Click **Save**.
+
+   {/* TODO: add screenshot — alt: "Scalekit connection form with Monday MCP client ID and secret fields", original src: @/assets/docs/agent-connectors/mondaymcp/scalekit-monday-credentials.png */}
+
+   Once saved, Scalekit uses DCR to manage token refresh automatically for every user who authorizes the connection — no further configuration is needed.
+</Steps>
