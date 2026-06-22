@@ -1,0 +1,112 @@
+---
+title: 'Scalekit-managed encryption'
+description: 'Understand how Scalekit protects your data with automatically managed Data Encryption Keys (DEK) — no configuration required.'
+sidebar:
+  label: 'Scalekit-managed keys'
+tags: [security, encryption, dek, key-management]
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 { font-size: var(--sl-text-xl); }
+      .sl-markdown-content h3 { font-size: var(--sl-text-lg); }
+  - tag: meta
+    attrs:
+      name: robots
+      content: noindex
+seeAlso:
+  label: 'Related guides'
+  items:
+    - title: 'Bring your own KMS key (GCP)'
+      icon: 'seti:lock'
+      url: '/guides/security/byok-key-management/'
+    - title: 'Authentication best practices'
+      icon: 'shield'
+      url: '/guides/security/authentication-best-practices/'
+next:
+  link: '/guides/security/byok-key-management/'
+  label: 'Bring your own KMS key'
+---
+
+import { Aside, Badge } from '@astrojs/starlight/components';
+
+Scalekit encrypts all sensitive data in your environment using a **Data Encryption Key (DEK)**. By default, Scalekit creates and manages this key for you — no setup required. You can also replace it with a key from your own Google Cloud KMS project (BYOK).
+
+This page covers the default Scalekit-managed key type. For customer-managed keys, see [Bring your own KMS key (GCP)](/guides/security/byok-key-management/).
+
+## What is a DEK?
+
+A Data Encryption Key (DEK) is a symmetric key used to encrypt the data stored in your Scalekit environment. Each environment has its own DEK, which means data from one environment cannot be decrypted by keys from another.
+
+Scalekit wraps your DEK with a master key managed internally. This two-layer approach — DEK + master key — is standard envelope encryption.
+
+## Key types
+
+| Type | Who manages the key | When to use |
+|------|---------------------|-------------|
+| **Environment key** | Scalekit | Default; no setup required |
+| **BYOK** | You (GCP Cloud KMS) | Compliance requirements; you need key ownership and revocation control |
+
+## DEK lifecycle
+
+Every DEK moves through three states:
+
+| State | Meaning |
+|-------|---------|
+| **Staged** <Badge text="Created" variant="caution" /> | Key has been created but is not yet active. No data is encrypted with it yet. |
+| **Active** <Badge text="Active" variant="success" /> | Key is the current encryption key for new writes in this environment. |
+| **Deprecated** <Badge text="Deprecated" variant="default" /> | Key has been replaced by a newer key. Existing data may still be encrypted with it until re-encryption completes. |
+
+## Manage your environment key
+
+Your environment key is visible in **Configuration > Key Management** in the Scalekit dashboard.
+
+### Create a new key
+
+Click **Create key**, select **Environment key** as the key type, and confirm. The new key is created in **Staged** state.
+
+<Aside type="note" title="Only one active key at a time">
+  An environment can have one active key. Creating a new key does not replace the active key until you explicitly activate it.
+</Aside>
+
+### Activate a staged key
+
+Find the staged key in the table, open its action menu, and select **Activate**. The key becomes **Active** and all new data writes use it from this point forward.
+
+<Aside type="caution" title="Activation is permanent">
+  Once activated, a key cannot be deactivated without creating and activating a replacement. Verify you intended to switch before confirming.
+</Aside>
+
+### Re-encrypt existing data
+
+Activating a key only protects new writes. To migrate existing records to the new key:
+
+1. Wait for the key to be in **Active** state.
+2. Open the action menu and select **Re-encrypt data**.
+
+Re-encryption processes all records in your environment. The dashboard shows progress: records re-encrypted and any rows that could not be recovered. Unrecoverable rows are rare and typically indicate data that was encrypted with a key that was destroyed before rotation.
+
+### Destroy a deprecated key
+
+<Aside type="danger" title="Destructive and irreversible">
+  Destroying a deprecated key permanently deletes the key material. Any data still encrypted with that key version becomes permanently unreadable. Always complete re-encryption before destroying a deprecated key.
+</Aside>
+
+A deprecated key can be destroyed from its action menu once re-encryption of all existing data is confirmed complete.
+
+## Security model
+
+- Each environment has an isolated DEK — no cross-environment key sharing.
+- Scalekit uses **envelope encryption**: your data is encrypted with the DEK; the DEK itself is encrypted with Scalekit's master key.
+- Key material is never logged or returned in API responses.
+- All key management operations are audited internally.
+
+## When to use BYOK instead
+
+Consider switching to BYOK when:
+
+- Your security or compliance policy requires that your organization holds the root key material.
+- You need the ability to independently revoke Scalekit's access to your data by disabling or destroying your GCP KMS key.
+- You operate in a regulated industry (financial services, healthcare, government) with BYOK mandates.
+
+See [Bring your own KMS key (GCP)](/guides/security/byok-key-management/) for setup instructions.
