@@ -1,0 +1,87 @@
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components'
+
+Register your Devin API key with Scalekit so it stores it securely and injects it into every request. Devin uses API key authentication — there is no redirect URI or OAuth flow.
+
+<Steps>
+1. ### Get your Devin API key
+
+   - Sign in to [Devin](https://app.devin.ai) and go to **Settings** → **Devin API**.
+   - Click the **API keys (legacy)** tab.
+   - Under **Personal API key**, click **View key** to reveal your key, or expand the dropdown to regenerate it.
+
+   ![Devin Settings → Devin API page showing the Personal API key with a View key button](@/assets/docs/agent-connectors/devinmcp/api-key.png)
+
+   <Aside type="caution" title="Keep your key private">
+     Devin API keys are tied to your account and have full access. Store the key in a secrets manager and never hard-code it in your source code. Use [Devin Secrets](https://app.devin.ai/settings/secrets) to give Devin access to third-party credentials instead.
+   </Aside>
+
+2. ### Create a connection in Scalekit
+
+   - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** → **Connections** → **Create Connection**. Find **Devin MCP** and click **Create**.
+   - Note the **Connection name** — you will use this as `connection_name` in your code (e.g., `devinmcp`).
+   - Click **Save**.
+
+3. ### Add a connected account
+
+   Connected accounts link a specific user identifier in your system to their Devin API key. Add them via the dashboard for testing, or via the Scalekit API in production.
+
+   **Via dashboard (for testing)**
+
+   - Open the connection you created and click the **Connected Accounts** tab → **Add account**.
+   - Fill in:
+     - **Your User's ID** — a unique identifier for this user in your system (e.g., `user_123`)
+     - **API Key** — the Devin API key from step 1
+   - Click **Create Account**.
+
+   **Via API (for production)**
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```typescript
+       import { Scalekit } from '@scalekit-sdk/node';
+
+       const scalekit = new Scalekit(
+         process.env.SCALEKIT_ENV_URL,
+         process.env.SCALEKIT_CLIENT_ID,
+         process.env.SCALEKIT_CLIENT_SECRET,
+       );
+
+       // Never hard-code credentials — read from secure storage or user input
+       const devinApiKey = getUserDevinApiKey(); // retrieve from your secure store
+
+       await scalekit.actions.upsertConnectedAccount({
+         connectionName: 'devinmcp',
+         identifier: 'user_123',
+         credentials: {
+           username: devinApiKey,
+         },
+       });
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```python
+       import os
+       from scalekit import ScalekitClient
+
+       scalekit_client = ScalekitClient(
+           env_url=os.environ["SCALEKIT_ENV_URL"],
+           client_id=os.environ["SCALEKIT_CLIENT_ID"],
+           client_secret=os.environ["SCALEKIT_CLIENT_SECRET"],
+       )
+
+       # Never hard-code credentials — read from secure storage or user input
+       devin_api_key = get_user_devin_api_key()  # retrieve from your secure store
+
+       scalekit_client.actions.upsert_connected_account(
+           connection_name="devinmcp",
+           identifier="user_123",
+           credentials={"username": devin_api_key},
+       )
+       ```
+     </TabItem>
+   </Tabs>
+
+   <Aside type="tip" title="Production usage tip">
+     In production, call `upsert_connected_account` (Python) / `upsertConnectedAccount` (Node.js) when a user connects their Devin account — for example, on an integrations settings page in your app.
+   </Aside>
+</Steps>
