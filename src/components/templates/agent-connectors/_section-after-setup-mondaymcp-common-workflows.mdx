@@ -1,0 +1,184 @@
+{/* TODO: stub cloned from _section-after-setup-atlassianmcp-common-workflows.mdx for Monday MCP. Review and update connector-specific references (URLs, scopes, app-registration steps) before merging. */}
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+### Get items from a board
+
+Use `mondaymcp_get_board_items_page` to fetch items from a monday.com board. You need the board's numeric ID, which you can find in the board URL (`https://mycompany.monday.com/boards/<BOARD_ID>`).
+
+<Aside type="note" title="Find your board ID">
+  Open the board in monday.com and look at the URL. The number after `/boards/` is the board ID. You can also call `mondaymcp_get_board_info` with a search term to discover board IDs programmatically.
+</Aside>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const items = await actions.executeTool({
+      connectionName: 'mondaymcp',
+      identifier: 'user_123',
+      toolName: 'mondaymcp_get_board_items_page',
+      toolInput: {
+        boardId: '1234567890',
+        limit: 50,
+      },
+    });
+    console.log(items);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    items = actions.execute_tool(
+        connection_name="mondaymcp",
+        identifier="user_123",
+        tool_name="mondaymcp_get_board_items_page",
+        tool_input={
+            "boardId": "1234567890",
+            "limit": 50,
+        },
+    )
+    print(items)
+    ```
+  </TabItem>
+</Tabs>
+
+### Create an item and add an update
+
+Use `mondaymcp_create_item` to add a new item to a board, then `mondaymcp_create_update` to post a comment or status update on it.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // Step 1 — create the item
+    const newItem = await actions.executeTool({
+      connectionName: 'mondaymcp',
+      identifier: 'user_123',
+      toolName: 'mondaymcp_create_item',
+      toolInput: {
+        boardId: '1234567890',
+        itemName: 'Fix login bug',
+        groupId: 'topics',
+      },
+    });
+    const itemId = newItem.id;
+
+    // Step 2 — post an update on the item
+    await actions.executeTool({
+      connectionName: 'mondaymcp',
+      identifier: 'user_123',
+      toolName: 'mondaymcp_create_update',
+      toolInput: {
+        itemId,
+        body: 'Assigned to the auth team. Expected fix in next sprint.',
+      },
+    });
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    # Step 1 — create the item
+    new_item = actions.execute_tool(
+        connection_name="mondaymcp",
+        identifier="user_123",
+        tool_name="mondaymcp_create_item",
+        tool_input={
+            "boardId": "1234567890",
+            "itemName": "Fix login bug",
+            "groupId": "topics",
+        },
+    )
+    item_id = new_item["id"]
+
+    # Step 2 — post an update on the item
+    actions.execute_tool(
+        connection_name="mondaymcp",
+        identifier="user_123",
+        tool_name="mondaymcp_create_update",
+        tool_input={
+            "itemId": item_id,
+            "body": "Assigned to the auth team. Expected fix in next sprint.",
+        },
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+### Update column values on an item
+
+Use `mondaymcp_change_item_column_values` to set structured column data — such as status, date, or assignee — on an existing item.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    await actions.executeTool({
+      connectionName: 'mondaymcp',
+      identifier: 'user_123',
+      toolName: 'mondaymcp_change_item_column_values',
+      toolInput: {
+        boardId: '1234567890',
+        itemId: '9876543210',
+        // Column values are JSON-encoded per the monday.com column type
+        columnValues: JSON.stringify({
+          status: { label: 'In Progress' },
+          date4: { date: '2025-08-01' },
+        }),
+      },
+    });
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import json
+
+    actions.execute_tool(
+        connection_name="mondaymcp",
+        identifier="user_123",
+        tool_name="mondaymcp_change_item_column_values",
+        tool_input={
+            "boardId": "1234567890",
+            "itemId": "9876543210",
+            # Column values are JSON-encoded per the monday.com column type
+            "columnValues": json.dumps({
+                "status": {"label": "In Progress"},
+                "date4": {"date": "2025-08-01"},
+            }),
+        },
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+### Search across monday.com
+
+Use `mondaymcp_search` to find items, boards, docs, or users by keyword.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const results = await actions.executeTool({
+      connectionName: 'mondaymcp',
+      identifier: 'user_123',
+      toolName: 'mondaymcp_search',
+      toolInput: {
+        query: 'Q3 roadmap',
+        searchType: 'boards',
+      },
+    });
+    console.log(results);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    results = actions.execute_tool(
+        connection_name="mondaymcp",
+        identifier="user_123",
+        tool_name="mondaymcp_search",
+        tool_input={
+            "query": "Q3 roadmap",
+            "searchType": "boards",
+        },
+    )
+    print(results)
+    ```
+  </TabItem>
+</Tabs>

@@ -243,6 +243,7 @@ export const sidebar = [
         label: 'AI tools',
         collapsed: false,
         items: [
+          'dev-kit/cli',
           'dev-kit/ai-assisted-development/scalekit-mcp-server',
           'dev-kit/resources/ai-assisted-setup',
           'dev-kit/ai-assisted-development/context7',
@@ -272,6 +273,34 @@ export const sidebar = [
             attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
           },
         ],
+      },
+    ],
+  },
+  {
+    label: 'Self-hosted',
+    id: 'self-hosted',
+    link: '/self-hosted/overview/',
+    icon: 'server',
+    items: [
+      {
+        label: 'Getting started',
+        items: [
+          'self-hosted/overview',
+          'self-hosted/quickstart',
+          'self-hosted/system-requirements',
+        ],
+      },
+      {
+        label: 'Deploy Scalekit',
+        items: [
+          'self-hosted/configuration',
+          'self-hosted/setup-script',
+          'self-hosted/installation',
+        ],
+      },
+      {
+        label: 'Maintain and upgrade',
+        items: ['self-hosted/upgrades', 'self-hosted/troubleshooting'],
       },
     ],
   },
@@ -573,6 +602,9 @@ export const topics = {
   // Modular SCIM (directory provisioning)
   'modular-scim': ['/directory/**/*'],
 
+  // Self-hosted deployment (dedicated sidebar for on-prem docs)
+  'self-hosted': ['/self-hosted/**/*'],
+
   // Agent connectors (dedicated connectors sidebar — must come before connect)
   'agent-connectors': ['/agentkit/connectors/**/*'],
 
@@ -667,6 +699,9 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
 
   // Modular SCIM sidebar → SaaSKit SCIM tab
   'modular-scim': 'saaskit-scim',
+
+  // Self-hosted deployment → Developer Resources
+  'self-hosted': 'developer-resources',
 
   // Agent connectors sidebar → AgentKit Connectors tab
   'agent-connectors': 'agentkit-connectors',

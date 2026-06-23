@@ -2,25 +2,24 @@ import { Steps, Aside } from '@astrojs/starlight/components'
 
 <Steps>
 
-1. ## Install the Scalekit Auth Stack marketplace
-
-   Install Scalekit's Codex-native marketplace to access focused authentication plugins and reusable implementation guidance.
-
-   Run the bootstrap installer:
+1. ## Install the authstack plugin (recommended)
 
    ```bash title="Terminal" frame="terminal" showLineNumbers=false
-   curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash
+   npx @scalekit-inc/cli setup
    ```
 
-   This installer downloads the marketplace from GitHub, installs it into `~/.codex/marketplaces/scalekit-auth-stack`, and only updates `~/.agents/plugins/marketplace.json` when it is safe to do so.
+   For repeated use, install globally:
 
-   <Aside type="tip" title="If Codex skips your personal marketplace file">
-   The installer avoids overwriting another personal marketplace by default. If it skips that file, follow the installer's manual path and select the marketplace from `~/.codex/marketplaces/scalekit-auth-stack/.agents/plugins/marketplace.json`.
-   </Aside>
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   npm install -g @scalekit-inc/cli
+   scalekit setup
+   ```
+
+   Choose Codex when prompted. The CLI installs the authstack plugin.
 
 2. ## Enable the Modular SCIM plugin
 
-   Restart Codex so it reloads installed marketplaces, then open the Plugin Directory and select **Scalekit Auth Stack**.
+   Restart Codex, then open the Plugin Directory and enable the authstack plugin.
 
    Install the `modular-scim` plugin. This plugin includes the workflows, references, and prompts Codex uses to generate SCIM provisioning and deprovisioning code for your application.
 
@@ -34,7 +33,7 @@ import { Steps, Aside } from '@astrojs/starlight/components'
    Guide the coding agent to add Scalekit SCIM directory sync to my app — set up the webhook endpoint to receive SCIM events, validate the webhook signature, and handle user provisioning and deprovisioning events to create, update, and delete users in my database. Code only.
    ```
 
-   When you submit this prompt, Codex loads the Modular SCIM plugin from the Scalekit Auth Stack marketplace, analyzes your existing application structure, generates a webhook endpoint to receive SCIM events from Scalekit, implements webhook signature validation to prevent unauthorized requests, creates handlers for user provisioning events, and adds deprovisioning logic to delete or deactivate users in your database.
+   When you submit this prompt, Codex loads the Modular SCIM plugin from the authstack plugin, analyzes your existing application structure, generates a webhook endpoint to receive SCIM events from Scalekit, implements webhook signature validation to prevent unauthorized requests, creates handlers for user provisioning events, and adds deprovisioning logic to delete or deactivate users in your database.
 
    <Aside type="caution" title="Review generated code">
    Always review AI-generated SCIM code before deployment. Verify that webhook signature validation, event handling logic, and database operations match your security requirements. The coding agent provides a foundation, but you must ensure it aligns with your application's specific needs.

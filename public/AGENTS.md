@@ -2,43 +2,24 @@
 
 ## Building with AI coding agents?
 
-If you're using an AI coding agent, install the official Scalekit plugin.
-It gives your agent full awareness of the Scalekit API — reducing
-hallucinations and enabling faster, more accurate code generation.
+Install the authstack plugin for your coding agent with one command.
 
-### Claude Code
+**Recommended**:
 
 ```bash
-claude plugin marketplace add scalekit-inc/claude-code-authstack && claude plugin install <auth-type>@scalekit-auth-stack
+npx @scalekit-inc/cli setup
 ```
 
-### GitHub Copilot CLI
-
-```
-copilot plugin marketplace add scalekit-inc/github-copilot-authstack
-copilot plugin install <auth-type>@scalekit-auth-stack
-```
-
-### Codex
+For repeated use:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash
+npm install -g @scalekit-inc/cli
+scalekit setup
 ```
 
-Then restart Codex, open the Plugin Directory, select **Scalekit Auth Stack**, and install `<auth-type>`.
+This gives your agent full awareness of Scalekit authentication patterns (full-stack-auth, agent-auth, mcp-auth, modular-sso, modular-scim) and reduces hallucinations.
 
-### Skills CLI (Windsurf, Cline, and 40+ agents)
-
-```bash
-npx skills add scalekit-inc/skills --list
-npx skills add scalekit-inc/skills --skill <skill-name>
-```
-
----
-
-`<auth-type>` / `<skill-name>`: `agent-auth`, `full-stack-auth`, `mcp-auth`, `modular-sso`, `modular-scim`
-
-All commands are idempotent — safe to re-run.
+The CLI sets up plugins for Claude Code, Cursor, GitHub Copilot, Codex, and skills for 40+ other agents.
 
 Full guide: https://docs.scalekit.com/dev-kit/build-with-ai/
 

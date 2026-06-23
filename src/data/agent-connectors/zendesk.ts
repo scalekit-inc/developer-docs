@@ -250,6 +250,57 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'zendesk_satisfaction_ratings_list',
+    description: `List CSAT satisfaction ratings with optional filters. Returns score (good/bad), comment, reason, ticket ID, and timestamps for each rating.`,
+    params: [
+      {
+        name: 'end_time',
+        type: 'number',
+        required: false,
+        description: `Unix timestamp to filter ratings created before this time`,
+      },
+      { name: 'page', type: 'number', required: false, description: `Page number for pagination` },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `Number of results per page`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Version of the tool schema`,
+      },
+      {
+        name: 'score',
+        type: 'string',
+        required: false,
+        description: `Filter by satisfaction score`,
+      },
+      {
+        name: 'start_time',
+        type: 'number',
+        required: false,
+        description: `Unix timestamp to filter ratings created after this time`,
+      },
+      { name: 'tool_version', type: 'string', required: false, description: `Version of the tool` },
+    ],
+  },
+  {
+    name: 'zendesk_satisfaction_reasons_list',
+    description: `List all satisfaction reasons configured for negative (bad) CSAT ratings. Used to analyze why customers rate support interactions poorly.`,
+    params: [
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Version of the tool schema`,
+      },
+      { name: 'tool_version', type: 'string', required: false, description: `Version of the tool` },
+    ],
+  },
+  {
     name: 'zendesk_search_tickets',
     description: `Search Zendesk tickets using a query string. Supports Zendesk's search syntax (e.g., 'type:ticket status:open'). Zendesk limits search results to 1,000 total — the maximum valid page is floor(1000 / per_page) (e.g., per_page=100 → max page 10, per_page=25 → max page 40). Stop paginating when next_page is null or you reach the max page; requesting beyond the limit returns a 400 error.`,
     params: [
@@ -306,6 +357,82 @@ export const tools: Tool[] = [
       { name: 'page_before', type: 'string', required: false, description: `Cursor for previous page (cursor-based pagination).` },
       { name: 'page_size', type: 'integer', required: false, description: `Number of records per page. Maximum 100.` },
       { name: 'schema_version', type: 'string', required: false, description: `Version of the tool schema` },
+      { name: 'tool_version', type: 'string', required: false, description: `Version of the tool` },
+    ],
+  },
+  {
+    name: 'zendesk_sla_policies_list',
+    description: `List all SLA policy definitions including policy name, conditions, and filter criteria. Requires Professional or Enterprise plan.`,
+    params: [
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Version of the tool schema`,
+      },
+      { name: 'tool_version', type: 'string', required: false, description: `Version of the tool` },
+    ],
+  },
+  {
+    name: 'zendesk_ticket_audits_get',
+    description: `Retrieve the full audit trail for a specific ticket including all field changes, status transitions, comments, and timestamps.`,
+    params: [
+      {
+        name: 'ticket_id',
+        type: 'number',
+        required: true,
+        description: `The ID of the ticket to retrieve audits for`,
+      },
+      { name: 'page_after', type: 'string', required: false, description: `Cursor for next page.` },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Number of records per page. Maximum 100.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Version of the tool schema`,
+      },
+      {
+        name: 'sort_order',
+        type: 'string',
+        required: false,
+        description: `Sort order for audit events.`,
+      },
+      { name: 'tool_version', type: 'string', required: false, description: `Version of the tool` },
+    ],
+  },
+  {
+    name: 'zendesk_ticket_audits_list',
+    description: `List audit trail events across all tickets including field changes, status transitions, assignment changes, and timestamps. Useful for tracking time-in-status and escalation paths.`,
+    params: [
+      {
+        name: 'page_after',
+        type: 'string',
+        required: false,
+        description: `Cursor for next page (cursor-based pagination).`,
+      },
+      {
+        name: 'page_before',
+        type: 'string',
+        required: false,
+        description: `Cursor for previous page (cursor-based pagination).`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Number of records per page. Maximum 100.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Version of the tool schema`,
+      },
       { name: 'tool_version', type: 'string', required: false, description: `Version of the tool` },
     ],
   },
@@ -368,6 +495,82 @@ export const tools: Tool[] = [
       { name: 'page', type: 'number', required: false, description: `Page number for pagination` },
       { name: 'per_page', type: 'number', required: false, description: `Number of results per page` },
       { name: 'schema_version', type: 'string', required: false, description: `Version of the tool schema` },
+      { name: 'tool_version', type: 'string', required: false, description: `Version of the tool` },
+    ],
+  },
+  {
+    name: 'zendesk_ticket_metric_events',
+    description: `Incrementally export ticket metric events (reply times, agent work times, requester wait times) for time-series analysis. Returns event-level granularity for SLA compliance tracking.`,
+    params: [
+      {
+        name: 'start_time',
+        type: 'number',
+        required: true,
+        description: `Unix timestamp to start incremental export from`,
+      },
+      {
+        name: 'exclude_deleted',
+        type: 'boolean',
+        required: false,
+        description: `When true, removes metric events tied to deleted tickets.`,
+      },
+      {
+        name: 'include_changes',
+        type: 'boolean',
+        required: false,
+        description: `When true, includes additional change data for more accurate incremental results.`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `Number of results per page`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Version of the tool schema`,
+      },
+      { name: 'tool_version', type: 'string', required: false, description: `Version of the tool` },
+    ],
+  },
+  {
+    name: 'zendesk_ticket_metrics_get',
+    description: `Retrieve ticket metrics for a specific ticket including reply time, resolution time, wait times, reopen count, and assignee/group station counts.`,
+    params: [
+      {
+        name: 'ticket_id',
+        type: 'number',
+        required: true,
+        description: `The ID of the ticket to retrieve metrics for`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Version of the tool schema`,
+      },
+      { name: 'tool_version', type: 'string', required: false, description: `Version of the tool` },
+    ],
+  },
+  {
+    name: 'zendesk_ticket_metrics_list',
+    description: `List ticket metrics for all tickets in the Zendesk account. Returns first reply time, resolution time, agent wait time, requester wait time, reply count, and reopen count.`,
+    params: [
+      { name: 'page', type: 'number', required: false, description: `Page number for pagination` },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `Number of results per page`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Version of the tool schema`,
+      },
       { name: 'tool_version', type: 'string', required: false, description: `Version of the tool` },
     ],
   },
