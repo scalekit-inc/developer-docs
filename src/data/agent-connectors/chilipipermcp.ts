@@ -9,7 +9,12 @@ export const tools: Tool[] = [
       { name: 'expectedHost', type: 'string', required: true, description: `No description.` },
       { name: 'interval', type: 'string', required: true, description: `No description.` },
       { name: 'meetingTypeRef', type: 'string', required: true, description: `No description.` },
-      { name: 'meetingTypeOverride', type: 'string', required: false, description: `No description.` },
+      {
+        name: 'meetingTypeOverride',
+        type: 'string',
+        required: false,
+        description: `No description.`,
+      },
     ],
   },
   {
@@ -94,7 +99,12 @@ export const tools: Tool[] = [
     name: 'chilipipermcp_distribution-create',
     description: `Creates and immediately publishes a new distribution with the specified assignment type, team, and weights.`,
     params: [
-      { name: 'assignmentTypeConfig', type: 'string', required: true, description: `No description.` },
+      {
+        name: 'assignmentTypeConfig',
+        type: 'string',
+        required: true,
+        description: `No description.`,
+      },
       { name: 'teamId', type: 'string', required: true, description: `No description.` },
       { name: 'workspaceId', type: 'string', required: true, description: `No description.` },
       { name: 'capping', type: 'string', required: false, description: `No description.` },
@@ -149,22 +159,17 @@ export const tools: Tool[] = [
   {
     name: 'chilipipermcp_health-ping',
     description: `Checks the health of the ChiliPiper MCP server.`,
-    params: [
-    ],
+    params: [],
   },
   {
     name: 'chilipipermcp_meeting-activity',
     description: `Returns the admin UI deep-link URL for a meeting's activity page.`,
-    params: [
-      { name: 'meetingId', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'meetingId', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'chilipipermcp_meeting-cancel',
     description: `Permanently cancels a meeting by its ID. Irreversible — may update calendar/CRM and email attendees.`,
-    params: [
-      { name: 'meetingId', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'meetingId', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'chilipipermcp_meeting-export-v2-put',
@@ -179,9 +184,7 @@ export const tools: Tool[] = [
   {
     name: 'chilipipermcp_meeting-get',
     description: `Returns details of a meeting by its ID.`,
-    params: [
-      { name: 'meetingId', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'meetingId', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'chilipipermcp_meeting-list-put',
@@ -196,23 +199,24 @@ export const tools: Tool[] = [
   {
     name: 'chilipipermcp_meeting-noshow',
     description: `Marks a meeting as a no-show by its ID. May trigger CRM and notification workflows.`,
-    params: [
-      { name: 'meetingId', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'meetingId', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'chilipipermcp_resource-scheduler-run',
     description: `Runs a resource scheduler on demand: executes its configured query and dispatches matched records to the linked executing flow.`,
     params: [
-      { name: 'resourceSchedulerId', type: 'string', required: true, description: `No description.` },
+      {
+        name: 'resourceSchedulerId',
+        type: 'string',
+        required: true,
+        description: `No description.`,
+      },
     ],
   },
   {
     name: 'chilipipermcp_rule-create',
     description: `Creates a new routing rule and activates it immediately. Returns the created rule with its assigned ID and revision.`,
-    params: [
-      { name: 'dto', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'dto', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'chilipipermcp_rule-delete',
@@ -225,9 +229,7 @@ export const tools: Tool[] = [
   {
     name: 'chilipipermcp_rule-get',
     description: `Returns details of a routing rule by its ID.`,
-    params: [
-      { name: 'ruleId', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'ruleId', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'chilipipermcp_rule-list',
@@ -262,8 +264,18 @@ export const tools: Tool[] = [
     description: `Returns all admin one-on-one scheduling links.`,
     params: [
       { name: 'filterLinkSlugs', type: 'array', required: false, description: `No description.` },
-      { name: 'filterMeetingTypeId', type: 'array', required: false, description: `No description.` },
-      { name: 'filterWorkspaceIds', type: 'array', required: false, description: `No description.` },
+      {
+        name: 'filterMeetingTypeId',
+        type: 'array',
+        required: false,
+        description: `No description.`,
+      },
+      {
+        name: 'filterWorkspaceIds',
+        type: 'array',
+        required: false,
+        description: `No description.`,
+      },
     ],
   },
   {
@@ -271,35 +283,73 @@ export const tools: Tool[] = [
     description: `Returns all group scheduling links.`,
     params: [
       { name: 'filterLinkSlugs', type: 'array', required: false, description: `No description.` },
-      { name: 'filterMeetingTypeId', type: 'array', required: false, description: `No description.` },
-      { name: 'filterWorkspaceIds', type: 'array', required: false, description: `No description.` },
+      {
+        name: 'filterMeetingTypeId',
+        type: 'array',
+        required: false,
+        description: `No description.`,
+      },
+      {
+        name: 'filterWorkspaceIds',
+        type: 'array',
+        required: false,
+        description: `No description.`,
+      },
     ],
   },
   {
     name: 'chilipipermcp_scheduling-link-list-ownership',
     description: `Returns scheduling links owned by the current user.`,
     params: [
-      { name: 'filterDistributionIds', type: 'array', required: false, description: `No description.` },
+      {
+        name: 'filterDistributionIds',
+        type: 'array',
+        required: false,
+        description: `No description.`,
+      },
       { name: 'filterLinkSlugs', type: 'array', required: false, description: `No description.` },
-      { name: 'filterMeetingTypeId', type: 'array', required: false, description: `No description.` },
-      { name: 'filterWorkspaceIds', type: 'array', required: false, description: `No description.` },
+      {
+        name: 'filterMeetingTypeId',
+        type: 'array',
+        required: false,
+        description: `No description.`,
+      },
+      {
+        name: 'filterWorkspaceIds',
+        type: 'array',
+        required: false,
+        description: `No description.`,
+      },
     ],
   },
   {
     name: 'chilipipermcp_scheduling-link-list-personal',
     description: `Returns personal scheduling links for a given user.`,
-    params: [
-      { name: 'userId', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'userId', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'chilipipermcp_scheduling-link-list-round-robin',
     description: `Returns all round-robin scheduling links.`,
     params: [
-      { name: 'filterDistributionIds', type: 'array', required: false, description: `No description.` },
+      {
+        name: 'filterDistributionIds',
+        type: 'array',
+        required: false,
+        description: `No description.`,
+      },
       { name: 'filterLinkSlugs', type: 'array', required: false, description: `No description.` },
-      { name: 'filterMeetingTypeId', type: 'array', required: false, description: `No description.` },
-      { name: 'filterWorkspaceIds', type: 'array', required: false, description: `No description.` },
+      {
+        name: 'filterMeetingTypeId',
+        type: 'array',
+        required: false,
+        description: `No description.`,
+      },
+      {
+        name: 'filterWorkspaceIds',
+        type: 'array',
+        required: false,
+        description: `No description.`,
+      },
     ],
   },
   {
@@ -345,8 +395,7 @@ export const tools: Tool[] = [
   {
     name: 'chilipipermcp_tenant-get',
     description: `Returns details of the current tenant.`,
-    params: [
-    ],
+    params: [],
   },
   {
     name: 'chilipipermcp_user-find',
@@ -367,9 +416,7 @@ export const tools: Tool[] = [
   {
     name: 'chilipipermcp_user-find-by-ids',
     description: `Returns users matching a list of user IDs.`,
-    params: [
-      { name: 'userIds', type: 'array', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'userIds', type: 'array', required: true, description: `No description.` }],
   },
   {
     name: 'chilipipermcp_user-invite',
@@ -386,16 +433,12 @@ export const tools: Tool[] = [
   {
     name: 'chilipipermcp_user-read',
     description: `Returns details of a user by their ID.`,
-    params: [
-      { name: 'userId', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'userId', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'chilipipermcp_user-update-licenses',
     description: `Updates the license assignments for a user, replacing the current license set.`,
-    params: [
-      { name: 'update', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'update', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'chilipipermcp_workspace-add-users',
@@ -431,8 +474,6 @@ export const tools: Tool[] = [
   {
     name: 'chilipipermcp_workspace-remove-users-all',
     description: `Removes all specified users from every workspace they belong to.`,
-    params: [
-      { name: 'userIds', type: 'array', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'userIds', type: 'array', required: true, description: `No description.` }],
   },
 ]

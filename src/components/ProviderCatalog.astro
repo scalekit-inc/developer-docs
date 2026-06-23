@@ -67,17 +67,20 @@ const grouped = allCategories
       .sort((a, b) => a.title.localeCompare(b.title)),
   }))
   .filter((g) => g.items.length > 0)
+
+// Small map for tool result display (slug -> human title)
+const slugToTitle = Object.fromEntries(items.map((i) => [i.slug, i.title]))
 ---
 
-<div class="provider-catalog not-content">
+<div class="provider-catalog not-content" data-slug-map={JSON.stringify(slugToTitle)}>
   <div class="filters-bar">
     <div class="search-wrap">
       <span class="search-icon" aria-hidden="true">⌕</span>
       <input
         class="search-input"
         type="search"
-        placeholder="Search connectors…"
-        aria-label="Search connectors"
+        placeholder="Search connectors or tools…"
+        aria-label="Search connectors or tools"
       />
     </div>
     <select class="filter-select" id="category-select" aria-label="Filter by category">
@@ -121,7 +124,13 @@ const grouped = allCategories
     ))
   }
 
-  <p class="no-results" hidden>No providers match your search.</p>
+  <!-- Tool search results (populated client-side when the search matches tools) -->
+  <div class="tool-results" hidden aria-live="polite">
+    <h3 class="tool-results-heading">Matching tools</h3>
+    <div class="tool-results-list"></div>
+  </div>
+
+  <p class="no-results" hidden>No matches found.</p>
 </div>
 
 <script>
@@ -130,10 +139,20 @@ const grouped = allCategories
   const categorySelect = catalogEl?.querySelector('#category-select') as HTMLSelectElement | null
   const authSelect = catalogEl?.querySelector('#auth-select') as HTMLSelectElement | null
   const noResults = catalogEl?.querySelector('.no-results') as HTMLElement | null
+  const toolResultsEl = catalogEl?.querySelector('.tool-results') as HTMLElement | null
+  const toolResultsList = toolResultsEl?.querySelector('.tool-results-list') as HTMLElement | null
+
+  // Small slug->title map embedded via data attr (populated at build)
+  let slugToTitle: Record<string, string> = {}
+  try {
+    const raw = catalogEl?.dataset.slugMap
+    if (raw) slugToTitle = JSON.parse(raw)
+  } catch {}
 
   let activeCategory = 'all'
   let activeAuth = 'all'
   let searchQuery = ''
+  let toolIndexCache: Array<{ slug: string; name: string; description: string }> | null = null
 
   function applyFilters(): void {
     const sections = catalogEl?.querySelectorAll<HTMLElement>('.category-section')
@@ -166,22 +185,158 @@ const grouped = allCategories
       totalVisible += sectionVisible
     })
 
-    if (noResults) noResults.hidden = totalVisible > 0
+    // noResults visibility is decided after tool results are also considered (see updateNoResults)
+    return totalVisible
   }
 
-  searchInput?.addEventListener('input', (e) => {
+  async function loadToolIndex(): Promise<
+    Array<{ slug: string; name: string; description: string }>
+  > {
+    if (toolIndexCache) return toolIndexCache
+    try {
+      const res = await fetch('/data/agent-tools-index.json')
+      if (!res.ok) return []
+      toolIndexCache = await res.json()
+      return toolIndexCache || []
+    } catch {
+      return []
+    }
+  }
+
+  // Improved multi-term search (better than plain includes). Name-weighted.
+  function scoreToolMatches(
+    index: Array<{ slug: string; name: string; description: string }>,
+    query: string,
+  ) {
+    if (!query || !index?.length) return []
+    const q = query.toLowerCase().trim()
+    if (!q) return []
+
+    const terms = q.split(/\s+/).filter(Boolean)
+    const scored: Array<{
+      slug: string
+      name: string
+      description: string
+      title: string
+      score: number
+      href: string
+    }> = []
+
+    for (const entry of index) {
+      const name = (entry.name || '').toLowerCase()
+      const desc = (entry.description || '').toLowerCase()
+      let score = 0
+
+      if (name.includes(q)) score += 12
+      if (name.startsWith(q)) score += 6
+
+      for (const t of terms) {
+        if (name.includes(t)) score += 4
+        if (desc.includes(t)) score += 1
+      }
+
+      if (score > 0) {
+        const title = slugToTitle[entry.slug] || entry.slug
+        scored.push({
+          ...entry,
+          title,
+          score,
+          href: `/agentkit/connectors/${entry.slug}/#${encodeURIComponent(entry.name)}`,
+        })
+      }
+    }
+
+    scored.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
+    return scored
+  }
+
+  function renderToolResults(matches: ReturnType<typeof scoreToolMatches>) {
+    if (!toolResultsList || !toolResultsEl) return
+
+    toolResultsList.innerHTML = ''
+
+    if (!matches.length) {
+      toolResultsEl.hidden = true
+      return
+    }
+
+    const MAX = 25
+    const toShow = matches.slice(0, MAX)
+
+    toShow.forEach((m) => {
+      const el = document.createElement('a')
+      el.className = 'tool-result'
+      el.href = m.href
+
+      el.innerHTML = `
+        <div class="tool-result-head">
+          <code class="tool-result-name">${m.name}</code>
+          <span class="tool-result-connector">${m.title}</span>
+        </div>
+        <div class="tool-result-desc">${escapeHtml(truncate(m.description, 160))}</div>
+      `
+      toolResultsList.appendChild(el)
+    })
+
+    if (matches.length > MAX) {
+      const more = document.createElement('div')
+      more.className = 'tool-result-more'
+      more.textContent = `+ ${matches.length - MAX} more tools match — refine your query for better results.`
+      toolResultsList.appendChild(more)
+    }
+
+    toolResultsEl.hidden = false
+  }
+
+  function truncate(str: string, n: number) {
+    if (!str) return ''
+    return str.length > n ? str.slice(0, n - 1) + '…' : str
+  }
+
+  function escapeHtml(str: string) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  }
+
+  function updateNoResults(connectorVisible: number, hasToolMatches: boolean) {
+    if (!noResults) return
+    const anyVisible = connectorVisible > 0 || hasToolMatches
+    noResults.hidden = anyVisible
+  }
+
+  // Main search handler (connectors + tools)
+  let searchDebounce: number | null = null
+  searchInput?.addEventListener('input', async (e) => {
     searchQuery = (e.target as HTMLInputElement).value.toLowerCase().trim()
-    applyFilters()
+
+    const connectorVisible = applyFilters()
+
+    // Tool search kicks in for any non-trivial query
+    if (searchQuery.length >= 2) {
+      const idx = await loadToolIndex()
+      const matches = scoreToolMatches(idx, searchQuery)
+      renderToolResults(matches)
+      updateNoResults(connectorVisible, matches.length > 0)
+    } else {
+      if (toolResultsEl) toolResultsEl.hidden = true
+      updateNoResults(connectorVisible, false)
+    }
   })
 
   categorySelect?.addEventListener('change', () => {
     activeCategory = categorySelect.value
-    applyFilters()
+    const connectorVisible = applyFilters()
+    // Re-apply current tool results (they are independent of category)
+    const hasTools =
+      toolResultsEl && !toolResultsEl.hidden && (toolResultsList?.children.length || 0) > 0
+    updateNoResults(connectorVisible, !!hasTools)
   })
 
   authSelect?.addEventListener('change', () => {
     activeAuth = authSelect.value
-    applyFilters()
+    const connectorVisible = applyFilters()
+    const hasTools =
+      toolResultsEl && !toolResultsEl.hidden && (toolResultsList?.children.length || 0) > 0
+    updateNoResults(connectorVisible, !!hasTools)
   })
 
   catalogEl?.querySelectorAll<HTMLImageElement>('.provider-logo img').forEach((img) => {
@@ -189,6 +344,10 @@ const grouped = allCategories
       img.style.display = 'none'
     })
   })
+
+  // Initial state (no query)
+  const initialVisible = applyFilters()
+  if (noResults) noResults.hidden = initialVisible > 0
 </script>
 
 <style>
@@ -383,5 +542,90 @@ const grouped = allCategories
     color: var(--sl-color-gray-3);
     padding: 2rem;
     font-size: var(--sl-text-sm);
+  }
+
+  /* Tool search results (shown under the connector grid when query matches tools) */
+  /* Use :global because these elements are created via innerHTML at runtime */
+  :global(.tool-results) {
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--sl-color-hairline);
+    padding-top: 1rem;
+  }
+
+  :global(.tool-results-heading) {
+    font-family: var(--sl-font-system-mono) !important;
+    font-size: var(--sl-text-xs) !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--sl-color-gray-3) !important;
+    margin: 0 0 0.5rem !important;
+  }
+
+  :global(.tool-results-list) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  :global(.tool-result) {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--sl-color-gray-6);
+    border-radius: 0.375rem;
+    text-decoration: none;
+    color: inherit;
+    background: var(--sl-color-bg-nav);
+    transition:
+      border-color 0.15s,
+      background 0.15s;
+  }
+  :global(.tool-result:hover) {
+    border-color: var(--sl-color-accent);
+    background: color-mix(in srgb, var(--sl-color-accent) 4%, var(--sl-color-bg-nav));
+  }
+
+  :global(.tool-result-head) {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  :global(.tool-result-name) {
+    font-family: var(--sl-font-system-mono);
+    font-size: var(--sl-text-xs);
+    font-weight: 600;
+    color: var(--sl-color-text);
+    background: none;
+    padding: 0;
+    border: none;
+  }
+
+  :global(.tool-result-connector) {
+    font-size: 0.6875rem;
+    padding: 0.0625rem 0.375rem;
+    border-radius: 999px;
+    background: var(--sl-color-bg);
+    border: 1px solid var(--sl-color-hairline);
+    color: var(--sl-color-gray-2);
+    white-space: nowrap;
+  }
+
+  :global(.tool-result-desc) {
+    margin-top: 0.25rem;
+    font-size: var(--sl-text-xs);
+    color: var(--sl-color-gray-3);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  :global(.tool-result-more) {
+    font-size: var(--sl-text-xs);
+    color: var(--sl-color-gray-3);
+    padding: 0.25rem 0.5rem;
   }
 </style>

@@ -11,7 +11,10 @@ The sync script updates these generated outputs:
 - `src/content/docs/agentkit/connectors/<provider>.mdx`
 - `src/data/agent-connectors/<provider>.ts`
 - `src/data/agent-connectors/catalog.ts`
+- `src/data/agent-connectors/tools-index.json` (compact index powering connector + tool search UI)
 - `src/components/templates/agent-connectors/index.ts`
+
+**Important**: The script now automatically runs Prettier on the generated data files (`*.ts` and the index) so they stay consistently formatted. This prevents large "only formatting" diffs in PRs.
 
 The script also removes orphaned generated connector `.mdx` files when a provider is no longer returned by the API.
 
