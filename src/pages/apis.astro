@@ -3,12 +3,17 @@
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
 import { ScalarComponent } from '@scalar/astro'
 import ApiSearchIndex from '../components/ApiSearchIndex.astro'
+import { createOperationsSorter, loadOperationRankConfig } from '../utils/openapiOperationRank'
 
 /*
 TODO:
 - Level up the quality as in https://lichess.org/api
 - Reference: github.com/lichess-org/api
 **/
+
+// Path sort rules ship in the OpenAPI spec (x-scalekit-docs-operation-rank from scalekit).
+const operationRankConfig = loadOperationRankConfig()
+const operationsSorter = createOperationsSorter(operationRankConfig)
 
 // Page metadata
 const template = 'splash' as const
@@ -200,20 +205,7 @@ const frontmatter = {
 
         return (a?.name ?? '').localeCompare(b?.name ?? '')
       },
-      operationsSorter: (a, b) => {
-        const methodOrder = ['get', 'post', 'put', 'patch', 'delete']
-        const getMethodRank = (method) => {
-          const rank = methodOrder.indexOf((method ?? '').toLowerCase())
-          return rank === -1 ? Number.POSITIVE_INFINITY : rank
-        }
-        const methodComparison = getMethodRank(a?.method) - getMethodRank(b?.method)
-
-        if (methodComparison !== 0) {
-          return methodComparison
-        }
-
-        return (a?.path ?? '').localeCompare(b?.path ?? '')
-      },
+      operationsSorter,
       servers: [
         {
           url: 'https://{SCALEKIT_ENVIRONMENT_URL}',
