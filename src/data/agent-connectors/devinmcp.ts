@@ -76,7 +76,12 @@ export const tools: Tool[] = [
       { name: 'devin_mode', type: 'string', required: false, description: `No description.` },
       { name: 'platform', type: 'string', required: false, description: `No description.` },
       { name: 'repos', type: 'string', required: false, description: `No description.` },
-      { name: 'structured_output_schema', type: 'string', required: false, description: `No description.` },
+      {
+        name: 'structured_output_schema',
+        type: 'string',
+        required: false,
+        description: `No description.`,
+      },
     ],
   },
   {
@@ -94,7 +99,12 @@ export const tools: Tool[] = [
       { name: 'event_types', type: 'string', required: false, description: `No description.` },
       { name: 'first', type: 'string', required: false, description: `No description.` },
       { name: 'limit', type: 'string', required: false, description: `No description.` },
-      { name: 'max_content_length', type: 'string', required: false, description: `No description.` },
+      {
+        name: 'max_content_length',
+        type: 'string',
+        required: false,
+        description: `No description.`,
+      },
       { name: 'offset', type: 'string', required: false, description: `No description.` },
       { name: 'query', type: 'string', required: false, description: `No description.` },
     ],
@@ -104,7 +114,12 @@ export const tools: Tool[] = [
     description: `Wait for multiple Devin sessions to reach a settled state before returning.`,
     params: [
       { name: 'session_ids', type: 'array', required: true, description: `No description.` },
-      { name: 'poll_interval_seconds', type: 'integer', required: false, description: `No description.` },
+      {
+        name: 'poll_interval_seconds',
+        type: 'integer',
+        required: false,
+        description: `No description.`,
+      },
       { name: 'timeout_seconds', type: 'integer', required: false, description: `No description.` },
     ],
   },
@@ -115,7 +130,12 @@ export const tools: Tool[] = [
       { name: 'action', type: 'string', required: true, description: `No description.` },
       { name: 'session_id', type: 'string', required: true, description: `No description.` },
       { name: 'after', type: 'string', required: false, description: `No description.` },
-      { name: 'archive_on_terminate', type: 'boolean', required: false, description: `No description.` },
+      {
+        name: 'archive_on_terminate',
+        type: 'boolean',
+        required: false,
+        description: `No description.`,
+      },
       { name: 'first', type: 'string', required: false, description: `No description.` },
       { name: 'message', type: 'string', required: false, description: `No description.` },
       { name: 'tags', type: 'string', required: false, description: `No description.` },
@@ -142,35 +162,26 @@ export const tools: Tool[] = [
   {
     name: 'devinmcp_generate_wiki',
     description: `Generate a codebase wiki for a repository and wait for it to complete.`,
-    params: [
-      { name: 'repoName', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'repoName', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'devinmcp_list_available_repos',
     description: `List all repositories available to query with your Devin account.`,
-    params: [
-    ],
+    params: [],
   },
   {
     name: 'devinmcp_list_integrations',
     description: `List all native integrations and MCP servers for the organization with status and settings.`,
-    params: [
-      { name: 'filter', type: 'string', required: false, description: `No description.` },
-    ],
+    params: [{ name: 'filter', type: 'string', required: false, description: `No description.` }],
   },
   {
     name: 'devinmcp_read_wiki_contents',
     description: `View documentation content for a GitHub repository.`,
-    params: [
-      { name: 'repoName', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'repoName', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'devinmcp_read_wiki_structure',
     description: `Get a list of documentation topics for a GitHub repository.`,
-    params: [
-      { name: 'repoName', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'repoName', type: 'string', required: true, description: `No description.` }],
   },
 ]

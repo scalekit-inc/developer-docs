@@ -10,10 +10,20 @@ export const tools: Tool[] = [
       { name: 'bcc', type: 'array', required: false, description: `BCC recipients` },
       { name: 'cc', type: 'array', required: false, description: `CC recipients` },
       { name: 'html', type: 'string', required: false, description: `HTML body` },
-      { name: 'inReplyTo', type: 'string', required: false, description: `Message ID this draft is replying to` },
+      {
+        name: 'inReplyTo',
+        type: 'string',
+        required: false,
+        description: `Message ID this draft is replying to`,
+      },
       { name: 'labels', type: 'array', required: false, description: `Labels` },
       { name: 'replyTo', type: 'array', required: false, description: `Reply-to addresses` },
-      { name: 'sendAt', type: 'string', required: false, description: `ISO 8601 datetime to schedule sending (e.g. 2026-04-01T09:00:00Z)` },
+      {
+        name: 'sendAt',
+        type: 'string',
+        required: false,
+        description: `ISO 8601 datetime to schedule sending (e.g. 2026-04-01T09:00:00Z)`,
+      },
       { name: 'subject', type: 'string', required: false, description: `Subject` },
       { name: 'text', type: 'string', required: false, description: `Plain text body` },
       { name: 'to', type: 'array', required: false, description: `Recipients` },
@@ -39,9 +49,7 @@ export const tools: Tool[] = [
   {
     name: 'agentmailmcp_delete_inbox',
     description: `Permanently delete an inbox and all its associated messages.`,
-    params: [
-      { name: 'inboxId', type: 'string', required: true, description: `ID of inbox` },
-    ],
+    params: [{ name: 'inboxId', type: 'string', required: true, description: `ID of inbox` }],
   },
   {
     name: 'agentmailmcp_forward_message',
@@ -79,9 +87,7 @@ export const tools: Tool[] = [
   {
     name: 'agentmailmcp_get_inbox',
     description: `Retrieve inbox details by ID, including its email address and configuration.`,
-    params: [
-      { name: 'inboxId', type: 'string', required: true, description: `ID of inbox` },
-    ],
+    params: [{ name: 'inboxId', type: 'string', required: true, description: `ID of inbox` }],
   },
   {
     name: 'agentmailmcp_get_thread',
@@ -96,19 +102,49 @@ export const tools: Tool[] = [
     description: `List drafts in an inbox with optional label filtering and pagination.`,
     params: [
       { name: 'inboxId', type: 'string', required: true, description: `ID of inbox` },
-      { name: 'after', type: 'string', required: false, description: `Filter items after datetime` },
-      { name: 'before', type: 'string', required: false, description: `Filter items before datetime` },
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Filter items after datetime`,
+      },
+      {
+        name: 'before',
+        type: 'string',
+        required: false,
+        description: `Filter items before datetime`,
+      },
       { name: 'labels', type: 'array', required: false, description: `Labels to filter items by` },
-      { name: 'limit', type: 'number', required: false, description: `Max number of items to return` },
-      { name: 'pageToken', type: 'string', required: false, description: `Page token for pagination` },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Max number of items to return`,
+      },
+      {
+        name: 'pageToken',
+        type: 'string',
+        required: false,
+        description: `Page token for pagination`,
+      },
     ],
   },
   {
     name: 'agentmailmcp_list_inboxes',
     description: `List all inboxes with pagination support.`,
     params: [
-      { name: 'limit', type: 'number', required: false, description: `Max number of items to return` },
-      { name: 'pageToken', type: 'string', required: false, description: `Page token for pagination` },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Max number of items to return`,
+      },
+      {
+        name: 'pageToken',
+        type: 'string',
+        required: false,
+        description: `Page token for pagination`,
+      },
     ],
   },
   {
@@ -116,11 +152,31 @@ export const tools: Tool[] = [
     description: `List message threads in an inbox with optional label filtering and pagination.`,
     params: [
       { name: 'inboxId', type: 'string', required: true, description: `ID of inbox` },
-      { name: 'after', type: 'string', required: false, description: `Filter items after datetime` },
-      { name: 'before', type: 'string', required: false, description: `Filter items before datetime` },
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Filter items after datetime`,
+      },
+      {
+        name: 'before',
+        type: 'string',
+        required: false,
+        description: `Filter items before datetime`,
+      },
       { name: 'labels', type: 'array', required: false, description: `Labels to filter items by` },
-      { name: 'limit', type: 'number', required: false, description: `Max number of items to return` },
-      { name: 'pageToken', type: 'string', required: false, description: `Page token for pagination` },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Max number of items to return`,
+      },
+      {
+        name: 'pageToken',
+        type: 'string',
+        required: false,
+        description: `Page token for pagination`,
+      },
     ],
   },
   {
@@ -132,7 +188,12 @@ export const tools: Tool[] = [
       { name: 'attachments', type: 'array', required: false, description: `Attachments` },
       { name: 'html', type: 'string', required: false, description: `HTML body` },
       { name: 'labels', type: 'array', required: false, description: `Labels` },
-      { name: 'replyAll', type: 'boolean', required: false, description: `Reply to all recipients` },
+      {
+        name: 'replyAll',
+        type: 'boolean',
+        required: false,
+        description: `Reply to all recipients`,
+      },
       { name: 'text', type: 'string', required: false, description: `Plain text body` },
     ],
   },
@@ -169,7 +230,12 @@ export const tools: Tool[] = [
       { name: 'cc', type: 'array', required: false, description: `CC recipients` },
       { name: 'html', type: 'string', required: false, description: `HTML body` },
       { name: 'replyTo', type: 'array', required: false, description: `Reply-to addresses` },
-      { name: 'sendAt', type: 'string', required: false, description: `ISO 8601 datetime to reschedule sending` },
+      {
+        name: 'sendAt',
+        type: 'string',
+        required: false,
+        description: `ISO 8601 datetime to reschedule sending`,
+      },
       { name: 'subject', type: 'string', required: false, description: `Subject` },
       { name: 'text', type: 'string', required: false, description: `Plain text body` },
       { name: 'to', type: 'array', required: false, description: `Recipients` },

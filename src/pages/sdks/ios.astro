@@ -6,16 +6,18 @@ import { LinkButton } from 'starlight-theme-nova/components'
 
 // iOS SDK uses git tags (no GitHub Releases) — fetch from tags API
 const tagsHeaders: Record<string, string> = { 'User-Agent': 'scalekit-docs' }
-if (import.meta.env.GITHUB_TOKEN) tagsHeaders['Authorization'] = `Bearer ${import.meta.env.GITHUB_TOKEN}`
+if (import.meta.env.GITHUB_TOKEN)
+  tagsHeaders['Authorization'] = `Bearer ${import.meta.env.GITHUB_TOKEN}`
 let latestTag: string | null = null
 try {
-  const tagsRes = await fetch('https://api.github.com/repos/scalekit-inc/scalekit-sdk-ios/tags', { headers: tagsHeaders })
+  const tagsRes = await fetch('https://api.github.com/repos/scalekit-inc/scalekit-sdk-ios/tags', {
+    headers: tagsHeaders,
+  })
   const tags: { name: string }[] = tagsRes.ok ? await tagsRes.json() : []
   latestTag = tags[0]?.name ?? null
 } catch {
   // network or parse failure — badge omitted, page still renders
 }
-
 
 const frontmatter = {
   title: 'iOS SDK',
@@ -42,14 +44,20 @@ const frontmatter = {
     <div class="sdk-overview-content">
       <div class="sdk-header">
         <div class="sdk-title-section">
-          <p class="install-note">In Xcode: <strong>File → Add Package Dependencies</strong>, paste this URL:</p>
+          <p class="install-note">
+            In Xcode: <strong>File → Add Package Dependencies</strong>, paste this URL:
+          </p>
           <Code
             code="https://github.com/scalekit-inc/scalekit-sdk-ios"
             lang="text"
             showLineNumbers={false}
             frame="none"
           />
-          <p class="install-note install-note--secondary">Set version rule to <code>from: "0.3.0"</code>, select your app target, then click <strong>Add Package</strong>.</p>
+          <p class="install-note install-note--secondary">
+            Set version rule to <code>from: "0.3.0"</code>, select your app target, then click <strong
+              >Add Package</strong
+            >.
+          </p>
           <div class="sdk-badges">
             {latestTag && <Badge text={latestTag} variant="default" />}
             <Badge text="Swift" variant="tip" />
@@ -57,8 +65,7 @@ const frontmatter = {
             <Badge text="iOS 15+" variant="note" />
           </div>
         </div>
-        <div class="sdk-stats">
-        </div>
+        <div class="sdk-stats"></div>
       </div>
       <div class="sdk-links">
         <LinkButton
@@ -121,7 +128,6 @@ await client.logout()`}
       showLineNumbers={false}
     />
   </div>
-
 </StarlightPage>
 
 <style>
