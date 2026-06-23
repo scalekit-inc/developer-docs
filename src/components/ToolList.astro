@@ -404,20 +404,19 @@ const { tools } = Astro.props
       const q = filterInput.value.toLowerCase().trim()
       const cards = document.querySelectorAll<HTMLElement>('.tool-list .tool-card')
 
+      let visibleCount = 0
+
       cards.forEach((card) => {
         const n = card.dataset.toolName || ''
         const d = card.dataset.toolDesc || ''
         const show = !q || n.includes(q) || d.includes(q)
         card.style.display = show ? '' : 'none'
 
-        // Convenience: open the first few matches when filtering
         if (show && q) {
-          // open the first three visible matches automatically
-          // (user can still collapse)
-          const visibleMatches = Array.from(cards).filter((c) => c.style.display !== 'none')
-          if (visibleMatches.indexOf(card) < 3) {
+          if (visibleCount < 3) {
             ;(card as HTMLDetailsElement).open = true
           }
+          visibleCount++
         }
       })
     })

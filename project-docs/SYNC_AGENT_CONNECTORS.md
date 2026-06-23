@@ -12,6 +12,7 @@ The sync script updates these generated outputs:
 - `src/data/agent-connectors/<provider>.ts`
 - `src/data/agent-connectors/catalog.ts`
 - `src/data/agent-connectors/tools-index.json` (compact index powering connector + tool search UI)
+- `public/data/agent-tools-index.json` (public copy served to client-side search UI)
 - `src/components/templates/agent-connectors/index.ts`
 
 **Important**: The script now automatically runs Prettier on the generated data files (`*.ts` and the index) so they stay consistently formatted. This prevents large "only formatting" diffs in PRs.

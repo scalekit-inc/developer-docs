@@ -154,7 +154,7 @@ const slugToTitle = Object.fromEntries(items.map((i) => [i.slug, i.title]))
   let searchQuery = ''
   let toolIndexCache: Array<{ slug: string; name: string; description: string }> | null = null
 
-  function applyFilters(): void {
+  function applyFilters(): number {
     const sections = catalogEl?.querySelectorAll<HTMLElement>('.category-section')
     let totalVisible = 0
 
@@ -268,13 +268,23 @@ const slugToTitle = Object.fromEntries(items.map((i) => [i.slug, i.title]))
       el.className = 'tool-result'
       el.href = m.href
 
-      el.innerHTML = `
-        <div class="tool-result-head">
-          <code class="tool-result-name">${m.name}</code>
-          <span class="tool-result-connector">${m.title}</span>
-        </div>
-        <div class="tool-result-desc">${escapeHtml(truncate(m.description, 160))}</div>
-      `
+      const head = document.createElement('div')
+      head.className = 'tool-result-head'
+
+      const nameEl = document.createElement('code')
+      nameEl.className = 'tool-result-name'
+      nameEl.textContent = m.name
+
+      const connectorEl = document.createElement('span')
+      connectorEl.className = 'tool-result-connector'
+      connectorEl.textContent = m.title
+
+      const descEl = document.createElement('div')
+      descEl.className = 'tool-result-desc'
+      descEl.textContent = truncate(m.description, 160)
+
+      head.append(nameEl, connectorEl)
+      el.append(head, descEl)
       toolResultsList.appendChild(el)
     })
 

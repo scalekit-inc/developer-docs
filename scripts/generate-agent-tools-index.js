@@ -21,7 +21,7 @@
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { execSync } from 'child_process'
+import { execFileSync } from 'child_process'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -56,6 +56,7 @@ function main() {
   const files = fs
     .readdirSync(DATA_DIR)
     .filter((f) => f.endsWith('.ts') && f !== 'catalog.ts' && f !== 'tools-index.json')
+    .sort((a, b) => a.localeCompare(b))
 
   const index = []
 
@@ -76,6 +77,9 @@ function main() {
     }
   }
 
+  // Sort for deterministic output (prevents ranking drift)
+  index.sort((a, b) => a.slug.localeCompare(b.slug) || a.name.localeCompare(b.name))
+
   // Ensure output locations
   fs.mkdirSync(DATA_DIR, { recursive: true })
   fs.mkdirSync(PUBLIC_DATA_DIR, { recursive: true })
@@ -90,7 +94,7 @@ function main() {
 
   // Auto-format the source index so it doesn't cause formatting-only diffs in PRs.
   try {
-    execSync(`npx prettier --write "${srcIndexPath}"`, { stdio: 'inherit' })
+    execFileSync('npx', ['prettier', '--write', srcIndexPath], { stdio: 'inherit' })
   } catch {
     // non-fatal
   }
