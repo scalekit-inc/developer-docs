@@ -19,10 +19,12 @@ head:
       }
 ---
 
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/sharepoint'
 import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
 import { AgentKitCredentials } from '@components/templates'
 import { SetupSharepointSection } from '@components/templates'
-import { QuickstartGenericOauthNotoolsSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
 import { SectionAfterSetupSharepointCommonWorkflows } from '@components/templates'
 
 <Steps>
@@ -61,10 +63,27 @@ import { SectionAfterSetupSharepointCommonWorkflows } from '@components/template
 
 4. ### Authorize and make your first call
 
-   <QuickstartGenericOauthNotoolsSection connector="sharepoint" providerName="SharePoint" verifyPath="/v1.0/me/sites" verifyMethod="GET" />
+   <QuickstartGenericOauthSection connector="sharepoint" toolName="sharepoint_list_followed_sites" providerName="SharePoint" />
 
 </Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Member add group, remove group** — Add an Azure AD user to a Microsoft 365 group (including SharePoint site groups) by providing the group ID and the user's object ID
+- **Assignment add role** — Grant a user or group a role (read, write, or owner) on a SharePoint site by adding a permission entry
+- **File checkin, checkout, download** — Check in a checked-out file in a SharePoint document library to make the version available to others
+- **Create list, list field, list item** — Create a new list in a SharePoint site
+- **Delete list, list field, list item** — Permanently delete a SharePoint list from a site
+- **Email find user by** — Look up an Azure Active Directory user by their email address (UPN)
 
 ## Common workflows
 
 <SectionAfterSetupSharepointCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

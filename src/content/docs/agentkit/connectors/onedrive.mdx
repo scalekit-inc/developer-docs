@@ -19,10 +19,12 @@ head:
       }
 ---
 
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/onedrive'
 import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
 import { AgentKitCredentials } from '@components/templates'
 import { SetupOnedriveSection } from '@components/templates'
-import { QuickstartGenericOauthNotoolsSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
 import { SectionAfterSetupOnedriveCommonWorkflows } from '@components/templates'
 
 <Steps>
@@ -61,10 +63,27 @@ import { SectionAfterSetupOnedriveCommonWorkflows } from '@components/templates'
 
 4. ### Authorize and make your first call
 
-   <QuickstartGenericOauthNotoolsSection connector="onedrive" providerName="OneDrive" verifyPath="/v1.0/me/drive" verifyMethod="GET" />
+   <QuickstartGenericOauthSection connector="onedrive" toolName="onedrive_get_drive" providerName="OneDrive" />
 
 </Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **File checkin, checkout, download** — Check in a checked-out OneDrive file to make the version available to others
+- **Item copy drive, follow drive, move drive** — Copy a file or folder in the signed-in user's personal OneDrive to a new location asynchronously
+- **Drive copy item in** — Copy a file or folder in a specific drive to a new location asynchronously
+- **Create folder, sharing link, sharing link in drive** — Create a new folder in OneDrive under the specified parent folder
+- **Delete drive item, item in drive, permission** — Delete a file or folder from the signed-in user's personal OneDrive by item ID
+- **Checkout discard** — Discard a pending checkout for a OneDrive file, releasing the lock without saving any changes
 
 ## Common workflows
 
 <SectionAfterSetupOnedriveCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />
