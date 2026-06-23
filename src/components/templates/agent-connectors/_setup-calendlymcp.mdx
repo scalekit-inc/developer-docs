@@ -1,33 +1,25 @@
-{/* TODO: stub cloned from _setup-atlassianmcp.mdx for Calendly. Review and update connector-specific references (URLs, scopes, app-registration steps) before merging. */}
 import { Steps, Aside } from '@astrojs/starlight/components'
 
-Calendly uses Dynamic Client Registration (DCR) — no client ID or secret is needed. The only step is registering your Scalekit redirect URI as an allowed domain in Atlassian Administration.
+Calendly MCP uses Dynamic Client Registration (DCR) with PKCE — you don't need a client ID or secret. Scalekit registers the OAuth client automatically the first time a user authorizes the connection, so creating the connection in Scalekit is the only setup step.
 
 <Steps>
-1. ### Copy the redirect URI from Scalekit
+1. ### Create the Calendly MCP connection in Scalekit
 
-   In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **Calendly** and click **Create**. Copy the redirect URI — it looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+   In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **Calendly** and click **Create**.
 
-   {/* TODO: add screenshot — alt: "Copy redirect URI from Scalekit dashboard for Calendly", original src: @/assets/docs/agent-connectors/calendlymcp/copy-redirect-uri.png */}
-2. ### Open the Rovo MCP server settings in Atlassian
+   Note the **Connection name** — you use this as `connection_name` in your code (for example, `calendlymcp`).
 
-   - Go to [admin.atlassian.com](https://admin.atlassian.com) and select your organisation.
-   - In the left sidebar, expand **Rovo** and click **Rovo access**.
-   - Click **Rovo MCP server** in the submenu.
-   - Select the **Domains** tab at the top of the page.
-
-   <Aside type="note" title="Admin access required">
-     You must be an Atlassian organisation admin to access these settings. If you don't see **Rovo** in the sidebar, your organisation may not have Rovo enabled.
+   <Aside type="note" title="No OAuth app or credentials required">
+     Because Calendly's MCP server supports DCR, you don't register an app in the Calendly developer portal or paste a client ID and secret. Scalekit negotiates the OAuth client with the Calendly MCP server at `https://mcp.calendly.com/` automatically.
    </Aside>
 
-3. ### Add the redirect URI as a domain
+2. ### Have your user authorize the connection
 
-   - Under **Your domains**, click **Add domain**.
+   Send the user through the connection's authorization link (the magic link Scalekit generates, or the link returned by the SDK). The user signs in to Calendly and grants access.
 
-   {/* TODO: add screenshot — alt: "Your domains section in Calendly server administration", original src: @/assets/docs/agent-connectors/calendlymcp/add-domain-redirect-uri.png */}
-   - In the **Add domain** dialog, paste the redirect URI from Scalekit into the **Domain** field.
-   - Accept the terms and click **Add**.
+   On first authorization, Scalekit completes Dynamic Client Registration and PKCE behind the scenes, then stores and refreshes tokens for every user who connects — no further configuration is required.
 
-   {/* TODO: add screenshot — alt: "Add domain dialog in Calendly server", original src: @/assets/docs/agent-connectors/calendlymcp/add-domain-modal.png */}
-   Once added, Scalekit automatically registers the OAuth client via DCR and handles token management for every user who authorizes the connection — no further configuration needed.
+   <Aside type="note" title="Calendly account required">
+     The user must have an active Calendly account. Some tools — such as organization memberships, invitations, and routing forms — require a paid Calendly plan and organization-admin privileges.
+   </Aside>
 </Steps>
