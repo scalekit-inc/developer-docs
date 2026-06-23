@@ -46,24 +46,40 @@ type OperationSortValue = {
   path?: string
 }
 
+/**
+ * Scalar serializes sorter functions with Function.prototype.toString() in HTML.
+ * Closures are lost, so the returned function must be fully self-contained.
+ */
 export function createOperationsSorter(config: OperationRankConfig) {
-  const methodOrder = ['get', 'post', 'put', 'patch', 'delete']
-  const getMethodRank = (method: string | undefined) => {
-    const rank = methodOrder.indexOf((method ?? '').toLowerCase())
-    return rank === -1 ? Number.POSITIVE_INFINITY : rank
-  }
+  const configLiteral = JSON.stringify(config)
 
-  return (a: OperationSortValue, b: OperationSortValue) => {
-    const methodComparison = getMethodRank(a.method) - getMethodRank(b.method)
+  return new Function(
+    'a',
+    'b',
+    `
+    const config = ${configLiteral};
+    const methodOrder = ['get', 'post', 'put', 'patch', 'delete'];
+    const getMethodRank = (method) => {
+      const rank = methodOrder.indexOf((method ?? '').toLowerCase());
+      return rank === -1 ? Number.POSITIVE_INFINITY : rank;
+    };
+    const getPathRank = (pathStr) => {
+      for (const rule of config['path-segments'] ?? []) {
+        if (rule.match && pathStr.includes(rule.match)) {
+          return rule.rank;
+        }
+      }
+      return config.default ?? 0;
+    };
+    const methodComparison = getMethodRank(a.method) - getMethodRank(b.method);
     if (methodComparison !== 0) {
-      return methodComparison
+      return methodComparison;
     }
-
-    const rankComparison = getPathRank(a.path ?? '', config) - getPathRank(b.path ?? '', config)
+    const rankComparison = getPathRank(a.path ?? '') - getPathRank(b.path ?? '');
     if (rankComparison !== 0) {
-      return rankComparison
+      return rankComparison;
     }
-
-    return (a.path ?? '').localeCompare(b.path ?? '')
-  }
+    return (a.path ?? '').localeCompare(b.path ?? '');
+  `,
+  ) as (a: OperationSortValue, b: OperationSortValue) => number
 }
