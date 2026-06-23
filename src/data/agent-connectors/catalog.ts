@@ -7,6 +7,66 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
+  'supadatamcp': {
+    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/supadata.svg",
+    authType: "OAuth 2.1/DCR",
+    categories: ["AI","Analytics","Search","Transcription"],
+  },
+  'phantombustermcp': {
+    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/phantombuster.svg",
+    authType: "OAuth 2.1/DCR",
+    categories: ["AI","Automation"],
+  },
+  'examcp': {
+    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/exa.svg",
+    authType: "API Key",
+    categories: ["AI","Search","Developer Tools"],
+  },
+  'alphaxivmcp': {
+    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/alphaxiv.svg",
+    authType: "OAuth 2.1/DCR",
+    categories: ["AI","Search","Developer Tools"],
+  },
+  'fathommcp': {
+    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/fathom.svg",
+    authType: "OAuth 2.1/DCR",
+    categories: ["AI","Transcription","Communication","Productivity"],
+  },
+  'notionmcp': {
+    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/notion.svg",
+    authType: "OAuth 2.1/DCR",
+    categories: ["Productivity","Collaboration","Project Management"],
+  },
+  'mondaymcp': {
+    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/monday.svg",
+    authType: "OAuth 2.1/DCR",
+    categories: ["Project Management","Collaboration","Productivity"],
+  },
+  'airtablemcp': {
+    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/airtable.svg",
+    authType: "OAuth 2.1/DCR",
+    categories: ["Project Management","Databases","Productivity"],
+  },
+  'miromcp': {
+    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/Miro.svg",
+    authType: "OAuth 2.1/DCR",
+    categories: ["Collaboration","Design","Productivity"],
+  },
+  'apollomcp': {
+    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/apollo.svg",
+    authType: "OAuth 2.1/DCR",
+    categories: ["CRM & Sales","Marketing"],
+  },
+  'replitmcp': {
+    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/replit.svg",
+    authType: "OAuth 2.1/DCR",
+    categories: ["Developer Tools","AI","Automation"],
+  },
+  'attiomcp': {
+    iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/attio.svg",
+    authType: "OAuth 2.1/DCR",
+    categories: ["CRM & Sales","Productivity"],
+  },
   'stackaimcp': {
     iconUrl: "https://cdn.scalekit.com/sk-connect/assets/provider-icons/stackai.svg",
     authType: "OAuth 2.1/DCR",

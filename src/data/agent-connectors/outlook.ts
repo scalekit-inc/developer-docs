@@ -13,6 +13,22 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outlook_batch_move_messages',
+    description: `Move up to 20 Outlook messages to a destination folder in a single Microsoft Graph batch request. Builds a $batch envelope where each subrequest POSTs to /me/messages/{id}/move. Returns a 200 response with per-subrequest status codes inside the responses array.`,
+    params: [
+      { name: 'destination_folder_id', type: 'string', required: true, description: `The ID or well-known name of the destination folder (e.g., 'inbox', 'deleteditems', 'drafts', or a specific folder ID like 'AAMkAGI2...').` },
+      { name: 'message_ids', type: 'array', required: true, description: `Array of message IDs to move (max 20). Each ID is an Outlook message ID string.` },
+    ],
+  },
+  {
+    name: 'outlook_batch_update_messages',
+    description: `Update properties on up to 20 Outlook messages in a single Microsoft Graph batch request. Builds a $batch envelope where each subrequest PATCHes /me/messages/{id} with the provided updates object. Common use: mark messages as read by passing {"isRead": true}. Returns a 200 response with per-subrequest status codes inside the responses array.`,
+    params: [
+      { name: 'message_ids', type: 'array', required: true, description: `Array of message IDs to update (max 20). Each ID is an Outlook message ID string.` },
+      { name: 'updates', type: 'object', required: true, description: `Free-form object of message properties to update on all specified messages. Example: {"isRead": true} to mark as read, or {"isRead": false, "flag": {"flagStatus": "flagged"}} for multiple changes.` },
+    ],
+  },
+  {
     name: 'outlook_create_calendar_event',
     description: `Create a new calendar event in the user's Outlook calendar. Supports attendees, recurrence, reminders, online meetings, multiple locations, and event properties.`,
     params: [
@@ -47,6 +63,31 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outlook_create_calendar_group',
+    description: `Create a new calendar group in the signed-in user's mailbox. Calendar groups organize multiple calendars together in Outlook.`,
+    params: [
+      { name: 'name', type: 'string', required: true, description: `The name of the new calendar group (e.g., 'Work Calendars'). Must be unique among calendar groups for the user.` },
+    ],
+  },
+  {
+    name: 'outlook_create_calendar_permission',
+    description: `Grant a user access to a specific Outlook calendar by creating a calendar permission entry. Specify the user's email address and the role level (e.g., freeBusyRead, read, write, delegate).`,
+    params: [
+      { name: 'calendar_id', type: 'string', required: true, description: `The unique identifier of the calendar to share. Use a specific calendar ID from the list calendars endpoint.` },
+      { name: 'email_address', type: 'string', required: true, description: `The email address of the user to grant calendar access to. Example: colleague@example.com` },
+      { name: 'role', type: 'string', required: true, description: `The permission role to grant. Valid values: freeBusyRead (see free/busy only), limitedRead (see title and location), read (see all event details), write (create/edit/delete events), delegateWithoutPrivateEventAccess (delegate, no private events), delegateWithPrivateEventAccess (delegate including private events), custom (custom role).` },
+      { name: 'name', type: 'string', required: false, description: `Display name of the user to grant access to. Optional; the Graph API will resolve it from the email if omitted.` },
+    ],
+  },
+  {
+    name: 'outlook_create_category',
+    description: `Create a new Outlook master category for the signed-in user. Categories have a display name and a color preset (none or preset0–preset24). Once created, categories can be applied to messages, events, and contacts.`,
+    params: [
+      { name: 'display_name', type: 'string', required: true, description: `The display name of the new category. Must be unique among the user's categories.` },
+      { name: 'color', type: 'string', required: false, description: `The color assigned to the category. Use 'none' for no color, or 'preset0' through 'preset24' for a specific color slot. Defaults to preset0.` },
+    ],
+  },
+  {
     name: 'outlook_create_contact',
     description: `Create a new contact in the user's mailbox with name, email addresses, and phone numbers.`,
     params: [
@@ -57,6 +98,14 @@ export const tools: Tool[] = [
       { name: 'emailAddresses', type: 'array', required: false, description: `Array of email address objects with 'address' and optional 'name' fields` },
       { name: 'jobTitle', type: 'string', required: false, description: `Job title` },
       { name: 'mobilePhone', type: 'string', required: false, description: `Mobile phone number` },
+    ],
+  },
+  {
+    name: 'outlook_create_contact_folder',
+    description: `Create a new contact folder in the signed-in user's mailbox. Optionally nest it under an existing parent folder by providing a parent folder ID.`,
+    params: [
+      { name: 'display_name', type: 'string', required: true, description: `The display name for the new contact folder (e.g., 'Work Contacts').` },
+      { name: 'parent_folder_id', type: 'string', required: false, description: `Optional ID of the parent contact folder under which to create this folder. If omitted, the folder is created at the top level.` },
     ],
   },
   {
@@ -72,6 +121,15 @@ export const tools: Tool[] = [
       { name: 'subject', type: 'string', required: false, description: `Email subject.` },
       { name: 'to_recipients', type: 'string', required: false, description: `To recipients.` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'outlook_create_focused_inbox_override',
+    description: `Create a Focused Inbox override that classifies all messages from a specific sender into either the Focused or Other inbox. This overrides the automatic machine learning classification for that sender.`,
+    params: [
+      { name: 'classify_as', type: 'string', required: true, description: `How to classify messages from this sender: 'focused' to route to Focused inbox, 'other' to route to Other inbox.` },
+      { name: 'sender_email', type: 'string', required: true, description: `The email address of the sender to create an override for (e.g., 'newsletter@example.com').` },
+      { name: 'sender_name', type: 'string', required: false, description: `Optional display name for the sender (e.g., 'Weekly Newsletter'). Used for display purposes only.` },
     ],
   },
   {
@@ -130,6 +188,50 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outlook_create_shared_calendar_event',
+    description: `Create an event on another user's calendar (shared or delegated access). Targets /users/{id}/events. Requires Calendars.ReadWrite application permission or delegated access granted by the target user.`,
+    params: [
+      { name: 'end_datetime', type: 'string', required: true, description: `No description.` },
+      { name: 'end_timezone', type: 'string', required: true, description: `No description.` },
+      { name: 'start_datetime', type: 'string', required: true, description: `No description.` },
+      { name: 'start_timezone', type: 'string', required: true, description: `No description.` },
+      { name: 'subject', type: 'string', required: true, description: `No description.` },
+      { name: 'user_id', type: 'string', required: true, description: `The user ID or userPrincipalName (email) of the target user whose data you are accessing (e.g., colleague@company.com or an object ID). Access must be granted via application permissions or delegated sharing.` },
+      { name: 'attendees_optional', type: 'string', required: false, description: `Array of email addresses for optional attendees` },
+      { name: 'attendees_required', type: 'string', required: false, description: `Array of email addresses for required attendees` },
+      { name: 'attendees_resource', type: 'string', required: false, description: `Array of email addresses for resources (meeting rooms, equipment)` },
+      { name: 'body_content', type: 'string', required: false, description: `No description.` },
+      { name: 'body_contentType', type: 'string', required: false, description: `No description.` },
+      { name: 'hideAttendees', type: 'boolean', required: false, description: `When true, each attendee only sees themselves` },
+      { name: 'importance', type: 'string', required: false, description: `Event importance level` },
+      { name: 'isAllDay', type: 'boolean', required: false, description: `Mark as all-day event` },
+      { name: 'isOnlineMeeting', type: 'boolean', required: false, description: `Create an online meeting (Teams/Skype)` },
+      { name: 'isReminderOn', type: 'boolean', required: false, description: `Enable or disable reminder` },
+      { name: 'location', type: 'string', required: false, description: `No description.` },
+      { name: 'locations', type: 'string', required: false, description: `JSON array of location objects with displayName, address, coordinates` },
+      { name: 'onlineMeetingProvider', type: 'string', required: false, description: `Online meeting provider` },
+      { name: 'recurrence_days_of_week', type: 'string', required: false, description: `Days of week for weekly recurrence (comma-separated)` },
+      { name: 'recurrence_end_date', type: 'string', required: false, description: `End date for recurrence (YYYY-MM-DD), required if range_type is endDate` },
+      { name: 'recurrence_interval', type: 'integer', required: false, description: `How often the event recurs (e.g., every 2 weeks = 2)` },
+      { name: 'recurrence_occurrences', type: 'integer', required: false, description: `Number of occurrences, required if range_type is numbered` },
+      { name: 'recurrence_range_type', type: 'string', required: false, description: `How the recurrence ends` },
+      { name: 'recurrence_start_date', type: 'string', required: false, description: `Start date for recurrence (YYYY-MM-DD)` },
+      { name: 'recurrence_type', type: 'string', required: false, description: `Recurrence pattern type` },
+      { name: 'reminderMinutesBeforeStart', type: 'integer', required: false, description: `Minutes before event start to show reminder` },
+      { name: 'sensitivity', type: 'string', required: false, description: `Event sensitivity/privacy level` },
+      { name: 'showAs', type: 'string', required: false, description: `Free/busy status` },
+    ],
+  },
+  {
+    name: 'outlook_create_upload_session',
+    description: `Create an upload session for attaching a large file to an Outlook message using Microsoft Graph. Returns an uploadUrl and expiration time. Use the uploadUrl to upload file content in chunks via PUT requests. Required for attachments larger than 3 MB.`,
+    params: [
+      { name: 'attachment_name', type: 'string', required: true, description: `The filename of the attachment (e.g., 'report.pdf'). Must include the file extension.` },
+      { name: 'attachment_size', type: 'integer', required: true, description: `The total size of the attachment in bytes. Must be the exact file size before uploading.` },
+      { name: 'message_id', type: 'string', required: true, description: `The ID of the draft Outlook message to attach the file to.` },
+    ],
+  },
+  {
     name: 'outlook_decline_event',
     description: `Decline a calendar event invitation.`,
     params: [
@@ -149,12 +251,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outlook_delete_calendar_group',
+    description: `Permanently delete a calendar group from the signed-in user's mailbox. Note: you cannot delete the default calendar group. All calendars within the group will also be deleted.`,
+    params: [
+      { name: 'group_id', type: 'string', required: true, description: `The unique ID of the calendar group to delete (e.g., 'AAMkAGI2...'). Obtain from List Calendar Groups. Cannot be the default calendar group.` },
+    ],
+  },
+  {
+    name: 'outlook_delete_calendar_permission',
+    description: `Revoke a user's access to a specific Outlook calendar by deleting the calendar permission entry. This action is permanent and immediately removes the user's access.`,
+    params: [
+      { name: 'calendar_id', type: 'string', required: true, description: `The unique identifier of the calendar from which to remove the permission.` },
+      { name: 'permission_id', type: 'string', required: true, description: `The unique identifier of the calendar permission entry to delete. Retrieve from the list calendar permissions endpoint.` },
+    ],
+  },
+  {
+    name: 'outlook_delete_category',
+    description: `Delete an Outlook master category for the signed-in user. This permanently removes the category definition. Any messages or items tagged with this category will retain the tag label but the category color will no longer appear.`,
+    params: [
+      { name: 'category_id', type: 'string', required: true, description: `The unique ID of the Outlook category to delete. Retrieve it from the list_categories tool.` },
+    ],
+  },
+  {
     name: 'outlook_delete_contact',
     description: `Permanently delete a contact.`,
     params: [
       { name: 'contact_id', type: 'string', required: true, description: `Contact ID.` },
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'outlook_delete_contact_folder',
+    description: `Permanently delete a contact folder and all its contents from the signed-in user's mailbox. This action cannot be undone.`,
+    params: [
+      { name: 'folder_id', type: 'string', required: true, description: `The unique ID of the contact folder to delete (e.g., 'AAMkAGI2...'). Obtain from List Contact Folders. Warning: deletes all contacts within the folder.` },
+    ],
+  },
+  {
+    name: 'outlook_delete_focused_inbox_override',
+    description: `Delete a Focused Inbox override rule for the signed-in user. Once deleted, messages from that sender will revert to automatic machine learning classification.`,
+    params: [
+      { name: 'override_id', type: 'string', required: true, description: `The unique ID of the Focused Inbox override rule to delete (e.g., 'AAMkAGI2...'). Obtain this from the List Focused Inbox Overrides tool.` },
     ],
   },
   {
@@ -185,6 +323,19 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outlook_find_meeting_times',
+    description: `Find available meeting time slots for a set of attendees using Microsoft Graph's findMeetingTimes API. Returns a list of suggested meeting times when all required attendees are available within the given time window.`,
+    params: [
+      { name: 'attendee_emails', type: 'array', required: true, description: `Array of attendee email addresses to check availability for. Example: ["alice@example.com", "bob@example.com"]` },
+      { name: 'end_date_time', type: 'string', required: true, description: `End of the time window to search for meeting times, in ISO 8601 format (e.g., 2025-01-15T18:00:00). The API will not suggest slots after this time.` },
+      { name: 'meeting_duration', type: 'string', required: true, description: `Duration of the desired meeting in ISO 8601 duration format (e.g., PT30M for 30 minutes, PT1H for 1 hour, PT1H30M for 1.5 hours).` },
+      { name: 'start_date_time', type: 'string', required: true, description: `Start of the time window to search for meeting times, in ISO 8601 format (e.g., 2025-01-15T08:00:00). The API will look for available slots at or after this time.` },
+      { name: 'is_organizer_optional', type: 'boolean', required: false, description: `Whether the meeting organizer's presence is optional. When true, the organizer's calendar is not checked for availability. Defaults to false.` },
+      { name: 'max_candidates', type: 'integer', required: false, description: `Maximum number of meeting time suggestions to return. Defaults to 20. Acceptable range: 1-40.` },
+      { name: 'time_zone', type: 'string', required: false, description: `IANA time zone identifier for interpreting start_date_time and end_date_time (e.g., "UTC", "America/New_York", "Europe/London"). Defaults to UTC.` },
+    ],
+  },
+  {
     name: 'outlook_forward_event',
     description: `Forward a calendar event to other people.`,
     params: [
@@ -211,6 +362,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outlook_get_calendar_view',
+    description: `Retrieve a collection of calendar events within a specific time range from the user's primary Outlook calendar. Returns all occurrences, exceptions, and single instances of events whose start/end times fall within the specified window.`,
+    params: [
+      { name: 'endDateTime', type: 'string', required: true, description: `End of the time range in ISO 8601 format (e.g., 2025-01-31T23:59:59). The calendar view returns events that end or overlap with this time.` },
+      { name: 'startDateTime', type: 'string', required: true, description: `Start of the time range in ISO 8601 format (e.g., 2025-01-01T00:00:00). The calendar view returns events that start or overlap with this time.` },
+      { name: '$filter', type: 'string', required: false, description: `OData filter expression to further narrow results (e.g., "subject eq 'Team Sync'").` },
+      { name: '$orderby', type: 'string', required: false, description: `OData orderby expression to sort results (e.g., "start/dateTime asc").` },
+      { name: '$select', type: 'string', required: false, description: `Comma-separated list of properties to include in the response (e.g., "subject,start,end,location"). Reduces payload size.` },
+      { name: '$top', type: 'integer', required: false, description: `Maximum number of events to return (1-1000). Defaults to 10 if omitted.` },
+    ],
+  },
+  {
     name: 'outlook_get_contact',
     description: `Retrieve a specific contact by ID.`,
     params: [
@@ -219,6 +382,24 @@ export const tools: Tool[] = [
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'select', type: 'string', required: false, description: `Select properties.` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'outlook_get_contact_photo',
+    description: `Retrieve the profile photo of a specific contact in the signed-in user's mailbox. Returns binary image data (JPEG). A 404 response indicates no photo is set for this contact.`,
+    params: [
+      { name: 'contact_id', type: 'string', required: true, description: `The unique ID of the contact whose photo to retrieve (e.g., 'AAMkAGI2...'). Obtain from List Contacts or Get Contact.` },
+    ],
+  },
+  {
+    name: 'outlook_get_free_busy_schedule',
+    description: `Retrieve the free/busy availability schedule for one or more users, rooms, or resources within a specific time window. Returns availability view, schedule items, and working hours for each requested address.`,
+    params: [
+      { name: 'end_date_time', type: 'string', required: true, description: `End of the time window to retrieve schedule availability, in ISO 8601 format (e.g., 2025-01-15T18:00:00).` },
+      { name: 'schedules', type: 'array', required: true, description: `Array of SMTP email addresses of users, distribution lists, or resources to get free/busy information for. Example: ["alice@example.com", "room@example.com"]` },
+      { name: 'start_date_time', type: 'string', required: true, description: `Start of the time window to retrieve schedule availability, in ISO 8601 format (e.g., 2025-01-15T08:00:00).` },
+      { name: 'availability_view_interval', type: 'integer', required: false, description: `Duration in minutes of each time slot in the availability view string. Valid values: 5, 6, 10, 15, 20, 30, 60 (default), 120, 240, 480, or 1440.` },
+      { name: 'time_zone', type: 'string', required: false, description: `IANA time zone identifier for interpreting start and end times (e.g., "UTC", "America/New_York", "Europe/London"). Defaults to UTC.` },
     ],
   },
   {
@@ -236,6 +417,26 @@ export const tools: Tool[] = [
     description: `Retrieve a specific email message by ID from the user's Outlook mailbox, including full body content, sender, recipients, attachments info, and metadata.`,
     params: [
       { name: 'message_id', type: 'string', required: true, description: `The ID of the message to retrieve.` },
+    ],
+  },
+  {
+    name: 'outlook_get_shared_contact',
+    description: `Get a single contact from another user's (a colleague's) contacts by contact ID. Targets /users/{id}/contacts/{contact_id}. Requires Contacts.Read application permission or delegated access granted by the target user.`,
+    params: [
+      { name: 'contact_id', type: 'string', required: true, description: `Contact ID.` },
+      { name: 'user_id', type: 'string', required: true, description: `The user ID or userPrincipalName (email) of the target user whose data you are accessing (e.g., colleague@company.com or an object ID). Access must be granted via application permissions or delegated sharing.` },
+      { name: 'expand', type: 'string', required: false, description: `Expand relationships.` },
+      { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
+      { name: 'select', type: 'string', required: false, description: `Select properties.` },
+      { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'outlook_get_shared_mailbox_message',
+    description: `Get a single message from a shared mailbox by message ID. Targets /users/{id}/messages/{message_id}. Requires Mail.Read or Mail.ReadWrite permission on the shared mailbox.`,
+    params: [
+      { name: 'message_id', type: 'string', required: true, description: `The ID of the message to retrieve.` },
+      { name: 'shared_mailbox_id', type: 'string', required: true, description: `The email address or user ID of the shared mailbox to read the message from (e.g., support@company.com or a user object ID).` },
     ],
   },
   {
@@ -266,6 +467,22 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outlook_list_calendar_groups',
+    description: `List all calendar groups in the signed-in user's mailbox. Calendar groups are containers that organize multiple calendars together in Outlook.`,
+    params: [
+      { name: '$select', type: 'string', required: false, description: `Comma-separated list of properties to return (e.g., 'name,classId'). Reduces response size.` },
+      { name: '$top', type: 'integer', required: false, description: `Maximum number of calendar groups to return (1–200, default: 10).` },
+    ],
+  },
+  {
+    name: 'outlook_list_calendar_permissions',
+    description: `List all sharing permissions for a specific Outlook calendar. Returns the set of users and their assigned roles (e.g., freeBusyRead, read, write, delegate) for the given calendar.`,
+    params: [
+      { name: 'calendar_id', type: 'string', required: true, description: `The unique identifier of the calendar whose permissions to list. Use 'primary' for the default calendar or a specific calendar ID from the list calendars endpoint.` },
+      { name: '$top', type: 'integer', required: false, description: `Maximum number of permission entries to return (1-1000). Defaults to all entries if omitted.` },
+    ],
+  },
+  {
     name: 'outlook_list_calendars',
     description: `Retrieve all calendars in the user mailbox.`,
     params: [
@@ -273,6 +490,23 @@ export const tools: Tool[] = [
       { name: 'skip', type: 'integer', required: false, description: `Skip count.` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
       { name: 'top', type: 'integer', required: false, description: `Page size.` },
+    ],
+  },
+  {
+    name: 'outlook_list_categories',
+    description: `List all Outlook master categories defined for the signed-in user. Categories can be applied to messages, events, and contacts for color-coded organization.`,
+    params: [
+      { name: '$select', type: 'string', required: false, description: `Comma-separated list of category properties to return (e.g., 'displayName,color').` },
+      { name: '$top', type: 'integer', required: false, description: `Maximum number of categories to return (1–200).` },
+    ],
+  },
+  {
+    name: 'outlook_list_contact_folders',
+    description: `List all contact folders in the signed-in user's mailbox. Supports OData query parameters for filtering, field selection, and pagination.`,
+    params: [
+      { name: '$filter', type: 'string', required: false, description: `OData filter expression to narrow results (e.g., "displayName eq 'Favorites'").` },
+      { name: '$select', type: 'string', required: false, description: `Comma-separated list of properties to return (e.g., 'displayName,parentFolderId'). Reduces response size.` },
+      { name: '$top', type: 'integer', required: false, description: `Maximum number of contact folders to return (1–200, default: 10).` },
     ],
   },
   {
@@ -287,6 +521,34 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outlook_list_event_instances',
+    description: `List all instances (occurrences) of a recurring calendar event within a specified date-time range. Requires the master recurring event ID and a start/end window in ISO 8601 format.`,
+    params: [
+      { name: 'end_date_time', type: 'string', required: true, description: `End of the time window to query for instances, in ISO 8601 format (e.g., '2024-12-31T23:59:59Z'). Required by Microsoft Graph.` },
+      { name: 'event_id', type: 'string', required: true, description: `The unique ID of the master recurring event whose instances to list (e.g., 'AAMkAGI2...'). This must be the series master event ID, not an individual occurrence.` },
+      { name: 'start_date_time', type: 'string', required: true, description: `Start of the time window to query for instances, in ISO 8601 format (e.g., '2024-01-01T00:00:00Z'). Required by Microsoft Graph.` },
+      { name: '$select', type: 'string', required: false, description: `Comma-separated list of event properties to return (e.g., 'subject,start,end'). Reduces response size.` },
+      { name: '$top', type: 'integer', required: false, description: `Maximum number of event instances to return (1–200, default: 10).` },
+    ],
+  },
+  {
+    name: 'outlook_list_focused_inbox_overrides',
+    description: `List all Focused Inbox overrides for the signed-in user. Overrides define how messages from specific senders are classified — either into the Focused inbox or the Other inbox — overriding the automatic machine learning classification.`,
+    params: [
+      { name: '$select', type: 'string', required: false, description: `Comma-separated list of properties to return (e.g., 'classifyAs,senderEmailAddress').` },
+      { name: '$top', type: 'integer', required: false, description: `Maximum number of overrides to return per page.` },
+    ],
+  },
+  {
+    name: 'outlook_list_folder_delta',
+    description: `Get incremental changes (delta sync) for mail folders in the user's mailbox using Microsoft Graph delta query. Returns new, updated, and deleted folders since the last sync. The response includes @odata.nextLink for pagination or @odata.deltaLink for the next delta call.`,
+    params: [
+      { name: '$deltatoken', type: 'string', required: false, description: `Delta token from a previous @odata.deltaLink response to retrieve only folder changes since the last sync. Omit on first call to get a full initial sync.` },
+      { name: '$select', type: 'string', required: false, description: `Comma-separated list of folder properties to return (e.g., 'displayName,parentFolderId,totalItemCount,unreadItemCount').` },
+      { name: '$top', type: 'integer', required: false, description: `Maximum number of folders to return per page (1–250).` },
+    ],
+  },
+  {
     name: 'outlook_list_mail_folders',
     description: `List all mail folders in the user mailbox.`,
     params: [
@@ -295,6 +557,17 @@ export const tools: Tool[] = [
       { name: 'skip', type: 'integer', required: false, description: `Skip count.` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
       { name: 'top', type: 'integer', required: false, description: `Page size.` },
+    ],
+  },
+  {
+    name: 'outlook_list_message_delta',
+    description: `Get incremental changes (delta sync) for messages in a specific mail folder using Microsoft Graph delta query. Returns new, updated, and deleted messages since the last sync. The response includes @odata.nextLink for pagination or @odata.deltaLink for the next delta call. Pass $deltatoken from a previous deltaLink to get only changes since then.`,
+    params: [
+      { name: 'folder_id', type: 'string', required: true, description: `The mail folder ID or well-known name to sync (e.g., 'inbox', 'sentitems', 'drafts', or a specific folder ID).` },
+      { name: '$deltatoken', type: 'string', required: false, description: `Delta token from a previous @odata.deltaLink response to retrieve only changes since the last sync. Omit on first call to get a full initial sync.` },
+      { name: '$select', type: 'string', required: false, description: `Comma-separated list of properties to return (e.g., 'subject,from,receivedDateTime,isRead'). Reduces response size.` },
+      { name: '$skiptoken', type: 'string', required: false, description: `Skip token from a previous @odata.nextLink response to continue paginating through a large delta result set.` },
+      { name: '$top', type: 'integer', required: false, description: `Maximum number of messages to return per page (1–1000).` },
     ],
   },
   {
@@ -329,6 +602,50 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outlook_list_shared_contacts',
+    description: `List contacts from another user's (a colleague's) default contacts folder. Targets /users/{id}/contacts. Requires Contacts.Read application permission or delegated access granted by the target user.`,
+    params: [
+      { name: 'user_id', type: 'string', required: true, description: `The user ID or userPrincipalName (email) of the target user whose data you are accessing (e.g., colleague@company.com or an object ID). Access must be granted via application permissions or delegated sharing.` },
+      { name: '$filter', type: 'string', required: false, description: `Filter expression to narrow results (e.g., "emailAddresses/any(a:a/address eq 'user@example.com')")` },
+      { name: '$orderby', type: 'string', required: false, description: `Property to sort by (e.g., "displayName")` },
+      { name: '$select', type: 'string', required: false, description: `Comma-separated list of properties to return (e.g., "displayName,emailAddresses,phoneNumbers")` },
+      { name: '$skip', type: 'integer', required: false, description: `Number of contacts to skip for pagination` },
+      { name: '$top', type: 'integer', required: false, description: `Number of contacts to return (default: 10)` },
+    ],
+  },
+  {
+    name: 'outlook_list_shared_mailbox_messages',
+    description: `List messages in a specific folder of a shared mailbox. Supports filtering, ordering, pagination, and field selection. Requires Mail.Read or Mail.ReadWrite permissions on the shared mailbox.`,
+    params: [
+      { name: 'folder_id', type: 'string', required: true, description: `The ID or well-known name of the mail folder to list messages from. Well-known names include: inbox, sentitems, drafts, deleteditems, junkemail, outbox, archive.` },
+      { name: 'shared_mailbox_id', type: 'string', required: true, description: `The email address or user ID of the shared mailbox to read messages from (e.g., support@company.com or a user object ID).` },
+      { name: '$filter', type: 'string', required: false, description: `OData filter expression to narrow results (e.g., "isRead eq false" or "from/emailAddress/address eq 'sender@example.com'").` },
+      { name: '$orderby', type: 'string', required: false, description: `OData orderby expression to sort messages (e.g., "receivedDateTime desc").` },
+      { name: '$select', type: 'string', required: false, description: `Comma-separated list of message properties to return (e.g., "subject,from,receivedDateTime,isRead"). Reduces response payload size.` },
+      { name: '$skip', type: 'integer', required: false, description: `Number of messages to skip for pagination (0-based offset). Use with $top for paging through results.` },
+      { name: '$top', type: 'integer', required: false, description: `Maximum number of messages to return (1-1000). Defaults to 10 if omitted.` },
+    ],
+  },
+  {
+    name: 'outlook_list_shared_todo_lists',
+    description: `List Microsoft To Do task lists belonging to another user (a colleague). Targets /users/{id}/todo/lists. Requires Tasks.Read application permission or delegated access granted by the target user.`,
+    params: [
+      { name: 'user_id', type: 'string', required: true, description: `The user ID or userPrincipalName (email) of the target user whose data you are accessing (e.g., colleague@company.com or an object ID). Access must be granted via application permissions or delegated sharing.` },
+    ],
+  },
+  {
+    name: 'outlook_list_shared_todo_tasks',
+    description: `List tasks in a Microsoft To Do list belonging to another user (a colleague). Targets /users/{id}/todo/lists/{list_id}/tasks. Requires Tasks.Read application permission or delegated access granted by the target user.`,
+    params: [
+      { name: 'list_id', type: 'string', required: true, description: `The ID of the task list.` },
+      { name: 'user_id', type: 'string', required: true, description: `The user ID or userPrincipalName (email) of the target user whose data you are accessing (e.g., colleague@company.com or an object ID). Access must be granted via application permissions or delegated sharing.` },
+      { name: '$filter', type: 'string', required: false, description: `OData filter expression (e.g. "status eq 'notStarted'").` },
+      { name: '$orderby', type: 'string', required: false, description: `Property to sort by (e.g. "createdDateTime desc").` },
+      { name: '$skip', type: 'integer', required: false, description: `Number of tasks to skip for pagination.` },
+      { name: '$top', type: 'integer', required: false, description: `Number of tasks to return (default: 10).` },
+    ],
+  },
+  {
     name: 'outlook_mailbox_settings_get',
     description: `Retrieve the mailbox settings for the signed-in user. Returns automatic replies (out-of-office) configuration, language, timezone, working hours, date/time format, and delegate meeting message delivery preferences.`,
     params: [
@@ -355,6 +672,24 @@ export const tools: Tool[] = [
       { name: 'message_id', type: 'string', required: true, description: `Message ID.` },
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'outlook_move_shared_mailbox_message',
+    description: `Move a message in a shared mailbox to a different mail folder. Requires the caller to have read/write access to the shared mailbox.`,
+    params: [
+      { name: 'destination_folder_id', type: 'string', required: true, description: `The ID or well-known name of the destination mail folder to move the message into (e.g., inbox, drafts, sentitems, deleteditems, junkemail, or a folder ID).` },
+      { name: 'message_id', type: 'string', required: true, description: `The unique identifier of the message to move within the shared mailbox.` },
+      { name: 'shared_mailbox_id', type: 'string', required: true, description: `The email address or user object ID of the shared mailbox containing the message (e.g., support@company.com or a GUID). The caller must have read/write permissions on this mailbox.` },
+    ],
+  },
+  {
+    name: 'outlook_reply_from_shared_mailbox',
+    description: `Reply to an existing email message on behalf of a shared mailbox. The reply is automatically sent to the original sender and saved in the shared mailbox's Sent Items folder. Requires send-as or send-on-behalf permissions on the shared mailbox.`,
+    params: [
+      { name: 'comment', type: 'string', required: true, description: `The reply message text content. This will be included as the comment/body of the reply email sent from the shared mailbox.` },
+      { name: 'message_id', type: 'string', required: true, description: `The unique identifier of the message in the shared mailbox to reply to. Retrieve from list or search shared mailbox messages.` },
+      { name: 'shared_mailbox_id', type: 'string', required: true, description: `The email address or user ID of the shared mailbox to reply from (e.g., support@company.com or a user object ID). The caller must have send-as or send-on-behalf permissions.` },
     ],
   },
   {
@@ -390,6 +725,16 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outlook_search_shared_mailbox_messages',
+    description: `Search messages across all folders in a shared mailbox by keyword. Searches across subject, body, sender, and recipients. Requires Mail.Read or Mail.ReadWrite permissions on the shared mailbox.`,
+    params: [
+      { name: 'query', type: 'string', required: true, description: `Search query string. Searches across subject, body, sender, and recipient fields. Example: "invoice Q1" will find messages mentioning invoice in Q1 context.` },
+      { name: 'shared_mailbox_id', type: 'string', required: true, description: `The email address or user ID of the shared mailbox to search (e.g., support@company.com or a user object ID).` },
+      { name: '$select', type: 'string', required: false, description: `Comma-separated list of message properties to return (e.g., "subject,from,receivedDateTime"). Reduces response payload size.` },
+      { name: '$top', type: 'integer', required: false, description: `Maximum number of messages to return (1-1000). Defaults to 10 if omitted.` },
+    ],
+  },
+  {
     name: 'outlook_send_message',
     description: `Send an email message using Microsoft Graph API. The message is saved in the Sent Items folder by default.`,
     params: [
@@ -400,6 +745,20 @@ export const tools: Tool[] = [
       { name: 'bodyType', type: 'string', required: false, description: `Content type of the body (Text or HTML)` },
       { name: 'ccRecipients', type: 'array', required: false, description: `Array of email addresses to CC` },
       { name: 'saveToSentItems', type: 'boolean', required: false, description: `Save the message in Sent Items folder (default: true)` },
+    ],
+  },
+  {
+    name: 'outlook_send_message_from_shared_mailbox',
+    description: `Send an email message on behalf of a shared mailbox using Microsoft Graph API. The message is saved in the shared mailbox's Sent Items folder by default. Requires the caller to have send-as or send-on-behalf-of permissions on the shared mailbox.`,
+    params: [
+      { name: 'body', type: 'string', required: true, description: `Body content of the email. Provide plain text or HTML depending on the bodyType field.` },
+      { name: 'shared_mailbox_id', type: 'string', required: true, description: `The email address or user ID of the shared mailbox to send from (e.g., support@company.com or a user object ID). The caller must have send-as or send-on-behalf permissions.` },
+      { name: 'subject', type: 'string', required: true, description: `Subject line of the email to send from the shared mailbox.` },
+      { name: 'toRecipients', type: 'array', required: true, description: `Array of email addresses to send the email to from the shared mailbox. Example: ["customer@example.com"]` },
+      { name: 'bccRecipients', type: 'array', required: false, description: `Array of email addresses to BCC on the outgoing message from the shared mailbox.` },
+      { name: 'bodyType', type: 'string', required: false, description: `Content type of the email body. Use 'Text' for plain text or 'HTML' for rich HTML content. Defaults to 'Text' if omitted.` },
+      { name: 'ccRecipients', type: 'array', required: false, description: `Array of email addresses to CC on the outgoing message from the shared mailbox.` },
+      { name: 'saveToSentItems', type: 'boolean', required: false, description: `Whether to save the sent message in the shared mailbox's Sent Items folder. Defaults to true.` },
     ],
   },
   {
@@ -591,6 +950,32 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outlook_update_calendar_group',
+    description: `Update the name of an existing calendar group in the signed-in user's mailbox.`,
+    params: [
+      { name: 'group_id', type: 'string', required: true, description: `The unique ID of the calendar group to update (e.g., 'AAMkAGI2...'). Obtain from List Calendar Groups.` },
+      { name: 'name', type: 'string', required: true, description: `The new name for the calendar group (e.g., 'Personal Calendars').` },
+    ],
+  },
+  {
+    name: 'outlook_update_calendar_permission',
+    description: `Update the role of an existing calendar permission entry. Use this to change a user's access level (e.g., upgrade from read to write, or downgrade from delegate to read) on a specific calendar.`,
+    params: [
+      { name: 'calendar_id', type: 'string', required: true, description: `The unique identifier of the calendar that contains the permission to update.` },
+      { name: 'permission_id', type: 'string', required: true, description: `The unique identifier of the calendar permission entry to update. Retrieve from the list calendar permissions endpoint.` },
+      { name: 'role', type: 'string', required: true, description: `The new permission role to assign. Valid values: freeBusyRead (see free/busy only), limitedRead (see title and location), read (see all event details), write (create/edit/delete events), delegateWithoutPrivateEventAccess (delegate, no private events), delegateWithPrivateEventAccess (delegate including private events), custom (custom role).` },
+    ],
+  },
+  {
+    name: 'outlook_update_category',
+    description: `Update the display name or color of an existing Outlook master category. Provide the category ID and at least one of display_name or color to update.`,
+    params: [
+      { name: 'category_id', type: 'string', required: true, description: `The unique ID of the Outlook category to update. Retrieve it from the list_categories tool.` },
+      { name: 'color', type: 'string', required: false, description: `New color for the category. Use 'none' for no color, or 'preset0' through 'preset24' for a specific color slot.` },
+      { name: 'display_name', type: 'string', required: false, description: `New display name for the category. Must be unique among the user's categories if provided.` },
+    ],
+  },
+  {
     name: 'outlook_update_contact',
     description: `Update properties of an existing contact.`,
     params: [
@@ -603,6 +988,22 @@ export const tools: Tool[] = [
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'surname', type: 'string', required: false, description: `Last name.` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'outlook_update_contact_folder',
+    description: `Update the display name of an existing contact folder in the signed-in user's mailbox.`,
+    params: [
+      { name: 'display_name', type: 'string', required: true, description: `The new display name for the contact folder (e.g., 'Updated Contacts').` },
+      { name: 'folder_id', type: 'string', required: true, description: `The unique ID of the contact folder to update (e.g., 'AAMkAGI2...'). Obtain from List Contact Folders.` },
+    ],
+  },
+  {
+    name: 'outlook_update_focused_inbox_override',
+    description: `Update an existing Focused Inbox override to change how messages from a specific sender are classified. Use this to switch a sender between Focused and Other inbox routing.`,
+    params: [
+      { name: 'classify_as', type: 'string', required: true, description: `Updated classification for the sender: 'focused' to route to Focused inbox, 'other' to route to Other inbox.` },
+      { name: 'override_id', type: 'string', required: true, description: `The unique ID of the Focused Inbox override to update. Retrieve it from the list_focused_inbox_overrides tool.` },
     ],
   },
   {
@@ -647,6 +1048,43 @@ export const tools: Tool[] = [
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'sequence', type: 'integer', required: false, description: `Rule sequence.` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'outlook_update_shared_calendar_event',
+    description: `Update an existing event on another user's calendar (shared or delegated access). Targets /users/{id}/events/{event_id}. Requires Calendars.ReadWrite application permission or delegated access granted by the target user.`,
+    params: [
+      { name: 'event_id', type: 'string', required: true, description: `The ID of the calendar event to update` },
+      { name: 'user_id', type: 'string', required: true, description: `The user ID or userPrincipalName (email) of the target user whose data you are accessing (e.g., colleague@company.com or an object ID). Access must be granted via application permissions or delegated sharing.` },
+      { name: 'attendees_optional', type: 'string', required: false, description: `Comma-separated optional attendee emails` },
+      { name: 'attendees_required', type: 'string', required: false, description: `Comma-separated required attendee emails` },
+      { name: 'attendees_resource', type: 'string', required: false, description: `Comma-separated resource emails (meeting rooms, equipment)` },
+      { name: 'body_content', type: 'string', required: false, description: `Event description/body` },
+      { name: 'body_contentType', type: 'string', required: false, description: `Content type of body` },
+      { name: 'categories', type: 'string', required: false, description: `Comma-separated categories` },
+      { name: 'end_datetime', type: 'string', required: false, description: `Event end time in RFC3339 format` },
+      { name: 'end_timezone', type: 'string', required: false, description: `Timezone for end time` },
+      { name: 'hideAttendees', type: 'boolean', required: false, description: `When true, each attendee only sees themselves` },
+      { name: 'importance', type: 'string', required: false, description: `Event importance level` },
+      { name: 'isAllDay', type: 'boolean', required: false, description: `Mark as all-day event` },
+      { name: 'isOnlineMeeting', type: 'boolean', required: false, description: `Create an online meeting (Teams/Skype)` },
+      { name: 'isReminderOn', type: 'boolean', required: false, description: `Enable or disable reminder` },
+      { name: 'location', type: 'string', required: false, description: `Physical or virtual location` },
+      { name: 'locations', type: 'string', required: false, description: `JSON array of location objects with displayName, address, coordinates` },
+      { name: 'onlineMeetingProvider', type: 'string', required: false, description: `Online meeting provider` },
+      { name: 'recurrence_days_of_week', type: 'string', required: false, description: `Days of week for weekly recurrence (comma-separated)` },
+      { name: 'recurrence_end_date', type: 'string', required: false, description: `End date for recurrence (YYYY-MM-DD)` },
+      { name: 'recurrence_interval', type: 'integer', required: false, description: `How often the event recurs (e.g., every 2 weeks = 2)` },
+      { name: 'recurrence_occurrences', type: 'integer', required: false, description: `Number of occurrences` },
+      { name: 'recurrence_range_type', type: 'string', required: false, description: `How the recurrence ends` },
+      { name: 'recurrence_start_date', type: 'string', required: false, description: `Start date for recurrence (YYYY-MM-DD)` },
+      { name: 'recurrence_type', type: 'string', required: false, description: `Recurrence pattern type` },
+      { name: 'reminderMinutesBeforeStart', type: 'integer', required: false, description: `Minutes before event start to show reminder` },
+      { name: 'sensitivity', type: 'string', required: false, description: `Event sensitivity/privacy level` },
+      { name: 'showAs', type: 'string', required: false, description: `Free/busy status` },
+      { name: 'start_datetime', type: 'string', required: false, description: `Event start time in RFC3339 format` },
+      { name: 'start_timezone', type: 'string', required: false, description: `Timezone for start time` },
+      { name: 'subject', type: 'string', required: false, description: `Event title/summary` },
     ],
   },
 ]

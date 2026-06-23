@@ -1,0 +1,72 @@
+---
+title: 'Monday MCP connector'
+tableOfContents: true
+description: 'Connect to the monday.com MCP server to manage boards, items, columns, docs, and workflows directly from your AI agents.'
+sidebar:
+  label: 'Monday MCP'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/monday.svg
+connectorAuthType: OAuth 2.1/DCR
+connectorCategories: [Project Management, Collaboration, Productivity]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/mondaymcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="mondaymcp" toolName="mondaymcp_search" providerName="Monday MCP" toolInputNode="{ searchType: 'YOUR_SEARCHTYPE' }" toolInputPython='{"searchType":"YOUR_SEARCHTYPE"}' />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Workspaceinfo records** — This tool returns the boards, docs and folders in a workspace and which folder they are in
+- **Updateworkspace records** — Update an existing workspace in monday.com
+- **Updateworkflow records** — Updates an existing workflow draft using an AI agent
+- **Updateviewtable records** — Update an existing table-type board view â change its name, filters, sort, tags, or table-specific settings (column visibility/order and group-by)
+- **Updateview records** — Update an existing board view (tab) â change its name, filter rules, or sort order
+- **Updateform records** — Update a monday.com form
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />
