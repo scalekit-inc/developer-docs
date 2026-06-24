@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig, sharpImageService } from 'astro/config'
+import { unified } from '@astrojs/markdown-remark'
 import starlight from '@astrojs/starlight'
 import react from '@astrojs/react'
 import path from 'path'
@@ -42,6 +43,10 @@ export default defineConfig({
     port: 4321,
   },
   redirects,
+  markdown: {
+    // starlight-links-validator requires the unified remark/rehype pipeline (not Sätteri).
+    processor: unified(),
+  },
   integrations: [
     starlight({
       title: 'Scalekit Docs',
@@ -410,7 +415,6 @@ export default defineConfig({
       // Disable gzip size reporting to save memory on large builds
       reportCompressedSize: false,
       rollupOptions: {
-        maxParallelFileOps: 8,
         output: {
           manualChunks(id) {
             if (id.includes('@scalar')) return 'scalar'

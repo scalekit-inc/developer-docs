@@ -5757,6 +5757,176 @@
     "description": "Returns a list of webhook subscriptions for a user or organization."
   },
   {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_availability_get_user_availability_schedule",
+    "description": "Use: Fetch details for one named availability schedule.\nWhen: User asks about specific schedule rules or needs rules for a named schedule.\nNeeds: Schedule URI from \\`availability-list_user_availability_schedules\\`.\nDo: Read \\`rules\\` array and \\`timezone\\` for display or to info…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_availability_list_user_availability_schedules",
+    "description": "Use: List all named availability schedules for the connected user.\nWhen: User asks about availability schedules or you need to identify one by name.\nNeeds: User URI from \\`users-get_current_user\\`.\nDo: Use returned \\`uri\\` to fetch schedule details or associate with an event typ…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_availability_list_user_busy_times",
+    "description": "Use: List a user's busy time blocks within a date range.\nWhen: User asks when they are busy or you need to avoid conflicts before suggesting slots.\nNeeds: User URI from \\`users-get_current_user\\` and ISO 8601 start/end range.\nDo: Pass user URI and date range; use returned interv…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_event_types_create_event_type",
+    "description": "Use: Create a new event type on the connected account.\nWhen: User explicitly asks to create a new event type.\nNeeds: Host user URI from \\`users-get_current_user\\`.\nDo: Set name, duration, and host URI; omit optional fields unless user specified them.\nAvoid: Creating duplicates—c…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_event_types_get_event_type",
+    "description": "Use: Fetch full details for one event type by URI.\nWhen: Before updating an event type or confirming its current configuration.\nNeeds: Event type URI.\nDo: Use the returned fields as the baseline for any patch payload.\nAvoid: Constructing update payloads without reading current s…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_event_types_list_event_type_availability_schedule",
+    "description": "Use: Read the current availability schedule (rules) for an event type.\nWhen: Before calling \\`event_types-update_event_type_availability_schedule\\`.\nNeeds: Event type URI.\nDo: Retain the full \\`rules\\` array verbatim—it is the required base for updates.\nAvoid: Calling the update…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_event_types_list_event_type_available_times",
+    "description": "Use: List bookable time slots for an event type within a date range.\nWhen: User wants slots, or to confirm availability before booking.\nNeeds: Event type URI and start/end date range (ISO 8601).\nDo: Pass \\`start_time\\` verbatim to subsequent tool calls; do not rewrite UTC values…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_event_types_list_event_types",
+    "description": "Use: List all event types for the connected user or org.\nWhen: Start of any event-type task, or when selecting an event type by name.\nNeeds: User URI from \\`users-get_current_user\\`.\nDo: Filter by current user URI unless user explicitly asks about a different host or org.\nAvoid:…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_event_types_update_event_type",
+    "description": "Use: Update fields on an existing event type.\nWhen: User asks to change name, duration, description, or other settings.\nNeeds: Event type URI from \\`event_types-list_event_types\\` or \\`event_types-get_event_type\\`.\nDo: Read current state first with \\`event_types-get_event_type\\`…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_event_types_update_event_type_availability_schedule",
+    "description": "Use: Overwrite the availability schedule for an event type.\nWhen: User requests schedule changes (hours, days, one-off date overrides) for an event type.\nNeeds: Event type URI and current rules from \\`event_types-list_event_type_availability_schedule\\`.\nDo: Must copy existing ru…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_locations_list_user_meeting_locations",
+    "description": "Use: List allowed meeting location kinds for a user.\nWhen: Before creating bookings that need a \\`location\\` payload.\nNeeds: User URI from \\`users-get_current_user\\`.\nDo: Read supported location \\`kind\\` values; choose one compatible with the event type.\nAvoid: Submitting a loca…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_meetings_cancel_event",
+    "description": "Use: Cancel a scheduled meeting on behalf of the connected host\nWhen: User confirms they want to cancel a specific meeting.\nNeeds: Meeting URI from \\`meetings-list_events\\` or \\`meetings-get_event\\`.\nDo: Pass meeting URI and optional cancellation reason.\nAvoid: Canceling without…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_meetings_create_invitee",
+    "description": "Use: Book a meeting slot for an invitee on a Calendly event type.\nWhen: User provides invitee name, email, and a confirmed available time slot.\nNeeds: Event type URI, \\`start_time\\` from \\`event_types-list_event_type_available_times\\`, invitee name and email. Include \\`location\\…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_meetings_create_invitee_no_show",
+    "description": "Use: Mark an invitee as a no-show for a past meeting.\nWhen: User reports an invitee did not attend.\nNeeds: Invitee URI from \\`meetings-list_event_invitees\\`.\nDo: Pass invitee URI; operation is idempotent.\nAvoid: Marking no-show before the meeting end time.\nThen: Confirm no-show …"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_meetings_delete_invitee_no_show",
+    "description": "Use: Remove a no-show mark from an invitee.\nWhen: User asks to undo a no-show marking.\nNeeds: No-show URI from \\`meetings-create_invitee_no_show\\`.\nDo: Pass no-show URI; operation is idempotent.\nAvoid: Calling without confirming a no-show record exists.\nThen: Confirm no-show has…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_meetings_get_event",
+    "description": "Use: Fetch details for a single scheduled meeting.\nWhen: User asks about a specific meeting or before canceling/examining invitees.\nNeeds: Meeting URI from \\`meetings-list_events\\`.\nDo: Use returned \\`event_type\\`, \\`start_time\\`, \\`end_time\\`, and \\`location\\` for display or ne…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_meetings_get_event_invitee",
+    "description": "Use: Fetch details for a single meeting invitee.\nWhen: User asks about a specific attendee's booking details.\nNeeds: Meeting URI from \\`meetings-list_events\\` and Invitee URI from \\`meetings-list_event_invitees\\`.\nDo: Use returned fields for display or no-show status. Reschedule…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_meetings_get_invitee_no_show",
+    "description": "Use: Fetch the no-show record for a meeting invitee.\nWhen: User asks whether a no-show was recorded for an invitee.\nNeeds: No-show URI from \\`meetings-create_invitee_no_show\\`.\nDo: Check returned record for no-show status and timestamp.\nAvoid: Calling if no no-show has been reco…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_meetings_list_event_invitees",
+    "description": "Use: List all invitees for a scheduled meeting.\nWhen: User asks who is attending a meeting or you need invitee URIs.\nNeeds: Meeting URI from \\`meetings-list_events\\`.\nDo: Use returned invitee \\`uri\\` for no-show marking or detail lookups.\nAvoid: Calling without a meeting URI. li…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_meetings_list_events",
+    "description": "Use: List scheduled meetings for user/org.\nWhen: Upcoming/past meetings or to find meetings by date.\nNeeds: User/org URI via \\`users-get_current_user\\`.\nDo: Filter status (active/canceled), date range; carry \\`uri\\`. Default enrich via \\`meetings-list_event_invitees\\`; skip for …"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_organizations_create_organization_invitation",
+    "description": "Use: Invite a user to the organization by email.\nWhen: User asks to add a new member.\nNeeds: Org URI and invitee email address.\nDo: Check \\`organizations-list_organization_invitations\\` first to avoid duplicate invites.\nAvoid: Calling without confirming no pending invite exists …"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_organizations_get_organization",
+    "description": "Use: Fetch details for the connected user's organization.\nWhen: User asks about the org or you need the org URI for org-scoped list tools.\nNeeds: Org URI from \\`users-get_current_user\\` (\\`resource.current_organization\\`).\nDo: Use returned \\`uri\\` for org-scoped event type or me…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_organizations_get_organization_membership",
+    "description": "Use: Fetch details for a single org membership.\nWhen: You need role or status for a specific member.\nNeeds: Membership URI from \\`organizations-list_organization_memberships\\`.\nDo: Check \\`role\\` and \\`status\\` fields for permissions context.\nAvoid: Calling without a known membe…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_organizations_list_organization_invitations",
+    "description": "Use: List pending invitations for the organization.\nWhen: User asks to see pending invites or check if someone was already invited.\nNeeds: Org URI from \\`users-get_current_user\\`.\nDo: Check returned list before sending a new invite to avoid duplicates.\nAvoid: Sending a new invit…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_organizations_list_organization_memberships",
+    "description": "Use: List all members of an organization.\nWhen: User asks who is in the org or you need to find a member's user URI.\nNeeds: Org URI from \\`users-get_current_user\\`.\nDo: Use returned \\`user.uri\\` for per-user event-type or availability queries.\nAvoid: Fetching the full list when …"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_organizations_revoke_organization_invitation",
+    "description": "Use: Revoke a pending organization invitation.\nWhen: User asks to cancel a pending invite.\nNeeds: Organization URI from \\`users-get_current_user\\` and Invitation URI from \\`organizations-list_organization_invitations\\`.\nDo: Confirm with user before revoking; this cannot be undon…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_routing_forms_get_routing_form",
+    "description": "Use: Fetch details for a single routing form.\nWhen: User asks about a specific form or its questions.\nNeeds: Routing form URI from \\`routing_forms-list_routing_forms\\`.\nDo: Use returned question IDs for submission filtering.\nAvoid: Calling without a known form URI.\nThen: Use for…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_routing_forms_get_routing_form_submission",
+    "description": "Use: Fetch details for a single routing form submission.\nWhen: User asks about a specific submission or response.\nNeeds: Submission URI from \\`routing_forms-list_routing_form_submissions\\`.\nDo: Read \\`questions_and_answers\\` for the submitted values.\nAvoid: Calling without a kno…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_routing_forms_list_routing_form_submissions",
+    "description": "Use: List submissions for a routing form.\nWhen: User asks to see form responses or analyze routing data.\nNeeds: Routing form URI from \\`routing_forms-list_routing_forms\\`.\nDo: Use pagination params for large result sets.\nAvoid: Fetching all submissions without date/count filters…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_routing_forms_list_routing_forms",
+    "description": "Use: List routing forms for the org.\nWhen: User asks about routing forms or you need to find a form by name.\nNeeds: Org URI from \\`users-get_current_user\\`.\nDo: Use returned \\`uri\\` to fetch form details.\nAvoid: Assuming form names without listing first.\nThen: Use form URI in \\`…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_scheduling_links_create_single_use_scheduling_link",
+    "description": "Use: Create a single-use scheduling link using the event type's settings unchanged.\nWhen: User wants a one-time link with no overrides. For per-link customization (duration, scheduling window, location, availability), use \\`shares-create_share\\` instead.\nNeeds: Event type URI fr…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_shares_create_share",
+    "description": "Use: Create a single-use share link for a one-on-one event type with per-link overrides\nWhen: User wants a single-use link with any customization (duration, scheduling window, location, or availability).\nNeeds: Event type URI from \\`event_types-list_event_types\\`.\nDo: Set only f…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_users_get_current_user",
+    "description": "Use: Resolve the connected host account and canonical user URI.\nWhen: Start any scheduling, booking, event-type, or availability workflow.\nNeeds: No inputs.\nDo: Call once and keep \\`resource.uri\\`, \\`timezone\\`, and \\`scheduling_url\\` for downstream calls.\nAvoid: Skipping this a…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_users_get_user",
+    "description": "Use: Fetch profile for a specific user by URI.\nWhen: User asks about another person's account or you hold a user URI from org/membership data.\nNeeds: User URI.\nDo: Pass the user URI from org/membership data; do not use this to look up the connected user.\nAvoid: Calling this with…"
+  },
+  {
     "slug": "calmcp",
     "name": "calmcp_add_booking_attendee",
     "description": "Add a new attendee to an existing booking. Required: name, email, timeZone. ASK THE USER for all attendee details — never guess or fabricate names, emails, or time zones."
@@ -14581,6 +14751,126 @@
     "description": "Search Hugging Face Spaces by query and return matching spaces with relevance scores."
   },
   {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_createadr",
+    "description": "Create a new Architecture Decision Record (ADR) in the landscape."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_createconnection",
+    "description": "Create a new connection between two model objects."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_createmodelobject",
+    "description": "Create a new model object in the landscape. Types 'actor' and 'system' can be created at root level; 'app' and 'component' require a parentId pointing to a parent system."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_getadrdetails",
+    "description": "Get detailed information about a specific Architecture Decision Record (ADR) including its full content, status history, and related items."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_getconnectiondetails",
+    "description": "Get full details for a single connection including description, links, technologies, and tags."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_getdiagramdetails",
+    "description": "Get detailed information about a diagram including its objects, connections, and flows, or export as a PNG image."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_getdomaindetails",
+    "description": "Get detailed information about a specific domain including its name, labels, and timestamps."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_getflowdetails",
+    "description": "Get detailed information about a flow including its steps, or export it as a Mermaid sequence diagram."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_getmodelobjectdetails",
+    "description": "Get detailed information about a model object including its type, status, domain, technologies, tags, and relationships."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_getteamdetails",
+    "description": "Get detailed information about a specific team including its members, assigned model objects, and timestamps."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_gettechnologydetails",
+    "description": "Get detailed information about a specific technology including its type, provider, description, and links."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_landscapesearch",
+    "description": "Search across all landscape entities (model objects, connections, diagrams, flows) by name. Supports fuzzy and prefix matching. Only works on the latest version."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_listadrs",
+    "description": "List Architecture Decision Records (ADRs) in the landscape."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_listconnections",
+    "description": "List connections where a model object is the origin or target."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_listdiagrams",
+    "description": "List diagrams in the landscape. Filter by name, type, or parent model object."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_listdomains",
+    "description": "List domains in the landscape. Domains are top-level organizational boundaries (level 0 in the C4 hierarchy)."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_listflows",
+    "description": "List flows in the landscape. Flows represent sequence diagrams showing how objects interact over time."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_listmodelobjects",
+    "description": "List model objects in the landscape. Filter by name, type, status, parent, or group."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_listtags",
+    "description": "List tags and tag groups in the landscape. Tags are organized by groups."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_listteams",
+    "description": "List teams in the organization. Teams represent ownership groups assignable to model objects."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_listtechnologies",
+    "description": "List technologies from the catalog and organization. Filter by name, type, or provider."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_updateadr",
+    "description": "Update an Architecture Decision Record (ADR). Supports updating name, description, content, status, and related items."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_updateconnection",
+    "description": "Update a connection in the landscape. Supports $add/$remove operations. Set status to 'removed' to delete."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_updatemodelobject",
+    "description": "Update a model object in the landscape. Supports $add/$remove operations. Set status to 'removed' to delete."
+  },
+  {
     "slug": "jammcp",
     "name": "jammcp_analyzevideo",
     "description": "Extract user intents from a Jam recording. Identifies distinct user goals, issues, and feedback with detailed context including visual observations, interactions, and technical indicators."
@@ -19286,6 +19576,11 @@
   },
   {
     "slug": "microsoft365",
+    "name": "microsoft365_outlook_create_shared_calendar_event",
+    "description": "Create a calendar event on another user's calendar (shared or delegated access). Targets POST /users/{id}/events. Requires Calendars.ReadWrite application permission or delegated access granted by the target user."
+  },
+  {
+    "slug": "microsoft365",
     "name": "microsoft365_outlook_create_upload_session",
     "description": "Create an upload session for attaching a large file to an Outlook message using Microsoft Graph. Returns an uploadUrl and expiration time. Use the uploadUrl to upload file content in chunks via PUT requests. Required for attachments larger than 3 MB."
   },
@@ -19396,6 +19691,16 @@
   },
   {
     "slug": "microsoft365",
+    "name": "microsoft365_outlook_get_shared_contact",
+    "description": "Get a single contact from another user's contacts by contact ID. Targets GET /users/{id}/contacts/{contact_id}. Requires Contacts.Read application permission or delegated access granted by the target user."
+  },
+  {
+    "slug": "microsoft365",
+    "name": "microsoft365_outlook_get_shared_mailbox_message",
+    "description": "Get a single message from a shared mailbox by message ID. Targets GET /users/{id}/messages/{message_id}. Requires Mail.Read or Mail.ReadWrite permission on the shared mailbox."
+  },
+  {
+    "slug": "microsoft365",
     "name": "microsoft365_outlook_get_user_presence",
     "description": "Get the presence status of a specific user."
   },
@@ -19481,8 +19786,23 @@
   },
   {
     "slug": "microsoft365",
+    "name": "microsoft365_outlook_list_shared_contacts",
+    "description": "List contacts from another user's default contacts folder (a colleague's contacts). Targets GET /users/{id}/contacts. Requires Contacts.Read application permission or delegated access granted by the target user."
+  },
+  {
+    "slug": "microsoft365",
     "name": "microsoft365_outlook_list_shared_mailbox_messages",
     "description": "List messages in a specific folder of a shared mailbox. Supports filtering, ordering, pagination, and field selection. Requires Mail.Read or Mail.ReadWrite permissions on the shared mailbox."
+  },
+  {
+    "slug": "microsoft365",
+    "name": "microsoft365_outlook_list_shared_todo_lists",
+    "description": "List Microsoft To Do task lists belonging to another user (a colleague). Targets GET /users/{id}/todo/lists. Requires Tasks.Read application permission or delegated access granted by the target user."
+  },
+  {
+    "slug": "microsoft365",
+    "name": "microsoft365_outlook_list_shared_todo_tasks",
+    "description": "List tasks in a Microsoft To Do list belonging to another user (a colleague). Targets GET /users/{id}/todo/lists/{list_id}/tasks. Requires Tasks.Read application permission or delegated access granted by the target user."
   },
   {
     "slug": "microsoft365",
@@ -19668,6 +19988,11 @@
     "slug": "microsoft365",
     "name": "microsoft365_outlook_update_message_rule",
     "description": "Update an existing inbox message rule."
+  },
+  {
+    "slug": "microsoft365",
+    "name": "microsoft365_outlook_update_shared_calendar_event",
+    "description": "Update an existing event on another user's calendar (shared or delegated access). Targets PATCH /users/{id}/events/{event_id}. Requires Calendars.ReadWrite application permission or delegated access granted by the target user."
   },
   {
     "slug": "microsoft365",
@@ -20138,41 +20463,6 @@
     "slug": "microsoft365",
     "name": "microsoft365_word_create_document",
     "description": "Create a new Word document (.docx) in OneDrive by initiating a resumable upload session. Returns an uploadUrl that the caller must use to upload the .docx file bytes via one or more PUT requests. The document is placed under the specified parent folder with the given filename. R…"
-  },
-  {
-    "slug": "microsoft365",
-    "name": "microsoft365_outlook_create_shared_calendar_event",
-    "description": "Create a calendar event on another user's calendar (shared or delegated access). Targets POST /users/{id}/events. Requires Calendars.ReadWrite application permission or delegated access granted by the target user."
-  },
-  {
-    "slug": "microsoft365",
-    "name": "microsoft365_outlook_update_shared_calendar_event",
-    "description": "Update an existing event on another user's calendar (shared or delegated access). Targets PATCH /users/{id}/events/{event_id}. Requires Calendars.ReadWrite application permission or delegated access granted by the target user."
-  },
-  {
-    "slug": "microsoft365",
-    "name": "microsoft365_outlook_get_shared_mailbox_message",
-    "description": "Get a single message from a shared mailbox by message ID. Targets GET /users/{id}/messages/{message_id}. Requires Mail.Read or Mail.ReadWrite permission on the shared mailbox."
-  },
-  {
-    "slug": "microsoft365",
-    "name": "microsoft365_outlook_list_shared_contacts",
-    "description": "List contacts from another user's default contacts folder (a colleague's contacts). Targets GET /users/{id}/contacts. Requires Contacts.Read application permission or delegated access granted by the target user."
-  },
-  {
-    "slug": "microsoft365",
-    "name": "microsoft365_outlook_get_shared_contact",
-    "description": "Get a single contact from another user's contacts by contact ID. Targets GET /users/{id}/contacts/{contact_id}. Requires Contacts.Read application permission or delegated access granted by the target user."
-  },
-  {
-    "slug": "microsoft365",
-    "name": "microsoft365_outlook_list_shared_todo_lists",
-    "description": "List Microsoft To Do task lists belonging to another user (a colleague). Targets GET /users/{id}/todo/lists. Requires Tasks.Read application permission or delegated access granted by the target user."
-  },
-  {
-    "slug": "microsoft365",
-    "name": "microsoft365_outlook_list_shared_todo_tasks",
-    "description": "List tasks in a Microsoft To Do list belonging to another user (a colleague). Targets GET /users/{id}/todo/lists/{list_id}/tasks. Requires Tasks.Read application permission or delegated access granted by the target user."
   },
   {
     "slug": "microsoftexcel",
@@ -22434,6 +22724,11 @@
   },
   {
     "slug": "outlook",
+    "name": "outlook_create_shared_calendar_event",
+    "description": "Create a calendar event on another user's calendar (shared or delegated access). Targets POST /users/{id}/events. Requires Calendars.ReadWrite application permission or delegated access granted by the target user."
+  },
+  {
+    "slug": "outlook",
     "name": "outlook_create_upload_session",
     "description": "Create an upload session for attaching a large file to an Outlook message using Microsoft Graph. Returns an uploadUrl and expiration time. Use the uploadUrl to upload file content in chunks via PUT requests. Required for attachments larger than 3 MB."
   },
@@ -22544,6 +22839,16 @@
   },
   {
     "slug": "outlook",
+    "name": "outlook_get_shared_contact",
+    "description": "Get a single contact from another user's contacts by contact ID. Targets GET /users/{id}/contacts/{contact_id}. Requires Contacts.Read application permission or delegated access granted by the target user."
+  },
+  {
+    "slug": "outlook",
+    "name": "outlook_get_shared_mailbox_message",
+    "description": "Get a single message from a shared mailbox by message ID. Targets GET /users/{id}/messages/{message_id}. Requires Mail.Read or Mail.ReadWrite permission on the shared mailbox."
+  },
+  {
+    "slug": "outlook",
     "name": "outlook_get_user_presence",
     "description": "Get the presence status of a specific user."
   },
@@ -22629,8 +22934,23 @@
   },
   {
     "slug": "outlook",
+    "name": "outlook_list_shared_contacts",
+    "description": "List contacts from another user's default contacts folder (a colleague's contacts). Targets GET /users/{id}/contacts. Requires Contacts.Read application permission or delegated access granted by the target user."
+  },
+  {
+    "slug": "outlook",
     "name": "outlook_list_shared_mailbox_messages",
     "description": "List messages in a specific folder of a shared mailbox. Supports filtering, ordering, pagination, and field selection. Requires Mail.Read or Mail.ReadWrite permissions on the shared mailbox."
+  },
+  {
+    "slug": "outlook",
+    "name": "outlook_list_shared_todo_lists",
+    "description": "List Microsoft To Do task lists belonging to another user (a colleague). Targets GET /users/{id}/todo/lists. Requires Tasks.Read application permission or delegated access granted by the target user."
+  },
+  {
+    "slug": "outlook",
+    "name": "outlook_list_shared_todo_tasks",
+    "description": "List tasks in a Microsoft To Do list belonging to another user (a colleague). Targets GET /users/{id}/todo/lists/{list_id}/tasks. Requires Tasks.Read application permission or delegated access granted by the target user."
   },
   {
     "slug": "outlook",
@@ -22819,38 +23139,8 @@
   },
   {
     "slug": "outlook",
-    "name": "outlook_create_shared_calendar_event",
-    "description": "Create a calendar event on another user's calendar (shared or delegated access). Targets POST /users/{id}/events. Requires Calendars.ReadWrite application permission or delegated access granted by the target user."
-  },
-  {
-    "slug": "outlook",
     "name": "outlook_update_shared_calendar_event",
     "description": "Update an existing event on another user's calendar (shared or delegated access). Targets PATCH /users/{id}/events/{event_id}. Requires Calendars.ReadWrite application permission or delegated access granted by the target user."
-  },
-  {
-    "slug": "outlook",
-    "name": "outlook_get_shared_mailbox_message",
-    "description": "Get a single message from a shared mailbox by message ID. Targets GET /users/{id}/messages/{message_id}. Requires Mail.Read or Mail.ReadWrite permission on the shared mailbox."
-  },
-  {
-    "slug": "outlook",
-    "name": "outlook_list_shared_contacts",
-    "description": "List contacts from another user's default contacts folder (a colleague's contacts). Targets GET /users/{id}/contacts. Requires Contacts.Read application permission or delegated access granted by the target user."
-  },
-  {
-    "slug": "outlook",
-    "name": "outlook_get_shared_contact",
-    "description": "Get a single contact from another user's contacts by contact ID. Targets GET /users/{id}/contacts/{contact_id}. Requires Contacts.Read application permission or delegated access granted by the target user."
-  },
-  {
-    "slug": "outlook",
-    "name": "outlook_list_shared_todo_lists",
-    "description": "List Microsoft To Do task lists belonging to another user (a colleague). Targets GET /users/{id}/todo/lists. Requires Tasks.Read application permission or delegated access granted by the target user."
-  },
-  {
-    "slug": "outlook",
-    "name": "outlook_list_shared_todo_tasks",
-    "description": "List tasks in a Microsoft To Do list belonging to another user (a colleague). Targets GET /users/{id}/todo/lists/{list_id}/tasks. Requires Tasks.Read application permission or delegated access granted by the target user."
   },
   {
     "slug": "outreach",
