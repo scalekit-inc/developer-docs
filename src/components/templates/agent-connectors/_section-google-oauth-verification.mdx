@@ -1,0 +1,27 @@
+import { Aside } from '@astrojs/starlight/components'
+
+Before you use your own Google OAuth credentials in production, understand what end users see on Google's consent screen when they authorize a connected account.
+
+| Audience type | Consent screen behavior | When to use |
+| --- | --- | --- |
+| **Internal** | Shows your App Name and logo from Branding settings | Only employees on whitelisted Google Workspace domains authorize the connector |
+| **External** | Shows `{env_name}.scalekit.dev` until Google verifies your app | Any user with a Google account can authorize the connector |
+
+**Why External is required for most AgentKit connectors:**
+
+- **Internal** restricts authorization to email domains you control. Users with `@gmail.com` or other Google accounts outside your Workspace cannot complete OAuth.
+- **External** is required when end users outside your organization authorize tool access through connected accounts.
+- **Organization-managed OAuth clients follow the same rules** as personal or developer OAuth clients. Switching to an org-owned client does not bypass Google verification.
+- Until Google completes verification of your External app, users see `scalekit.dev` on the consent screen. After verification, your App Name and logo appear.
+
+<Aside type="note" title="Separate from Scalekit domain verification">
+  This is Google's OAuth consent screen behavior—not Scalekit's. [Custom domain](/agentkit/advanced/custom-domain/) controls your Scalekit environment URL for MCP auth branding. It does not replace Google's app verification for OAuth consent screens.
+</Aside>
+
+**During development:**
+
+- Add **Test users** under **APIs & Services → OAuth consent screen** while publishing status is **Testing**.
+- On unverified apps, users can click **Advanced → Go to app (unsafe)** to proceed during testing.
+- Google Workspace admins may need to allowlist your OAuth client.
+
+For Google's verification requirements and timeline, refer to <a href="https://support.google.com/cloud/answer/13463073" target="_blank" rel="noopener">Google's OAuth consent screen verification guide</a>.
