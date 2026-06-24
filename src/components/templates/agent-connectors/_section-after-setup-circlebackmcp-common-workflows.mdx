@@ -1,0 +1,148 @@
+{/* TODO: stub cloned from _section-after-setup-calendlymcp-common-workflows.mdx for Circleback MCP. Review and update connector-specific references (URLs, scopes, app-registration steps) before merging. */}
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+### Search recent meetings
+
+Use `circlebackmcp_searchmeetings` to find meetings by keyword. Pass a `query` string and an optional date range to narrow results. The response includes meeting IDs you can pass to `circlebackmcp_readmeetings` for full detail.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const results = await actions.executeTool({
+      connectionName: 'circlebackmcp',
+      identifier: 'user_123',
+      toolName: 'circlebackmcp_searchmeetings',
+      toolInput: {
+        intent: 'Find meetings about Q3 planning',
+        query: 'Q3 planning',
+        pageIndex: 0,
+      },
+    });
+    console.log(results.data);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    results = actions.execute_tool(
+        connection_name="circlebackmcp",
+        identifier="user_123",
+        tool_name="circlebackmcp_searchmeetings",
+        tool_input={
+            "intent": "Find meetings about Q3 planning",
+            "query": "Q3 planning",
+            "pageIndex": 0,
+        },
+    )
+    print(results["data"])
+    ```
+  </TabItem>
+</Tabs>
+
+### Fetch full transcripts for a set of meetings
+
+Use `circlebackmcp_gettranscriptsformeetings` to retrieve word-by-word transcripts. Pass the meeting IDs from a previous search and supply an `intent` to describe the retrieval goal.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const transcripts = await actions.executeTool({
+      connectionName: 'circlebackmcp',
+      identifier: 'user_123',
+      toolName: 'circlebackmcp_gettranscriptsformeetings',
+      toolInput: {
+        intent: 'Review what was discussed in the Q3 planning meeting',
+        meetingIds: ['Vd6Pz_kWqLm3xY-c8RhTn'],
+      },
+    });
+    console.log(transcripts.data);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    transcripts = actions.execute_tool(
+        connection_name="circlebackmcp",
+        identifier="user_123",
+        tool_name="circlebackmcp_gettranscriptsformeetings",
+        tool_input={
+            "intent": "Review what was discussed in the Q3 planning meeting",
+            "meetingIds": ["Vd6Pz_kWqLm3xY-c8RhTn"],
+        },
+    )
+    print(transcripts["data"])
+    ```
+  </TabItem>
+</Tabs>
+
+### Find open action items
+
+Use `circlebackmcp_searchactionitems` to retrieve pending action items. Filter by `status: "PENDING"` and optionally by date range or assignee. Call this in pages — only 25 results are returned per page.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const actionItems = await actions.executeTool({
+      connectionName: 'circlebackmcp',
+      identifier: 'user_123',
+      toolName: 'circlebackmcp_searchactionitems',
+      toolInput: {
+        intent: 'List all open action items assigned to me',
+        pageIndex: 0,
+        status: 'PENDING',
+      },
+    });
+    console.log(actionItems.data);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    action_items = actions.execute_tool(
+        connection_name="circlebackmcp",
+        identifier="user_123",
+        tool_name="circlebackmcp_searchactionitems",
+        tool_input={
+            "intent": "List all open action items assigned to me",
+            "pageIndex": 0,
+            "status": "PENDING",
+        },
+    )
+    print(action_items["data"])
+    ```
+  </TabItem>
+</Tabs>
+
+### Look up a contact profile
+
+Use `circlebackmcp_findprofiles` to resolve a person's name to their Circleback profile. The returned profile ID can be used as `assigneeProfileId` in `circlebackmcp_searchactionitems` to filter action items by a specific person.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const profiles = await actions.executeTool({
+      connectionName: 'circlebackmcp',
+      identifier: 'user_123',
+      toolName: 'circlebackmcp_findprofiles',
+      toolInput: {
+        searchTerms: ['Alex Johnson'],
+      },
+    });
+    const profileId = profiles.data[0]?.id;
+    console.log(profileId);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    profiles = actions.execute_tool(
+        connection_name="circlebackmcp",
+        identifier="user_123",
+        tool_name="circlebackmcp_findprofiles",
+        tool_input={
+            "searchTerms": ["Alex Johnson"],
+        },
+    )
+    profile_id = profiles["data"][0]["id"] if profiles["data"] else None
+    print(profile_id)
+    ```
+  </TabItem>
+</Tabs>

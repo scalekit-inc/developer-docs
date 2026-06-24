@@ -1029,4 +1029,9 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'OAuth 2.1/DCR',
     categories: ['Developer Tools', 'Collaboration'],
   },
+  circlebackmcp: {
+    iconUrl: 'https://circleback.ai/logos/circleback.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Productivity', 'Transcription', 'Calendar'],
+  },
 }
