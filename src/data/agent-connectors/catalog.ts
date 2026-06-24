@@ -1030,7 +1030,7 @@ export const catalog: Record<string, ProviderMeta> = {
     categories: ['Developer Tools', 'Collaboration'],
   },
   linklymcp: {
-    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/linkly.svg',
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/linkly.png',
     authType: 'OAuth 2.1/PKCE',
     categories: ['Marketing', 'Analytics'],
   },
