@@ -1,0 +1,22 @@
+{/* TODO: stub cloned from _setup-customeriomcp.mdx for Linkly. Review and update connector-specific references (URLs, scopes, app-registration steps) before merging. */}
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Linkly uses Dynamic Client Registration (DCR) — no client ID or secret is required. The only step is creating a connection in Scalekit and authorizing your Customer.io account.
+
+<Steps>
+1. ### Create a connection in Scalekit
+
+   - In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** → **Connections** → **Create Connection**.
+   - Search for **Linkly** and click **Create**.
+   - Note the **Connection name** — use this as `connection_name` in your code (e.g., `linklymcp`).
+
+2. ### Authorize your Customer.io account
+
+   Generate an authorization link and open it in a browser to complete the Customer.io OAuth flow.
+
+   The user is redirected to Customer.io to sign in and grant access. Scalekit stores the token and injects it automatically into every tool call — no further configuration is needed.
+
+   <Aside type="note" title="Call cio_prime first">
+     After connecting, call `linklymcp_cio_prime` as your first tool call. It loads LLM-ready instructions about the Customer.io API structure, available resources, and recommended workflows.
+   </Aside>
+</Steps>

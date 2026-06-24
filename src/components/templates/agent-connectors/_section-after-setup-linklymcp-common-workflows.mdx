@@ -1,0 +1,137 @@
+{/* TODO: stub cloned from _section-after-setup-customeriomcp-common-workflows.mdx for Linkly. Review and update connector-specific references (URLs, scopes, app-registration steps) before merging. */}
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+### Check authentication status
+
+Use `linklymcp_cio_auth_status` to verify the connection and see the authenticated user, account, and accessible workspaces.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const status = await actions.executeTool({
+      connectionName: 'linklymcp',
+      identifier: 'user_123',
+      toolName: 'linklymcp_cio_auth_status',
+      toolInput: {},
+    });
+    console.log(status);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    status = actions.execute_tool(
+        connection_name="linklymcp",
+        identifier="user_123",
+        tool_name="linklymcp_cio_auth_status",
+        tool_input={},
+    )
+    print(status)
+    ```
+  </TabItem>
+</Tabs>
+
+### Read campaign data
+
+Use `linklymcp_cio_read_api` to fetch campaigns from a Customer.io environment. Call `linklymcp_cio_schema` first to discover the correct API path and available parameters.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const campaigns = await actions.executeTool({
+      connectionName: 'linklymcp',
+      identifier: 'user_123',
+      toolName: 'linklymcp_cio_read_api',
+      toolInput: {
+        path: '/v1/environments/{environment_id}/campaigns',
+        params: { environment_id: 'env_abc123' },
+        limit: 10,
+      },
+    });
+    console.log(campaigns);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    campaigns = actions.execute_tool(
+        connection_name="linklymcp",
+        identifier="user_123",
+        tool_name="linklymcp_cio_read_api",
+        tool_input={
+            "path": "/v1/environments/{environment_id}/campaigns",
+            "params": {"environment_id": "env_abc123"},
+            "limit": 10,
+        },
+    )
+    print(campaigns)
+    ```
+  </TabItem>
+</Tabs>
+
+### Create a campaign
+
+Use `linklymcp_cio_write_api` to create a new campaign. Always set `dry_run: true` first to validate the request before executing.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // Step 1 — dry run to validate
+    const preview = await actions.executeTool({
+      connectionName: 'linklymcp',
+      identifier: 'user_123',
+      toolName: 'linklymcp_cio_write_api',
+      toolInput: {
+        path: '/v1/environments/{environment_id}/campaigns',
+        params: { environment_id: 'env_abc123' },
+        body: { name: 'Welcome Series', type: 'triggered' },
+        dry_run: true,
+      },
+    });
+    console.log(preview);
+
+    // Step 2 — execute after confirming dry run looks correct
+    const result = await actions.executeTool({
+      connectionName: 'linklymcp',
+      identifier: 'user_123',
+      toolName: 'linklymcp_cio_write_api',
+      toolInput: {
+        path: '/v1/environments/{environment_id}/campaigns',
+        params: { environment_id: 'env_abc123' },
+        body: { name: 'Welcome Series', type: 'triggered' },
+      },
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    # Step 1 — dry run to validate
+    preview = actions.execute_tool(
+        connection_name="linklymcp",
+        identifier="user_123",
+        tool_name="linklymcp_cio_write_api",
+        tool_input={
+            "path": "/v1/environments/{environment_id}/campaigns",
+            "params": {"environment_id": "env_abc123"},
+            "body": {"name": "Welcome Series", "type": "triggered"},
+            "dry_run": True,
+        },
+    )
+    print(preview)
+
+    # Step 2 — execute after confirming dry run looks correct
+    result = actions.execute_tool(
+        connection_name="linklymcp",
+        identifier="user_123",
+        tool_name="linklymcp_cio_write_api",
+        tool_input={
+            "path": "/v1/environments/{environment_id}/campaigns",
+            "params": {"environment_id": "env_abc123"},
+            "body": {"name": "Welcome Series", "type": "triggered"},
+        },
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>

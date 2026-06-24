@@ -1029,4 +1029,9 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'OAuth 2.1/DCR',
     categories: ['Developer Tools', 'Collaboration'],
   },
+  linklymcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/linkly.svg',
+    authType: 'OAuth 2.1/PKCE',
+    categories: ['Marketing', 'Analytics'],
+  },
 }
