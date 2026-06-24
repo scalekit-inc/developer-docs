@@ -1,33 +1,25 @@
-{/* TODO: stub cloned from _setup-atlassianmcp.mdx for IcePanel. Review and update connector-specific references (URLs, scopes, app-registration steps) before merging. */}
 import { Steps, Aside } from '@astrojs/starlight/components'
 
-IcePanel uses Dynamic Client Registration (DCR) — no client ID or secret is needed. The only step is registering your Scalekit redirect URI as an allowed domain in Atlassian Administration.
+IcePanel uses OAuth 2.1 with Dynamic Client Registration (DCR) — Scalekit registers an OAuth client with IcePanel automatically. No manual app registration or client credentials are needed.
 
 <Steps>
 1. ### Copy the redirect URI from Scalekit
 
-   In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **IcePanel** and click **Create**. Copy the redirect URI — it looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+   In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **IcePanel MCP** and click **Create**. Copy the redirect URI — it looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
 
-   {/* TODO: add screenshot — alt: "Copy redirect URI from Scalekit dashboard for IcePanel", original src: @/assets/docs/agent-connectors/icepanelmcp/copy-redirect-uri.png */}
-2. ### Open the Rovo MCP server settings in Atlassian
+   {/* TODO: add screenshot — alt: "Copy redirect URI from Scalekit dashboard for IcePanel MCP", original src: @/assets/docs/agent-connectors/icepanelmcp/copy-redirect-uri.png */}
 
-   - Go to [admin.atlassian.com](https://admin.atlassian.com) and select your organisation.
-   - In the left sidebar, expand **Rovo** and click **Rovo access**.
-   - Click **Rovo MCP server** in the submenu.
-   - Select the **Domains** tab at the top of the page.
+2. ### Authorize with your IcePanel account
 
-   <Aside type="note" title="Admin access required">
-     You must be an Atlassian organisation admin to access these settings. If you don't see **Rovo** in the sidebar, your organisation may not have Rovo enabled.
+   Click **Connect** in the Scalekit dashboard. You are redirected to IcePanel's login page. Sign in with the IcePanel account that owns the landscapes you want to access.
+
+   <Aside type="note" title="Landscape access">
+     The connected account must have access to the IcePanel landscapes you want your agent to query or update. Access is scoped to landscapes visible to the authenticated user.
    </Aside>
 
-3. ### Add the redirect URI as a domain
+3. ### Confirm the connection is active
 
-   - Under **Your domains**, click **Add domain**.
+   After you authorize, Scalekit exchanges the authorization code for tokens and marks the connection as **Active**. IcePanel tokens are refreshed automatically — no further steps are needed.
 
-   {/* TODO: add screenshot — alt: "Your domains section in IcePanel server administration", original src: @/assets/docs/agent-connectors/icepanelmcp/add-domain-redirect-uri.png */}
-   - In the **Add domain** dialog, paste the redirect URI from Scalekit into the **Domain** field.
-   - Accept the terms and click **Add**.
-
-   {/* TODO: add screenshot — alt: "Add domain dialog in IcePanel server", original src: @/assets/docs/agent-connectors/icepanelmcp/add-domain-modal.png */}
-   Once added, Scalekit automatically registers the OAuth client via DCR and handles token management for every user who authorizes the connection — no further configuration needed.
+   {/* TODO: add screenshot — alt: "Active connection status in Scalekit dashboard", original src: @/assets/docs/agent-connectors/icepanelmcp/connection-active.png */}
 </Steps>

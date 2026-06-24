@@ -1,78 +1,99 @@
-{/* TODO: stub cloned from _section-after-setup-atlassianmcp-common-workflows.mdx for IcePanel. Review and update connector-specific references (URLs, scopes, app-registration steps) before merging. */}
 export const sectionTitle = 'Common workflows'
 
 import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
 
-### Get your cloud ID
+### Find a landscape and list its model objects
 
-Most IcePanel tools require a `cloudId` — the UUID that identifies your Atlassian cloud site. Call `icepanelmcp_getaccessibleatlassianresources` once to retrieve it, then pass the `id` field value in every subsequent tool call.
+Most IcePanel tools require a `landscapeId`. Use `icepanelmcp_icepanel_landscapesearch` to find landscapes by name or description, then pass the returned `id` to subsequent tools.
 
-<Aside type="note" title="Call this tool first">
-  Run `icepanelmcp_getaccessibleatlassianresources` before calling any Jira or Confluence tool. The response lists every Atlassian site the user has access to. Use the `id` field as `cloudId`.
+<Aside type="note" title="Start with a landscape search">
+  Run `icepanelmcp_icepanel_landscapesearch` first to get the `landscapeId`. Every tool that reads or writes model objects, connections, diagrams, or ADRs requires it.
 </Aside>
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Node.js">
     ```typescript
-    // Step 1 — get the cloud ID
-    const resources = await actions.executeTool({
+    // Step 1 — find the landscape
+    const results = await actions.executeTool({
       connectionName: 'icepanelmcp',
       identifier: 'user_123',
-      toolName: 'icepanelmcp_getaccessibleatlassianresources',
-      toolInput: {},
+      toolName: 'icepanelmcp_icepanel_landscapesearch',
+      toolInput: { query: 'production' },
     });
-    const cloudId = resources[0].id;
+    const landscapeId = results.landscapes[0].id;
 
-    // Step 2 — use cloudId in subsequent calls
-    const issue = await actions.executeTool({
+    // Step 2 — list all model objects in the landscape
+    const objects = await actions.executeTool({
       connectionName: 'icepanelmcp',
       identifier: 'user_123',
-      toolName: 'icepanelmcp_getjiraissue',
-      toolInput: {
-        cloudId,
-        issueIdOrKey: 'KAN-1',
-      },
+      toolName: 'icepanelmcp_icepanel_listmodelobjects',
+      toolInput: { landscapeId },
     });
-    console.log(issue);
+    console.log(objects);
     ```
   </TabItem>
   <TabItem label="Python">
     ```python
-    # Step 1 — get the cloud ID
-    resources = actions.execute_tool(
+    # Step 1 — find the landscape
+    results = actions.execute_tool(
         connection_name="icepanelmcp",
         identifier="user_123",
-        tool_name="icepanelmcp_getaccessibleatlassianresources",
-        tool_input={},
+        tool_name="icepanelmcp_icepanel_landscapesearch",
+        tool_input={"query": "production"},
     )
-    cloud_id = resources[0]["id"]
+    landscape_id = results["landscapes"][0]["id"]
 
-    # Step 2 — use cloud_id in subsequent calls
-    issue = actions.execute_tool(
+    # Step 2 — list all model objects in the landscape
+    objects = actions.execute_tool(
         connection_name="icepanelmcp",
         identifier="user_123",
-        tool_name="icepanelmcp_getjiraissue",
-        tool_input={
-            "cloudId": cloud_id,
-            "issueIdOrKey": "KAN-1",
-        },
+        tool_name="icepanelmcp_icepanel_listmodelobjects",
+        tool_input={"landscapeId": landscape_id},
     )
-    print(issue)
+    print(objects)
     ```
   </TabItem>
 </Tabs>
 
-The `icepanelmcp_getaccessibleatlassianresources` response looks like this:
+### Create an architecture decision record
 
-```json
-[
-  {
-    "id": "a4c9b3e2-1234-5678-abcd-ef0123456789",
-    "name": "My Company",
-    "url": "https://mycompany.atlassian.net",
-    "scopes": ["read:jira-work", "write:jira-work", "read:confluence-content.all"]
-  }
-]
-```
+Use `icepanelmcp_icepanel_createadr` to log an ADR directly from your agent. Provide a `title`, the `landscapeId`, and optional context, decision, and consequences fields.
 
-Use `id` as the `cloudId` parameter. If the user belongs to multiple Atlassian sites, the list contains one entry per site — pick the one matching the target `url`.
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const adr = await actions.executeTool({
+      connectionName: 'icepanelmcp',
+      identifier: 'user_123',
+      toolName: 'icepanelmcp_icepanel_createadr',
+      toolInput: {
+        landscapeId,
+        title: 'Use event sourcing for order history',
+        status: 'proposed',
+        context: 'We need a reliable audit trail for order state changes.',
+        decision: 'Adopt event sourcing for the Orders bounded context.',
+        consequences: 'Increased storage; simpler replay and debugging.',
+      },
+    });
+    console.log(adr.id);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    adr = actions.execute_tool(
+        connection_name="icepanelmcp",
+        identifier="user_123",
+        tool_name="icepanelmcp_icepanel_createadr",
+        tool_input={
+            "landscapeId": landscape_id,
+            "title": "Use event sourcing for order history",
+            "status": "proposed",
+            "context": "We need a reliable audit trail for order state changes.",
+            "decision": "Adopt event sourcing for the Orders bounded context.",
+            "consequences": "Increased storage; simpler replay and debugging.",
+        },
+    )
+    print(adr["id"])
+    ```
+  </TabItem>
+</Tabs>
