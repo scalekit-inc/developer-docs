@@ -3,20 +3,20 @@ import type { Tool } from '../../types/agent-connectors'
 export const tools: Tool[] = [
   {
     name: 'linklymcp_batchdeletelinks',
-    description: `Batch delete multiple Linkly links by their IDs. This action is permanent and cannot be undone.`,
+    description: `Batch delete multiple LinklyHQ links by their IDs. This action is permanent and cannot be undone.`,
     params: [
       { name: 'ids', type: 'array', required: true, description: `Array of link IDs to delete` },
     ],
   },
   {
     name: 'linklymcp_create_domain',
-    description: `Add a custom domain to the Linkly workspace. The domain must already be configured to point to Linkly's servers via DNS.`,
+    description: `Add a custom domain to the LinklyHQ workspace. The domain must already be configured to point to LinklyHQ servers via DNS.`,
     params: [
       {
         name: 'name',
         type: 'string',
         required: true,
-        description: `The fully-qualified domain name to add to the Linkly workspace. The domain must already have DNS configured to point to Linkly's servers before calling this.`,
+        description: `The fully-qualified domain name to add to the LinklyHQ workspace. The domain must already have DNS configured to point to LinklyHQ servers before calling this.`,
       },
     ],
   },
@@ -146,19 +146,19 @@ export const tools: Tool[] = [
   },
   {
     name: 'linklymcp_delete_domain',
-    description: `Remove a custom domain from the Linkly workspace. This action is permanent.`,
+    description: `Remove a custom domain from the LinklyHQ workspace. This action is permanent.`,
     params: [
       {
         name: 'domain_id',
         type: 'integer',
         required: true,
-        description: `The integer ID of the domain to permanently remove from the Linkly workspace. Use list_domains to find the domain's ID before calling this.`,
+        description: `The integer ID of the domain to permanently remove from the LinklyHQ workspace. Use list_domains to find the domain's ID before calling this.`,
       },
     ],
   },
   {
     name: 'linklymcp_delete_link',
-    description: `Delete a Linkly link by its ID. This action is permanent and cannot be undone.`,
+    description: `Delete a LinklyHQ link by its ID. This action is permanent and cannot be undone.`,
     params: [
       {
         name: 'link_id',
@@ -338,7 +338,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'linklymcp_get_link',
-    description: `Get details of a specific Linkly link by its ID, including destination URL, slug, UTM parameters, and settings.`,
+    description: `Get details of a specific LinklyHQ link by its ID, including destination URL, slug, UTM parameters, and settings.`,
     params: [
       {
         name: 'link_id',
@@ -350,12 +350,12 @@ export const tools: Tool[] = [
   },
   {
     name: 'linklymcp_list_domains',
-    description: `List all custom domains configured in the Linkly workspace.`,
+    description: `List all custom domains configured in the LinklyHQ workspace.`,
     params: [],
   },
   {
     name: 'linklymcp_list_link_webhooks',
-    description: `List all webhook URLs subscribed to a specific Linkly link's click events.`,
+    description: `List all webhook URLs subscribed to a specific LinklyHQ link's click events.`,
     params: [
       { name: 'link_id', type: 'integer', required: true, description: `The ID of the link` },
     ],
@@ -388,17 +388,17 @@ export const tools: Tool[] = [
   },
   {
     name: 'linklymcp_list_webhooks',
-    description: `List all webhook URLs subscribed to the Linkly workspace. These webhooks receive click events for all links.`,
+    description: `List all webhook URLs subscribed to the LinklyHQ workspace. These webhooks receive click events for all links.`,
     params: [],
   },
   {
     name: 'linklymcp_list_workspaces',
-    description: `Return details of the authenticated Linkly workspace, including ID and name.`,
+    description: `Return details of the authenticated LinklyHQ workspace, including ID and name.`,
     params: [],
   },
   {
     name: 'linklymcp_ping',
-    description: `Health check for the Linkly MCP server.`,
+    description: `Health check for the LinklyHQ MCP server.`,
     params: [{ name: 'message', type: 'string', required: true, description: `A message to ping` }],
   },
   {
@@ -415,7 +415,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'linklymcp_subscribe_link_webhook',
-    description: `Subscribe a webhook URL to receive click events for a specific Linkly link.`,
+    description: `Subscribe a webhook URL to receive click events for a specific LinklyHQ link.`,
     params: [
       { name: 'link_id', type: 'integer', required: true, description: `The ID of the link` },
       {
@@ -428,7 +428,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'linklymcp_subscribe_webhook',
-    description: `Subscribe a webhook URL to receive click events for all links in the Linkly workspace.`,
+    description: `Subscribe a webhook URL to receive click events for all links in the LinklyHQ workspace.`,
     params: [
       {
         name: 'url',
@@ -440,12 +440,12 @@ export const tools: Tool[] = [
   },
   {
     name: 'linklymcp_test_authentication',
-    description: `Test API authentication with Linkly. Use this to verify your credentials are valid.`,
+    description: `Test API authentication with LinklyHQ. Use this to verify your credentials are valid.`,
     params: [],
   },
   {
     name: 'linklymcp_unsubscribe_link_webhook',
-    description: `Unsubscribe a webhook URL from a specific Linkly link's click events.`,
+    description: `Unsubscribe a webhook URL from a specific LinklyHQ link's click events.`,
     params: [
       { name: 'link_id', type: 'integer', required: true, description: `The ID of the link` },
       {
@@ -470,7 +470,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'linklymcp_update_domain_favicon',
-    description: `Update the favicon URL for a custom domain in the Linkly workspace.`,
+    description: `Update the favicon URL for a custom domain in the LinklyHQ workspace.`,
     params: [
       {
         name: 'domain_id',
@@ -488,7 +488,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'linklymcp_update_link',
-    description: `Update an existing Linkly link by its ID. Modify the destination URL, name, UTM parameters, tracking pixels, or expiry settings.`,
+    description: `Update an existing LinklyHQ link by its ID. Modify the destination URL, name, UTM parameters, tracking pixels, or expiry settings.`,
     params: [
       {
         name: 'link_id',
