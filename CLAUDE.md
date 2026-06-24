@@ -592,12 +592,6 @@ Before publishing documentation, verify:
 
 ---
 
-## Patched Dependencies
-
-This project uses pnpm patches to fix upstream bugs. Before modifying patches or upgrading patched dependencies, read `project-docs/PATCHES.md` for context, removal criteria, and upgrade instructions.
-
----
-
 ## Agentkit Code Examples
 
 Code examples for the agentkit documentation live in the external repo **[scalekit-developers/agent-auth-examples](https://github.com/scalekit-developers/agent-auth-examples)**, organized as:
