@@ -5757,6 +5757,176 @@
     "description": "Returns a list of webhook subscriptions for a user or organization."
   },
   {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_availability_get_user_availability_schedule",
+    "description": "Use: Fetch details for one named availability schedule.\nWhen: User asks about specific schedule rules or needs rules for a named schedule.\nNeeds: Schedule URI from \\`availability-list_user_availability_schedules\\`.\nDo: Read \\`rules\\` array and \\`timezone\\` for display or to info…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_availability_list_user_availability_schedules",
+    "description": "Use: List all named availability schedules for the connected user.\nWhen: User asks about availability schedules or you need to identify one by name.\nNeeds: User URI from \\`users-get_current_user\\`.\nDo: Use returned \\`uri\\` to fetch schedule details or associate with an event typ…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_availability_list_user_busy_times",
+    "description": "Use: List a user's busy time blocks within a date range.\nWhen: User asks when they are busy or you need to avoid conflicts before suggesting slots.\nNeeds: User URI from \\`users-get_current_user\\` and ISO 8601 start/end range.\nDo: Pass user URI and date range; use returned interv…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_event_types_create_event_type",
+    "description": "Use: Create a new event type on the connected account.\nWhen: User explicitly asks to create a new event type.\nNeeds: Host user URI from \\`users-get_current_user\\`.\nDo: Set name, duration, and host URI; omit optional fields unless user specified them.\nAvoid: Creating duplicates—c…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_event_types_get_event_type",
+    "description": "Use: Fetch full details for one event type by URI.\nWhen: Before updating an event type or confirming its current configuration.\nNeeds: Event type URI.\nDo: Use the returned fields as the baseline for any patch payload.\nAvoid: Constructing update payloads without reading current s…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_event_types_list_event_type_availability_schedule",
+    "description": "Use: Read the current availability schedule (rules) for an event type.\nWhen: Before calling \\`event_types-update_event_type_availability_schedule\\`.\nNeeds: Event type URI.\nDo: Retain the full \\`rules\\` array verbatim—it is the required base for updates.\nAvoid: Calling the update…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_event_types_list_event_type_available_times",
+    "description": "Use: List bookable time slots for an event type within a date range.\nWhen: User wants slots, or to confirm availability before booking.\nNeeds: Event type URI and start/end date range (ISO 8601).\nDo: Pass \\`start_time\\` verbatim to subsequent tool calls; do not rewrite UTC values…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_event_types_list_event_types",
+    "description": "Use: List all event types for the connected user or org.\nWhen: Start of any event-type task, or when selecting an event type by name.\nNeeds: User URI from \\`users-get_current_user\\`.\nDo: Filter by current user URI unless user explicitly asks about a different host or org.\nAvoid:…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_event_types_update_event_type",
+    "description": "Use: Update fields on an existing event type.\nWhen: User asks to change name, duration, description, or other settings.\nNeeds: Event type URI from \\`event_types-list_event_types\\` or \\`event_types-get_event_type\\`.\nDo: Read current state first with \\`event_types-get_event_type\\`…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_event_types_update_event_type_availability_schedule",
+    "description": "Use: Overwrite the availability schedule for an event type.\nWhen: User requests schedule changes (hours, days, one-off date overrides) for an event type.\nNeeds: Event type URI and current rules from \\`event_types-list_event_type_availability_schedule\\`.\nDo: Must copy existing ru…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_locations_list_user_meeting_locations",
+    "description": "Use: List allowed meeting location kinds for a user.\nWhen: Before creating bookings that need a \\`location\\` payload.\nNeeds: User URI from \\`users-get_current_user\\`.\nDo: Read supported location \\`kind\\` values; choose one compatible with the event type.\nAvoid: Submitting a loca…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_meetings_cancel_event",
+    "description": "Use: Cancel a scheduled meeting on behalf of the connected host\nWhen: User confirms they want to cancel a specific meeting.\nNeeds: Meeting URI from \\`meetings-list_events\\` or \\`meetings-get_event\\`.\nDo: Pass meeting URI and optional cancellation reason.\nAvoid: Canceling without…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_meetings_create_invitee",
+    "description": "Use: Book a meeting slot for an invitee on a Calendly event type.\nWhen: User provides invitee name, email, and a confirmed available time slot.\nNeeds: Event type URI, \\`start_time\\` from \\`event_types-list_event_type_available_times\\`, invitee name and email. Include \\`location\\…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_meetings_create_invitee_no_show",
+    "description": "Use: Mark an invitee as a no-show for a past meeting.\nWhen: User reports an invitee did not attend.\nNeeds: Invitee URI from \\`meetings-list_event_invitees\\`.\nDo: Pass invitee URI; operation is idempotent.\nAvoid: Marking no-show before the meeting end time.\nThen: Confirm no-show …"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_meetings_delete_invitee_no_show",
+    "description": "Use: Remove a no-show mark from an invitee.\nWhen: User asks to undo a no-show marking.\nNeeds: No-show URI from \\`meetings-create_invitee_no_show\\`.\nDo: Pass no-show URI; operation is idempotent.\nAvoid: Calling without confirming a no-show record exists.\nThen: Confirm no-show has…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_meetings_get_event",
+    "description": "Use: Fetch details for a single scheduled meeting.\nWhen: User asks about a specific meeting or before canceling/examining invitees.\nNeeds: Meeting URI from \\`meetings-list_events\\`.\nDo: Use returned \\`event_type\\`, \\`start_time\\`, \\`end_time\\`, and \\`location\\` for display or ne…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_meetings_get_event_invitee",
+    "description": "Use: Fetch details for a single meeting invitee.\nWhen: User asks about a specific attendee's booking details.\nNeeds: Meeting URI from \\`meetings-list_events\\` and Invitee URI from \\`meetings-list_event_invitees\\`.\nDo: Use returned fields for display or no-show status. Reschedule…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_meetings_get_invitee_no_show",
+    "description": "Use: Fetch the no-show record for a meeting invitee.\nWhen: User asks whether a no-show was recorded for an invitee.\nNeeds: No-show URI from \\`meetings-create_invitee_no_show\\`.\nDo: Check returned record for no-show status and timestamp.\nAvoid: Calling if no no-show has been reco…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_meetings_list_event_invitees",
+    "description": "Use: List all invitees for a scheduled meeting.\nWhen: User asks who is attending a meeting or you need invitee URIs.\nNeeds: Meeting URI from \\`meetings-list_events\\`.\nDo: Use returned invitee \\`uri\\` for no-show marking or detail lookups.\nAvoid: Calling without a meeting URI. li…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_meetings_list_events",
+    "description": "Use: List scheduled meetings for user/org.\nWhen: Upcoming/past meetings or to find meetings by date.\nNeeds: User/org URI via \\`users-get_current_user\\`.\nDo: Filter status (active/canceled), date range; carry \\`uri\\`. Default enrich via \\`meetings-list_event_invitees\\`; skip for …"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_organizations_create_organization_invitation",
+    "description": "Use: Invite a user to the organization by email.\nWhen: User asks to add a new member.\nNeeds: Org URI and invitee email address.\nDo: Check \\`organizations-list_organization_invitations\\` first to avoid duplicate invites.\nAvoid: Calling without confirming no pending invite exists …"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_organizations_get_organization",
+    "description": "Use: Fetch details for the connected user's organization.\nWhen: User asks about the org or you need the org URI for org-scoped list tools.\nNeeds: Org URI from \\`users-get_current_user\\` (\\`resource.current_organization\\`).\nDo: Use returned \\`uri\\` for org-scoped event type or me…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_organizations_get_organization_membership",
+    "description": "Use: Fetch details for a single org membership.\nWhen: You need role or status for a specific member.\nNeeds: Membership URI from \\`organizations-list_organization_memberships\\`.\nDo: Check \\`role\\` and \\`status\\` fields for permissions context.\nAvoid: Calling without a known membe…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_organizations_list_organization_invitations",
+    "description": "Use: List pending invitations for the organization.\nWhen: User asks to see pending invites or check if someone was already invited.\nNeeds: Org URI from \\`users-get_current_user\\`.\nDo: Check returned list before sending a new invite to avoid duplicates.\nAvoid: Sending a new invit…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_organizations_list_organization_memberships",
+    "description": "Use: List all members of an organization.\nWhen: User asks who is in the org or you need to find a member's user URI.\nNeeds: Org URI from \\`users-get_current_user\\`.\nDo: Use returned \\`user.uri\\` for per-user event-type or availability queries.\nAvoid: Fetching the full list when …"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_organizations_revoke_organization_invitation",
+    "description": "Use: Revoke a pending organization invitation.\nWhen: User asks to cancel a pending invite.\nNeeds: Organization URI from \\`users-get_current_user\\` and Invitation URI from \\`organizations-list_organization_invitations\\`.\nDo: Confirm with user before revoking; this cannot be undon…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_routing_forms_get_routing_form",
+    "description": "Use: Fetch details for a single routing form.\nWhen: User asks about a specific form or its questions.\nNeeds: Routing form URI from \\`routing_forms-list_routing_forms\\`.\nDo: Use returned question IDs for submission filtering.\nAvoid: Calling without a known form URI.\nThen: Use for…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_routing_forms_get_routing_form_submission",
+    "description": "Use: Fetch details for a single routing form submission.\nWhen: User asks about a specific submission or response.\nNeeds: Submission URI from \\`routing_forms-list_routing_form_submissions\\`.\nDo: Read \\`questions_and_answers\\` for the submitted values.\nAvoid: Calling without a kno…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_routing_forms_list_routing_form_submissions",
+    "description": "Use: List submissions for a routing form.\nWhen: User asks to see form responses or analyze routing data.\nNeeds: Routing form URI from \\`routing_forms-list_routing_forms\\`.\nDo: Use pagination params for large result sets.\nAvoid: Fetching all submissions without date/count filters…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_routing_forms_list_routing_forms",
+    "description": "Use: List routing forms for the org.\nWhen: User asks about routing forms or you need to find a form by name.\nNeeds: Org URI from \\`users-get_current_user\\`.\nDo: Use returned \\`uri\\` to fetch form details.\nAvoid: Assuming form names without listing first.\nThen: Use form URI in \\`…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_scheduling_links_create_single_use_scheduling_link",
+    "description": "Use: Create a single-use scheduling link using the event type's settings unchanged.\nWhen: User wants a one-time link with no overrides. For per-link customization (duration, scheduling window, location, availability), use \\`shares-create_share\\` instead.\nNeeds: Event type URI fr…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_shares_create_share",
+    "description": "Use: Create a single-use share link for a one-on-one event type with per-link overrides\nWhen: User wants a single-use link with any customization (duration, scheduling window, location, or availability).\nNeeds: Event type URI from \\`event_types-list_event_types\\`.\nDo: Set only f…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_users_get_current_user",
+    "description": "Use: Resolve the connected host account and canonical user URI.\nWhen: Start any scheduling, booking, event-type, or availability workflow.\nNeeds: No inputs.\nDo: Call once and keep \\`resource.uri\\`, \\`timezone\\`, and \\`scheduling_url\\` for downstream calls.\nAvoid: Skipping this a…"
+  },
+  {
+    "slug": "calendlymcp",
+    "name": "calendlymcp_users_get_user",
+    "description": "Use: Fetch profile for a specific user by URI.\nWhen: User asks about another person's account or you hold a user URI from org/membership data.\nNeeds: User URI.\nDo: Pass the user URI from org/membership data; do not use this to look up the connected user.\nAvoid: Calling this with…"
+  },
+  {
     "slug": "calmcp",
     "name": "calmcp_add_booking_attendee",
     "description": "Add a new attendee to an existing booking. Required: name, email, timeZone. ASK THE USER for all attendee details — never guess or fabricate names, emails, or time zones."
@@ -7186,6 +7356,461 @@
     "slug": "close",
     "name": "close_webhooks_list",
     "description": "List all webhook subscriptions in Close."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_activity_search",
+    "description": "Search for activities. Results are returned ordered by date descending.\n\nExamples:\n- To list activities on a lead, use the lead_ids filter.\n- To list conversations, filter for calls and meetings."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_aggregation",
+    "description": "Perform an aggregation to answer questions like:\n\n- How many emails were sent this week?\n- Calls by user this week (Who made the most?)\n\nYou MUST first fetch the list of available leads of fields using the\n\\`get_fields\\` tool."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_apply_voice_agent_update",
+    "description": "Apply a previously proposed voice agent update.\n\nThis tool persists the server-stored proposal identified by proposal_id.\nIt does not rerun the feedback processor, and it fails if the proposal has\nexpired or the voice agent changed after the proposal was created."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_close_product_knowledge_search",
+    "description": "Search Close product documentation and knowledge base for relevant information.\n\nUse this tool when users ask about:\n- How to use specific Close features\n- Close API documentation and integration\n- Workflow automation and best practices\n- Product capabilities and limitations\n- S…"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_create_address",
+    "description": "Add a new address to an existing lead (company)."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_create_call_task",
+    "description": "Schedule a call task on a lead, assigned to either a user or a\nvoice agent (Chloe).\n\nA call task represents a scheduled outbound call that will be made\nto the specified contact at the given time. The task can be assigned\nto a specific user or dispatched to a voice agent."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_create_comment",
+    "description": "Add a comment to a commentable object (note, call, opportunity, task,\ncustom object, etc.).\n\nIf the object already has a comment thread, the new comment is appended\nto it. Otherwise a new thread is started for the object. Use this tool\nfor both starting a conversation and replyi…"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_create_contact",
+    "description": "Create a new contact for a lead.\n\nA contact represents a person associated with a lead (company)."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_create_custom_activity_instance",
+    "description": "Create a new custom activity instance on a lead.\n\nA custom activity instance is an activity of a custom activity type,\nholding the custom field values defined by that type. Use the\nfind_custom_activities tool to look up the available custom activity\ntypes.\n\nIf in an interactive …"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_create_email_template",
+    "description": "Create a new email template.\n\nHandling of attachments and unsubscribe links via this tool is currently unsupported.\n\nEmail template body should be HTML formatted.\n\nUse template tags as placeholders, for example:\n{{ organization.name }} to refer to the sender's organization name.…"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_create_lead",
+    "description": "Create a new lead (company).\n\nAfter creating a lead, you should usually add an address or contact\n(including phone or email) to the lead."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_create_lead_status",
+    "description": "Create a new lead status."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_create_note",
+    "description": "Create a new note on a lead.\n\nA note is a text-based activity attached to a lead. At least one\nof note (plaintext) or note_html (rich text) must be provided."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_create_opportunity",
+    "description": "Create a new opportunity.\n\nRequires a lead ID and status ID. Other fields are optional. The value should be specified in cents (e.g., $100.00 = 10000)."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_create_opportunity_status_tool",
+    "description": "Create a new opportunity status."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_create_pipeline",
+    "description": "Create a new opportunity pipeline.\n\nUse the create_opportunity_status tool to add statuses to the pipeline."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_create_sms_template",
+    "description": "Create a new SMS template.\n\nHandling of attachments via this tool is currently unsupported.\n\nUse template tags as placeholders, for example:\n{{ organization.name }} to refer to the sender's organization name.\n{{ user.first_name }} {{ user.last_name }} {{ user.email }} {{ user.ph…"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_create_task",
+    "description": "Create a new task for a lead.\n\nA task represents a to-do item that can be assigned to a user\nand optionally associated with a contact."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_create_workflow",
+    "description": "Create a new workflow (a.k.a. sequence) with Draft status."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_delete_address",
+    "description": "Delete an address from an existing lead (company) if there is an exact match."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_delete_contact",
+    "description": "Permanently delete an existing contact.\n\nThis will remove the contact from its lead including its email addresses,\nphone numbers, and URLs will be removed. Activities on the lead are not\naffected.\n\nThis action cannot be undone.\n\nONLY call this if the user specifically instructed…"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_delete_custom_activity_instance",
+    "description": "Permanently delete an existing custom activity instance.\n\nThis action cannot be undone.\n\nONLY call this if the user specifically instructed you to delete the\ncustom activity instance."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_delete_email_template",
+    "description": "Permanently delete an email template.\n\nIf the template is used in any workflows (sequences), it cannot be deleted."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_delete_lead",
+    "description": "Permanently delete an existing lead (company) by ID including all of its addresses, contacts, opportunities, tasks, and activities.\n\nONLY call this if the user specifically instructed you to delete the lead, and you confirmed what the deletion will entail and that it cannot be r…"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_delete_lead_smart_view",
+    "description": "Permanently delete a lead smart view (saved search)."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_delete_lead_status",
+    "description": "Permanently delete a lead status.\n\nCannot delete if it's the last lead status in the organization or there are\nleads currently using this status."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_delete_note",
+    "description": "Permanently delete an existing note.\n\nThis action cannot be undone.\n\nONLY call this if the user specifically instructed you to delete\nthe note."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_delete_opportunity",
+    "description": "Permanently delete an opportunity.\n\nThis action cannot be undone. All data associated with the opportunity will be removed."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_delete_opportunity_status_tool",
+    "description": "Permanently delete an opportunity status.\n\nCannot delete if it's the last opportunity status in the organization or there are opportunities currently using this status."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_delete_pipeline",
+    "description": "Permanently delete an opportunity pipeline.\n\nA pipeline can only be deleted if it has no statuses. The last pipeline cannot be deleted."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_delete_sms_template",
+    "description": "Permanently delete an SMS template.\n\nIf the template is used in any workflows (sequences), it cannot be deleted."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_delete_task",
+    "description": "Permanently delete an existing task by ID.\n\nThis action cannot be undone.\n\nONLY call this if the user specifically instructed you to delete the task."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_enrich_field",
+    "description": "Use AI to determine and set the value of a field on a lead or contact.\n\nThe field is enriched using available data on the object and external\nsources, and the enriched value is written back to the object. By default\nthe value is only written if the field is currently empty; set\n…"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_fetch_comment",
+    "description": "Fetch a single comment by ID.\n\nReturns the comment's rich-text (HTML) body, the thread and lead it\nbelongs to, its @-mentions, and the resolved author and last-editor\nnames."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_fetch_contact",
+    "description": "Fetch an existing contact by ID.\n\nReturns the contact's details including name, title, email addresses, phone numbers, and URLs."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_fetch_custom_activity_instance",
+    "description": "Fetch an existing custom activity instance by ID.\n\nA custom activity instance is an activity of a custom activity type,\nholding the custom field values defined by that type. Returns the\nfull instance, including its custom field values and the resolved\nlead, contact, and user nam…"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_fetch_custom_object_type",
+    "description": "Fetch a custom object type by ID.\n\nA custom object type defines the shape of a category of custom objects,\nincluding the custom fields its instances hold. Returns the type with\nits custom fields."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_fetch_email_template",
+    "description": "Fetch an email template by ID.\n\nReturns the complete email template with all its details."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_fetch_lead",
+    "description": "Fetch an existing lead (company) by ID."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_fetch_lead_smart_view",
+    "description": "Fetch a lead smart view (saved search) by ID."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_fetch_lead_status",
+    "description": "Fetch a lead status by ID."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_fetch_note",
+    "description": "Fetch an existing note by ID.\n\nReturns the full note details including title, text, and metadata."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_fetch_opportunity",
+    "description": "Fetch a specific opportunity by ID.\n\nReturns the complete opportunity with all its details."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_fetch_opportunity_status",
+    "description": "Fetch an opportunity status by ID."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_fetch_pipeline_and_opportunity_statuses",
+    "description": "Fetch an opportunity pipeline, including its opportunity statuses, by ID."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_fetch_sms_template",
+    "description": "Fetch an SMS template by ID.\n\nReturns the complete SMS template with all its details."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_fetch_task",
+    "description": "Fetch an existing task by ID.\n\nReturns the task's details including the associated lead, contact,\nassignee, due date, priority, and completion status."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_find_call_outcomes",
+    "description": "List all outcomes applicable to calls available in the organization."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_find_contact_custom_fields",
+    "description": "List all contact custom fields defined for the organization.\n\nIncludes both contact-specific fields and shared fields associated\nwith contacts. Returns each field's ID, name, description, type,\nallowed choices (for choice fields), whether multiple values are\naccepted, and whethe…"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_find_custom_activities",
+    "description": "List all active (non-archived) Custom Activity Types in the organization,\nalong with the custom fields defined on each type.\n\nCall this before creating a workflow with a \"custom-activity-event\" trigger\nso you can look up the correct Custom Activity Type ID."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_find_custom_activity_instances",
+    "description": "Find a lead's custom activity instances based on various filters.\n\nA custom activity instance is an activity of a custom activity type,\nholding the custom field values defined by that type. Always scoped\nto a single lead; optionally filter by attributed user, one or more\ncustom …"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_find_custom_object_types",
+    "description": "List all custom object types in the organization, along with the\ncustom fields defined on each type."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_find_email_templates",
+    "description": "List or find email templates"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_find_forms",
+    "description": "List all web forms in the organization.\n\nCall this before creating a workflow with a \"form-submission-event\" trigger\nso you can look up the correct Form ID."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_find_groups",
+    "description": "List all groups in the organization."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_find_lead_custom_fields",
+    "description": "List all lead custom fields defined for the organization.\n\nReturns each field's ID, name, description, type, allowed choices\n(for choice fields), whether multiple values are accepted, and whether\nit is a shared field. Useful for deciding which custom field to read\nor write when …"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_find_lead_smart_views",
+    "description": "List lead smart views (saved searches)."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_find_lead_statuses",
+    "description": "List or find lead statuses for the organization"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_find_meeting_outcomes",
+    "description": "List all outcomes applicable to meetings available in the organization."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_find_notes",
+    "description": "Find notes based on various filters."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_find_opportunities",
+    "description": "Find opportunities by status (active/won/lost), owner, lead, or close-date range, optionally only those needing attention, sorted by soonest close, largest value, or highest confidence. Returns each opportunity with resolved lead, contact, owner, and status names; cursor-paginat…"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_find_opportunity_custom_fields",
+    "description": "List all opportunity custom fields defined for the organization.\n\nIncludes both opportunity-specific fields and shared fields associated\nwith opportunities. Returns each field's ID, name, description, type,\nallowed choices (for choice fields), whether multiple values are\naccepte…"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_find_pipelines_and_opportunity_statuses",
+    "description": "List all opportunity pipelines and their opportunity statuses in the organization."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_find_scheduling_links",
+    "description": "List available scheduling links for the user and org.\n\nUser-owned personal links come with a URL. Shared links come with a special\ntemplate tag. Each can be inserted into generated templates."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_find_sms_templates",
+    "description": "List or find SMS templates"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_find_tasks",
+    "description": "Find tasks based on various filters.\nYou can filter by lead, assignee, completion state, and due/created/\nupdated dates."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_find_voice_agents",
+    "description": "List all voice agents configured for the organization. Voice agents are\nAI callers that place outbound calls to leads' contacts on the user's\nbehalf.\n\nReturns each voice agent's ID and name. Use this to find the right\nvoice agent ID when scheduling a call or assigning a call ste…"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_find_workflows",
+    "description": "List or find workflows"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_get_fields",
+    "description": "Use this field ONLY to get a list of fields for the aggregation tool."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_get_voice_agent_overview_report",
+    "description": "Cross-agent rollup for the Voice Agents list page.\n\nReturns one row per active agent — agents with completed calls\nin \\`date_range\\` or queued upcoming calls. Cumulative funnel\ncounts (\\`answered\\`, \\`engaged\\`, \\`objective_met\\`) plus \\`total_calls\\`.\n\\`upcoming_calls\\` is the …"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_get_voice_agent_performance_report",
+    "description": "Performance metrics for one voice agent.\n\nReturns the numbers shown on the Performance tab of a Voice Agent\ndetail page. Passing multiple \\`agent_config_ids\\` pools metrics\ninto a single aggregate (not a per-agent breakdown — for that,\nuse \\`get_voice_agent_overview_report\\`). F…"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_get_voice_agents",
+    "description": "Return detailed configuration for one or more voice agents.\n\nIncludes each agent's objective, user instructions, and which skills are\nenabled. Use this as the follow-up to \\`find_voice_agents\\` once one or\nmore agent IDs have been selected."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_lead_search",
+    "description": "Perform a simple lead search and return the initial set of results.\n\nUse this to retrieve all leads, most recent leads, search leads by\nkeyword, or filter by lead status and smart view. For more complex\nsearches use the \\`search\\` tool instead.\n\nLeads will be returned by last up…"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_org_info",
+    "description": "Get information about the Close organization including organization ID, name, and other org-level details."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_org_users",
+    "description": "Return active users (memberships) which are part of the current org."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_paginate_search",
+    "description": "Paginate a search to retrieve more results.\n\nProvide exactly one of:\n- \\`search_id\\`: a \\`share_*\\` id from a previous search or shared entry, or\n- \\`smart_view_id\\`: a \\`save_*\\` Smart View (saved search) id the user is\n  viewing."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_propose_voice_agent_update",
+    "description": "Propose a voice agent configuration update from natural-language feedback.\n\nThis tool does not apply changes to the voice agent. It returns a short\nbehavioral summary and proposal ID when the requested edit is clear. If the\nfeedback is ambiguous, it returns clarification questio…"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_schedule_voice_agent_call",
+    "description": "Schedule a voice agent to call a lead's contact.\n\nCreates a call task assigned to the voice agent. The voice agent will\nplace the call automatically at the scheduled time, or as soon as the\nqueue picks it up when no time is given.\n\nUse \\`find_voice_agents\\` first to discover whi…"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_search",
+    "description": "Perform a natural language search for leads or contacts.\n\nIf a more specific search tool (like lead_search or activity_search)\nsatisfies the request, use that tool instead.\n\nYou can reference related objects like activities (such as calls, emails,\nmeetings, notes, custom activit…"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_update_contact",
+    "description": "Update an existing contact.\n\nYou can update a contact's name, title, email addresses, phone numbers, and URLs.\nOnly fields that are provided will be updated."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_update_custom_activity_instance",
+    "description": "Update an existing custom activity instance.\n\nA custom activity instance is an activity of a custom activity type,\nholding the custom field values defined by that type.\n\nOnly fields that are provided will be updated. For custom fields, only\nthe custom fields included are modifie…"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_update_email_template",
+    "description": "Update an existing email template.\n\nOnly fields that are provided and not None will be updated.\n\nHandling of attachments and unsubscribe links via this tool is currently unsupported.\n\nEmail template body should be HTML formatted.\n\nUse template tags as placeholders, for example:\n…"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_update_lead",
+    "description": "Update an existing lead (company).\n\nOnly fields that are provided and not None will be updated."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_update_lead_smart_view",
+    "description": "Update a lead smart view (saved search).\n\nOnly fields that are provided and not None will be updated."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_update_lead_status",
+    "description": "Update the label of an existing lead status."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_update_note",
+    "description": "Update an existing note.\n\nOnly fields that are provided will be updated. Note content is\nprovided as rich text (HTML) via note_html; the plaintext note is\nautomatically derived."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_update_opportunity",
+    "description": "Update an existing opportunity.\n\nOnly fields that are provided will be updated. The value should be specified in cents (e.g., $100.00 = 10000). Pass 'clear' for value or close_at to remove those values."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_update_opportunity_status_tool",
+    "description": "Update the label of an existing opportunity status."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_update_pipeline",
+    "description": "Update an existing opportunity pipeline.\n\nOnly fields that are provided will be updated."
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_update_sms_template",
+    "description": "Update an existing SMS template.\n\nOnly fields that are provided will be updated. Fields that are not provided will remain unchanged.\n\nHandling of attachments via this tool is currently unsupported.\n\nUse template tags as placeholders, for example:\n{{ organization.name }} to refer…"
+  },
+  {
+    "slug": "closemcp",
+    "name": "closemcp_update_task",
+    "description": "Update an existing task.\n\nOnly fields that are provided will be updated. Pass 'clear' for\ncontact_id or due_date to clear those values."
   },
   {
     "slug": "cloudfaremcp",
@@ -14581,6 +15206,126 @@
     "description": "Search Hugging Face Spaces by query and return matching spaces with relevance scores."
   },
   {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_createadr",
+    "description": "Create a new Architecture Decision Record (ADR) in the landscape."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_createconnection",
+    "description": "Create a new connection between two model objects."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_createmodelobject",
+    "description": "Create a new model object in the landscape. Types 'actor' and 'system' can be created at root level; 'app' and 'component' require a parentId pointing to a parent system."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_getadrdetails",
+    "description": "Get detailed information about a specific Architecture Decision Record (ADR) including its full content, status history, and related items."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_getconnectiondetails",
+    "description": "Get full details for a single connection including description, links, technologies, and tags."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_getdiagramdetails",
+    "description": "Get detailed information about a diagram including its objects, connections, and flows, or export as a PNG image."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_getdomaindetails",
+    "description": "Get detailed information about a specific domain including its name, labels, and timestamps."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_getflowdetails",
+    "description": "Get detailed information about a flow including its steps, or export it as a Mermaid sequence diagram."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_getmodelobjectdetails",
+    "description": "Get detailed information about a model object including its type, status, domain, technologies, tags, and relationships."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_getteamdetails",
+    "description": "Get detailed information about a specific team including its members, assigned model objects, and timestamps."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_gettechnologydetails",
+    "description": "Get detailed information about a specific technology including its type, provider, description, and links."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_landscapesearch",
+    "description": "Search across all landscape entities (model objects, connections, diagrams, flows) by name. Supports fuzzy and prefix matching. Only works on the latest version."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_listadrs",
+    "description": "List Architecture Decision Records (ADRs) in the landscape."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_listconnections",
+    "description": "List connections where a model object is the origin or target."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_listdiagrams",
+    "description": "List diagrams in the landscape. Filter by name, type, or parent model object."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_listdomains",
+    "description": "List domains in the landscape. Domains are top-level organizational boundaries (level 0 in the C4 hierarchy)."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_listflows",
+    "description": "List flows in the landscape. Flows represent sequence diagrams showing how objects interact over time."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_listmodelobjects",
+    "description": "List model objects in the landscape. Filter by name, type, status, parent, or group."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_listtags",
+    "description": "List tags and tag groups in the landscape. Tags are organized by groups."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_listteams",
+    "description": "List teams in the organization. Teams represent ownership groups assignable to model objects."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_listtechnologies",
+    "description": "List technologies from the catalog and organization. Filter by name, type, or provider."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_updateadr",
+    "description": "Update an Architecture Decision Record (ADR). Supports updating name, description, content, status, and related items."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_updateconnection",
+    "description": "Update a connection in the landscape. Supports $add/$remove operations. Set status to 'removed' to delete."
+  },
+  {
+    "slug": "icepanelmcp",
+    "name": "icepanelmcp_icepanel_updatemodelobject",
+    "description": "Update a model object in the landscape. Supports $add/$remove operations. Set status to 'removed' to delete."
+  },
+  {
     "slug": "jammcp",
     "name": "jammcp_analyzevideo",
     "description": "Extract user intents from a Jam recording. Identifies distinct user goals, issues, and feedback with detailed context including visual observations, interactions, and technical indicators."
@@ -19286,6 +20031,11 @@
   },
   {
     "slug": "microsoft365",
+    "name": "microsoft365_outlook_create_shared_calendar_event",
+    "description": "Create a calendar event on another user's calendar (shared or delegated access). Targets POST /users/{id}/events. Requires Calendars.ReadWrite application permission or delegated access granted by the target user."
+  },
+  {
+    "slug": "microsoft365",
     "name": "microsoft365_outlook_create_upload_session",
     "description": "Create an upload session for attaching a large file to an Outlook message using Microsoft Graph. Returns an uploadUrl and expiration time. Use the uploadUrl to upload file content in chunks via PUT requests. Required for attachments larger than 3 MB."
   },
@@ -19396,6 +20146,16 @@
   },
   {
     "slug": "microsoft365",
+    "name": "microsoft365_outlook_get_shared_contact",
+    "description": "Get a single contact from another user's contacts by contact ID. Targets GET /users/{id}/contacts/{contact_id}. Requires Contacts.Read application permission or delegated access granted by the target user."
+  },
+  {
+    "slug": "microsoft365",
+    "name": "microsoft365_outlook_get_shared_mailbox_message",
+    "description": "Get a single message from a shared mailbox by message ID. Targets GET /users/{id}/messages/{message_id}. Requires Mail.Read or Mail.ReadWrite permission on the shared mailbox."
+  },
+  {
+    "slug": "microsoft365",
     "name": "microsoft365_outlook_get_user_presence",
     "description": "Get the presence status of a specific user."
   },
@@ -19481,8 +20241,23 @@
   },
   {
     "slug": "microsoft365",
+    "name": "microsoft365_outlook_list_shared_contacts",
+    "description": "List contacts from another user's default contacts folder (a colleague's contacts). Targets GET /users/{id}/contacts. Requires Contacts.Read application permission or delegated access granted by the target user."
+  },
+  {
+    "slug": "microsoft365",
     "name": "microsoft365_outlook_list_shared_mailbox_messages",
     "description": "List messages in a specific folder of a shared mailbox. Supports filtering, ordering, pagination, and field selection. Requires Mail.Read or Mail.ReadWrite permissions on the shared mailbox."
+  },
+  {
+    "slug": "microsoft365",
+    "name": "microsoft365_outlook_list_shared_todo_lists",
+    "description": "List Microsoft To Do task lists belonging to another user (a colleague). Targets GET /users/{id}/todo/lists. Requires Tasks.Read application permission or delegated access granted by the target user."
+  },
+  {
+    "slug": "microsoft365",
+    "name": "microsoft365_outlook_list_shared_todo_tasks",
+    "description": "List tasks in a Microsoft To Do list belonging to another user (a colleague). Targets GET /users/{id}/todo/lists/{list_id}/tasks. Requires Tasks.Read application permission or delegated access granted by the target user."
   },
   {
     "slug": "microsoft365",
@@ -19668,6 +20443,11 @@
     "slug": "microsoft365",
     "name": "microsoft365_outlook_update_message_rule",
     "description": "Update an existing inbox message rule."
+  },
+  {
+    "slug": "microsoft365",
+    "name": "microsoft365_outlook_update_shared_calendar_event",
+    "description": "Update an existing event on another user's calendar (shared or delegated access). Targets PATCH /users/{id}/events/{event_id}. Requires Calendars.ReadWrite application permission or delegated access granted by the target user."
   },
   {
     "slug": "microsoft365",
@@ -20138,41 +20918,6 @@
     "slug": "microsoft365",
     "name": "microsoft365_word_create_document",
     "description": "Create a new Word document (.docx) in OneDrive by initiating a resumable upload session. Returns an uploadUrl that the caller must use to upload the .docx file bytes via one or more PUT requests. The document is placed under the specified parent folder with the given filename. R…"
-  },
-  {
-    "slug": "microsoft365",
-    "name": "microsoft365_outlook_create_shared_calendar_event",
-    "description": "Create a calendar event on another user's calendar (shared or delegated access). Targets POST /users/{id}/events. Requires Calendars.ReadWrite application permission or delegated access granted by the target user."
-  },
-  {
-    "slug": "microsoft365",
-    "name": "microsoft365_outlook_update_shared_calendar_event",
-    "description": "Update an existing event on another user's calendar (shared or delegated access). Targets PATCH /users/{id}/events/{event_id}. Requires Calendars.ReadWrite application permission or delegated access granted by the target user."
-  },
-  {
-    "slug": "microsoft365",
-    "name": "microsoft365_outlook_get_shared_mailbox_message",
-    "description": "Get a single message from a shared mailbox by message ID. Targets GET /users/{id}/messages/{message_id}. Requires Mail.Read or Mail.ReadWrite permission on the shared mailbox."
-  },
-  {
-    "slug": "microsoft365",
-    "name": "microsoft365_outlook_list_shared_contacts",
-    "description": "List contacts from another user's default contacts folder (a colleague's contacts). Targets GET /users/{id}/contacts. Requires Contacts.Read application permission or delegated access granted by the target user."
-  },
-  {
-    "slug": "microsoft365",
-    "name": "microsoft365_outlook_get_shared_contact",
-    "description": "Get a single contact from another user's contacts by contact ID. Targets GET /users/{id}/contacts/{contact_id}. Requires Contacts.Read application permission or delegated access granted by the target user."
-  },
-  {
-    "slug": "microsoft365",
-    "name": "microsoft365_outlook_list_shared_todo_lists",
-    "description": "List Microsoft To Do task lists belonging to another user (a colleague). Targets GET /users/{id}/todo/lists. Requires Tasks.Read application permission or delegated access granted by the target user."
-  },
-  {
-    "slug": "microsoft365",
-    "name": "microsoft365_outlook_list_shared_todo_tasks",
-    "description": "List tasks in a Microsoft To Do list belonging to another user (a colleague). Targets GET /users/{id}/todo/lists/{list_id}/tasks. Requires Tasks.Read application permission or delegated access granted by the target user."
   },
   {
     "slug": "microsoftexcel",
@@ -22434,6 +23179,11 @@
   },
   {
     "slug": "outlook",
+    "name": "outlook_create_shared_calendar_event",
+    "description": "Create a calendar event on another user's calendar (shared or delegated access). Targets POST /users/{id}/events. Requires Calendars.ReadWrite application permission or delegated access granted by the target user."
+  },
+  {
+    "slug": "outlook",
     "name": "outlook_create_upload_session",
     "description": "Create an upload session for attaching a large file to an Outlook message using Microsoft Graph. Returns an uploadUrl and expiration time. Use the uploadUrl to upload file content in chunks via PUT requests. Required for attachments larger than 3 MB."
   },
@@ -22544,6 +23294,16 @@
   },
   {
     "slug": "outlook",
+    "name": "outlook_get_shared_contact",
+    "description": "Get a single contact from another user's contacts by contact ID. Targets GET /users/{id}/contacts/{contact_id}. Requires Contacts.Read application permission or delegated access granted by the target user."
+  },
+  {
+    "slug": "outlook",
+    "name": "outlook_get_shared_mailbox_message",
+    "description": "Get a single message from a shared mailbox by message ID. Targets GET /users/{id}/messages/{message_id}. Requires Mail.Read or Mail.ReadWrite permission on the shared mailbox."
+  },
+  {
+    "slug": "outlook",
     "name": "outlook_get_user_presence",
     "description": "Get the presence status of a specific user."
   },
@@ -22629,8 +23389,23 @@
   },
   {
     "slug": "outlook",
+    "name": "outlook_list_shared_contacts",
+    "description": "List contacts from another user's default contacts folder (a colleague's contacts). Targets GET /users/{id}/contacts. Requires Contacts.Read application permission or delegated access granted by the target user."
+  },
+  {
+    "slug": "outlook",
     "name": "outlook_list_shared_mailbox_messages",
     "description": "List messages in a specific folder of a shared mailbox. Supports filtering, ordering, pagination, and field selection. Requires Mail.Read or Mail.ReadWrite permissions on the shared mailbox."
+  },
+  {
+    "slug": "outlook",
+    "name": "outlook_list_shared_todo_lists",
+    "description": "List Microsoft To Do task lists belonging to another user (a colleague). Targets GET /users/{id}/todo/lists. Requires Tasks.Read application permission or delegated access granted by the target user."
+  },
+  {
+    "slug": "outlook",
+    "name": "outlook_list_shared_todo_tasks",
+    "description": "List tasks in a Microsoft To Do list belonging to another user (a colleague). Targets GET /users/{id}/todo/lists/{list_id}/tasks. Requires Tasks.Read application permission or delegated access granted by the target user."
   },
   {
     "slug": "outlook",
@@ -22819,38 +23594,8 @@
   },
   {
     "slug": "outlook",
-    "name": "outlook_create_shared_calendar_event",
-    "description": "Create a calendar event on another user's calendar (shared or delegated access). Targets POST /users/{id}/events. Requires Calendars.ReadWrite application permission or delegated access granted by the target user."
-  },
-  {
-    "slug": "outlook",
     "name": "outlook_update_shared_calendar_event",
     "description": "Update an existing event on another user's calendar (shared or delegated access). Targets PATCH /users/{id}/events/{event_id}. Requires Calendars.ReadWrite application permission or delegated access granted by the target user."
-  },
-  {
-    "slug": "outlook",
-    "name": "outlook_get_shared_mailbox_message",
-    "description": "Get a single message from a shared mailbox by message ID. Targets GET /users/{id}/messages/{message_id}. Requires Mail.Read or Mail.ReadWrite permission on the shared mailbox."
-  },
-  {
-    "slug": "outlook",
-    "name": "outlook_list_shared_contacts",
-    "description": "List contacts from another user's default contacts folder (a colleague's contacts). Targets GET /users/{id}/contacts. Requires Contacts.Read application permission or delegated access granted by the target user."
-  },
-  {
-    "slug": "outlook",
-    "name": "outlook_get_shared_contact",
-    "description": "Get a single contact from another user's contacts by contact ID. Targets GET /users/{id}/contacts/{contact_id}. Requires Contacts.Read application permission or delegated access granted by the target user."
-  },
-  {
-    "slug": "outlook",
-    "name": "outlook_list_shared_todo_lists",
-    "description": "List Microsoft To Do task lists belonging to another user (a colleague). Targets GET /users/{id}/todo/lists. Requires Tasks.Read application permission or delegated access granted by the target user."
-  },
-  {
-    "slug": "outlook",
-    "name": "outlook_list_shared_todo_tasks",
-    "description": "List tasks in a Microsoft To Do list belonging to another user (a colleague). Targets GET /users/{id}/todo/lists/{list_id}/tasks. Requires Tasks.Read application permission or delegated access granted by the target user."
   },
   {
     "slug": "outreach",
