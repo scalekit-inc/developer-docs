@@ -1,0 +1,244 @@
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+### Resolve the connected user first
+
+Most Calendly tools need the connected host's user URI. Call `calendlymcp_users_get_current_user` once at the start of a workflow, then reuse the returned `resource.uri` (and `timezone`) in later calls.
+
+<Aside type="note" title="Call this tool first">
+  Run `calendlymcp_users_get_current_user` before listing meetings, event types, or availability. Keep `resource.uri` for any tool that takes a `user` parameter, and `timezone` for displaying times.
+</Aside>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const me = await actions.executeTool({
+      connectionName: 'calendlymcp',
+      identifier: 'user_123',
+      toolName: 'calendlymcp_users_get_current_user',
+      toolInput: {},
+    });
+    const userUri = me.resource.uri;
+    console.log(userUri, me.resource.timezone);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    me = actions.execute_tool(
+        connection_name="calendlymcp",
+        identifier="user_123",
+        tool_name="calendlymcp_users_get_current_user",
+        tool_input={},
+    )
+    user_uri = me["resource"]["uri"]
+    print(user_uri, me["resource"]["timezone"])
+    ```
+  </TabItem>
+</Tabs>
+
+### List upcoming meetings and their invitees
+
+Use `calendlymcp_meetings_list_events` to fetch scheduled meetings, then `calendlymcp_meetings_list_event_invitees` to see who is attending a specific meeting. Pass the `user` URI from the previous step and filter by `status` to limit results to active meetings.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // Step 1 — list active meetings for the connected user
+    const events = await actions.executeTool({
+      connectionName: 'calendlymcp',
+      identifier: 'user_123',
+      toolName: 'calendlymcp_meetings_list_events',
+      toolInput: {
+        user: userUri,
+        status: 'active',
+        count: '20',
+      },
+    });
+    const meetingUri = events.collection[0].uri;
+
+    // Step 2 — list the invitees for that meeting
+    const invitees = await actions.executeTool({
+      connectionName: 'calendlymcp',
+      identifier: 'user_123',
+      toolName: 'calendlymcp_meetings_list_event_invitees',
+      toolInput: { uri: meetingUri },
+    });
+    console.log(invitees);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    # Step 1 — list active meetings for the connected user
+    events = actions.execute_tool(
+        connection_name="calendlymcp",
+        identifier="user_123",
+        tool_name="calendlymcp_meetings_list_events",
+        tool_input={
+            "user": user_uri,
+            "status": "active",
+            "count": "20",
+        },
+    )
+    meeting_uri = events["collection"][0]["uri"]
+
+    # Step 2 — list the invitees for that meeting
+    invitees = actions.execute_tool(
+        connection_name="calendlymcp",
+        identifier="user_123",
+        tool_name="calendlymcp_meetings_list_event_invitees",
+        tool_input={"uri": meeting_uri},
+    )
+    print(invitees)
+    ```
+  </TabItem>
+</Tabs>
+
+### Book a slot on an event type
+
+Find a bookable slot with `calendlymcp_event_types_list_event_type_available_times`, then book it with `calendlymcp_meetings_create_invitee`. Pass the UTC `start_time` from the availability response verbatim — do not rewrite it to a local label.
+
+<Aside type="caution" title="Confirm the slot before booking">
+  Always read available times first and pass the returned UTC `start_time` straight into the booking call. Booking without confirming availability can fail or double-book.
+</Aside>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // Step 1 — find available times for the event type
+    const slots = await actions.executeTool({
+      connectionName: 'calendlymcp',
+      identifier: 'user_123',
+      toolName: 'calendlymcp_event_types_list_event_type_available_times',
+      toolInput: {
+        event_type: 'https://api.calendly.com/event_types/EVENT_TYPE_UUID',
+        start_time: '2026-07-01T00:00:00Z',
+        end_time: '2026-07-07T00:00:00Z',
+      },
+    });
+    const startTime = slots.collection[0].start_time;
+
+    // Step 2 — book the slot for an invitee
+    const booking = await actions.executeTool({
+      connectionName: 'calendlymcp',
+      identifier: 'user_123',
+      toolName: 'calendlymcp_meetings_create_invitee',
+      toolInput: {
+        post_invitee_request: {
+          event_type: 'https://api.calendly.com/event_types/EVENT_TYPE_UUID',
+          start_time: startTime,
+          name: 'Jordan Lee',
+          email: 'jordan@example.com',
+        },
+      },
+    });
+    console.log(booking);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    # Step 1 — find available times for the event type
+    slots = actions.execute_tool(
+        connection_name="calendlymcp",
+        identifier="user_123",
+        tool_name="calendlymcp_event_types_list_event_type_available_times",
+        tool_input={
+            "event_type": "https://api.calendly.com/event_types/EVENT_TYPE_UUID",
+            "start_time": "2026-07-01T00:00:00Z",
+            "end_time": "2026-07-07T00:00:00Z",
+        },
+    )
+    start_time = slots["collection"][0]["start_time"]
+
+    # Step 2 — book the slot for an invitee
+    booking = actions.execute_tool(
+        connection_name="calendlymcp",
+        identifier="user_123",
+        tool_name="calendlymcp_meetings_create_invitee",
+        tool_input={
+            "post_invitee_request": {
+                "event_type": "https://api.calendly.com/event_types/EVENT_TYPE_UUID",
+                "start_time": start_time,
+                "name": "Jordan Lee",
+                "email": "jordan@example.com",
+            },
+        },
+    )
+    print(booking)
+    ```
+  </TabItem>
+</Tabs>
+
+### Share a single-use scheduling link
+
+Use `calendlymcp_scheduling_links_create_single_use_scheduling_link` to generate a one-time booking link for an event type, then send the returned `booking_url` to the invitee. Use this when you want the link to follow the event type's existing settings without overrides.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const link = await actions.executeTool({
+      connectionName: 'calendlymcp',
+      identifier: 'user_123',
+      toolName: 'calendlymcp_scheduling_links_create_single_use_scheduling_link',
+      toolInput: {
+        create_scheduling_link_request: {
+          owner: 'https://api.calendly.com/event_types/EVENT_TYPE_UUID',
+          owner_type: 'EventType',
+          max_event_count: 1,
+        },
+      },
+    });
+    console.log(link.resource.booking_url);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    link = actions.execute_tool(
+        connection_name="calendlymcp",
+        identifier="user_123",
+        tool_name="calendlymcp_scheduling_links_create_single_use_scheduling_link",
+        tool_input={
+            "create_scheduling_link_request": {
+                "owner": "https://api.calendly.com/event_types/EVENT_TYPE_UUID",
+                "owner_type": "EventType",
+                "max_event_count": 1,
+            },
+        },
+    )
+    print(link["resource"]["booking_url"])
+    ```
+  </TabItem>
+</Tabs>
+
+### Cancel a meeting
+
+Use `calendlymcp_meetings_cancel_event` with the meeting `uri` from `calendlymcp_meetings_list_events`. Canceling notifies every invitee, so confirm the action with the user first. To reschedule instead, surface the invitee's `reschedule_url` rather than canceling.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    await actions.executeTool({
+      connectionName: 'calendlymcp',
+      identifier: 'user_123',
+      toolName: 'calendlymcp_meetings_cancel_event',
+      toolInput: {
+        uri: meetingUri,
+        create_scheduled_event_cancellation_request: 'Host unavailable — will follow up to reschedule.',
+      },
+    });
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    actions.execute_tool(
+        connection_name="calendlymcp",
+        identifier="user_123",
+        tool_name="calendlymcp_meetings_cancel_event",
+        tool_input={
+            "uri": meeting_uri,
+            "create_scheduled_event_cancellation_request": "Host unavailable — will follow up to reschedule.",
+        },
+    )
+    ```
+  </TabItem>
+</Tabs>
