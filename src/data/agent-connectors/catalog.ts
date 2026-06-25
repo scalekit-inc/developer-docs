@@ -1039,4 +1039,9 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'Bearer Token',
     categories: ['Communication', 'AI'],
   },
+  mailchimpmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/mailchimp.svg',
+    authType: 'OAuth 2.1',
+    categories: ['Marketing', 'Automation', 'Communication'],
+  },
 }
