@@ -1,54 +1,58 @@
-{/* TODO: stub cloned from _setup-youmcp.mdx for Vapi MCP. Review and update connector-specific references (URLs, scopes, app-registration steps) before merging. */}
 import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
 
-Register your You.com API key with Scalekit so it can authenticate and proxy search requests on behalf of your users. Vapi MCP uses API key authentication — there is no redirect URI or OAuth flow.
+Register your Vapi API key with Scalekit so it can authenticate and proxy requests to the Vapi MCP server on behalf of your users. Vapi MCP uses bearer token authentication — there is no redirect URI or OAuth flow. Scalekit sends the key as `Authorization: Bearer <token>` to the Vapi MCP endpoint at `https://mcp.vapi.ai/mcp`.
 
 <Steps>
-1. ### Get a You.com API key
+1. ## Get a Vapi API key
 
-   - Go to [you.platform](https://you.platform) and sign in or create an account.
-   - In the left sidebar, under **API Management**, click **API Keys**.
-   - Enter a name for your key (e.g. `Agent Auth`) and click **Create**.
+   - Go to [dashboard.vapi.ai/org/api-keys](https://dashboard.vapi.ai/org/api-keys) and sign in or create an account.
 
-   {/* TODO: add screenshot — alt: "You.com API Keys page showing the Create new key form and existing keys list", original src: @/assets/docs/agent-connectors/vapimcp/create-api-key.png */}
-   - Copy the generated key — it starts with `ydc-sk-`.
+   - Under **API Keys**, copy your **Private Key**. Use the private key — it authorizes server-side calls to the Vapi API.
 
-2. ### Create a connection in Scalekit
+   - Treat this key as a secret. Anyone with it can manage your assistants, calls, and phone numbers.
 
-   - In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** → **Connections** → **Create Connection**.
-   - Search for **Vapi MCP** and click **Create**.
-   - Note the **Connection name** — use this as `connection_name` in your code (e.g., `vapimcp`).
+2. ## Create a connection in Scalekit
 
-3. ### Add a connected account
+   - In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections**. Find **Vapi MCP** and click **Create**.
 
-   Connected accounts link a specific user identifier in your system to a You.com API key. Add them via the dashboard for testing, or via the Scalekit API in production.
+   - Note the **Connection name** — you use this as `connection_name` in your code (for example, `vapimcp`).
+
+3. ## Add a connected account
+
+   Connected accounts link a specific user identifier in your system to a Vapi API key. Add them via the dashboard for testing, or via the Scalekit API in production.
 
    **Via dashboard (for testing)**
 
-   - Open the connection and click the **Connected Accounts** tab → **Add account**.
-   - Fill in **Your User's ID** and **API Key**, then click **Save**.
+   - Open the connection you created and click the **Connected Accounts** tab → **Add account**.
+
+   - Fill in:
+     - **Your User's ID** — a unique identifier for this user in your system (for example, `user_123`)
+     - **Vapi API key** — the private key you copied in step 1
+
+   - Click **Save**.
 
    **Via API (for production)**
 
    <Tabs syncKey="tech-stack">
      <TabItem label="Node.js">
-       ```ts
-       await scalekit.connect.upsertConnectedAccount({
+       ```typescript
+       await scalekit.actions.upsertConnectedAccount({
          connectionName: 'vapimcp',
-         identifier: 'user@example.com',
-         credentials: { apiKey: 'ydc-sk-...' },
-       })
+         identifier: 'user_123',       // your user's unique ID
+         // Security: never hard-code the API key — read it from a secret store or env var.
+         credentials: { token: process.env.VAPI_API_KEY },
+       });
        ```
      </TabItem>
      <TabItem label="Python">
        ```python
-       scalekit_client.connect.upsert_connected_account(
+       scalekit_client.actions.upsert_connected_account(
            connection_name="vapimcp",
-           identifier="user@example.com",
-           credentials={"api_key": "ydc-sk-..."},
+           identifier="user_123",
+           # Security: never hard-code the API key — read it from a secret store or env var.
+           credentials={"token": os.environ["VAPI_API_KEY"]},
        )
        ```
      </TabItem>
    </Tabs>
-
 </Steps>

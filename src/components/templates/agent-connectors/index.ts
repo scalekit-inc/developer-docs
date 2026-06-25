@@ -189,6 +189,7 @@ export { default as SectionAfterSetupSupermetricsmcpCommonWorkflows } from './_s
 export { default as SectionAfterSetupTableauCommonWorkflows } from './_section-after-setup-tableau-common-workflows.mdx'
 export { default as SectionAfterSetupTrelloCommonWorkflows } from './_section-after-setup-trello-common-workflows.mdx'
 export { default as SectionAfterSetupTwitterCommonWorkflows } from './_section-after-setup-twitter-common-workflows.mdx'
+export { default as SectionAfterSetupVapimcpCommonWorkflows } from './_section-after-setup-vapimcp-common-workflows.mdx'
 export { default as SectionAfterSetupVercelCommonWorkflows } from './_section-after-setup-vercel-common-workflows.mdx'
 export { default as SectionAfterSetupXeroCommonWorkflows } from './_section-after-setup-xero-common-workflows.mdx'
 export { default as SectionAfterSetupYoutubeCommonWorkflows } from './_section-after-setup-youtube-common-workflows.mdx'
