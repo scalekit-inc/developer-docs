@@ -1019,4 +1019,9 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'OAuth 2.1/DCR',
     categories: ['Project Management', 'Collaboration', 'Productivity'],
   },
+  netlifymcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/netlify.svg',
+    authType: 'OAuth 2.0/DCR',
+    categories: ['Developer Tools', 'Automation', 'Productivity'],
+  },
 }
