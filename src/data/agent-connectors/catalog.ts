@@ -1034,4 +1034,9 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'OAuth 2.1/PKCE',
     categories: ['Marketing', 'Analytics'],
   },
+  vapimcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/vapi.svg',
+    authType: 'Bearer Token',
+    categories: ['Communication', 'AI'],
+  },
 }
