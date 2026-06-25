@@ -1024,4 +1024,9 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'OAuth 2.1/DCR',
     categories: ['Developer Tools', 'Productivity'],
   },
+  latchbiomcp: {
+    iconUrl: 'https://latch.bio/favicon.ico',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['AI', 'Developer Tools'],
+  },
 }

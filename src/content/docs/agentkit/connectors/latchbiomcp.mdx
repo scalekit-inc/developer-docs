@@ -1,0 +1,86 @@
+---
+title: 'Latch Bio connector'
+tableOfContents: true
+description: 'Latch Bio is a cloud bioinformatics platform for running computational biology workflows. Its MCP server lets AI agents list and retrieve files, manage...'
+sidebar:
+  label: 'Latch Bio'
+overviewTitle: 'Quickstart'
+connectorIcon: https://latch.bio/favicon.ico
+connectorAuthType: OAuth 2.1/DCR
+connectorCategories: [AI, Developer Tools]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/latchbiomcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupLatchbiomcpSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+import { SectionAfterSetupLatchbiomcpCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Latch Bio credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupLatchbiomcpSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="latchbiomcp" toolName="latchbiomcp_list_executions" providerName="Latch Bio" toolInputNode="{ rationale: 'YOUR_RATIONALE' }" toolInputPython='{"rationale":"YOUR_RATIONALE"}' />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Get execution, file, task logs** — Fetch the status, task nodes, and results for a workflow execution
+- **Workflow launch** — Launch a bioinformatics workflow on Latch
+- **List executions, files, workflows** — List workflow executions in a Latch workspace
+
+## Common workflows
+
+<SectionAfterSetupLatchbiomcpCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />
