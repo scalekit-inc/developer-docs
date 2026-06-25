@@ -1,0 +1,89 @@
+---
+title: 'Clay connector'
+tableOfContents: true
+description: 'Clay is a go-to-market (GTM) platform that unifies data sourcing from 150+ providers, AI-powered research agents, and workflow orchestration for sales and...'
+sidebar:
+  label: 'Clay'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/clay.svg
+connectorAuthType: OAuth 2.1/DCR
+connectorCategories: [CRM & Sales, Marketing, Automation]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/claymcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupClaymcpSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+import { SectionAfterSetupClaymcpCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Clay credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupClaymcpSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="claymcp" toolName="claymcp_get_credits_available" providerName="Clay" toolInputNode="{ rationale: 'YOUR_RATIONALE' }" toolInputPython='{"rationale":"YOUR_RATIONALE"}' />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Points add company data, add contact data** — Add data points to companies in an existing search
+- **Accounts ask question about** — Ask a natural language question about one or more accounts available in Clay Audiences
+- **Company find and enrich, find and enrich contacts at** — Find and enrich a single company by domain or LinkedIn URL
+- **List find and enrich, subroutines** — Find and enrich specific named contacts at their companies
+- **Get credits available, subroutine input options, task** — Check if credits are available for the workspace
+- **Query objects** — Query audience accounts, contacts, or deals using natural language
+
+## Common workflows
+
+<SectionAfterSetupClaymcpCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

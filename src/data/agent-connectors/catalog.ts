@@ -1039,4 +1039,9 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'Bearer Token',
     categories: ['Communication', 'AI'],
   },
+  claymcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/clay.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['CRM & Sales', 'Marketing', 'Automation'],
+  },
 }

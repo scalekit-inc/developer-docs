@@ -1,0 +1,159 @@
+{/* TODO: stub cloned from profoundmcp — replace with Clay-specific common workflow examples */}
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+### Enrich a company and its key contacts
+
+Use `claymcp_find_and_enrich_company` to look up a company by domain, then `claymcp_find_and_enrich_contacts_at_company` to find decision-makers there. Check the task status with `claymcp_get_task` before reading results — enrichment runs asynchronously.
+
+<Aside type="note" title="Check task status before reading results">
+  Enrichment tools return a `taskId`. Poll `claymcp_get_task` until `status` is `completed` before reading the enriched data.
+</Aside>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // Step 1 — enrich the company
+    const companyTask = await actions.executeTool({
+      connectionName: 'claymcp',
+      identifier: 'user_123',
+      toolName: 'claymcp_find_and_enrich_company',
+      toolInput: {
+        domain: 'clay.com',
+        rationale: 'Researching Clay for outbound prospecting',
+      },
+    });
+    const taskId = companyTask.taskId;
+
+    // Step 2 — find contacts at the company
+    const contactTask = await actions.executeTool({
+      connectionName: 'claymcp',
+      identifier: 'user_123',
+      toolName: 'claymcp_find_and_enrich_contacts_at_company',
+      toolInput: {
+        taskId,
+        filters: { seniority: ['VP', 'Director', 'C-Suite'] },
+        rationale: 'Finding decision-makers for outbound',
+      },
+    });
+    console.log('Contact task:', contactTask.taskId);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    # Step 1 — enrich the company
+    company_task = actions.execute_tool(
+        connection_name="claymcp",
+        identifier="user_123",
+        tool_name="claymcp_find_and_enrich_company",
+        tool_input={
+            "domain": "clay.com",
+            "rationale": "Researching Clay for outbound prospecting",
+        },
+    )
+    task_id = company_task["taskId"]
+
+    # Step 2 — find contacts at the company
+    contact_task = actions.execute_tool(
+        connection_name="claymcp",
+        identifier="user_123",
+        tool_name="claymcp_find_and_enrich_contacts_at_company",
+        tool_input={
+            "taskId": task_id,
+            "filters": {"seniority": ["VP", "Director", "C-Suite"]},
+            "rationale": "Finding decision-makers for outbound",
+        },
+    )
+    print("Contact task:", contact_task["taskId"])
+    ```
+  </TabItem>
+</Tabs>
+
+### Check credit balance before a bulk enrichment
+
+Use `claymcp_get_credits_available` to confirm your workspace has enough credits before kicking off a large enrichment run.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const credits = await actions.executeTool({
+      connectionName: 'claymcp',
+      identifier: 'user_123',
+      toolName: 'claymcp_get_credits_available',
+      toolInput: { rationale: 'Checking credits before bulk enrichment' },
+    });
+    console.log('Credits available:', credits.creditsAvailable);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    credits = actions.execute_tool(
+        connection_name="claymcp",
+        identifier="user_123",
+        tool_name="claymcp_get_credits_available",
+        tool_input={"rationale": "Checking credits before bulk enrichment"},
+    )
+    print("Credits available:", credits["creditsAvailable"])
+    ```
+  </TabItem>
+</Tabs>
+
+### Run a custom subroutine on enriched contacts
+
+List available subroutines with `claymcp_list_subroutines`, then run one with `claymcp_run_subroutine` or `claymcp_run_subroutine_direct`. Subroutines are custom Clay functions — they can write data or trigger workflows, so confirm with the user before running them.
+
+<Aside type="caution" title="Subroutines are write operations">
+  `claymcp_run_subroutine`, `claymcp_run_subroutine_direct`, and `claymcp_run_subroutine_no_mapping` execute custom Clay functions that may write data or trigger downstream actions. Confirm intent with the user before calling them.
+</Aside>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // Step 1 — list subroutines to find the right one
+    const subroutines = await actions.executeTool({
+      connectionName: 'claymcp',
+      identifier: 'user_123',
+      toolName: 'claymcp_list_subroutines',
+      toolInput: { rationale: 'Listing available subroutines' },
+    });
+
+    // Step 2 — run a subroutine on contacts from an existing task
+    const result = await actions.executeTool({
+      connectionName: 'claymcp',
+      identifier: 'user_123',
+      toolName: 'claymcp_run_subroutine',
+      toolInput: {
+        subroutineId: subroutines.subroutines[0].id,
+        taskId: 'EXISTING_TASK_ID',
+        rationale: 'Running lead scoring subroutine on enriched contacts',
+      },
+    });
+    console.log('Subroutine result:', result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    # Step 1 — list subroutines to find the right one
+    subroutines = actions.execute_tool(
+        connection_name="claymcp",
+        identifier="user_123",
+        tool_name="claymcp_list_subroutines",
+        tool_input={"rationale": "Listing available subroutines"},
+    )
+
+    # Step 2 — run a subroutine on contacts from an existing task
+    result = actions.execute_tool(
+        connection_name="claymcp",
+        identifier="user_123",
+        tool_name="claymcp_run_subroutine",
+        tool_input={
+            "subroutineId": subroutines["subroutines"][0]["id"],
+            "taskId": "EXISTING_TASK_ID",
+            "rationale": "Running lead scoring subroutine on enriched contacts",
+        },
+    )
+    print("Subroutine result:", result)
+    ```
+  </TabItem>
+</Tabs>
