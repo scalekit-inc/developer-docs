@@ -1,6 +1,6 @@
 ---
 title: 'Build a Mastra agent with Scalekit AgentKit tools'
-description: 'Give a Mastra agent access to Gmail and 60+ tools through Scalekit AgentKit — zero manual OAuth handling.'
+description: 'Give a Mastra agent access to Gmail and 200+ connectors through Scalekit AgentKit — zero manual OAuth handling.'
 date: 2026-05-19
 tags: ['Agent auth', 'Node.js']
 sidebar:
@@ -20,14 +20,14 @@ import { Aside, Steps } from '@astrojs/starlight/components';
 
 A [Mastra](https://mastra.ai) agent that reads emails needs a Gmail OAuth token. An agent that also posts to Slack needs a second token. Each tool means another OAuth flow, another token store, another refresh cycle. Before you write any agent logic, you are already maintaining parallel credential pipelines.
 
-Scalekit AgentKit eliminates that overhead. It stores one OAuth session per connector per user, handles token refresh automatically, and gives your agent a single API surface for 60+ tools. This recipe shows how to discover AgentKit tools at runtime, wrap them as native Mastra tools, and run them through a Mastra agent — all in TypeScript, with no Python backend.
+Scalekit AgentKit eliminates that overhead. It stores one OAuth session per connector per user, handles token refresh automatically, and gives your agent a single API surface for 200+ connectors. This recipe shows how to discover AgentKit tools at runtime, wrap them as native Mastra tools, and run them through a Mastra agent — all in TypeScript, with no Python backend.
 
 ## What you are building
 
 - **A Mastra agent** that fetches Gmail messages through Scalekit AgentKit.
 - **Dynamic tool discovery** — the agent discovers available tools at runtime from Scalekit, instead of hardcoding tool definitions.
 - **Magic link authorization** — if the user has not connected their Gmail account, the agent generates an authorization URL.
-- **A pattern you can extend** to any of Scalekit's [60+ connectors](/agentkit/connectors/) by changing a single string.
+- **A pattern you can extend** to any of Scalekit's [200+ connectors](/agentkit/connectors/) by changing a single string.
 
 The complete source is available in the [mastra-agentkit-example](https://github.com/scalekit-developers/mastra-agentkit-example) repository.
 
@@ -297,7 +297,7 @@ The model did not receive tool definitions with enough detail to trigger a tool 
 
 **Scope tools per user.** The `identifier` parameter in `listTools` and `executeTool` ensures each user only accesses their own connected accounts. Never share an identifier across users.
 
-**Add more connectors.** Change `CONNECTION_NAME` to `slack`, `notion`, `googlecalendar`, or any of the [60+ supported connectors](/agentkit/connectors/). The code is identical — only the connection name changes.
+**Add more connectors.** Change `CONNECTION_NAME` to `slack`, `notion`, `googlecalendar`, or any of the [200+ supported connectors](/agentkit/connectors/). The code is identical — only the connection name changes.
 
 **Error handling in production.** Wrap `executeTool` calls in try/catch to handle network errors and expired connections gracefully. Return a clear message to the user when a tool call fails instead of letting the agent retry silently.
 
