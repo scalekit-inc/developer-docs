@@ -1,0 +1,89 @@
+---
+title: 'MotherDuck MCP connector'
+tableOfContents: true
+description: 'Connect to MotherDuck MCP. Query and analyze DuckDB databases, explore schemas, create visualizations, and automate data workflows from your AI workflows.'
+sidebar:
+  label: 'MotherDuck MCP'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/motherduck.svg
+connectorAuthType: OAuth 2.1/DCR
+connectorCategories: [Databases, Analytics, AI]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/motherduckmcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupMotherduckmcpSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+import { SectionAfterSetupMotherduckmcpCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your MotherDuck MCP credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupMotherduckmcpSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="motherduckmcp" toolName="motherduckmcp_get_flight_guide" providerName="MotherDuck MCP" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Question ask docs** — Query official DuckDB and MotherDuck documentation to answer questions about SQL syntax, features, and best practices
+- **Run cancel flight, flight** — Cancel an in-progress Flight run
+- **Create flight** — Create a new Flight — a Python entrypoint with optional dependencies that executes on MotherDuck compute
+- **Delete dive, flight** — Permanently remove a Dive from the MotherDuck workspace
+- **Source edit flight** — Edit a Flight's source code through one or more find-and-replace operations, producing a new FlightVersion
+- **Get dive guide, flight, flight guide** — Retrieve comprehensive instructions for creating MotherDuck Dives (interactive React data apps), tailored to the calling AI client
+
+## Common workflows
+
+<SectionAfterSetupMotherduckmcpCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />
