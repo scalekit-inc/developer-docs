@@ -1,0 +1,111 @@
+{/* TODO: stub cloned from _section-after-setup-latchbiomcp-common-workflows.mdx for Profound. Review and update connector-specific references (URLs, scopes, app-registration steps) before merging. */}
+{/* TODO: stub cloned from _section-after-setup-vercelmcp-common-workflows.mdx for Profound. Review and update connector-specific references (URLs, scopes, app-registration steps) before merging. */}
+{/* TODO: stub cloned from _section-after-setup-firecrawlmcp-common-workflows.mdx for Profound. Review and update connector-specific references (URLs, scopes, app-registration steps) before merging. */}
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+### Scrape a page
+
+Use `profoundmcp_firecrawl_scrape` to extract clean markdown content from any URL.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.executeTool({
+      connectionName: 'profoundmcp',
+      identifier: 'user_123',
+      toolName: 'profoundmcp_firecrawl_scrape',
+      toolInput: {
+        url: 'https://docs.example.com/getting-started',
+        onlyMainContent: true,
+      },
+    });
+    console.log(result.data);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.execute_tool(
+        connection_name="profoundmcp",
+        identifier="user_123",
+        tool_name="profoundmcp_firecrawl_scrape",
+        tool_input={
+            "url": "https://docs.example.com/getting-started",
+            "onlyMainContent": True,
+        },
+    )
+    print(result.data)
+    ```
+  </TabItem>
+</Tabs>
+
+### Search the web
+
+Use `profoundmcp_firecrawl_search` to run a live web search and get scraped content from the top results.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.executeTool({
+      connectionName: 'profoundmcp',
+      identifier: 'user_123',
+      toolName: 'profoundmcp_firecrawl_search',
+      toolInput: {
+        query: 'best practices for API rate limiting 2026',
+        limit: 5,
+      },
+    });
+    console.log(result.data);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.execute_tool(
+        connection_name="profoundmcp",
+        identifier="user_123",
+        tool_name="profoundmcp_firecrawl_search",
+        tool_input={
+            "query": "best practices for API rate limiting 2026",
+            "limit": 5,
+        },
+    )
+    print(result.data)
+    ```
+  </TabItem>
+</Tabs>
+
+### Extract structured data from a URL
+
+Use `profoundmcp_firecrawl_extract` with a natural-language prompt and optional JSON Schema to pull structured data from one or more pages.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.executeTool({
+      connectionName: 'profoundmcp',
+      identifier: 'user_123',
+      toolName: 'profoundmcp_firecrawl_extract',
+      toolInput: {
+        urls: ['https://example.com/pricing'],
+        prompt: 'Extract all pricing plan names and their monthly costs.',
+      },
+    });
+    console.log(result.data);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.execute_tool(
+        connection_name="profoundmcp",
+        identifier="user_123",
+        tool_name="profoundmcp_firecrawl_extract",
+        tool_input={
+            "urls": ["https://example.com/pricing"],
+            "prompt": "Extract all pricing plan names and their monthly costs.",
+        },
+    )
+    print(result.data)
+    ```
+  </TabItem>
+</Tabs>

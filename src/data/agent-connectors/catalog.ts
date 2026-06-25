@@ -1029,4 +1029,9 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'OAuth 2.1/DCR',
     categories: ['AI', 'Developer Tools'],
   },
+  profoundmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/profound.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Marketing', 'Analytics', 'AI'],
+  },
 }
