@@ -27,7 +27,7 @@ Runs `scripts/sync-agent-connectors-local.js` in this repo to generate:
 - `src/components/templates/agent-connectors/_section-after-setup-<slug>-common-workflows.mdx` — workflows stub
 - `src/components/templates/agent-connectors/index.ts` — re-synced exports
 
-Then verifies structure, runs a description consistency pass, commits, pushes, and opens a draft PR.
+Then verifies structure, rewrites the setup stub with auth-type-specific deterministic content, runs a description consistency pass, commits, pushes, and opens a draft PR.
 
 **Fully automated — no user input needed** except for credentials/connection setup, which never applies to docs generation.
 
@@ -90,6 +90,204 @@ Check all six generated files exist:
 - `src/data/agent-connectors/catalog.ts` — `git diff --stat` shows small addition (≤10 lines); if hundreds of lines removed → stop, script broke the catalog
 - `_setup-<slug>.mdx` and `_section-after-setup-<slug>-common-workflows.mdx` — both present with `{/* TODO: stub cloned from ... */}` header
 - `src/components/templates/agent-connectors/index.ts` — exports include `Setup<PascalSlug>Section` and `SectionAfterSetup<PascalSlug>CommonWorkflows`
+
+## Step 5.5 — Auth setup content pass
+
+Read `<providers-dir>/<slug>/<slug>.json`. Extract:
+
+- `display_name` — substituted throughout step text
+- `auth_patterns[0].type` → `OAUTH`, `API_KEY`, `BEARER`, `BASIC`, `OAUTH_M2M`
+- `auth_patterns[0].is_mcp` → `true` = MCP/DCR path (OAUTH with automatic client registration)
+- `auth_patterns[0].available_scopes[*].name` → scope list for OAUTH BYO template
+
+**Overwrite** `src/components/templates/agent-connectors/_setup-<slug>.mdx` with the matching template below. Substitute `<Display Name>`, `<slug>`, and scope values throughout. Replace the entire cloned stub — do not preserve template content.
+
+Do NOT touch `_section-after-setup-<slug>-common-workflows.mdx` — that stub is left entirely for human review.
+
+### Template: MCP / OAUTH with DCR (`is_mcp: true`)
+
+```mdx
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+<Display Name> uses OAuth 2.1 with Dynamic Client Registration (DCR) and PKCE. Scalekit registers an OAuth client with <Display Name> automatically — no client ID or secret is needed.
+
+<Steps>
+1. ### Create a connection in Scalekit
+
+In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections**. Find **<Display Name>** and click **Create**. Note the **Connection name** — use this as `connection_name` in your code (for example, `<slug>`).
+
+{/* TODO: add screenshot of <Display Name> connection creation in Scalekit dashboard */}
+
+2. ### Authorize the connection
+
+   Generate an authorization link for a user and open it in a browser. <Display Name> prompts the user to grant access. After the user approves, the connected account becomes active and Scalekit manages token refresh automatically.
+
+   {/* TODO: add screenshot of <Display Name> OAuth consent/authorization screen */}
+
+3. ### Verify the connection is active
+
+   In the Scalekit dashboard, open **AgentKit** > **Connections** > **<Display Name>** and confirm the connected account shows status **Active**. If it shows **Pending**, the user has not yet completed the authorization flow.
+
+   {/* TODO: add screenshot of active connected account in Scalekit dashboard */}
+
+   </Steps>
+```
+
+### Template: OAUTH with BYO credentials (`type: "OAUTH"`, `is_mcp: false`)
+
+```mdx
+import { Steps } from '@astrojs/starlight/components'
+
+Register your <Display Name> OAuth app credentials with Scalekit so it can authenticate requests on your behalf.
+
+<Steps>
+1. ### Copy the redirect URI from Scalekit
+
+In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **<Display Name>** and click **Create**. Copy the redirect URI — it looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+{/* TODO: add screenshot of Scalekit connection creation and redirect URI for <Display Name> */}
+
+2. ### Create an OAuth app in <Display Name>
+
+   {/* TODO: add provider-specific steps — navigate to <Display Name> developer settings, create an OAuth app, and add the Scalekit redirect URI from step 1 */}
+
+   {/* TODO: add screenshot of OAuth app creation in <Display Name> developer dashboard */}
+
+3. ### Get client credentials
+
+   In your <Display Name> app settings, copy your **Client ID** and **Client Secret**.
+
+   {/* TODO: add screenshot showing where to find client ID and secret in <Display Name> */}
+
+4. ### Add credentials in Scalekit
+
+   In the [Scalekit dashboard](https://app.scalekit.com), open the **<Display Name>** connection and enter:
+   - **Client ID** — from your <Display Name> app
+   - **Client Secret** — from your <Display Name> app
+   - **Scopes** — `<scope names from available_scopes, space-separated>`
+
+   {/* TODO: add screenshot of credential entry form in Scalekit dashboard */}
+
+   Click **Save**.
+
+   </Steps>
+```
+
+### Template: API_KEY
+
+```mdx
+import { Steps } from '@astrojs/starlight/components'
+
+Register your <Display Name> API key with Scalekit so it can authenticate requests on your behalf.
+
+<Steps>
+1. ### Generate an API key
+
+{/* TODO: add provider-specific steps for generating an API key in <Display Name> */}
+
+{/* TODO: add screenshot of API key generation in <Display Name> */}
+
+Copy the API key — it is typically shown only once.
+
+2. ### Create a connection in Scalekit
+
+   In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **<Display Name>** and click **Create**.
+
+   {/* TODO: add screenshot of connection creation in Scalekit dashboard */}
+
+3. ### Create a connected account
+
+   In the Scalekit dashboard, open your **<Display Name>** connection and click **Add account**. Enter:
+   - **Your User's ID** — a unique identifier for the user in your system
+   - **API Key** — the key you copied in step 1
+
+   {/* TODO: add screenshot of connected account form in Scalekit dashboard */}
+
+   Click **Save**.
+
+   </Steps>
+```
+
+### Template: BEARER
+
+```mdx
+import { Steps } from '@astrojs/starlight/components'
+
+Register your <Display Name> bearer token with Scalekit so it can authenticate requests on your behalf.
+
+<Steps>
+1. ### Get a bearer token
+
+{/* TODO: add provider-specific steps for obtaining a bearer token from <Display Name> */}
+
+{/* TODO: add screenshot of token generation or copy location in <Display Name> */}
+
+2. ### Create a connection in Scalekit
+
+   In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **<Display Name>** and click **Create**.
+
+   {/* TODO: add screenshot of connection creation in Scalekit dashboard */}
+
+3. ### Create a connected account
+
+   In the Scalekit dashboard, open your **<Display Name>** connection and click **Add account**. Enter:
+   - **Your User's ID** — a unique identifier for the user in your system
+   - **Bearer Token** — the token from step 1
+
+   {/* TODO: add screenshot of connected account form in Scalekit dashboard */}
+
+   Click **Save**.
+
+   </Steps>
+```
+
+### Template: BASIC
+
+```mdx
+import { Steps } from '@astrojs/starlight/components'
+
+Register your <Display Name> credentials with Scalekit so it can authenticate requests on your behalf.
+
+<Steps>
+1. ### Locate your credentials
+
+{/* TODO: add provider-specific steps for finding username and password or API token in <Display Name> */}
+
+{/* TODO: add screenshot */}
+
+2. ### Create a connection in Scalekit
+
+   In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **<Display Name>** and click **Create**.
+
+   {/* TODO: add screenshot of connection creation in Scalekit dashboard */}
+
+3. ### Create a connected account
+
+   In the Scalekit dashboard, open your **<Display Name>** connection and click **Add account**. Enter:
+   - **Your User's ID** — a unique identifier for the user in your system
+   - **Username** — your <Display Name> username or email
+   - **Password** — your <Display Name> password or API token
+
+   {/* TODO: add screenshot of connected account form in Scalekit dashboard */}
+
+   Click **Save**.
+
+   </Steps>
+```
+
+### What stays as TODO (always manual)
+
+- **Screenshots** — require a live, authenticated session with the provider's UI
+- **Provider-specific navigation** — the path inside the provider's dashboard to find API keys, OAuth apps, or token issuance pages
+- **Exact scope names** for OAUTH BYO — while scope names are inserted from `available_scopes`, the human reviewer should verify they match the provider's current published list
+
+### What is auto-filled (deterministic)
+
+- Auth flow description (DCR, BYO OAuth, API key, bearer, basic)
+- Scalekit dashboard navigation (always identical across connectors)
+- Redirect URI format string
+- Connected account field names (API Key, Bearer Token, Username/Password)
+- Step sequence and structure
 
 ## Step 6 — Description consistency pass
 
@@ -157,9 +355,11 @@ Adds documentation for the **<Display Name>** connector (`<slug>`) — <one-line
 
 ## Stub files
 
-`_setup-<slug>.mdx` and `_section-after-setup-<slug>-common-workflows.mdx` are cloned from `<template>` and need:
+`_setup-<slug>.mdx` has auth-type-specific setup steps auto-generated. Still needs:
 - Screenshots replacing `{/* TODO: add screenshot ... */}` markers
-- Review of connector-specific setup steps (URLs, scopes, app registration)
+- Provider-specific navigation paths replacing `{/* TODO: add provider-specific steps ... */}` markers
+
+`_section-after-setup-<slug>-common-workflows.mdx` needs workflow examples added (cloned stub only).
 
 ## Preview
 
@@ -200,7 +400,8 @@ Return:
 
 - Edit `scripts/sync-agent-connectors-local.js` or `scripts/sync-agent-connectors.js` — if they need changes, report the bug
 - Touch `capabilities.json` or `description-html.json` (curation work, not generation)
-- Modify `_setup-*.mdx` or `_section-after-setup-*.mdx` stubs after cloning — human reviewer fills in screenshots
+- Modify `_setup-*.mdx` beyond what Step 5.5 generates — screenshots and provider-specific navigation paths are human-only additions
+- Modify `_section-after-setup-*.mdx` — common workflows stubs are left entirely for human review
 - Stage anything outside the step 8 allowlist
 - Use `git add -A`, `-u`, or `.`
 - Force push or skip hooks
