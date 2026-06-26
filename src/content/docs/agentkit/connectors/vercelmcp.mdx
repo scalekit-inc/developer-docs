@@ -23,9 +23,8 @@ import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/vercelmcp'
 import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
 import { AgentKitCredentials } from '@components/templates'
-import { SetupVercelSection } from '@components/templates'
+import { SetupVercelmcpSection } from '@components/templates'
 import { QuickstartGenericOauthSection } from '@components/templates'
-import { SectionAfterSetupVercelCommonWorkflows } from '@components/templates'
 
 <Steps>
 
@@ -52,18 +51,18 @@ import { SectionAfterSetupVercelCommonWorkflows } from '@components/templates'
 
 3. ### Set up the connector
 
-   Vercel MCP uses OAuth 2.1 without Dynamic Client Registration (DCR). You must create a Vercel OAuth integration and provide the credentials to Scalekit once before your users can connect.
+   Register your Vercel MCP credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
 
    <details>
    <summary>Dashboard setup steps</summary>
 
-   <SetupVercelSection />
+   <SetupVercelmcpSection />
 
    </details>
 
 4. ### Authorize and make your first call
 
-   <QuickstartGenericOauthSection connector="vercelmcp" toolName="vercelmcp_listprojects" providerName="Vercel MCP" />
+   <QuickstartGenericOauthSection connector="vercelmcp" toolName="vercelmcp_deploytovercel" providerName="Vercel MCP" />
 
 </Steps>
 
@@ -71,16 +70,12 @@ import { SectionAfterSetupVercelCommonWorkflows } from '@components/templates'
 
 Connect this agent connector to let your agent:
 
-- **List projects and deployments** — Retrieve all Vercel projects and their deployment history for a team
-- **Get deployment details** — Fetch deployment metadata, build logs, and runtime logs for any project
-- **Deploy to Vercel** — Trigger a new deployment for a Vercel project directly from your workflow
-- **Check domain availability** — Look up whether a domain name is available and its price
-- **Manage toolbar threads** — Create, list, and reply to comment threads on Vercel deployments
-- **Fetch and search Vercel content** — Retrieve the response body of any Vercel URL or search the Vercel documentation
-
-## Common workflows
-
-<SectionAfterSetupVercelCommonWorkflows />
+- **Webfetchvercelurl records** — Fetches a Vercel deployment URL and returns the response body
+- **Searchverceldocumentation records** — Search the Vercel documentation for information about a topic
+- **Replytotoolbarthread records** — Add a reply message to an existing toolbar thread
+- **Listtoolbarthreads records** — List Vercel toolbar comment threads for a team
+- **Listteams records** — List the user's teams
+- **Listprojects records** — List all Vercel projects for a user (with a max of 50)
 
 ## Tool list
 
