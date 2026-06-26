@@ -1,0 +1,32 @@
+---
+title: Outbound IP addresses
+description: Allowlist Scalekit's outbound IP addresses so providers and services accept the requests and tool calls that originate from Scalekit.
+tags: [networking, ip-allowlist, firewall, tool-calls]
+sidebar:
+  label: Outbound IPs
+tableOfContents: true
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+When Scalekit makes outbound requests on your behalf — for example, tool calls to upstream providers — the traffic originates from a fixed set of NAT IP addresses. If a provider or one of your own services restricts inbound traffic by IP, add these addresses to its allowlist so the provider accepts the requests.
+
+## IP addresses by region
+
+| Region | Outbound IP address |
+|---|---|
+| United States (US) | `34.94.129.140` |
+| European Union (EU) | `35.198.115.68` |
+
+Use the address for the region your Scalekit environment runs in. If you run environments in both regions, allowlist both addresses.
+
+<Aside type="note" title="Confirm before you rely on these long-term">
+Outbound IP addresses can change. Check this page for the current values before you finalize a firewall rule, and contact Scalekit support if you need advance notice of changes for a compliance review.
+</Aside>
+
+## When to allowlist these addresses
+
+Allowlist Scalekit's outbound IP addresses when:
+
+- An upstream provider restricts API access to known IP addresses, and you call that provider's tools through Scalekit.
+- Your own backend validates the source IP of the requests it receives from Scalekit.

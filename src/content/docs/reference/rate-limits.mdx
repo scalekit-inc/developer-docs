@@ -1,0 +1,58 @@
+---
+title: API rate limits
+description: Understand Scalekit API rate limits, tell them apart from upstream provider limits, handle 429 responses, and request a higher limit.
+tags: [rate-limits, api, errors, reliability]
+sidebar:
+  label: Rate limits
+tableOfContents: true
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+Scalekit applies a rate limit to the API requests from each environment. When a workload exceeds that limit, the API responds with HTTP `429 Too Many Requests`. This page explains how to recognize a rate-limit response, tell a Scalekit limit apart from an upstream provider's limit, handle the response, and request a higher limit.
+
+## How rate limits work
+
+Scalekit enforces a per-environment request rate, measured in requests per minute. Scalekit tunes the limit per account, so high-throughput workloads — for example, routing MCP tool calls through Scalekit in addition to authentication traffic — can need a higher limit than the default.
+
+When you exceed the limit, Scalekit returns HTTP `429 Too Many Requests`. Back off and retry with exponential backoff rather than retrying immediately.
+
+## Tell Scalekit limits apart from provider limits
+
+When you call tools through Scalekit, a `429` can come from either Scalekit or the upstream provider (for example, a CRM or data API that Scalekit calls on your behalf). The `error_code` field on the error identifies the source:
+
+| `error_code` | Source | What to do |
+|---|---|---|
+| `RATE_LIMITED` | Scalekit's own rate limit | Reduce the overall request frequency and back off before retrying. |
+| `TOOL_ERROR` | The upstream provider rate-limited the tool call | Apply the provider's recommended backoff. Check the tool call logs for the provider's message. |
+
+Review the detailed error in your dashboard's tool call logs to confirm which provider and which tool triggered the limit.
+
+## Handle a 429 response
+
+Every Scalekit SDK raises a dedicated "too many requests" exception when the API returns `429` — for example, `ScalekitTooManyRequestsException` in the Node.js and Python SDKs. Catch that exception, read the `error_code` to determine the source, and back off before retrying.
+
+```py title="handle_rate_limit.py"
+from scalekit.common.exceptions import ScalekitTooManyRequestsException
+
+try:
+    result = scalekit_client.tools.execute_tool(...)
+except ScalekitTooManyRequestsException as e:
+    # error_code distinguishes the source of the 429 so you can back off correctly
+    if e.error_code == "TOOL_ERROR":
+        # Upstream provider rate-limited the call — apply provider-specific backoff
+        print("Provider rate limit:", e.message)
+    else:
+        # Scalekit's own rate limit (RATE_LIMITED) — reduce overall call frequency
+        print("Scalekit rate limit:", e.message)
+```
+
+<Aside type="tip" title="Back off, do not hammer">
+Retrying a rate-limited request immediately keeps you over the limit. Use exponential backoff with jitter, and cap the number of retries so a sustained limit doesn't block your application indefinitely.
+</Aside>
+
+## Request a higher limit
+
+If your workload needs a higher limit — for example, before you route additional traffic such as MCP tool calls through Scalekit — contact Scalekit support with your account details and your expected peak requests per minute. Scalekit reviews the request and adjusts the limit for your account.
+
+When you estimate the limit you need, include headroom above your current peak so that normal spikes do not trigger `429` responses.
