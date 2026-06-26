@@ -1,0 +1,89 @@
+---
+title: 'Vercel MCP connector'
+tableOfContents: true
+description: 'Connect to Vercel MCP to manage deployments, projects, domains, environment variables, and team resources directly from your AI workflows.'
+sidebar:
+  label: 'Vercel MCP'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/vercel.svg
+connectorAuthType: OAuth 2.1
+connectorCategories: [Developer Tools, Productivity]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/vercelmcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupVercelSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+import { SectionAfterSetupVercelCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Vercel MCP uses OAuth 2.1 without Dynamic Client Registration (DCR). You must create a Vercel OAuth integration and provide the credentials to Scalekit once before your users can connect.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupVercelSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="vercelmcp" toolName="vercelmcp_listprojects" providerName="Vercel MCP" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **List projects and deployments** — Retrieve all Vercel projects and their deployment history for a team
+- **Get deployment details** — Fetch deployment metadata, build logs, and runtime logs for any project
+- **Deploy to Vercel** — Trigger a new deployment for a Vercel project directly from your workflow
+- **Check domain availability** — Look up whether a domain name is available and its price
+- **Manage toolbar threads** — Create, list, and reply to comment threads on Vercel deployments
+- **Fetch and search Vercel content** — Retrieve the response body of any Vercel URL or search the Vercel documentation
+
+## Common workflows
+
+<SectionAfterSetupVercelCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

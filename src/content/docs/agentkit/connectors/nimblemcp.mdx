@@ -1,0 +1,84 @@
+---
+title: 'Nimble MCP connector'
+tableOfContents: true
+description: 'Connect to Nimble MCP. Search the web across multiple engines, extract content from any URL, crawl websites at scale, discover all URLs on a site, and run custom extraction agents using Nimble's web intelligence platform.'
+sidebar:
+  label: 'Nimble MCP'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/nimble.svg
+connectorAuthType: Bearer Token
+connectorCategories: [AI, Search]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/nimblemcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupNimblemcpSection } from '@components/templates'
+import { QuickstartGenericApikeySection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Generate a Nimble API key and register it with Scalekit. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupNimblemcpSection />
+
+   </details>
+
+4. ### Make your first call
+
+   <QuickstartGenericApikeySection connector="nimblemcp" toolName="nimblemcp_nimble_search" providerName="Nimble MCP" toolInputNode="{ query: 'latest AI news' }" toolInputPython='{"query": "latest AI news"}' />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Search the web** — Search across multiple search engines with configurable result richness and geo-targeting
+- **Extract web content** — Parse and extract structured content from any URL synchronously
+- **Async extraction** — Start background URL extraction tasks and retrieve results when ready
+- **Crawl and map websites** — Discover all pages on a site by crawling its pages and sitemap
+- **Run extraction agents** — Generate, run, and manage custom extraction agents for complex scraping tasks
+- **Manage crawl jobs** — Start, monitor, and cancel website crawl jobs
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />
