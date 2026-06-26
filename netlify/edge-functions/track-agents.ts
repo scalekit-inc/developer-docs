@@ -10,10 +10,11 @@ async function handler(
   context: { next: () => Promise<Response>; geo?: { country?: { code?: string } } },
 ) {
   const accept = request.headers.get('accept') ?? ''
-  if (shouldTrack(accept)) {
+  const apiKey = denoEnv?.get('INFRASITY_API_KEY')
+  if (apiKey && shouldTrack(accept)) {
     const url = new URL(request.url)
     track(
-      { apiKey: denoEnv?.get('INFRASITY_API_KEY') ?? '' },
+      { apiKey },
       {
         host: request.headers.get('host') ?? url.hostname,
         path: url.pathname,
@@ -21,7 +22,7 @@ async function handler(
         accept,
         country: context.geo?.country?.code,
       },
-    )
+    ).catch(() => {})
   }
   return context.next()
 }
