@@ -1,0 +1,72 @@
+---
+title: 'Sentry MCP connector'
+tableOfContents: true
+description: 'Connect to Sentry MCP server to monitor errors, investigate issues, manage projects, and analyze performance directly from your AI workflows.'
+sidebar:
+  label: 'Sentry MCP'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/sentry.svg
+connectorAuthType: OAuth 2.1/DCR
+connectorCategories: [Monitoring, Developer Tools]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/sentrymcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="sentrymcp" toolName="sentrymcp_find_organizations" providerName="Sentry MCP" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Update issue** — Update a Sentry issue's status or assignment
+- **Search sentry tools, issues, events** — Search the available Sentry MCP tool catalog by keyword
+- **Get sentry resource** — Fetch a Sentry resource by URL, or by resourceType plus resourceId
+- **Projects find** — Find projects within a Sentry organization
+- **Organizations find** — Find organizations that the user has access to in Sentry
+- **Execute sentry tool** — Execute any available Sentry MCP tool discovered through the search_sentry_tools tool
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

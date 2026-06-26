@@ -1,0 +1,62 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with the HubSpot MCP connector so Scalekit handles the OAuth flow and token lifecycle for your users. HubSpot MCP uses a dedicated **MCP Auth App** — not a Legacy App or a standard Public App.
+
+<Steps>
+1. ### Copy the redirect URI from Scalekit
+
+   - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**.
+   - Search for **HubSpot MCP** and click **Create**.
+   - Copy the **Redirect URI** from the connection details panel. It looks like:
+     ```
+     https://<YOUR_ENV>.scalekit.cloud/sso/v1/oauth/conn_<ID>/callback
+     ```
+
+2. ### Create an MCP auth app in HubSpot
+
+   - Log in to [developers.hubspot.com](https://developers.hubspot.com) and open your developer account.
+   - In the left sidebar, click **MCP Auth Apps** (marked **Beta**). Do not use **Legacy Apps** or **Projects**.
+
+   ![HubSpot developer portal showing the MCP Auth Apps section in the left sidebar](@/assets/docs/agent-connectors/hubspotmcp/mcp-auth-apps.png)
+
+   - Click **Create MCP auth app** (top right).
+   - Enter an **App name**, for example `Agent Auth`, and complete any required fields.
+   - Click **Create**.
+
+   <Aside type="tip" title="MCP Auth Apps only">
+     HubSpot's MCP Auth Apps are purpose-built for connecting LLMs and AI agents. They expose the correct OAuth endpoints and scopes for the HubSpot MCP server — standard Public or Private apps will not work here.
+   </Aside>
+
+3. ### Add the redirect URI and configure scopes
+
+   - Inside your new MCP auth app, navigate to the **Auth** or **OAuth** settings section.
+   - Under **Redirect URLs**, paste the Scalekit redirect URI you copied in step 1 and save.
+   - Under **Scopes**, add the scopes your agent needs. Start with:
+
+     ```text
+     crm.objects.contacts.read
+     crm.objects.contacts.write
+     crm.objects.companies.read
+     crm.objects.deals.read
+     ```
+
+     Add additional scopes based on the tools your agent will use (for example, `content` scopes for landing pages and campaigns).
+
+4. ### Copy your app credentials
+
+   - In your MCP auth app settings, find the **App ID** (visible in the app list as a number, for example `43664586`).
+   - Locate your **Client ID** and **Client Secret** under the OAuth settings.
+
+   <Aside type="caution" title="Client Secret is shown once">
+     Copy the Client Secret immediately after creation. If you navigate away, you must regenerate it — this invalidates all existing connections using the old secret.
+   </Aside>
+
+5. ### Add credentials in Scalekit
+
+   - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** and open the HubSpot MCP connection you created.
+   - Enter:
+     - **Client ID** — from your MCP auth app
+     - **Client Secret** — from your MCP auth app
+     - **Permissions** — the scope strings you configured in step 3 (for example, `crm.objects.contacts.read crm.objects.deals.read`)
+   - Click **Save**.
+</Steps>

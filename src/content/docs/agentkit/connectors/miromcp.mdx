@@ -1,0 +1,72 @@
+---
+title: 'Miro MCP connector'
+tableOfContents: true
+description: 'Connect to Miro MCP to create and manage boards, frames, sticky notes, shapes, diagrams, and comments directly from your AI workflows.'
+sidebar:
+  label: 'Miro MCP'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/Miro.svg
+connectorAuthType: OAuth 2.1/DCR
+connectorCategories: [Collaboration, Design, Productivity]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/miromcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="miromcp" toolName="miromcp_code_widget_get" providerName="Miro MCP" toolInputNode="{ miro_url: 'https://example.com/miro-url' }" toolInputPython='{"miro_url":"https://example.com/miro-url"}' />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **I user who am** — Returns the identity of the current authenticated user
+- **Rows table sync** — Add or update rows in a Miro table
+- **List table, comment, code widget** — Get rows from a Miro table with column metadata
+- **Create table, prototype, layout** — Create a table on a Miro board with specified columns
+- **Read prototype, layout** — Read prototype screens from a Miro board
+- **Get prototype, layout, image** — Reserve a single-use upload slot for one HTML screen
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

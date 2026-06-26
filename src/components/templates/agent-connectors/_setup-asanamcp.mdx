@@ -1,0 +1,54 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with the Asana MCP connector so Scalekit handles the OAuth flow and token lifecycle for your users. Asana MCP requires a dedicated **MCP app** — not an API app or a personal access token.
+
+<Steps>
+1. ### Copy the redirect URI from Scalekit
+
+   - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**.
+   - Search for **Asana MCP** and click **Create**.
+   - Copy the **Redirect URI** from the connection details panel. It looks like:
+     ```
+     https://<YOUR_ENV>.scalekit.cloud/sso/v1/oauth/conn_<ID>/callback
+     ```
+
+2. ### Create an MCP app in Asana
+
+   - Go to [app.asana.com/-/developer_console](https://app.asana.com/-/developer_console) and sign in.
+   - Click **Create new app**.
+
+   ![Asana developer console showing existing apps and the Create new app button](@/assets/docs/agent-connectors/asanamcp/my-apps.png)
+
+   - In the **Create new app** dialog:
+     - Enter an **App name**, for example `Agent Auth`.
+     - Under **App type**, select **MCP app** ("Connect LLMs to Asana"). Do **not** select **API app**.
+     - Check **I agree to the Asana API Terms**.
+     - Click **Create app**.
+
+   ![Create new app dialog with MCP app type selected](@/assets/docs/agent-connectors/asanamcp/create-app-mcp-type.png)
+
+   <Aside type="tip" title="MCP app, not API app">
+     Asana's MCP app type is designed specifically for connecting LLMs and AI agents. It exposes the OAuth endpoints that the Asana MCP server requires. API apps use a different auth flow and will not work with the MCP connector.
+   </Aside>
+
+3. ### Add the redirect URI to your app
+
+   - Inside your new MCP app, open the left menu and click **OAuth**.
+   - Under **Redirect URLs**, click **Add redirect URL**, paste the redirect URI from Scalekit, and click **Add**.
+
+4. ### Copy your app credentials
+
+   - In the same **OAuth** section, copy your **Client ID** and **Client Secret**.
+
+   <Aside type="caution" title="Save the Client Secret now">
+     The Client Secret is only shown once. Store it in a password manager before leaving the page.
+   </Aside>
+
+5. ### Add credentials in Scalekit
+
+   - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** and open the Asana MCP connection you created.
+   - Enter:
+     - **Client ID** — from your Asana MCP app
+     - **Client Secret** — from your Asana MCP app
+   - Click **Save**.
+</Steps>
