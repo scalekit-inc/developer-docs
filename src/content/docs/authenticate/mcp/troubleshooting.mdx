@@ -96,6 +96,29 @@ Because this error originates from the client's registration data, it reproduces
 
 ---
 
+### What is the difference between DCR and CIMD?
+
+MCP clients identify themselves to Scalekit's authorization server using one of two mechanisms:
+
+- **Dynamic Client Registration (DCR)**: The client registers itself with Scalekit and receives a `client_id` in the `m2m_xxx` format. See [RFC 7591](https://datatracker.ietf.org/doc/html/rfc7591).
+- **Client ID Metadata Document (CIMD)**: The client presents a URL that hosts its client metadata document, and Scalekit fetches that URL to identify the client.
+
+The `invalid_client_metadata_url` error belongs to the CIMD path: Scalekit couldn't resolve or validate the metadata URL the client sent. A client that completes DCR correctly doesn't trigger this error. Follow the resolution steps in the section above.
+
+---
+
+### How do I view authentication logs to debug a failed connection?
+
+Open **Dashboard > Authentication > Logs** to inspect the authorization and token requests for your environment. Each entry shows the OAuth client, the requested scopes, and the outcome of each step in the flow.
+
+When you debug a failed connection, change the log filter to show all events rather than successful events only. Failed authorization and token requests appear only when you include error events, so a success-only view can hide the request you need to diagnose.
+
+<Aside type="note" title="Per-client MCP connection logs">
+Connection logs for individual MCP clients aren't yet available for self-serve viewing. When the authentication logs don't explain a failure, contact Scalekit support with the failing `client_id` and the approximate time of the attempt.
+</Aside>
+
+---
+
 ### My MCP server is not connecting to the MCP Inspector
 
 When your MCP server fails to connect to the MCP Inspector, this typically indicates a problem with the authentication handshake or metadata configuration. Follow these diagnosis steps to identify the issue.
