@@ -27,16 +27,36 @@ RELATED TOOLS:
 - manage_agent_skills â use skill id from list_skills, or action:"create" to author a new skill, then attach to an agent
 - manage_agent â manage the agent entity itself (create, update, delete, activate, etc.)`,
     params: [
-      { name: 'action', type: 'string', required: true, description: `"list_triggers" â fetch available trigger types with block_reference_id, field_schemas, and required_fields. Call before using manage_agent_triggers action:"add". "list_skills" â fetch available skills with id, name, description. Call before using manage_agent_skills action:"add".` },
-      { name: 'block_reference_ids', type: 'array', required: false, description: `Used with action:"list_triggers". Fetch specific trigger types by block_reference_id. Omit to return all trigger types.` },
+      {
+        name: 'action',
+        type: 'string',
+        required: true,
+        description: `"list_triggers" â fetch available trigger types with block_reference_id, field_schemas, and required_fields. Call before using manage_agent_triggers action:"add". "list_skills" â fetch available skills with id, name, description. Call before using manage_agent_skills action:"add".`,
+      },
+      {
+        name: 'block_reference_ids',
+        type: 'array',
+        required: false,
+        description: `Used with action:"list_triggers". Fetch specific trigger types by block_reference_id. Omit to return all trigger types.`,
+      },
     ],
   },
   {
     name: 'mondaymcp_allmondayapi',
     description: `Execute any monday.com API operation by generating GraphQL queries and mutations dynamically. Make sure you ask only for the fields you need and nothing more. When providing the query/mutation - use get_graphql_schema and get_type_details tools first to understand the schema before crafting your query.`,
     params: [
-      { name: 'query', type: 'string', required: true, description: `Custom GraphQL query/mutation. you need to provide the full query / mutation` },
-      { name: 'variables', type: 'string', required: true, description: `JSON string containing the variables for the GraphQL operation` },
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Custom GraphQL query/mutation. you need to provide the full query / mutation`,
+      },
+      {
+        name: 'variables',
+        type: 'string',
+        required: true,
+        description: `JSON string containing the variables for the GraphQL operation`,
+      },
     ],
   },
   {
@@ -55,30 +75,79 @@ RELATED TOOLS:
     - Plan widget implementations with proper data structures
     
     The response includes JSON Schema 7 definitions that describe exactly what settings each widget type accepts.`,
-    params: [
-    ],
+    params: [],
   },
   {
     name: 'mondaymcp_boardinsights',
     description: `This tool allows you to calculate insights about board's data by filtering, grouping and aggregating columns. For example, you can get the total number of items in a board, the number of items in each status, the number of items in each column, etc. Use this tool when you need to get a summary of the board's data, for example, you want to know the total number of items in a board, the number of items in each status, the number of items in each column, etc.[REQUIRED PRECONDITION]: Before using this tool, if new columns were added to the board or if you are not familiar with the board's structure (column IDs, column types, status labels, etc.), first use get_board_info to understand the board metadata. This is essential for constructing proper filters and knowing which columns are available.[IMPORTANT]: For some columns, human-friendly label is returned inside 'LABEL_<column_id' field. E.g. for column with id 'status_123' the label is returned inside 'LABEL_status_123' field.`,
     params: [
-      { name: 'boardId', type: 'number', required: true, description: `The id of the board to get insights for` },
-      { name: 'aggregations', type: 'array', required: false, description: `The aggregations to get. Before sending the aggregations, read guidelines.aggregation from get_column_type_info with fetchMode "guidelines" for a relevant column type on this board. Transformative functions and plain columns (no function) must be in group by.` },
-      { name: 'filters', type: 'array', required: false, description: `The configuration of filters to apply on the items. Use get_board_info for column ids and types on the board. Before sending the filters, use get_column_type_info with fetchMode "guidelines" and use data.guidelines.filter (null if that type has no documented rules).` },
-      { name: 'filtersOperator', type: 'string', required: false, description: `The operator to use for the filters` },
-      { name: 'groupBy', type: 'array', required: false, description: `The columns to group by. All columns in the group by must be in the aggregations as well without a function.` },
+      {
+        name: 'boardId',
+        type: 'number',
+        required: true,
+        description: `The id of the board to get insights for`,
+      },
+      {
+        name: 'aggregations',
+        type: 'array',
+        required: false,
+        description: `The aggregations to get. Before sending the aggregations, read guidelines.aggregation from get_column_type_info with fetchMode "guidelines" for a relevant column type on this board. Transformative functions and plain columns (no function) must be in group by.`,
+      },
+      {
+        name: 'filters',
+        type: 'array',
+        required: false,
+        description: `The configuration of filters to apply on the items. Use get_board_info for column ids and types on the board. Before sending the filters, use get_column_type_info with fetchMode "guidelines" and use data.guidelines.filter (null if that type has no documented rules).`,
+      },
+      {
+        name: 'filtersOperator',
+        type: 'string',
+        required: false,
+        description: `The operator to use for the filters`,
+      },
+      {
+        name: 'groupBy',
+        type: 'array',
+        required: false,
+        description: `The columns to group by. All columns in the group by must be in the aggregations as well without a function.`,
+      },
       { name: 'limit', type: 'number', required: false, description: `The limit of the results` },
-      { name: 'orderBy', type: 'array', required: false, description: `The columns to order by, will control the order of the items in the response` },
+      {
+        name: 'orderBy',
+        type: 'array',
+        required: false,
+        description: `The columns to order by, will control the order of the items in the response`,
+      },
     ],
   },
   {
     name: 'mondaymcp_changeitemcolumnvalues',
     description: `Change the column values of an item in a monday.com board. [REQUIRED PRECONDITION]: For board-relation linking tasks, call link_board_items_workflow before using this tool.`,
     params: [
-      { name: 'boardId', type: 'number', required: true, description: `The ID of the board that contains the item to be updated` },
-      { name: 'columnValues', type: 'string', required: true, description: `A string containing the new column values for the item following this structure: {\\"column_id\\": \\"value\\",... you can change multiple columns at once, note that for status column you must use nested value with 'label' as a key and for date column use 'date' as key} - example: "{\\"text_column_id\\":\\"New text\\", \\"status_column_id\\":{\\"label\\":\\"Done\\"}, \\"date_column_id\\":{\\"date\\":\\"2023-05-25\\"}, \\"phone_id\\":\\"123-456-7890\\", \\"email_id\\":\\"test@example.com\\"}"` },
-      { name: 'itemId', type: 'number', required: true, description: `The ID of the item to be updated` },
-      { name: 'createLabelsIfMissing', type: 'boolean', required: false, description: `If true, create missing Status/Dropdown labels when setting those columns. Requires permission to change board structure. Omit or false to only use existing labels.` },
+      {
+        name: 'boardId',
+        type: 'number',
+        required: true,
+        description: `The ID of the board that contains the item to be updated`,
+      },
+      {
+        name: 'columnValues',
+        type: 'string',
+        required: true,
+        description: `A string containing the new column values for the item following this structure: {\\"column_id\\": \\"value\\",... you can change multiple columns at once, note that for status column you must use nested value with 'label' as a key and for date column use 'date' as key} - example: "{\\"text_column_id\\":\\"New text\\", \\"status_column_id\\":{\\"label\\":\\"Done\\"}, \\"date_column_id\\":{\\"date\\":\\"2023-05-25\\"}, \\"phone_id\\":\\"123-456-7890\\", \\"email_id\\":\\"test@example.com\\"}"`,
+      },
+      {
+        name: 'itemId',
+        type: 'number',
+        required: true,
+        description: `The ID of the item to be updated`,
+      },
+      {
+        name: 'createLabelsIfMissing',
+        type: 'boolean',
+        required: false,
+        description: `If true, create missing Status/Dropdown labels when setting those columns. Requires permission to change board structure. Omit or false to only use existing labels.`,
+      },
     ],
   },
   {
@@ -143,30 +212,90 @@ Actions:
       Group: Top group
 `,
     params: [
-      { name: 'boardId', type: 'string', required: true, description: `The numeric board ID as a string.` },
-      { name: 'userPrompt', type: 'string', required: true, description: `Structured description of the automation to create.` },
+      {
+        name: 'boardId',
+        type: 'string',
+        required: true,
+        description: `The numeric board ID as a string.`,
+      },
+      {
+        name: 'userPrompt',
+        type: 'string',
+        required: true,
+        description: `Structured description of the automation to create.`,
+      },
     ],
   },
   {
     name: 'mondaymcp_createboard',
     description: `Create a monday.com board`,
     params: [
-      { name: 'boardName', type: 'string', required: true, description: `The name of the board to create` },
-      { name: 'boardDescription', type: 'string', required: false, description: `The description of the board to create` },
-      { name: 'boardKind', type: 'string', required: false, description: `The kind of board to create` },
-      { name: 'boardOwnerIds', type: 'array', required: false, description: `Optional list of user IDs to set as board owners` },
-      { name: 'workspaceId', type: 'string', required: false, description: `The ID of the workspace to create the board in` },
+      {
+        name: 'boardName',
+        type: 'string',
+        required: true,
+        description: `The name of the board to create`,
+      },
+      {
+        name: 'boardDescription',
+        type: 'string',
+        required: false,
+        description: `The description of the board to create`,
+      },
+      {
+        name: 'boardKind',
+        type: 'string',
+        required: false,
+        description: `The kind of board to create`,
+      },
+      {
+        name: 'boardOwnerIds',
+        type: 'array',
+        required: false,
+        description: `Optional list of user IDs to set as board owners`,
+      },
+      {
+        name: 'workspaceId',
+        type: 'string',
+        required: false,
+        description: `The ID of the workspace to create the board in`,
+      },
     ],
   },
   {
     name: 'mondaymcp_createcolumn',
     description: `Create a new column in a monday.com board`,
     params: [
-      { name: 'boardId', type: 'number', required: true, description: `The id of the board to which the new column will be added` },
-      { name: 'columnTitle', type: 'string', required: true, description: `The title of the column to be created` },
-      { name: 'columnType', type: 'string', required: true, description: `The type of the column to be created` },
-      { name: 'columnDescription', type: 'string', required: false, description: `The description of the column to be created` },
-      { name: 'columnSettings', type: 'string', required: false, description: `Column-specific configuration settings as a JSON string. Use get_column_type_info with fetchMode "schema" for the JSON schema for the given column type.` },
+      {
+        name: 'boardId',
+        type: 'number',
+        required: true,
+        description: `The id of the board to which the new column will be added`,
+      },
+      {
+        name: 'columnTitle',
+        type: 'string',
+        required: true,
+        description: `The title of the column to be created`,
+      },
+      {
+        name: 'columnType',
+        type: 'string',
+        required: true,
+        description: `The type of the column to be created`,
+      },
+      {
+        name: 'columnDescription',
+        type: 'string',
+        required: false,
+        description: `The description of the column to be created`,
+      },
+      {
+        name: 'columnSettings',
+        type: 'string',
+        required: false,
+        description: `Column-specific configuration settings as a JSON string. Use get_column_type_info with fetchMode "schema" for the JSON schema for the given column type.`,
+      },
     ],
   },
   {
@@ -179,11 +308,36 @@ Actions:
     - Aggregate information from multiple boards
     - Set up a data visualization container for widgets`,
     params: [
-      { name: 'board_ids', type: 'array', required: true, description: `List of board IDs as strings (min 1 element)` },
-      { name: 'name', type: 'string', required: true, description: `Human-readable dashboard title (UTF-8 chars)` },
-      { name: 'workspace_id', type: 'string', required: true, description: `ID of the workspace that will own the dashboard` },
-      { name: 'board_folder_id', type: 'string', required: false, description: `Optional folder ID within workspace to place this dashboard (if not provided, dashboard will be placed in workspace root)` },
-      { name: 'kind', type: 'string', required: false, description: `Visibility level: PUBLIC or PRIVATE` },
+      {
+        name: 'board_ids',
+        type: 'array',
+        required: true,
+        description: `List of board IDs as strings (min 1 element)`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Human-readable dashboard title (UTF-8 chars)`,
+      },
+      {
+        name: 'workspace_id',
+        type: 'string',
+        required: true,
+        description: `ID of the workspace that will own the dashboard`,
+      },
+      {
+        name: 'board_folder_id',
+        type: 'string',
+        required: false,
+        description: `Optional folder ID within workspace to place this dashboard (if not provided, dashboard will be placed in workspace root)`,
+      },
+      {
+        name: 'kind',
+        type: 'string',
+        required: false,
+        description: `Visibility level: PUBLIC or PRIVATE`,
+      },
     ],
   },
   {
@@ -200,42 +354,147 @@ USAGE EXAMPLES:
 - Item doc: { location: "item", item_id: 456, doc_name: "My Doc", column_id: "doc_col_1" , markdown: "..." }
 - Workspace doc with agent owner: { location: "workspace", workspace_id: 123, doc_name: "My Doc", markdown: "...", docOwnerIds: ["<agent_owner_user_id>"] }`,
     params: [
-      { name: 'doc_name', type: 'string', required: true, description: `Name for the new document.` },
-      { name: 'location', type: 'string', required: true, description: `Location where the document should be created - either in a workspace or attached to an item` },
-      { name: 'markdown', type: 'string', required: true, description: `Markdown content that will be imported into the newly created document as blocks.` },
-      { name: 'column_id', type: 'string', required: false, description: `[OPTIONAL - use only when location="item"] ID of an existing "doc" column on the board which contains the item. If not provided, the tool will create a new doc column automatically when creating a doc on an item.` },
-      { name: 'doc_kind', type: 'string', required: false, description: `[OPTIONAL - use only when location="workspace"] Document kind (public/private/share). Defaults to public.` },
-      { name: 'docOwnerIds', type: 'array', required: false, description: `Optional list of user IDs to set as document owners at creation time. Use this to add the agent owner so they retain access to the document. Ownership is set inside the creation mutation itself, bypassing the permission checks that would block a subsequent add_subscribers_to_object call.` },
-      { name: 'folder_id', type: 'number', required: false, description: `[OPTIONAL - use only when location="workspace"] Optional folder ID to place the document inside a specific folder` },
-      { name: 'item_id', type: 'number', required: false, description: `[REQUIRED - use only when location="item"] Item ID to attach the new document to` },
-      { name: 'workspace_id', type: 'number', required: false, description: `[REQUIRED - use only when location="workspace"] Workspace ID under which to create the new document` },
+      {
+        name: 'doc_name',
+        type: 'string',
+        required: true,
+        description: `Name for the new document.`,
+      },
+      {
+        name: 'location',
+        type: 'string',
+        required: true,
+        description: `Location where the document should be created - either in a workspace or attached to an item`,
+      },
+      {
+        name: 'markdown',
+        type: 'string',
+        required: true,
+        description: `Markdown content that will be imported into the newly created document as blocks.`,
+      },
+      {
+        name: 'column_id',
+        type: 'string',
+        required: false,
+        description: `[OPTIONAL - use only when location="item"] ID of an existing "doc" column on the board which contains the item. If not provided, the tool will create a new doc column automatically when creating a doc on an item.`,
+      },
+      {
+        name: 'doc_kind',
+        type: 'string',
+        required: false,
+        description: `[OPTIONAL - use only when location="workspace"] Document kind (public/private/share). Defaults to public.`,
+      },
+      {
+        name: 'docOwnerIds',
+        type: 'array',
+        required: false,
+        description: `Optional list of user IDs to set as document owners at creation time. Use this to add the agent owner so they retain access to the document. Ownership is set inside the creation mutation itself, bypassing the permission checks that would block a subsequent add_subscribers_to_object call.`,
+      },
+      {
+        name: 'folder_id',
+        type: 'number',
+        required: false,
+        description: `[OPTIONAL - use only when location="workspace"] Optional folder ID to place the document inside a specific folder`,
+      },
+      {
+        name: 'item_id',
+        type: 'number',
+        required: false,
+        description: `[REQUIRED - use only when location="item"] Item ID to attach the new document to`,
+      },
+      {
+        name: 'workspace_id',
+        type: 'number',
+        required: false,
+        description: `[REQUIRED - use only when location="workspace"] Workspace ID under which to create the new document`,
+      },
     ],
   },
   {
     name: 'mondaymcp_createfolder',
     description: `Create a new folder in a monday.com workspace`,
     params: [
-      { name: 'name', type: 'string', required: true, description: `The name of the folder to be created` },
-      { name: 'workspaceId', type: 'string', required: true, description: `The ID of the workspace where the folder will be created` },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the folder to be created`,
+      },
+      {
+        name: 'workspaceId',
+        type: 'string',
+        required: true,
+        description: `The ID of the workspace where the folder will be created`,
+      },
       { name: 'color', type: 'string', required: false, description: `The color of the folder` },
-      { name: 'customIcon', type: 'string', required: false, description: `The custom icon of the folder` },
-      { name: 'fontWeight', type: 'string', required: false, description: `The font weight of the folder` },
-      { name: 'parentFolderId', type: 'string', required: false, description: `The ID of the parent folder` },
+      {
+        name: 'customIcon',
+        type: 'string',
+        required: false,
+        description: `The custom icon of the folder`,
+      },
+      {
+        name: 'fontWeight',
+        type: 'string',
+        required: false,
+        description: `The font weight of the folder`,
+      },
+      {
+        name: 'parentFolderId',
+        type: 'string',
+        required: false,
+        description: `The ID of the parent folder`,
+      },
     ],
   },
   {
     name: 'mondaymcp_createform',
     description: `Create a monday.com form. Also creates a backing board to store responses. Returns the formToken for future mutations.`,
     params: [
-      { name: 'destination_workspace_id', type: 'string', required: true, description: `No description.` },
+      {
+        name: 'destination_workspace_id',
+        type: 'string',
+        required: true,
+        description: `No description.`,
+      },
       { name: 'board_kind', type: 'string', required: false, description: `No description.` },
       { name: 'board_owner_ids', type: 'array', required: false, description: `No description.` },
-      { name: 'board_owner_team_ids', type: 'array', required: false, description: `No description.` },
-      { name: 'board_subscriber_ids', type: 'array', required: false, description: `User IDs to notify on board activity.` },
-      { name: 'board_subscriber_teams_ids', type: 'array', required: false, description: `Team IDs to notify on board activity.` },
-      { name: 'destination_folder_id', type: 'string', required: false, description: `No description.` },
-      { name: 'destination_folder_name', type: 'string', required: false, description: `No description.` },
-      { name: 'destination_name', type: 'string', required: false, description: `Board name (stores form responses).` },
+      {
+        name: 'board_owner_team_ids',
+        type: 'array',
+        required: false,
+        description: `No description.`,
+      },
+      {
+        name: 'board_subscriber_ids',
+        type: 'array',
+        required: false,
+        description: `User IDs to notify on board activity.`,
+      },
+      {
+        name: 'board_subscriber_teams_ids',
+        type: 'array',
+        required: false,
+        description: `Team IDs to notify on board activity.`,
+      },
+      {
+        name: 'destination_folder_id',
+        type: 'string',
+        required: false,
+        description: `No description.`,
+      },
+      {
+        name: 'destination_folder_name',
+        type: 'string',
+        required: false,
+        description: `No description.`,
+      },
+      {
+        name: 'destination_name',
+        type: 'string',
+        required: false,
+        description: `Board name (stores form responses).`,
+      },
     ],
   },
   {
@@ -247,54 +506,169 @@ USAGE EXAMPLES:
 - Take note of pages and question order to present questions in the correct sequence.
 Gather all answers upfront before calling this tool â do not submit one question at a time. Accepts a bare form token, a full WorkForm URL (e.g. https://forms.monday.com/forms/{form_token}?r=use1), or a shortened wkf.ms URL (e.g. https://wkf.ms/4tqP28t) â shortened URLs are automatically resolved by following the redirect. Returns the submission ID.`,
     params: [
-      { name: 'answers', type: 'array', required: true, description: `Array of answers to submit. Each answer specifies a question_id and the value for that question type.` },
-      { name: 'form_timezone_offset', type: 'integer', required: true, description: `The timezone offset of the submitter in minutes (e.g. -120 for UTC-2, 0 for UTC).` },
-      { name: 'form_token', type: 'string', required: true, description: `The unique token identifying the WorkForm. Can be a bare token, a full WorkForm URL (e.g. https://forms.monday.com/forms/abc123?r=use1), or a shortened wkf.ms URL (e.g. https://wkf.ms/4tqP28t). Shortened URLs are automatically resolved by following the redirect.` },
-      { name: 'password', type: 'string', required: false, description: `The password for the WorkForm. Only required if the WorkForm has password protection enabled (check features.password.enabled from get_form). If required, ask the user for the password before submitting.` },
-      { name: 'tags', type: 'array', required: false, description: `Tags to attach to the submission â each tag maps a value to a specific board column.` },
+      {
+        name: 'answers',
+        type: 'array',
+        required: true,
+        description: `Array of answers to submit. Each answer specifies a question_id and the value for that question type.`,
+      },
+      {
+        name: 'form_timezone_offset',
+        type: 'integer',
+        required: true,
+        description: `The timezone offset of the submitter in minutes (e.g. -120 for UTC-2, 0 for UTC).`,
+      },
+      {
+        name: 'form_token',
+        type: 'string',
+        required: true,
+        description: `The unique token identifying the WorkForm. Can be a bare token, a full WorkForm URL (e.g. https://forms.monday.com/forms/abc123?r=use1), or a shortened wkf.ms URL (e.g. https://wkf.ms/4tqP28t). Shortened URLs are automatically resolved by following the redirect.`,
+      },
+      {
+        name: 'password',
+        type: 'string',
+        required: false,
+        description: `The password for the WorkForm. Only required if the WorkForm has password protection enabled (check features.password.enabled from get_form). If required, ask the user for the password before submitting.`,
+      },
+      {
+        name: 'tags',
+        type: 'array',
+        required: false,
+        description: `Tags to attach to the submission â each tag maps a value to a specific board column.`,
+      },
     ],
   },
   {
     name: 'mondaymcp_creategroup',
     description: `Create a new group in a monday.com board. Groups are sections that organize related items. Use when users want to add structure, categorize items, or create workflow phases. Groups can be positioned relative to existing groups and assigned predefined colors. Items will always be created in the top group and so the top group should be the most relevant one for new item creation`,
     params: [
-      { name: 'boardId', type: 'string', required: true, description: `The ID of the board to create the group in` },
-      { name: 'groupName', type: 'string', required: true, description: `The name of the new group (maximum 255 characters)` },
-      { name: 'groupColor', type: 'string', required: false, description: `The color for the group. Must be one of the predefined Monday.com group colors: #037f4c, #00c875, #9cd326, #cab641, #ffcb00, #784bd1, #9d50dd, #007eb5, #579bfc, #66ccff, #bb3354, #df2f4a, #ff007f, #ff5ac4, #ff642e, #fdab3d, #7f5347, #c4c4c4, #757575` },
-      { name: 'positionRelativeMethod', type: 'string', required: false, description: `Whether to position the new group before or after the relativeTo group` },
-      { name: 'relativeTo', type: 'string', required: false, description: `The ID of the group to position this new group relative to` },
+      {
+        name: 'boardId',
+        type: 'string',
+        required: true,
+        description: `The ID of the board to create the group in`,
+      },
+      {
+        name: 'groupName',
+        type: 'string',
+        required: true,
+        description: `The name of the new group (maximum 255 characters)`,
+      },
+      {
+        name: 'groupColor',
+        type: 'string',
+        required: false,
+        description: `The color for the group. Must be one of the predefined Monday.com group colors: #037f4c, #00c875, #9cd326, #cab641, #ffcb00, #784bd1, #9d50dd, #007eb5, #579bfc, #66ccff, #bb3354, #df2f4a, #ff007f, #ff5ac4, #ff642e, #fdab3d, #7f5347, #c4c4c4, #757575`,
+      },
+      {
+        name: 'positionRelativeMethod',
+        type: 'string',
+        required: false,
+        description: `Whether to position the new group before or after the relativeTo group`,
+      },
+      {
+        name: 'relativeTo',
+        type: 'string',
+        required: false,
+        description: `The ID of the group to position this new group relative to`,
+      },
     ],
   },
   {
     name: 'mondaymcp_createitem',
     description: `Create a new item with provided values, create a subitem under a parent item, or duplicate an existing item and update it with new values. Use parentItemId when creating a subitem under an existing item. Use duplicateFromItemId when copying an existing item with modifications.[REQUIRED PRECONDITION]: Before using this tool, if new columns were added to the board or if you are not familiar with the board's structure (column IDs, column types, status labels, etc.), first use get_board_info to understand the board metadata. This is essential for constructing proper column values and knowing which columns are available.`,
     params: [
-      { name: 'boardId', type: 'number', required: true, description: `The id of the board to which the new item will be added` },
-      { name: 'columnValues', type: 'string', required: true, description: `A string containing the new column values for the item following this structure: {\\"column_id\\": \\"value\\",... you can change multiple columns at once, note that for status column you must use nested value with 'label' as a key and for date column use 'date' as key} - example: "{\\"text_column_id\\":\\"New text\\", \\"status_column_id\\":{\\"label\\":\\"Done\\"}, \\"date_column_id\\":{\\"date\\":\\"2023-05-25\\"},\\"dropdown_id\\":\\"value\\", \\"phone_id\\":\\"123-456-7890\\", \\"email_id\\":\\"test@example.com\\"}"` },
-      { name: 'name', type: 'string', required: true, description: `The name of the new item to be created, must be relevant to the user's request` },
-      { name: 'duplicateFromItemId', type: 'number', required: false, description: `The id of existing item to duplicate and update with new values (only provide when duplicating)` },
-      { name: 'groupId', type: 'string', required: false, description: `The id of the group id to which the new item will be added, if its not clearly specified, leave empty` },
-      { name: 'parentItemId', type: 'number', required: false, description: `The id of the parent item under which the new subitem will be created` },
+      {
+        name: 'boardId',
+        type: 'number',
+        required: true,
+        description: `The id of the board to which the new item will be added`,
+      },
+      {
+        name: 'columnValues',
+        type: 'string',
+        required: true,
+        description: `A string containing the new column values for the item following this structure: {\\"column_id\\": \\"value\\",... you can change multiple columns at once, note that for status column you must use nested value with 'label' as a key and for date column use 'date' as key} - example: "{\\"text_column_id\\":\\"New text\\", \\"status_column_id\\":{\\"label\\":\\"Done\\"}, \\"date_column_id\\":{\\"date\\":\\"2023-05-25\\"},\\"dropdown_id\\":\\"value\\", \\"phone_id\\":\\"123-456-7890\\", \\"email_id\\":\\"test@example.com\\"}"`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the new item to be created, must be relevant to the user's request`,
+      },
+      {
+        name: 'duplicateFromItemId',
+        type: 'number',
+        required: false,
+        description: `The id of existing item to duplicate and update with new values (only provide when duplicating)`,
+      },
+      {
+        name: 'groupId',
+        type: 'string',
+        required: false,
+        description: `The id of the group id to which the new item will be added, if its not clearly specified, leave empty`,
+      },
+      {
+        name: 'parentItemId',
+        type: 'number',
+        required: false,
+        description: `The id of the parent item under which the new subitem will be created`,
+      },
     ],
   },
   {
     name: 'mondaymcp_createnotification',
     description: `Send a notification to a user via the bell icon and optionally by email. Use target_type "Post" for updates/replies or "Project" for items/boards.`,
     params: [
-      { name: 'target_id', type: 'string', required: true, description: `The target ID (update/reply ID for Post type, item/board ID for Project type)` },
-      { name: 'target_type', type: 'string', required: true, description: `The target type (Post for update/reply, Project for item/board)` },
+      {
+        name: 'target_id',
+        type: 'string',
+        required: true,
+        description: `The target ID (update/reply ID for Post type, item/board ID for Project type)`,
+      },
+      {
+        name: 'target_type',
+        type: 'string',
+        required: true,
+        description: `The target type (Post for update/reply, Project for item/board)`,
+      },
       { name: 'text', type: 'string', required: true, description: `The notification text` },
-      { name: 'user_id', type: 'string', required: true, description: `The user ID to send the notification to` },
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `The user ID to send the notification to`,
+      },
     ],
   },
   {
     name: 'mondaymcp_createupdate',
     description: `Create a new update (comment/post) on a monday.com item. Updates can be used to add comments, notes, or discussions to items. You can optionally mention users, teams, or boards in the update. You can also reply to an existing update by using the parentId parameter.`,
     params: [
-      { name: 'body', type: 'string', required: true, description: `The update text to be created. Do not use @ to mention users, use the mentionsList field instead. use html tags to format the text, dont use markdown.` },
-      { name: 'itemId', type: 'number', required: true, description: `The id of the item to which the update will be added` },
-      { name: 'mentionsList', type: 'string', required: false, description: `Optional JSON array of mentions in the format: [{"id": "123", "type": "User"}, {"id": "456", "type": "Team"}]. Valid types are: User, Team, Board, Project` },
-      { name: 'parentId', type: 'number', required: false, description: `The ID of the update to reply to. Use this parameter when you want to reply on an existing update leave it empty if you want to create a new update` },
+      {
+        name: 'body',
+        type: 'string',
+        required: true,
+        description: `The update text to be created. Do not use @ to mention users, use the mentionsList field instead. use html tags to format the text, dont use markdown.`,
+      },
+      {
+        name: 'itemId',
+        type: 'number',
+        required: true,
+        description: `The id of the item to which the update will be added`,
+      },
+      {
+        name: 'mentionsList',
+        type: 'string',
+        required: false,
+        description: `Optional JSON array of mentions in the format: [{"id": "123", "type": "User"}, {"id": "456", "type": "Team"}]. Valid types are: User, Team, Board, Project`,
+      },
+      {
+        name: 'parentId',
+        type: 'number',
+        required: false,
+        description: `The ID of the update to reply to. Use this parameter when you want to reply on an existing update leave it empty if you want to create a new update`,
+      },
     ],
   },
   {
@@ -306,12 +680,42 @@ Filter operators: any_of, not_any_of, is_empty, is_not_empty, greater_than, lowe
 Example filter for people column: { "rules": [{ "column_id": "people", "compare_value": ["person-12345"], "operator": "any_of" }] }
 Example filter for status column: { "rules": [{ "column_id": "status", "compare_value": [1], "operator": "any_of" }] }`,
     params: [
-      { name: 'boardId', type: 'string', required: true, description: `The board ID to create the view on` },
-      { name: 'filter', type: 'object', required: false, description: `Filter configuration for the view` },
-      { name: 'name', type: 'string', required: false, description: `The name of the view (e.g. "High Priority Items", "My Tasks")` },
-      { name: 'settings', type: 'string', required: false, description: `Type-specific view settings as a JSON object (e.g. column visibility, group_by for TABLE). The shape varies by view type â call get_view_schema_by_type with the same ViewKind to discover the supported structure. For TABLE views, prefer the dedicated create_view_table tool which exposes a strongly-typed settings field.` },
-      { name: 'sort', type: 'array', required: false, description: `Sort configuration for the view` },
-      { name: 'type', type: 'string', required: false, description: `The type of board view to create. Use TABLE for standard board views.` },
+      {
+        name: 'boardId',
+        type: 'string',
+        required: true,
+        description: `The board ID to create the view on`,
+      },
+      {
+        name: 'filter',
+        type: 'object',
+        required: false,
+        description: `Filter configuration for the view`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `The name of the view (e.g. "High Priority Items", "My Tasks")`,
+      },
+      {
+        name: 'settings',
+        type: 'string',
+        required: false,
+        description: `Type-specific view settings as a JSON object (e.g. column visibility, group_by for TABLE). The shape varies by view type â call get_view_schema_by_type with the same ViewKind to discover the supported structure. For TABLE views, prefer the dedicated create_view_table tool which exposes a strongly-typed settings field.`,
+      },
+      {
+        name: 'sort',
+        type: 'array',
+        required: false,
+        description: `Sort configuration for the view`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `The type of board view to create. Use TABLE for standard board views.`,
+      },
     ],
   },
   {
@@ -323,11 +727,36 @@ Filter operators: any_of, not_any_of, is_empty, is_not_empty, greater_than, lowe
 Example settings.columns: { "column_properties": [{ "column_id": "status", "visible": true }], "column_order": ["name", "status", "date"] }
 Example settings.group_by: { "conditions": [{ "columnId": "status" }], "hideEmptyGroups": true }`,
     params: [
-      { name: 'boardId', type: 'string', required: true, description: `The board ID to create the table view on` },
-      { name: 'filter', type: 'object', required: false, description: `Filter configuration for the view` },
-      { name: 'name', type: 'string', required: false, description: `The name of the view (e.g. "High Priority Items", "My Tasks")` },
-      { name: 'settings', type: 'object', required: false, description: `Table-specific view settings (column visibility/order, group-by)` },
-      { name: 'sort', type: 'array', required: false, description: `Sort configuration for the view` },
+      {
+        name: 'boardId',
+        type: 'string',
+        required: true,
+        description: `The board ID to create the table view on`,
+      },
+      {
+        name: 'filter',
+        type: 'object',
+        required: false,
+        description: `Filter configuration for the view`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `The name of the view (e.g. "High Priority Items", "My Tasks")`,
+      },
+      {
+        name: 'settings',
+        type: 'object',
+        required: false,
+        description: `Table-specific view settings (column visibility/order, group-by)`,
+      },
+      {
+        name: 'sort',
+        type: 'array',
+        required: false,
+        description: `Sort configuration for the view`,
+      },
       { name: 'tags', type: 'array', required: false, description: `Tags to apply to the view` },
     ],
   },
@@ -350,11 +779,36 @@ Example settings.group_by: { "conditions": [{ "columnId": "status" }], "hideEmpt
     2. Prepare widget settings according to the schema
     3. Use this tool to create the widget`,
     params: [
-      { name: 'parent_container_id', type: 'string', required: true, description: `ID of the parent container (dashboard ID or board view ID)` },
-      { name: 'parent_container_type', type: 'string', required: true, description: `Type of parent container: DASHBOARD or BOARD_VIEW` },
-      { name: 'widget_kind', type: 'string', required: true, description: `Type of widget to create: i.e CHART, NUMBER, BATTERY` },
-      { name: 'widget_name', type: 'string', required: true, description: `Widget display name (1-255 UTF-8 chars)` },
-      { name: 'settings', type: 'object', required: false, description: `Widget-specific settings as JSON object conforming to widget schema. Use all_widgets_schema tool to get the required schema for each widget type.` },
+      {
+        name: 'parent_container_id',
+        type: 'string',
+        required: true,
+        description: `ID of the parent container (dashboard ID or board view ID)`,
+      },
+      {
+        name: 'parent_container_type',
+        type: 'string',
+        required: true,
+        description: `Type of parent container: DASHBOARD or BOARD_VIEW`,
+      },
+      {
+        name: 'widget_kind',
+        type: 'string',
+        required: true,
+        description: `Type of widget to create: i.e CHART, NUMBER, BATTERY`,
+      },
+      {
+        name: 'widget_name',
+        type: 'string',
+        required: true,
+        description: `Widget display name (1-255 UTF-8 chars)`,
+      },
+      {
+        name: 'settings',
+        type: 'object',
+        required: false,
+        description: `Widget-specific settings as JSON object conforming to widget schema. Use all_widgets_schema tool to get the required schema for each widget type.`,
+      },
     ],
   },
   {
@@ -375,43 +829,133 @@ Terminology:
 Note: if directing the user to the workflow in the UI, the correct URL path is custom_objects/, not workflows/ â e.g. {account}.monday.com/custom_objects/{workflowObjectId}.
 `,
     params: [
-      { name: 'workspaceId', type: 'string', required: true, description: `The ID of the workspace to create the workflow in.` },
-      { name: 'description', type: 'string', required: false, description: `Optional workflow description.` },
-      { name: 'folderId', type: 'string', required: false, description: `Optional folder ID to place the workflow in.` },
-      { name: 'ownerIds', type: 'array', required: false, description: `Optional list of user IDs to set as workflow owners.` },
-      { name: 'privacyKind', type: 'string', required: false, description: `Workflow visibility: PUBLIC (default), PRIVATE, or SHAREABLE (accessible to guests outside the account).` },
-      { name: 'title', type: 'string', required: false, description: `Workflow title. Defaults to "New Workflow" if not provided.` },
+      {
+        name: 'workspaceId',
+        type: 'string',
+        required: true,
+        description: `The ID of the workspace to create the workflow in.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Optional workflow description.`,
+      },
+      {
+        name: 'folderId',
+        type: 'string',
+        required: false,
+        description: `Optional folder ID to place the workflow in.`,
+      },
+      {
+        name: 'ownerIds',
+        type: 'array',
+        required: false,
+        description: `Optional list of user IDs to set as workflow owners.`,
+      },
+      {
+        name: 'privacyKind',
+        type: 'string',
+        required: false,
+        description: `Workflow visibility: PUBLIC (default), PRIVATE, or SHAREABLE (accessible to guests outside the account).`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `Workflow title. Defaults to "New Workflow" if not provided.`,
+      },
     ],
   },
   {
     name: 'mondaymcp_createworkspace',
     description: `Create a new workspace in monday.com`,
     params: [
-      { name: 'name', type: 'string', required: true, description: `The name of the new workspace to be created` },
-      { name: 'workspaceKind', type: 'string', required: true, description: `The kind of workspace to create` },
-      { name: 'accountProductId', type: 'string', required: false, description: `The account product ID associated with the workspace` },
-      { name: 'description', type: 'string', required: false, description: `The description of the new workspace` },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the new workspace to be created`,
+      },
+      {
+        name: 'workspaceKind',
+        type: 'string',
+        required: true,
+        description: `The kind of workspace to create`,
+      },
+      {
+        name: 'accountProductId',
+        type: 'string',
+        required: false,
+        description: `The account product ID associated with the workspace`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `The description of the new workspace`,
+      },
     ],
   },
   {
     name: 'mondaymcp_finalizeassetupload',
     description: `Finalize a file upload and create the asset on monday.com. Call this after uploading the file to the presigned URL from get_asset_upload_url. Requires the etag value from the PUT response headers. Automatically attaches the uploaded asset to the specified file column on the item. Returns the created asset_id.`,
     params: [
-      { name: 'boardId', type: 'string', required: true, description: `The board's unique identifier` },
-      { name: 'columnId', type: 'string', required: true, description: `The file or doc column's unique identifier to attach the uploaded asset to` },
-      { name: 'etag', type: 'string', required: true, description: `The ETag header value from the PUT response when uploading to the presigned URL` },
-      { name: 'itemId', type: 'string', required: true, description: `The item's unique identifier` },
-      { name: 'uploadId', type: 'string', required: true, description: `The upload_id returned by get_asset_upload_url` },
+      {
+        name: 'boardId',
+        type: 'string',
+        required: true,
+        description: `The board's unique identifier`,
+      },
+      {
+        name: 'columnId',
+        type: 'string',
+        required: true,
+        description: `The file or doc column's unique identifier to attach the uploaded asset to`,
+      },
+      {
+        name: 'etag',
+        type: 'string',
+        required: true,
+        description: `The ETag header value from the PUT response when uploading to the presigned URL`,
+      },
+      {
+        name: 'itemId',
+        type: 'string',
+        required: true,
+        description: `The item's unique identifier`,
+      },
+      {
+        name: 'uploadId',
+        type: 'string',
+        required: true,
+        description: `The upload_id returned by get_asset_upload_url`,
+      },
     ],
   },
   {
     name: 'mondaymcp_formquestionseditor',
     description: `Create, update, or delete a question in a monday.com form`,
     params: [
-      { name: 'action', type: 'string', required: true, description: `Action to perform on the question of a form. create requires question. update requires questionId and question with type always included. delete requires questionId.` },
+      {
+        name: 'action',
+        type: 'string',
+        required: true,
+        description: `Action to perform on the question of a form. create requires question. update requires questionId and question with type always included. delete requires questionId.`,
+      },
       { name: 'formToken', type: 'string', required: true, description: `No description.` },
-      { name: 'question', type: 'object', required: false, description: `The question to create or update. Always include type, then only the fields you want to set or change.` },
-      { name: 'questionId', type: 'string', required: false, description: `Question ID. Required for update/delete.` },
+      {
+        name: 'question',
+        type: 'object',
+        required: false,
+        description: `The question to create or update. Always include type, then only the fields you want to set or change.`,
+      },
+      {
+        name: 'questionId',
+        type: 'string',
+        required: false,
+        description: `Question ID. Required for update/delete.`,
+      },
     ],
   },
   {
@@ -437,9 +981,24 @@ Then call finalize_asset_upload with the upload_id, etag, board_id, item_id, and
 
 Max file size: 500MB.`,
     params: [
-      { name: 'contentType', type: 'string', required: true, description: `The MIME type of the file (e.g. "application/pdf", "image/png", "text/plain")` },
-      { name: 'fileName', type: 'string', required: true, description: `The name of the file to upload, including extension (e.g. "report.pdf")` },
-      { name: 'fileSize', type: 'integer', required: true, description: `The file size in bytes. Maximum 500MB (524288000 bytes)` },
+      {
+        name: 'contentType',
+        type: 'string',
+        required: true,
+        description: `The MIME type of the file (e.g. "application/pdf", "image/png", "text/plain")`,
+      },
+      {
+        name: 'fileName',
+        type: 'string',
+        required: true,
+        description: `The name of the file to upload, including extension (e.g. "report.pdf")`,
+      },
+      {
+        name: 'fileSize',
+        type: 'integer',
+        required: true,
+        description: `The file size in bytes. Maximum 500MB (524288000 bytes)`,
+      },
     ],
   },
   {
@@ -454,15 +1013,55 @@ Scope: provide "boardId" for a specific board or "accountWide": true. One is req
 
 Known event states: "success", "failure", "exhausted".`,
     params: [
-      { name: 'mode', type: 'string', required: true, description: `history = paginated run feed, detail = single run by triggerUuid` },
-      { name: 'accountWide', type: 'boolean', required: false, description: `Set true to query account-wide (required if no boardId)` },
-      { name: 'blockEventsOffset', type: 'integer', required: false, description: `detail: block-events page offset` },
-      { name: 'boardId', type: 'string', required: false, description: `Target a specific board by numeric ID` },
+      {
+        name: 'mode',
+        type: 'string',
+        required: true,
+        description: `history = paginated run feed, detail = single run by triggerUuid`,
+      },
+      {
+        name: 'accountWide',
+        type: 'boolean',
+        required: false,
+        description: `Set true to query account-wide (required if no boardId)`,
+      },
+      {
+        name: 'blockEventsOffset',
+        type: 'integer',
+        required: false,
+        description: `detail: block-events page offset`,
+      },
+      {
+        name: 'boardId',
+        type: 'string',
+        required: false,
+        description: `Target a specific board by numeric ID`,
+      },
       { name: 'filters', type: 'object', required: false, description: `history: run filters` },
-      { name: 'includeToolEvents', type: 'boolean', required: false, description: `detail: include MCP tool calls (default true)` },
-      { name: 'nextPageOffset', type: 'integer', required: false, description: `history: page offset (offset-only pagination)` },
-      { name: 'toolEventsOffset', type: 'integer', required: false, description: `detail: tool-events page offset` },
-      { name: 'triggerUuid', type: 'string', required: false, description: `detail: required â the run UUID to inspect` },
+      {
+        name: 'includeToolEvents',
+        type: 'boolean',
+        required: false,
+        description: `detail: include MCP tool calls (default true)`,
+      },
+      {
+        name: 'nextPageOffset',
+        type: 'integer',
+        required: false,
+        description: `history: page offset (offset-only pagination)`,
+      },
+      {
+        name: 'toolEventsOffset',
+        type: 'integer',
+        required: false,
+        description: `detail: tool-events page offset`,
+      },
+      {
+        name: 'triggerUuid',
+        type: 'string',
+        required: false,
+        description: `detail: required â the run UUID to inspect`,
+      },
     ],
   },
   {
@@ -477,87 +1076,245 @@ Scope: provide "boardId" for a specific board or "accountWide": true. One is req
 
 Optional "userIds" narrows results to specific creators.`,
     params: [
-      { name: 'breakdown', type: 'string', required: true, description: `totals = success/failure/total counts, by_entity = per automation/workflow` },
-      { name: 'accountWide', type: 'boolean', required: false, description: `Set true to query account-wide (required if no boardId)` },
-      { name: 'boardId', type: 'string', required: false, description: `Target a specific board by numeric ID` },
-      { name: 'excludeAutomationIds', type: 'array', required: false, description: `by_entity: automation IDs to exclude from breakdown` },
-      { name: 'runStatus', type: 'string', required: false, description: `by_entity: required run status to break down` },
-      { name: 'userIds', type: 'array', required: false, description: `Narrow to specific creator user IDs` },
+      {
+        name: 'breakdown',
+        type: 'string',
+        required: true,
+        description: `totals = success/failure/total counts, by_entity = per automation/workflow`,
+      },
+      {
+        name: 'accountWide',
+        type: 'boolean',
+        required: false,
+        description: `Set true to query account-wide (required if no boardId)`,
+      },
+      {
+        name: 'boardId',
+        type: 'string',
+        required: false,
+        description: `Target a specific board by numeric ID`,
+      },
+      {
+        name: 'excludeAutomationIds',
+        type: 'array',
+        required: false,
+        description: `by_entity: automation IDs to exclude from breakdown`,
+      },
+      {
+        name: 'runStatus',
+        type: 'string',
+        required: false,
+        description: `by_entity: required run status to break down`,
+      },
+      {
+        name: 'userIds',
+        type: 'array',
+        required: false,
+        description: `Narrow to specific creator user IDs`,
+      },
     ],
   },
   {
     name: 'mondaymcp_getboardactivity',
     description: `Get board activity logs for a specified time range (defaults to last 30 days). Optionally filter by item ids or user ids to avoid fetching activity for the entire board.`,
     params: [
-      { name: 'boardId', type: 'number', required: true, description: `The id of the board to get activity for` },
-      { name: 'fromDate', type: 'string', required: false, description: `Start date for activity range (ISO8601DateTime format). Defaults to 30 days ago` },
-      { name: 'includeData', type: 'boolean', required: false, description: `Whether to include the raw data payload for each activity entry. The data field contains the full before/after state of changes and can be very large. Only set to true when you need the detailed change data.` },
-      { name: 'itemIds', type: 'array', required: false, description: `Filter activity to specific item ids. Omit to get activity for the whole board.` },
-      { name: 'toDate', type: 'string', required: false, description: `End date for activity range (ISO8601DateTime format). Defaults to now` },
-      { name: 'userIds', type: 'array', required: false, description: `Filter activity to actions performed by specific user ids.` },
+      {
+        name: 'boardId',
+        type: 'number',
+        required: true,
+        description: `The id of the board to get activity for`,
+      },
+      {
+        name: 'fromDate',
+        type: 'string',
+        required: false,
+        description: `Start date for activity range (ISO8601DateTime format). Defaults to 30 days ago`,
+      },
+      {
+        name: 'includeData',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include the raw data payload for each activity entry. The data field contains the full before/after state of changes and can be very large. Only set to true when you need the detailed change data.`,
+      },
+      {
+        name: 'itemIds',
+        type: 'array',
+        required: false,
+        description: `Filter activity to specific item ids. Omit to get activity for the whole board.`,
+      },
+      {
+        name: 'toDate',
+        type: 'string',
+        required: false,
+        description: `End date for activity range (ISO8601DateTime format). Defaults to now`,
+      },
+      {
+        name: 'userIds',
+        type: 'array',
+        required: false,
+        description: `Filter activity to actions performed by specific user ids.`,
+      },
     ],
   },
   {
     name: 'mondaymcp_getboardinfo',
     description: `Get comprehensive board information including metadata, structure, owners, and configuration. Also returns the board's views (e.g. table views, filter views) â each view includes its id, name, type, and a structured filter object. `,
     params: [
-      { name: 'boardId', type: 'number', required: true, description: `The id of the board to get information for` },
+      {
+        name: 'boardId',
+        type: 'number',
+        required: true,
+        description: `The id of the board to get information for`,
+      },
     ],
   },
   {
     name: 'mondaymcp_getboarditemspage',
     description: `Get all items from a monday.com board with pagination support and optional column values and item descriptions. Returns structured JSON with item details, creation/update timestamps, and pagination info. Use the nextCursor parameter from the response to get the next page of results when has_more is true. To retrieve an item description (the rich-text body/details of a monday.com item), set includeItemDescription to true â the response will include the item description document blocks with their content, type, and id. Use this whenever the user asks about an item description, body, details, or notes. [REQUIRED PRECONDITION]: Before using this tool, if new columns were added to the board or if you are not familiar with the board structure (column IDs, column types, status labels, etc.), first use get_board_info to understand the board metadata. This is essential for constructing proper filters and knowing which columns are available. [REQUIRED PRECONDITION]: For board-relation / cross-board linking tasks, call link_board_items_workflow before using this tool. VIEW-BASED FILTERING: If the user refers to a board view by name (e.g. "show me items in the Overdue view"), first call get_board_info to get the board views, find the matching view by name, then extract its filter field and pass it as the filters argument here.`,
     params: [
-      { name: 'boardId', type: 'number', required: true, description: `The id of the board to get items from` },
-      { name: 'columnIds', type: 'array', required: false, description: `The ids of the item columns and subitem columns to get, can be used to reduce the response size when user asks for specific columns. Works only when includeColumns is true. If not provided, all columns will be returned` },
-      { name: 'cursor', type: 'string', required: false, description: `The cursor to get the next page of items, use the nextCursor from the previous response. If the nextCursor was null, it means there are no more items to get` },
-      { name: 'filters', type: 'array', required: false, description: `The configuration of filters to apply on the items. Use get_board_info for column ids and types on the board. Before sending the filters, use get_column_type_info with fetchMode "guidelines" and use data.guidelines.filter (null if that type has no documented rules).` },
-      { name: 'filtersOperator', type: 'string', required: false, description: `The operator to use for the filters` },
-      { name: 'includeColumns', type: 'boolean', required: false, description: `Whether to include column values in the response.
-PERFORMANCE OPTIMIZATION: Only set this to true when you actually need the column data. Excluding columns significantly reduces token usage and improves response latency. If you only need to count items, get item IDs/names, or check if items exist, keep this false.` },
-      { name: 'includeItemDescription', type: 'boolean', required: false, description: `Whether to include the item's description in the response. The item description is the rich-text body content that appears inside a monday.com item (similar to a task description or issue body). Set this to true when the user asks about an item's description, details, body, or notes. PERFORMANCE OPTIMIZATION: Only set this to true when you actually need the item description content.` },
-      { name: 'includeSubItems', type: 'boolean', required: false, description: `Whether to include sub items in the response. PERFORMANCE OPTIMIZATION: Only set this to true when you actually need the sub items data.` },
-      { name: 'itemIds', type: 'array', required: false, description: `The ids of the items to get. The count of items should be less than 100.` },
+      {
+        name: 'boardId',
+        type: 'number',
+        required: true,
+        description: `The id of the board to get items from`,
+      },
+      {
+        name: 'columnIds',
+        type: 'array',
+        required: false,
+        description: `The ids of the item columns and subitem columns to get, can be used to reduce the response size when user asks for specific columns. Works only when includeColumns is true. If not provided, all columns will be returned`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `The cursor to get the next page of items, use the nextCursor from the previous response. If the nextCursor was null, it means there are no more items to get`,
+      },
+      {
+        name: 'filters',
+        type: 'array',
+        required: false,
+        description: `The configuration of filters to apply on the items. Use get_board_info for column ids and types on the board. Before sending the filters, use get_column_type_info with fetchMode "guidelines" and use data.guidelines.filter (null if that type has no documented rules).`,
+      },
+      {
+        name: 'filtersOperator',
+        type: 'string',
+        required: false,
+        description: `The operator to use for the filters`,
+      },
+      {
+        name: 'includeColumns',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include column values in the response.
+PERFORMANCE OPTIMIZATION: Only set this to true when you actually need the column data. Excluding columns significantly reduces token usage and improves response latency. If you only need to count items, get item IDs/names, or check if items exist, keep this false.`,
+      },
+      {
+        name: 'includeItemDescription',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include the item's description in the response. The item description is the rich-text body content that appears inside a monday.com item (similar to a task description or issue body). Set this to true when the user asks about an item's description, details, body, or notes. PERFORMANCE OPTIMIZATION: Only set this to true when you actually need the item description content.`,
+      },
+      {
+        name: 'includeSubItems',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include sub items in the response. PERFORMANCE OPTIMIZATION: Only set this to true when you actually need the sub items data.`,
+      },
+      {
+        name: 'itemIds',
+        type: 'array',
+        required: false,
+        description: `The ids of the items to get. The count of items should be less than 100.`,
+      },
       { name: 'limit', type: 'number', required: false, description: `The number of items to get` },
-      { name: 'orderBy', type: 'array', required: false, description: `The columns to order by, will control the order of the items in the response` },
-      { name: 'searchTerm', type: 'string', required: false, description: `
+      {
+        name: 'orderBy',
+        type: 'array',
+        required: false,
+        description: `The columns to order by, will control the order of the items in the response`,
+      },
+      {
+        name: 'searchTerm',
+        type: 'string',
+        required: false,
+        description: `
     The search term to use for the search.
     - Use this when: the user provides a vague, incomplete, or approximate search term (e.g., âmarketing campaignâ, âJohnâs taskâ, âbudget-relatedâ), and there isnât a clear exact compare value for a specific field.
     - Do not use this when: the user specifies an exact value that maps directly to a column comparison (e.g., name contains "marketing campaign", status = "Done", priority = "High", owner = "Daniel"). In these cases, prefer structured compare filters.
-  ` },
-      { name: 'subItemLimit', type: 'number', required: false, description: `The number of sub items to get per item. This is only used when includeSubItems is true.` },
+  `,
+      },
+      {
+        name: 'subItemLimit',
+        type: 'number',
+        required: false,
+        description: `The number of sub items to get per item. This is only used when includeSubItems is true.`,
+      },
     ],
   },
   {
     name: 'mondaymcp_getcolumntypeinfo',
     description: `Retrieves comprehensive information about a specific column type. Use fetchMode "schema" (default) to get the JSON schema definition from the API â use this before creating or updating columns (e.g. create_column) to understand structure, validation rules, and available properties for column settings. Use fetchMode "guidelines" to get only guidelines.filter and guidelines.aggregation for building items_page filters and board insights counts (no schema, no GraphQL round-trip). `,
     params: [
-      { name: 'columnType', type: 'string', required: true, description: `The column type to retrieve information for (e.g., "text", "status", "date", "numbers")` },
-      { name: 'fetchMode', type: 'string', required: false, description: `fetchMode "schema": JSON settings schema only (GraphQL). fetchMode "guidelines": guidelines.filter and guidelines.aggregation only â no GraphQL round-trip.` },
+      {
+        name: 'columnType',
+        type: 'string',
+        required: true,
+        description: `The column type to retrieve information for (e.g., "text", "status", "date", "numbers")`,
+      },
+      {
+        name: 'fetchMode',
+        type: 'string',
+        required: false,
+        description: `fetchMode "schema": JSON settings schema only (GraphQL). fetchMode "guidelines": guidelines.filter and guidelines.aggregation only â no GraphQL round-trip.`,
+      },
     ],
   },
   {
     name: 'mondaymcp_getform',
     description: `Get a monday.com form by its form token. Form tokens can be extracted from the form's url. Given a form url, such as https://forms.monday.com/forms/abc123def456ghi789?r=use1, the formToken is the alphanumeric string that appears right after /forms/ and before the ?. In the example, the formToken is abc123def456ghi789.`,
-    params: [
-      { name: 'formToken', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'formToken', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'mondaymcp_getfullboarddata',
     description: `INTERNAL USE ONLY - DO NOT CALL THIS TOOL DIRECTLY. This tool is exclusively triggered by UI components and should never be invoked directly by the agent.`,
     params: [
-      { name: 'boardId', type: 'string', required: true, description: `The ID of the board to fetch complete data for` },
-      { name: 'filters', type: 'array', required: false, description: `The configuration of filters to apply on the items. Use get_board_info for column ids and types on the board. Before sending the filters, use get_column_type_info with fetchMode "guidelines" and use data.guidelines.filter (null if that type has no documented rules).` },
-      { name: 'filtersOperator', type: 'string', required: false, description: `The operator to use for the filters` },
+      {
+        name: 'boardId',
+        type: 'string',
+        required: true,
+        description: `The ID of the board to fetch complete data for`,
+      },
+      {
+        name: 'filters',
+        type: 'array',
+        required: false,
+        description: `The configuration of filters to apply on the items. Use get_board_info for column ids and types on the board. Before sending the filters, use get_column_type_info with fetchMode "guidelines" and use data.guidelines.filter (null if that type has no documented rules).`,
+      },
+      {
+        name: 'filtersOperator',
+        type: 'string',
+        required: false,
+        description: `The operator to use for the filters`,
+      },
     ],
   },
   {
     name: 'mondaymcp_getgraphqlschema',
     description: `Fetch the monday.com GraphQL schema structure including query and mutation definitions. This tool returns available query fields, mutation fields, and a list of GraphQL types in the schema. You can filter results by operation type (read/write) to focus on either queries or mutations.`,
     params: [
-      { name: 'operationType', type: 'string', required: false, description: `Type of operation: "read" for queries, "write" for mutations` },
-      { name: 'random_string', type: 'string', required: false, description: `Dummy parameter for no-parameter tools` },
+      {
+        name: 'operationType',
+        type: 'string',
+        required: false,
+        description: `Type of operation: "read" for queries, "write" for mutations`,
+      },
+      {
+        name: 'random_string',
+        type: 'string',
+        required: false,
+        description: `Dummy parameter for no-parameter tools`,
+      },
     ],
   },
   {
@@ -575,22 +1332,66 @@ This tool scans your recently used boards (up to 100) to find valid monday-dev s
 
 ## Note:
 Searches recently used boards (up to 100). If none found, ask user to provide board IDs manually.`,
-    params: [
-    ],
+    params: [],
   },
   {
     name: 'mondaymcp_getnotetakermeetings',
     description: `Retrieve notetaker meetings with optional detailed fields. Use include_summary, include_topics, include_action_items, and include_transcript flags to control which details are returned. Use access to filter by meeting access level (OWN, SHARED_WITH_ME, SHARED_WITH_ACCOUNT, ALL). Defaults to OWN. Supports filtering by ids, search term, and cursor-based pagination.`,
     params: [
-      { name: 'access', type: 'string', required: false, description: `Filter meetings by access level. OWN: meetings the user participated in or invited the bot to. SHARED_WITH_ME: meetings shared with the user or their team. SHARED_WITH_ACCOUNT: meetings shared with the entire account. ALL: all meetings the user has access to.` },
-      { name: 'cursor', type: 'string', required: false, description: `Cursor for pagination. Use cursor from the previous page_info to fetch the next page.` },
-      { name: 'ids', type: 'array', required: false, description: `Filter by specific meeting IDs. Use this to fetch one or more specific meetings in a single call.` },
-      { name: 'include_action_items', type: 'boolean', required: false, description: `Whether to include action items for each meeting.` },
-      { name: 'include_summary', type: 'boolean', required: false, description: `Whether to include the AI-generated summary for each meeting.` },
-      { name: 'include_topics', type: 'boolean', required: false, description: `Whether to include discussion topics and talking points for each meeting.` },
-      { name: 'include_transcript', type: 'boolean', required: false, description: `Whether to include the full transcript for each meeting. Transcripts can be very large.` },
-      { name: 'limit', type: 'number', required: false, description: `Maximum number of notetaker meetings to return per page (1-100).` },
-      { name: 'search', type: 'string', required: false, description: `Search notetaker meetings by title, participant name, or email.` },
+      {
+        name: 'access',
+        type: 'string',
+        required: false,
+        description: `Filter meetings by access level. OWN: meetings the user participated in or invited the bot to. SHARED_WITH_ME: meetings shared with the user or their team. SHARED_WITH_ACCOUNT: meetings shared with the entire account. ALL: all meetings the user has access to.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor for pagination. Use cursor from the previous page_info to fetch the next page.`,
+      },
+      {
+        name: 'ids',
+        type: 'array',
+        required: false,
+        description: `Filter by specific meeting IDs. Use this to fetch one or more specific meetings in a single call.`,
+      },
+      {
+        name: 'include_action_items',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include action items for each meeting.`,
+      },
+      {
+        name: 'include_summary',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include the AI-generated summary for each meeting.`,
+      },
+      {
+        name: 'include_topics',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include discussion topics and talking points for each meeting.`,
+      },
+      {
+        name: 'include_transcript',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include the full transcript for each meeting. Transcripts can be very large.`,
+      },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Maximum number of notetaker meetings to return per page (1-100).`,
+      },
+      {
+        name: 'search',
+        type: 'string',
+        required: false,
+        description: `Search notetaker meetings by title, participant name, or email.`,
+      },
     ],
   },
   {
@@ -613,8 +1414,18 @@ A table of sprints with the following information:
 
 Requires the Main Sprints board ID of the monday-dev containing your sprints.`,
     params: [
-      { name: 'sprintsBoardId', type: 'number', required: true, description: `The ID of the monday-dev board containing the sprints` },
-      { name: 'limit', type: 'number', required: false, description: `The number of sprints to retrieve (default: 25, max: 100)` },
+      {
+        name: 'sprintsBoardId',
+        type: 'number',
+        required: true,
+        description: `The ID of the monday-dev board containing the sprints`,
+      },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `The number of sprints to retrieve (default: 25, max: 100)`,
+      },
     ],
   },
   {
@@ -638,29 +1449,84 @@ When viewing the section "Completed by Assignee", you'll see user IDs in the for
 
 `,
     params: [
-      { name: 'sprintId', type: 'number', required: true, description: `The ID of the sprint to get the summary for (e.g., "9123456789")` },
+      {
+        name: 'sprintId',
+        type: 'number',
+        required: true,
+        description: `The ID of the sprint to get the summary for (e.g., "9123456789")`,
+      },
     ],
   },
   {
     name: 'mondaymcp_gettypedetails',
     description: `Get detailed information about a specific GraphQL type from the monday.com API schema`,
     params: [
-      { name: 'typeName', type: 'string', required: true, description: `The name of the GraphQL type to get details for` },
+      {
+        name: 'typeName',
+        type: 'string',
+        required: true,
+        description: `The name of the GraphQL type to get details for`,
+      },
     ],
   },
   {
     name: 'mondaymcp_getupdates',
     description: `Get updates (comments/posts) from a monday.com item or board. Specify objectId and objectType (Item or Board) to retrieve updates. For Board queries, you can filter by date range using fromDate and toDate (both required together, ISO8601 format). By default, Board queries return only board discussion. Set includeItemUpdates to true to also include updates on individual items. Returns update text, creator info, timestamps, and optionally replies and assets.`,
     params: [
-      { name: 'objectId', type: 'string', required: true, description: `The ID of the item or board to get updates from` },
-      { name: 'objectType', type: 'string', required: true, description: `Type of object for which objectId was provided` },
-      { name: 'fromDate', type: 'string', required: false, description: `Start of date range filter (e.g. "2025-01-01" or "2025-01-01T00:00:00Z"). Must be used together with toDate. Only supported for Board objectType.` },
-      { name: 'includeAssets', type: 'boolean', required: false, description: `Include file attachments in the response` },
-      { name: 'includeItemUpdates', type: 'boolean', required: false, description: `When objectType is Board, also include updates on individual items. Defaults to false, returning only board discussion. Set to true to retrieve all updates on a board, including updates on individual items.` },
-      { name: 'includeReplies', type: 'boolean', required: false, description: `Include update replies in the response` },
-      { name: 'limit', type: 'number', required: false, description: `Number of updates per page (default: 25, max: 100)` },
-      { name: 'page', type: 'number', required: false, description: `Page number for pagination (default: 1)` },
-      { name: 'toDate', type: 'string', required: false, description: `End of date range filter (e.g. "2025-06-01" or "2025-06-01T23:59:59Z"). Must be used together with fromDate. Only supported for Board objectType.` },
+      {
+        name: 'objectId',
+        type: 'string',
+        required: true,
+        description: `The ID of the item or board to get updates from`,
+      },
+      {
+        name: 'objectType',
+        type: 'string',
+        required: true,
+        description: `Type of object for which objectId was provided`,
+      },
+      {
+        name: 'fromDate',
+        type: 'string',
+        required: false,
+        description: `Start of date range filter (e.g. "2025-01-01" or "2025-01-01T00:00:00Z"). Must be used together with toDate. Only supported for Board objectType.`,
+      },
+      {
+        name: 'includeAssets',
+        type: 'boolean',
+        required: false,
+        description: `Include file attachments in the response`,
+      },
+      {
+        name: 'includeItemUpdates',
+        type: 'boolean',
+        required: false,
+        description: `When objectType is Board, also include updates on individual items. Defaults to false, returning only board discussion. Set to true to retrieve all updates on a board, including updates on individual items.`,
+      },
+      {
+        name: 'includeReplies',
+        type: 'boolean',
+        required: false,
+        description: `Include update replies in the response`,
+      },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Number of updates per page (default: 25, max: 100)`,
+      },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number for pagination (default: 1)`,
+      },
+      {
+        name: 'toDate',
+        type: 'string',
+        required: false,
+        description: `End of date range filter (e.g. "2025-06-01" or "2025-06-01T23:59:59Z"). Must be used together with fromDate. Only supported for Board objectType.`,
+      },
     ],
   },
   {
@@ -676,8 +1542,7 @@ When viewing the section "Completed by Assignee", you'll see user IDs in the for
     - Get user's most relevant people based on interaction frequency and recency
     - Reduce the need for search requests by knowing user's commonly accessed items
     `,
-    params: [
-    ],
+    params: [],
   },
   {
     name: 'mondaymcp_listautomations',
@@ -686,9 +1551,24 @@ When NOT to use: Do not call this tool to get general board information unrelate
 Note: Some legacy automations may not appear â mention this if users ask about missing automations.
 `,
     params: [
-      { name: 'boardId', type: 'string', required: true, description: `The numeric board ID as a string.` },
-      { name: 'cursor', type: 'string', required: false, description: `Pagination cursor from a previous response. Pass to retrieve the next page of automations.` },
-      { name: 'limit', type: 'integer', required: false, description: `Maximum number of automations to return. Default: 100.` },
+      {
+        name: 'boardId',
+        type: 'string',
+        required: true,
+        description: `The numeric board ID as a string.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from a previous response. Pass to retrieve the next page of automations.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of automations to return. Default: 100.`,
+      },
     ],
   },
   {
@@ -713,16 +1593,51 @@ Note: Some legacy automations may not appear â mention this if users ask ab
       â¢ includeTeams: true fetches both users and teams, do not use this to fetch a specific user's teams rather fetch that user by id and you will get their team memberships.
       â¢ name parameter is for USER search ONLY - it cannot be used to search for teams. Use teamIds to fetch specific teams.`,
     params: [
-      { name: 'getMe', type: 'boolean', required: false, description: `[TOP PRIORITY] Use ALWAYS when requesting current user information. Examples of when it should be used: ["get my user" or "get my teams"].
-      This parameter CONFLICTS with all others. ` },
-      { name: 'includeTeamMembers', type: 'boolean', required: false, description: `Set to true only when you need additional member details for teams other than names and ids.` },
-      { name: 'includeTeams', type: 'boolean', required: false, description: `[AVOID] This fetches all teams in the account. To fetch a specific user's teams just fetch that user by id and you will get their team memberships.` },
-      { name: 'name', type: 'string', required: false, description: `Name-based USER search ONLY. STANDALONE parameter - cannot be combined with others. PREFERRED method for finding users when you know names. Performs fuzzy matching.
-      CRITICAL: This parameter searches for USERS ONLY, NOT teams. To search for teams, use teamIds parameter instead.` },
-      { name: 'teamIds', type: 'array', required: false, description: `Specific team IDs to fetch.[IMPORTANT] ALWAYS use when you have team IDs in context, NEVER fetch all teams if specific IDs are available.
-      RETURNS: Team details with owners and optional member data.` },
-      { name: 'teamsOnly', type: 'boolean', required: false, description: `Fetch only teams, no users returned. Combine with includeTeamMembers for member details.` },
-      { name: 'userIds', type: 'array', required: false, description: `Specific user IDs to fetch.[IMPORTANT] ALWAYS use when you have user IDs in context. PREFER over general search. RETURNS: user profiles including team memberships` },
+      {
+        name: 'getMe',
+        type: 'boolean',
+        required: false,
+        description: `[TOP PRIORITY] Use ALWAYS when requesting current user information. Examples of when it should be used: ["get my user" or "get my teams"].
+      This parameter CONFLICTS with all others. `,
+      },
+      {
+        name: 'includeTeamMembers',
+        type: 'boolean',
+        required: false,
+        description: `Set to true only when you need additional member details for teams other than names and ids.`,
+      },
+      {
+        name: 'includeTeams',
+        type: 'boolean',
+        required: false,
+        description: `[AVOID] This fetches all teams in the account. To fetch a specific user's teams just fetch that user by id and you will get their team memberships.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Name-based USER search ONLY. STANDALONE parameter - cannot be combined with others. PREFERRED method for finding users when you know names. Performs fuzzy matching.
+      CRITICAL: This parameter searches for USERS ONLY, NOT teams. To search for teams, use teamIds parameter instead.`,
+      },
+      {
+        name: 'teamIds',
+        type: 'array',
+        required: false,
+        description: `Specific team IDs to fetch.[IMPORTANT] ALWAYS use when you have team IDs in context, NEVER fetch all teams if specific IDs are available.
+      RETURNS: Team details with owners and optional member data.`,
+      },
+      {
+        name: 'teamsOnly',
+        type: 'boolean',
+        required: false,
+        description: `Fetch only teams, no users returned. Combine with includeTeamMembers for member details.`,
+      },
+      {
+        name: 'userIds',
+        type: 'array',
+        required: false,
+        description: `Specific user IDs to fetch.[IMPORTANT] ALWAYS use when you have user IDs in context. PREFER over general search. RETURNS: user profiles including team memberships`,
+      },
     ],
   },
   {
@@ -730,8 +1645,18 @@ Note: Some legacy automations may not appear â mention this if users ask ab
     description: `List all workspaces available to the user, ordered by membership (user's workspaces first). Returns workspaces with their ID, name, and description.
 [IMPORTANT] To search for workspaces by name, use the "search" tool with searchType WORKSPACES instead â it provides faster and more accurate results.`,
     params: [
-      { name: 'limit', type: 'number', required: false, description: `Number of workspaces to return. Default is (100), lower for a smaller response size` },
-      { name: 'page', type: 'number', required: false, description: `Page number to return. Default is 1.` },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Number of workspaces to return. Default is (100), lower for a smaller response size`,
+      },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number to return. Default is 1.`,
+      },
     ],
   },
   {
@@ -777,18 +1702,78 @@ RELATED TOOLS:
 - manage_agent_skills â manage which skills this agent can perform
 - manage_agent_knowledge â manage which boards/docs this agent has access to`,
     params: [
-      { name: 'action', type: 'string', required: true, description: `"create" â create a new agent via AI (pass prompt). "create_blank" â create a new agent manually (pass name/role/etc). "get" â fetch one agent by agent_id or list owned agents. "update" â modify mutable fields on an existing agent. "delete" â permanently delete an agent (irreversible). "activate" â transition agent to ACTIVE. "deactivate" â transition agent to INACTIVE. "run" â manually enqueue an agent run (fire-and-forget).` },
-      { name: 'agent_id', type: 'string', required: false, description: `Used with action:"get" to fetch a specific agent. Required for action:"update", "delete", "activate", "deactivate", "run". Omit for action:"create", "create_blank", or action:"get" (to list owned agents).` },
-      { name: 'agent_model', type: 'string', required: false, description: `Used with action:"create" or action:"update". Omit unless the user explicitly names a valid monday-supported model.` },
-      { name: 'avatar_url', type: 'string', required: false, description: `Used with action:"create_blank". HTTPS URL of the avatar. Prefer dapulse-res.cloudinary.com or cdn.monday.com.` },
-      { name: 'background_color', type: 'string', required: false, description: `Used with action:"create_blank". Lowercase hex, e.g. "#9450fd".` },
-      { name: 'gender', type: 'string', required: false, description: `Used with action:"create_blank". Hint for generated avatar/name when profile fields are omitted.` },
-      { name: 'name', type: 'string', required: false, description: `Used with action:"create_blank" or action:"update". Display name of the agent.` },
-      { name: 'plan', type: 'string', required: false, description: `Used with action:"update". New step-by-step execution plan in markdown.` },
-      { name: 'prompt', type: 'string', required: false, description: `Required for action:"create". Plain-language description of what the agent should do. Platform generates profile, goal, and plan via AI.` },
-      { name: 'role', type: 'string', required: false, description: `Used with action:"create_blank" or action:"update". Short role title (e.g. "Customer Success Bot").` },
-      { name: 'role_description', type: 'string', required: false, description: `Used with action:"create_blank" or action:"update". Detailed description of the agent role.` },
-      { name: 'user_prompt', type: 'string', required: false, description: `Used with action:"create_blank". Stored as metadata. Not used for AI generation.` },
+      {
+        name: 'action',
+        type: 'string',
+        required: true,
+        description: `"create" â create a new agent via AI (pass prompt). "create_blank" â create a new agent manually (pass name/role/etc). "get" â fetch one agent by agent_id or list owned agents. "update" â modify mutable fields on an existing agent. "delete" â permanently delete an agent (irreversible). "activate" â transition agent to ACTIVE. "deactivate" â transition agent to INACTIVE. "run" â manually enqueue an agent run (fire-and-forget).`,
+      },
+      {
+        name: 'agent_id',
+        type: 'string',
+        required: false,
+        description: `Used with action:"get" to fetch a specific agent. Required for action:"update", "delete", "activate", "deactivate", "run". Omit for action:"create", "create_blank", or action:"get" (to list owned agents).`,
+      },
+      {
+        name: 'agent_model',
+        type: 'string',
+        required: false,
+        description: `Used with action:"create" or action:"update". Omit unless the user explicitly names a valid monday-supported model.`,
+      },
+      {
+        name: 'avatar_url',
+        type: 'string',
+        required: false,
+        description: `Used with action:"create_blank". HTTPS URL of the avatar. Prefer dapulse-res.cloudinary.com or cdn.monday.com.`,
+      },
+      {
+        name: 'background_color',
+        type: 'string',
+        required: false,
+        description: `Used with action:"create_blank". Lowercase hex, e.g. "#9450fd".`,
+      },
+      {
+        name: 'gender',
+        type: 'string',
+        required: false,
+        description: `Used with action:"create_blank". Hint for generated avatar/name when profile fields are omitted.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Used with action:"create_blank" or action:"update". Display name of the agent.`,
+      },
+      {
+        name: 'plan',
+        type: 'string',
+        required: false,
+        description: `Used with action:"update". New step-by-step execution plan in markdown.`,
+      },
+      {
+        name: 'prompt',
+        type: 'string',
+        required: false,
+        description: `Required for action:"create". Plain-language description of what the agent should do. Platform generates profile, goal, and plan via AI.`,
+      },
+      {
+        name: 'role',
+        type: 'string',
+        required: false,
+        description: `Used with action:"create_blank" or action:"update". Short role title (e.g. "Customer Success Bot").`,
+      },
+      {
+        name: 'role_description',
+        type: 'string',
+        required: false,
+        description: `Used with action:"create_blank" or action:"update". Detailed description of the agent role.`,
+      },
+      {
+        name: 'user_prompt',
+        type: 'string',
+        required: false,
+        description: `Used with action:"create_blank". Stored as metadata. Not used for AI generation.`,
+      },
     ],
   },
   {
@@ -817,11 +1802,36 @@ RELATED TOOLS:
 - manage_agent_triggers â manage which triggers fire this agent automatically
 - manage_agent_skills â manage which skills this agent can perform`,
     params: [
-      { name: 'action', type: 'string', required: true, description: `"list" â returns all resources the agent currently has access to. "add" â grants access to a board or doc. "update" â changes the permission level on an existing resource. "remove" â revokes the agent's access to a board or doc.` },
-      { name: 'agent_id', type: 'string', required: true, description: `Unique identifier of the agent.` },
-      { name: 'permission_type', type: 'string', required: false, description: `Required for action:add and action:update. The permission level: "READ" (agent can read the resource) or "READ_WRITE" (agent can read and write the resource).` },
-      { name: 'resource_id', type: 'string', required: false, description: `Required for action:add, action:update, action:remove. The ID of the board or doc to grant/update/revoke access to.` },
-      { name: 'scope_type', type: 'string', required: false, description: `Required for action:add, action:update, action:remove. The type of resource: "BOARD" or "DOC".` },
+      {
+        name: 'action',
+        type: 'string',
+        required: true,
+        description: `"list" â returns all resources the agent currently has access to. "add" â grants access to a board or doc. "update" â changes the permission level on an existing resource. "remove" â revokes the agent's access to a board or doc.`,
+      },
+      {
+        name: 'agent_id',
+        type: 'string',
+        required: true,
+        description: `Unique identifier of the agent.`,
+      },
+      {
+        name: 'permission_type',
+        type: 'string',
+        required: false,
+        description: `Required for action:add and action:update. The permission level: "READ" (agent can read the resource) or "READ_WRITE" (agent can read and write the resource).`,
+      },
+      {
+        name: 'resource_id',
+        type: 'string',
+        required: false,
+        description: `Required for action:add, action:update, action:remove. The ID of the board or doc to grant/update/revoke access to.`,
+      },
+      {
+        name: 'scope_type',
+        type: 'string',
+        required: false,
+        description: `Required for action:add, action:update, action:remove. The type of resource: "BOARD" or "DOC".`,
+      },
     ],
   },
   {
@@ -857,12 +1867,42 @@ RELATED TOOLS:
 - manage_agent_triggers â manage which triggers fire this agent automatically
 - manage_agent â manage the agent entity itself (create, activate, deactivate, etc.)`,
     params: [
-      { name: 'action', type: 'string', required: true, description: `"create" â author a new custom skill in the account-wide catalog (no agent_id needed). "add" â attach an existing skill to this agent by skill_id. "remove" â detach a skill from this agent.` },
-      { name: 'agent_id', type: 'string', required: false, description: `Required for action:"add" and action:"remove". Not used for action:"create" (account-level operation).` },
-      { name: 'content', type: 'string', required: false, description: `Required for action:"create". Markdown instructions defining what the skill does and how to execute it. Be specific and thorough â this is the skill's runtime behavior.` },
-      { name: 'description', type: 'string', required: false, description: `Used with action:"create". Short description shown in the catalog.` },
-      { name: 'name', type: 'string', required: false, description: `Required for action:"create". Display name of the new skill.` },
-      { name: 'skill_id', type: 'string', required: false, description: `Required for action:"add" and action:"remove". The skill id from agent_catalog action:"list_skills", or the id returned by action:"create" in this tool. Never guess or invent a skill id.` },
+      {
+        name: 'action',
+        type: 'string',
+        required: true,
+        description: `"create" â author a new custom skill in the account-wide catalog (no agent_id needed). "add" â attach an existing skill to this agent by skill_id. "remove" â detach a skill from this agent.`,
+      },
+      {
+        name: 'agent_id',
+        type: 'string',
+        required: false,
+        description: `Required for action:"add" and action:"remove". Not used for action:"create" (account-level operation).`,
+      },
+      {
+        name: 'content',
+        type: 'string',
+        required: false,
+        description: `Required for action:"create". Markdown instructions defining what the skill does and how to execute it. Be specific and thorough â this is the skill's runtime behavior.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Used with action:"create". Short description shown in the catalog.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Required for action:"create". Display name of the new skill.`,
+      },
+      {
+        name: 'skill_id',
+        type: 'string',
+        required: false,
+        description: `Required for action:"add" and action:"remove". The skill id from agent_catalog action:"list_skills", or the id returned by action:"create" in this tool. Never guess or invent a skill id.`,
+      },
     ],
   },
   {
@@ -897,11 +1937,36 @@ RELATED TOOLS:
 - manage_agent_skills â manage which skills this agent can perform
 - manage_agent â manage the agent entity itself (create, activate, deactivate, etc.)`,
     params: [
-      { name: 'action', type: 'string', required: true, description: `"list" â returns all triggers currently attached to this agent (includes node_id needed for remove). "add" â attaches a new trigger by block_reference_id. "remove" â detaches a trigger instance by node_id.` },
-      { name: 'agent_id', type: 'string', required: true, description: `Unique identifier of the agent.` },
-      { name: 'block_reference_id', type: 'string', required: false, description: `Required for action:"add". The block_reference_id from agent_catalog action:"list_triggers" identifying the trigger type to attach. Never guess this value â look it up in the catalog first.` },
-      { name: 'field_values', type: 'object', required: false, description: `Used with action:"add" when the trigger type has required_fields. Key/value object whose shape is described by field_schemas in the agent_catalog response. Scalar fields use string/number/boolean values. Selection fields use { "value": "<id>", "label": "<name>" }.` },
-      { name: 'node_id', type: 'string', required: false, description: `Required for action:"remove". The node_id of the trigger instance â get it from action:"list". Each instance has a unique node_id even if the same trigger type is attached multiple times. Do NOT pass block_reference_id here.` },
+      {
+        name: 'action',
+        type: 'string',
+        required: true,
+        description: `"list" â returns all triggers currently attached to this agent (includes node_id needed for remove). "add" â attaches a new trigger by block_reference_id. "remove" â detaches a trigger instance by node_id.`,
+      },
+      {
+        name: 'agent_id',
+        type: 'string',
+        required: true,
+        description: `Unique identifier of the agent.`,
+      },
+      {
+        name: 'block_reference_id',
+        type: 'string',
+        required: false,
+        description: `Required for action:"add". The block_reference_id from agent_catalog action:"list_triggers" identifying the trigger type to attach. Never guess this value â look it up in the catalog first.`,
+      },
+      {
+        name: 'field_values',
+        type: 'object',
+        required: false,
+        description: `Used with action:"add" when the trigger type has required_fields. Key/value object whose shape is described by field_schemas in the agent_catalog response. Scalar fields use string/number/boolean values. Selection fields use { "value": "<id>", "label": "<name>" }.`,
+      },
+      {
+        name: 'node_id',
+        type: 'string',
+        required: false,
+        description: `Required for action:"remove". The node_id of the trigger instance â get it from action:"list". Each instance has a unique node_id even if the same trigger type is attached multiple times. Do NOT pass block_reference_id here.`,
+      },
     ],
   },
   {
@@ -917,8 +1982,18 @@ Actions:
 
 When intent is ambiguous ("stop", "turn off", "pause"), prefer deactivate over delete.`,
     params: [
-      { name: 'action', type: 'string', required: true, description: `The operation to perform. activate: enables a paused automation so it responds to its trigger. deactivate: pauses an automation without deleting it. delete: permanently removes an automation (irreversible).` },
-      { name: 'workflowId', type: 'string', required: true, description: `The automation ID to operate on. Obtain from list_automations.` },
+      {
+        name: 'action',
+        type: 'string',
+        required: true,
+        description: `The operation to perform. activate: enables a paused automation so it responds to its trigger. deactivate: pauses an automation without deleting it. delete: permanently removes an automation (irreversible).`,
+      },
+      {
+        name: 'workflowId',
+        type: 'string',
+        required: true,
+        description: `The automation ID to operate on. Obtain from list_automations.`,
+      },
     ],
   },
   {
@@ -926,13 +2001,48 @@ When intent is ambiguous ("stop", "turn off", "pause"), prefer deactivate over d
     description: `Move a folder, board, or overview in monday.com. Use position for relative placement based on another object, parentFolderId for folder changes, workspaceId for workspace moves, and accountProductId for account product changes.`,
     params: [
       { name: 'id', type: 'string', required: true, description: `The ID of the object to move` },
-      { name: 'objectType', type: 'string', required: true, description: `The type of object to move` },
-      { name: 'accountProductId', type: 'string', required: false, description: `The ID of the account product containing the object. Required if moving to a different account product.` },
-      { name: 'parentFolderId', type: 'string', required: false, description: `The ID of the new parent folder. Required if moving to a different folder.` },
-      { name: 'position_is_after', type: 'boolean', required: false, description: `Whether to position the object after the object` },
-      { name: 'position_object_id', type: 'string', required: false, description: `The ID of the object to position the object relative to. If this parameter is provided, position_object_type must be also provided.` },
-      { name: 'position_object_type', type: 'string', required: false, description: `The type of object to position the object relative to. If this parameter is provided, position_object_id must be also provided.` },
-      { name: 'workspaceId', type: 'string', required: false, description: `The ID of the workspace containing the object. Required if moving to a different workspace.` },
+      {
+        name: 'objectType',
+        type: 'string',
+        required: true,
+        description: `The type of object to move`,
+      },
+      {
+        name: 'accountProductId',
+        type: 'string',
+        required: false,
+        description: `The ID of the account product containing the object. Required if moving to a different account product.`,
+      },
+      {
+        name: 'parentFolderId',
+        type: 'string',
+        required: false,
+        description: `The ID of the new parent folder. Required if moving to a different folder.`,
+      },
+      {
+        name: 'position_is_after',
+        type: 'boolean',
+        required: false,
+        description: `Whether to position the object after the object`,
+      },
+      {
+        name: 'position_object_id',
+        type: 'string',
+        required: false,
+        description: `The ID of the object to position the object relative to. If this parameter is provided, position_object_type must be also provided.`,
+      },
+      {
+        name: 'position_object_type',
+        type: 'string',
+        required: false,
+        description: `The type of object to position the object relative to. If this parameter is provided, position_object_id must be also provided.`,
+      },
+      {
+        name: 'workspaceId',
+        type: 'string',
+        required: false,
+        description: `The ID of the workspace containing the object. Required if moving to a different workspace.`,
+      },
     ],
   },
   {
@@ -950,7 +2060,12 @@ Returns:
 - result: structured markdown plan with workflow breakdowns, block IDs, resource definitions, and a list of assumptions and gaps
 `,
     params: [
-      { name: 'prompt', type: 'string', required: true, description: `Natural-language description of the process to plan. Describe the full end-to-end process in plain English (e.g. "When a deal is marked Won, create a task in the onboarding board and notify the account manager"). The agent will decompose this into one or more monday.com workflows, identify all required boards and columns, and return a structured implementation plan. Maximum 2000 characters.` },
+      {
+        name: 'prompt',
+        type: 'string',
+        required: true,
+        description: `Natural-language description of the process to plan. Describe the full end-to-end process in plain English (e.g. "When a deal is marked Won, create a task in the onboarding board and notify the account manager"). The agent will decompose this into one or more monday.com workflows, identify all required boards and columns, and return a structured implementation plan. Maximum 2000 characters.`,
+      },
     ],
   },
   {
@@ -971,9 +2086,24 @@ Note: if directing the user to the workflow in the UI, the correct URL path is c
 
 `,
     params: [
-      { name: 'workflowDraftId', type: 'string', required: true, description: `The draft version ID returned by create_workflow. Both workflowObjectId and workflowDraftId are required â together they identify the exact draft to publish.` },
-      { name: 'workflowObjectId', type: 'string', required: true, description: `The workflow object ID returned by create_workflow. Identifies the workflow across all its drafts and live versions.` },
-      { name: 'shouldActivate', type: 'boolean', required: false, description: `Whether to activate the workflow immediately after publishing so it starts running. Defaults to true â the workflow is activated immediately after publish.` },
+      {
+        name: 'workflowDraftId',
+        type: 'string',
+        required: true,
+        description: `The draft version ID returned by create_workflow. Both workflowObjectId and workflowDraftId are required â together they identify the exact draft to publish.`,
+      },
+      {
+        name: 'workflowObjectId',
+        type: 'string',
+        required: true,
+        description: `The workflow object ID returned by create_workflow. Identifies the workflow across all its drafts and live versions.`,
+      },
+      {
+        name: 'shouldActivate',
+        type: 'boolean',
+        required: false,
+        description: `Whether to activate the workflow immediately after publishing so it starts running. Defaults to true â the workflow is activated immediately after publish.`,
+      },
     ],
   },
   {
@@ -998,21 +2128,96 @@ MODE: "version_history" â Fetch the edit history of a single document.
   - { mode: "version_history", ids: ["5001466606"], version_history_limit: 3 }
   - { mode: "version_history", ids: ["5001466606"], since: "2026-03-11T00:00:00Z", include_diff: true }`,
     params: [
-      { name: 'blocks_limit', type: 'number', required: false, description: `Maximum number of blocks to return per document (default: 25). Only used in content mode when include_blocks is true.` },
-      { name: 'blocks_page', type: 'number', required: false, description: `Page number for block pagination, starting at 1. Omit to use the API default. Use with blocks_limit to page through documents with more than 25 blocks. Only used in content mode when include_blocks is true.` },
-      { name: 'comments_limit', type: 'number', required: false, description: `Maximum number of comments (updates) to fetch per item when include_comments is true. Defaults to 50. Only used in content mode.` },
-      { name: 'ids', type: 'array', required: false, description: `Array of ID values. In content mode: matches the query type (ids/object_ids/workspace_ids). In version_history mode: provide the single document object_id here (e.g., ids: ["5001466606"]).` },
-      { name: 'include_blocks', type: 'boolean', required: false, description: `If true, includes the blocks array (block IDs, types, positions, content) in the response. Required when you plan to call update_doc. Defaults to false to reduce response size. Only used in content mode.` },
-      { name: 'include_comments', type: 'boolean', required: false, description: `If true, fetches all comments and replies on the document. Comments are stored at the item level within the doc backing board. Defaults to false. Only used in content mode.` },
-      { name: 'include_diff', type: 'boolean', required: false, description: `If true, fetches content diffs between consecutive restoring points. May be slower due to additional API calls. Only used in version_history mode.` },
-      { name: 'limit', type: 'number', required: false, description: `Number of docs per page (default: 25). Only used in content mode.` },
-      { name: 'mode', type: 'string', required: false, description: `The operation mode. "content" (default) fetches documents with their markdown content. "version_history" fetches the edit history of a single document.` },
-      { name: 'order_by', type: 'string', required: false, description: `Order in which to retrieve docs. Only used in content mode.` },
-      { name: 'page', type: 'number', required: false, description: `Page number to return (starts at 1). Only used in content mode.` },
-      { name: 'since', type: 'string', required: false, description: `ISO 8601 date string to filter version history from (e.g., "2026-03-15T00:00:00Z"). If omitted, returns the full history. Only used in version_history mode.` },
-      { name: 'type', type: 'string', required: false, description: `Query type for content mode: "ids", "object_ids", or "workspace_ids". Required when mode is "content".` },
-      { name: 'until', type: 'string', required: false, description: `ISO 8601 date string to filter version history until (e.g., "2026-03-16T23:59:59Z"). Defaults to now. Only used in version_history mode.` },
-      { name: 'version_history_limit', type: 'number', required: false, description: `Maximum number of restoring points to return. Use this when the user asks for "last N changes". Only used in version_history mode.` },
+      {
+        name: 'blocks_limit',
+        type: 'number',
+        required: false,
+        description: `Maximum number of blocks to return per document (default: 25). Only used in content mode when include_blocks is true.`,
+      },
+      {
+        name: 'blocks_page',
+        type: 'number',
+        required: false,
+        description: `Page number for block pagination, starting at 1. Omit to use the API default. Use with blocks_limit to page through documents with more than 25 blocks. Only used in content mode when include_blocks is true.`,
+      },
+      {
+        name: 'comments_limit',
+        type: 'number',
+        required: false,
+        description: `Maximum number of comments (updates) to fetch per item when include_comments is true. Defaults to 50. Only used in content mode.`,
+      },
+      {
+        name: 'ids',
+        type: 'array',
+        required: false,
+        description: `Array of ID values. In content mode: matches the query type (ids/object_ids/workspace_ids). In version_history mode: provide the single document object_id here (e.g., ids: ["5001466606"]).`,
+      },
+      {
+        name: 'include_blocks',
+        type: 'boolean',
+        required: false,
+        description: `If true, includes the blocks array (block IDs, types, positions, content) in the response. Required when you plan to call update_doc. Defaults to false to reduce response size. Only used in content mode.`,
+      },
+      {
+        name: 'include_comments',
+        type: 'boolean',
+        required: false,
+        description: `If true, fetches all comments and replies on the document. Comments are stored at the item level within the doc backing board. Defaults to false. Only used in content mode.`,
+      },
+      {
+        name: 'include_diff',
+        type: 'boolean',
+        required: false,
+        description: `If true, fetches content diffs between consecutive restoring points. May be slower due to additional API calls. Only used in version_history mode.`,
+      },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Number of docs per page (default: 25). Only used in content mode.`,
+      },
+      {
+        name: 'mode',
+        type: 'string',
+        required: false,
+        description: `The operation mode. "content" (default) fetches documents with their markdown content. "version_history" fetches the edit history of a single document.`,
+      },
+      {
+        name: 'order_by',
+        type: 'string',
+        required: false,
+        description: `Order in which to retrieve docs. Only used in content mode.`,
+      },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number to return (starts at 1). Only used in content mode.`,
+      },
+      {
+        name: 'since',
+        type: 'string',
+        required: false,
+        description: `ISO 8601 date string to filter version history from (e.g., "2026-03-15T00:00:00Z"). If omitted, returns the full history. Only used in version_history mode.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `Query type for content mode: "ids", "object_ids", or "workspace_ids". Required when mode is "content".`,
+      },
+      {
+        name: 'until',
+        type: 'string',
+        required: false,
+        description: `ISO 8601 date string to filter version history until (e.g., "2026-03-16T23:59:59Z"). Defaults to now. Only used in version_history mode.`,
+      },
+      {
+        name: 'version_history_limit',
+        type: 'number',
+        required: false,
+        description: `Maximum number of restoring points to return. Use this when the user asks for "last N changes". Only used in version_history mode.`,
+      },
     ],
   },
   {
@@ -1027,13 +2232,48 @@ UPDATES search requires a searchTerm and returns id, title (the update body), it
 IMPORTANT: ids returned by this tool are prefixed with the type of the object (e.g doc-123, board-456, folder-789, workspace-101, update-303, item-321). When passing the ids to other tools, you need to remove the prefix and just pass the number.
     `,
     params: [
-      { name: 'searchType', type: 'string', required: true, description: `The type of search to perform.` },
-      { name: 'boardIds', type: 'array', required: false, description: `The ids of the boards to scope the search to. [IMPORTANT] Only applies to UPDATES search, and only pass it if the user explicitly asked to search within specific boards.` },
-      { name: 'creatorIds', type: 'array', required: false, description: `The ids of the users whose updates to search. [IMPORTANT] Only applies to UPDATES search, and only pass it if the user explicitly asked to search updates by specific authors.` },
-      { name: 'limit', type: 'number', required: false, description: `The number of items to get. The max and default value is 20.` },
-      { name: 'page', type: 'number', required: false, description: `The page number to get. The default value is 1.` },
-      { name: 'searchTerm', type: 'string', required: false, description: `The search term to use for the search.` },
-      { name: 'workspaceIds', type: 'array', required: false, description: `The ids of the workspaces to search in. [IMPORTANT] Only pass this param if user explicitly asked to search within specific workspaces.` },
+      {
+        name: 'searchType',
+        type: 'string',
+        required: true,
+        description: `The type of search to perform.`,
+      },
+      {
+        name: 'boardIds',
+        type: 'array',
+        required: false,
+        description: `The ids of the boards to scope the search to. [IMPORTANT] Only applies to UPDATES search, and only pass it if the user explicitly asked to search within specific boards.`,
+      },
+      {
+        name: 'creatorIds',
+        type: 'array',
+        required: false,
+        description: `The ids of the users whose updates to search. [IMPORTANT] Only applies to UPDATES search, and only pass it if the user explicitly asked to search updates by specific authors.`,
+      },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `The number of items to get. The max and default value is 20.`,
+      },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `The page number to get. The default value is 1.`,
+      },
+      {
+        name: 'searchTerm',
+        type: 'string',
+        required: false,
+        description: `The search term to use for the search.`,
+      },
+      {
+        name: 'workspaceIds',
+        type: 'array',
+        required: false,
+        description: `The ids of the workspaces to search in. [IMPORTANT] Only pass this param if user explicitly asked to search within specific workspaces.`,
+      },
     ],
   },
   {
@@ -1073,7 +2313,11 @@ COMMENTS:
   Block-level and text-selection comments only work on blocks with text content (text, code, list_item, title, quote). They do NOT work on: divider, page_break, table, layout, notice_box, image, video, or giphy blocks.
   Get block IDs from read_docs with include_blocks: true. Format body with HTML, not markdown. Use mentions_list for @mentions.`,
     params: [
-      { name: 'operations', type: 'array', required: true, description: `Ordered list of operations to perform. Executed sequentially. Stops at first failure.
+      {
+        name: 'operations',
+        type: 'array',
+        required: true,
+        description: `Ordered list of operations to perform. Executed sequentially. Stops at first failure.
 
 Operation types:
 - set_name: Rename the document.
@@ -1100,37 +2344,118 @@ NESTING CONTENT IN CONTAINERS:
 - layout: Cell-level API nesting is NOT supported and there is no markdown equivalent. Layouts can only be created empty via create_block. No workaround exists to populate layout columns through the API.
 Deleting a container does NOT delete its children â delete children first for clean removal.
 
-Block IDs are available in the blocks array returned by read_docs.` },
-      { name: 'doc_id', type: 'string', required: false, description: `The document ID (the id field from read_docs). Takes priority over object_id if both are provided.` },
-      { name: 'object_id', type: 'string', required: false, description: `The document object ID (the object_id field from read_docs, visible in the document URL). Resolved to doc_id.` },
+Block IDs are available in the blocks array returned by read_docs.`,
+      },
+      {
+        name: 'doc_id',
+        type: 'string',
+        required: false,
+        description: `The document ID (the id field from read_docs). Takes priority over object_id if both are provided.`,
+      },
+      {
+        name: 'object_id',
+        type: 'string',
+        required: false,
+        description: `The document object ID (the object_id field from read_docs, visible in the document URL). Resolved to doc_id.`,
+      },
     ],
   },
   {
     name: 'mondaymcp_updatefolder',
     description: `Update an existing folder in monday.com`,
     params: [
-      { name: 'folderId', type: 'string', required: true, description: `The ID of the folder to update` },
-      { name: 'accountProductId', type: 'string', required: false, description: `The account product ID associated with the folder` },
-      { name: 'color', type: 'string', required: false, description: `The new color of the folder` },
-      { name: 'customIcon', type: 'string', required: false, description: `The new custom icon of the folder` },
-      { name: 'fontWeight', type: 'string', required: false, description: `The new font weight of the folder` },
+      {
+        name: 'folderId',
+        type: 'string',
+        required: true,
+        description: `The ID of the folder to update`,
+      },
+      {
+        name: 'accountProductId',
+        type: 'string',
+        required: false,
+        description: `The account product ID associated with the folder`,
+      },
+      {
+        name: 'color',
+        type: 'string',
+        required: false,
+        description: `The new color of the folder`,
+      },
+      {
+        name: 'customIcon',
+        type: 'string',
+        required: false,
+        description: `The new custom icon of the folder`,
+      },
+      {
+        name: 'fontWeight',
+        type: 'string',
+        required: false,
+        description: `The new font weight of the folder`,
+      },
       { name: 'name', type: 'string', required: false, description: `The new name of the folder` },
-      { name: 'parentFolderId', type: 'string', required: false, description: `The ID of the new parent folder` },
-      { name: 'position_is_after', type: 'boolean', required: false, description: `Whether to position the folder after the object` },
-      { name: 'position_object_id', type: 'string', required: false, description: `The ID of the object to position the folder relative to. If this parameter is provided, position_object_type must be also provided.` },
-      { name: 'position_object_type', type: 'string', required: false, description: `The type of object to position the folder relative to. If this parameter is provided, position_object_id must be also provided.` },
-      { name: 'workspaceId', type: 'string', required: false, description: `The ID of the workspace containing the folder` },
+      {
+        name: 'parentFolderId',
+        type: 'string',
+        required: false,
+        description: `The ID of the new parent folder`,
+      },
+      {
+        name: 'position_is_after',
+        type: 'boolean',
+        required: false,
+        description: `Whether to position the folder after the object`,
+      },
+      {
+        name: 'position_object_id',
+        type: 'string',
+        required: false,
+        description: `The ID of the object to position the folder relative to. If this parameter is provided, position_object_type must be also provided.`,
+      },
+      {
+        name: 'position_object_type',
+        type: 'string',
+        required: false,
+        description: `The type of object to position the folder relative to. If this parameter is provided, position_object_id must be also provided.`,
+      },
+      {
+        name: 'workspaceId',
+        type: 'string',
+        required: false,
+        description: `The ID of the workspace containing the folder`,
+      },
     ],
   },
   {
     name: 'mondaymcp_updateform',
     description: `Update a monday.com form. Use the action field to specify the operation.`,
     params: [
-      { name: 'action', type: 'string', required: true, description: `Action to execute on the form. Each action requires different fields â check field descriptions to know what to include.` },
+      {
+        name: 'action',
+        type: 'string',
+        required: true,
+        description: `Action to execute on the form. Each action requires different fields â check field descriptions to know what to include.`,
+      },
       { name: 'formToken', type: 'string', required: true, description: `No description.` },
-      { name: 'form', type: 'object', required: false, description: `Form data to update (patch semantics).` },
-      { name: 'formPassword', type: 'string', required: false, description: `Required for setFormPassword action.` },
-      { name: 'tag', type: 'object', required: false, description: `Tag to create/update/delete. Delete: id only. Create: name+value (id/columnId auto-generated). Update: id+new value.` },
+      {
+        name: 'form',
+        type: 'object',
+        required: false,
+        description: `Form data to update (patch semantics).`,
+      },
+      {
+        name: 'formPassword',
+        type: 'string',
+        required: false,
+        description: `Required for setFormPassword action.`,
+      },
+      {
+        name: 'tag',
+        type: 'object',
+        required: false,
+        description: `Tag to create/update/delete. Delete: id only. Create: name+value (id/columnId auto-generated). Update: id+new value.`,
+      },
     ],
   },
   {
@@ -1142,13 +2467,48 @@ Filter operators: any_of, not_any_of, is_empty, is_not_empty, greater_than, lowe
 Example filter for people column: { "rules": [{ "column_id": "people", "compare_value": ["person-12345"], "operator": "any_of" }] }
 Example filter for status column: { "rules": [{ "column_id": "status", "compare_value": [1], "operator": "any_of" }] }`,
     params: [
-      { name: 'boardId', type: 'string', required: true, description: `The board ID the view belongs to` },
-      { name: 'viewId', type: 'string', required: true, description: `The ID of the view to update` },
-      { name: 'filter', type: 'object', required: false, description: `Filter configuration to apply to the view` },
-      { name: 'name', type: 'string', required: false, description: `New name for the view (omit to leave unchanged)` },
-      { name: 'settings', type: 'string', required: false, description: `Type-specific view settings as a JSON object (e.g. column visibility, group_by for TABLE). The shape varies by view type â call get_view_schema_by_type with the same ViewKind to discover the supported structure. For TABLE views, prefer the dedicated update_view_table tool which exposes a strongly-typed settings field.` },
-      { name: 'sort', type: 'array', required: false, description: `Sort configuration for the view` },
-      { name: 'type', type: 'string', required: false, description: `The type of the board view being updated. Use TABLE for standard board views.` },
+      {
+        name: 'boardId',
+        type: 'string',
+        required: true,
+        description: `The board ID the view belongs to`,
+      },
+      {
+        name: 'viewId',
+        type: 'string',
+        required: true,
+        description: `The ID of the view to update`,
+      },
+      {
+        name: 'filter',
+        type: 'object',
+        required: false,
+        description: `Filter configuration to apply to the view`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `New name for the view (omit to leave unchanged)`,
+      },
+      {
+        name: 'settings',
+        type: 'string',
+        required: false,
+        description: `Type-specific view settings as a JSON object (e.g. column visibility, group_by for TABLE). The shape varies by view type â call get_view_schema_by_type with the same ViewKind to discover the supported structure. For TABLE views, prefer the dedicated update_view_table tool which exposes a strongly-typed settings field.`,
+      },
+      {
+        name: 'sort',
+        type: 'array',
+        required: false,
+        description: `Sort configuration for the view`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `The type of the board view being updated. Use TABLE for standard board views.`,
+      },
     ],
   },
   {
@@ -1160,12 +2520,42 @@ Filter operators: any_of, not_any_of, is_empty, is_not_empty, greater_than, lowe
 Example settings.columns: { "column_properties": [{ "column_id": "status", "visible": true }], "column_order": ["name", "status", "date"] }
 Example settings.group_by: { "conditions": [{ "columnId": "status" }], "hideEmptyGroups": true }`,
     params: [
-      { name: 'boardId', type: 'string', required: true, description: `The board ID the view belongs to` },
-      { name: 'viewId', type: 'string', required: true, description: `The ID of the table view to update` },
-      { name: 'filter', type: 'object', required: false, description: `Filter configuration to apply to the view` },
-      { name: 'name', type: 'string', required: false, description: `New name for the view (omit to leave unchanged)` },
-      { name: 'settings', type: 'object', required: false, description: `Table-specific view settings (column visibility/order, group-by)` },
-      { name: 'sort', type: 'array', required: false, description: `Sort configuration for the view` },
+      {
+        name: 'boardId',
+        type: 'string',
+        required: true,
+        description: `The board ID the view belongs to`,
+      },
+      {
+        name: 'viewId',
+        type: 'string',
+        required: true,
+        description: `The ID of the table view to update`,
+      },
+      {
+        name: 'filter',
+        type: 'object',
+        required: false,
+        description: `Filter configuration to apply to the view`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `New name for the view (omit to leave unchanged)`,
+      },
+      {
+        name: 'settings',
+        type: 'object',
+        required: false,
+        description: `Table-specific view settings (column visibility/order, group-by)`,
+      },
+      {
+        name: 'sort',
+        type: 'array',
+        required: false,
+        description: `Sort configuration for the view`,
+      },
       { name: 'tags', type: 'array', required: false, description: `Tags to apply to the view` },
     ],
   },
@@ -1191,27 +2581,72 @@ Note: if directing the user to the workflow in the UI, the correct URL path is c
 Note: the workflow runs only after it is published to live version.
 `,
     params: [
-      { name: 'prompt', type: 'string', required: true, description: `Natural-language description of the changes to make. Describe what steps to add, remove, or modify in plain English (e.g. "Add a trigger that fires when an item is created on the Marketing board"). The agent interprets this and applies the right structural changes. Maximum 2000 characters.` },
-      { name: 'workflowDraftId', type: 'number', required: true, description: `The draft version ID to update. Use the workflowDraftId from the previous create_workflow or update_workflow response â the agent may return a new draft ID, so always read it from the latest response rather than reusing an earlier value.` },
-      { name: 'workflowObjectId', type: 'number', required: true, description: `The workflow object ID returned by create_workflow. Identifies the workflow across all its drafts and published versions. Does not change across publishes.` },
+      {
+        name: 'prompt',
+        type: 'string',
+        required: true,
+        description: `Natural-language description of the changes to make. Describe what steps to add, remove, or modify in plain English (e.g. "Add a trigger that fires when an item is created on the Marketing board"). The agent interprets this and applies the right structural changes. Maximum 2000 characters.`,
+      },
+      {
+        name: 'workflowDraftId',
+        type: 'number',
+        required: true,
+        description: `The draft version ID to update. Use the workflowDraftId from the previous create_workflow or update_workflow response â the agent may return a new draft ID, so always read it from the latest response rather than reusing an earlier value.`,
+      },
+      {
+        name: 'workflowObjectId',
+        type: 'number',
+        required: true,
+        description: `The workflow object ID returned by create_workflow. Identifies the workflow across all its drafts and published versions. Does not change across publishes.`,
+      },
     ],
   },
   {
     name: 'mondaymcp_updateworkspace',
     description: `Update an existing workspace in monday.com`,
     params: [
-      { name: 'id', type: 'string', required: true, description: `The ID of the workspace to update` },
-      { name: 'attributeAccountProductId', type: 'number', required: false, description: `The target account product's ID to move the workspace to` },
-      { name: 'attributeDescription', type: 'string', required: false, description: `The description of the workspace to update` },
-      { name: 'attributeKind', type: 'string', required: false, description: `The kind of the workspace to update (open / closed / template)` },
-      { name: 'attributeName', type: 'string', required: false, description: `The name of the workspace to update` },
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the workspace to update`,
+      },
+      {
+        name: 'attributeAccountProductId',
+        type: 'number',
+        required: false,
+        description: `The target account product's ID to move the workspace to`,
+      },
+      {
+        name: 'attributeDescription',
+        type: 'string',
+        required: false,
+        description: `The description of the workspace to update`,
+      },
+      {
+        name: 'attributeKind',
+        type: 'string',
+        required: false,
+        description: `The kind of the workspace to update (open / closed / template)`,
+      },
+      {
+        name: 'attributeName',
+        type: 'string',
+        required: false,
+        description: `The name of the workspace to update`,
+      },
     ],
   },
   {
     name: 'mondaymcp_workspaceinfo',
     description: `This tool returns the boards, docs and folders in a workspace and which folder they are in. It returns up to 100 of each object type, if you receive 100 assume there are additional objects of that type in the workspace.`,
     params: [
-      { name: 'workspace_id', type: 'number', required: true, description: `The ID of the workspace to get information for` },
+      {
+        name: 'workspace_id',
+        type: 'number',
+        required: true,
+        description: `The ID of the workspace to get information for`,
+      },
     ],
   },
 ]
