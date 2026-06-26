@@ -1,0 +1,842 @@
+import type { Tool } from '../../types/agent-connectors'
+
+export const tools: Tool[] = [
+  {
+    name: 'icepanelmcp_icepanel_createadr',
+    description: `Create a new Architecture Decision Record (ADR) in the landscape.`,
+    params: [
+      { name: 'name', type: 'string', required: true, description: `The title of the ADR.` },
+      {
+        name: 'content',
+        type: 'string',
+        required: false,
+        description: `The full content or body of the ADR. Markdown is supported.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A brief summary of the ADR.`,
+      },
+    ],
+  },
+  {
+    name: 'icepanelmcp_icepanel_createconnection',
+    description: `Create a new connection between two model objects.`,
+    params: [
+      {
+        name: 'direction',
+        type: 'string',
+        required: true,
+        description: `The direction of data or control flow for this connection. Common values: outgoing, incoming, bidirectional.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The display name for the new connection. This name appears on diagrams and in the model.`,
+      },
+      {
+        name: 'originId',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the origin model object (the source of the connection). Use listModelObjects to find valid IDs.`,
+      },
+      {
+        name: 'targetId',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the target model object (the destination of the connection). Use listModelObjects to find valid IDs.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A human-readable description of the connection explaining what data or control flows through it.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Initial status for the new connection (e.g. active, deprecated). Leave blank for the default status.`,
+      },
+      {
+        name: 'tagIds',
+        type: 'array',
+        required: false,
+        description: `An array of tag IDs to attach to the new connection. Use listTags to discover available tag IDs.`,
+      },
+      {
+        name: 'technologyIds',
+        type: 'array',
+        required: false,
+        description: `An array of technology IDs to attach to the new connection. Use listTechnologies to discover available technology IDs.`,
+      },
+      {
+        name: 'viaId',
+        type: 'string',
+        required: false,
+        description: `The unique ID of an intermediary model object through which this connection routes. For example, an API gateway that sits between the origin and target.`,
+      },
+    ],
+  },
+  {
+    name: 'icepanelmcp_icepanel_createmodelobject',
+    description: `Create a new model object in the landscape. Types 'actor' and 'system' can be created at root level; 'app' and 'component' require a parentId pointing to a parent system.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the model object to create.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: true,
+        description: `The type of model object to create.`,
+      },
+      {
+        name: 'caption',
+        type: 'string',
+        required: false,
+        description: `A short caption or subtitle for the model object.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A detailed description of the model object.`,
+      },
+      {
+        name: 'domainId',
+        type: 'string',
+        required: false,
+        description: `The domain ID to place the model object in.`,
+      },
+      {
+        name: 'external',
+        type: 'boolean',
+        required: false,
+        description: `Whether this model object represents an external system.`,
+      },
+      {
+        name: 'groupIds',
+        type: 'array',
+        required: false,
+        description: `Array of group IDs to assign to the model object.`,
+      },
+      {
+        name: 'parentId',
+        type: 'string',
+        required: false,
+        description: `The ID of the parent model object to nest this object within.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `The initial status for the model object.`,
+      },
+      {
+        name: 'tagIds',
+        type: 'array',
+        required: false,
+        description: `Array of tag IDs to attach to the model object.`,
+      },
+      {
+        name: 'teamIds',
+        type: 'array',
+        required: false,
+        description: `Array of team IDs to assign ownership of the model object.`,
+      },
+      {
+        name: 'technologyIds',
+        type: 'array',
+        required: false,
+        description: `Array of technology IDs to attach to the model object.`,
+      },
+    ],
+  },
+  {
+    name: 'icepanelmcp_icepanel_getadrdetails',
+    description: `Get detailed information about a specific Architecture Decision Record (ADR) including its full content, status history, and related items.`,
+    params: [
+      {
+        name: 'adrId',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the ADR to retrieve.`,
+      },
+      {
+        name: 'responseFormat',
+        type: 'string',
+        required: false,
+        description: `Controls the verbosity of the response. Use 'detailed' for full ADR information or 'concise' for a summary.`,
+      },
+      {
+        name: 'versionId',
+        type: 'string',
+        required: false,
+        description: `The landscape version ID. Omit to use the latest version.`,
+      },
+    ],
+  },
+  {
+    name: 'icepanelmcp_icepanel_getconnectiondetails',
+    description: `Get full details for a single connection including description, links, technologies, and tags.`,
+    params: [
+      {
+        name: 'connectionId',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the connection to retrieve. Use listConnections to discover available connection IDs.`,
+      },
+      {
+        name: 'responseFormat',
+        type: 'string',
+        required: false,
+        description: `Controls the verbosity of the response. Use 'detailed' for full connection information including all technologies and tags, or 'concise' for a summary.`,
+      },
+      {
+        name: 'versionId',
+        type: 'string',
+        required: false,
+        description: `The landscape version ID to retrieve the connection from. Leave blank to use the latest version.`,
+      },
+    ],
+  },
+  {
+    name: 'icepanelmcp_icepanel_getdiagramdetails',
+    description: `Get detailed information about a diagram including its objects, connections, and flows, or export as a PNG image.`,
+    params: [
+      {
+        name: 'diagramId',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the diagram to retrieve.`,
+      },
+      {
+        name: 'responseFormat',
+        type: 'string',
+        required: false,
+        description: `Response format. Use 'detailed' for full information, 'concise' for a summary, or 'image' to export as a PNG image.`,
+      },
+      {
+        name: 'versionId',
+        type: 'string',
+        required: false,
+        description: `The landscape version ID. Omit to use the latest version.`,
+      },
+    ],
+  },
+  {
+    name: 'icepanelmcp_icepanel_getdomaindetails',
+    description: `Get detailed information about a specific domain including its name, labels, and timestamps.`,
+    params: [
+      {
+        name: 'domainId',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the domain to retrieve. Use listDomains to discover available domain IDs.`,
+      },
+      {
+        name: 'responseFormat',
+        type: 'string',
+        required: false,
+        description: `Controls the verbosity of the response. Use 'detailed' for full domain information or 'concise' for a summary.`,
+      },
+      {
+        name: 'versionId',
+        type: 'string',
+        required: false,
+        description: `The landscape version ID to retrieve the domain from. Leave blank to use the latest version.`,
+      },
+    ],
+  },
+  {
+    name: 'icepanelmcp_icepanel_getflowdetails',
+    description: `Get detailed information about a flow including its steps, or export it as a Mermaid sequence diagram.`,
+    params: [
+      {
+        name: 'flowId',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the flow to retrieve.`,
+      },
+      {
+        name: 'responseFormat',
+        type: 'string',
+        required: false,
+        description: `Response format. Use 'detailed' for full information, 'concise' for a summary, or 'mermaid' to export as a Mermaid sequence diagram.`,
+      },
+      {
+        name: 'versionId',
+        type: 'string',
+        required: false,
+        description: `The landscape version ID. Omit to use the latest version.`,
+      },
+    ],
+  },
+  {
+    name: 'icepanelmcp_icepanel_getmodelobjectdetails',
+    description: `Get detailed information about a model object including its type, status, domain, technologies, tags, and relationships.`,
+    params: [
+      {
+        name: 'modelObjectId',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the model object to retrieve. Use listModelObjects to discover available model object IDs.`,
+      },
+      {
+        name: 'responseFormat',
+        type: 'string',
+        required: false,
+        description: `Controls the verbosity of the response. Use 'detailed' for full object information including all relationships, or 'concise' for a summary.`,
+      },
+      {
+        name: 'versionId',
+        type: 'string',
+        required: false,
+        description: `The landscape version ID to retrieve the model object from. Leave blank to use the latest version.`,
+      },
+    ],
+  },
+  {
+    name: 'icepanelmcp_icepanel_getteamdetails',
+    description: `Get detailed information about a specific team including its members, assigned model objects, and timestamps.`,
+    params: [
+      {
+        name: 'teamId',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the team to retrieve.`,
+      },
+      {
+        name: 'responseFormat',
+        type: 'string',
+        required: false,
+        description: `Controls the verbosity of the response. Use 'detailed' for full team information or 'concise' for a summary.`,
+      },
+    ],
+  },
+  {
+    name: 'icepanelmcp_icepanel_gettechnologydetails',
+    description: `Get detailed information about a specific technology including its type, provider, description, and links.`,
+    params: [
+      {
+        name: 'catalogTechnologyId',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the technology to retrieve details for. Use listTechnologies to discover available technology IDs.`,
+      },
+      {
+        name: 'responseFormat',
+        type: 'string',
+        required: false,
+        description: `Controls the verbosity of the response. Use 'detailed' for full technology information or 'concise' for a summary.`,
+      },
+    ],
+  },
+  {
+    name: 'icepanelmcp_icepanel_landscapesearch',
+    description: `Search across all landscape entities (model objects, connections, diagrams, flows) by name. Supports fuzzy and prefix matching. Only works on the latest version.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Search query string used to find landscape entities by name. Supports fuzzy and prefix matching across model objects, connections, diagrams, and flows.`,
+      },
+      {
+        name: 'responseFormat',
+        type: 'string',
+        required: false,
+        description: `Controls the verbosity of the response. Use 'detailed' for full entity information or 'concise' for a summary. Defaults to detailed if omitted.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `Filter results to a specific entity type. Valid values: actor, app, component, group, store, system, app-diagram, component-diagram, context-diagram, connection, flow.`,
+      },
+      {
+        name: 'versionId',
+        type: 'string',
+        required: false,
+        description: `The landscape version ID to search within. Defaults to 'latest'. Only the latest version is supported for search.`,
+      },
+    ],
+  },
+  {
+    name: 'icepanelmcp_icepanel_listadrs',
+    description: `List Architecture Decision Records (ADRs) in the landscape.`,
+    params: [
+      { name: 'name', type: 'string', required: false, description: `Filter ADRs by name.` },
+      {
+        name: 'responseFormat',
+        type: 'string',
+        required: false,
+        description: `Controls the verbosity of the response. Use 'detailed' for full ADR information or 'concise' for a summary.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Filter ADRs by status. Valid values: accepted, draft, rejected.`,
+      },
+      {
+        name: 'versionId',
+        type: 'string',
+        required: false,
+        description: `The landscape version ID to list ADRs from. Omit to use the latest version.`,
+      },
+    ],
+  },
+  {
+    name: 'icepanelmcp_icepanel_listconnections',
+    description: `List connections where a model object is the origin or target.`,
+    params: [
+      {
+        name: 'modelObjectId',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the model object to list connections for. Returns all connections where this object is either the origin or target.`,
+      },
+      {
+        name: 'direction',
+        type: 'string',
+        required: false,
+        description: `Filter connections by direction relative to the specified model object. Use 'inbound' for connections where the object is the target, or 'outbound' for connections where the object is the origin.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Filter connections by status (e.g. active, deprecated, removed). Leave blank to return connections in all statuses.`,
+      },
+      {
+        name: 'tagId',
+        type: 'string',
+        required: false,
+        description: `Filter connections by tag ID. Returns only connections that have the specified tag applied.`,
+      },
+      {
+        name: 'technologyId',
+        type: 'string',
+        required: false,
+        description: `Filter connections by technology ID. Returns only connections that use the specified technology.`,
+      },
+      {
+        name: 'versionId',
+        type: 'string',
+        required: false,
+        description: `The landscape version ID to list connections from. Leave blank to use the latest version.`,
+      },
+    ],
+  },
+  {
+    name: 'icepanelmcp_icepanel_listdiagrams',
+    description: `List diagrams in the landscape. Filter by name, type, or parent model object.`,
+    params: [
+      {
+        name: 'modelId',
+        type: 'string',
+        required: false,
+        description: `Filter diagrams by parent model object ID.`,
+      },
+      { name: 'name', type: 'string', required: false, description: `Filter diagrams by name.` },
+      {
+        name: 'responseFormat',
+        type: 'string',
+        required: false,
+        description: `Controls the verbosity of the response. Use 'detailed' for full diagram information or 'concise' for a summary.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `Filter diagrams by type. Valid values: app-diagram, component-diagram, context-diagram.`,
+      },
+      {
+        name: 'versionId',
+        type: 'string',
+        required: false,
+        description: `The landscape version ID to list diagrams from. Omit to use the latest version.`,
+      },
+    ],
+  },
+  {
+    name: 'icepanelmcp_icepanel_listdomains',
+    description: `List domains in the landscape. Domains are top-level organizational boundaries (level 0 in the C4 hierarchy).`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Filter domains by name. Returns domains whose name matches this value.`,
+      },
+      {
+        name: 'responseFormat',
+        type: 'string',
+        required: false,
+        description: `Controls the verbosity of the response. Use 'detailed' for full domain information or 'concise' for a summary.`,
+      },
+      {
+        name: 'versionId',
+        type: 'string',
+        required: false,
+        description: `The landscape version ID to list domains from. Leave blank to use the latest version.`,
+      },
+    ],
+  },
+  {
+    name: 'icepanelmcp_icepanel_listflows',
+    description: `List flows in the landscape. Flows represent sequence diagrams showing how objects interact over time.`,
+    params: [
+      {
+        name: 'responseFormat',
+        type: 'string',
+        required: false,
+        description: `Controls the verbosity of the response. Use 'detailed' for full flow information or 'concise' for a summary.`,
+      },
+      {
+        name: 'versionId',
+        type: 'string',
+        required: false,
+        description: `The landscape version ID to list flows from. Omit to use the latest version.`,
+      },
+    ],
+  },
+  {
+    name: 'icepanelmcp_icepanel_listmodelobjects',
+    description: `List model objects in the landscape. Filter by name, type, status, parent, or group.`,
+    params: [
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor returned from a previous response. Pass this value to retrieve the next page of results.`,
+      },
+      {
+        name: 'groupId',
+        type: 'string',
+        required: false,
+        description: `Filter model objects by group ID. Returns only objects belonging to the specified group.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of model objects to return per page. Leave blank for the server default.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Filter model objects by name. Returns objects whose name matches this value.`,
+      },
+      {
+        name: 'parentId',
+        type: 'string',
+        required: false,
+        description: `Filter model objects by parent object ID. Returns only direct children of the specified parent object.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Filter model objects by status. Common values include 'active' and 'deprecated'.`,
+      },
+      {
+        name: 'tagId',
+        type: 'string',
+        required: false,
+        description: `Filter model objects by tag ID. Returns only objects that have the specified tag applied.`,
+      },
+      {
+        name: 'teamId',
+        type: 'string',
+        required: false,
+        description: `Filter model objects by team ID. Returns only objects owned by or assigned to the specified team.`,
+      },
+      {
+        name: 'technologyId',
+        type: 'string',
+        required: false,
+        description: `Filter model objects by technology ID. Returns only objects that use the specified technology.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `Filter model objects by type. Valid values: actor, app, component, group, store, system.`,
+      },
+      {
+        name: 'versionId',
+        type: 'string',
+        required: false,
+        description: `The landscape version ID to list model objects from. Leave blank to use the latest version.`,
+      },
+    ],
+  },
+  {
+    name: 'icepanelmcp_icepanel_listtags',
+    description: `List tags and tag groups in the landscape. Tags are organized by groups.`,
+    params: [
+      {
+        name: 'groupName',
+        type: 'string',
+        required: false,
+        description: `Filter results to tags belonging to a specific tag group name. Leave blank to return tags from all groups.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Filter results to tags matching a specific tag name. Leave blank to return all tags.`,
+      },
+      {
+        name: 'versionId',
+        type: 'string',
+        required: false,
+        description: `The landscape version ID to list tags from. Defaults to 'latest'.`,
+      },
+    ],
+  },
+  {
+    name: 'icepanelmcp_icepanel_listteams',
+    description: `List teams in the organization. Teams represent ownership groups assignable to model objects.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Filter teams by name. Returns only teams whose name matches or contains the provided value.`,
+      },
+      {
+        name: 'responseFormat',
+        type: 'string',
+        required: false,
+        description: `Controls the verbosity of the response. Use 'detailed' for full team information or 'concise' for a summary.`,
+      },
+    ],
+  },
+  {
+    name: 'icepanelmcp_icepanel_listtechnologies',
+    description: `List technologies from the catalog and organization. Filter by name, type, or provider.`,
+    params: [
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor returned from a previous response. Pass this value to retrieve the next page of results.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of technologies to return per page. Leave blank for the server default.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Filter technologies by name. Returns technologies whose name matches or contains this value.`,
+      },
+      {
+        name: 'provider',
+        type: 'string',
+        required: false,
+        description: `Filter technologies by provider (e.g. AWS, GCP, Azure). Returns only technologies from the specified provider.`,
+      },
+      {
+        name: 'responseFormat',
+        type: 'string',
+        required: false,
+        description: `Controls the verbosity of the response. Use 'detailed' to include technology IDs (required for getTechnologyDetails) or 'concise' for a summary.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `Filter technologies by type (e.g. database, framework, language, platform). Returns only technologies of the specified type.`,
+      },
+    ],
+  },
+  {
+    name: 'icepanelmcp_icepanel_updateadr',
+    description: `Update an Architecture Decision Record (ADR). Supports updating name, description, content, status, and related items.`,
+    params: [
+      {
+        name: 'adrId',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the ADR to update.`,
+      },
+      {
+        name: 'content',
+        type: 'string',
+        required: false,
+        description: `New content or body for the ADR. Markdown is supported.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `New brief summary for the ADR.`,
+      },
+      { name: 'name', type: 'string', required: false, description: `New title for the ADR.` },
+      {
+        name: 'relatedItems',
+        type: 'array',
+        required: false,
+        description: `Related items to associate with the ADR.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `New status for the ADR. Valid values: accepted, draft, rejected.`,
+      },
+    ],
+  },
+  {
+    name: 'icepanelmcp_icepanel_updateconnection',
+    description: `Update a connection in the landscape. Supports $add/$remove operations. Set status to 'removed' to delete.`,
+    params: [
+      {
+        name: 'connectionId',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the connection to update. Use listConnections or getConnectionDetails to find available connection IDs.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `New description for the connection. Replaces the existing description.`,
+      },
+      {
+        name: 'direction',
+        type: 'string',
+        required: false,
+        description: `New direction for the connection. Common values: outgoing, incoming, bidirectional.`,
+      },
+      {
+        name: 'labels',
+        type: 'object',
+        required: false,
+        description: `Key-value metadata labels to set on the connection. Provide as a JSON object with string keys and string values.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `New display name for the connection. Replaces the existing name.`,
+      },
+      {
+        name: 'originId',
+        type: 'string',
+        required: false,
+        description: `New origin model object ID for the connection. Changes the source of the connection.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `New status for the connection. Set to 'removed' to effectively delete the connection from the landscape.`,
+      },
+      {
+        name: 'tagIds',
+        type: 'array',
+        required: false,
+        description: `Tag IDs to set on the connection. Replaces any existing tags. Use listTags to discover available tag IDs.`,
+      },
+      {
+        name: 'targetId',
+        type: 'string',
+        required: false,
+        description: `New target model object ID for the connection. Changes the destination of the connection.`,
+      },
+      {
+        name: 'technologyIds',
+        type: 'array',
+        required: false,
+        description: `Technology IDs to set on the connection. Replaces any existing technologies. Use listTechnologies to discover available IDs.`,
+      },
+    ],
+  },
+  {
+    name: 'icepanelmcp_icepanel_updatemodelobject',
+    description: `Update a model object in the landscape. Supports $add/$remove operations. Set status to 'removed' to delete.`,
+    params: [
+      {
+        name: 'modelObjectId',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the model object to update.`,
+      },
+      {
+        name: 'caption',
+        type: 'string',
+        required: false,
+        description: `New caption or subtitle for the model object.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `New detailed description for the model object.`,
+      },
+      {
+        name: 'external',
+        type: 'boolean',
+        required: false,
+        description: `Whether this model object represents an external system.`,
+      },
+      {
+        name: 'groupIds',
+        type: 'array',
+        required: false,
+        description: `Group IDs to set on the model object. Replaces existing group assignments.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `New name for the model object.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `New status for the model object. Set to 'removed' to soft-delete the object.`,
+      },
+      {
+        name: 'tagIds',
+        type: 'array',
+        required: false,
+        description: `Tag IDs to set on the model object. Replaces existing tag assignments.`,
+      },
+      {
+        name: 'teamIds',
+        type: 'array',
+        required: false,
+        description: `Team IDs to set for ownership of the model object.`,
+      },
+      {
+        name: 'technologyIds',
+        type: 'array',
+        required: false,
+        description: `Technology IDs to set on the model object.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `New type for the model object.`,
+      },
+    ],
+  },
+]

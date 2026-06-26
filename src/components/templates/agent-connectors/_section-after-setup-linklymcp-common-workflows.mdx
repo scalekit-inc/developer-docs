@@ -1,0 +1,110 @@
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+### Check authentication status
+
+Use `linklymcp_test_authentication` to verify the connection is active and your credentials are valid.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.executeTool({
+      connectionName: 'linklymcp',
+      identifier: 'user_123',
+      toolName: 'linklymcp_test_authentication',
+      toolInput: {},
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.execute_tool(
+        connection_name="linklymcp",
+        identifier="user_123",
+        tool_name="linklymcp_test_authentication",
+        tool_input={},
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+### Create a short link with UTM tracking
+
+Use `linklymcp_create_link` to shorten a URL and attach UTM parameters for campaign tracking.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const link = await actions.executeTool({
+      connectionName: 'linklymcp',
+      identifier: 'user_123',
+      toolName: 'linklymcp_create_link',
+      toolInput: {
+        url: 'https://example.com/landing-page',
+        name: 'Summer Campaign',
+        utm_source: 'newsletter',
+        utm_medium: 'email',
+        utm_campaign: 'summer2024',
+      },
+    });
+    console.log(link.full_url);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    link = actions.execute_tool(
+        connection_name="linklymcp",
+        identifier="user_123",
+        tool_name="linklymcp_create_link",
+        tool_input={
+            "url": "https://example.com/landing-page",
+            "name": "Summer Campaign",
+            "utm_source": "newsletter",
+            "utm_medium": "email",
+            "utm_campaign": "summer2024",
+        },
+    )
+    print(link["full_url"])
+    ```
+  </TabItem>
+</Tabs>
+
+### Get click analytics by dimension
+
+Use `linklymcp_get_analytics_by` to break down click counts by country, browser, or platform over a date range.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const analytics = await actions.executeTool({
+      connectionName: 'linklymcp',
+      identifier: 'user_123',
+      toolName: 'linklymcp_get_analytics_by',
+      toolInput: {
+        counter: 'country',
+        start: '2024-01-01',
+        end: '2024-01-31',
+      },
+    });
+    console.log(analytics);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    analytics = actions.execute_tool(
+        connection_name="linklymcp",
+        identifier="user_123",
+        tool_name="linklymcp_get_analytics_by",
+        tool_input={
+            "counter": "country",
+            "start": "2024-01-01",
+            "end": "2024-01-31",
+        },
+    )
+    print(analytics)
+    ```
+  </TabItem>
+</Tabs>

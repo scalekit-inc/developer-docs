@@ -1067,4 +1067,24 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: "OAuth 2.0",
     categories: ["Communication"],
   },
+  calendlymcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/calendly.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Calendar', 'Productivity'],
+  },
+  icepanelmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/icepanel.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Developer Tools', 'Collaboration'],
+  },
+  linklymcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/linkly.png',
+    authType: 'OAuth 2.1/PKCE',
+    categories: ['Marketing', 'Analytics'],
+  },
+  vapimcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/vapi.svg',
+    authType: 'Bearer Token',
+    categories: ['Communication', 'AI'],
+  },
 }
