@@ -22,7 +22,7 @@ async function handler(
         accept,
         country: context.geo?.country?.code,
       },
-    ).catch(() => {})
+    )
   }
   return context.next()
 }
