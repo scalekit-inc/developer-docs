@@ -1,0 +1,333 @@
+---
+title: 'Add Scalekit hosted auth to a Next.js app'
+description: 'Wire Scalekit hosted login into the Next.js App Router with server-side sessions, transparent token refresh, and logout.'
+date: 2026-06-28
+tags: ['Full stack auth', 'Next.js']
+excerpt: >
+  The Next.js App Router runs auth on the server, but Scalekit's framework-agnostic guides assume Express-style request and response objects.
+  This cookbook maps the full hosted-login flow — redirect, code exchange, session cookies, refresh, and logout — onto Route Handlers, Server Components, and middleware.
+featured: false
+authors:
+  - name: 'Hashirr Lukmahn'
+    title: 'Software Engineer'
+    url: 'https://www.linkedin.com/in/hashirr-lukmahn/'
+    picture: '/images/blog/authors/hashirr-lukmahn.jpg'
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Scalekit's [Full Stack Auth journey](/authenticate/fsa/quickstart/) shows the hosted-login flow with Express, Flask, Gin, and Spring. None of those map cleanly onto the Next.js App Router, where there is no long-lived `req`/`res` pair: authentication runs across Route Handlers, Server Components, and middleware, and sessions live in cookies you set from the server.
+
+This cookbook ports the complete flow to Next.js 15 (App Router): redirect users to Scalekit's hosted login, exchange the authorization code on a callback Route Handler, store tokens in `HttpOnly` cookies, validate and refresh them on every request, and sign users out cleanly. You get enterprise SSO, social login, and passwordless out of the box, because the hosted page handles every method you enable in the dashboard.
+
+## The problem
+
+You want production-grade authentication in a Next.js App Router app, and you have decided to use Scalekit's hosted login page so you don't build or maintain login UI. Three things make this non-trivial:
+
+- **No `req`/`res` lifecycle.** The Express examples set cookies on a response object. In the App Router you set cookies through the `cookies()` API and `NextResponse`, in different files for different stages of the flow.
+- **The Edge runtime can't run the Node SDK.** Middleware runs on the Edge runtime by default. The Scalekit Node SDK depends on Node APIs, so token validation belongs in the Node.js runtime, not in default middleware.
+- **Refresh tokens rotate.** Scalekit issues a new refresh token every time you redeem one. If you store tokens carelessly, a refresh races itself and logs the user out.
+
+## The approach
+
+Keep every token operation on the server and give each stage of the flow its own file:
+
+| Stage | File | Runtime |
+|-------|------|---------|
+| Build the Scalekit client once | `lib/scalekit.ts` | Node.js |
+| Read and write session cookies | `lib/session.ts` | Node.js |
+| Start login (redirect to Scalekit) | `app/login/route.ts` | Node.js |
+| Handle the callback (code exchange) | `app/api/callback/route.ts` | Node.js |
+| Validate and refresh on each request | `lib/session.ts` → `getSession()` | Node.js |
+| Sign out | `app/logout/route.ts` | Node.js |
+
+Validate the session inside Server Components and Route Handlers — both run on the Node.js runtime — instead of inside Edge middleware. Use middleware only as a lightweight gate that checks for the presence of a session cookie.
+
+## Prerequisites
+
+- A Next.js 15 app using the App Router.
+- A Scalekit account with an **Environment URL**, **Client ID**, and **Client Secret** from **Dashboard > Developers > API Credentials**.
+- `http://localhost:3000/api/callback` registered under **Dashboard > Authentication > Redirects > Allowed callback URLs**, and `http://localhost:3000/login` registered as a **Post logout URL**.
+
+Install the SDK:
+
+```bash title="Terminal" showLineNumbers=false
+pnpm add @scalekit-sdk/node
+```
+
+Add your credentials to `.env.local`:
+
+```bash title=".env.local" showLineNumbers=false
+SCALEKIT_ENV_URL="https://your-subdomain.scalekit.com"
+SCALEKIT_CLIENT_ID="skc_..."
+SCALEKIT_CLIENT_SECRET="..."          # Never expose this to the browser. Server-only.
+SESSION_COOKIE_SECRET="a-32-byte-random-string-for-cookie-encryption"
+```
+
+## Create the Scalekit client
+
+Instantiate the client once and reuse it. Reading credentials from the environment keeps the secret out of your bundle, and a module-level singleton avoids reconnecting on every request.
+
+```ts title="lib/scalekit.ts"
+import { Scalekit } from '@scalekit-sdk/node';
+
+// Security: credentials come from server-only env vars. The client secret must
+// never reach the browser, so this module is only ever imported in server code.
+export const scalekit = new Scalekit(
+  process.env.SCALEKIT_ENV_URL!,
+  process.env.SCALEKIT_CLIENT_ID!,
+  process.env.SCALEKIT_CLIENT_SECRET!,
+);
+
+export const REDIRECT_URI = 'http://localhost:3000/api/callback';
+```
+
+## Start the login flow
+
+Generate a `state` value, store it in a short-lived cookie to defend against CSRF, and redirect the browser to Scalekit's hosted login page. Include `offline_access` in the scopes so Scalekit returns a refresh token.
+
+```ts title="app/login/route.ts"
+import { randomBytes } from 'node:crypto';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { scalekit, REDIRECT_URI } from '@/lib/scalekit';
+
+export async function GET() {
+  // Security: a random state ties the callback back to this browser. Without it,
+  // an attacker could replay a callback and complete login as someone else (CSRF).
+  const state = randomBytes(32).toString('hex');
+
+  const cookieStore = await cookies();
+  cookieStore.set('sk_oauth_state', state, {
+    httpOnly: true, // Block JavaScript access to mitigate XSS token theft.
+    secure: process.env.NODE_ENV === 'production', // HTTPS-only outside local dev.
+    sameSite: 'lax',
+    maxAge: 60 * 10, // The state is only needed for the next 10 minutes.
+    path: '/',
+  });
+
+  const authorizationUrl = scalekit.getAuthorizationUrl(REDIRECT_URI, {
+    scopes: ['openid', 'profile', 'email', 'offline_access'],
+    state,
+  });
+
+  redirect(authorizationUrl);
+}
+```
+
+## Handle the callback
+
+After the user authenticates, Scalekit redirects back with a `code` and your `state`. Validate the `state`, exchange the code for tokens with `authenticateWithCode`, then store the tokens in `HttpOnly` cookies.
+
+```ts title="app/api/callback/route.ts"
+import { cookies } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
+import { scalekit, REDIRECT_URI } from '@/lib/scalekit';
+import { setSessionCookies } from '@/lib/session';
+
+export async function GET(request: NextRequest) {
+  const { searchParams } = request.nextUrl;
+  const code = searchParams.get('code');
+  const state = searchParams.get('state');
+  const error = searchParams.get('error');
+
+  const cookieStore = await cookies();
+  const storedState = cookieStore.get('sk_oauth_state')?.value;
+  cookieStore.delete('sk_oauth_state'); // Use the state only once.
+
+  if (error) {
+    return NextResponse.redirect(new URL('/login?error=auth_failed', request.url));
+  }
+
+  // Security: reject the callback unless the returned state matches the one we
+  // issued. A mismatch means the response did not originate from our redirect.
+  if (!code || !state || state !== storedState) {
+    return NextResponse.redirect(new URL('/login?error=invalid_state', request.url));
+  }
+
+  try {
+    const { user, idToken, accessToken, refreshToken } =
+      await scalekit.authenticateWithCode(code, REDIRECT_URI);
+
+    const response = NextResponse.redirect(new URL('/dashboard', request.url));
+    setSessionCookies(response, { idToken, accessToken, refreshToken });
+    return response;
+  } catch {
+    return NextResponse.redirect(new URL('/login?error=exchange_failed', request.url));
+  }
+}
+```
+
+<Aside type="caution" title="A refresh token requires offline_access">
+Scalekit only returns `refreshToken` when the authorization request includes the `offline_access` scope. If you omit it, sessions end as soon as the access token expires because there is nothing to refresh.
+</Aside>
+
+## Store and read the session
+
+Centralize cookie handling so login, refresh, and logout stay consistent. Keep tokens in `HttpOnly`, `Secure` cookies, and scope the refresh token to a narrow path so it is sent only when you need it.
+
+```ts title="lib/session.ts"
+import { cookies } from 'next/headers';
+import type { NextResponse } from 'next/server';
+import { scalekit } from '@/lib/scalekit';
+
+type Tokens = { idToken: string; accessToken: string; refreshToken: string };
+
+const COOKIE_BASE = {
+  httpOnly: true, // Tokens are never readable from client-side JavaScript (XSS defense).
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax' as const,
+};
+
+export function setSessionCookies(response: NextResponse, tokens: Tokens) {
+  response.cookies.set('sk_id_token', tokens.idToken, { ...COOKIE_BASE, path: '/' });
+  rotateTokens(response, tokens);
+}
+
+// Refresh returns a new access and refresh token but not a new ID token, so this
+// updates only those two cookies and leaves the existing ID token in place.
+export function rotateTokens(
+  response: NextResponse,
+  tokens: { accessToken: string; refreshToken: string },
+) {
+  response.cookies.set('sk_access_token', tokens.accessToken, { ...COOKIE_BASE, path: '/' });
+  // Security: scope the refresh token to the refresh endpoint only, so it is not
+  // attached to every request. This shrinks the window for token exfiltration.
+  response.cookies.set('sk_refresh_token', tokens.refreshToken, {
+    ...COOKIE_BASE,
+    path: '/api/refresh',
+  });
+}
+
+/**
+ * Returns the authenticated user, or null. Call this from Server Components and
+ * Route Handlers (Node.js runtime) — never from Edge middleware, because the
+ * Scalekit SDK needs Node APIs that the Edge runtime does not provide.
+ */
+export async function getSession() {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get('sk_access_token')?.value;
+  if (!accessToken) return null;
+
+  const isValid = await scalekit.validateAccessToken(accessToken);
+  if (!isValid) return null;
+
+  // validateToken returns the decoded claims once the signature and expiry pass.
+  const claims = await scalekit.validateToken(accessToken);
+  return { sub: claims.sub, email: claims.email };
+}
+```
+
+## Refresh tokens transparently
+
+When the access token expires, redeem the refresh token for a new pair. Because Scalekit rotates refresh tokens, write the new refresh token back immediately and discard the old one.
+
+```ts title="app/api/refresh/route.ts"
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+import { scalekit } from '@/lib/scalekit';
+import { rotateTokens } from '@/lib/session';
+
+export async function POST() {
+  const cookieStore = await cookies();
+  const refreshToken = cookieStore.get('sk_refresh_token')?.value;
+  if (!refreshToken) {
+    return NextResponse.json({ error: 'no_session' }, { status: 401 });
+  }
+
+  try {
+    const tokens = await scalekit.refreshAccessToken(refreshToken);
+    const response = NextResponse.json({ ok: true });
+    // Security: persist the rotated refresh token. Replaying the old one fails,
+    // which is how Scalekit detects a stolen, reused token.
+    rotateTokens(response, tokens);
+    return response;
+  } catch {
+    return NextResponse.json({ error: 'refresh_failed' }, { status: 401 });
+  }
+}
+```
+
+## Protect routes
+
+Read the session in a Server Component and redirect unauthenticated visitors. This runs on the Node.js runtime, so the SDK validation works.
+
+```tsx title="app/dashboard/page.tsx"
+import { redirect } from 'next/navigation';
+import { getSession } from '@/lib/session';
+
+export default async function DashboardPage() {
+  const session = await getSession();
+  if (!session) redirect('/login');
+
+  return <h1>Welcome, {session.email}</h1>;
+}
+```
+
+For a coarse, fast gate across many routes, add middleware that only checks whether a session cookie exists. Keep real validation in the page or Route Handler.
+
+```ts title="middleware.ts"
+import { NextRequest, NextResponse } from 'next/server';
+
+export function middleware(request: NextRequest) {
+  // Presence check only — middleware runs on the Edge runtime and cannot call the
+  // Scalekit SDK. getSession() does the cryptographic validation downstream.
+  const hasSession = request.cookies.has('sk_access_token');
+  if (!hasSession) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+  return NextResponse.next();
+}
+
+export const config = { matcher: ['/dashboard/:path*'] };
+```
+
+## Sign out
+
+Build the Scalekit logout URL, clear your cookies, and redirect the browser to Scalekit so the server-side session ends too. Pass the ID token as `idTokenHint` before you clear it.
+
+```ts title="app/logout/route.ts"
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+import { scalekit } from '@/lib/scalekit';
+
+export async function GET() {
+  const cookieStore = await cookies();
+  const idToken = cookieStore.get('sk_id_token')?.value;
+
+  const logoutUrl = scalekit.getLogoutUrl({
+    idTokenHint: idToken,
+    postLogoutRedirectUri: 'http://localhost:3000/login',
+  });
+
+  const response = NextResponse.redirect(logoutUrl);
+  // Clear local cookies after building the logout URL, so the ID token is still
+  // available to tell Scalekit which session to end.
+  response.cookies.delete('sk_access_token');
+  response.cookies.delete('sk_id_token');
+  response.cookies.delete('sk_refresh_token');
+  return response;
+}
+```
+
+<Aside type="note" title="Logout must be a browser redirect">
+Redirect the browser to the logout URL rather than calling it from server code. The redirect carries Scalekit's session cookie, which lets Scalekit identify and end the correct session.
+</Aside>
+
+## Verify it works
+
+1. Start the app with `pnpm dev` and open `http://localhost:3000/dashboard`. The middleware redirects you to `/login`.
+2. Visit `http://localhost:3000/login`. The browser lands on Scalekit's hosted login page showing every method you enabled in the dashboard.
+3. Sign in. Scalekit returns to `/api/callback`, which sets the session cookies and forwards you to `/dashboard`, where your email renders.
+4. Inspect cookies in your browser devtools. Confirm `sk_access_token`, `sk_id_token`, and `sk_refresh_token` are present and marked `HttpOnly`.
+5. Open `http://localhost:3000/logout`. Your cookies clear, Scalekit ends the session, and you return to `/login`.
+
+## Production notes
+
+- **Encrypt cookie values.** This recipe stores raw tokens for clarity. In production, encrypt them with `SESSION_COOKIE_SECRET` (for example with [`jose`](https://github.com/panva/jose)) before writing, and decrypt on read.
+- **Drive refresh from the client.** Call `POST /api/refresh` from a client effect shortly before the access token expires, or retry once on a `401`, so sessions renew without a full re-login.
+- **Use absolute redirect URLs per environment.** Replace the hard-coded `localhost` URLs with an environment variable, and register each environment's callback and post-logout URLs in the dashboard.
+
+When you are ready to ship, walk the [production readiness checklist](/authenticate/launch-checklist/). To inspect what the access token carries, see [ID token claims](/guides/idtoken-claims/).
+
+STYLE-CHECK: PASSED
