@@ -23,7 +23,7 @@ import { Aside } from '@astrojs/starlight/components';
 
 Multi-tenant B2B SaaS apps authenticate users through Scalekit organizations, but bill through Chargebee subscriptions. Those two systems do not share a database. Without an explicit mapping, you end up with duplicate Chargebee customers, subscriptions that never activate after checkout, or feature gates that read stale plan data.
 
-This cookbook wires Scalekit Full Stack Auth to Chargebee using **org-mode billing**: the organization ID from the access token (`oid`) becomes the billing `referenceId`, Scalekit webhooks provision Chargebee customers, and Chargebee webhooks keep your local subscription table current. There is no unified billing plugin—you own the routes, schema, and authorization.
+This cookbook wires Scalekit Full Stack Auth to Chargebee using **org-mode billing**: the organization ID from the access token (`oid`) becomes the billing `referenceId`, Scalekit webhooks provision Chargebee customers, and Chargebee webhooks keep your local subscription table current. You own the routes, schema, and authorization that connect the two systems.
 
 <Aside type="note" title="Working example repo">
   Patterns below are implemented end-to-end in [saas-auth-chargebee-example](https://github.com/scalekit-developers/saas-auth-chargebee-example) (Next.js, Scalekit FSA, Chargebee Node SDK, Drizzle + SQLite). Clone it to follow along locally, including the in-app journey at `/guide`.
@@ -50,7 +50,6 @@ This cookbook is for you if:
 You **don't** need this if:
 
 - ❌ You bill per user, not per organization
-- ❌ You use the [Chargebee Better Auth adapter](https://github.com/chargebee/js-framework-adapters/tree/main/packages/better-auth) and Better Auth's session model
 - ❌ Scalekit manages your entire product catalog and entitlements (no separate billing system)
 
 ## How the integration fits together
@@ -593,14 +592,14 @@ Redirect users to the Chargebee customer portal so they manage payment methods a
 
 ```ts title="api/subscription/portal/route.ts"
 // After authorizeReference(..., action: 'portal')
-const result = await chargebee.hostedPage.managePaymentSources({
+const portalSession = await chargebee.portalSession.create({
   customer: { id: chargebeeCustomerId },
   redirect_url: absoluteUrl(returnUrl),
 });
-return NextResponse.json({ url: result.hosted_page.url });
+return NextResponse.json({
+  url: portalSession.portal_session.access_url,
+});
 ```
-
-(Exact portal API may vary by Chargebee product surface; the reference app exposes `POST /api/subscription/portal`.)
 
 ### Gate a feature behind an active plan
 
