@@ -543,9 +543,12 @@ export const PLANS: PlanConfig[] = [
 
 ## Common flows
 
-### Create a subscription (hosted checkout)
+Expand a question when you need that path. Each answer assumes the numbered steps above are in place (schema, webhooks, authorize, hosted checkout).
 
-Call your create route from the client with the item price ID and redirect URLs:
+<details>
+<summary>How do I start hosted checkout for a plan?</summary>
+
+Call your create route from the client with the Chargebee **item price ID** and redirect URLs. After authorize and a local `future` row, the server returns a hosted page URL.
 
 ```ts title="app/billing/checkout (client)"
 const res = await fetch('/api/subscription/create', {
@@ -563,9 +566,12 @@ if (data.url) {
 }
 ```
 
-### List active subscriptions
+</details>
 
-Read from your local cache after authorize:
+<details>
+<summary>How do I list active subscriptions for the current org?</summary>
+
+Read from your **local** cache after `authorizeReference` — not from Chargebee on every request. Use that result for billing UI and feature gates.
 
 ```ts title="api/subscription/list/route.ts"
 const subs = await findActiveByReferenceId(ctx.organizationId);
@@ -580,15 +586,21 @@ return NextResponse.json({
 });
 ```
 
-Gate features from this table—not from a Chargebee API call on every request.
+</details>
 
-### Change plans
+<details>
+<summary>How do I change plans when a subscription already exists?</summary>
 
-Use an update route that authorizes the reference, then opens Chargebee hosted update (or applies a subscription change API) for the existing `chargebee_subscription_id`. Attempting create while an active subscription exists should return a clear error (for example `400` with “active subscription already exists”) so the UI can send the user to the portal instead.
+Use an update route that authorizes the reference, then opens Chargebee hosted update (or applies a subscription change API) for the existing `chargebee_subscription_id`.
 
-### Billing portal
+Do not call create again while an active subscription exists. Return a clear error (for example `400` with “active subscription already exists”) so the UI can open the portal or update flow instead.
 
-Redirect users to the Chargebee customer portal so they manage payment methods and invoices:
+</details>
+
+<details>
+<summary>How do I send users to the Chargebee billing portal?</summary>
+
+Create a portal session for the org’s Chargebee customer and redirect to `access_url` so they manage payment methods and invoices.
 
 ```ts title="api/subscription/portal/route.ts"
 // After authorizeReference(..., action: 'portal')
@@ -601,7 +613,12 @@ return NextResponse.json({
 });
 ```
 
-### Gate a feature behind an active plan
+</details>
+
+<details>
+<summary>How do I gate a feature behind an active plan?</summary>
+
+Check local subscription status (and plan line items if you store them). Treat `active` and `in_trial` as entitled unless your product rules differ.
 
 ```ts title="lib/billing/require-active-plan.ts"
 async function requireActivePlan(
@@ -619,9 +636,14 @@ async function requireActivePlan(
 }
 ```
 
-### Organization access control
+</details>
 
-Org-mode billing already scopes by `oid`. Tighten who may create or update subscriptions by combining `authorizeReference` with role checks (owner/admin) from your Scalekit token or membership store before calling Chargebee.
+<details>
+<summary>How do I restrict who can create or update org billing?</summary>
+
+Org-mode billing already scopes by session `oid` via `authorizeReference`. Tighten further by combining that check with role checks (owner/admin) from the Scalekit token or your membership store before calling Chargebee.
+
+</details>
 
 ## Customer customization (optional)
 
