@@ -58,7 +58,7 @@ The User Sessions API returns the `authenticated_organizations` field containing
     ```python title="Flask"
     # Use case: Get user's organizations for your switcher UI
     # Security: Always validate session ownership before returning org data
-    session = scalekit_client.session.get_session(session_id)
+    session = scalekit_client.sessions.get_session(session_id)
 
     # Extract organizations from the session response
     organizations = session.get('authenticated_organizations', [])
@@ -106,7 +106,7 @@ Enhance your switcher by displaying which domains are associated with each organ
 
 ```javascript
 // Example: Fetch domains for an organization
-const domains = await scalekit.domains.list({ organizationId: 'org_123' });
+const domains = await scalekit.domain.listDomains('org_123');
 
 // Display "@acme.com" next to the organization name in your UI
 ```
@@ -152,7 +152,7 @@ When a user selects an organization in your custom switcher, update your applica
       session_id = session.get('scalekit_session_id')
 
       # Security: Verify the user belongs to this organization
-      user_session = scalekit_client.session.get_session(session_id)
+      user_session = scalekit_client.sessions.get_session(session_id)
       has_access = any(
         org['id'] == organization_id
         for org in user_session.get('authenticated_organizations', [])
