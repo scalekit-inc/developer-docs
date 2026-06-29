@@ -727,30 +727,35 @@ curl -s http://localhost:3000/api/session \
 
 ## Helpful prompts
 
-Use these FAQ-style prompts with an AI coding agent (Cursor, Claude Code, Copilot CLI, and similar). Expand a question, copy the prompt block into chat, and replace bracketed placeholders with your stack.
+Use these FAQ-style prompts with an AI coding agent (Cursor, Claude Code, Copilot CLI, Codex, and similar). First install the Scalekit authstack plugin for your agent, then paste a prompt from a section below (replace bracketed placeholders with your stack).
 
-For better Scalekit-aware answers, install Scalekit skills into your agent with the Skills CLI (`npx`), then run the prompts below:
+### 1. Set up your coding agent
 
-```bash title="Terminal"
-# List available skills
-npx skills add scalekit-inc/skills --list
-
-# Add skills you need (examples)
-npx skills add scalekit-inc/skills --skill implementing-saaskit
-npx skills add scalekit-inc/skills --skill scalekit-code-doctor
-
-# Or install everything from the skills repo
-npx skills add scalekit-inc/skills --all
-```
-
-You can also install the authstack plugin skills the same way when your agent supports plugins:
+Run the Scalekit CLI setup so your agent loads Scalekit auth patterns (reduces hallucinations on sessions, webhooks, and orgs):
 
 ```bash title="Terminal"
-npx skills add scalekit-inc/authstack --list
-npx skills add scalekit-inc/authstack --skill implementing-saaskit
+npx @scalekit-inc/cli setup
 ```
 
-After `npx skills add …`, restart or reload the agent so the skill loads, then paste a prompt from a section below.
+For repeated use:
+
+```bash title="Terminal"
+npm install -g @scalekit-inc/cli
+scalekit setup
+```
+
+`setup` with no arguments launches an interactive wizard and detects installed tools. Target one agent explicitly if you prefer:
+
+```bash title="Terminal"
+npx @scalekit-inc/cli setup cursor
+npx @scalekit-inc/cli setup claude
+npx @scalekit-inc/cli setup codex
+npx @scalekit-inc/cli setup copilot
+```
+
+See the [Scalekit CLI](/dev-kit/cli/) for flags and what gets installed. After setup, open your agent and use a prompt below.
+
+### 2. Prompts (after setup)
 
 <details>
 <summary>How do I scaffold Scalekit webhooks and Chargebee customer provisioning?</summary>
