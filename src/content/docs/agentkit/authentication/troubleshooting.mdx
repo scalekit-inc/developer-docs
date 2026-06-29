@@ -307,6 +307,26 @@ See [Configure scopes](/agentkit/connections/#configure-scopes) on the connectio
 ## Provider-specific errors
 
 <details>
+<summary>Connector works for your own account but fails for customers' accounts</summary>
+
+Some providers restrict an OAuth app to the account that created it until the app completes the provider's review or publishing process. The connection then succeeds for your own workspace but fails for external customers, with errors such as "this app can't be used outside of development" or a provider access-denied screen.
+
+This can affect Scalekit's prebuilt connectors too. The connector ships with a pre-filled `client_id`, and listing tools succeeds because your own account already authorized it, which can give the impression that any account can connect.
+
+To resolve it:
+
+1. Open the provider's developer or app settings and complete the OAuth app profile the provider requires for external use, such as the logo, terms of service, and privacy policy links. Airtable requires this in its Builder Hub. ZoomInfo requires a partner application rather than a custom (internal-only) app.
+2. Confirm the app is published or verified for use beyond your own account.
+3. Confirm the `client_id`, redirect URL, and scopes match exactly between the provider and **AgentKit** > **Connections**. A mismatch points the connection at a different client and fails authorization.
+4. Reconnect from an external account to confirm the fix.
+
+<Aside type="note" title="Each provider sets its own policy">
+The exact requirement depends on the provider's app-review policy, not on Scalekit. Check the provider's documentation for how to publish or certify an OAuth app for use by accounts other than your own.
+</Aside>
+
+</details>
+
+<details>
 <summary>Google: "Access blocked" or "This app isn't verified"</summary>
 
 Google blocks unverified apps that request sensitive scopes, or the Workspace admin blocked third-party apps.
