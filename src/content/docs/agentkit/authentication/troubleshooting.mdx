@@ -346,25 +346,9 @@ The user may lack permission to install apps, or the workspace admin must approv
 <details>
 <summary>OAuth works for your own account but fails for external or customer accounts</summary>
 
-The connection authorizes successfully for users in the same provider workspace that created the OAuth app, but fails for your customers' accounts. The provider — not Scalekit — restricts the app to its own workspace until you publish or verify it.
+The connection authorizes for users in the provider workspace that created the OAuth app, but fails when your customers try to connect. Airtable returns "OAuth app can't be used outside development," and ZoomInfo rejects a custom (internal) app. This happens when you registered your own OAuth app (Bring Your Own Credentials) and the provider still has that app in an internal or development mode that authorizes only the account that created it.
 
-Most providers separate an app's **development** state from its **published** state:
-
-- A **development** or **custom** app authorizes only accounts inside the workspace that created it. Some providers label this an *internal* or *unpublished* app.
-- A **published** or **partner** app authorizes any account, but the provider requires you to complete a verification or review step first.
-
-To let external users connect:
-
-<Steps>
-1. Open the provider's developer console for your OAuth app (for example, **Airtable Builder Hub** or the **ZoomInfo** developer portal).
-2. Complete the app's OAuth profile — typically a logo, terms of service URL, and privacy policy URL — and submit it for publishing or partner review if the provider requires one.
-3. Confirm the `client_id`, redirect URI, and scopes match exactly between the provider console and **AgentKit** > **Connections**. A mismatched `client_id` points Scalekit at a different app than the one you published.
-4. Reconnect with an external account to verify the account reaches `ACTIVE`.
-</Steps>
-
-<Aside type="note" title="DCR does not bypass provider review">
-Providers that support Dynamic Client Registration still apply their own publishing rules. A DCR client created against an unpublished app authorizes only the developer's own workspace until the app is published.
-</Aside>
+Promote the provider app out of development mode, complete any required app profile, and re-sync the credentials. The [connector OAuth apps checklist](/agentkit/advanced/launch-checklist/#connector-oauth-apps-if-you-registered-your-own-app) lists the exact steps, and [Bring your own OAuth credentials](/agentkit/advanced/bring-your-own-oauth/) covers the setup.
 
 </details>
 
