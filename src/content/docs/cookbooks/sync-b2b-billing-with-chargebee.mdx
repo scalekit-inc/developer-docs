@@ -2,7 +2,7 @@
 title: 'Sync B2B billing with Scalekit and Chargebee'
 description: 'Map Scalekit organizations to Chargebee customers, run hosted checkout, and keep subscription state in sync via webhooks.'
 date: 2026-06-15
-tags: ['Full stack auth', 'Webhooks', 'Next.js']
+tags: ['Organizations', 'Webhooks', 'Next.js']
 sidebar:
   label: 'Chargebee B2B billing'
 tableOfContents: true
@@ -23,10 +23,10 @@ import { Aside } from '@astrojs/starlight/components';
 
 Multi-tenant B2B SaaS apps authenticate users through Scalekit organizations, but bill through Chargebee subscriptions. Those two systems do not share a database. Without an explicit mapping, you end up with duplicate Chargebee customers, subscriptions that never activate after checkout, or feature gates that read stale plan data.
 
-This cookbook wires Scalekit Full Stack Auth to Chargebee using **org-mode billing**: the organization ID from the access token (`oid`) becomes the billing `referenceId`, Scalekit webhooks provision Chargebee customers, and Chargebee webhooks keep your local subscription table current. You own the routes, schema, and authorization that connect the two systems.
+This cookbook wires Scalekit organizations and sessions to Chargebee using **org-mode billing**: the organization ID from the access token (`oid`) becomes the billing `referenceId`, Scalekit webhooks provision Chargebee customers, and Chargebee webhooks keep your local subscription table current. You own the routes, schema, and authorization that connect the two systems.
 
 <Aside type="note" title="Working example repo">
-  Patterns below are implemented end-to-end in [saas-auth-chargebee-example](https://github.com/scalekit-developers/saas-auth-chargebee-example) (Next.js, Scalekit FSA, Chargebee Node SDK, Drizzle + SQLite). Clone it to follow along locally, including the in-app journey at `/guide`.
+  Patterns below are implemented end-to-end in [saas-auth-chargebee-example](https://github.com/scalekit-developers/saas-auth-chargebee-example) (Next.js, Scalekit, Chargebee Node SDK, Drizzle + SQLite). Clone it to follow along locally, including the in-app journey at `/guide`.
 </Aside>
 
 ## What you get
@@ -42,7 +42,7 @@ This cookbook wires Scalekit Full Stack Auth to Chargebee using **org-mode billi
 
 This cookbook is for you if:
 
-- ✅ You run **Full Stack Auth** with organization support (`oid` in access tokens)
+- ✅ You authenticate with Scalekit and use **organizations** (`oid` in access tokens)
 - ✅ You bill **per organization**, not per individual user
 - ✅ You use Chargebee hosted checkout or the customer portal
 - ✅ You maintain a local subscription cache to gate features in your app
@@ -63,7 +63,7 @@ Treat the Scalekit **organization ID** as the single billing reference for the t
 
 ```text
 Scalekit organization.created → local organization + Chargebee customer
-User login (FSA) → session with oid claim
+User login (Scalekit) → session with oid claim
 POST /api/subscription/create → future row + hosted checkout URL
 Chargebee checkout success → /api/subscription/success (eager sync)
 Chargebee webhooks → sync subscription + items to your database
@@ -712,7 +712,7 @@ Use these with an AI assistant to accelerate common tasks. Replace bracketed pla
 **Scaffold server wiring**
 
 ```text
-I'm integrating Chargebee with Scalekit Full Stack Auth (org-mode billing). Generate:
+I'm integrating Chargebee with Scalekit organizations (org-mode billing). Generate:
 1. Scalekit webhook route that verifies the raw body with verifyWebhookPayload
 2. createOrgCustomer that upserts local org and creates a Chargebee customer with
    meta_data.organizationId and customerType organization
@@ -777,7 +777,7 @@ Walk through DNS, routing, middleware, signature/Basic Auth, and env configurati
 
 ```text
 Subscription status in my database does not update after checkout or cancel.
-Setup: Scalekit FSA + Chargebee, local future row + pendingSubscriptionId.
+Setup: Scalekit organizations + Chargebee, local future row + pendingSubscriptionId.
 List likely causes and how to verify chargebee_customer_id and
 chargebee_subscription_id are populated.
 ```
