@@ -84,11 +84,13 @@ GET /api/subscription/list → billing UI / feature gates
 
 ## Step 1: Install packages
 
-Install the Scalekit and Chargebee SDKs on the **server** (API routes, webhook handlers):
+Install the Scalekit and Chargebee SDKs on the **server** (API routes, webhook handlers). Use whichever package manager you use in your app (`npm`, `pnpm`, or `yarn`); the example below matches the reference app:
 
-```bash
+```bash title="Terminal"
 npm install @scalekit-sdk/node chargebee
 ```
+
+Snippets in this cookbook are **Node.js / Next.js App Router**, aligned with the reference app. Scalekit client concepts (token validation, webhook verification, `oid`) apply across SDKs; adapt routes and session storage if you run another stack. Chargebee’s primary SDK surface used here is the Node package.
 
 Use your ORM of choice for the local billing tables (the reference app uses Drizzle + SQLite). Keep Chargebee secret API keys server-side only; publishable keys for Chargebee.js may use `NEXT_PUBLIC_*` if you embed payment components.
 
@@ -546,7 +548,7 @@ export const PLANS: PlanConfig[] = [
 
 Call your create route from the client with the item price ID and redirect URLs:
 
-```ts
+```ts title="app/billing/checkout (client)"
 const res = await fetch('/api/subscription/create', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
@@ -566,7 +568,7 @@ if (data.url) {
 
 Read from your local cache after authorize:
 
-```ts
+```ts title="api/subscription/list/route.ts"
 const subs = await findActiveByReferenceId(ctx.organizationId);
 return NextResponse.json({
   subscriptions: subs.map((sub) => ({
@@ -589,7 +591,7 @@ Use an update route that authorizes the reference, then opens Chargebee hosted u
 
 Redirect users to the Chargebee customer portal so they manage payment methods and invoices:
 
-```ts
+```ts title="api/subscription/portal/route.ts"
 // After authorizeReference(..., action: 'portal')
 const result = await chargebee.hostedPage.managePaymentSources({
   customer: { id: chargebeeCustomerId },
@@ -602,7 +604,7 @@ return NextResponse.json({ url: result.hosted_page.url });
 
 ### Gate a feature behind an active plan
 
-```ts
+```ts title="lib/billing/require-active-plan.ts"
 async function requireActivePlan(
   organizationId: string,
   planItemPriceId: string
