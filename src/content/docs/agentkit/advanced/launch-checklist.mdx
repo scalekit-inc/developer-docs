@@ -35,14 +35,14 @@ Use this checklist before moving your AgentKit integration to production.
 - [ ] Each connection shows as active in the dashboard
 - [ ] Connection names used in code match the names in the dashboard exactly
 
-## OAuth apps (if you use your own credentials)
+## Connector OAuth apps (if you registered your own app)
 
-Complete this section only if you [bring your own credentials](/agentkit/advanced/bring-your-own-oauth/) for a connection. Provider consoles often create OAuth apps in an internal or development mode that authorizes only the account that created the app, so customer accounts fail at consent.
+Complete this section for any connector where you registered the OAuth app yourself in the provider's console. Providers create new OAuth apps in a development or test mode that authorizes only the account that created the app. The connection works while you build and test with your own account, then fails for customer tenants in production — for example, Airtable returns "OAuth app can't be used outside development," and ZoomInfo requires a partner application rather than a custom (internal) app for cross-account access.
 
-- [ ] Provider OAuth app is in a mode that allows external customer accounts to authorize (partner, public, or production — not only custom, internal, or dev)
-- [ ] Provider app profile is complete where required (logo, terms of service, privacy policy — for example, Airtable Builder Hub)
-- [ ] After publishing, `client_id`, `client_secret`, redirect URI, and scopes still match between the provider and Scalekit (publishing can rotate the `client_id`)
-- [ ] Authorization tested end-to-end with a second account outside the creating workspace, not only your own test account
+- [ ] Provider OAuth app is promoted out of development or test mode (published, production, or partner — depending on the provider) so accounts outside your own can authorize
+- [ ] Provider app profile is complete where the provider requires it before publishing (logo, terms of service, privacy policy — for example, Airtable Builder Hub)
+- [ ] After promoting the app, `client_id`, `client_secret`, redirect URI, and scopes still match between the provider and Scalekit (promotion can rotate the `client_id`)
+- [ ] Authorization tested with an account outside the workspace that created the app, not only your own test account
 
 ## Authorization and connected accounts
 
