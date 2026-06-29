@@ -727,11 +727,33 @@ curl -s http://localhost:3000/api/session \
 
 ## Helpful prompts
 
-Use these with an AI assistant to accelerate common tasks. Replace bracketed placeholders with your stack.
+Use these FAQ-style prompts with an AI coding agent (Cursor, Claude Code, Copilot CLI, and similar). Expand a question, copy the prompt block into chat, and replace bracketed placeholders with your stack.
 
-### Initial setup
+For better Scalekit-aware answers, install Scalekit skills into your agent with the Skills CLI (`npx`), then run the prompts below:
 
-**Scaffold server wiring**
+```bash title="Terminal"
+# List available skills
+npx skills add scalekit-inc/skills --list
+
+# Add skills you need (examples)
+npx skills add scalekit-inc/skills --skill implementing-saaskit
+npx skills add scalekit-inc/skills --skill scalekit-code-doctor
+
+# Or install everything from the skills repo
+npx skills add scalekit-inc/skills --all
+```
+
+You can also install the authstack plugin skills the same way when your agent supports plugins:
+
+```bash title="Terminal"
+npx skills add scalekit-inc/authstack --list
+npx skills add scalekit-inc/authstack --skill implementing-saaskit
+```
+
+After `npx skills add …`, restart or reload the agent so the skill loads, then paste a prompt from a section below.
+
+<details>
+<summary>How do I scaffold Scalekit webhooks and Chargebee customer provisioning?</summary>
 
 ```text
 I'm integrating Chargebee with Scalekit organizations (org-mode billing). Generate:
@@ -742,7 +764,10 @@ I'm integrating Chargebee with Scalekit organizations (org-mode billing). Genera
 My framework is [Next.js App Router / Express / Hono]. Database is [Drizzle / Prisma / Kysely].
 ```
 
-**Scaffold subscription create**
+</details>
+
+<details>
+<summary>How do I scaffold subscription create with a future row and hosted checkout?</summary>
 
 ```text
 Write POST /api/subscription/create that:
@@ -755,9 +780,10 @@ Write POST /api/subscription/create that:
 Return { mode: "hosted", url }.
 ```
 
-### Webhooks
+</details>
 
-**Test both webhook planes locally**
+<details>
+<summary>How do I test Scalekit and Chargebee webhooks locally?</summary>
 
 ```text
 Walk me through testing Scalekit and Chargebee webhooks locally with ngrok.
@@ -766,9 +792,10 @@ Include ngrok command, dashboard URLs to register, SCALEKIT_WEBHOOK_SECRET,
 and CHARGEBEE_WEBHOOK_USERNAME/PASSWORD Basic Auth.
 ```
 
-### Subscription flows
+</details>
 
-**Pricing page**
+<details>
+<summary>How do I generate a pricing page that starts checkout?</summary>
 
 ```text
 Generate a React pricing page that calls POST /api/subscription/create with
@@ -777,7 +804,10 @@ Show loading while redirecting. If the API says an active subscription exists,
 call POST /api/subscription/portal instead.
 ```
 
-**Feature gate**
+</details>
+
+<details>
+<summary>How do I implement a feature gate for an active plan?</summary>
 
 ```text
 Using a local subscriptions table keyed by Scalekit organization ID, write
@@ -785,9 +815,10 @@ requireActivePlan(organizationId, itemPriceId) that returns true only for
 active or in_trial rows. Show usage in a Next.js API route.
 ```
 
-### Debugging
+</details>
 
-**Webhooks not received**
+<details>
+<summary>Why are my webhooks not reaching the server?</summary>
 
 ```text
 My Scalekit or Chargebee webhooks are not reaching the server. Auth base paths
@@ -795,7 +826,10 @@ are /api/webhooks/scalekit and /api/webhooks/chargebee. Host is [Vercel / Railwa
 Walk through DNS, routing, middleware, signature/Basic Auth, and env configuration.
 ```
 
-**Status not updating**
+</details>
+
+<details>
+<summary>Why is subscription status not updating after checkout or cancel?</summary>
 
 ```text
 Subscription status in my database does not update after checkout or cancel.
@@ -803,6 +837,8 @@ Setup: Scalekit organizations + Chargebee, local future row + pendingSubscriptio
 List likely causes and how to verify chargebee_customer_id and
 chargebee_subscription_id are populated.
 ```
+
+</details>
 
 ## Resources
 
