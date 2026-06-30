@@ -1249,4 +1249,9 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'OAuth 2.0',
     categories: ['Communication'],
   },
+  v0mcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/v0.svg',
+    authType: 'Bearer Token',
+    categories: ['AI', 'Developer Tools', 'Design'],
+  },
 }
