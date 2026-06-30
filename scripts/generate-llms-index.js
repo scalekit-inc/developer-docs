@@ -313,7 +313,7 @@ const lines = [
   '## Optional',
   '',
   `- [API reference markdown](${BASE_URL}/apis.md): LLM-friendly Markdown from the Scalekit OpenAPI specification`,
-  `- [OpenAPI Specification](${BASE_URL}/api/scalekit.scalar.json): OpenAPI Specification for Scalekit REST API`,
+  `- [OpenAPI Specification](${BASE_URL}/api/scalekit.scalar.yaml): OpenAPI Specification for Scalekit REST API (YAML)`,
   '',
 ]
 

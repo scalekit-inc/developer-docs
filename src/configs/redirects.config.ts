@@ -410,4 +410,35 @@ export const redirects = {
   '/fsa/data-modeling': '/fsa/data-modelling/',
   '/guides': '/',
   '/mcp': '/authenticate/mcp/quickstart/',
+
+  // =============================================================================
+  // AGENT / API DOCS REDIRECTS (from Usesapient Actions.csv)
+  // =============================================================================
+  // Legacy and broken paths that AI agents frequently hit (404s, 401s, empty content).
+  // Primary goal: route to current /apis (Scalar reference) or LLM-friendly
+  // /api/scalekit.scalar.yaml (or .json) + generated /apis.md .
+  // Scalar at /apis is client-rendered; redirects help agents land on usable content.
+  // We primarily edit this file (public/_redirects left mostly untouched).
+
+  // Core API reference 404s (critical)
+  '/api-reference': '/apis',
+  '/api-reference/': '/apis',
+  '/api-reference/*': '/apis',
+
+  // OpenAPI / spec variants (critical + high)
+  // Point to YAML for better LLM/agent consumption (JSON also available at .json)
+  '/openapi.json': '/api/scalekit.scalar.yaml',
+  '/apis/openapi.json': '/api/scalekit.scalar.yaml',
+  '/scalekit.json': '/api/scalekit.scalar.yaml',
+  '/swagger.json': '/api/scalekit.scalar.yaml',
+  '/apis/openapi.yaml': '/api/scalekit.scalar.yaml',
+
+  // Other legacy paths appearing in agent actionables
+  '/sdk': '/authenticate/set-up-scalekit/',
+  '/reference': '/reference/glossary/',
+  '/tools': '/dev-kit/tools/',
+
+  // Additional API subpaths and variants seen in agent evals
+  '/apis/connected-accounts': '/apis',
+  '/apis/connected-accounts/*': '/apis',
 }

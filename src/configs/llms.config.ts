@@ -201,8 +201,8 @@ Start with the Quickstart Collection, then follow the developer's question to th
     },
     {
       label: 'OpenAPI Specification',
-      url: '/api/scalekit.scalar.json',
-      description: 'OpenAPI Specification for Scalekit REST API',
+      url: '/api/scalekit.scalar.yaml',
+      description: 'OpenAPI Specification for Scalekit REST API (YAML)',
     },
     {
       label: 'Postman Collection',
