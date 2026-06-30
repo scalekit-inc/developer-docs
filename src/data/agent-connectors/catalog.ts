@@ -1249,4 +1249,9 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'OAuth 2.0',
     categories: ['Communication'],
   },
+  rizemcp: {
+    iconUrl: 'https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/rize.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Productivity', 'Analytics'],
+  },
 }

@@ -1,0 +1,90 @@
+---
+title: 'Rize MCP connector'
+tableOfContents: true
+description: 'Use Rize MCP to track time, manage projects and clients, and surface productivity analytics from your AI agent.'
+sidebar:
+  label: 'Rize MCP'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/rize.svg
+connectorAuthType: OAuth 2.1/DCR
+connectorCategories: [Productivity, Analytics]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/rizemcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupRizemcpSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+import { SectionAfterSetupRizemcpCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Connect your Rize account to Scalekit so it handles the OAuth token lifecycle. You do this once per environment — no client ID or secret is required.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupRizemcpSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="rizemcp" toolName="rizemcp_get_current_user" providerName="Rize MCP" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Track time** — Create, update, approve, or reject time entries; generate AI-suggested entries and regenerate them
+- **Manage projects and clients** — Full CRUD for clients, projects, and tasks
+- **Organize with labels** — Create, update, and delete labels to categorize work
+- **View analytics** — Query personal and team time allocation, apps used, events, and productivity signals
+- **Manage team** — List members, update roles, and invite new team members
+- **Report profitability** — Access org-level and contract-level profitability trends and create expense or revenue entries
+- **Run reports** — List and retrieve report runs for scheduled reporting
+
+## Common workflows
+
+<SectionAfterSetupRizemcpCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />
