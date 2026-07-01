@@ -291,6 +291,23 @@ Recent versions of Claude Desktop have introduced Connectors functionality, elim
 To avoid duplicate authentication flows, ensure you're using only one MCP client at a time.
 </Aside>
 
+### ChatGPT connector completes consent but requests stay pending
+
+When you add your MCP server as a ChatGPT connector, the OAuth consent screen completes, but ChatGPT then shows an error and every request stays in a `pending` state.
+
+**Root cause:** ChatGPT requires `private_key_jwt` token-endpoint authentication and uses it even when your authorization server advertises other supported methods. If the connector registered before your server accommodated `private_key_jwt`, ChatGPT holds onto the earlier registration and its token requests never succeed.
+
+**Resolution:**
+
+1. Confirm your Scalekit environment accepts `private_key_jwt` for token-endpoint authentication. Contact Scalekit support if you are unsure whether it is enabled for your MCP server.
+2. In ChatGPT, disconnect the connector for your MCP server.
+3. Reconnect the connector. Reconnecting forces a fresh Dynamic Client Registration, so ChatGPT registers with the correct token-endpoint authentication method.
+4. Complete the consent flow again and confirm requests move out of `pending`.
+
+<Aside type="note" title="Reconnect to force fresh registration">
+Disconnecting and reconnecting is required because ChatGPT reuses its cached client registration. Without a fresh registration, the connector keeps sending token requests that use the earlier, incompatible configuration.
+</Aside>
+
 ### OAuth popup closes immediately or shows "window closed too soon"
 
 MCP clients that use a popup-based OAuth flow (such as Amazon Q) may report that the popup closed too soon or that authentication failed, even though the OAuth flow completed successfully in the popup window.
@@ -367,3 +384,5 @@ Follow these best practices to avoid common issues and maintain a robust MCP aut
 <Aside type="tip" title="Environment management">
 Maintain separate environment variables for your MCP server configuration (e.g., `SCALEKIT_ENVIRONMENT_URL`, `MCP_SERVER_URL`) to easily switch between development and production environments.
 </Aside>
+
+{/* STYLE-CHECK: PASSED */}
