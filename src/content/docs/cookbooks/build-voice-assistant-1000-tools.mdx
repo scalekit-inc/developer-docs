@@ -122,12 +122,16 @@ If any are inactive, the token mint will fail with a clear error and an auth lin
 
 ## Step 3: Wire the Vapi assistant
 
+You have two main options in Vapi, depending on whether you want dynamic discovery of many scoped tools or direct calls to specific ones.
+
+### Option A: MCP tool for dynamic discovery (recommended for 1000+)
+
 1. In Vapi, create or edit an assistant.
 2. Create a new **MCP** tool (not Function).
 3. Configure it with the Scalekit Virtual MCP details:
 
    - **Server URL**: the `mcp_server_url` from Step 1
-   - **HTTP Headers** (in the Headers / Custom Headers / server.headers section of the tool form):
+   - **HTTP Headers** (look for the **Headers**, **Add Header**, or **Custom Headers** / `server.headers` section in the tool form in the Vapi dashboard):
      - Key: `Authorization`
      - Value: `Bearer <fresh-token>`
 
@@ -138,9 +142,13 @@ If any are inactive, the token mint will fail with a clear error and an auth lin
 
 The screenshot above illustrates where to configure the server URL and add the Authorization HTTP header in Vapi's MCP tool form.
 
-You now have a voice agent that can discover tools dynamically from the scoped MCP.
+### Option B: Function tool for specific registered tools
 
-**Alternative for specific tools**: Instead of (or in addition to) an MCP tool, you can create Vapi **Function** tools that call your webhook, which then uses `scalekit.actions.executeTool` for individual registered tools (no vMCP needed). This is great for a small number of tools.
+Create a **Function** tool in Vapi pointing to your webhook URL. The tool name must exactly match a tool you have registered or available in Scalekit (e.g. `googlecalendar_list_events`). Your webhook then calls `executeTool` for it.
+
+You now have a voice agent that can discover tools dynamically from the scoped MCP (or call specific ones directly).
+
+## Step 4: Mint per-user tokens at runtime (the demo)
 
 ## Step 4: Mint per-user tokens at runtime (the demo)
 
