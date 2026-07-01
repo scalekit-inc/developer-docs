@@ -1,10 +1,10 @@
 ---
 title: 'Build a Vapi voice assistant that can use any tool with Scalekit'
-description: 'Combine Vapi for natural voice interactions with Scalekit Virtual MCP to give agents secure, scoped access to thousands of tools across connectors without token bloat or per-tool OAuth code.'
+description: 'Use Vapi + Scalekit Virtual MCP for voice assistants to securely access any tool from large catalogs.'
 date: 2026-07-01
 tags: ['Agent auth', 'Voice', 'MCP', 'Vapi']
 sidebar:
-  label: 'Vapi voice assistant + Scalekit'
+  label: 'Vapi + Scalekit assistant'
 tableOfContents: true
 excerpt: >
   Voice assistants are powerful for natural interaction but hit walls with auth and tool volume. This cookbook shows how to use Scalekit's Virtual MCP so a Vapi assistant can safely discover and call any tool the user is authorized for — without token bloat or per-tool OAuth code.
@@ -16,7 +16,7 @@ authors:
     picture: '/images/blog/authors/saif.png'
 ---
 
-import { Aside, Steps } from '@astrojs/starlight/components';
+import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
 Voice interfaces shine for hands-free, conversational access to data and actions. But giving a voice agent access to real tools (Gmail, Calendar, Slack, GitHub, Drive, CRM, Notion, and [many other connectors](/agentkit/connectors/)) introduces two hard problems: per-user authentication without leaking tokens to the LLM, and managing a large tool surface without overwhelming context windows or exposing everything to every user.
 
@@ -159,7 +159,7 @@ Key differences from a naive "give the LLM every tool" approach:
 
 4. Save. Copy the **config ID** (e.g. `cfg_...`) and the generated **mcp_server_url**.
 
-![Creating a Virtual MCP in the Scalekit dashboard](/assets/cookbooks/voice-assistant/vmcp-scalekit.png)
+![Creating a Virtual MCP in the Scalekit dashboard](@/assets/docs/cookbooks/voice-assistant/vmcp-scalekit.png)
 
 The screenshot above shows the Scalekit dashboard flow for creating the scoped Virtual MCP.
 
@@ -193,7 +193,7 @@ You have two main options in Vapi, depending on whether you want dynamic discove
 4. Attach the MCP tool to the assistant.
 5. Update the system prompt to tell the model when and how to use tools (example in the demo repo).
 
-![Registering the MCP tool in the Vapi dashboard](/assets/cookbooks/voice-assistant/tool-registration-scalekit.png)
+![Registering the MCP tool in the Vapi dashboard](@/assets/docs/cookbooks/voice-assistant/tool-registration-scalekit.png)
 
 The screenshot above illustrates where to configure the server URL and add the Authorization HTTP header in Vapi's MCP tool form.
 
@@ -243,6 +243,90 @@ In a real application you never manually edit the Vapi dashboard for each user o
 - Your backend mints the token **on the fly** (using the Scalekit SDK or direct call with management token) exactly when the user initiates the voice session.
 - You then use the Vapi API (authenticated with your `VAPI_PRIVATE_KEY`) to dynamically set or override the MCP tool's `server` (url + Authorization header) on the assistant before starting the call.
 - The identifier always comes from the logged-in user context rather than a `TEST_IDENTIFIER` env var.
+
+Mint a session token (and build the `mcpConfig`) in your backend before each call:
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+```ts title="mint-token.ts"
+try {
+  const tokenResp = await scalekit.actions.mcp.create_session_token({
+    mcp_config_id: mcpConfigId,
+    identifier: userIdentifier,
+    expiry: '1h',
+  });
+
+  const mcpConfig = {
+    url: mcpServerUrl,
+    headers: { Authorization: `Bearer ${tokenResp.token}` },
+  };
+
+  // Pass mcpConfig to Vapi (via API or call start)
+} catch (err) {
+  console.error('Token mint failed:', err);
+}
+```
+  </TabItem>
+  <TabItem label="Python">
+```python title="mint_token.py"
+try:
+    token_response = scalekit_client.actions.mcp.create_session_token(
+        mcp_config_id=mcp_id,
+        identifier=user_identifier,
+        expiry=timedelta(hours=1),
+    )
+
+    mcp_config = {
+        "url": mcp_server_url,
+        "headers": {"Authorization": f"Bearer {token_response.token}"},
+    }
+
+    # use mcp_config with Vapi
+except Exception as e:
+    print(f"Token mint failed: {e}")
+```
+  </TabItem>
+  <TabItem label="Go">
+```go title="mint_token.go"
+tokenResp, err := client.Actions().MCP().CreateSessionToken(ctx, &scalekit.CreateMcpSessionTokenRequest{
+    McpConfigID: mcpConfigID,
+    Identifier:  identifier,
+    Expiry:      time.Hour,
+})
+if err != nil {
+    log.Printf("Token mint failed: %v", err)
+    return
+}
+
+mcpConfig := map[string]any{
+    "url": mcpServerURL,
+    "headers": map[string]string{
+        "Authorization": "Bearer " + tokenResp.Token,
+    },
+}
+```
+  </TabItem>
+  <TabItem label="Java">
+```java title="MintToken.java"
+try {
+    CreateMcpSessionTokenResponse tokenResp = scalekit.actions().mcp().createSessionToken(
+        CreateMcpSessionTokenRequest.builder()
+            .mcpConfigId(mcpConfigId)
+            .identifier(identifier)
+            .expiry(Duration.ofHours(1))
+            .build()
+    );
+
+    Map<String, Object> mcpConfig = Map.of(
+        "url", mcpServerUrl,
+        "headers", Map.of("Authorization", "Bearer " + tokenResp.getToken())
+    );
+} catch (Exception e) {
+    e.printStackTrace();
+}
+```
+  </TabItem>
+</Tabs>
 
 The same Virtual MCP config (the `cfg_...` you created) is reused for everyone. Only the short-lived token and acting identifier change per user / per call. This is exactly what the demo's `/api/scalekit/mcp-session` endpoint and the "In a real app" callout in the demo UI demonstrate.
 
@@ -315,11 +399,11 @@ The same pattern works for any voice or chat platform that supports MCP clients.
 - Expose the same Virtual MCP to web, mobile, and voice clients from one config.
 - Combine with Scalekit's user verification for stronger identity assurance.
 
-See the [full demo source](https://github.com/scalekit-developers/vapi-scalekit-voice-demo) and the [Virtual MCP configuration guide](/agentkit/mcp/configure-mcp-server/).
-
 ## References
 
 - [Scalekit Virtual MCP docs](/agentkit/mcp/overview/)
 - [Vapi](https://vapi.ai) (see [MCP integration](https://docs.vapi.ai/tools/mcp))
 - [AgentKit tool calling](/agentkit/tools/overview/)
 - Demo repo + recording linked above.
+
+See the [full demo source](https://github.com/scalekit-developers/vapi-scalekit-voice-demo) and the [Virtual MCP configuration guide](/agentkit/mcp/configure-mcp-server/).
