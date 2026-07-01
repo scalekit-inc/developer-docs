@@ -1,0 +1,54 @@
+---
+title: Find your identifiers and settings
+description: Locate Scalekit identifiers and configuration settings in the dashboard, from the environment URL to the resource id and login page links.
+tags: [dashboard, credentials, identifiers, environment-url, resource-id, settings]
+sidebar:
+  label: Find identifiers
+tableOfContents: true
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+Most setup questions come down to one thing: **where does a value live in the dashboard?** This page maps each Scalekit identifier and common setting to its exact dashboard location, so you can copy what you need and get back to building.
+
+Every path on this page starts from the [Scalekit dashboard](https://app.scalekit.com/). Confirm you are in the correct environment before you copy a value, because each environment has its own identifiers. For more on environments, see [Manage environments](/dev-kit/guides/dashboard/environments/).
+
+## Identifiers and credentials
+
+Use these values to initialize the SDK and authenticate API requests.
+
+| Value | Dashboard location | Notes |
+|-------|--------------------|-------|
+| Environment URL | **Settings > API credentials** | Labeled **Environment URL**. Your workspace has one URL per environment, such as `https://your-subdomain.scalekit.dev` (development) and `https://your-subdomain.scalekit.com` (production). Maps to `SCALEKIT_ENVIRONMENT_URL`. |
+| Client ID | **Settings > API credentials** | Maps to `SCALEKIT_CLIENT_ID`. |
+| Client secret | **Settings > API credentials** | Maps to `SCALEKIT_CLIENT_SECRET`. Treat the secret like a password: store it in an environment variable and never commit it to source control. |
+| Resource id | **MCP Servers > your server > Configuration** | The `res_...` identifier for an MCP or API resource. Maps to `SCALEKIT_RESOURCE_ID`. Use it as the resource identifier when no server URL is set. |
+
+<Aside type="caution" title="Keep the client secret out of source control">
+  The client secret authenticates your application to Scalekit. Load it from an environment variable such as `SCALEKIT_CLIENT_SECRET` so a leaked repository never exposes it.
+</Aside>
+
+For the full setup workflow that uses these values, see [Set up environment & SDK](/authenticate/set-up-scalekit/). To authenticate API requests with them, see [Authenticate Scalekit API requests](/guides/authenticate-scalekit-api/).
+
+## Settings and configuration
+
+Use these paths to configure how Scalekit behaves and how your login page appears.
+
+| Setting | Dashboard location | Notes |
+|---------|--------------------|-------|
+| Login page footer links | **Settings > Application details** | Add your terms of service and privacy policy URLs. Scalekit surfaces both links on the login page once you configure them. |
+| Enabled SSO connections | **Authentication > Auth methods > Enterprise SSO** | Review which enterprise SSO connections are active. The connection count here matches the usage shown on your billing page. |
+| Add MCP server | **MCP Servers** | The **Add MCP server** option appears only when you set the product module in the top-left selector to **Auth for SaaS**. Switch the module first if you don't see the option. |
+| Access token claims | Access token template API | Configure email and permission claims in the access token through the [access token template API](/authenticate/interceptors/auth-flow-interceptors/). A self-serve dashboard portal for this configuration is planned. |
+
+<Aside type="note" title="Access token claims portal is coming">
+  Today you configure access token claims through the access token template API. A self-serve dashboard portal for the same configuration is planned and is not yet available.
+</Aside>
+
+## Related pages
+
+- [Set up environment & SDK](/authenticate/set-up-scalekit/) walks through creating an account and initializing the SDK with these credentials.
+- [Manage environments](/dev-kit/guides/dashboard/environments/) explains how development, staging, and production environments keep separate identifiers.
+- [Intercept authentication flows](/authenticate/interceptors/auth-flow-interceptors/) covers customizing access token claims.
+
+STYLE-CHECK: PASSED

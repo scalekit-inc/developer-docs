@@ -377,6 +377,7 @@ export const sidebar = [
       { label: 'Admin portal events', link: 'reference/admin-portal/ui-events' },
       createSpacing(),
       createSectionHeader('Platform'),
+      'reference/find-identifiers-and-settings',
       'reference/rate-limits',
       'reference/outbound-ip-addresses',
     ],
