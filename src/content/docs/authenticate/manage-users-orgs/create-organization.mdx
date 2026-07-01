@@ -148,4 +148,88 @@ Organization fetched = scalekitClient.organizations().getById(organization.getId
   </TabItem>
 </Tabs>
 
+### Set organization properties at creation
+
+Pass additional properties when you create an organization to give it a slug, map it to your own system, or brand its hosted pages. Every property except the display name is optional.
+
+| Property | Description |
+|---|---|
+| `display_name` | Human-readable name shown in the dashboard and hosted UI. Required. |
+| `slug` | DNS-safe identifier such as `orion` or `auth.orion-analytics.com`. Expands `{{org_slug}}` in [template redirect URLs](/guides/dashboard/org-redirect-urls/). |
+| `external_id` | Your own identifier for the organization, so you can look it up by your system's ID. |
+| `logo_url` | Publicly accessible logo URL shown on [branded login pages and portals](/fsa/guides/organization-branding/). |
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+
+```javascript title="Create an organization with properties" wrap
+const { organization } = await scalekit.organization.createOrganization(
+  'Orion Analytics',
+  {
+    slug: 'orion',
+    externalId: 'customer_12345',
+    logoUrl: 'https://cdn.orion-analytics.com/logo.png',
+  }
+);
+```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+```python title="Create an organization with properties" wrap
+from scalekit.v1.organizations.organizations_pb2 import CreateOrganization
+
+response = scalekit_client.organization.create_organization(
+    CreateOrganization(
+        display_name="Orion Analytics",
+        slug="orion",
+        external_id="customer_12345",
+        logo_url="https://cdn.orion-analytics.com/logo.png",
+    )
+)
+```
+
+  </TabItem>
+  <TabItem value="go" label="Go">
+
+```go title="Create an organization with properties" wrap
+slug := "orion"
+externalID := "customer_12345"
+logoURL := "https://cdn.orion-analytics.com/logo.png"
+
+created, err := scalekitClient.Organization().CreateOrganization(
+    ctx,
+    "Orion Analytics",
+    scalekit.CreateOrganizationOptions{
+        Slug:       &slug,
+        ExternalId: &externalID,
+        LogoUrl:    &logoURL,
+    },
+)
+if err != nil {
+    log.Fatalf("create organization: %v", err)
+}
+```
+
+  </TabItem>
+  <TabItem value="java" label="Java">
+
+```java title="Create an organization with properties" wrap
+CreateOrganization createOrganization = CreateOrganization.newBuilder()
+    .setDisplayName("Orion Analytics")
+    .setSlug("orion")
+    .setExternalId("customer_12345")
+    .setLogoUrl("https://cdn.orion-analytics.com/logo.png")
+    .build();
+
+Organization organization = scalekitClient.organizations().create(createOrganization);
+```
+
+  </TabItem>
+</Tabs>
+
+<Aside type="note" title="Set a slug for friendly redirect URLs">
+A `slug` gives each organization a DNS-safe identifier that expands `{{org_slug}}` in [template redirect URLs](/guides/dashboard/org-redirect-urls/). You can also set or change it later with `updateOrganization`.
+</Aside>
+
 Next, let's look at how users can be added to organizations.
