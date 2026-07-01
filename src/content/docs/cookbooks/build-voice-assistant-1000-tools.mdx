@@ -1,0 +1,214 @@
+---
+title: 'Build a voice assistant that can access 1000+ tools'
+description: 'Combine Vapi for natural voice interactions with Scalekit Virtual MCP to give agents secure, scoped access to thousands of tools across connectors without token bloat or per-tool OAuth code.'
+date: 2026-07-01
+tags: ['Agent auth', 'Voice', 'MCP', 'Vapi']
+sidebar:
+  label: 'Voice assistant with 1000+ tools'
+tableOfContents: true
+excerpt: >
+  Voice assistants are powerful for natural interaction but hit walls with auth and tool volume. This cookbook shows how to use Scalekit's Virtual MCP to scope 1000+ tools per user, mint short-lived tokens, and wire them into a Vapi assistant — all while keeping the voice flow simple and secure.
+featured: false
+authors:
+  - name: 'Saif'
+    title: 'Developer Advocate'
+    url: 'https://www.linkedin.com/in/saif-shines/'
+    picture: '/images/blog/authors/saif.png'
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+Voice interfaces shine for hands-free, conversational access to data and actions. But giving a voice agent access to real tools (Gmail, Calendar, Slack, CRM, 1000+ connectors) introduces two hard problems: per-user authentication without leaking tokens to the LLM, and managing a massive tool surface without overwhelming context windows or exposing everything to every user.
+
+Scalekit AgentKit with Virtual MCP solves both. You define one scoped MCP server per agent role that exposes only the tools that role needs. At runtime you mint a short-lived, user-scoped token. Vapi (or other MCP clients) connects directly, discovers the allowed tools, and calls them with proper identity — no custom webhook bridge, no per-connector OAuth code in your app.
+
+This cookbook walks through building exactly that: a Vapi voice assistant backed by a Scalekit Virtual MCP that safely surfaces thousands of tools.
+
+The complete source is available in the [vapi-scalekit-voice-demo](https://github.com/scalekit-developers/vapi-scalekit-voice-demo) repository.
+
+## What you are building
+
+- A **Vapi voice assistant** that understands natural language requests like "list my meetings this week" or "find emails from Acme".
+- **Dynamic tool discovery** via a Scalekit Virtual MCP — the assistant only sees the tools you explicitly scoped for that role.
+- **Per-user OAuth without custom code** — Scalekit handles authorization links, token storage, and refresh. Your app just passes the user's identifier.
+- **Scalable to 1000+ tools** — scoping + per-user tokens keep context small and access least-privilege even when the full catalog is huge.
+- A pattern you can extend to other voice platforms or agent frameworks by swapping the client.
+
+## Prerequisites
+
+- A Scalekit account with AgentKit enabled ([create one](https://app.scalekit.com)).
+- At least one connection configured (e.g. Google Calendar, Gmail) under **AgentKit → Connections**. See [Configure a connection](/agentkit/connections/).
+- A Vapi account and at least one assistant.
+- Node.js 18+ and the demo dependencies.
+- ngrok (or equivalent) for local webhook exposure during development.
+- Familiarity with basic voice agent concepts and OAuth flows.
+
+## Architecture overview
+
+```
+User (voice)
+  │
+  ▼
+Vapi assistant (MCP tool configured)
+  │  (connects with per-user Bearer token)
+  ▼
+Scalekit Virtual MCP (scoped to role + user)
+  │  (only exposes allowed tools)
+  ▼
+Scalekit AgentKit (token vault + execute)
+  │
+  ▼
+Real connectors (Gmail, Calendar, Slack, GitHub, ... — 1000+)
+```
+
+Key differences from a naive "give the LLM every tool" approach:
+- Tool surface is defined once in the Virtual MCP config (least privilege).
+- Context size stays manageable (scoping reduces tokens).
+- Identity is enforced at the token level (no raw OAuth secrets reach the model or Vapi).
+
+## Step 1: Create a scoped Virtual MCP in Scalekit
+
+1. In the Scalekit dashboard go to **AgentKit → MCP Configs → Create Config**.
+2. Give it a name (e.g. "voice-personal-assistant").
+3. Add connection tool mappings for the connectors you want. Example for calendar + email:
+
+   ```yaml
+   connection_tool_mappings:
+     - connection_name: googlecalendar
+       tools: [googlecalendar_list_events, googlecalendar_create_event]
+     - connection_name: gmail
+       tools: [gmail_fetch_mails, gmail_send_mail]   # start small!
+   ```
+
+4. Save. Copy the **config ID** (e.g. `cfg_...`) and the generated **mcp_server_url**.
+
+![Creating a Virtual MCP in the Scalekit dashboard](/assets/cookbooks/voice-assistant/vmcp-scalekit.png)
+
+The screenshot above shows the Scalekit dashboard flow for creating the scoped Virtual MCP.
+
+This single config definition is reused for every user. You only change the token you mint at runtime. The scoping here is what lets you safely expose 1000+ tools without the LLM seeing everything.
+
+## Step 2: Authorize connections for your test user
+
+For the identifier you will use in the demo (e.g. your email):
+
+1. Go to **AgentKit → Connected Accounts**.
+2. Authorize the connections you mapped above.
+3. Confirm they show **Active**.
+
+If any are inactive, the token mint will fail with a clear error and an auth link.
+
+## Step 3: Wire the Vapi assistant
+
+1. In Vapi, create or edit an assistant.
+2. Create a new **MCP** tool (not Function).
+3. Configure it with the Scalekit Virtual MCP details:
+
+   - Server URL: the `mcp_server_url` from Step 1
+   - Headers:
+     ```
+     Authorization: Bearer <fresh-token>
+     ```
+
+4. Attach the MCP tool to the assistant.
+5. Update the system prompt to tell the model when and how to use tools (example in the demo repo).
+
+![Registering the MCP tool in the Vapi dashboard](/assets/cookbooks/voice-assistant/tool-registration-scalekit.png)
+
+The screenshot above illustrates where to configure the server URL and add the Authorization HTTP header in Vapi's MCP tool form.
+
+You now have a voice agent that can discover tools dynamically from the scoped MCP.
+
+## Step 4: Mint per-user tokens at runtime (the demo)
+
+The demo (Next.js + Vapi Web SDK) shows the full loop:
+
+- User clicks "Start Voice Call" and passes `scalekitConnectionId` (the identifier) in metadata.
+- On the backend you call `scalekit.actions.mcp.create_session_token({ mcp_config_id, identifier })` to get a fresh short-lived token.
+- You return the token (or use it to configure the call) so Vapi can connect with proper identity.
+
+See the `scripts/generate-mcp-token.py` (or .js) and `app/api/scalekit/mcp-session` in the demo repo for the exact implementation.
+
+Key code pattern (Node):
+
+```ts
+const tokenResp = await scalekit.actions.mcp.create_session_token({
+  mcp_config_id: process.env.SCALEKIT_MCP_CONFIG_ID!,
+  identifier: userIdentifier,
+  expiry: '1h',
+});
+
+const mcpConfig = {
+  url: process.env.NEXT_PUBLIC_SCALEKIT_MCP_SERVER_URL!,
+  headers: { Authorization: `Bearer ${tokenResp.token}` },
+};
+```
+
+Pass the `mcpConfig` when configuring your Vapi MCP tool (or start the call against an assistant that already has it).
+
+## Step 5: Test the voice flow
+
+1. Start the demo: `npm run dev` + `ngrok http 3000`.
+2. Update Vapi tool Server URL to your ngrok + `/api/vapi/webhook` (for the Function fallback) or point the MCP tool at the Scalekit URL + token.
+3. In the browser: click **Start Voice Call**.
+4. Speak natural requests:
+   - "What do I have on my calendar this week?"
+   - "Find emails from Acme Corp"
+   - "Draft a reply to the last message"
+
+The assistant should use the discovered tools, execute them via Scalekit (with your identity), and speak the results.
+
+Watch the terminal for `[Vapi Webhook]` or MCP connection logs.
+
+## Troubleshooting
+
+| Symptom                              | Likely cause & fix |
+|--------------------------------------|--------------------|
+| Vapi can't discover tools            | Token expired or missing `Authorization: Bearer <token>` header. Regenerate and paste fresh. |
+| "No connected account" when minting  | User hasn't authorized the connections in the Virtual MCP. Authorize in Scalekit → Connected Accounts. |
+| Agent ignores tools or hallucinates  | System prompt doesn't instruct tool use, or too many tools in scope. Tighten mappings in Virtual MCP config and strengthen prompt. |
+| 401 from Scalekit                    | Wrong identifier or connection not active for the config. Verify with `list_mcp_connected_accounts`. |
+
+See the demo repo for more.
+
+## How this scales to 1000+ tools
+
+- **Scoping at config time** — the Virtual MCP only advertises the tools you mapped. The LLM never sees the other 900+.
+- **Per-user tokens** — even if the catalog is huge, each call only carries the user's authorized subset.
+- **Dynamic discovery** — Vapi fetches the current allowed tools at the start of the conversation. No static tool list to maintain.
+- **Token cost control** — fewer tools = dramatically smaller context. A 1000-tool catalog would be unusable; a 5–15 tool scope is practical.
+
+The same pattern works for any voice or chat platform that supports MCP clients.
+
+## Security & compliance notes
+
+- Raw OAuth tokens never leave Scalekit.
+- Every tool call is audited with the acting user's identity.
+- You can rotate or revoke access per connection without touching the agent.
+- Virtual MCP gives you an explicit allow-list instead of "all tools the user has ever connected".
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| Vapi says it can't discover tools | Token expired or wrong header format | Regenerate token, confirm `Authorization: Bearer <token>` exactly. |
+| "No connected account" on token mint | User hasn't authorized the mapped connections | Go to Connected Accounts and complete OAuth for the identifier. |
+| Agent calls the wrong tool or hallucinates | Prompt doesn't tell the model when to use tools, or too many tools in scope | Tighten the Virtual MCP mapping and strengthen the system prompt. |
+| 401 / invalid token from Scalekit | Identifier mismatch or connection not active for this config | Verify `list_mcp_connected_accounts` returns ACTIVE. |
+
+## Next steps & variations
+
+- Add more connectors (Slack, Notion, Salesforce...) by extending the Virtual MCP mapping.
+- Switch voice platforms (replace Vapi with another MCP-capable voice or chat client).
+- Add a real user login flow so the identifier comes from your session instead of an env var.
+- Expose the same Virtual MCP to web, mobile, and voice clients from one config.
+- Combine with Scalekit's user verification for stronger identity assurance.
+
+See the [full demo source](https://github.com/scalekit-developers/vapi-scalekit-voice-demo) and the [Virtual MCP configuration guide](/agentkit/mcp/configure-mcp-server/).
+
+## References
+
+- [Scalekit Virtual MCP docs](/agentkit/mcp/overview/)
+- [Vapi MCP integration](/tools/mcp) (external)
+- [AgentKit tool calling](/agentkit/tools/overview/)
+- Demo repo + recording linked above.
