@@ -759,6 +759,11 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'OAuth 2.1/DCR',
     categories: ['Transcription', 'Collaboration', 'AI'],
   },
+  leadboxermcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/leadboxermcp.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Analytics', 'Marketing', 'CRM & Sales'],
+  },
   leadiq: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/leadiq.svg',
     authType: 'API Key',
