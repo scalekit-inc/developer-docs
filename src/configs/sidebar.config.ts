@@ -113,6 +113,10 @@ export const sidebar = [
         ],
       },
       {
+        label: 'Manage encryption keys',
+        link: 'guides/encryption-keys',
+      },
+      {
         label: 'View auth integrations',
         link: 'guides/integrations',
       },

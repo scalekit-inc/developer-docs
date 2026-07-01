@@ -1,0 +1,104 @@
+---
+title: 'Manage encryption keys'
+description: 'Bring your own encryption key so Scalekit uses it to encrypt configuration settings and secrets in your environment.'
+sidebar:
+  label: 'Manage encryption keys'
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+By default, Scalekit manages the encryption of configuration data in your environment, including SSO connections, SCIM tokens, client secrets, and other sensitive settings.
+
+You can bring your own encryption key. Scalekit will use the key you provide as the root of trust to encrypt and protect all configuration settings for your environment.
+
+This feature gives you control over the encryption keys that protect your data at rest in Scalekit.
+
+## Why use your own encryption key
+
+- Meet data sovereignty or compliance requirements in regulated industries.
+- Control the full lifecycle of the keys that protect your tenant configuration.
+- Reduce reliance on the service provider for the root encryption material.
+
+<Aside type="caution" title="You are responsible for the key">
+  Once you bring your own encryption key, Scalekit no longer holds the root material. You must securely store, rotate, and back up the key. Losing the key can make your configuration data permanently inaccessible.
+</Aside>
+
+## How encryption keys work
+
+Scalekit uses envelope encryption. Your provided key wraps the keys that actually encrypt your configuration data.
+
+When you register a key:
+
+1. Scalekit generates a wrapping key for secure import.
+2. You wrap your key using the provided material.
+3. You upload the wrapped key.
+4. Scalekit begins using your key to protect new and existing configuration.
+
+Existing data is re-encrypted over time or on next use, depending on the operation.
+
+## Prerequisites
+
+- A way to generate and manage a strong encryption key (recommended: cloud KMS or on-premises HSM).
+- The correct key type and size as specified in the Scalekit dashboard (typically 256-bit symmetric or RSA 2048+).
+- Access to the Scalekit environment where you want to enable the key.
+
+## Configure encryption keys
+
+<Steps>
+
+1. ## Generate and prepare your key
+
+   Generate a key in your KMS or HSM according to Scalekit requirements.
+
+   Download the public wrapping key from the Scalekit dashboard when prompted. Use it to securely wrap your key before upload.
+
+2. ## Register the key in Scalekit
+
+   Go to **Dashboard > Developers > Settings > Encryption keys**.
+
+   Select the option to bring your own key and follow the upload flow.
+
+   Scalekit will validate the wrapped key and switch to using it for your environment.
+
+3. ## Verify encryption is active
+
+   Check the key status in the dashboard. New configuration operations should reflect the new root key.
+
+   Test by creating or updating a connection and confirming it succeeds.
+
+</Steps>
+
+## Rotate or update your encryption key
+
+To rotate:
+
+1. Generate a new key in your KMS.
+2. Wrap it using the current wrapping material from Scalekit.
+3. Upload the new key through the rotation flow.
+4. Scalekit re-encrypts the hierarchy with the new key.
+
+Rotation is a critical operation. Perform it during a maintenance window and verify all integrations afterward.
+
+## Best practices
+
+- Store the key material only in a secure KMS or HSM. Never export it to local files or version control.
+- Implement a documented rotation schedule (for example, annually or after any suspected exposure).
+- Maintain secure offline backups of wrapped key material when required by your compliance policies.
+- Monitor key usage and state changes through Scalekit logs and your KMS audit logs.
+- Test key rotation in a non-production environment first.
+
+## Security considerations
+
+Bringing your own key shifts responsibility for the root of trust to you. Ensure you have:
+
+- Strong access controls on the system that holds the key.
+- Processes for key revocation and emergency rotation.
+- Audit logging for all key operations.
+
+If you decide to return to Scalekit-managed keys, contact support to initiate the migration process.
+
+## Related topics
+
+- [Production readiness checklist](/authenticate/launch-checklist)
+- [Client credentials best practices](/guides/client-credentials-practices)
+- [Authentication best practices](/guides/security/authentication-best-practices)
