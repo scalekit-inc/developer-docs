@@ -1,10 +1,10 @@
 ---
-title: 'Build a voice assistant that can access 1000+ tools'
+title: 'Build a voice assistant with Vapi + Scalekit (1000+ tools)'
 description: 'Combine Vapi for natural voice interactions with Scalekit Virtual MCP to give agents secure, scoped access to thousands of tools across connectors without token bloat or per-tool OAuth code.'
 date: 2026-07-01
 tags: ['Agent auth', 'Voice', 'MCP', 'Vapi']
 sidebar:
-  label: 'Voice assistant with 1000+ tools'
+  label: 'Vapi + Scalekit: 1000+ tools'
 tableOfContents: true
 excerpt: >
   Voice assistants are powerful for natural interaction but hit walls with auth and tool volume. This cookbook shows how to use Scalekit's Virtual MCP to scope 1000+ tools per user, mint short-lived tokens, and wire them into a Vapi assistant — all while keeping the voice flow simple and secure.
@@ -18,7 +18,7 @@ authors:
 
 import { Aside, Steps } from '@astrojs/starlight/components';
 
-Voice interfaces shine for hands-free, conversational access to data and actions. But giving a voice agent access to real tools (Gmail, Calendar, Slack, CRM, 1000+ connectors) introduces two hard problems: per-user authentication without leaking tokens to the LLM, and managing a massive tool surface without overwhelming context windows or exposing everything to every user.
+Voice interfaces shine for hands-free, conversational access to data and actions. But giving a voice agent access to real tools (Gmail, Calendar, Slack, GitHub, Drive, CRM, Notion, and 1000+ connectors) introduces two hard problems: per-user authentication without leaking tokens to the LLM, and managing a massive tool surface without overwhelming context windows or exposing everything to every user.
 
 Scalekit lets you:
 
@@ -26,15 +26,15 @@ Scalekit lets you:
 - Associate them with specific users via connections.
 - Use **Virtual MCP** to bundle hundreds or thousands of those registered tools into a single, scoped, per-user MCP endpoint that Vapi can discover dynamically.
 
-This cookbook walks through building a Vapi voice assistant that safely surfaces thousands of tools using Scalekit's tool registration + Virtual MCP. You can also call specific registered tools directly via Vapi Function tools if you don't need dynamic discovery of many.
+This cookbook walks through building a [Vapi](https://vapi.ai) voice assistant that safely surfaces thousands of tools using Scalekit's tool registration + Virtual MCP. You can also call specific registered tools directly via Vapi Function tools if you don't need dynamic discovery of many.
 
 The complete source is available in the [vapi-scalekit-voice-demo](https://github.com/scalekit-developers/vapi-scalekit-voice-demo) repository.
 
 ## What you are building
 
 - Register and manage individual tools (built-in from connections or custom) directly in the Scalekit UI, and associate them with users/connections.
-- A **Vapi voice assistant** that understands natural language requests like "list my meetings this week" or "find emails from Acme".
-- **Dynamic tool discovery** via a Scalekit Virtual MCP — the assistant only sees the tools you explicitly scoped for that role (selected from the ones you registered).
+- A **Vapi voice assistant** that understands natural language requests (e.g. "List my meetings this week", "Find emails from Acme about the renewal", "Summarize the last thread in #eng-updates on Slack", "Show my open GitHub PRs", "Find the latest proposal in Drive and email it to the team").
+- **Dynamic tool discovery** via a Scalekit Virtual MCP — the assistant only sees the tools you explicitly scoped for that role (selected from the ones you registered). Vapi discovers these at call start via the MCP protocol.
 - **Per-user OAuth without custom code** — Scalekit handles authorization links, token storage, and refresh. Your app just passes the user's identifier.
 - **Scalable to 1000+ tools** — scoping + per-user tokens keep context small and access least-privilege even when the full catalog is huge.
 - A pattern you can extend to other voice platforms or agent frameworks by swapping the client.
@@ -47,6 +47,61 @@ The complete source is available in the [vapi-scalekit-voice-demo](https://githu
 - Node.js 18+ and the demo dependencies.
 - ngrok (or equivalent) for local webhook exposure during development.
 - Familiarity with basic voice agent concepts and OAuth flows.
+
+## Environment variables
+
+The demo is configured via `.env.local` (copy it from `.env.example`).
+
+```bash
+cp .env.example .env.local
+```
+
+### Variables present in the demo
+
+| Variable                                   | Required | Client (browser) | Purpose |
+|--------------------------------------------|----------|------------------|---------|
+| `NEXT_PUBLIC_VAPI_PUBLIC_KEY`              | Yes      | Yes              | Initializes the Vapi Web SDK in the browser |
+| `NEXT_PUBLIC_VAPI_ASSISTANT_ID`            | Yes      | Yes              | ID of the assistant to start voice calls against |
+| `VAPI_PRIVATE_KEY`                         | For API updates | No            | Used server-side only to call Vapi APIs (create/update tools programmatically) |
+| `SCALEKIT_ENV_URL`                         | Yes      | No               | Base URL of your Scalekit environment |
+| `SCALEKIT_CLIENT_ID`                       | Yes      | No               | Scalekit API credential (public part) |
+| `SCALEKIT_CLIENT_SECRET`                   | Yes      | No               | Scalekit secret. Never ship to browser or commit |
+| `TEST_IDENTIFIER`                          | Yes      | No (server)      | The user identity (email / your ID) whose connections will be used |
+| `NEXT_PUBLIC_TEST_SCALEKIT_CONNECTION_ID`  | Yes      | Yes              | Browser-safe copy of the identifier; passed in Vapi call `metadata` |
+| `SCALEKIT_MCP_CONFIG_ID`                   | For MCP  | No               | `cfg_...` ID of your Virtual MCP config (created in Scalekit dashboard) |
+| `NEXT_PUBLIC_SCALEKIT_MCP_SERVER_URL`      | For MCP  | Yes (url only)   | The static base MCP server URL. Token is added at runtime via the `Authorization` header |
+
+**MCP-specific vars** (`SCALEKIT_MCP_CONFIG_ID` + `NEXT_PUBLIC_SCALEKIT_MCP_SERVER_URL`) are only needed when using the dynamic discovery MCP tool path (recommended for 1000+ tools). They are not required for pure Function tool + `executeTool` mode.
+
+### Running the token helper (demo)
+
+After filling the MCP variables, generate a fresh token for Vapi:
+
+```bash
+python scripts/generate-mcp-token.py
+```
+
+(or `node --env-file=.env.local scripts/generate-mcp-token.js`)
+
+The script outputs the exact `server` object (url + Authorization header) you paste into the Vapi MCP tool form.
+
+### What changes when you go live (production)
+
+In a real application you do **not** rely on a static `.env.local` for user identity or tokens:
+
+- **Identifier comes from runtime context** — After a real user authenticates in your app and authorizes their connections (Gmail etc.), you obtain their `identifier` from your session / database. Never use a hardcoded `TEST_IDENTIFIER`.
+
+- **Tokens are minted on the fly and short-lived** — When the user starts a voice call, your backend calls Scalekit to create a fresh session token for that specific identifier + config (see `app/api/scalekit/mcp-session/route.ts` and the Python script). Tokens typically live for minutes to an hour.
+
+- **MCP server configuration is injected dynamically** — 
+  - Demo: you manually copy-paste `server.url` and the `Authorization: Bearer <token>` header into the Vapi dashboard UI.
+  - Production: your backend uses the **Vapi API** (authenticated with `VAPI_PRIVATE_KEY`) to create or patch the MCP tool on the assistant with the fresh per-call `server` object (containing the just-minted token). You can do this immediately before calling `vapi.start(...)` or via Vapi's assistant update endpoints. The token never sits in your dashboard.
+
+- **Secrets stay server-side** — `SCALEKIT_CLIENT_SECRET` and `VAPI_PRIVATE_KEY` remain in your production environment variables / secret manager. Only non-sensitive values (`NEXT_PUBLIC_*` public keys, config IDs, base URLs) may be exposed to the client when truly required.
+
+- For non-MCP flows (Function tools), the webhook receives the identifier via Vapi `metadata` and performs minting + `executeTool` internally.
+
+This design means the same Virtual MCP config works for every user—you only swap the short-lived token and the acting identifier at call time.
 
 ## Registering tools in the Scalekit UI
 
@@ -92,7 +147,7 @@ Key differences from a naive "give the LLM every tool" approach:
 
 1. In the Scalekit dashboard go to **AgentKit → MCP Configs → Create Config**.
 2. Give it a name (e.g. "voice-personal-assistant").
-3. Add connection tool mappings for the connectors you want. Example for calendar + email:
+3. Add connection tool mappings for the connectors you want. Example for calendar + email (expand later with Slack, GitHub, Drive, etc.):
 
    ```yaml
    connection_tool_mappings:
@@ -150,44 +205,75 @@ You now have a voice agent that can discover tools dynamically from the scoped M
 
 ## Step 4: Mint per-user tokens at runtime (the demo)
 
-## Step 4: Mint per-user tokens at runtime (the demo)
+See the dedicated [Environment variables](#environment-variables) section above for the full list and demo vs. production guidance.
 
-The demo (Next.js + Vapi Web SDK) shows the full loop:
+The demo (Next.js + Vapi Web SDK) shows the complete loop for testing:
 
-- User clicks "Start Voice Call" and passes `scalekitConnectionId` (the identifier) in metadata.
-- On the backend you call `scalekit.actions.mcp.create_session_token({ mcp_config_id, identifier })` to get a fresh short-lived token.
-- You return the token (or use it to configure the call) so Vapi can connect with proper identity.
+- User clicks "Start Voice Call" and passes `scalekitConnectionId` (the identifier) via Vapi call `metadata`.
+- The backend (or the helper script) mints a fresh short-lived session token for that identifier + your Virtual MCP config.
+- You supply the token via the `Authorization: Bearer ...` header so Vapi can connect to the scoped MCP endpoint with the correct identity.
 
-See the `scripts/generate-mcp-token.py` (or .js) and `app/api/scalekit/mcp-session` in the demo repo for the exact implementation.
+For quick local testing use the provided scripts (prominently shown in the demo UI):
 
-Key code pattern (Node):
-
-```ts
-const tokenResp = await scalekit.actions.mcp.create_session_token({
-  mcp_config_id: process.env.SCALEKIT_MCP_CONFIG_ID!,
-  identifier: userIdentifier,
-  expiry: '1h',
-});
-
-const mcpConfig = {
-  url: process.env.NEXT_PUBLIC_SCALEKIT_MCP_SERVER_URL!,
-  headers: { Authorization: `Bearer ${tokenResp.token}` },
-};
+```bash
+python scripts/generate-mcp-token.py
 ```
 
-Pass the `mcpConfig` when configuring your Vapi MCP tool (or start the call against an assistant that already has it).
+See `scripts/generate-mcp-token.py` (recommended), `scripts/generate-mcp-token.js`, `app/api/scalekit/mcp-session/route.ts`, and the demo's Virtual MCP panel for exact implementation and copyable output.
+
+Key pattern (what the script / route produces):
+
+```json
+{
+  "server": {
+    "url": "https://...scalekit.../mcp/v3/servers/...",
+    "headers": {
+      "Authorization": "Bearer <fresh-short-lived-token>"
+    }
+  }
+}
+```
+
+In the demo you paste the `url` into Vapi's MCP tool **Server URL** field and add the header manually (see Step 3). The UI and scripts make this easy to copy.
+
+## Production note: tokens and config are injected at runtime
+
+In a real application you never manually edit the Vapi dashboard for each user or call:
+
+- Your backend mints the token **on the fly** (using the Scalekit SDK or direct call with management token) exactly when the user initiates the voice session.
+- You then use the Vapi API (authenticated with your `VAPI_PRIVATE_KEY`) to dynamically set or override the MCP tool's `server` (url + Authorization header) on the assistant before starting the call.
+- The identifier always comes from the logged-in user context rather than a `TEST_IDENTIFIER` env var.
+
+The same Virtual MCP config (the `cfg_...` you created) is reused for everyone. Only the short-lived token and acting identifier change per user / per call. This is exactly what the demo's `/api/scalekit/mcp-session` endpoint and the "In a real app" callout in the demo UI demonstrate.
 
 ## Step 5: Test the voice flow
 
 1. Start the demo: `npm run dev` + `ngrok http 3000`.
 2. Update Vapi tool Server URL to your ngrok + `/api/vapi/webhook` (for the Function fallback) or point the MCP tool at the Scalekit URL + token.
 3. In the browser: click **Start Voice Call**.
-4. Speak natural requests:
-   - "What do I have on my calendar this week?"
-   - "Find emails from Acme Corp"
-   - "Draft a reply to the last message"
+4. Speak natural requests. A few examples that work well with common scoped tools:
 
-The assistant should use the discovered tools, execute them via Scalekit (with your identity), and speak the results.
+   **Calendar**
+   - "What do I have on my calendar this week?"
+   - "Find a 30-minute slot tomorrow afternoon for a sync with Priya"
+   - "Add a meeting with the design team on Friday at 2pm"
+
+   **Email (Gmail)**
+   - "Find emails from Acme Corp"
+   - "Summarize the latest thread with the legal team"
+   - "Draft a polite reply to the last message from Sarah"
+
+   **Slack**
+   - "Summarize the latest messages in #product channel"
+   - "Any mentions of the launch in Slack this morning?"
+
+   **GitHub + Drive + cross-tool**
+   - "Show my open pull requests"
+   - "Find the Q3 roadmap in Drive and email a summary to the team"
+
+   - "Check my calendar for tomorrow and email the attendees the agenda doc from Drive"
+
+The assistant should use the discovered tools, execute them via Scalekit (with your identity), and speak the results. Mix and match connectors that you've included in your Virtual MCP config.
 
 Watch the terminal for `[Vapi Webhook]` or MCP connection logs.
 
@@ -209,6 +295,9 @@ See the demo repo for more.
 - **Dynamic discovery** — Vapi fetches the current allowed tools at the start of the conversation. No static tool list to maintain.
 - **Token cost control** — fewer tools = dramatically smaller context. A 1000-tool catalog would be unusable; a 5–15 tool scope is practical.
 
+**Real use case examples that become feasible only with scoping**:
+A sales rep might get "Gmail + Calendar + Salesforce + Slack" (8-12 tools). An engineer might get "GitHub + Drive + Slack + Gmail". Both use the *same* underlying 1000+ tool catalog, but each voice session only sees what that person is allowed to do.
+
 The same pattern works for any voice or chat platform that supports MCP clients.
 
 ## Security & compliance notes
@@ -217,15 +306,6 @@ The same pattern works for any voice or chat platform that supports MCP clients.
 - Every tool call is audited with the acting user's identity.
 - You can rotate or revoke access per connection without touching the agent.
 - Virtual MCP gives you an explicit allow-list instead of "all tools the user has ever connected".
-
-## Troubleshooting
-
-| Symptom | Likely cause | Fix |
-|---------|--------------|-----|
-| Vapi says it can't discover tools | Token expired or wrong header format | Regenerate token, confirm `Authorization: Bearer <token>` exactly. |
-| "No connected account" on token mint | User hasn't authorized the mapped connections | Go to Connected Accounts and complete OAuth for the identifier. |
-| Agent calls the wrong tool or hallucinates | Prompt doesn't tell the model when to use tools, or too many tools in scope | Tighten the Virtual MCP mapping and strengthen the system prompt. |
-| 401 / invalid token from Scalekit | Identifier mismatch or connection not active for this config | Verify `list_mcp_connected_accounts` returns ACTIVE. |
 
 ## Next steps & variations
 
@@ -240,6 +320,6 @@ See the [full demo source](https://github.com/scalekit-developers/vapi-scalekit-
 ## References
 
 - [Scalekit Virtual MCP docs](/agentkit/mcp/overview/)
-- [Vapi MCP integration](/tools/mcp) (external)
+- [Vapi](https://vapi.ai) (see [MCP integration](https://docs.vapi.ai/tools/mcp))
 - [AgentKit tool calling](/agentkit/tools/overview/)
 - Demo repo + recording linked above.
