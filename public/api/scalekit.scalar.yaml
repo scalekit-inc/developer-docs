@@ -273,6 +273,18 @@ paths:
             identifier, or other searchable fields. Case-insensitive.
           name: query
           in: query
+        - schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+          description: Filter by one or more connection names (exact match).
+            Returns connected accounts belonging to any of the specified
+            connections. Max 20 names per request. Cannot be combined with the
+            `connector` field.
+          name: connection_names
+          in: query
       responses:
         '200':
           description: Successfully retrieved the list of connected accounts
@@ -916,12 +928,6 @@ paths:
           in: path
           required: true
         - schema:
-            type: string
-          description: External system identifier from connected directories.
-            Must be unique across the system
-          name: external_id
-          in: query
-        - schema:
             type: boolean
           description: If true, sends an activation email to the user. Defaults
             to true.
@@ -1030,10 +1036,8 @@ paths:
               $ref: '#/components/schemas/v1usersCreateMembership'
         required: true
     delete:
-      description: Removes a user from an organization by user ID or external
-        ID. If the user has no memberships left and cascade is true, the user is
-        also deleted. This action is irreversible and may also remove related
-        group memberships.
+      description: Removes a user from an organization by user ID. This action
+        is irreversible and may also remove related group memberships.
       tags:
         - Users
       summary: Delete organization membership for user
@@ -1053,12 +1057,6 @@ paths:
           name: id
           in: path
           required: true
-        - schema:
-            type: string
-          description: External system identifier from connected directories.
-            Must match existing records
-          name: external_id
-          in: query
       responses:
         '200':
           description: User successfully marked for deletion. No content
@@ -1075,7 +1073,7 @@ paths:
             )
     patch:
       description: Updates a user's membership details within an organization by
-        user ID or external ID. You can update roles and membership metadata.
+        user ID. You can update roles and membership metadata.
       tags:
         - Users
       summary: Update organization membership for user
@@ -1095,11 +1093,6 @@ paths:
           name: id
           in: path
           required: true
-        - schema:
-            type: string
-          description: Your application's unique identifier for this user.
-          name: external_id
-          in: query
       responses:
         '200':
           description: Membership updated successfully. Returns the updated user
@@ -1108,6 +1101,230 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/usersUpdateMembershipResponse'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Membership fields to update. Only specified fields
+                will be modified.
+              $ref: '#/components/schemas/v1usersUpdateMembership'
+              examples:
+                - role: admin
+        required: true
+  /api/v1/memberships/organizations/{organization_id}/users:external/{external_id}:
+    post:
+      description: Adds an existing user to an organization using your
+        application's external identifier for the user. Use this endpoint when
+        you store users in Scalekit using your own system's identifiers and need
+        to manage their organization memberships without storing Scalekit's
+        internal user ID.
+      tags:
+        - Users
+      summary: Add existing user to organization by external ID
+      operationId: UserService_CreateMembership2
+      parameters:
+        - schema:
+            type: string
+          description: Unique identifier of the target organization. Must start
+            with 'org_' and be 1-32 characters long.
+          name: organization_id
+          in: path
+          required: true
+        - schema:
+            type: string
+          description: External system identifier from connected directories.
+            Must be unique across the system
+          name: external_id
+          in: path
+          required: true
+        - schema:
+            type: boolean
+          description: If true, sends an activation email to the user. Defaults
+            to true.
+          name: send_invitation_email
+          in: query
+      responses:
+        '201':
+          description: User successfully added to the organization. Returns
+            details of the updated membership details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/usersCreateMembershipResponse'
+      x-codeSamples:
+        - label: Node.js SDK
+          lang: javascript
+          source: >-
+            await scalekit.user.createMembershipByExternalId("org_123",
+            "ext_user_123", {
+              roles: ["admin"],
+              metadata: { department: "engineering" },
+            });
+        - label: Python SDK
+          lang: python
+          source: |-
+            from scalekit.v1.users.users_pb2 import CreateMembership
+            from scalekit.v1.commons.commons_pb2 import Role
+
+            membership = CreateMembership(
+                roles=[Role(name="admin")],
+                metadata={"department": "engineering"},
+            )
+            scalekit_client.users.create_membership_by_external_id(
+                "org_123",
+                "ext_user_123",
+                membership,
+            )
+        - label: Go SDK
+          lang: go
+          source: |-
+            membership := &usersv1.CreateMembership{
+                Roles:    []*usersv1.Role{{Name: "admin"}},
+                Metadata: map[string]string{"department": "engineering"},
+            }
+            scalekitClient.User().CreateMembershipByExternalId(
+                ctx, "org_123", "ext_user_123", membership, false,
+            )
+        - label: Java SDK
+          lang: java
+          source: |-
+            CreateMembership membership = CreateMembership.newBuilder()
+                .addRoles(Role.newBuilder().setName("admin").build())
+                .putMetadata("department", "engineering")
+                .build();
+            CreateMembershipRequest request = CreateMembershipRequest.newBuilder().setMembership(membership).build();
+            users.createMembershipByExternalId("org_123", "ext_user_123", request);
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Membership details to create. Required fields must be
+                provided.
+              required:
+                - membership
+              $ref: '#/components/schemas/v1usersCreateMembership'
+        required: true
+    delete:
+      description: Removes a user from an organization using your application's
+        external identifier for the user. Use this endpoint to revoke
+        organization access without needing to store Scalekit's internal user
+        ID.
+      tags:
+        - Users
+      summary: Delete organization membership by external ID
+      operationId: UserService_DeleteMembership2
+      parameters:
+        - schema:
+            type: string
+          description: Unique organization identifier. Must start with 'org_'
+            and be 1-32 characters long
+          name: organization_id
+          in: path
+          required: true
+        - schema:
+            type: string
+          description: External system identifier from connected directories.
+            Must match existing records
+          name: external_id
+          in: path
+          required: true
+      responses:
+        '200':
+          description: User successfully marked for deletion. No content
+            returned
+          content:
+            application/json:
+              schema: {}
+      x-codeSamples:
+        - label: Node.js SDK
+          lang: javascript
+          source: await scalekit.user.deleteMembershipByExternalId("org_123",
+            "ext_user_123");
+        - label: Python SDK
+          lang: python
+          source: |-
+            scalekit_client.users.delete_membership_by_external_id(
+                "org_123",
+                "ext_user_123",
+            )
+        - label: Go SDK
+          lang: go
+          source: >-
+            if err := scalekitClient.User().DeleteMembershipByExternalId(ctx,
+            "org_123", "ext_user_123", false); err != nil {
+                // handle error
+            }
+        - label: Java SDK
+          lang: java
+          source: users.deleteMembershipByExternalId("org_123", "ext_user_123");
+    patch:
+      description: Updates a user's membership details within an organization
+        using your application's external identifier for the user. Use this
+        endpoint to update roles and membership metadata without needing to
+        store Scalekit's internal user ID.
+      tags:
+        - Users
+      summary: Update organization membership by external ID
+      operationId: UserService_UpdateMembership2
+      parameters:
+        - schema:
+            type: string
+          description: Unique identifier of the organization containing the
+            membership. Must start with 'org_' and be 1-32 characters long.
+          name: organization_id
+          in: path
+          required: true
+        - schema:
+            type: string
+          description: Your application's unique identifier for this user.
+          name: external_id
+          in: path
+          required: true
+      responses:
+        '200':
+          description: Membership updated successfully. Returns the updated user
+            object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/usersUpdateMembershipResponse'
+      x-codeSamples:
+        - label: Node.js SDK
+          lang: javascript
+          source: >-
+            await scalekit.user.updateMembershipByExternalId("org_123",
+            "ext_user_123", {
+              roles: ["admin"],
+            });
+        - label: Python SDK
+          lang: python
+          source: |-
+            from scalekit.v1.users.users_pb2 import UpdateMembership
+            from scalekit.v1.commons.commons_pb2 import Role
+
+            membership = UpdateMembership(roles=[Role(name="admin")])
+            scalekit_client.users.update_membership_by_external_id(
+                "org_123",
+                "ext_user_123",
+                membership,
+            )
+        - label: Go SDK
+          lang: go
+          source: |-
+            membership := &usersv1.UpdateMembership{
+                Roles: []*usersv1.Role{{Name: "admin"}},
+            }
+            scalekitClient.User().UpdateMembershipByExternalId(
+                ctx, "org_123", "ext_user_123", membership,
+            )
+        - label: Java SDK
+          lang: java
+          source: |-
+            UpdateMembership membership = UpdateMembership.newBuilder()
+                .addRoles(Role.newBuilder().setName("admin").build())
+                .build();
+            UpdateMembershipRequest request = UpdateMembershipRequest.newBuilder().setMembership(membership).build();
+            users.updateMembershipByExternalId("org_123", "ext_user_123", request);
       requestBody:
         content:
           application/json:
@@ -1213,7 +1430,9 @@ paths:
             const organization = await
             scalekit.organization.createOrganization(name, {
 
+
             	externalId: "externalId",
+
 
             });
         - label: Python SDK
@@ -1600,27 +1819,39 @@ paths:
           source: >-
             settings := OrganizationSettings{
 
+
             		Features: []Feature{
 
+
             			{
+
 
             				Name:    "sso",
 
+
             				Enabled: true,
 
+
             			},
+
 
             			{
 
+
             				Name:    "dir_sync",
+
 
             				Enabled: true,
 
+
             			},
+
 
             		},
 
+
             	}
+
 
 
             organization,err :=
@@ -1776,15 +2007,21 @@ paths:
             resp, err := scalekitClient.Role().CreateOrganizationRole(ctx,
             "org_123", &rolesv1.CreateOrganizationRole{
 
+
             	Name:        "org_admin",
+
 
             	DisplayName: "Org Admin",
 
+
             	Description: proto.String("Organization-scoped role"), // optional
+
 
             	Extends:     proto.String("base_role_name"),        // optional
 
+
             	Permissions: []string{"perm.read", "perm.write"},   // optional
+
 
             })
         - label: Java SDK
@@ -2866,11 +3103,15 @@ paths:
           source: >-
             options := &ListDirectoryGroupsOptions{
 
+
             		PageSize: 10,
+
 
             		PageToken:"",
 
+
             	}
+
 
 
             directoryGroups, err :=
@@ -2972,11 +3213,15 @@ paths:
           source: >-
             options := &ListDirectoryUsersOptions{
 
+
             		PageSize: 10,
+
 
             		PageToken: "",
 
+
             	}
+
 
             directoryUsers,err :=
             scalekitClient.Directory().ListDirectoryUsers(ctx, organizationId,
@@ -3318,9 +3563,12 @@ paths:
             const response = await scalekit.createDomain("org-123",
             "example.com", {
 
+
             	// Domain type: controls user authentication and email validation
 
+
             	domainType: "ORGANIZATION_DOMAIN",
+
 
             });
         - label: Python SDK
@@ -3331,6 +3579,7 @@ paths:
             response =
             scalekit_client.domain.create_domain(organization_id="org-123",
 
+
             			domain_name="example.com",
              			domain_type="ORGANIZATION_DOMAIN")
         - label: Go SDK
@@ -3339,7 +3588,9 @@ paths:
             domain, err := scalekitClient.Domain().CreateDomain(ctx, "org_id",
             "example.com", &scalekit.CreateDomainOptions{
 
+
             		DomainType: "ORGANIZATION_DOMAIN",
+
 
             	})
         - label: Java SDK
@@ -4045,7 +4296,9 @@ paths:
             const resendResponse = await
             scalekit.passwordless.resendPasswordlessEmail(
 
+
             	authRequestId
+
 
             );
         - label: Python SDK
@@ -4228,15 +4481,21 @@ paths:
             const verifyResponse = await
             scalekit.passwordless.verifyPasswordlessEmail(
 
+
             	// Verification Code (OTP)
+
 
             	{ code: "123456" },
 
+
             	// Magic Link Token
+
 
             	{ linkToken: link_token },
 
+
             	authRequestId
+
 
             );
         - label: Python SDK
@@ -4458,9 +4717,12 @@ paths:
             resp, err := scalekitClient.Permission().CreatePermission(ctx,
             &rolesv1.CreatePermission{
 
+
             	Name:        "read:users",
 
+
             	Description: "Allows reading users",
+
 
             })
 
@@ -4767,15 +5029,21 @@ paths:
             resp, err := scalekitClient.Role().CreateRole(ctx,
             &rolesv1.CreateRole{
 
+
             	Name:        "admin",
+
 
             	DisplayName: "Admin",
 
+
             	Description: "Environment-level role",
+
 
             	Extends:     proto.String("base_role"),      // optional
 
+
             	Permissions: []string{"read:users"},        // optional
+
 
             })
         - label: Java SDK
@@ -5579,9 +5847,8 @@ paths:
             ListUsersResponse allUsers = users.listUsers(lur);
   /api/v1/users/{id}:
     get:
-      description: Retrieves all details for a user by system-generated user ID
-        or external ID. The response includes organization memberships and user
-        metadata.
+      description: Retrieves all details for a user by system-generated user ID.
+        The response includes organization memberships and user metadata.
       tags:
         - Users
       summary: Get user
@@ -5593,12 +5860,6 @@ paths:
           name: id
           in: path
           required: true
-        - schema:
-            type: string
-          description: Your application's unique identifier for this
-            organization, used to link Scalekit with your system.
-          name: external_id
-          in: query
       responses:
         '200':
           description: User details retrieved successfully. Returns full user
@@ -5647,12 +5908,6 @@ paths:
           name: id
           in: path
           required: true
-        - schema:
-            type: string
-          description: External system identifier from connected directories.
-            Must match existing records
-          name: external_id
-          in: query
       responses:
         '200':
           description: User successfully deleted. No content returned
@@ -5697,12 +5952,6 @@ paths:
           name: id
           in: path
           required: true
-        - schema:
-            type: string
-          description: Your application's unique identifier for this
-            organization, used to link Scalekit with your system.
-          name: external_id
-          in: query
       responses:
         '200':
           description: User updated successfully. Returns the modified user
@@ -6012,6 +6261,193 @@ paths:
           lang: java
           source: RevokeAllUserSessionsResponse res =
             scalekitClient.sessions().revokeAllUserSessions("user_123");
+  /api/v1/users:external/{external_id}:
+    get:
+      description: Retrieves all details for a user by your application's
+        external identifier. Use this endpoint when you store users in Scalekit
+        using your own system's identifiers and need to retrieve the Scalekit
+        user record. The response includes organization memberships and user
+        metadata.
+      tags:
+        - Users
+      summary: Get user by external ID
+      operationId: UserService_GetUser2
+      parameters:
+        - schema:
+            type: string
+          description: Your application's unique identifier for this user, used
+            to link Scalekit with your system.
+          name: external_id
+          in: path
+          required: true
+      responses:
+        '200':
+          description: User details retrieved successfully. Returns full user
+            object with system-generated fields and timestamps.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/usersGetUserResponse'
+      x-codeSamples:
+        - label: Node.js SDK
+          lang: javascript
+          source: const { user } = await
+            scalekit.user.getUserByExternalId("ext_user_123");
+        - label: Python SDK
+          lang: python
+          source: |-
+            resp = scalekit_client.users.get_user_by_external_id("ext_user_123")
+            user = resp.user
+        - label: Go SDK
+          lang: go
+          source: >-
+            resp, err := scalekitClient.User().GetUserByExternalId(ctx,
+            "ext_user_123")
+
+            if err != nil {
+                // handle error
+            }
+
+            user := resp.User
+        - label: Java SDK
+          lang: java
+          source: >-
+            GetUserResponse resp =
+            scalekitClient.users().getUserByExternalId("ext_user_123");
+
+            User user = resp.getUser();
+    delete:
+      description: Permanently removes a user identified by your application's
+        external identifier. This action deletes the user's profile,
+        memberships, and all related data across all organizations. This
+        operation cannot be undone.
+      tags:
+        - Users
+      summary: Delete user by external ID
+      operationId: UserService_DeleteUser2
+      parameters:
+        - schema:
+            type: string
+          description: External system identifier from connected directories.
+            Must match existing records
+          name: external_id
+          in: path
+          required: true
+      responses:
+        '200':
+          description: User successfully deleted. No content returned
+          content:
+            application/json:
+              schema: {}
+      x-codeSamples:
+        - label: Node.js SDK
+          lang: javascript
+          source: await scalekit.user.deleteUserByExternalId("ext_user_123");
+        - label: Python SDK
+          lang: python
+          source: scalekit_client.users.delete_user_by_external_id("ext_user_123")
+        - label: Go SDK
+          lang: go
+          source: >-
+            if err := scalekitClient.User().DeleteUserByExternalId(ctx,
+            "ext_user_123"); err != nil {
+                // handle error
+            }
+        - label: Java SDK
+          lang: java
+          source: users.deleteUserByExternalId("ext_user_123");
+    patch:
+      description: Modifies user account information for a user identified by
+        your application's external identifier. Use this endpoint to keep user
+        profile data in sync from your system without needing to store
+        Scalekit's internal user ID. You can update the user's profile, phone
+        number, and metadata fields.
+      tags:
+        - Users
+      summary: Update user by external ID
+      operationId: UserService_UpdateUser2
+      parameters:
+        - schema:
+            type: string
+          description: Your application's unique identifier for this user, used
+            to link Scalekit with your system.
+          name: external_id
+          in: path
+          required: true
+      responses:
+        '200':
+          description: User updated successfully. Returns the modified user
+            object with updated timestamps.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/usersUpdateUserResponse'
+      x-codeSamples:
+        - label: Node.js SDK
+          lang: javascript
+          source: |-
+            await scalekit.user.updateUserByExternalId("ext_user_123", {
+              userProfile: {
+                firstName: "John",
+                lastName: "Smith",
+              },
+              metadata: {
+                department: "sales",
+              },
+            });
+        - label: Python SDK
+          lang: python
+          source: >-
+            from scalekit.v1.users.users_pb2 import UpdateUser
+
+            from scalekit.v1.commons.commons_pb2 import UserProfile
+
+
+            update_user = UpdateUser(
+                user_profile=UserProfile(given_name="John", family_name="Smith"),
+                metadata={"department": "sales"},
+            )
+
+            scalekit_client.users.update_user_by_external_id("ext_user_123",
+            update_user)
+        - label: Go SDK
+          lang: go
+          source: >-
+            upd := &usersv1.UpdateUser{
+                UserProfile: &usersv1.UpdateUserProfile{
+                    GivenName:  proto.String("John"),
+                    FamilyName: proto.String("Smith"),
+                },
+                Metadata: map[string]string{"department": "sales"},
+            }
+
+            scalekitClient.User().UpdateUserByExternalId(ctx, "ext_user_123",
+            upd)
+        - label: Java SDK
+          lang: java
+          source: >-
+            UpdateUser upd = UpdateUser.newBuilder()
+                .setUserProfile(UpdateUserProfile.newBuilder()
+                    .setGivenName("John")
+                    .setFamilyName("Smith")
+                    .build())
+                .putMetadata("department", "sales")
+                .build();
+            UpdateUserRequest request =
+            UpdateUserRequest.newBuilder().setUser(upd).build();
+
+            users.updateUserByExternalId("ext_user_123", request);
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: User fields to update. Only specified fields will be
+                modified. Required fields must be provided if being changed.
+              $ref: '#/components/schemas/v1usersUpdateUser'
+              examples:
+                - firstName: John
+                  lastName: Doe
+        required: true
   /api/v1/users:search:
     get:
       description: Searches for users across the entire environment by email
@@ -7349,6 +7785,10 @@ components:
         static_auth:
           title: Static authentication credentials
           $ref: '#/components/schemas/connected_accountsStaticAuth'
+        trusted_idp:
+          title: Trusted IDP federated credentials (e.g. AWS STS temporary
+            credentials)
+          $ref: '#/components/schemas/connected_accountsTrustedIDPAuth'
     connected_accountsConnectedAccount:
       type: object
       properties:
@@ -7501,7 +7941,7 @@ components:
         - PENDING_VERIFICATION
         - DISCONNECTED
     connected_accountsConnectorType:
-      description: |-
+      description: >-
         - OAUTH: OAuth 2.0 authorization with access and refresh tokens
          - API_KEY: Static API key authentication
          - BASIC_AUTH: HTTP Basic Authentication (username/password)
@@ -7511,6 +7951,7 @@ components:
          - OAUTH_M2M: OAuth 2.0 client credentials (machine-to-machine)
          - TRELLO_OAUTH1: Trello token-based OAuth1-style browser authorization
          - GOOGLE_DWD: Google Domain-Wide Delegation
+         - TRUSTED_IDP: Trusted Identity Provider federation (e.g. AWS STS AssumeRoleWithWebIdentity)
       type: string
       title: Type of authentication mechanism used for the connected account
       enum:
@@ -7523,6 +7964,7 @@ components:
         - OAUTH_M2M
         - TRELLO_OAUTH1
         - GOOGLE_DWD
+        - TRUSTED_IDP
     connected_accountsCreateConnectedAccountRequest:
       type: object
       properties:
@@ -7808,6 +8250,50 @@ components:
           examples:
             - api_key: sk_live_...
               api_secret: '...'
+    connected_accountsTrustedIDPAuth:
+      description: >-
+        Trusted IDP federated authentication — used for TRUSTED_IDP connections
+        (e.g. AWS Redshift).
+
+        Send only db_user in requests; cached temporary credentials are managed
+        server-side and
+
+        returned only on output paths. secret_access_key and session_token are
+        never exposed in
+
+        public API responses.
+      type: object
+      properties:
+        access_key_id:
+          description: Federated access key ID issued by the trusted identity
+            provider. Present in responses only.
+          type: string
+          readOnly: true
+          examples:
+            - ASIA...
+        db_user:
+          description: Target database user for the federated session (required
+            for provisioned Redshift clusters; ignored for serverless
+            workgroups).
+          type: string
+          examples:
+            - analytics_reader
+        expiry:
+          description: When the federated credentials expire. Present in
+            responses only.
+          type: string
+          format: date-time
+          readOnly: true
+        secret_access_key:
+          description: Federated secret access key. Never returned in public API
+            responses.
+          type: string
+          readOnly: true
+        session_token:
+          description: Federated session token. Never returned in public API
+            responses.
+          type: string
+          readOnly: true
     connected_accountsUpdateConnectedAccountRequest:
       type: object
       properties:
@@ -7946,6 +8432,16 @@ components:
           description: Alternative identifier for this connection, typically
             used in frontend applications or URLs.
           type: string
+        mcp_server_url:
+          description: URL of the MCP server for this connection. Agents can
+            point directly at this URL to access only the tools for this
+            connection, without needing to call list_connections or execute_tool
+            with a connection_name. Empty when the MCP virtual servers feature
+            is not enabled for this environment.
+          type: string
+          readOnly: true
+          examples:
+            - https://acmecorp.scalekit.dev/mcp/v3/connections/gmail_work
         oauth_config:
           description: Configuration details for OAuth connections. Present only
             when type is OAUTH.
@@ -8047,6 +8543,7 @@ components:
         - OAUTH_M2M
         - TRELLO_OAUTH1
         - GOOGLE_DWD
+        - TRUSTED_IDP
     connectionsGetConnectionResponse:
       type: object
       properties:
@@ -8127,6 +8624,16 @@ components:
           type: string
           examples:
             - conn_2123312131125533
+        mcp_server_url:
+          description: MCP virtual server URL for this connection. Agents can
+            point directly at this URL to access only the tools for this
+            connection, without needing to call list_connections or execute_tool
+            with a connection_name. Empty when the MCP virtual servers feature
+            is not enabled for this environment.
+          type: string
+          readOnly: true
+          examples:
+            - https://acmecorp.scalekit.dev/mcp/v3/connections/gmail_work
         organization_id:
           description: Unique identifier of the organization that owns this
             connection
@@ -9380,11 +9887,11 @@ components:
           examples:
             - org_59615193906282635
         logo_url:
-          description: HTTPS URL of the organization's logo image. Maximum 2048
+          description: HTTPS URL of the organization's logo image. Maximum 1024
             characters. Must use the https scheme.
           type: string
           format: uri
-          maxLength: 2048
+          maxLength: 1024
           pattern: ^https://
           examples:
             - https://cdn.example.com/acme-logo.png
@@ -9404,13 +9911,14 @@ components:
           title: Organization Settings
           $ref: '#/components/schemas/organizationsOrganizationSettings'
         slug:
-          description: DNS-safe slug for dynamic redirect URI resolution. Must
-            be 1-63 chars, lowercase alphanumeric and hyphens, must start and
-            end with an alphanumeric character. Unique per environment.
+          description: Slug for dynamic redirect URI resolution. A single DNS
+            label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase
+            alphanumeric, hyphens, and dots. Max 253 chars. Unique per
+            environment.
           type: string
-          maxLength: 63
+          maxLength: 253
           minLength: 1
-          pattern: ^[a-z0-9]([a-z0-9]|-[a-z0-9])*$
+          pattern: ^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*$
           examples:
             - acme
         update_time:
@@ -11070,11 +11578,11 @@ components:
           examples:
             - my_unique_id
         logo_url:
-          description: HTTPS URL of the organization's logo image. Maximum 2048
+          description: HTTPS URL of the organization's logo image. Maximum 1024
             characters. Must use the https scheme.
           type: string
           format: uri
-          maxLength: 2048
+          maxLength: 1024
           pattern: ^https://
           examples:
             - https://cdn.example.com/acme-logo.png
@@ -11083,14 +11591,14 @@ components:
           additionalProperties:
             type: string
         slug:
-          description: DNS-safe slug for dynamic redirect URI resolution (e.g.
-            acme for https://acme.example.com/callback). Lowercase alphanumeric
-            and hyphens, 1-63 chars, must start and end with alphanumeric,
-            unique per environment.
+          description: Slug for dynamic redirect URI resolution. A single DNS
+            label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase
+            alphanumeric, hyphens, and dots. Max 253 chars. Unique per
+            environment.
           type: string
-          maxLength: 63
+          maxLength: 253
           minLength: 1
-          pattern: ^[a-z0-9]([a-z0-9]|-[a-z0-9])*$
+          pattern: ^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*$
           examples:
             - acme
     v1organizationsUpdateOrganization:
@@ -11111,11 +11619,11 @@ components:
           examples:
             - tenant_12345
         logo_url:
-          description: HTTPS URL of the organization's logo image. Maximum 2048
+          description: HTTPS URL of the organization's logo image. Maximum 1024
             characters. Must use the https scheme.
           type: string
           format: uri
-          maxLength: 2048
+          maxLength: 1024
           pattern: ^https://
           examples:
             - https://cdn.example.com/acme-logo.png
@@ -11129,13 +11637,13 @@ components:
           examples:
             - industry: technology
         slug:
-          description: DNS-safe slug for dynamic redirect URI resolution.
-            Lowercase alphanumeric and hyphens, 1-63 chars, must start and end
-            with alphanumeric, unique per environment.
+          description: Slug for dynamic redirect URI resolution. A single DNS
+            label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase
+            alphanumeric, hyphens, and dots. Max 253 chars. Send empty string to
+            clear.
           type: string
-          maxLength: 63
-          minLength: 1
-          pattern: ^[a-z0-9]([a-z0-9]|-[a-z0-9])*$
+          maxLength: 253
+          pattern: ^$|^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*$
           examples:
             - acme
     v1rolesCreateOrganizationRole:
@@ -11179,7 +11687,8 @@ components:
           examples:
             - Allows user to read documents from the system
         name:
-          description: Unique name/ID of the permission
+          description: Unique name/ID of the permission. Must be 1–64 characters
+            using only letters, numbers, underscores (_), and colons (:).
           type: string
           examples:
             - read:documents
@@ -11711,6 +12220,9 @@ x-scalar-active-environment: staging
 security:
   - oauth2: []
 
+# Docs handoff contract: developer-docs Scalar operationsSorter reads this to place
+# colon-style paths (e.g. :external, :search) after slash-style id paths within
+# the same HTTP method. Update here when adding new colon-path variants.
 webhooks:
   # Organization Events
   organization.created:
@@ -13100,3 +13612,10 @@ webhooks:
       responses:
         '200':
           description: Webhook received successfully
+x-scalekit-docs-operation-rank:
+  default: 0
+  path-segments:
+    - match: ':external'
+      rank: 1
+    - match: ':search'
+      rank: 2
