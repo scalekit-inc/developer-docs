@@ -1,13 +1,13 @@
 ---
-title: 'Build a voice assistant with Vapi + Scalekit (1000+ tools)'
+title: 'Build a Vapi voice assistant that can use any tool with Scalekit'
 description: 'Combine Vapi for natural voice interactions with Scalekit Virtual MCP to give agents secure, scoped access to thousands of tools across connectors without token bloat or per-tool OAuth code.'
 date: 2026-07-01
 tags: ['Agent auth', 'Voice', 'MCP', 'Vapi']
 sidebar:
-  label: 'Vapi + Scalekit: 1000+ tools'
+  label: 'Vapi voice assistant + Scalekit'
 tableOfContents: true
 excerpt: >
-  Voice assistants are powerful for natural interaction but hit walls with auth and tool volume. This cookbook shows how to use Scalekit's Virtual MCP to scope 1000+ tools per user, mint short-lived tokens, and wire them into a Vapi assistant — all while keeping the voice flow simple and secure.
+  Voice assistants are powerful for natural interaction but hit walls with auth and tool volume. This cookbook shows how to use Scalekit's Virtual MCP so a Vapi assistant can safely discover and call any tool the user is authorized for — without token bloat or per-tool OAuth code.
 featured: false
 authors:
   - name: 'Saif'
@@ -18,7 +18,7 @@ authors:
 
 import { Aside, Steps } from '@astrojs/starlight/components';
 
-Voice interfaces shine for hands-free, conversational access to data and actions. But giving a voice agent access to real tools (Gmail, Calendar, Slack, GitHub, Drive, CRM, Notion, and 1000+ connectors) introduces two hard problems: per-user authentication without leaking tokens to the LLM, and managing a massive tool surface without overwhelming context windows or exposing everything to every user.
+Voice interfaces shine for hands-free, conversational access to data and actions. But giving a voice agent access to real tools (Gmail, Calendar, Slack, GitHub, Drive, CRM, Notion, and [many other connectors](/agentkit/connectors/)) introduces two hard problems: per-user authentication without leaking tokens to the LLM, and managing a large tool surface without overwhelming context windows or exposing everything to every user.
 
 Scalekit lets you:
 
@@ -26,7 +26,7 @@ Scalekit lets you:
 - Associate them with specific users via connections.
 - Use **Virtual MCP** to bundle hundreds or thousands of those registered tools into a single, scoped, per-user MCP endpoint that Vapi can discover dynamically.
 
-This cookbook walks through building a [Vapi](https://vapi.ai) voice assistant that safely surfaces thousands of tools using Scalekit's tool registration + Virtual MCP. You can also call specific registered tools directly via Vapi Function tools if you don't need dynamic discovery of many.
+This cookbook walks through building a [Vapi](https://vapi.ai) voice assistant that can safely discover and use any tool (from a catalog of hundreds or thousands) using Scalekit's tool registration + Virtual MCP. You can also call specific registered tools directly via Vapi Function tools if you don't need dynamic discovery of many.
 
 The complete source is available in the [vapi-scalekit-voice-demo](https://github.com/scalekit-developers/vapi-scalekit-voice-demo) repository.
 
@@ -36,7 +36,7 @@ The complete source is available in the [vapi-scalekit-voice-demo](https://githu
 - A **Vapi voice assistant** that understands natural language requests (e.g. "List my meetings this week", "Find emails from Acme about the renewal", "Summarize the last thread in #eng-updates on Slack", "Show my open GitHub PRs", "Find the latest proposal in Drive and email it to the team").
 - **Dynamic tool discovery** via a Scalekit Virtual MCP — the assistant only sees the tools you explicitly scoped for that role (selected from the ones you registered). Vapi discovers these at call start via the MCP protocol.
 - **Per-user OAuth without custom code** — Scalekit handles authorization links, token storage, and refresh. Your app just passes the user's identifier.
-- **Scalable to 1000+ tools** — scoping + per-user tokens keep context small and access least-privilege even when the full catalog is huge.
+- **Access to any tool** — scoping + per-user tokens keep context small and access least-privilege even when the full catalog is huge.
 - A pattern you can extend to other voice platforms or agent frameworks by swapping the client.
 
 ## Prerequisites
@@ -71,7 +71,7 @@ cp .env.example .env.local
 | `SCALEKIT_MCP_CONFIG_ID`                   | For MCP  | No               | `cfg_...` ID of your Virtual MCP config (created in Scalekit dashboard) |
 | `NEXT_PUBLIC_SCALEKIT_MCP_SERVER_URL`      | For MCP  | Yes (url only)   | The static base MCP server URL. Token is added at runtime via the `Authorization` header |
 
-**MCP-specific vars** (`SCALEKIT_MCP_CONFIG_ID` + `NEXT_PUBLIC_SCALEKIT_MCP_SERVER_URL`) are only needed when using the dynamic discovery MCP tool path (recommended for 1000+ tools). They are not required for pure Function tool + `executeTool` mode.
+**MCP-specific vars** (`SCALEKIT_MCP_CONFIG_ID` + `NEXT_PUBLIC_SCALEKIT_MCP_SERVER_URL`) are only needed when using the dynamic discovery MCP tool path (recommended when you want to expose many tools). They are not required for pure Function tool + `executeTool` mode.
 
 ### Running the token helper (demo)
 
@@ -107,7 +107,7 @@ This design means the same Virtual MCP config works for every user—you only sw
 
 You register and associate tools centrally in the Scalekit dashboard (no code required for built-ins):
 
-- **Set up a connection** (AgentKit → Connections): Choose Gmail, Google Calendar, GitHub, etc. Scalekit registers its built-in tools automatically (e.g. `googlecalendar_list_events`). You can browse and search the full catalog under **AgentKit → Tools** or inside the connection page.
+- **Set up a connection** (AgentKit → Connections): Choose Gmail, Google Calendar, GitHub, etc. Scalekit registers its built-in tools automatically (e.g. `googlecalendar_list_events`). You can browse and search the full catalog under **AgentKit → Tools** or inside the connection page. See the [full list of connectors](/agentkit/connectors/).
 
 - **Authorize for users**: Go to **AgentKit → Connected Accounts** (or during first use), authorize using your app's `identifier` (e.g. `saif.shaik@scalekit.com`). This associates the tools with that user. The connection must show **Active**.
 
@@ -118,7 +118,7 @@ Once registered and associated, these tools are available for:
 - Direct calls via `executeTool` (e.g. from a Vapi Function tool webhook).
 - Inclusion in a **Virtual MCP** config so a single MCP endpoint can surface hundreds or thousands safely.
 
-This is key for 1000+ tools: you register/maintain them in the UI or code, then use vMCP to selectively expose subsets to your voice assistant without token bloat or over-privileging.
+This is key when you have many tools: you register/maintain them in the UI or code, then use vMCP to selectively expose subsets to your voice assistant without token bloat or over-privileging.
 
 ## Architecture overview
 
@@ -135,7 +135,7 @@ Scalekit Virtual MCP (scoped to role + user)
 Scalekit AgentKit (token vault + execute)
   │
   ▼
-Real connectors (Gmail, Calendar, Slack, GitHub, ... — 1000+)
+Real connectors (Gmail, Calendar, Slack, GitHub, ... — [many connectors](/agentkit/connectors/))
 ```
 
 Key differences from a naive "give the LLM every tool" approach:
@@ -147,7 +147,7 @@ Key differences from a naive "give the LLM every tool" approach:
 
 1. In the Scalekit dashboard go to **AgentKit → MCP Configs → Create Config**.
 2. Give it a name (e.g. "voice-personal-assistant").
-3. Add connection tool mappings for the connectors you want. Example for calendar + email (expand later with Slack, GitHub, Drive, etc.):
+3. Add connection tool mappings for the connectors you want. See the [full list of connectors](/agentkit/connectors/). Example for calendar + email (expand later with Slack, GitHub, Drive, etc.):
 
    ```yaml
    connection_tool_mappings:
@@ -163,7 +163,7 @@ Key differences from a naive "give the LLM every tool" approach:
 
 The screenshot above shows the Scalekit dashboard flow for creating the scoped Virtual MCP.
 
-This single config definition is reused for every user. You only change the token you mint at runtime. The scoping here is what lets you safely expose 1000+ tools without the LLM seeing everything.
+This single config definition is reused for every user. You only change the token you mint at runtime. The scoping here is what lets you safely expose many tools without the LLM seeing everything.
 
 ## Step 2: Authorize connections for your test user
 
@@ -179,7 +179,7 @@ If any are inactive, the token mint will fail with a clear error and an auth lin
 
 You have two main options in Vapi, depending on whether you want dynamic discovery of many scoped tools or direct calls to specific ones.
 
-### Option A: MCP tool for dynamic discovery (recommended for 1000+)
+### Option A: MCP tool for dynamic discovery (recommended when you have many tools)
 
 1. In Vapi, create or edit an assistant.
 2. Create a new **MCP** tool (not Function).
@@ -273,7 +273,7 @@ The same Virtual MCP config (the `cfg_...` you created) is reused for everyone. 
 
    - "Check my calendar for tomorrow and email the attendees the agenda doc from Drive"
 
-The assistant should use the discovered tools, execute them via Scalekit (with your identity), and speak the results. Mix and match connectors that you've included in your Virtual MCP config.
+The assistant should use the discovered tools, execute them via Scalekit (with your identity), and speak the results. Mix and match connectors (see [full list](/agentkit/connectors/)) that you've included in your Virtual MCP config.
 
 Watch the terminal for `[Vapi Webhook]` or MCP connection logs.
 
@@ -288,15 +288,15 @@ Watch the terminal for `[Vapi Webhook]` or MCP connection logs.
 
 See the demo repo for more.
 
-## How this scales to 1000+ tools
+## How this gives voice assistants access to any tool
 
-- **Scoping at config time** — the Virtual MCP only advertises the tools you mapped. The LLM never sees the other 900+.
-- **Per-user tokens** — even if the catalog is huge, each call only carries the user's authorized subset.
+- **Scoping at config time** — the Virtual MCP only advertises the tools you mapped. The LLM never sees the rest of the catalog.
+- **Per-user tokens** — even when hundreds or thousands of tools exist, each call only carries the user's authorized subset.
 - **Dynamic discovery** — Vapi fetches the current allowed tools at the start of the conversation. No static tool list to maintain.
-- **Token cost control** — fewer tools = dramatically smaller context. A 1000-tool catalog would be unusable; a 5–15 tool scope is practical.
+- **Token cost control** — fewer tools = dramatically smaller context. A huge catalog would be unusable; a small scoped set (e.g. 5–15 tools) is practical.
 
 **Real use case examples that become feasible only with scoping**:
-A sales rep might get "Gmail + Calendar + Salesforce + Slack" (8-12 tools). An engineer might get "GitHub + Drive + Slack + Gmail". Both use the *same* underlying 1000+ tool catalog, but each voice session only sees what that person is allowed to do.
+A sales rep might get "Gmail + Calendar + Salesforce + Slack" (8-12 tools). An engineer might get "GitHub + Drive + Slack + Gmail". Both use the *same* underlying catalog, but each voice session only sees what that person is allowed to do.
 
 The same pattern works for any voice or chat platform that supports MCP clients.
 
@@ -309,7 +309,7 @@ The same pattern works for any voice or chat platform that supports MCP clients.
 
 ## Next steps & variations
 
-- Add more connectors (Slack, Notion, Salesforce...) by extending the Virtual MCP mapping.
+- Add more connectors (see the [full list](/agentkit/connectors/)) by extending the Virtual MCP mapping.
 - Switch voice platforms (replace Vapi with another MCP-capable voice or chat client).
 - Add a real user login flow so the identifier comes from your session instead of an env var.
 - Expose the same Virtual MCP to web, mobile, and voice clients from one config.
