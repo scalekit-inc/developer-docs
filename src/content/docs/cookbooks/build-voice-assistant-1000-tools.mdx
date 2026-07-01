@@ -20,16 +20,21 @@ import { Aside, Steps } from '@astrojs/starlight/components';
 
 Voice interfaces shine for hands-free, conversational access to data and actions. But giving a voice agent access to real tools (Gmail, Calendar, Slack, CRM, 1000+ connectors) introduces two hard problems: per-user authentication without leaking tokens to the LLM, and managing a massive tool surface without overwhelming context windows or exposing everything to every user.
 
-Scalekit AgentKit with Virtual MCP solves both. You define one scoped MCP server per agent role that exposes only the tools that role needs. At runtime you mint a short-lived, user-scoped token. Vapi (or other MCP clients) connects directly, discovers the allowed tools, and calls them with proper identity — no custom webhook bridge, no per-connector OAuth code in your app.
+Scalekit lets you:
 
-This cookbook walks through building exactly that: a Vapi voice assistant backed by a Scalekit Virtual MCP that safely surfaces thousands of tools.
+- Register built-in tools from connections and custom tools directly in the UI or code (see "Registering tools in the Scalekit UI" below).
+- Associate them with specific users via connections.
+- Use **Virtual MCP** to bundle hundreds or thousands of those registered tools into a single, scoped, per-user MCP endpoint that Vapi can discover dynamically.
+
+This cookbook walks through building a Vapi voice assistant that safely surfaces thousands of tools using Scalekit's tool registration + Virtual MCP. You can also call specific registered tools directly via Vapi Function tools if you don't need dynamic discovery of many.
 
 The complete source is available in the [vapi-scalekit-voice-demo](https://github.com/scalekit-developers/vapi-scalekit-voice-demo) repository.
 
 ## What you are building
 
+- Register and manage individual tools (built-in from connections or custom) directly in the Scalekit UI, and associate them with users/connections.
 - A **Vapi voice assistant** that understands natural language requests like "list my meetings this week" or "find emails from Acme".
-- **Dynamic tool discovery** via a Scalekit Virtual MCP — the assistant only sees the tools you explicitly scoped for that role.
+- **Dynamic tool discovery** via a Scalekit Virtual MCP — the assistant only sees the tools you explicitly scoped for that role (selected from the ones you registered).
 - **Per-user OAuth without custom code** — Scalekit handles authorization links, token storage, and refresh. Your app just passes the user's identifier.
 - **Scalable to 1000+ tools** — scoping + per-user tokens keep context small and access least-privilege even when the full catalog is huge.
 - A pattern you can extend to other voice platforms or agent frameworks by swapping the client.
@@ -42,6 +47,23 @@ The complete source is available in the [vapi-scalekit-voice-demo](https://githu
 - Node.js 18+ and the demo dependencies.
 - ngrok (or equivalent) for local webhook exposure during development.
 - Familiarity with basic voice agent concepts and OAuth flows.
+
+## Registering tools in the Scalekit UI
+
+You register and associate tools centrally in the Scalekit dashboard (no code required for built-ins):
+
+- **Set up a connection** (AgentKit → Connections): Choose Gmail, Google Calendar, GitHub, etc. Scalekit registers its built-in tools automatically (e.g. `googlecalendar_list_events`). You can browse and search the full catalog under **AgentKit → Tools** or inside the connection page.
+
+- **Authorize for users**: Go to **AgentKit → Connected Accounts** (or during first use), authorize using your app's `identifier` (e.g. `saif.shaik@scalekit.com`). This associates the tools with that user. The connection must show **Active**.
+
+- **Custom tools**: Define additional tools in your code (see [Build custom tools](/agentkit/tools/custom-tools)) using `actions.request` to call any provider API. They can be associated with connections and included in scopes.
+
+Once registered and associated, these tools are available for:
+
+- Direct calls via `executeTool` (e.g. from a Vapi Function tool webhook).
+- Inclusion in a **Virtual MCP** config so a single MCP endpoint can surface hundreds or thousands safely.
+
+This is key for 1000+ tools: you register/maintain them in the UI or code, then use vMCP to selectively expose subsets to your voice assistant without token bloat or over-privileging.
 
 ## Architecture overview
 
@@ -66,7 +88,7 @@ Key differences from a naive "give the LLM every tool" approach:
 - Context size stays manageable (scoping reduces tokens).
 - Identity is enforced at the token level (no raw OAuth secrets reach the model or Vapi).
 
-## Step 1: Create a scoped Virtual MCP in Scalekit
+## Step 1: Create a scoped Virtual MCP (select from your registered tools) in Scalekit
 
 1. In the Scalekit dashboard go to **AgentKit → MCP Configs → Create Config**.
 2. Give it a name (e.g. "voice-personal-assistant").
@@ -104,11 +126,10 @@ If any are inactive, the token mint will fail with a clear error and an auth lin
 2. Create a new **MCP** tool (not Function).
 3. Configure it with the Scalekit Virtual MCP details:
 
-   - Server URL: the `mcp_server_url` from Step 1
-   - Headers:
-     ```
-     Authorization: Bearer <fresh-token>
-     ```
+   - **Server URL**: the `mcp_server_url` from Step 1
+   - **HTTP Headers** (in the Headers / Custom Headers / server.headers section of the tool form):
+     - Key: `Authorization`
+     - Value: `Bearer <fresh-token>`
 
 4. Attach the MCP tool to the assistant.
 5. Update the system prompt to tell the model when and how to use tools (example in the demo repo).
@@ -118,6 +139,8 @@ If any are inactive, the token mint will fail with a clear error and an auth lin
 The screenshot above illustrates where to configure the server URL and add the Authorization HTTP header in Vapi's MCP tool form.
 
 You now have a voice agent that can discover tools dynamically from the scoped MCP.
+
+**Alternative for specific tools**: Instead of (or in addition to) an MCP tool, you can create Vapi **Function** tools that call your webhook, which then uses `scalekit.actions.executeTool` for individual registered tools (no vMCP needed). This is great for a small number of tools.
 
 ## Step 4: Mint per-user tokens at runtime (the demo)
 
