@@ -286,46 +286,6 @@ except Exception as e:
     print(f"Token mint failed: {e}")
 ```
   </TabItem>
-  <TabItem label="Go">
-```go title="mint_token.go"
-tokenResp, err := client.Actions().MCP().CreateSessionToken(ctx, &scalekit.CreateMcpSessionTokenRequest{
-    McpConfigID: mcpConfigID,
-    Identifier:  identifier,
-    Expiry:      time.Hour,
-})
-if err != nil {
-    log.Printf("Token mint failed: %v", err)
-    return
-}
-
-mcpConfig := map[string]any{
-    "url": mcpServerURL,
-    "headers": map[string]string{
-        "Authorization": "Bearer " + tokenResp.Token,
-    },
-}
-```
-  </TabItem>
-  <TabItem label="Java">
-```java title="MintToken.java"
-try {
-    CreateMcpSessionTokenResponse tokenResp = scalekit.actions().mcp().createSessionToken(
-        CreateMcpSessionTokenRequest.builder()
-            .mcpConfigId(mcpConfigId)
-            .identifier(identifier)
-            .expiry(Duration.ofHours(1))
-            .build()
-    );
-
-    Map<String, Object> mcpConfig = Map.of(
-        "url", mcpServerUrl,
-        "headers", Map.of("Authorization", "Bearer " + tokenResp.getToken())
-    );
-} catch (Exception e) {
-    e.printStackTrace();
-}
-```
-  </TabItem>
 </Tabs>
 
 The same Virtual MCP config (the `cfg_...` you created) is reused for everyone. Only the short-lived token and acting identifier change per user / per call. This is exactly what the demo's `/api/scalekit/mcp-session` endpoint and the "In a real app" callout in the demo UI demonstrate.
