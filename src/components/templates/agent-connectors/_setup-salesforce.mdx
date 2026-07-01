@@ -1,49 +1,220 @@
 import { Steps, Aside } from '@astrojs/starlight/components'
 
-Register your Scalekit environment with the Salesforce connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. You'll need your app credentials from the [Salesforce Developer Console](https://developer.salesforce.com/).
+Register your Scalekit environment with the Salesforce connector using Salesforce's External Client App (ECA) model. ECA is the recommended approach for distributing OAuth integrations to any Salesforce customer org. You need two orgs: a **Partner Business Org** for app creation and packaging, and a **Developer Edition Org** for namespace registration.
 
 <Steps>
-1. ### Set up auth redirects
 
-    - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**.
+1. ### Prepare your Salesforce orgs
 
-    - Find **Salesforce** from the list of providers and click **Create**.
+   You need two orgs before starting:
 
-      <Aside>
-        By default, a connection using Scalekit's credentials will be created. If you are testing, go directly to the next section. Before going to production, update your connection by following the steps below.
-      </Aside>
+   - **Partner Business Org** — sign up at the [Salesforce Partner Community](https://partners.salesforce.com). This org acts as your Dev Hub and is where you create and package the External Client App.
+   - **Developer Edition Org** — create one from your Partner Business Org. Use this org only to register a namespace.
 
-    - Copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
-    
-      ![Copy redirect URI from Scalekit dashboard](@/assets/docs/agent-connectors/salesforce/use-own-credentials-redirect-uri.png)
+   In your **Partner Business Org**, enable the Dev Hub:
 
-    - Log in to [Salesforce](https://login.salesforce.com) and go to **Setup**.
+   - Go to **Setup** > Quick Find: **Dev Hub**.
+   - Enable **Dev Hub** and **Unlocked Packages and Second-Generation Managed Packages**.
 
-    - In the Quick Find box, search for **App Manager** and click to open it.
+   ![Dev Hub settings page in Partner Business Org with both options enabled](@/assets/docs/agent-connectors/salesforce/eca-dev-hub-enabled.png)
 
-    - Click **New Connected App**.
+2. ### Register a namespace
 
-    - Enter a name for your app, check the **Enable OAuth Settings** checkbox, and paste the redirect URI in the **Callback URL** field.
+   #### Create the namespace in your Developer Edition Org
 
-      ![New Connected App form in Salesforce](@/assets/docs/agent-connectors/salesforce/add-redirect-uri.png)
+   - Log in to your **Developer Edition Org** and go to **Setup** > **Apps** > **Packaging** > **Package Manager**.
+   - Click **Edit** next to the **Namespace Prefix** field.
 
-    - Select the required OAuth scopes for your application.
+   ![Package Manager page in Developer Edition Org showing the Namespace Prefix field with the Edit button](@/assets/docs/agent-connectors/salesforce/eca-package-manager-namespace.png)
 
-2. ### Get client credentials
+   - Enter your desired namespace identifier.
+   - Click **Check Availability** to confirm the namespace is not already taken.
+   - Click **Review**, then **Save** to finalize the namespace.
 
-    - In your Connected App settings, note the following:
-      - **Consumer Key** — listed under **OAuth Settings**
-      - **Consumer Secret** — click **Reveal** to view and copy
+   Note the namespace string — you will add it to your project config in a later step.
 
-3. ### Add credentials in Scalekit
+   ![Namespace saved confirmation in Developer Edition Org Package Manager](@/assets/docs/agent-connectors/salesforce/eca-namespace-saved.png)
 
-    - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** and open the connection you created.
+   #### Link the namespace to your Dev Hub
 
-    - Enter your credentials:
-      - Client ID (Consumer Key from above)
-      - Client Secret (Consumer Secret from above)
-      - Permissions (scopes — see [Salesforce OAuth Scopes documentation](https://help.salesforce.com/s/articleView?id=sf.remoteaccess_oauth_scopes.htm&type=5))
+   - Log in to your **Partner Business Org** and open the App Launcher.
+   - Search for and open **Namespace Registries**.
 
-      ![Add credentials in Scalekit dashboard](@/assets/docs/agent-connectors/salesforce/add-credentials.png)
-    - Click **Save**.
+   ![App Launcher search showing Namespace Registries result](@/assets/docs/agent-connectors/salesforce/eca-app-launcher-namespace-registries.png)
+
+   - Click **Link Namespace**.
+
+   <Aside type="tip" title="Use a different browser session">
+     Linking the namespace requires you to authenticate into a second Salesforce org while already logged into the Partner Business Org. To avoid session conflicts, open an incognito window or a different browser before clicking **Link Namespace**, then log in with your **Developer Edition Org** credentials there.
+   </Aside>
+
+   - When prompted, authenticate using the credentials of the **Developer Edition Org** where you created the namespace.
+   - After logging in and granting access, your namespace appears in the registry list.
+
+   ![Namespace Registries page showing the linked namespace in the list](@/assets/docs/agent-connectors/salesforce/eca-namespace-registries-linked.png)
+
+   <Aside type="note" title="Namespace not showing?">
+     If your namespace does not appear immediately, switch the list view from **Recently Viewed** to **All Namespaces** and refresh the page.
+   </Aside>
+
+3. ### Copy the redirect URI from Scalekit
+
+   - In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**.
+   - Find **Salesforce** from the list of providers and click **Create**.
+   - Copy the redirect URI. It looks like:
+
+     ```
+     https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback
+     ```
+
+   ![Scalekit dashboard — Salesforce connection page showing the redirect URI to copy](@/assets/docs/agent-connectors/salesforce/eca-scalekit-redirect-uri.png)
+
+4. ### Create the External Client App
+
+   In your **Partner Business Org**, go to **Setup** > **Platform Tools** > **Apps** > **External Client Apps** and click **New**.
+
+   Configure the app with the following settings:
+
+   | Setting | Value |
+   |---------|-------|
+   | Distribution State | Packaged |
+   | API (OAuth) | Enabled |
+   | Callback URL | Redirect URI copied from Scalekit |
+   | OAuth Scopes | Access identity URL (`id`), manage user data via APIs (`api`), perform requests at any time (`refresh_token`) |
+   | Authorization Code and Credentials Flow | Enabled |
+   | Require user credentials in POST body for Authorization Code Flow | Unchecked |
+   | Require Proof Key for Code Exchange (PKCE) | Checked |
+
+   <Aside type="danger" title="Scopes must match exactly">
+     The OAuth scopes you select here must exactly match the scopes you enter in Scalekit when creating the connection. A mismatch will cause authorization failures.
+   </Aside>
+
+   <Aside type="caution" title="Scope changes require a new package version">
+     If you need to add or remove OAuth scopes after the initial publish, retrieve the ECA metadata again, create and promote a new package version, and update the install URL in Scalekit. Users must reinstall the updated package.
+   </Aside>
+
+   ![External Client App creation form in Salesforce with settings filled in](@/assets/docs/agent-connectors/salesforce/eca-creation-form.png)
+
+   ![Flow Enablement and Security sections showing Authorization Code Flow enabled and PKCE checked](@/assets/docs/agent-connectors/salesforce/eca-flow-security-settings.png)
+
+   After saving, go to **OAuth Settings** > **Consumer Key and Secret** to retrieve your credentials:
+
+   - **Consumer Key**
+   - **Consumer Secret** — click **Reveal** to view and copy
+
+   ![Consumer Key and Secret fields in External Client App OAuth Settings](@/assets/docs/agent-connectors/salesforce/eca-consumer-key-secret.png)
+
+5. ### Package and distribute the app
+
+   Use the Salesforce CLI to package the External Client App and generate an install URL. Complete these sub-steps in order.
+
+   1. **Install the Salesforce CLI**
+
+      Install the `sf` CLI from the [Salesforce CLI setup guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_install_cli.htm), or via npm:
+
+      ```bash frame="terminal"
+      npm install -g @salesforce/cli
+      ```
+
+      Verify the installation:
+
+      ```bash frame="terminal"
+      sf --version
+      ```
+
+   2. **Authenticate to your Dev Hub**
+
+      Log in to your Partner Business Org and set it as the default Dev Hub:
+
+      ```bash frame="terminal"
+      sf org login web --set-default-dev-hub --alias DevHub
+      ```
+
+   3. **Create a DX project**
+
+      ```bash frame="terminal"
+      sf project generate --name my-integration
+      cd my-integration
+      ```
+
+   4. **Set the namespace**
+
+      Open `sfdx-project.json` and add your namespace to the project definition:
+
+      ```json
+      {
+        "namespace": "<your-namespace>"
+      }
+      ```
+
+   5. **Retrieve the External Client App metadata**
+
+      Pull the ECA configuration from your Partner Business Org into the project:
+
+      ```bash frame="terminal"
+      sf project retrieve start --metadata ExternalClientApplication ExtlClntAppOauthSettings
+      ```
+
+   6. **Create the managed package**
+
+      Run this once to create the package definition:
+
+      ```bash frame="terminal"
+      sf package create --name "Your App Display Name" --package-type Managed --path force-app
+      ```
+
+   7. **Create a package version**
+
+      ```bash frame="terminal"
+      sf package version create --package "Your App Display Name" --installation-key-bypass --wait 10
+      ```
+
+      Note the version ID (starts with `04t...`) from the output.
+
+   8. **Promote the version to released**
+
+      ```bash frame="terminal"
+      sf package version promote --package <VERSION_ID>
+      ```
+
+   9. **Get the install URL**
+
+      Construct the install URL using the promoted version ID:
+
+      ```
+      https://login.salesforce.com/packaging/installPackage.apexp?p0=<VERSION_ID>
+      ```
+
+6. ### Add credentials in Scalekit
+
+   - In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** and open the connection you created.
+   - Enter your credentials:
+     - **Client ID** — Consumer Key from your External Client App
+     - **Client Secret** — Consumer Secret from your External Client App
+     - **Package Install URL** — the install URL from the previous step
+     - **Permissions** — any additional OAuth scopes beyond the defaults (see [Salesforce OAuth Scopes documentation](https://help.salesforce.com/s/articleView?id=sf.remoteaccess_oauth_scopes.htm&type=5))
+
+   ![Scalekit dashboard — credentials form showing Client ID, Client Secret, and Package Install URL fields](@/assets/docs/agent-connectors/salesforce/eca-scalekit-credentials.png)
+
+   - Click **Save**.
+
+7. ### How users install the package
+
+   A **Salesforce admin** must install the package in their org once before anyone in that org can connect. After the admin installs it, other users in the same org do not need to install it again — they can skip past the install screen.
+
+   Scalekit always shows the **Install package** screen first when a user opens the magic link:
+
+   - **Admin (first time)** — click **Install** to open the Salesforce package installation page and complete the installation.
+   - **Non-admin or subsequent users** — click **Copy link** to send the install URL to the org's Salesforce admin, or click **I've installed the package** directly if the admin has already installed it.
+
+   ![Scalekit magic link — "Install package" screen showing the Install button, Copy link option, and the "I've installed the package" confirmation button](@/assets/docs/agent-connectors/salesforce/eca-magic-link-install-package.png)
+
+   After clicking **Install**, Salesforce opens the package installation page:
+
+   ![Salesforce package installation page showing the install options](@/assets/docs/agent-connectors/salesforce/eca-salesforce-install-package.png)
+
+   Once installation is complete, return to the magic link and click **I've installed the package**. This takes the user to the **Connect account** screen where they complete the OAuth authorization:
+
+   ![Scalekit magic link — Salesforce connector page showing the "Connect account" button to complete OAuth](@/assets/docs/agent-connectors/salesforce/eca-magic-link-connect.png)
+
 </Steps>
