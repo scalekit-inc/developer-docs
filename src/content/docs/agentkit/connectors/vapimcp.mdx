@@ -1,0 +1,87 @@
+---
+title: 'Vapi MCP connector'
+tableOfContents: true
+description: 'Vapi is an AI-powered voice platform for building, testing, and deploying voice AI agents. This MCP connector enables AI agents to manage Vapi assistants...'
+sidebar:
+  label: 'Vapi MCP'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/vapi.svg
+connectorAuthType: Bearer Token
+connectorCategories: [Communication, AI]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/vapimcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupVapimcpSection } from '@components/templates'
+import { QuickstartGenericApikeySection } from '@components/templates'
+import { SectionAfterSetupVapimcpCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Vapi MCP credentials with Scalekit so it can authenticate requests on your behalf. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupVapimcpSection />
+
+   </details>
+
+4. ### Make your first call
+
+   <QuickstartGenericApikeySection connector="vapimcp" toolName="vapimcp_list_assistants" providerName="Vapi MCP" toolInputNode="{ rationale: 'YOUR_RATIONALE' }" toolInputPython='{"rationale":"YOUR_RATIONALE"}' />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Update tool, assistant** — Updates an existing Vapi tool's configuration
+- **List tools, phone numbers, calls** — Lists all Vapi tools configured in the account
+- **Get tool, phone number, call** — Retrieves the full configuration of a specific Vapi tool by ID, including its type (SMS, transfer call, function, or API request) and associated settings
+- **Create tool, call, assistant** — Creates a new Vapi tool that can be attached to assistants
+
+## Common workflows
+
+<SectionAfterSetupVapimcpCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

@@ -5,9 +5,24 @@ export const tools: Tool[] = [
     name: 'mintlifymcp_checkout',
     description: `Bind the current session to a git branch, creating it if it does not exist. Returns the branch name, editor URL, and a toolkit list of recommended tools to use next.`,
     params: [
-      { name: 'branch', type: 'string', required: false, description: `Specific branch to bind to. If it exists in git the session attaches to it without creating a branch; if not, it is created from \`from\`. Cannot be the deploy branch. Omit to auto-generate a fresh \`admin-mcp/<slug>-<7-char-sha>\` branch.` },
-      { name: 'from', type: 'string', required: false, description: `Base branch to fork from when creating a new branch. Defaults to the deployment's configured deploy branch (typically \`main\`). The new branch is created at this branch's latest commit.` },
-      { name: 'slug', type: 'string', required: false, description: `Human-readable slug used to name an auto-generated branch as \`admin-mcp/<slug>-<7-char-base-sha>\`. Ignored when \`branch\` is provided. If omitted and \`branch\` is also omitted, the branch is auto-named \`admin-mcp/<sessionTokenPrefix>\` and is not human-recognizable. Use a stable, kebab-case slug (e.g. \`add-tips-page\`).` },
+      {
+        name: 'branch',
+        type: 'string',
+        required: false,
+        description: `Specific branch to bind to. If it exists in git the session attaches to it without creating a branch; if not, it is created from \`from\`. Cannot be the deploy branch. Omit to auto-generate a fresh \`admin-mcp/<slug>-<7-char-sha>\` branch.`,
+      },
+      {
+        name: 'from',
+        type: 'string',
+        required: false,
+        description: `Base branch to fork from when creating a new branch. Defaults to the deployment's configured deploy branch (typically \`main\`). The new branch is created at this branch's latest commit.`,
+      },
+      {
+        name: 'slug',
+        type: 'string',
+        required: false,
+        description: `Human-readable slug used to name an auto-generated branch as \`admin-mcp/<slug>-<7-char-base-sha>\`. Ignored when \`branch\` is provided. If omitted and \`branch\` is also omitted, the branch is auto-named \`admin-mcp/<sessionTokenPrefix>\` and is not human-recognizable. Use a stable, kebab-case slug (e.g. \`add-tips-page\`).`,
+      },
     ],
   },
   {
@@ -30,14 +45,12 @@ export const tools: Tool[] = [
   {
     name: 'mintlifymcp_diff',
     description: `Return the list of changes between the current session branch and the main branch.`,
-    params: [
-    ],
+    params: [],
   },
   {
     name: 'mintlifymcp_discard_session',
     description: `End the current editing session without creating a pull request, discarding all unsaved changes.`,
-    params: [
-    ],
+    params: [],
   },
   {
     name: 'mintlifymcp_edit_page',
@@ -52,22 +65,17 @@ export const tools: Tool[] = [
   {
     name: 'mintlifymcp_execute',
     description: `Run TypeScript or JavaScript against the Admin MCP dashboard SDK in a sandboxed isolate to call workflows, deployment, billing, or analytics APIs.`,
-    params: [
-      { name: 'code', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'code', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'mintlifymcp_get_session_state',
     description: `Return the current session state including the active branch name, edited files, and navigation diff.`,
-    params: [
-    ],
+    params: [],
   },
   {
     name: 'mintlifymcp_list_branches',
     description: `List all git branches available for the current deployment, optionally filtered by a query string.`,
-    params: [
-      { name: 'query', type: 'string', required: false, description: `No description.` },
-    ],
+    params: [{ name: 'query', type: 'string', required: false, description: `No description.` }],
   },
   {
     name: 'mintlifymcp_list_nodes',
@@ -99,9 +107,7 @@ export const tools: Tool[] = [
   {
     name: 'mintlifymcp_read',
     description: `Read the full MDX content of a single page on the current branch by path, reflecting any in-session edits.`,
-    params: [
-      { name: 'path', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'path', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'mintlifymcp_save',

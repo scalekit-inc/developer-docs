@@ -14,9 +14,9 @@ next:
   link: "/agentkit/bring-your-own-connector/making-tool-calls"
 ---
 
-import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import { Tabs, TabItem, Aside, Steps } from '@astrojs/starlight/components';
 
-This page covers everything you need to create a custom connector: building the connector payload and managing it with the API.
+Create a custom connector to bring an unsupported API or MCP server into Scalekit's secure access model. This guide walks you through building the connector payload, creating the connector, and managing it over its lifecycle — list, update, and delete — with the management API.
 
 <details>
 <summary>Prerequisites</summary>
@@ -33,19 +33,39 @@ Find these in the Scalekit Dashboard under **Developers → Settings → API Cre
 
 ## Create a connector
 
-<Aside type="tip" title="Recommended approach">
-The recommended way to manage connectors is with the <a href="https://github.com/scalekit-inc/authstack/blob/main/skills/sk-actions-custom-provider/SKILL.md" target="_blank" rel="noopener noreferrer">`sk-actions-custom-provider` skill</a>.
+Create a connector in the Scalekit Dashboard or with the management API. The dashboard provides a guided form for MCP connectors; the management API gives you scriptable control over every connector type and auth pattern.
 
-```sh frame="none" showLineNumbers=false
-npx skills add scalekit-inc/authstack --skill integrating-agentkit
-```
+### Create an MCP connector in the dashboard
 
-It keeps payload generation, review, and promotion consistent across Dev and Production.
-</Aside>
+Add an MCP connector through a guided form — no payload required.
 
-Share the connector name, Scalekit credentials, and API docs. The skill infers the auth type, generates the payload, and walks you through create, update, and promotion to Production. Always review the final payload before approving.
+<Steps>
+1. In the Scalekit Dashboard, switch to **AgentKit**.
 
-To manage connectors directly via API, use the payloads below.
+2. Select **Connectors**.
+
+3. Select **Create custom connector**.
+
+4. Complete the **Add MCP connector** form:
+
+   - **Display name**: a name for the connector, such as `Example MCP`.
+   - **Description**: a short description of what the connector connects to.
+   - **Icon URL** (optional): an icon for the connector. Must start with `https://`. For best results, use an 800×800px SVG image, such as `https://cdn.example.com/icon.svg`.
+   - **Server URL**: the base URL of the MCP server. Must start with `https://`, such as `https://app.example.com/mcp`.
+   - **Metadata** (optional): key-value pairs for the connector. Values must be plain strings; nested objects are not supported.
+
+   For **Auth type**, choose how users authenticate when they connect their account:
+
+   - **OAuth**: users authorize access through the provider's OAuth flow, and Scalekit handles the token exchange.
+   - **Bearer token**: users provide a long-lived token issued by the provider.
+   - **API key**: users provide an API key issued by the provider.
+
+5. Select **Save**. The connector is ready to use when you create a connection.
+</Steps>
+
+### Create a connector with the management API
+
+Build the connector payload using the reference and examples that follow, then create the connector with the management API.
 
 <details>
 <summary>Understand the connector payload</summary>
@@ -79,6 +99,10 @@ Within `auth_patterns`, the most common fields are:
 </details>
 
 Below are example payloads for API and MCP connectors across all supported auth patterns.
+
+<Aside type="caution" title="Stateless MCP servers only">
+Scalekit connects to **stateless MCP servers** only. Stateful MCP servers that require persistent sticky connections or MCP session IDs are not supported.
+</Aside>
 
 <Tabs syncKey="connector-type">
 <TabItem label="API Connector">
@@ -378,11 +402,11 @@ curl --location "$SCALEKIT_ENVIRONMENT_URL/api/v1/custom-providers" \
   --data '{...}'
 ```
 
-After the connector is created, create a connection in the Scalekit Dashboard and continue with the standard connector flow.
+A successful request returns the created connector. Next, create a connection in the Scalekit Dashboard, then continue with the standard connector flow to authorize users and call tools.
 
 ## List connectors
 
-List existing connectors to confirm whether to create a new one or update an existing one.
+List existing connectors before you create one, to confirm whether a connector for the upstream already exists. You also need the list to find a connector's `identifier` for update and delete requests.
 
 ```bash
 curl --location "$SCALEKIT_ENVIRONMENT_URL/api/v1/providers?filter.provider_type=CUSTOM&page_size=1000" \
@@ -408,3 +432,9 @@ Use the [List connectors](#list-connectors) API to get the connector `identifier
 curl --location --request DELETE "$SCALEKIT_ENVIRONMENT_URL/api/v1/custom-providers/$PROVIDER_IDENTIFIER" \
   --header "Authorization: Bearer $env_access_token"
 ```
+
+## Next steps
+
+With the connector created and a connection in place, authorize a user and start calling the upstream:
+
+- [Making tool calls](/agentkit/bring-your-own-connector/making-tool-calls) — call the upstream API or MCP server through your connector.

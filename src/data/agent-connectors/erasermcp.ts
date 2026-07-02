@@ -42,14 +42,34 @@ Returns the new diagram's id in the \`diagrams[].id\` field so a follow-up updat
       { name: 'attachments', type: 'array', required: false, description: `No description.` },
       { name: 'background', type: 'boolean', required: false, description: `No description.` },
       { name: 'colorMode', type: 'string', required: false, description: `No description.` },
-      { name: 'diagramType', type: 'string', required: false, description: `OPTIONAL — LEAVE THIS EMPTY by default. Only set it when the user EXPLICITLY names a diagram type (e.g. 'make this a sequence diagram', 'use a cloud architecture diagram', 'turn it into an ERD'). When omitted, Eraser's render service picks the diagram type from the prompt text using diagram-type-specific heuristics and (if applicable) the preset/template in scope — that selection is usually better than guessing from the prompt yourself. Do NOT pre-classify the user's request into a diagram type just because the value is available in your schema; spurious type-locking produces worse diagrams than letting Eraser choose, especially on ambiguous prompts ('show how X works', 'diagram the architecture'). On update_diagram, leave this empty as well — the existing diagram's type is preserved by default.` },
+      {
+        name: 'diagramType',
+        type: 'string',
+        required: false,
+        description: `OPTIONAL — LEAVE THIS EMPTY by default. Only set it when the user EXPLICITLY names a diagram type (e.g. 'make this a sequence diagram', 'use a cloud architecture diagram', 'turn it into an ERD'). When omitted, Eraser's render service picks the diagram type from the prompt text using diagram-type-specific heuristics and (if applicable) the preset/template in scope — that selection is usually better than guessing from the prompt yourself. Do NOT pre-classify the user's request into a diagram type just because the value is available in your schema; spurious type-locking produces worse diagrams than letting Eraser choose, especially on ambiguous prompts ('show how X works', 'diagram the architecture'). On update_diagram, leave this empty as well — the existing diagram's type is preserved by default.`,
+      },
       { name: 'direction', type: 'string', required: false, description: `No description.` },
-      { name: 'folderId', type: 'string', required: false, description: `OPTIONAL — leave this empty by default. Only set it when the user EXPLICITLY names a folder to place the new file in (e.g. "put it in the Engineering folder"). Do NOT call list_folders or get_folder to "pick a sensible folder" — when omitted, the file is created at the team root and the user can move it themselves. Spurious folder discovery wastes tokens and produces unexpected file placement.` },
+      {
+        name: 'folderId',
+        type: 'string',
+        required: false,
+        description: `OPTIONAL — leave this empty by default. Only set it when the user EXPLICITLY names a folder to place the new file in (e.g. "put it in the Engineering folder"). Do NOT call list_folders or get_folder to "pick a sensible folder" — when omitted, the file is created at the team root and the user can move it themselves. Spurious folder discovery wastes tokens and produces unexpected file placement.`,
+      },
       { name: 'format', type: 'string', required: false, description: `No description.` },
       { name: 'gitContexts', type: 'array', required: false, description: `No description.` },
       { name: 'imageQuality', type: 'string', required: false, description: `No description.` },
-      { name: 'includeImage', type: 'boolean', required: false, description: `Set true only when you need a PNG URL to embed elsewhere. Not needed for in-app viewing — prefer the returned fileUrl/diagramUrl. Omitted from the response by default.` },
-      { name: 'isTeamFile', type: 'boolean', required: false, description: `Only honored by create_diagram when a NEW file is being created (i.e. targetFileId is omitted). When true, the new file is shared with the team (non-private); when false, the new file is private to the caller. Required on plans that don't support private files. Ignored by update_diagram, and ignored on create_diagram when targetFileId is set (because no new file is created).` },
+      {
+        name: 'includeImage',
+        type: 'boolean',
+        required: false,
+        description: `Set true only when you need a PNG URL to embed elsewhere. Not needed for in-app viewing — prefer the returned fileUrl/diagramUrl. Omitted from the response by default.`,
+      },
+      {
+        name: 'isTeamFile',
+        type: 'boolean',
+        required: false,
+        description: `Only honored by create_diagram when a NEW file is being created (i.e. targetFileId is omitted). When true, the new file is shared with the team (non-private); when false, the new file is private to the caller. Required on plans that don't support private files. Ignored by update_diagram, and ignored on create_diagram when targetFileId is set (because no new file is created).`,
+      },
       { name: 'presetId', type: 'string', required: false, description: `No description.` },
       { name: 'priorRequestId', type: 'string', required: false, description: `No description.` },
       { name: 'styleMode', type: 'string', required: false, description: `No description.` },
@@ -81,8 +101,18 @@ Do NOT call list_folders to invent a destination — ask the user. Pick params:
   - Shared at team root → omit folderId, set isTeamFile: true
   - Shared in a folder → pass folderId (this implies shared)`,
     params: [
-      { name: 'folderId', type: 'string', required: false, description: `OPTIONAL — omit unless the user EXPLICITLY names a folder. When omitted, the file is created at the team root. Do NOT call list_folders to "pick a folder".` },
-      { name: 'isTeamFile', type: 'boolean', required: false, description: `When true, the file is shared with the team (non-private). Required on plans that do not support private files.` },
+      {
+        name: 'folderId',
+        type: 'string',
+        required: false,
+        description: `OPTIONAL — omit unless the user EXPLICITLY names a folder. When omitted, the file is created at the team root. Do NOT call list_folders to "pick a folder".`,
+      },
+      {
+        name: 'isTeamFile',
+        type: 'boolean',
+        required: false,
+        description: `When true, the file is shared with the team (non-private). Required on plans that do not support private files.`,
+      },
       { name: 'linkAccess', type: 'string', required: false, description: `No description.` },
       { name: 'name', type: 'string', required: false, description: `No description.` },
       { name: 'sourceFileId', type: 'string', required: false, description: `No description.` },
@@ -140,30 +170,22 @@ When \`presetId\` is omitted the response includes a warning that the file is de
   {
     name: 'erasermcp_delete_document',
     description: `Clear a file's document body to an empty markdown document.`,
-    params: [
-      { name: 'fileId', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'fileId', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'erasermcp_delete_file',
     description: `Archive a file.`,
-    params: [
-      { name: 'fileId', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'fileId', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'erasermcp_delete_folder',
     description: `Delete a folder. Rejects when the folder is not empty.`,
-    params: [
-      { name: 'folderId', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'folderId', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'erasermcp_delete_preset',
     description: `Delete a preset. Rejects when the preset has any rules, templates, or references.`,
-    params: [
-      { name: 'presetId', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'presetId', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'erasermcp_export_diagram',
@@ -202,56 +224,48 @@ When \`presetId\` is omitted the response includes a warning that the file is de
     params: [
       { name: 'diagramId', type: 'string', required: true, description: `No description.` },
       { name: 'fileId', type: 'string', required: true, description: `No description.` },
-      { name: 'includeFreeformDefinition', type: 'boolean', required: false, description: `No description.` },
+      {
+        name: 'includeFreeformDefinition',
+        type: 'boolean',
+        required: false,
+        description: `No description.`,
+      },
     ],
   },
   {
     name: 'erasermcp_get_document',
     description: `Fetch the full markdown body of a file's document.`,
-    params: [
-      { name: 'fileId', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'fileId', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'erasermcp_get_file',
     description: `Fetch a file's metadata, document outline (headers), and the list of diagrams in it.`,
-    params: [
-      { name: 'fileId', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'fileId', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'erasermcp_get_folder',
     description: `Fetch a folder by id.`,
-    params: [
-      { name: 'folderId', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'folderId', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'erasermcp_get_me',
     description: `Fetch the current user, active team, and team memberships.`,
-    params: [
-    ],
+    params: [],
   },
   {
     name: 'erasermcp_get_preset',
     description: `Fetch a preset including its rules, templates, and references.`,
-    params: [
-      { name: 'presetId', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'presetId', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'erasermcp_get_template_or_reference',
     description: `Fetch a template/reference's metadata, document outline, and diagram list.`,
-    params: [
-      { name: 'fileId', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'fileId', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'erasermcp_list_diagrams',
     description: `List the diagrams contained in a file.`,
-    params: [
-      { name: 'fileId', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'fileId', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'erasermcp_list_files',
@@ -282,8 +296,7 @@ When \`presetId\` is omitted the response includes a warning that the file is de
   {
     name: 'erasermcp_list_teams',
     description: `List the teams the current user belongs to (OAuth only).`,
-    params: [
-    ],
+    params: [],
   },
   {
     name: 'erasermcp_manually_create_diagram',
@@ -355,27 +368,33 @@ DO NOT use this tool just because the current document markdown happens to be in
   {
     name: 'erasermcp_publish_template_or_reference',
     description: `Publish a new version of a template/reference file.`,
-    params: [
-      { name: 'fileId', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'fileId', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'erasermcp_search',
     description: `Full-text and semantic search across files or diagrams. Omit 'kind' for content search (finds matching blocks). Use kind: 'file' only to look up a file by name (no block content returned). Use kind: 'diagram' to search within diagram code/titles.`,
     params: [
-      { name: 'kind', type: 'string', required: false, description: `Controls what is searched and how results are grouped. Omit (default) for full-content search — finds any text across all files and returns individual matching blocks with their file context. Use kind: 'file' ONLY to find a file by name — results are grouped by file with no per-block content. DO NOT use kind: 'file' if you want to find content within files; it will not return the content you need. Use kind: 'diagram' to search within diagram code/titles only.` },
+      {
+        name: 'kind',
+        type: 'string',
+        required: false,
+        description: `Controls what is searched and how results are grouped. Omit (default) for full-content search — finds any text across all files and returns individual matching blocks with their file context. Use kind: 'file' ONLY to find a file by name — results are grouped by file with no per-block content. DO NOT use kind: 'file' if you want to find content within files; it will not return the content you need. Use kind: 'diagram' to search within diagram code/titles only.`,
+      },
       { name: 'limit', type: 'number', required: false, description: `No description.` },
       { name: 'offset', type: 'number', required: false, description: `No description.` },
-      { name: 'queries', type: 'array', required: false, description: `Submit up to 5 related query variants in one call. Results are merged and de-duplicated server-side, returning a single ranked list. Prefer this over making multiple separate search tool calls for related terms. When provided, the top-level \`query\` field is ignored.` },
+      {
+        name: 'queries',
+        type: 'array',
+        required: false,
+        description: `Submit up to 5 related query variants in one call. Results are merged and de-duplicated server-side, returning a single ranked list. Prefer this over making multiple separate search tool calls for related terms. When provided, the top-level \`query\` field is ignored.`,
+      },
       { name: 'query', type: 'string', required: false, description: `No description.` },
     ],
   },
   {
     name: 'erasermcp_select_team',
     description: `Set the active team for the session when the user belongs to multiple teams (OAuth only).`,
-    params: [
-      { name: 'teamId', type: 'string', required: true, description: `No description.` },
-    ],
+    params: [{ name: 'teamId', type: 'string', required: true, description: `No description.` }],
   },
   {
     name: 'erasermcp_update_diagram',
@@ -391,14 +410,34 @@ Only fall back to manually_update_diagram when the user gave you literal code to
       { name: 'background', type: 'boolean', required: false, description: `No description.` },
       { name: 'colorMode', type: 'string', required: false, description: `No description.` },
       { name: 'diagramId', type: 'string', required: false, description: `No description.` },
-      { name: 'diagramType', type: 'string', required: false, description: `OPTIONAL — LEAVE THIS EMPTY by default. Only set it when the user EXPLICITLY names a diagram type (e.g. 'make this a sequence diagram', 'use a cloud architecture diagram', 'turn it into an ERD'). When omitted, Eraser's render service picks the diagram type from the prompt text using diagram-type-specific heuristics and (if applicable) the preset/template in scope — that selection is usually better than guessing from the prompt yourself. Do NOT pre-classify the user's request into a diagram type just because the value is available in your schema; spurious type-locking produces worse diagrams than letting Eraser choose, especially on ambiguous prompts ('show how X works', 'diagram the architecture'). On update_diagram, leave this empty as well — the existing diagram's type is preserved by default.` },
+      {
+        name: 'diagramType',
+        type: 'string',
+        required: false,
+        description: `OPTIONAL — LEAVE THIS EMPTY by default. Only set it when the user EXPLICITLY names a diagram type (e.g. 'make this a sequence diagram', 'use a cloud architecture diagram', 'turn it into an ERD'). When omitted, Eraser's render service picks the diagram type from the prompt text using diagram-type-specific heuristics and (if applicable) the preset/template in scope — that selection is usually better than guessing from the prompt yourself. Do NOT pre-classify the user's request into a diagram type just because the value is available in your schema; spurious type-locking produces worse diagrams than letting Eraser choose, especially on ambiguous prompts ('show how X works', 'diagram the architecture'). On update_diagram, leave this empty as well — the existing diagram's type is preserved by default.`,
+      },
       { name: 'direction', type: 'string', required: false, description: `No description.` },
-      { name: 'folderId', type: 'string', required: false, description: `OPTIONAL — leave this empty by default. Only set it when the user EXPLICITLY names a folder to place the new file in (e.g. "put it in the Engineering folder"). Do NOT call list_folders or get_folder to "pick a sensible folder" — when omitted, the file is created at the team root and the user can move it themselves. Spurious folder discovery wastes tokens and produces unexpected file placement.` },
+      {
+        name: 'folderId',
+        type: 'string',
+        required: false,
+        description: `OPTIONAL — leave this empty by default. Only set it when the user EXPLICITLY names a folder to place the new file in (e.g. "put it in the Engineering folder"). Do NOT call list_folders or get_folder to "pick a sensible folder" — when omitted, the file is created at the team root and the user can move it themselves. Spurious folder discovery wastes tokens and produces unexpected file placement.`,
+      },
       { name: 'format', type: 'string', required: false, description: `No description.` },
       { name: 'gitContexts', type: 'array', required: false, description: `No description.` },
       { name: 'imageQuality', type: 'string', required: false, description: `No description.` },
-      { name: 'includeImage', type: 'boolean', required: false, description: `Set true only when you need a PNG URL to embed elsewhere. Not needed for in-app viewing — prefer the returned fileUrl/diagramUrl. Omitted from the response by default.` },
-      { name: 'isTeamFile', type: 'boolean', required: false, description: `Only honored by create_diagram when a NEW file is being created (i.e. targetFileId is omitted). When true, the new file is shared with the team (non-private); when false, the new file is private to the caller. Required on plans that don't support private files. Ignored by update_diagram, and ignored on create_diagram when targetFileId is set (because no new file is created).` },
+      {
+        name: 'includeImage',
+        type: 'boolean',
+        required: false,
+        description: `Set true only when you need a PNG URL to embed elsewhere. Not needed for in-app viewing — prefer the returned fileUrl/diagramUrl. Omitted from the response by default.`,
+      },
+      {
+        name: 'isTeamFile',
+        type: 'boolean',
+        required: false,
+        description: `Only honored by create_diagram when a NEW file is being created (i.e. targetFileId is omitted). When true, the new file is shared with the team (non-private); when false, the new file is private to the caller. Required on plans that don't support private files. Ignored by update_diagram, and ignored on create_diagram when targetFileId is set (because no new file is created).`,
+      },
       { name: 'presetId', type: 'string', required: false, description: `No description.` },
       { name: 'priorRequestId', type: 'string', required: false, description: `No description.` },
       { name: 'styleMode', type: 'string', required: false, description: `No description.` },
@@ -438,8 +477,18 @@ Only fall back to manually_update_document when the user gave you literal markdo
     description: `Rename or move a folder, or bulk-apply a link-sharing setting to every file inside it (recursively). Note: folders do not store linkAccess themselves — to change sharing you MUST pass both \`linkAccess\` and \`applySharingToDescendantFiles: true\` together.`,
     params: [
       { name: 'folderId', type: 'string', required: true, description: `No description.` },
-      { name: 'applySharingToDescendantFiles', type: 'boolean', required: false, description: `Required (set to true) when supplying \`linkAccess\`. Rewrites the linkAccess setting on every file in this folder and all subfolders recursively.` },
-      { name: 'linkAccess', type: 'string', required: false, description: `Link-sharing setting to apply to every file under this folder. Folders themselves do not store linkAccess, so this MUST be paired with \`applySharingToDescendantFiles: true\`; passing linkAccess alone is rejected with an invalid-params error.` },
+      {
+        name: 'applySharingToDescendantFiles',
+        type: 'boolean',
+        required: false,
+        description: `Required (set to true) when supplying \`linkAccess\`. Rewrites the linkAccess setting on every file in this folder and all subfolders recursively.`,
+      },
+      {
+        name: 'linkAccess',
+        type: 'string',
+        required: false,
+        description: `Link-sharing setting to apply to every file under this folder. Folders themselves do not store linkAccess, so this MUST be paired with \`applySharingToDescendantFiles: true\`; passing linkAccess alone is rejected with an invalid-params error.`,
+      },
       { name: 'name', type: 'string', required: false, description: `No description.` },
       { name: 'parentFolderId', type: 'string', required: false, description: `No description.` },
     ],

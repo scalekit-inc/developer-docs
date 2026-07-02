@@ -1,0 +1,54 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Calendly uses OAuth 2.1 with Dynamic Client Registration (DCR) and PKCE. Calendly hosts its authorization server on a different domain (`calendly.com`) than its MCP server (`mcp.calendly.com`), so you register an OAuth client with Calendly yourself and save the resulting client ID in Scalekit. Complete this setup once per environment.
+
+<Aside type="caution" title="Register the OAuth client before you connect">
+  Scalekit does not auto-register the OAuth client for Calendly, because Calendly's authorization server runs on a separate domain from its MCP server. Until you register a client and save its client ID in Scalekit, the connection has no client ID and the authorization flow cannot start.
+</Aside>
+
+<Steps>
+1. ### Copy the redirect URI from Scalekit
+
+   In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create connection**. Find **Calendly** and click **Create**. Copy the redirect URI — it looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`. You pass this value as the `redirect_uris` entry in the next step, and it must match exactly.
+
+2. ### Register an OAuth client with Calendly
+
+   Send a registration request to Calendly's DCR endpoint. Replace `<SCALEKIT_CONNECTION_CALLBACK_URL>` with the redirect URI you copied.
+
+   ```bash frame="terminal"
+   curl -X POST https://calendly.com/oauth/register \
+     -H "Content-Type: application/json" \
+     -d '{
+       "client_name": "Scalekit Calendly MCP Connector",
+       "redirect_uris": ["<SCALEKIT_CONNECTION_CALLBACK_URL>"],
+       "grant_types": ["authorization_code", "refresh_token"],
+       "response_types": ["code"],
+       "token_endpoint_auth_method": "none",
+       "scope": "mcp:scheduling:read mcp:scheduling:write"
+     }'
+   ```
+
+   Calendly responds with the registered client. Calendly issues a public PKCE client, so the response contains a `client_id` and no client secret.
+
+   ```json
+   {
+     "client_id": "90pDPl704dEMw2mTwRDvLsYOVBCXcWWiGb-44ehwdLU",
+     "token_endpoint_auth_method": "none",
+     "grant_types": ["authorization_code", "refresh_token"],
+     "response_types": ["code"],
+     "scopes": ["mcp:scheduling:read", "mcp:scheduling:write"]
+   }
+   ```
+
+   <Aside type="note" title="The client ID above is an example">
+     Use the `client_id` returned by your own request. Each registration returns a unique value.
+   </Aside>
+
+3. ### Save the client ID in Scalekit
+
+   Copy the `client_id` from the response. In the Scalekit dashboard, open **AgentKit** > **Connections** > **Calendly**, paste the value into the **Client ID** field of the connection's OAuth configuration, and click **Save**. Leave the client secret empty, because Calendly issues a public PKCE client.
+
+4. ### Authorize the connection
+
+   Generate an authorization link for a user and complete the consent flow. Calendly prompts the user to grant the `mcp:scheduling:read` and `mcp:scheduling:write` scopes. After consent, the connected account becomes active and Scalekit manages token refresh for every user who authorizes the connection.
+</Steps>

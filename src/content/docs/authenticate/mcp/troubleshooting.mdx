@@ -60,6 +60,65 @@ Once added, subsequent logins will return both an access token and a refresh tok
 
 ---
 
+### A client gets an `invalid_client_metadata_url` error when it connects
+
+This error means Scalekit rejected the OAuth client that tried to connect, because the client sent a `client_id` that Scalekit never issued or a client metadata URL it can't resolve. The connection often succeeds for some users and fails for others on the same MCP server, which points to client-side configuration rather than a problem with your Scalekit setup.
+
+Two causes account for most occurrences.
+
+**Cause 1: The connecting application has stale client credentials configured**
+
+Some applications (for example, Glean) let you paste a `client_id` and `client_secret` for the MCP server. When those fields hold credentials that Scalekit didn't issue, the auth server rejects the connection.
+
+To resolve it:
+
+1. Open the connecting application's integration settings for your MCP server.
+2. Clear the `client_id` and `client_secret` fields.
+3. Reconnect. Applications that support Dynamic Client Registration (DCR) obtain valid credentials automatically once the fields are empty.
+4. If the application cannot use DCR, generate a static pre-registered client in **Dashboard > MCP Servers > [your server]** and share those credentials instead.
+
+**Cause 2: `mcp-remote` is sending a `client_id` it did not register**
+
+`mcp-remote` can reuse a `client_id` from a different MCP server session or send a non-Scalekit value. Scalekit issues DCR clients only in the `m2m_xxx` format, so it rejects any other value. This affects only the users who route the connection through `mcp-remote`.
+
+`mcp-remote` was a temporary bridge for clients that couldn't reach remote MCP servers directly. Claude Desktop, Claude Code, and Cursor now support remote HTTP MCP servers natively, so you no longer need it. Connect with the native HTTP transport instead:
+
+- **Claude Desktop**: open **Settings > Connectors > Add custom connector** and enter your MCP server URL.
+- **Claude Code**: run the following in your terminal.
+
+  ```sh frame="terminal"
+  claude mcp add --transport http <server-name> https://your-mcp-server.example.com/mcp
+  ```
+
+<Aside type="note" title="The error points to the client, not Scalekit">
+Because this error originates from the client's registration data, it reproduces per user. When one user fails while others succeed against the same MCP server, inspect that user's client configuration first.
+</Aside>
+
+---
+
+### What is the difference between DCR and CIMD?
+
+MCP clients identify themselves to Scalekit's authorization server using one of two mechanisms:
+
+- **Dynamic Client Registration (DCR)**: The client registers itself with Scalekit and receives a `client_id` in the `m2m_xxx` format. See [RFC 7591](https://datatracker.ietf.org/doc/html/rfc7591).
+- **Client ID Metadata Document (CIMD)**: The client presents a URL that hosts its client metadata document, and Scalekit fetches that URL to identify the client.
+
+The `invalid_client_metadata_url` error belongs to the CIMD path: Scalekit couldn't resolve or validate the metadata URL the client sent. A client that completes DCR correctly doesn't trigger this error. Follow the resolution steps in the section above.
+
+---
+
+### How do I view authentication logs to debug a failed connection?
+
+Open **Dashboard > Authentication > Logs** to inspect the authorization and token requests for your environment. Each entry shows the OAuth client, the requested scopes, and the outcome of each step in the flow.
+
+When you debug a failed connection, change the log filter to show all events rather than successful events only. Failed authorization and token requests appear only when you include error events, so a success-only view can hide the request you need to diagnose.
+
+<Aside type="note" title="Per-client MCP connection logs">
+Connection logs for individual MCP clients aren't yet available for self-serve viewing. When the authentication logs don't explain a failure, contact Scalekit support with the failing `client_id` and the approximate time of the attempt.
+</Aside>
+
+---
+
 ### My MCP server is not connecting to the MCP Inspector
 
 When your MCP server fails to connect to the MCP Inspector, this typically indicates a problem with the authentication handshake or metadata configuration. Follow these diagnosis steps to identify the issue.

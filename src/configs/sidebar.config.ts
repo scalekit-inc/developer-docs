@@ -217,9 +217,7 @@ export const sidebar = [
     items: [
       {
         label: 'Connectors',
-        autogenerate: {
-          directory: 'agentkit/connectors',
-        },
+        items: [{ autogenerate: { directory: 'agentkit/connectors' } }],
       },
     ],
   },
@@ -325,17 +323,38 @@ export const sidebar = [
       {
         label: 'Social connections',
         collapsed: true,
-        autogenerate: { directory: 'guides/integrations/social-connections' },
+        items: [
+          {
+            autogenerate: {
+              directory: 'guides/integrations/social-connections',
+              collapsed: true,
+            },
+          },
+        ],
       },
       {
         label: 'SSO integrations',
         collapsed: true,
-        autogenerate: { directory: 'guides/integrations/sso-integrations' },
+        items: [
+          {
+            autogenerate: {
+              directory: 'guides/integrations/sso-integrations',
+              collapsed: true,
+            },
+          },
+        ],
       },
       {
         label: 'SCIM integrations',
         collapsed: true,
-        autogenerate: { directory: 'guides/integrations/scim-integrations' },
+        items: [
+          {
+            autogenerate: {
+              directory: 'guides/integrations/scim-integrations',
+              collapsed: true,
+            },
+          },
+        ],
       },
       createSpacing(),
       createSectionHeader('Security'),
@@ -363,6 +382,10 @@ export const sidebar = [
         ],
       },
       { label: 'Admin portal events', link: 'reference/admin-portal/ui-events' },
+      createSpacing(),
+      createSectionHeader('Platform'),
+      'reference/rate-limits',
+      'reference/outbound-ip-addresses',
     ],
   },
   {
@@ -434,7 +457,7 @@ export const sidebar = [
       },
       {
         label: 'Integrate SSO with own auth',
-        autogenerate: { directory: 'guides/integrations/auth-systems' },
+        items: [{ autogenerate: { directory: 'guides/integrations/auth-systems' } }],
       },
       {
         label: 'How to...',

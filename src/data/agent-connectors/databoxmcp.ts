@@ -45,9 +45,7 @@ export const tools: Tool[] = [
   {
     name: 'databoxmcp_get_current_datetime',
     description: `Get the current date and time in ISO 8601 format for a given timezone. Useful for resolving relative date expressions such as "last month" or "yesterday" before passing absolute dates to other tools.`,
-    params: [
-      { name: 'timezone', type: 'string', required: false, description: `No description.` },
-    ],
+    params: [{ name: 'timezone', type: 'string', required: false, description: `No description.` }],
   },
   {
     name: 'databoxmcp_get_dataset_ingestions',
@@ -75,8 +73,7 @@ export const tools: Tool[] = [
   {
     name: 'databoxmcp_list_accounts',
     description: `List all Databox accounts accessible to the authenticated user. Use this to discover account IDs needed for other operations.`,
-    params: [
-    ],
+    params: [],
   },
   {
     name: 'databoxmcp_list_data_source_datasets',
@@ -115,7 +112,12 @@ export const tools: Tool[] = [
       { name: 'metric_key', type: 'string', required: true, description: `No description.` },
       { name: 'start_date', type: 'string', required: true, description: `No description.` },
       { name: 'dimension', type: 'string', required: false, description: `No description.` },
-      { name: 'granulation_time_unit', type: 'string', required: false, description: `No description.` },
+      {
+        name: 'granulation_time_unit',
+        type: 'string',
+        required: false,
+        description: `No description.`,
+      },
       { name: 'is_whole_range', type: 'boolean', required: false, description: `No description.` },
       { name: 'record_limit', type: 'string', required: false, description: `No description.` },
     ],
