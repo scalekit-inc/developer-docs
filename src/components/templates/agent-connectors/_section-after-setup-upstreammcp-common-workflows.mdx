@@ -1,0 +1,44 @@
+{/* TODO: stub cloned from _section-after-setup-apifymcp-common-workflows.mdx for Upstream. Review and update connector-specific references (URLs, scopes, app-registration steps) before merging. */}
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+<details>
+<summary>Tool calling</summary>
+
+- Use `upstreammcp_search_actors` to discover Actors for a specific platform or use case before deciding which to run.
+- Use `upstreammcp_fetch_actor_details` to retrieve an Actor's input schema before calling it — always pass `output: { inputSchema: true }` to keep the response concise.
+- Use `upstreammcp_call_actor` to run an Actor synchronously, or with `async: true` for long-running tasks.
+- Use `upstreammcp_get_actor_run` to poll the status of an async run, and `upstreammcp_get_actor_output` to retrieve results once complete.
+- Use `upstreammcp_rag_web_browser` when you need real-time web content for LLM grounding — it returns clean Markdown from the top search result pages.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const toolResponse = await actions.executeTool({
+      connector: 'upstreammcp',
+      identifier: 'user_123',
+      toolName: 'upstreammcp_fetch_actor_details',
+      toolInput: {
+        actor: 'apify/web-scraper',
+      },
+    });
+    console.log('Actor details:', toolResponse.data);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    tool_response = actions.execute_tool(
+        connection_name='upstreammcp',
+        identifier='user_123',
+        tool_name='upstreammcp_fetch_actor_details',
+        tool_input={
+            "actor": "apify/web-scraper",
+        },
+    )
+    print("Actor details:", tool_response)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
