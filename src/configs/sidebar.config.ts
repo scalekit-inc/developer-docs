@@ -113,6 +113,11 @@ export const sidebar = [
         ],
       },
       {
+        label: 'Manage encryption keys',
+        collapsed: true,
+        items: ['guides/encryption-keys/overview', 'guides/encryption-keys/byok-gcp'],
+      },
+      {
         label: 'View auth integrations',
         link: 'guides/integrations',
       },
@@ -355,13 +360,6 @@ export const sidebar = [
             },
           },
         ],
-      },
-      createSpacing(),
-      createSectionHeader('Security'),
-      {
-        label: 'Encryption keys',
-        collapsed: true,
-        items: ['guides/security/encryption-keys', 'guides/security/encryption-keys-byok-gcp'],
       },
       createSpacing(),
       createSectionHeader('Workflows'),

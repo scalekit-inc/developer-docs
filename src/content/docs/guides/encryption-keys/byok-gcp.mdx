@@ -19,41 +19,43 @@ seeAlso:
   items:
     - title: 'Encryption keys overview'
       icon: 'seti:lock'
-      url: '/guides/security/encryption-keys/'
+      url: '/guides/encryption-keys/overview/'
     - title: 'Authentication best practices'
       icon: 'shield'
       url: '/guides/security/authentication-best-practices/'
 prev:
-  link: '/guides/security/encryption-keys/'
+  link: '/guides/encryption-keys/overview/'
   label: 'Encryption keys'
 ---
 
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 
-This guide walks you through creating a Google Cloud KMS key and connecting it to your Scalekit environment as a BYOK encryption key. If you are not sure whether BYOK is right for your needs, see [Encryption keys](/guides/security/encryption-keys/) first.
+By default, Scalekit generates and manages your encryption key. Bring Your Own Key (BYOK) lets you supply a key from Google Cloud KMS that you control. This matters when your compliance policy requires that no third party can access key material, or when your team needs direct control over key rotation and revocation.
 
-<Aside type="note" title="GCP only (preview)">
-  BYOK currently supports Google Cloud KMS. AWS KMS and Azure Key Vault support are planned for a future release. This feature is in preview — contact your Scalekit account team to enable it.
+Set up the key in GCP (steps 1–3), then register and activate it in Scalekit (steps 4–6).
+
+<Aside type="caution" title="You own the key lifecycle">
+  Once BYOK is active, Scalekit cannot rotate or manage your GCP key. That responsibility transfers to you. If your GCP key is disabled or destroyed, or IAM access is revoked, Scalekit cannot encrypt new data or decrypt existing records until access is restored. Plan your key rotation and revocation policy before activating.
 </Aside>
 
 ## Prerequisites
 
 - A **Google Cloud project** with the [Cloud KMS API enabled](https://cloud.google.com/kms/docs/create-encryption-keys)
-- **IAM permissions** to create key rings, create keys, and set key-level IAM policies (`roles/cloudkms.admin` or equivalent)
-- The **Scalekit service account email** — shown in the dashboard when you select BYOK as the key type (see [step 4](#step-4-register-the-byok-key-in-scalekit))
+- **IAM permissions** to create key rings, keys, and set key-level IAM policies
+- The **Scalekit service account email**, shown in the dashboard when you select BYOK as the key type (see [step 4](#step-4-register-the-byok-key-in-scalekit))
 - `gcloud` CLI installed and authenticated (for the CLI approach), or access to the [GCP Console](https://console.cloud.google.com/security/kms)
 
 ## Set up BYOK
 
 ### Step 1: Create a key ring
 
-A key ring groups related keys in a specific location. Key rings are permanent — they cannot be deleted or renamed.
+A [key ring](https://cloud.google.com/kms/docs/resource-hierarchy#key_rings) is a logical container for encryption keys in Cloud KMS. It sets the geographic location of your keys and groups them for IAM management. Key rings cannot be deleted or renamed once created — choose the name and location carefully.
 
 <Tabs syncKey="gcp-method">
 <TabItem label="gcloud CLI">
 
 ```bash frame="terminal"
-gcloud kms keyrings create "my-scalekit-keyring" \
+gcloud kms keyrings create "scalekit-kms-keyring" \
   --location "global" \
   --project "YOUR-GCP-PROJECT"
 ```
@@ -65,7 +67,7 @@ Replace `YOUR-GCP-PROJECT` with your Google Cloud project ID.
 
 1. Open [**Security > Key Management**](https://console.cloud.google.com/security/kms) in the GCP Console.
 2. Click **Create key ring**.
-3. Enter a **Key ring name** (for example, `my-scalekit-keyring`).
+3. Enter a **Key ring name** (for example, `scalekit-kms-keyring`).
 4. Set **Location type** to **Global** (or choose a region that matches your data-residency requirements).
 5. Click **Create**.
 
@@ -78,30 +80,30 @@ Replace `YOUR-GCP-PROJECT` with your Google Cloud project ID.
 
 ### Step 2: Create an encryption key
 
-Create a symmetric encryption key inside the key ring.
+Create a symmetric AES-256-GCM key inside the key ring.
 
 <Tabs syncKey="gcp-method">
 <TabItem label="gcloud CLI">
 
 ```bash frame="terminal"
-gcloud kms keys create "my-scalekit-key" \
+gcloud kms keys create "scalekit-kms-key" \
   --location "global" \
-  --keyring "my-scalekit-keyring" \
+  --keyring "scalekit-kms-keyring" \
   --purpose "encryption" \
   --project "YOUR-GCP-PROJECT"
 ```
 
-The `--purpose "encryption"` flag creates an AES-256-GCM symmetric key suitable for envelope encryption.
+The `--purpose "encryption"` flag creates an AES-256-GCM symmetric key.
 
 </TabItem>
 <TabItem label="GCP Console">
 
-1. On the **Key Management** page, click the name of the key ring you just created.
+1. On the **Key Management** page, click the key ring you created.
 2. Click **Create key**.
-3. Enter a **Key name** (for example, `my-scalekit-key`).
+3. Enter a **Key name** (for example, `scalekit-kms-key`).
 4. Set **Purpose** to **Symmetric encrypt/decrypt**.
-5. Leave **Algorithm** as the default (**Google symmetric key** — AES-256-GCM).
-6. Set a **Rotation period** that suits your policy (default is 90 days).
+5. Leave **Algorithm** as the default (**Google symmetric key**, AES-256-GCM).
+6. Set **Rotation period** to **Never**. Rotation is managed through the Scalekit dashboard, not GCP auto-rotation.
 7. Click **Create**.
 
 </TabItem>
@@ -109,7 +111,7 @@ The `--purpose "encryption"` flag creates an AES-256-GCM symmetric key suitable 
 
 ### Step 3: Grant Scalekit access to the key
 
-Grant the Scalekit service account two IAM roles, scoped to the specific key (not the whole project):
+Scope both roles to the key itself, not the project. This limits Scalekit's IAM access to this key only.
 
 | Role | Purpose |
 |------|---------|
@@ -122,17 +124,15 @@ Replace `SCALEKIT-SERVICE-ACCOUNT` with the service account email shown in the S
 <TabItem label="gcloud CLI">
 
 ```bash frame="terminal"
-# Grant encrypt/decrypt
-gcloud kms keys add-iam-policy-binding "my-scalekit-key" \
-  --keyring "my-scalekit-keyring" \
+gcloud kms keys add-iam-policy-binding "scalekit-kms-key" \
+  --keyring "scalekit-kms-keyring" \
   --location "global" \
   --project "YOUR-GCP-PROJECT" \
   --member "serviceAccount:SCALEKIT-SERVICE-ACCOUNT" \
   --role "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 
-# Grant viewer
-gcloud kms keys add-iam-policy-binding "my-scalekit-key" \
-  --keyring "my-scalekit-keyring" \
+gcloud kms keys add-iam-policy-binding "scalekit-kms-key" \
+  --keyring "scalekit-kms-keyring" \
   --location "global" \
   --project "YOUR-GCP-PROJECT" \
   --member "serviceAccount:SCALEKIT-SERVICE-ACCOUNT" \
@@ -142,16 +142,14 @@ gcloud kms keys add-iam-policy-binding "my-scalekit-key" \
 </TabItem>
 <TabItem label="GCP Console">
 
-Repeat these steps for each role (`Cloud KMS CryptoKey Encrypter/Decrypter` and `Cloud KMS Viewer`):
-
-1. Go to **Security > Key Management**, click the key ring, then click the key name.
-2. Click the **Permissions** tab.
-3. Click **Grant access**.
+1. In the GCP Console, open [**Security > Key management**](https://console.cloud.google.com/security/kms), click **Key rings**, then click the key ring name.
+2. Click the key name, then click the **Permissions** tab.
+3. Click **Grant access**. A side panel opens.
 4. In the **New principals** field, enter the Scalekit service account email.
-5. In **Select a role**, search for and choose the role:
-   - First pass: **Cloud KMS CryptoKey Encrypter/Decrypter**
-   - Second pass: **Cloud KMS Viewer**
-6. Click **Save**.
+5. In the **Assign Roles** section:
+   - From the first **Role** dropdown, select **Cloud KMS CryptoKey Encrypter/Decrypter**.
+   - Click **+ Add another role** and select **Cloud KMS Viewer** from the second dropdown.
+6. Click **Save**. The policy update takes effect within a few minutes.
 
 <Aside type="note" title="Key-level vs project-level IAM">
   Grant these roles at the **key level** (not at the project level) to limit Scalekit's access to only this specific key.
@@ -162,36 +160,32 @@ Repeat these steps for each role (`Cloud KMS CryptoKey Encrypter/Decrypter` and 
 
 ### Step 4: Register the BYOK key in Scalekit
 
-Once IAM is configured, add the key to your Scalekit environment:
+Add the key to your Scalekit environment:
 
-1. In the Scalekit dashboard, go to **Configuration > Encryption Keys**.
-2. Click **Create key**.
-3. Select **BYOK** as the key type. The Scalekit service account email for your environment is displayed — use it in [step 3](#step-3-grant-scalekit-access-to-the-key) above.
-4. Select **GCP** as the provider.
-5. Enter the fully-qualified GCP key resource name:
+1. In the Scalekit dashboard, go to **Settings** and open the **Encryption keys** tab.
+2. Click **Create New Key** and select **BYOK - GCP Cloud KMS**.
+3. Copy the Scalekit service account email shown in the modal. You need it for [step 3](#step-3-grant-scalekit-access-to-the-key) if you have not granted IAM access yet.
+4. Enter the fully-qualified GCP key resource name:
 
    ```
-   projects/YOUR-GCP-PROJECT/locations/global/keyRings/my-scalekit-keyring/cryptoKeys/my-scalekit-key
+   projects/YOUR-GCP-PROJECT/locations/global/keyRings/scalekit-kms-keyring/cryptoKeys/scalekit-kms-key
    ```
 
    To retrieve the exact name from the CLI:
 
    ```bash frame="terminal"
-   gcloud kms keys describe "my-scalekit-key" \
-     --keyring "my-scalekit-keyring" \
+   gcloud kms keys describe "scalekit-kms-key" \
+     --keyring "scalekit-kms-keyring" \
      --location "global" \
      --project "YOUR-GCP-PROJECT" \
      --format="value(name)"
    ```
 
-6. Click **Create**. The key is created in **Staged** state.
+5. Click **Create**. The key is created in **Staged** state.
 
 ### Step 5: Activate the key
 
-A staged key does not encrypt any data yet. Activate it to make it the active encryption key for your environment:
-
-1. In the **Encryption Keys** table, find the staged key.
-2. Open the action menu (⋯) and select **Activate**.
+A staged key encrypts nothing. Click **Activate** on the staged key. The key becomes Primary and Scalekit uses it to encrypt all data from that point forward.
 
 <Aside type="caution" title="Activation is permanent">
   Once activated, you cannot deactivate the key without creating and activating a new key. Confirm your IAM grants are in place before activating.
@@ -199,54 +193,34 @@ A staged key does not encrypt any data yet. Activate it to make it the active en
 
 ### Step 6: Re-encrypt existing data
 
-Activating a key protects new writes only. To migrate all existing records to the new key, open the action menu and select **Re-encrypt data**. The dashboard shows the number of records re-encrypted and any rows that could not be recovered.
-
-## Verify the setup
-
-Before activating in production, confirm that Scalekit can perform encrypt/decrypt operations impersonating the Scalekit service account. Run this from Google Cloud Shell:
-
-```bash frame="terminal"
-echo -n "ping" | gcloud kms encrypt \
-  --key "my-scalekit-key" \
-  --keyring "my-scalekit-keyring" \
-  --location "global" \
-  --project "YOUR-GCP-PROJECT" \
-  --plaintext-file - \
-  --ciphertext-file - \
-  --impersonate-service-account SCALEKIT-SERVICE-ACCOUNT \
-  | base64
-```
-
-A successful run returns a base64-encoded ciphertext string. A `PERMISSION_DENIED` error means the IAM bindings from step 3 are missing or incorrect.
+Activation protects new writes only. To migrate existing records, click **Re-encrypt Data**. Scalekit decrypts each existing record using the previous key and re-encrypts it with the new key. The dashboard shows progress and any rows that could not be recovered.
 
 ## Monitor with audit logs
 
-Cloud KMS logs every cryptographic operation to [Cloud Audit Logs](https://cloud.google.com/kms/docs/audit-logging). Use this filter in **Cloud Logging** to monitor Scalekit's key usage:
+Cloud KMS logs every cryptographic operation to [Cloud Audit Logs](https://cloud.google.com/kms/docs/audit-logging). Use this filter in **Cloud Logging** to see all encrypt, decrypt, and key update events for your key:
 
 ```
 resource.type="cloudkms_cryptokey"
 ```
 
-This query returns all key management and data access events — encrypt, decrypt, and key update operations — for your KMS keys.
-
 ## Key resource name format
 
-The key reference you enter in Scalekit must be a fully-qualified GCP resource name:
+The key reference you enter in Scalekit must follow this format:
 
 ```
 projects/{PROJECT_ID}/locations/{LOCATION}/keyRings/{KEYRING_NAME}/cryptoKeys/{KEY_NAME}
 ```
 
-To look up the resource name of your key ring:
+Retrieve the exact key ring path with:
 
 ```bash frame="terminal"
-gcloud kms keyrings describe "my-scalekit-keyring" \
+gcloud kms keyrings describe "scalekit-kms-keyring" \
   --location "global" \
   --project "YOUR-GCP-PROJECT" \
   --format="value(name)"
 ```
 
-Append `/cryptoKeys/my-scalekit-key` to get the full key reference.
+Append `/cryptoKeys/scalekit-kms-key` to get the full key reference.
 
 ## Fix common errors
 
@@ -256,8 +230,8 @@ Append `/cryptoKeys/my-scalekit-key` to get the full key reference.
 Check that both IAM bindings are applied to the correct key:
 
 ```bash frame="terminal"
-gcloud kms keys get-iam-policy "my-scalekit-key" \
-  --keyring "my-scalekit-keyring" \
+gcloud kms keys get-iam-policy "scalekit-kms-key" \
+  --keyring "scalekit-kms-keyring" \
   --location "global" \
   --project "YOUR-GCP-PROJECT"
 ```
@@ -284,6 +258,6 @@ Verify the format is exactly:
 projects/PROJECT_ID/locations/LOCATION/keyRings/KEYRING_NAME/cryptoKeys/KEY_NAME
 ```
 
-Run `gcloud kms keys describe` with `--format="value(name)"` to retrieve the exact string — do not construct it manually.
+Run `gcloud kms keys describe` with `--format="value(name)"` to retrieve the exact string. Do not construct it manually.
 
 </details>
