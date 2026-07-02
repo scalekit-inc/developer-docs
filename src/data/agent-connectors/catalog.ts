@@ -1249,4 +1249,9 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'OAuth 2.0',
     categories: ['Communication'],
   },
+  dartai: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/dartai.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Project Management', 'AI', 'Productivity'],
+  },
 }
