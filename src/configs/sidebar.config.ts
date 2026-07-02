@@ -113,9 +113,8 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Manage encryption keys',
-        collapsed: true,
-        items: ['guides/encryption-keys/overview', 'guides/encryption-keys/byok-gcp'],
+        label: 'Encryption keys',
+        link: 'guides/encryption-keys',
       },
       {
         label: 'View auth integrations',
@@ -202,6 +201,10 @@ export const sidebar = [
           'agentkit/bring-your-own-connector/create-connector',
           'agentkit/bring-your-own-connector/making-tool-calls',
         ],
+      },
+      {
+        label: 'Encryption keys',
+        link: 'agentkit/encryption-keys',
       },
       {
         label: 'Go live',
