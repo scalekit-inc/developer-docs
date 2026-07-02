@@ -1,0 +1,114 @@
+---
+title: 'Encryption keys'
+description: 'How Scalekit protects your data with encryption keys, the two key types available, and how to manage them from the dashboard.'
+sidebar:
+  label: 'Overview'
+tags: [security, encryption, kms, byok, dek, key-management]
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 { font-size: var(--sl-text-xl); }
+      .sl-markdown-content h3 { font-size: var(--sl-text-lg); }
+  - tag: meta
+    attrs:
+      name: robots
+      content: noindex
+seeAlso:
+  label: 'Related guides'
+  items:
+    - title: 'BYOK: GCP KMS setup'
+      icon: 'seti:lock'
+      url: '/guides/security/encryption-keys-byok-gcp/'
+    - title: 'Authentication best practices'
+      icon: 'shield'
+      url: '/guides/security/authentication-best-practices/'
+next:
+  link: '/guides/security/encryption-keys-byok-gcp/'
+  label: 'BYOK: GCP KMS setup'
+---
+
+import { Aside, Badge } from '@astrojs/starlight/components';
+
+Scalekit encrypts all sensitive data in each environment using a **Data Encryption Key (DEK)**. What differs between key types is who holds the key that protects your DEK — Scalekit, or you.
+
+Every environment has its own isolated DEK. Data encrypted in one environment cannot be decrypted by keys from another.
+
+## Key types
+
+| Type | Who holds the wrapping key | When to use |
+|------|---------------------------|-------------|
+| **Environment key** | Scalekit | Default. No setup required. Scalekit manages the full key lifecycle. |
+| **BYOK** | You (Google Cloud KMS) | You need to hold the root key, independently revoke Scalekit's access, or satisfy a compliance mandate that requires customer-managed keys. |
+
+Choose **Environment key** unless your security policy or regulatory requirements specifically mandate BYOK.
+
+## How envelope encryption works
+
+Both key types use the same encryption architecture — **envelope encryption**:
+
+1. Your data is encrypted with the DEK (AES-256-GCM symmetric key).
+2. The DEK is encrypted by a wrapping key — this is the key your choice controls.
+3. Only the wrapped DEK is stored. The raw DEK is never persisted.
+
+With **Environment key**, Scalekit holds the wrapping key internally. With **BYOK**, your GCP KMS key is the wrapping key. Scalekit can unwrap the DEK only while your key is active and IAM grants are in place — disabling or destroying your GCP key immediately cuts off Scalekit's access to all encrypted data in that environment.
+
+## Key lifecycle
+
+Every encryption key moves through three states, regardless of type:
+
+| State | Meaning |
+|-------|---------|
+| **Staged** <Badge text="Staged" variant="caution" /> | Created but not yet active. No data is encrypted with it. |
+| **Active** <Badge text="Active" variant="success" /> | Current encryption key for all new writes in this environment. |
+| **Deprecated** <Badge text="Deprecated" variant="default" /> | Replaced by a newer key. Existing data may still reference it until re-encryption completes. |
+
+Only one key can be **Active** per environment at a time.
+
+## Manage your encryption keys
+
+Go to **Configuration > Encryption Keys** in the Scalekit dashboard.
+
+### Create a key
+
+Click **Create key** and select the key type:
+
+- **Environment key** — no additional input required.
+- **BYOK** — select **GCP** as the provider and enter the fully-qualified key resource name. The Scalekit service account email for your environment is shown at this point — you need it to grant IAM access in GCP before activating. See [BYOK: GCP KMS setup](/guides/security/encryption-keys-byok-gcp/) for prerequisites and full steps.
+
+The key is created in **Staged** state.
+
+<Aside type="note" title="One active key at a time">
+  Creating a new key does not replace the active key. The new key stays Staged until you explicitly activate it.
+</Aside>
+
+### Activate a key
+
+Open the action menu (⋯) next to the staged key and select **Activate**.
+
+<Aside type="caution" title="Activation is permanent">
+  Once activated, a key cannot be deactivated. To switch keys, create and activate a replacement.
+</Aside>
+
+### Re-encrypt existing data
+
+Activating a key protects new writes only. To migrate existing records to the new key:
+
+1. Confirm the key is **Active**.
+2. Open the action menu and select **Re-encrypt data**.
+
+Re-encryption processes all records in your environment. The dashboard shows progress and reports any rows that could not be recovered. Unrecoverable rows are rare — they typically indicate records encrypted with a key that was destroyed before rotation completed.
+
+### Destroy a deprecated key
+
+<Aside type="danger" title="Irreversible">
+  Destroying a deprecated key permanently deletes its key material. Any data still encrypted with that key becomes permanently unreadable. Always complete re-encryption before destroying.
+</Aside>
+
+Once re-encryption is confirmed complete, open the action menu for the deprecated key and select **Destroy**.
+
+## Set up BYOK with GCP
+
+If your security or compliance policy requires your organization to hold the root key, configure BYOK using Google Cloud KMS.
+
+See [BYOK: GCP KMS setup](/guides/security/encryption-keys-byok-gcp/) for prerequisites and step-by-step instructions.

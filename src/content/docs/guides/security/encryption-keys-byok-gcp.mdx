@@ -1,8 +1,8 @@
 ---
-title: 'Bring your own KMS key (GCP)'
+title: 'BYOK: GCP KMS setup'
 description: 'Configure Scalekit to encrypt your data with a Google Cloud KMS key you control. Step-by-step setup via gcloud CLI or the GCP Console.'
 sidebar:
-  label: 'Bring your own key (GCP)'
+  label: 'BYOK: GCP'
 tags: [security, encryption, kms, byok, gcp, compliance]
 tableOfContents: true
 head:
@@ -17,37 +17,24 @@ head:
 seeAlso:
   label: 'Related guides'
   items:
-    - title: 'Scalekit-managed encryption'
+    - title: 'Encryption keys overview'
       icon: 'seti:lock'
-      url: '/guides/security/scalekit-managed-encryption/'
+      url: '/guides/security/encryption-keys/'
     - title: 'Authentication best practices'
       icon: 'shield'
       url: '/guides/security/authentication-best-practices/'
 prev:
-  link: '/guides/security/scalekit-managed-encryption/'
-  label: 'Scalekit-managed encryption'
+  link: '/guides/security/encryption-keys/'
+  label: 'Encryption keys'
 ---
 
 import { Steps, Aside, Tabs, TabItem, Badge } from '@astrojs/starlight/components';
 
-Bring Your Own Key (BYOK) lets you encrypt Scalekit data with a symmetric key stored in your own Google Cloud KMS project. You retain full ownership of the key: you can rotate it, restrict access, and revoke it at any time by disabling or destroying your GCP key.
-
-Use BYOK when your compliance or security policy requires that your organization holds the encryption keys for data processed by Scalekit.
+This guide walks you through creating a Google Cloud KMS key and connecting it to your Scalekit environment as a BYOK encryption key. If you are not sure whether BYOK is right for your needs, see [Encryption keys](/guides/security/encryption-keys/) first.
 
 <Aside type="note" title="GCP only (preview)">
   BYOK currently supports Google Cloud KMS. AWS KMS and Azure Key Vault support are planned for a future release. This feature is in preview — contact your Scalekit account team to enable it.
 </Aside>
-
-## How it works
-
-Scalekit uses **envelope encryption**. When BYOK is active:
-
-1. Scalekit generates a Data Encryption Key (DEK) for your environment.
-2. Your GCP KMS key wraps (encrypts) the DEK.
-3. All new writes are protected by this wrapped DEK.
-4. Scalekit never stores your raw GCP key — only the wrapped DEK.
-
-Revoking your GCP key prevents Scalekit from unwrapping the DEK, effectively cutting off access to all encrypted data.
 
 ## Prerequisites
 
@@ -177,7 +164,7 @@ Repeat these steps for each role (`Cloud KMS CryptoKey Encrypter/Decrypter` and 
 
 Once IAM is configured, add the key to your Scalekit environment:
 
-1. In the Scalekit dashboard, go to **Configuration > Key Management**.
+1. In the Scalekit dashboard, go to **Configuration > Encryption Keys**.
 2. Click **Create key**.
 3. Select **BYOK** as the key type. The Scalekit service account email for your environment is displayed — use it in [step 3](#step-3-grant-scalekit-access-to-the-key) above.
 4. Select **GCP** as the provider.
@@ -203,7 +190,7 @@ Once IAM is configured, add the key to your Scalekit environment:
 
 A staged key does not encrypt any data yet. Activate it to make it the active encryption key for your environment:
 
-1. In the **Key Management** table, find the staged key.
+1. In the **Encryption Keys** table, find the staged key.
 2. Open the action menu (⋯) and select **Activate**.
 
 <Aside type="caution" title="Activation is permanent">

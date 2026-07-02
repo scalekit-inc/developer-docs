@@ -340,12 +340,9 @@ export const sidebar = [
       createSpacing(),
       createSectionHeader('Security'),
       {
-        label: 'Key management',
+        label: 'Encryption keys',
         collapsed: true,
-        items: [
-          'guides/security/scalekit-managed-encryption',
-          'guides/security/byok-key-management',
-        ],
+        items: ['guides/security/encryption-keys', 'guides/security/encryption-keys-byok-gcp'],
       },
       createSpacing(),
       createSectionHeader('Workflows'),
