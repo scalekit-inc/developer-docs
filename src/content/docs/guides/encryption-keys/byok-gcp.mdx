@@ -30,12 +30,12 @@ prev:
 
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 
-By default, Scalekit generates and manages your encryption key. Bring Your Own Key (BYOK) lets you supply a key from Google Cloud KMS that you control. This matters when your compliance policy requires that no third party can access key material, or when your team needs direct control over key rotation and revocation.
+Scalekit uses a managed encryption key by default. With BYOK, you register a key from Google Cloud KMS that only your team can control or revoke. Scalekit never handles the raw key material; it calls the KMS API to encrypt and decrypt on each operation.
 
 Set up the key in GCP (steps 1–3), then register and activate it in Scalekit (steps 4–6).
 
 <Aside type="caution" title="You own the key lifecycle">
-  Once BYOK is active, Scalekit cannot rotate or manage your GCP key. That responsibility transfers to you. If your GCP key is disabled or destroyed, or IAM access is revoked, Scalekit cannot encrypt new data or decrypt existing records until access is restored. Plan your key rotation and revocation policy before activating.
+  BYOK gives you direct control over your encryption key. Scalekit cannot rotate or manage the GCP key on your behalf. If the key is disabled, destroyed, or IAM access is revoked, Scalekit cannot encrypt new data or decrypt existing records until you restore access.
 </Aside>
 
 ## Prerequisites
@@ -49,7 +49,7 @@ Set up the key in GCP (steps 1–3), then register and activate it in Scalekit (
 
 ### Step 1: Create a key ring
 
-A [key ring](https://cloud.google.com/kms/docs/resource-hierarchy#key_rings) is a logical container for encryption keys in Cloud KMS. It sets the geographic location of your keys and groups them for IAM management. Key rings cannot be deleted or renamed once created — choose the name and location carefully.
+A [key ring](https://cloud.google.com/kms/docs/resource-hierarchy#key_rings) is a logical container for encryption keys in Cloud KMS. It sets the geographic location of your keys and groups them for IAM management. Key rings cannot be deleted or renamed once created. Choose the name and location carefully.
 
 <Tabs syncKey="gcp-method">
 <TabItem label="gcloud CLI">
