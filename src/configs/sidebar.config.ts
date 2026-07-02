@@ -113,8 +113,8 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Encryption keys',
-        link: 'guides/encryption-keys',
+        label: 'Manage encryption keys',
+        link: 'authenticate/encryption-keys',
       },
       {
         label: 'View auth integrations',
@@ -203,7 +203,7 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Encryption keys',
+        label: 'Manage encryption keys',
         link: 'agentkit/encryption-keys',
       },
       {

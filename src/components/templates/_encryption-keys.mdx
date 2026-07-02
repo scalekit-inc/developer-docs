@@ -1,12 +1,12 @@
 import { Aside, Badge, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
-Every Scalekit environment protects data at rest with its own managed encryption key, keeping tenant data isolated. If your compliance policy requires you to own and control the root key, replace the managed key with one from your KMS provider.
+Scalekit automatically protects data at rest with encryption keys. You can use Scalekit-managed keys or bring your own from a cloud Key Management Service (KMS) provider if your compliance policy requires you to own and control the root key. This guide shows you how to view and manage keys in the dashboard and set up Bring Your Own Key (BYOK) with GCP Cloud KMS.
 
 ## Key types
 
 | Type | Description |
 |------|-------------|
-| **Scalekit managed DEK** | Scalekit generates and manages the key. No setup required. |
+| **Scalekit managed Data Encryption Key (DEK)** | Scalekit generates and manages the key. No setup required. |
 | **Bring your own key (BYOK)** | You provide a key from your own KMS. You own the key lifecycle, including rotation and revocation. |
 
 ## Key states
@@ -49,7 +49,7 @@ Go to **Settings** and open the **Encryption keys** tab.
 Use BYOK to register an encryption key from Google Cloud KMS that your team owns and controls. Scalekit uses the KMS API for all encrypt and decrypt operations and never stores the key material.
 
 <Aside type="caution" title="You own the key lifecycle">
-  BYOK gives you direct control over your encryption key. Scalekit cannot rotate or manage the GCP key on your behalf. If the key is disabled, destroyed, or IAM access is revoked, Scalekit cannot encrypt new data or decrypt existing records until you restore access.
+  BYOK gives you direct control over your encryption key. Scalekit cannot rotate or manage the GCP key on your behalf. If the key is disabled, destroyed, or Identity and Access Management (IAM) access is revoked, Scalekit cannot encrypt new data or decrypt existing records until you restore access.
 </Aside>
 
 ### Prerequisites
