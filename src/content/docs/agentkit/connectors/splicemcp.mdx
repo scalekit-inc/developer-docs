@@ -1,0 +1,71 @@
+---
+title: 'Splice MCP connector'
+tableOfContents: true
+description: 'Connect to Splice MCP. Search the Splice sample catalog, create and update multi-track stacks, download audio assets, and generate arrangements from text...'
+sidebar:
+  label: 'Splice MCP'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/splice.svg
+connectorAuthType: OAuth 2.1/DCR
+connectorCategories: [Media, AI, Productivity]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/splicemcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="splicemcp" toolName="splicemcp_create_stack" providerName="Splice MCP" toolInputNode="{ asset_uuid: 'YOUR_ASSET_UUID' }" toolInputPython='{"asset_uuid":"YOUR_ASSET_UUID"}' />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Update stack** — Modify an existing stack by adding, removing, or swapping sounds, or by renaming it or changing its BPM
+- **Stack share, prompt to** — Generate a public shareable URL for an existing stack by its UUID
+- **Asset download** — Purchase a Splice sample and return a presigned download URL for the audio file
+- **Sound describe a** — Search the Splice catalog for samples matching a natural language description, with optional BPM and type filters
+- **Create stack** — Create a multi-track stack from an existing Splice sample, optionally generating a public share URL
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />
