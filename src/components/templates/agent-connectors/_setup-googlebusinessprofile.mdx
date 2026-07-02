@@ -13,23 +13,27 @@ Register your Scalekit environment with the Google Business Profile connector so
 
     - Click **Use your own credentials** and copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
 
-      {/* TODO: add screenshot — copy redirect URI from Scalekit dashboard for Google Business Profile */}
+      ![Copy redirect URI from Scalekit dashboard](@/assets/docs/agent-connectors/gmail/use-own-credentials-redirect-uri.png)
 
     - Navigate to [Google Cloud Console](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project) → **APIs & Services** → **Credentials**. Click **+ Create Credentials**, then **OAuth client ID**. Choose **Web application** as the application type.
 
-      {/* TODO: add screenshot — select Web application in Google Cloud Console */}
+      ![Select Web application in Google Cloud Console](@/assets/docs/agent-connectors/gmail/oauth-web-app.png)
 
     - Under **Authorized redirect URIs**, click **+ Add URI**, paste the redirect URI, and click **Create**.
 
-      {/* TODO: add screenshot — add authorized redirect URI in Google Cloud Console */}
+      ![Add authorized redirect URI in Google Cloud Console](@/assets/docs/agent-connectors/gmail/add-redirect-uri.png)
 
 2. ### Enable the Business Profile APIs
 
-    - In [Google Cloud Console](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project), go to **APIs & Services** → **Library**. Search for and enable **My Business Account Management API**, **My Business Business Information API**, and the other Business Profile APIs your tools call (Performance, Notifications, Verifications, and the legacy My Business API for reviews, media, and local posts).
+    - In [Google Cloud Console](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project), go to **APIs & Services** → **Library**. Search for and enable each API your tools call:
+      - **My Business Account Management API** - accounts, admins, invitations, and location transfers
+      - **My Business Business Information API** - locations, categories, attributes, and chain search
+      - **Business Profile Performance API** - insights, daily metrics, and search keyword impressions
+      - **My Business Notification Settings API** - notification settings
+      - **My Business Verifications API** - location verification options and verification
+      - **Google My Business API** (legacy v4) - reviews, media, and local posts
 
-      {/* TODO: add provider-specific steps — confirm the exact set of Business Profile APIs to enable for this connector's tool list */}
-
-      {/* TODO: add screenshot — enable Business Profile APIs in Google Cloud Console */}
+    - Reviews, media, and local posts run on the legacy v4 Google My Business API, which requires separate Google allow-list approval for your OAuth 2.0 client. Until Google grants that approval, those tools return a `403`.
 
 3. ### Get client credentials
 
@@ -42,8 +46,8 @@ Register your Scalekit environment with the Google Business Profile connector so
     - Enter your credentials:
       - Client ID (from above)
       - Client Secret (from above)
-      - Permissions — this connector requires the `https://www.googleapis.com/auth/business.manage` scope, which grants access to manage your Business Profile locations, business information, performance insights, and local posts.
+      - Permissions - this connector requires the `https://www.googleapis.com/auth/business.manage` scope, which grants access to manage your Business Profile locations, business information, performance insights, and local posts.
 
-      {/* TODO: add screenshot — add credentials for Google Business Profile in Scalekit dashboard */}
+      ![Add credentials for Google Business Profile in Scalekit dashboard](@/assets/docs/agent-connectors/gmail/add-credentials.png)
     - Click **Save**.
 </Steps>

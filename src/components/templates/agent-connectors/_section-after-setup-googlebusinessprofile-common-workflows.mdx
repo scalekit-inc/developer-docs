@@ -1,71 +1,169 @@
-{/* TODO: stub cloned from _section-after-setup-gmail-common-workflows.mdx for Google Business Profile. Review and update connector-specific references (URLs, scopes, app-registration steps) before merging. */}
 export const sectionTitle = 'Common workflows'
 
 import { Tabs, TabItem } from '@astrojs/starlight/components'
 import SectionGoogleOauthVerificationCollapsible from './_section-google-oauth-verification-collapsible.mdx'
 
 <details>
-<summary>Use Google Business Profile response fields as returned</summary>
+<summary>List accounts, then list their locations</summary>
 
-Response fields from Google Business Profile tools use camelCase, such as `threadId`, `messageId`, and `internalDate`. Tool input parameters use the snake_case names shown in the Tool list, such as `thread_id` and `message_id`. Extract values with camelCase, then pass them with snake_case.
+Most Business Profile calls need an account resource name. Call `googlebusinessprofile_list_accounts` first, read the `name` of an account (in the form `accounts/{account_id}`), then pass it as the `parent` when you list locations. A `readMask` is required and controls which location fields are returned.
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Node.js">
     ```typescript
-    const fetchResponse = await actions.executeTool({
+    const accountResponse = await actions.getOrCreateConnectedAccount({
+      connectionName: 'googlebusinessprofile',
+      identifier: 'user_123',
+    });
+    const connectedAccountId = accountResponse.connectedAccount?.id;
+
+    if (!connectedAccountId) {
+      throw new Error('Authorize the Google Business Profile connection before listing locations.');
+    }
+
+    const accountsResponse = await actions.executeTool({
       connector: 'googlebusinessprofile',
       identifier: 'user_123',
-      toolName: 'googlebusinessprofile_fetch_mails',
+      toolName: 'googlebusinessprofile_list_accounts',
       toolInput: {
-        query: 'is:unread',
-        max_results: 5,
+        pageSize: 10,
       },
     });
 
-    const messages = Array.isArray(fetchResponse.data?.messages)
-      ? fetchResponse.data.messages
+    const accounts = Array.isArray(accountsResponse.data?.accounts)
+      ? accountsResponse.data.accounts
       : [];
-    const threadId = typeof messages[0]?.threadId === 'string' ? messages[0].threadId : '';
+    const accountName = typeof accounts[0]?.name === 'string' ? accounts[0].name : '';
 
-    if (threadId) {
-      const threadResponse = await actions.executeTool({
+    if (accountName) {
+      const locationsResponse = await actions.executeTool({
         connector: 'googlebusinessprofile',
         identifier: 'user_123',
-        toolName: 'googlebusinessprofile_get_thread_by_id',
+        toolName: 'googlebusinessprofile_list_locations',
         toolInput: {
-          thread_id: threadId,
+          parent: accountName,
+          readMask: 'name,title,storefrontAddress',
+          pageSize: 10,
         },
       });
-      console.log(threadResponse.data);
+      console.log(locationsResponse.data);
     }
     ```
   </TabItem>
   <TabItem label="Python">
     ```python
-    fetch_response = actions.execute_tool(
+    account_response = actions.get_or_create_connected_account(
         connection_name='googlebusinessprofile',
         identifier='user_123',
-        tool_name="googlebusinessprofile_fetch_mails",
+    )
+    connected_account = account_response.connected_account
+
+    if not connected_account.id:
+        raise RuntimeError("Authorize the Google Business Profile connection before listing locations.")
+
+    accounts_response = actions.execute_tool(
+        connection_name='googlebusinessprofile',
+        identifier='user_123',
+        tool_name="googlebusinessprofile_list_accounts",
         tool_input={
-            "query": "is:unread",
-            "max_results": 5,
+            "pageSize": 10,
         },
     )
 
-    data = fetch_response.data or {}
-    messages = data.get("messages", [])
-    thread_id = messages[0].get("threadId", "") if messages else ""
+    data = accounts_response.data or {}
+    accounts = data.get("accounts", [])
+    account_name = accounts[0].get("name", "") if accounts else ""
 
-    if thread_id:
-        thread_response = actions.execute_tool(
+    if account_name:
+        locations_response = actions.execute_tool(
             connection_name='googlebusinessprofile',
             identifier='user_123',
-            tool_name="googlebusinessprofile_get_thread_by_id",
+            tool_name="googlebusinessprofile_list_locations",
             tool_input={
-                "thread_id": thread_id,
+                "parent": account_name,
+                "readMask": "name,title,storefrontAddress",
+                "pageSize": 10,
             },
         )
-        print(thread_response.data)
+        print(locations_response.data)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Reply to a customer review</summary>
+
+List reviews for a location, read the `reviewId` you want to answer, then post a reply. Replying again to the same review overwrites the previous reply.
+
+**Note:** Reviews use the legacy My Business API v4, which needs separate Google allow-list approval for your OAuth client. A `403` response usually means the client is not allow-listed yet, not that the tool failed.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const reviewsResponse = await actions.executeTool({
+      connector: 'googlebusinessprofile',
+      identifier: 'user_123',
+      toolName: 'googlebusinessprofile_list_reviews',
+      toolInput: {
+        accountId: '106234523651626475467',
+        locationId: '12345678901234567890',
+        pageSize: 10,
+      },
+    });
+
+    const reviews = Array.isArray(reviewsResponse.data?.reviews)
+      ? reviewsResponse.data.reviews
+      : [];
+    const reviewId = typeof reviews[0]?.reviewId === 'string' ? reviews[0].reviewId : '';
+
+    if (reviewId) {
+      const replyResponse = await actions.executeTool({
+        connector: 'googlebusinessprofile',
+        identifier: 'user_123',
+        toolName: 'googlebusinessprofile_reply_to_review',
+        toolInput: {
+          accountId: '106234523651626475467',
+          locationId: '12345678901234567890',
+          reviewId,
+          comment: 'Thank you for your feedback! We are glad you enjoyed your visit.',
+        },
+      });
+      console.log(replyResponse.data);
+    }
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    reviews_response = actions.execute_tool(
+        connection_name='googlebusinessprofile',
+        identifier='user_123',
+        tool_name="googlebusinessprofile_list_reviews",
+        tool_input={
+            "accountId": "106234523651626475467",
+            "locationId": "12345678901234567890",
+            "pageSize": 10,
+        },
+    )
+
+    data = reviews_response.data or {}
+    reviews = data.get("reviews", [])
+    review_id = reviews[0].get("reviewId", "") if reviews else ""
+
+    if review_id:
+        reply_response = actions.execute_tool(
+            connection_name='googlebusinessprofile',
+            identifier='user_123',
+            tool_name="googlebusinessprofile_reply_to_review",
+            tool_input={
+                "accountId": "106234523651626475467",
+                "locationId": "12345678901234567890",
+                "reviewId": review_id,
+                "comment": "Thank you for your feedback! We are glad you enjoyed your visit.",
+            },
+        )
+        print(reply_response.data)
     ```
   </TabItem>
 </Tabs>
@@ -81,7 +179,7 @@ Response fields from Google Business Profile tools use camelCase, such as `threa
     const result = await actions.request({
       connectionName: 'googlebusinessprofile',
       identifier: 'user_123',
-      path: '/googlebusinessprofile/v1/users/me/profile',
+      path: '/v1/accounts',
       method: 'GET',
     });
     console.log(result);
@@ -92,7 +190,7 @@ Response fields from Google Business Profile tools use camelCase, such as `threa
     result = actions.request(
         connection_name='googlebusinessprofile',
         identifier='user_123',
-        path="/googlebusinessprofile/v1/users/me/profile",
+        path="/v1/accounts",
         method="GET",
     )
     print(result)
