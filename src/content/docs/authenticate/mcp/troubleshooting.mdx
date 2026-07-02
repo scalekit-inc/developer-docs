@@ -8,6 +8,12 @@ tableOfContents:
   maxHeadingLevel: 2
 prev: false
 next: false
+head:
+  - tag: script
+    attrs:
+      type: application/ld+json
+    content: |-
+      {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the difference between DCR and CIMD?","acceptedAnswer":{"@type":"Answer","text":"<p>MCP clients identify themselves to Scalekit's authorization server using one of two mechanisms:</p><ul><li><strong>Dynamic Client Registration (DCR)</strong>: The client registers itself with Scalekit and receives a client_id in the m2m_xxx format. See <a href=\"https://datatracker.ietf.org/doc/html/rfc7591\">RFC 7591</a>.</li><li><strong>Client ID Metadata Document (CIMD)</strong>: The client presents a URL that hosts its client metadata document, and Scalekit fetches that URL to identify the client.</li></ul><p>The invalid_client_metadata_url error belongs to the CIMD path: Scalekit couldn't resolve or validate the metadata URL the client sent. A client that completes DCR correctly doesn't trigger this error. Follow the resolution steps in the section above.</p>"}},{"@type":"Question","name":"How do I view authentication logs to debug a failed connection?","acceptedAnswer":{"@type":"Answer","text":"<p>Open <strong>Dashboard > Authentication > Logs</strong> to inspect the authorization and token requests for your environment. Each entry shows the OAuth client, the requested scopes, and the outcome of each step in the flow.</p><p>When you debug a failed connection, change the log filter to show all events rather than successful events only. Failed authorization and token requests appear only when you include error events, so a success-only view can hide the request you need to diagnose.</p>"}}]}
 browseCentral:
   label: "Troubleshooting MCP auth"
   category:
@@ -174,7 +180,7 @@ GitHub Copilot CLI caches OAuth client credentials locally. If you switch your S
    ```sh
    rm -rf ~/.copilot/mcp-oauth-config
    ```
-2. Reconnect your MCP server in GitHub Copilot CLI — it will register a fresh client against the correct environment.
+2. Reconnect your MCP server in GitHub Copilot CLI. It registers a fresh client against the correct environment.
 
 <Aside type="note">
 If you cannot find the files using the path above, also check `~/.config/github-copilot/` for any cached MCP auth files.
@@ -229,7 +235,7 @@ If your MCP server is behind Cloudflare and AI agents (such as Claude Desktop, C
 1. Open the [Cloudflare dashboard](https://dash.cloudflare.com/) for your domain
 2. Navigate to **Security > Events**
 3. Filter for your MCP server path and look for blocked or challenged requests
-4. Note the **rule name** — it tells you which Cloudflare feature caused the block (Bot Fight Mode, Super Bot Fight Mode, AI Crawl Control, or a managed rule)
+4. Note the **rule name**. It tells you which Cloudflare feature caused the block (Bot Fight Mode, Super Bot Fight Mode, AI Crawl Control, or a managed rule)
 
 **Resolution for Cloudflare Free plan (Bot Fight Mode):**
 
@@ -245,7 +251,7 @@ On the Free plan, Bot Fight Mode runs before the WAF Ruleset Engine, so custom W
 On paid plans, you can create a WAF custom rule that skips bot protection only for MCP traffic while keeping the rest of your domain protected:
 
 1. Navigate to **Security > WAF > Custom rules > Create rule**
-2. Set the expression to match your MCP server path: `starts_with(http.request.uri.path, "/mcp")` — adjust the path to match your MCP server's base path
+2. Set the expression to match your MCP server path: `starts_with(http.request.uri.path, "/mcp")`. Adjust the path to match your MCP server's base path
 3. Set the action to **Skip**, then select **Super Bot Fight Mode**
 4. Move this rule to the top of your custom rules list so it evaluates first
 5. Save and deploy, then retry the MCP client connection
