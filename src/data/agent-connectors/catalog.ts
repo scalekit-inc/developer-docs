@@ -1249,4 +1249,9 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'OAuth 2.0',
     categories: ['Communication'],
   },
+  crustdatamcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/crustdata.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['CRM & Sales', 'Search'],
+  },
 }
