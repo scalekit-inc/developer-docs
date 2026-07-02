@@ -1,0 +1,105 @@
+{/* TODO: stub cloned from _section-after-setup-gmail-common-workflows.mdx for Google Business Profile. Review and update connector-specific references (URLs, scopes, app-registration steps) before merging. */}
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+import SectionGoogleOauthVerificationCollapsible from './_section-google-oauth-verification-collapsible.mdx'
+
+<details>
+<summary>Use Google Business Profile response fields as returned</summary>
+
+Response fields from Google Business Profile tools use camelCase, such as `threadId`, `messageId`, and `internalDate`. Tool input parameters use the snake_case names shown in the Tool list, such as `thread_id` and `message_id`. Extract values with camelCase, then pass them with snake_case.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const fetchResponse = await actions.executeTool({
+      connector: 'googlebusinessprofile',
+      identifier: 'user_123',
+      toolName: 'googlebusinessprofile_fetch_mails',
+      toolInput: {
+        query: 'is:unread',
+        max_results: 5,
+      },
+    });
+
+    const messages = Array.isArray(fetchResponse.data?.messages)
+      ? fetchResponse.data.messages
+      : [];
+    const threadId = typeof messages[0]?.threadId === 'string' ? messages[0].threadId : '';
+
+    if (threadId) {
+      const threadResponse = await actions.executeTool({
+        connector: 'googlebusinessprofile',
+        identifier: 'user_123',
+        toolName: 'googlebusinessprofile_get_thread_by_id',
+        toolInput: {
+          thread_id: threadId,
+        },
+      });
+      console.log(threadResponse.data);
+    }
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    fetch_response = actions.execute_tool(
+        connection_name='googlebusinessprofile',
+        identifier='user_123',
+        tool_name="googlebusinessprofile_fetch_mails",
+        tool_input={
+            "query": "is:unread",
+            "max_results": 5,
+        },
+    )
+
+    data = fetch_response.data or {}
+    messages = data.get("messages", [])
+    thread_id = messages[0].get("threadId", "") if messages else ""
+
+    if thread_id:
+        thread_response = actions.execute_tool(
+            connection_name='googlebusinessprofile',
+            identifier='user_123',
+            tool_name="googlebusinessprofile_get_thread_by_id",
+            tool_input={
+                "thread_id": thread_id,
+            },
+        )
+        print(thread_response.data)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Proxy API call</summary>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.request({
+      connectionName: 'googlebusinessprofile',
+      identifier: 'user_123',
+      path: '/googlebusinessprofile/v1/users/me/profile',
+      method: 'GET',
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.request(
+        connection_name='googlebusinessprofile',
+        identifier='user_123',
+        path="/googlebusinessprofile/v1/users/me/profile",
+        method="GET",
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<SectionGoogleOauthVerificationCollapsible />
