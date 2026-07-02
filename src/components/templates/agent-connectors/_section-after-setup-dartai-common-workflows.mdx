@@ -1,0 +1,78 @@
+{/* TODO: stub cloned from _section-after-setup-atlassianmcp-common-workflows.mdx for Dart AI MCP. Review and update connector-specific references (URLs, scopes, app-registration steps) before merging. */}
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+### Get your cloud ID
+
+Most Dart AI MCP tools require a `cloudId` — the UUID that identifies your Atlassian cloud site. Call `dartai_getaccessibleatlassianresources` once to retrieve it, then pass the `id` field value in every subsequent tool call.
+
+<Aside type="note" title="Call this tool first">
+  Run `dartai_getaccessibleatlassianresources` before calling any Jira or Confluence tool. The response lists every Atlassian site the user has access to. Use the `id` field as `cloudId`.
+</Aside>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // Step 1 — get the cloud ID
+    const resources = await actions.executeTool({
+      connectionName: 'dartai',
+      identifier: 'user_123',
+      toolName: 'dartai_getaccessibleatlassianresources',
+      toolInput: {},
+    });
+    const cloudId = resources[0].id;
+
+    // Step 2 — use cloudId in subsequent calls
+    const issue = await actions.executeTool({
+      connectionName: 'dartai',
+      identifier: 'user_123',
+      toolName: 'dartai_getjiraissue',
+      toolInput: {
+        cloudId,
+        issueIdOrKey: 'KAN-1',
+      },
+    });
+    console.log(issue);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    # Step 1 — get the cloud ID
+    resources = actions.execute_tool(
+        connection_name="dartai",
+        identifier="user_123",
+        tool_name="dartai_getaccessibleatlassianresources",
+        tool_input={},
+    )
+    cloud_id = resources[0]["id"]
+
+    # Step 2 — use cloud_id in subsequent calls
+    issue = actions.execute_tool(
+        connection_name="dartai",
+        identifier="user_123",
+        tool_name="dartai_getjiraissue",
+        tool_input={
+            "cloudId": cloud_id,
+            "issueIdOrKey": "KAN-1",
+        },
+    )
+    print(issue)
+    ```
+  </TabItem>
+</Tabs>
+
+The `dartai_getaccessibleatlassianresources` response looks like this:
+
+```json
+[
+  {
+    "id": "a4c9b3e2-1234-5678-abcd-ef0123456789",
+    "name": "My Company",
+    "url": "https://mycompany.atlassian.net",
+    "scopes": ["read:jira-work", "write:jira-work", "read:confluence-content.all"]
+  }
+]
+```
+
+Use `id` as the `cloudId` parameter. If the user belongs to multiple Atlassian sites, the list contains one entry per site — pick the one matching the target `url`.
