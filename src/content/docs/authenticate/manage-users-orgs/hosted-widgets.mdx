@@ -26,7 +26,7 @@ import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components'
 
 Your customers, especially workspace administrators, want to manage organizations and users for their members. Scalekit provides **Hosted UI widgets**, a ready-made, branded portal at `<SCALEKIT_ENVIRONMENT_URL>/ui/`, so they can do this themselves without you building custom admin UIs.
 
-To integrate Hosted UI widgets, redirect your organization members to the portal URL:
+To integrate Hosted UI widgets, add an in-app entry point such as **Settings** and redirect signed-in organization members to the portal URL. No query parameters, org context, or return URL are required for the happy path.
 
 ```sh title="Hosted widgets URL" showLineNumbers=false frame
 <SCALEKIT_ENVIRONMENT_URL>/ui/  # https://your-app-env.scalekit.com/ui/
@@ -34,7 +34,9 @@ To integrate Hosted UI widgets, redirect your organization members to the portal
 
 Scalekit verifies the organization member's access permissions and automatically controls what they can access in the widgets. The widgets inherit your application's [branding](/fsa/guides/login-page-branding/) and support your [custom domain](/guides/custom-domain/).
 
-Hosted UI widgets are full pages hosted by Scalekit. You redirect users from your application into the portal; users then move between modules using the portal navigation. The portal uses the Scalekit session established when the user signs in through your [SaaSKit authentication flow](/authenticate/fsa/quickstart/).
+Hosted UI widgets are full pages hosted by Scalekit. You redirect users from your application into the portal; users then move between modules using the portal navigation. The portal uses the **same Scalekit session** your application receives for that user—the browser's Scalekit cookies on your environment (or [custom domain](/guides/custom-domain/)) authenticate both your app and `/ui/`. The portal opens the user's **current active organization**; users with multiple organizations use the active org from their session.
+
+Except for the [Admin portal](/guides/admin-portal/), Hosted UI widgets and other hosted pages are **not embeddable** in an iframe or similar embed. Redirect users to `/ui/` instead.
 
 ```d2 pad=56 layout=elk
 direction: down
@@ -76,7 +78,7 @@ Use Hosted UI widgets when you want customers to self-manage their organizations
 - **Advantages**: Enterprise customers can self-serve member management, SSO setup, SCIM provisioning, domain verification, session policy, and their own profiles. Permissions and feature entitlements are handled automatically. The portal stays up to date with new Scalekit capabilities.
 - **Trade-offs**: Customers leave your application UI and work in Scalekit-hosted pages. Branding follows your shared application customization settings. You send users to `/ui/`; they use portal navigation to open individual modules.
 
-If you need a **shareable link** or an **iframe embed** so enterprise IT can configure SSO and SCIM, use the [Admin portal](/guides/admin-portal/) instead. Hosted UI widgets are the better fit when signed-in users in your SaaSKit app open self-serve settings (members, profile, security, domains, session policy, and enterprise setup) from inside your product.
+If you need a **shareable link** or an **iframe embed** so enterprise IT can configure SSO and SCIM, use the [Admin portal](/guides/admin-portal/) instead. The Admin portal is the only hosted surface you can embed. Hosted UI widgets are the better fit when signed-in users in your SaaSKit app open self-serve settings (members, profile, security, domains, session policy, and enterprise setup) from inside your product with a simple redirect.
 
 ## Signup and login widgets
 
@@ -242,21 +244,34 @@ You can change the Hosted UI widgets URL to match your application URL by settin
 ## Common Hosted UI widgets scenarios
 
 <details>
+<summary>What is the shared session between my app and Hosted UI widgets?</summary>
+
+It is the same Scalekit session issued to your application for that user. After your [authentication flow](/authenticate/fsa/quickstart/), the browser holds Scalekit cookies for your environment or custom domain. Hosted UI widgets read those same cookies, so users do not sign in again when you redirect them to `/ui/`.
+
+If your app stores access and refresh tokens only in your backend and never establishes Scalekit browser cookies, `/ui/` will not see that session. Complete the hosted auth redirect flow so Scalekit can set cookies in the browser.
+
+</details>
+
+<details>
 <summary>What happens if a user does not have a session?</summary>
 
-If no session exists, Scalekit redirects the user to your application's login endpoint so your app can start the authentication flow again. Send users to `/ui/` only after they complete your [SaaSKit authentication flow](/authenticate/fsa/quickstart/) so a Scalekit session is available.
+Scalekit redirects the user to that Scalekit environment's login page for their account. Send users to `/ui/` only after they complete your [authentication flow](/authenticate/fsa/quickstart/) so a Scalekit session cookie is available.
 
 </details>
 
 <details>
 <summary>What happens when a user logs out from Hosted UI widgets?</summary>
 
-When a user logs out from Hosted UI widgets, they are redirected to your configured post-logout destination. This can leave your app session and the Scalekit session out of sync.
+Scalekit ends the Scalekit session and redirects the user to that Scalekit environment's login page for their account (the hosted login screen on your environment or [custom domain](/guides/custom-domain/)). Because Hosted UI widgets and your app share that session via Scalekit cookies, the user must sign in again before returning to `/ui/` or to app routes that rely on the same browser session.
 
-If you manage sessions in your own backend instead of using Scalekit's default session management, handle logout propagation yourself. See the [SaaSKit quickstart](/authenticate/fsa/quickstart/) and [manage sessions](/authenticate/fsa/manage-session/) guides, and use one of the following approaches:
+If you keep a separate application session in your own backend, clear it when Scalekit logs the user out. Use [back-channel logout](/guides/dashboard/redirects/#back-channel-logout-url) or the [user logout webhook](/apis/#webhook/userlogout) so your backend stays in sync. See [manage sessions](/authenticate/fsa/manage-session/) for guidance.
 
-- Implement [back-channel logout](/guides/dashboard/redirects/#back-channel-logout-url) so Scalekit can notify your app about session termination.
-- Listen for the [user logout webhook](/apis/#webhook/userlogout) to get notified about session termination.
+</details>
+
+<details>
+<summary>How does `/ui/` choose the organization for multi-org users?</summary>
+
+The portal uses the user's **current active organization** from their Scalekit session. Set or switch the active organization in your application before redirecting to `/ui/`. You do not pass an organization ID as a query parameter on the portal URL.
 
 </details>
 
@@ -270,6 +285,6 @@ No. Scalekit hosts the pages and loads the data they need. Use webhooks for your
 <details>
 <summary>Can I embed Hosted UI widgets in an iframe?</summary>
 
-Redirect users to `/ui/` for the Hosted UI widgets portal. For a shareable link or an iframe embed focused on enterprise SSO and SCIM setup, use the [Admin portal](/guides/admin-portal/).
+No. Only the [Admin portal](/guides/admin-portal/) supports iframe embed (and shareable magic links) for enterprise SSO and SCIM setup. Redirect signed-in users to `/ui/` for Hosted UI widgets. Signup, login, and other hosted pages are full-page experiences as well—not embeds.
 
 </details>
