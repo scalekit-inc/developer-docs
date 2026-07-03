@@ -1,0 +1,84 @@
+---
+title: 'Dev Rev MCP connector'
+tableOfContents: true
+description: 'Connect to DevRev MCP. Manage issues, work items, conversations, and customer data in the DevRev product development platform.'
+sidebar:
+  label: 'Dev Rev MCP'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/devrev.svg
+connectorAuthType: Bearer Token
+connectorCategories: [Developer Tools, Customer Support]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/devrevmcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupDevrevmcpSection } from '@components/templates'
+import { QuickstartGenericApikeySection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Dev Rev MCP credentials with Scalekit so it can authenticate requests on your behalf. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupDevrevmcpSection />
+
+   </details>
+
+4. ### Make your first call
+
+   <QuickstartGenericApikeySection connector="devrevmcp" toolName="devrevmcp_get_self" providerName="Dev Rev MCP" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Update object** — Update fields on an existing DevRev object using a specified update action
+- **List objects** — List DevRev objects (issues, tickets, etc.) with optional filters using a specified list action
+- **Objects link** — Create a link between two DevRev objects using a specified link action
+- **Search hybrid** — Search across DevRev's knowledge graph using natural language to find issues, tickets, articles, and other objects
+- **Get valid stage transitions, tool metadata, sprint board** — Return valid stage transitions for a given DevRev object type and its current stage
+- **Fetch object context** — Fetch contextual information about any DevRev object by its DON ID or display ID
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

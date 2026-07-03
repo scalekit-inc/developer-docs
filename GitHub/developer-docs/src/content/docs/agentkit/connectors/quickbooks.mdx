@@ -1,0 +1,89 @@
+---
+title: 'QuickBooks connector'
+tableOfContents: true
+description: 'Connect to QuickBooks Online. Manage customers, vendors, invoices, bills, payments, and financial reports.'
+sidebar:
+  label: 'QuickBooks'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/Quickbooks.svg
+connectorAuthType: OAuth 2.0
+connectorCategories: [Accounting & Finance]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/quickbooks'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupQuickbooksSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+import { SectionAfterSetupQuickbooksCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your QuickBooks credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupQuickbooksSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="quickbooks" toolName="quickbooks_company_info_get" providerName="QuickBooks" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **List vendors, vendor credits, transfers** — List vendors from QuickBooks Online with optional filtering and pagination
+- **Update vendor, payment, item** — Update an existing vendor in QuickBooks Online
+- **Get vendor, vendor credit, transfer** — Retrieve a single QuickBooks Online vendor by ID
+- **Create vendor credit, vendor, transfer** — Create a new vendor credit in QuickBooks Online
+- **Delete sales receipt, purchase order, payment** — Delete a sales receipt in QuickBooks Online
+- **Balance report trial** — Retrieve a Trial Balance report from QuickBooks Online
+
+## Common workflows
+
+<SectionAfterSetupQuickbooksCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

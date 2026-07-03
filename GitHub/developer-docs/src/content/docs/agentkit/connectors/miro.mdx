@@ -1,0 +1,89 @@
+---
+title: 'Miro connector'
+tableOfContents: true
+description: 'Miro is a visual collaboration platform for teams. Manage boards, sticky notes, shapes, cards, frames, connectors, images, and tags using the Miro REST...'
+sidebar:
+  label: 'Miro'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/Miro.svg
+connectorAuthType: OAuth 2.0
+connectorCategories: [Productivity, Collaboration, Design]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/miro'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupMiroSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+import { SectionAfterSetupMiroCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Miro credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupMiroSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="miro" toolName="miro_boards_list" providerName="Miro" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **List board members, tags, mindmap nodes** — Returns a list of members on a Miro board
+- **Get connector, image, group items** — Retrieves details of a specific connector (line/arrow) on a Miro board
+- **Create shape, embed, frame** — Creates a shape item on a Miro board
+- **Remove item tag, board member** — Removes a tag from a specific item on a Miro board
+- **Invite team member** — Invites a user to a team by email (Enterprise only)
+- **Delete team, item, sticky note** — Deletes a team from an organization (Enterprise only)
+
+## Common workflows
+
+<SectionAfterSetupMiroCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

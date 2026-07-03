@@ -1,0 +1,87 @@
+---
+title: 'Fathom connector'
+tableOfContents: true
+description: 'Connect to Fathom AI meeting assistant. Record, transcribe, and summarize meetings with AI-powered insights'
+sidebar:
+  label: 'Fathom'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/fathom.svg
+connectorAuthType: API Key
+connectorCategories: [AI, Automation, Communication, Transcription]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/fathom'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupFathomSection } from '@components/templates'
+import { QuickstartGenericApikeySection } from '@components/templates'
+import { SectionAfterSetupFathomCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Fathom credentials with Scalekit so it can authenticate requests on your behalf. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupFathomSection />
+
+   </details>
+
+4. ### Make your first call
+
+   <QuickstartGenericApikeySection connector="fathom" toolName="fathom_list_meeting_types" providerName="Fathom" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **List teams, team members, meetings** — List all teams configured in Fathom
+- **Get recording transcript, recording summary** — Retrieve the full transcript for a specific Fathom recording by its recording ID
+- **Delete webhook** — Delete a webhook subscription in Fathom by its ID
+- **Create webhook** — Create a new webhook subscription in Fathom
+
+## Common workflows
+
+<SectionAfterSetupFathomCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

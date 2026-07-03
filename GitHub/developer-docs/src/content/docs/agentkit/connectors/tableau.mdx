@@ -1,0 +1,94 @@
+---
+title: 'Tableau connector'
+tableOfContents: true
+description: 'Connect to Tableau Cloud or Tableau Server to browse workbooks, views, and data sources, export visualizations, and query underlying data.'
+sidebar:
+  label: 'Tableau'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/tableau.svg
+connectorAuthType: API Key
+connectorCategories: [Analytics, Productivity]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/tableau'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupTableauSection } from '@components/templates'
+import { QuickstartGenericApikeySection } from '@components/templates'
+import { SectionAfterSetupTableauCommonWorkflows } from '@components/templates'
+import { SectionBeforeToolListTableauResourceIds } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Tableau credentials with Scalekit so it can authenticate requests on your behalf. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupTableauSection />
+
+   </details>
+
+4. ### Make your first call
+
+   <QuickstartGenericApikeySection connector="tableau" toolName="tableau_datasources_list" providerName="Tableau" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **List workbooks, workbook connections, views** — Retrieve a filtered, sorted list of workbooks on a specified Tableau site
+- **Search workbook** — Search for workbooks on a Tableau site by name
+- **Get workbook, view, user** — Retrieve detailed information about a specific Tableau workbook by its ID, including metadata, project, owner, tags, and optional usage statistics
+- **Delete workbook, project, datasource** — Delete a workbook from a Tableau site
+- **Site user remove from, user add to** — Remove a user from a Tableau site
+- **Query view** — Run a structured query against a published Tableau data source using the VizQL Data Service API
+
+## Common workflows
+
+<SectionAfterSetupTableauCommonWorkflows />
+
+## Getting resource IDs
+
+<SectionBeforeToolListTableauResourceIds />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

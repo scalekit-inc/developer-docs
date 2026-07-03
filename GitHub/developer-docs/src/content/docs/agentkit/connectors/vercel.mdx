@@ -1,0 +1,89 @@
+---
+title: 'Vercel connector'
+tableOfContents: true
+description: 'Connect to Vercel. Access user profile, teams, projects, deployments, and environment settings.'
+sidebar:
+  label: 'Vercel'
+overviewTitle: 'Quickstart'
+connectorIcon: https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/vercel.svg
+connectorAuthType: OAuth 2.0
+connectorCategories: [Developer Tools]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/vercel'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupVercelSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+import { SectionAfterSetupVercelCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Vercel credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupVercelSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="vercel" toolName="vercel_aliases_list" providerName="Vercel" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Create env var, edge config, project** — Creates a new environment variable for a Vercel project with the specified key, value, and target environments
+- **Add domain, project domain** — Adds a domain to the authenticated user or team's Vercel account
+- **Delete team, deployment, alias** — Permanently deletes a Vercel team and all its associated resources
+- **List domains, team members, deployments** — Returns all domains registered or added to the authenticated user or team's Vercel account
+- **Get team, user, alias** — Returns details of a specific Vercel team by its ID or slug
+- **Update edge config items, env var, project** — Creates, updates, or deletes items in an Edge Config store using a list of patch operations
+
+## Common workflows
+
+<SectionAfterSetupVercelCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

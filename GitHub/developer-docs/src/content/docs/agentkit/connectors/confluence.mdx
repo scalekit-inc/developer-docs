@@ -1,0 +1,89 @@
+---
+title: 'Confluence connector'
+tableOfContents: true
+description: 'Connect to Confluence. Manage spaces, pages, content, and team collaboration'
+sidebar:
+  label: 'Confluence'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/confluence.svg
+connectorAuthType: OAuth 2.0
+connectorCategories: [Project Management, Files & Documents, Collaboration]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/confluence'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupConfluenceSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+import { SectionAfterSetupConfluenceCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Confluence credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupConfluenceSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="confluence" toolName="confluence_blogpost_list" providerName="Confluence" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **List space, page, blogpost** — List Confluence spaces accessible to the authenticated user
+- **Get space, page labels, page** — Retrieve details of a specific Confluence space by its ID
+- **Search records** — Search Confluence content using Confluence Query Language (CQL)
+- **Update page** — Update an existing Confluence page
+- **Delete page** — Delete a Confluence page by its ID
+- **Create page, footer comment, blogpost** — Create a new Confluence page in a specified space
+
+## Common workflows
+
+<SectionAfterSetupConfluenceCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

@@ -1,0 +1,90 @@
+---
+title: 'Grain MCP connector'
+tableOfContents: true
+description: 'Grain is a meeting recording and intelligence platform. Use this connector to search and retrieve meeting recordings, transcripts, notes, action items...'
+sidebar:
+  label: 'Grain MCP'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/grain.svg
+connectorAuthType: OAuth 2.1/DCR
+connectorCategories: [Transcription, Collaboration, AI]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/grainmcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupGrainmcpSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+import { SectionAfterSetupGrainmcpCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Grain MCP credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupGrainmcpSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="grainmcp" toolName="grainmcp_list_all_deals" providerName="Grain MCP" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Update project share state** — Changes the visibility of a project
+- **Meetings tag** — Add or remove a tag from one or more meetings by recording ID
+- **Search persons, in transcripts, companies** — Returns a filtered list of persons that were participants of Grain meetings you have
+access to
+- **Urls resolve** — Resolves canonical shareable URLs for Grain entities (meetings, clips, projects, stories) by ID
+- **List workspace users, stories, projects** — Get information about all the users in the logged-in Grain user's workspace
+- **Fetch user recording notes, story, project** — Fetches the current user's private notes for a single Grain meeting by ID
+
+## Common workflows
+
+<SectionAfterSetupGrainmcpCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

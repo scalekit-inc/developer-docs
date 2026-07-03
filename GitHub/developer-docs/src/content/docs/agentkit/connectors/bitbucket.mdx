@@ -1,0 +1,89 @@
+---
+title: 'Bitbucket connector'
+tableOfContents: true
+description: 'Connect to Bitbucket. Manage repositories, pipelines, pull requests, and code collaboration.'
+sidebar:
+  label: 'Bitbucket'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/bitbucket.svg
+connectorAuthType: OAuth 2.0
+connectorCategories: [Developer Tools, Collaboration]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/bitbucket'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupBitbucketSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+import { SectionAfterSetupBitbucketCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Bitbucket credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupBitbucketSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="bitbucket" toolName="bitbucket_user_emails_list" providerName="Bitbucket" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Get commit comment, workspace, merge base** — Returns a specific comment on a commit
+- **Search workspace** — Searches for code across all repositories in a workspace
+- **Delete workspace pipeline variable, deploy key, repository permission user** — Deletes a workspace pipeline variable
+- **Create tag, environment, commit build status** — Creates a new tag in a Bitbucket repository pointing to a specific commit
+- **Update pull request task, deployment variable, commit build status** — Updates a task on a pull request (e.g
+- **Unwatch issue** — Stops watching an issue
+
+## Common workflows
+
+<SectionAfterSetupBitbucketCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

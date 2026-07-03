@@ -1,0 +1,88 @@
+---
+title: 'Supadata connector'
+tableOfContents: true
+description: 'Connect with Supadata to extract transcripts, metadata, and structured content from YouTube, social media, and the web using AI.'
+sidebar:
+  label: 'Supadata'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/supadata.svg
+connectorAuthType: API Key
+connectorCategories: [Analytics, Search]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/supadata'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupSupadataSection } from '@components/templates'
+import { QuickstartGenericApikeySection } from '@components/templates'
+import { SectionAfterSetupSupadataCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Supadata credentials with Scalekit so it can authenticate requests on your behalf. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupSupadataSection />
+
+   </details>
+
+4. ### Make your first call
+
+   <QuickstartGenericApikeySection connector="supadata" toolName="supadata_metadata_get" providerName="Supadata" toolInputNode="{ url: 'https://example.com/url' }" toolInputPython='{"url":"https://example.com/url"}' />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Get metadata, youtube playlist, youtube channel** — Retrieve unified metadata for a video or media URL including title, description, author info, engagement stats, media details, and creation date
+- **Scrape web** — Scrape a web page and return its content as clean Markdown
+- **Search youtube** — Search YouTube for videos, channels, or playlists
+- **Map web** — Discover and return all URLs found on a website
+- **Translate youtube transcript** — Retrieve and translate a YouTube video transcript into a target language
+
+## Common workflows
+
+<SectionAfterSetupSupadataCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

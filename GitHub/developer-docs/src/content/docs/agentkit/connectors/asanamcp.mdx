@@ -1,0 +1,84 @@
+---
+title: 'Asana MCP connector'
+tableOfContents: true
+description: 'Connect to Asana MCP server to manage tasks, projects, and teams directly from your AI workflows.'
+sidebar:
+  label: 'Asana MCP'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/asana-n.svg
+connectorAuthType: OAuth 2.1
+connectorCategories: [Project Management, Productivity]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/asanamcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupAsanamcpSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Asana MCP credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupAsanamcpSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="asanamcp" toolName="asanamcp_get_me" providerName="Asana MCP" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Update tasks** — Modify one or more Asana tasks in a single operation
+- **Search tasks preview, tasks, objects** — Display interactive search results for Asana tasks matching the given filters, before committing to any action
+- **Get workspace agents, users, user** — Return a list of all AI Teammate agents configured in the Asana workspace
+- **Delete task** — Permanently delete an Asana task and all of its dependent subtasks
+- **Create tasks, task preview, project status update** — Create one or more Asana tasks immediately, without a confirmation step
+- **Comment add** — Post a comment (discussion entry) to a specific Asana task
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

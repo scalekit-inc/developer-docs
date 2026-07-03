@@ -1,0 +1,89 @@
+---
+title: 'Attio connector'
+tableOfContents: true
+description: 'Connect to Attio CRM to manage contacts, companies, deals, notes, tasks, and lists with a modern relationship management platform.'
+sidebar:
+  label: 'Attio'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/attio.svg
+connectorAuthType: OAuth 2.0
+connectorCategories: [CRM & Sales]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/attio'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupAttioSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+import { SectionAfterSetupAttioCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Attio credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupAttioSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="attio" toolName="attio_get_current_token_info" providerName="Attio" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Update record** — Update an existing record's attributes in Attio
+- **Create person, task, comment** — Creates a new person record in Attio
+- **List records, people, objects** — List and query records for a specific Attio object type (e.g
+- **Search records** — Search for records in Attio for a given object type (people, companies, deals, or custom objects) using a fuzzy text query
+- **Delete person, user record, record** — Permanently deletes a person record from Attio by its record_id
+- **Get comment, record attribute values, attribute** — Retrieves a single comment by its comment_id in Attio
+
+## Common workflows
+
+<SectionAfterSetupAttioCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />
