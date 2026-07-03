@@ -24,7 +24,7 @@ export const catalog: Record<string, ProviderMeta> = {
   },
   cloudpressmcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/cloudpress.svg',
-    authType: 'Cloudpress MCP',
+    authType: 'OAuth 2.1/DCR',
     categories: ['Developer Tools', 'Productivity'],
   },
   dartaimcp: {
