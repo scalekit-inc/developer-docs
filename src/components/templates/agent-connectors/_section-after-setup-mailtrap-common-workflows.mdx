@@ -1,0 +1,66 @@
+{/* TODO: stub cloned from _section-after-setup-zendesk-common-workflows.mdx for Mailtrap. Review and update connector-specific references (URLs, scopes, app-registration steps) before merging. */}
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+<details>
+<summary>Proxy API call</summary>
+
+**Don't worry about your Mailtrap domain in the path.** Scalekit automatically resolves `{{domain}}` from the connected account's configuration. For example, a request with `path="/v2/users/me"` will be sent to `https://mycompany.mailtrap.com/api/v2/users/me` automatically.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.request({
+      connectionName: 'mailtrap',
+      identifier: 'user_123',
+      path: '/v2/users/me',
+      method: 'GET',
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.request(
+        connection_name='mailtrap',
+        identifier='user_123',
+        path="/v2/users/me",
+        method="GET"
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Execute a tool</summary>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.executeTool({
+      connector: 'mailtrap',
+      identifier: 'user_123',
+      toolName: 'mailtrap_groups_list',
+      toolInput: {},
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.execute_tool(
+        tool_input={},
+        tool_name='mailtrap_groups_list',
+        connection_name='mailtrap',
+        identifier='user_123',
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>

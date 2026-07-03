@@ -1,0 +1,89 @@
+---
+title: 'Mailtrap connector'
+tableOfContents: true
+description: 'Use Mailtrap to send transactional and bulk emails, test delivery in a sandbox environment, and manage email templates and contacts from your AI agent.'
+sidebar:
+  label: 'Mailtrap'
+overviewTitle: 'Quickstart'
+connectorIcon: https://mailtrap.io/wp-content/uploads/2022/09/mailtrap-logo.svg
+connectorAuthType: Bearer Token
+connectorCategories: [Communication, Developer Tools]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/mailtrap'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupMailtrapSection } from '@components/templates'
+import { QuickstartGenericApikeySection } from '@components/templates'
+import { SectionAfterSetupMailtrapCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Mailtrap credentials with Scalekit so it can authenticate requests on your behalf. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupMailtrapSection />
+
+   </details>
+
+4. ### Make your first call
+
+   <QuickstartGenericApikeySection connector="mailtrap" toolName="mailtrap_get_accounts" providerName="Mailtrap" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Send batch, bulk email** — Send up to 500 marketing emails in a single bulk API call through the Email Marketing stream
+- **Sandbox clean** — Delete all captured messages from a sandbox inbox, clearing it for fresh test runs
+- **Create api token, contact, contact field** — Create a new API token with a specified name and optional resource permissions
+- **Delete api token, contact, contact list** — Permanently delete an API token by ID
+- **Message forward sandbox** — Forward a captured sandbox test email to a real recipient email address for live testing
+- **Get accounts, billing usage, contact** — List all Mailtrap accounts the API token has access to
+
+## Common workflows
+
+<SectionAfterSetupMailtrapCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

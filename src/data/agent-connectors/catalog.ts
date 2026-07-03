@@ -1249,4 +1249,9 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'OAuth 2.0',
     categories: ['Communication'],
   },
+  mailtrap: {
+    iconUrl: 'https://mailtrap.io/wp-content/uploads/2022/09/mailtrap-logo.svg',
+    authType: 'Bearer Token',
+    categories: ['Communication', 'Developer Tools'],
+  },
 }
