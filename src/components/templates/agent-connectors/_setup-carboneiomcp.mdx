@@ -1,6 +1,6 @@
-import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
 
-Register your Carbone API key with Scalekit so your agent can generate documents, merge templates with JSON data, and convert files through the Carbone.io MCP connector. Carbone uses Bearer Token authentication — there is no redirect flow.
+Register your Carbone API key with Scalekit so it can authenticate and proxy document generation requests on behalf of your users. Carbone.io MCP uses Bearer Token authentication — there is no redirect URI or OAuth flow.
 
 <Steps>
 1. ### Get a Carbone API key
@@ -9,61 +9,46 @@ Register your Carbone API key with Scalekit so your agent can generate documents
    - Click **My subscription** in the left sidebar.
    - On the right side, find the **API Access Keys** panel.
    - For production use, click the lock icon next to **Production API key** to reveal and copy it.
-   - For development and testing, use the **Test API key** — click the eye icon to reveal it, or the copy icon to copy it.
+   - For testing, click the eye icon next to **Test API key** to reveal it.
 
    ![Carbone Account dashboard showing the API Access Keys panel with Production and Test API keys](@/assets/docs/agent-connectors/carboneiomcp/api-access-keys.png)
 
-   <Aside type="note" title="Production vs. Test API key">
-     Use the **Test API key** during development — it supports unlimited test documents. Switch to the **Production API key** when going live. The free plan includes 2 templates and 100 documents per month.
-   </Aside>
-
 2. ### Create a connection in Scalekit
 
-   - In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**.
-   - Find **Carbone.io MCP** and click **Create**.
+   - In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** → **Connections** → **Create Connection**.
+   - Search for **Carbone.io MCP** and click **Create**.
    - Note the **Connection name** — use this as `connection_name` in your code (e.g., `carboneiomcp`).
-   - Click **Save**.
 
 3. ### Add a connected account
 
-   Connected accounts link a user in your system to their Carbone API key.
+   Connected accounts link a specific user identifier in your system to a Carbone API key. Add them via the dashboard for testing, or via the Scalekit API in production.
 
    **Via dashboard (for testing)**
 
    - Open the connection and click the **Connected Accounts** tab → **Add account**.
-   - Fill in **Your User's ID** and the **API Key** (Production or Test key from step 1).
-   - Click **Save**.
+   - Fill in **Your User's ID** and **API Key**, then click **Save**.
 
    **Via API (for production)**
 
    <Tabs syncKey="tech-stack">
      <TabItem label="Node.js">
-       ```typescript
-       // Never hard-code API keys — retrieve from secure storage
-       const carboneApiKey = getUserCarboneKey(); // retrieve from your secure store
-
-       await scalekit.actions.upsertConnectedAccount({
+       ```ts
+       await scalekit.connect.upsertConnectedAccount({
          connectionName: 'carboneiomcp',
-         identifier: 'user_123',
-         credentials: { token: carboneApiKey },
-       });
+         identifier: 'user@example.com',
+         credentials: { token: 'your-carbone-api-key' },
+       })
        ```
      </TabItem>
      <TabItem label="Python">
        ```python
-       # Never hard-code API keys — retrieve from secure storage
-       carbone_api_key = get_user_carbone_key()  # retrieve from your secure store
-
-       scalekit_client.actions.upsert_connected_account(
+       scalekit_client.connect.upsert_connected_account(
            connection_name="carboneiomcp",
-           identifier="user_123",
-           credentials={"token": carbone_api_key}
+           identifier="user@example.com",
+           credentials={"token": "your-carbone-api-key"},
        )
        ```
      </TabItem>
    </Tabs>
 
-   <Aside type="tip" title="Production usage">
-     Call `upsertConnectedAccount` when a user enters their Carbone API key — for example, on a settings page in your app.
-   </Aside>
 </Steps>
