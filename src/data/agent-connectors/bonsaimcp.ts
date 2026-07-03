@@ -1,0 +1,635 @@
+import type { Tool } from '../../types/agent-connectors'
+
+export const tools: Tool[] = [
+  {
+    name: 'bonsaimcp_create_company',
+    description: `Create a CRM company in the user's Bonsai account. Requires name. Optionally set a default contact and domains. Search with list_companies first to avoid duplicates.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the company to create.`,
+      },
+      {
+        name: 'default_contact_id',
+        type: 'integer',
+        required: false,
+        description: `Optional ID of the default contact for this company.`,
+      },
+      {
+        name: 'domains',
+        type: 'array',
+        required: false,
+        description: `Optional list of email domains associated with this company.`,
+      },
+    ],
+  },
+  {
+    name: 'bonsaimcp_create_contact',
+    description: `Create a CRM contact in the user's Bonsai account. Requires name and email. Optionally link to a company_id. Search with list_contacts first to avoid duplicates.`,
+    params: [
+      {
+        name: 'email',
+        type: 'string',
+        required: true,
+        description: `Email address of the contact.`,
+      },
+      { name: 'name', type: 'string', required: true, description: `Full name of the contact.` },
+      {
+        name: 'company_id',
+        type: 'integer',
+        required: false,
+        description: `Optional ID of the company to link this contact to.`,
+      },
+      {
+        name: 'job_title',
+        type: 'string',
+        required: false,
+        description: `Optional job title of the contact.`,
+      },
+      {
+        name: 'phone_number',
+        type: 'string',
+        required: false,
+        description: `Optional phone number of the contact.`,
+      },
+    ],
+  },
+  {
+    name: 'bonsaimcp_create_invoice',
+    description: `Create a one-time invoice in Bonsai. Requires company_id (client company), contact_id (billing contact), and project_id. Optional currency, title, due terms, and invoice_items array (each with name, amount, rate).`,
+    params: [
+      {
+        name: 'company_id',
+        type: 'integer',
+        required: true,
+        description: `ID of the client company to invoice.`,
+      },
+      {
+        name: 'contact_id',
+        type: 'integer',
+        required: true,
+        description: `ID of the billing contact for this invoice.`,
+      },
+      {
+        name: 'project_id',
+        type: 'integer',
+        required: true,
+        description: `ID of the project this invoice is for.`,
+      },
+      {
+        name: 'currency',
+        type: 'string',
+        required: false,
+        description: `ISO 4217 currency code for the invoice.`,
+      },
+      { name: 'due', type: 'string', required: false, description: `Due terms for the invoice.` },
+      {
+        name: 'due_date',
+        type: 'string',
+        required: false,
+        description: `Payment due date in YYYY-MM-DD format. Required when due is 'custom'.`,
+      },
+      {
+        name: 'invoice_items',
+        type: 'array',
+        required: false,
+        description: `Optional array of line items to add to the invoice.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `Optional title for the invoice.`,
+      },
+    ],
+  },
+  {
+    name: 'bonsaimcp_create_invoice_item',
+    description: `Add a line item to an existing Bonsai invoice. Requires invoice_id, name, amount, and rate (decimal strings). Optional description and unit_type.`,
+    params: [
+      {
+        name: 'amount',
+        type: 'string',
+        required: true,
+        description: `Quantity or amount for this line item as a decimal string.`,
+      },
+      {
+        name: 'invoice_id',
+        type: 'integer',
+        required: true,
+        description: `ID of the invoice to add the line item to.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Name or label for the invoice line item.`,
+      },
+      {
+        name: 'rate',
+        type: 'string',
+        required: true,
+        description: `Rate per unit for this line item as a decimal string.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Optional longer description for the line item.`,
+      },
+      {
+        name: 'unit_type',
+        type: 'string',
+        required: false,
+        description: `Optional unit type for the line item.`,
+      },
+    ],
+  },
+  {
+    name: 'bonsaimcp_create_project',
+    description: `Create a project for an existing client company in Bonsai. Requires title, company_id (resolve via list_companies), and billing_type (time/fixed_fee/retainer/not_billable). billing_fee required for fixed_fee/retainer; billing_cycle required for retainer.`,
+    params: [
+      {
+        name: 'billing_type',
+        type: 'string',
+        required: true,
+        description: `Billing type for the project.`,
+      },
+      {
+        name: 'company_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the client company this project belongs to.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `The title of the project to create.`,
+      },
+      {
+        name: 'billing_cycle',
+        type: 'string',
+        required: false,
+        description: `Billing cycle for retainer projects. Required when billing_type is retainer.`,
+      },
+      {
+        name: 'billing_fee',
+        type: 'string',
+        required: false,
+        description: `Billing fee as a decimal string. Required for fixed_fee and retainer billing types.`,
+      },
+      {
+        name: 'currency',
+        type: 'string',
+        required: false,
+        description: `ISO 4217 currency code for the project, e.g. USD.`,
+      },
+      {
+        name: 'start_date',
+        type: 'string',
+        required: false,
+        description: `Project start date in YYYY-MM-DD format.`,
+      },
+    ],
+  },
+  {
+    name: 'bonsaimcp_create_task',
+    description: `Create a task in the user's Bonsai company. Supports title (required), optional project_id, assignee_member_id (company member id or 'me'), priority (urgent/high/medium/low), and due_date (YYYY-MM-DD).`,
+    params: [
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `The title of the task to create.`,
+      },
+      {
+        name: 'assignee_member_id',
+        type: 'string',
+        required: false,
+        description: `Company member ID to assign the task to, or 'me' for the authenticated user.`,
+      },
+      {
+        name: 'due_date',
+        type: 'string',
+        required: false,
+        description: `Due date for the task in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'priority',
+        type: 'string',
+        required: false,
+        description: `Priority level for the task.`,
+      },
+      {
+        name: 'project_id',
+        type: 'integer',
+        required: false,
+        description: `Optional ID of the project to associate this task with.`,
+      },
+    ],
+  },
+  {
+    name: 'bonsaimcp_create_time_entry',
+    description: `Log a time entry in the user's Bonsai company. Requires seconds (duration) and date (YYYY-MM-DD). Optionally attach to a project_id or task_uuid. Each call creates a new entry.`,
+    params: [
+      {
+        name: 'date',
+        type: 'string',
+        required: true,
+        description: `Date of the time entry in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'seconds',
+        type: 'integer',
+        required: true,
+        description: `Duration of the time entry in seconds.`,
+      },
+      {
+        name: 'non_billable',
+        type: 'boolean',
+        required: false,
+        description: `If true, marks this time entry as non-billable.`,
+      },
+      {
+        name: 'notes',
+        type: 'string',
+        required: false,
+        description: `Optional notes or description for the time entry.`,
+      },
+      {
+        name: 'owner_member_id',
+        type: 'string',
+        required: false,
+        description: `Company member ID who owns this time entry, or 'me' for the authenticated user.`,
+      },
+      {
+        name: 'project_id',
+        type: 'integer',
+        required: false,
+        description: `Optional project ID to associate this time entry with.`,
+      },
+      {
+        name: 'rate',
+        type: 'string',
+        required: false,
+        description: `Optional billing rate for this time entry as a decimal string.`,
+      },
+      {
+        name: 'task_uuid',
+        type: 'string',
+        required: false,
+        description: `Optional UUID of the task to associate this time entry with.`,
+      },
+    ],
+  },
+  {
+    name: 'bonsaimcp_get_task',
+    description: `Fetch a single task from Bonsai by its UUID.`,
+    params: [
+      { name: 'uuid', type: 'string', required: true, description: `UUID of the task to fetch.` },
+    ],
+  },
+  {
+    name: 'bonsaimcp_list_board_groups',
+    description: `List board groups (pipeline stages for deals, project groups for projects) in the user's Bonsai company. Use to resolve group names to UUIDs for filtering deals and projects.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Substring match on board group name.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number to retrieve (1-based).`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Number of board groups per page. Maximum 100.`,
+      },
+      {
+        name: 'resource_type',
+        type: 'string',
+        required: false,
+        description: `Filter by resource type: Deal (pipeline stages) or Project (project groups).`,
+      },
+    ],
+  },
+  {
+    name: 'bonsaimcp_list_companies',
+    description: `List CRM companies in the user's Bonsai account. Use to find existing companies before creating new ones or when resolving company_id for projects and invoices.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Free-text search on company name.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number to retrieve (1-based).`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Number of companies per page. Maximum 100.`,
+      },
+    ],
+  },
+  {
+    name: 'bonsaimcp_list_contacts',
+    description: `List CRM contacts in the user's Bonsai account. Supports filtering by name, email, and company.`,
+    params: [
+      {
+        name: 'company_id',
+        type: 'integer',
+        required: false,
+        description: `Filter contacts by company ID.`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Free-text search on contact email address.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Free-text search on contact name.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number to retrieve (1-based).`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Number of contacts per page. Maximum 100.`,
+      },
+    ],
+  },
+  {
+    name: 'bonsaimcp_list_deals',
+    description: `List deals in the user's Bonsai company, paginated. Each deal includes id, title, deal_value, currency, probability, close_date, status, pipeline stage, and assignee info.`,
+    params: [
+      {
+        name: 'assignee_member_id',
+        type: 'string',
+        required: false,
+        description: `Filter by assignee company member ID (as a string) or the literal value "me".`,
+      },
+      {
+        name: 'board_group_id',
+        type: 'string',
+        required: false,
+        description: `UUID of the pipeline stage to filter deals by.`,
+      },
+      {
+        name: 'deal_number',
+        type: 'string',
+        required: false,
+        description: `Free-text search on deal number.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number to retrieve (1-based).`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Number of deals per page. Maximum 100.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `Free-text search on deal title.`,
+      },
+    ],
+  },
+  {
+    name: 'bonsaimcp_list_invoices',
+    description: `List invoices in the user's Bonsai company, newest first. Each invoice includes invoice_number, title, status, total_amount, due_date, client info, and line items.`,
+    params: [
+      {
+        name: 'company_id',
+        type: 'integer',
+        required: false,
+        description: `Filter invoices by client company ID.`,
+      },
+      {
+        name: 'invoice_number',
+        type: 'string',
+        required: false,
+        description: `Exact invoice number lookup.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number to retrieve (1-based).`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Number of invoices per page. Maximum 100.`,
+      },
+      {
+        name: 'project_id',
+        type: 'integer',
+        required: false,
+        description: `Filter invoices by project ID.`,
+      },
+    ],
+  },
+  {
+    name: 'bonsaimcp_list_projects',
+    description: `List active projects in the user's Bonsai company, paginated. Supports filtering by title (free-text), public_url_token, and board_group_id (Project Group UUID).`,
+    params: [
+      {
+        name: 'board_group_id',
+        type: 'string',
+        required: false,
+        description: `UUID of the Project Group to filter by.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number to retrieve (1-based).`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Number of projects per page. Maximum 100.`,
+      },
+      {
+        name: 'public_url_token',
+        type: 'string',
+        required: false,
+        description: `Exact public URL token lookup for a project.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `Free-text search on project title.`,
+      },
+    ],
+  },
+  {
+    name: 'bonsaimcp_list_tasks',
+    description: `List tasks in the user's current Bonsai company, paginated and ordered by creation date (newest first). Supports filtering by assignee, scope, due-date window, priority, project, and tag.`,
+    params: [
+      {
+        name: 'assignee_id',
+        type: 'string',
+        required: false,
+        description: `Filter by assignee. Pass an integer user ID as a string or the literal value "me" to filter by the current user.`,
+      },
+      {
+        name: 'due',
+        type: 'string',
+        required: false,
+        description: `Filter by a named due-date window. Mutually exclusive with due_from/due_to.`,
+      },
+      {
+        name: 'due_from',
+        type: 'string',
+        required: false,
+        description: `Filter tasks due on or after this date (YYYY-MM-DD). Mutually exclusive with due.`,
+      },
+      {
+        name: 'due_to',
+        type: 'string',
+        required: false,
+        description: `Filter tasks due on or before this date (YYYY-MM-DD). Mutually exclusive with due.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number to retrieve (1-based).`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Number of tasks per page. Maximum 100.`,
+      },
+      {
+        name: 'priority',
+        type: 'string',
+        required: false,
+        description: `Filter by task priority.`,
+      },
+      {
+        name: 'project_id',
+        type: 'integer',
+        required: false,
+        description: `Filter tasks by project ID.`,
+      },
+      { name: 'scope', type: 'string', required: false, description: `Scope of tasks to return.` },
+      { name: 'tag_id', type: 'integer', required: false, description: `Filter tasks by tag ID.` },
+    ],
+  },
+  {
+    name: 'bonsaimcp_list_team_members',
+    description: `List team members in the user's current Bonsai company. Returns company_member_id (for task assignment), role, permission_profile, and lifecycle timestamps.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Free-text search on team member name.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number to retrieve (1-based).`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Number of team members per page. Maximum 100.`,
+      },
+    ],
+  },
+  {
+    name: 'bonsaimcp_update_company',
+    description: `Update an existing CRM company in Bonsai. Requires id (resolve via list_companies). All other fields optional — only supplied fields are changed. Passing domains=[] removes all domains.`,
+    params: [
+      { name: 'id', type: 'integer', required: true, description: `ID of the company to update.` },
+      {
+        name: 'default_contact_id',
+        type: 'integer',
+        required: false,
+        description: `Updated default contact ID for the company.`,
+      },
+      {
+        name: 'domains',
+        type: 'array',
+        required: false,
+        description: `Updated list of domains for the company. Pass an empty array to remove all domains.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Updated name for the company.`,
+      },
+    ],
+  },
+  {
+    name: 'bonsaimcp_update_contact',
+    description: `Update an existing CRM contact in Bonsai. Requires id (resolve via list_contacts). All other fields optional. Pass null for job_title or phone_number to clear them.`,
+    params: [
+      { name: 'id', type: 'integer', required: true, description: `ID of the contact to update.` },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Updated email address for the contact.`,
+      },
+      {
+        name: 'job_title',
+        type: 'string',
+        required: false,
+        description: `Updated job title for the contact. Pass null to clear.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Updated full name for the contact.`,
+      },
+      {
+        name: 'phone_number',
+        type: 'string',
+        required: false,
+        description: `Updated phone number for the contact. Pass null to clear.`,
+      },
+    ],
+  },
+]
