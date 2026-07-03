@@ -113,6 +113,10 @@ export const sidebar = [
         ],
       },
       {
+        label: 'Manage encryption keys',
+        link: 'authenticate/encryption-keys',
+      },
+      {
         label: 'View auth integrations',
         link: 'guides/integrations',
       },
@@ -197,6 +201,10 @@ export const sidebar = [
           'agentkit/bring-your-own-connector/create-connector',
           'agentkit/bring-your-own-connector/making-tool-calls',
         ],
+      },
+      {
+        label: 'Manage encryption keys',
+        link: 'agentkit/encryption-keys',
       },
       {
         label: 'Go live',
