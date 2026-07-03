@@ -175,13 +175,47 @@ Creates a connected account with explicit auth details.
 <MethodParams label="Input schema" params={[
   { name: 'connection_name', type: 'str', required: true, description: 'Connector slug. Must match a connection configured in your environment.' },
   { name: 'identifier', type: 'str', required: true, description: 'Stable ID for this end user or workspace (email, user_id, or custom string)' },
-  { name: 'authorization_details', type: 'dict', required: true, description: 'OAuth token payload, API key, or other credentials for this connector' },
+  { name: 'authorization_details', type: 'dict', required: true, description: 'Credentials for this connector. Use a single top-level key to pick the auth type. See the shapes below.' },
   { name: 'organization_id', type: 'str', required: false, description: 'Organization tenant ID when your app scopes auth and accounts by org' },
   { name: 'user_id', type: 'str', required: false, description: 'Your application user ID when you map Scalekit accounts to internal users' },
   { name: 'api_config', type: 'dict', required: false, description: 'Connector-specific options (for example scopes or static auth fields)' },
 ]} />
 
 Returns CreateConnectedAccountResponse. Same shape as `get_or_create_connected_account`.
+
+The `authorization_details` dict carries one top-level key that names the auth type. Pick the key that matches how the connector authenticates.
+
+| Key | Auth type | Fields |
+|-----|-----------|--------|
+| `oauth_token` | OAuth credentials you already hold | `access_token`, `refresh_token`, `scopes` |
+| `static_auth` | API key or bearer token | Connector-defined fields (for example `api_key`) |
+| `google_dwd` | Google domain-wide delegation | `subject` |
+| `trusted_idp` | Trusted identity provider credentials (for example AWS Redshift) | `db_user`, `access_key_id`, `secret_access_key`, `session_token` |
+
+To connect a Trusted IdP connector such as [AWS Redshift](/agentkit/connectors/redshift/), pass the database user and AWS access credentials under `trusted_idp`:
+
+```python title="Trusted IdP connected account"
+# Security: these are long-lived AWS and database credentials. Read them from
+# environment variables or a secrets manager. Hard-coding them risks leaking
+# standing access to your data warehouse if the source is committed or logged.
+account = actions.create_connected_account(
+    connection_name="redshift",
+    identifier="user@example.com",
+    authorization_details={
+        "trusted_idp": {
+            "db_user": os.environ["REDSHIFT_DB_USER"],
+            "access_key_id": os.environ["AWS_ACCESS_KEY_ID"],
+            "secret_access_key": os.environ["AWS_SECRET_ACCESS_KEY"],
+            "session_token": os.environ.get("AWS_SESSION_TOKEN", ""),  # only for temporary STS credentials
+        }
+    },
+)
+print(account.connected_account.id)
+```
+
+<Aside type="note" title="Session token is optional">
+  Set `session_token` only when you authenticate with temporary AWS Security Token Service (STS) credentials. Leave it empty for long-lived IAM access keys.
+</Aside>
 
 #### update_connected_account
 
