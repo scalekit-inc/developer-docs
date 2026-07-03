@@ -109,9 +109,10 @@ Use BYOK to register an encryption key from Google Cloud KMS that your team owns
 
    1. Click the key ring you created, then click **Create key**.
    2. Enter `scalekit-kms-key` as the name.
-   3. Set **Purpose** to **Symmetric encrypt/decrypt**.
-   4. Set **Rotation period** to **Never**. Rotation is managed through Scalekit, not GCP auto-rotation.
-   5. Click **Create**.
+   3. Set **Protection level** to **HSM** (recommended) and click **Continue**.
+   4. Set **Key material** to **HSM-generated** and click **Continue**.
+   5. Set **Purpose** to **Symmetric encrypt/decrypt** and click **Continue**.
+   6. Set **Rotation period** per your policy and click **Create**.
 
    </TabItem>
    </Tabs>
@@ -124,8 +125,6 @@ Use BYOK to register an encryption key from Google Cloud KMS that your team owns
    |------|---------|
    | `roles/cloudkms.cryptoKeyEncrypterDecrypter` | Encrypt and decrypt the DEK |
    | `roles/cloudkms.viewer` | Read key metadata for health checks and listing |
-
-   Replace `SCALEKIT-SERVICE-ACCOUNT` with the service account email from the Scalekit dashboard.
 
    <Tabs syncKey="gcp-method">
    <TabItem label="gcloud CLI">
@@ -152,7 +151,7 @@ Use BYOK to register an encryption key from Google Cloud KMS that your team owns
    1. In the GCP Console, open **Security > Key management**, click **Key rings**, then click the key ring name.
    2. Click the key name, then open the **Permissions** tab.
    3. Click **Grant access**. A side panel opens.
-   4. In the **New principals** field, enter the Scalekit service account email.
+   4. In the **New principals** field, enter the Scalekit service account email. Copy it from **Settings > Encryption keys > Create New Key > BYOK - GCP Cloud KMS** in the Scalekit dashboard.
    5. In the **Assign Roles** section, select **Cloud KMS CryptoKey Encrypter/Decrypter** from the first **Role** dropdown.
    6. Click **+ Add another role** and select **Cloud KMS Viewer**.
    7. Click **Save**. The policy update takes effect within a few minutes.
