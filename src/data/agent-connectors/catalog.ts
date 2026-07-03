@@ -1249,4 +1249,9 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'OAuth 2.0',
     categories: ['Communication'],
   },
+  googlebusinessprofile: {
+    iconUrl: 'https://www.gstatic.com/images/branding/product/2x/business_profile_48dp.png',
+    authType: 'OAuth 2.0',
+    categories: ['Marketing', 'Analytics'],
+  },
 }

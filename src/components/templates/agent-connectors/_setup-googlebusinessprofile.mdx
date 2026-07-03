@@ -1,0 +1,53 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with the Google Business Profile connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. Then complete the configuration in your application as follows:
+
+<Steps>
+1. ### Set up auth redirects
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **Google Business Profile** and click **Create**.
+
+      <Aside>
+        By default, a connection using Scalekit's credentials will be created. If you are testing, go directly to the Usage section. Before going to production, update your connection by following the steps below.
+      </Aside>
+
+    - Click **Use your own credentials** and copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+      ![Copy redirect URI from Scalekit dashboard](@/assets/docs/agent-connectors/gmail/use-own-credentials-redirect-uri.png)
+
+    - Navigate to [Google Cloud Console](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project) → **APIs & Services** → **Credentials**. Click **+ Create Credentials**, then **OAuth client ID**. Choose **Web application** as the application type.
+
+      ![Select Web application in Google Cloud Console](@/assets/docs/agent-connectors/gmail/oauth-web-app.png)
+
+    - Under **Authorized redirect URIs**, click **+ Add URI**, paste the redirect URI, and click **Create**.
+
+      ![Add authorized redirect URI in Google Cloud Console](@/assets/docs/agent-connectors/gmail/add-redirect-uri.png)
+
+2. ### Enable the Business Profile APIs
+
+    - In [Google Cloud Console](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project), go to **APIs & Services** → **Library**. Search for and enable each API your tools call:
+      - **My Business Account Management API** - accounts, admins, invitations, and location transfers
+      - **My Business Business Information API** - locations, categories, attributes, and chain search
+      - **Business Profile Performance API** - insights, daily metrics, and search keyword impressions
+      - **My Business Notification Settings API** - notification settings
+      - **My Business Verifications API** - location verification options and verification
+      - **Google My Business API** (legacy v4) - reviews, media, and local posts
+
+    - Reviews, media, and local posts run on the legacy v4 Google My Business API, which requires separate Google allow-list approval for your OAuth 2.0 client. Until Google grants that approval, those tools return a `403`.
+
+3. ### Get client credentials
+
+    Google provides your Client ID and Client Secret after you create the OAuth client ID in step 1.
+
+4. ### Add credentials in Scalekit
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** and open the connection you created.
+
+    - Enter your credentials:
+      - Client ID (from above)
+      - Client Secret (from above)
+      - Permissions - this connector requires the `https://www.googleapis.com/auth/business.manage` scope, which grants access to manage your Business Profile locations, business information, performance insights, and local posts.
+
+      ![Add credentials for Google Business Profile in Scalekit dashboard](@/assets/docs/agent-connectors/gmail/add-credentials.png)
+    - Click **Save**.
+</Steps>
