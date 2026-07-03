@@ -393,15 +393,11 @@ OAuth credentials on the connection do not match the provider's console.
 <details>
 <summary>Connection returns an account id but tokens are blank</summary>
 
-A new connection returns a connected account id (for example `ca_...`) but the access token and refresh token fields come back empty. The connection is valid; the tokens are withheld on purpose.
+A new connection returns a connected account id (for example `ca_...`), but the access token and refresh token fields come back empty. The connection is valid.
 
-Scalekit does not return raw provider tokens in API responses by default. Exposing tokens in responses widens the surface for token theft, so token retrieval is disabled per account until you explicitly enable it. For most agents you never need the raw token: `execute_tool` / `executeTool` injects the current token for you, and Scalekit refreshes it automatically. Reach for raw tokens only when you call a provider API that AgentKit does not wrap.
+Scalekit does not return raw provider tokens in API responses by default. Exposing tokens in responses widens the surface for token theft, so token retrieval is not allowed, which keeps your connected accounts safe. Your agents should not need raw tokens: `execute_tool` / `executeTool` injects the auth context automatically during tool calling in a secure environment.
 
-If your integration must read the raw token, contact [support](mailto:support@scalekit.com) to enable token retrieval for your account. Include your account id and the connection name. Once enabled, the token fields populate on the connected account.
-
-<Aside type="caution" title="Handle raw tokens as secrets">
-  Never log raw tokens or send them to a browser or client application. Keep them server-side and let Scalekit refresh them.
-</Aside>
+If your use case genuinely requires raw token access, contact [support](mailto:support@scalekit.com).
 
 </details>
 
