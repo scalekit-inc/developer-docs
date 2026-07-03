@@ -1,0 +1,68 @@
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components'
+
+Register your v0 API key with Scalekit so your agent can generate and iterate on web UIs through the v0 MCP connector. v0 uses Bearer Token authentication — there is no redirect flow.
+
+<Steps>
+1. ### Get a v0 API key
+
+   - Go to [v0.dev](https://v0.dev) and sign in to your account.
+   - Click your workspace name in the top-left corner and select **Settings**.
+   - In the left sidebar, click **API Keys**.
+   - Click **New Key**, give it a name (e.g., `Agent Auth`), and copy the generated key.
+
+   ![v0 Settings page showing the API Keys section with an existing key and the New Key button](@/assets/docs/agent-connectors/v0mcp/create-api-key.png)
+
+   <Aside type="note" title="Credits and beta access">
+     While in beta, API calls consume your v0 credits. Monitor usage under **Usage &amp; Activity** in your workspace settings.
+   </Aside>
+
+2. ### Create a connection in Scalekit
+
+   - In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**.
+   - Find **v0 MCP** and click **Create**.
+   - Note the **Connection name** — use this as `connection_name` in your code (e.g., `v0mcp`).
+   - Click **Save**.
+
+3. ### Add a connected account
+
+   Connected accounts link a user in your system to their v0 API key.
+
+   **Via dashboard (for testing)**
+
+   - Open the connection and click the **Connected Accounts** tab → **Add account**.
+   - Fill in **Your User's ID** and the **API Key** you copied in step 1.
+   - Click **Save**.
+
+   **Via API (for production)**
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```typescript
+       // Never hard-code API keys — retrieve from secure storage
+       const v0ApiKey = getUserV0Key(); // retrieve from your secure store
+
+       await scalekit.actions.upsertConnectedAccount({
+         connectionName: 'v0mcp',
+         identifier: 'user_123',
+         credentials: { token: v0ApiKey },
+       });
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```python
+       # Never hard-code API keys — retrieve from secure storage
+       v0_api_key = get_user_v0_key()  # retrieve from your secure store
+
+       scalekit_client.actions.upsert_connected_account(
+           connection_name="v0mcp",
+           identifier="user_123",
+           credentials={"token": v0_api_key}
+       )
+       ```
+     </TabItem>
+   </Tabs>
+
+   <Aside type="tip" title="Production usage">
+     Call `upsertConnectedAccount` when a user enters their v0 API key — for example, on a settings page in your app.
+   </Aside>
+</Steps>

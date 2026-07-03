@@ -1,0 +1,64 @@
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components'
+
+Register your Context7 API key with Scalekit so your agent can fetch up-to-date, version-specific library documentation and code examples. Context7 uses API key authentication — there is no redirect flow.
+
+<Steps>
+1. ### Get a Context7 API key
+
+   - Go to [context7.com](https://context7.com) and sign in to your account.
+   - Navigate to the **API Keys** section in the dashboard.
+   - Click **Create API Key...** and give it a name (e.g., `Agent Auth`).
+   - Copy the generated key — it starts with `ctx7sk-`.
+
+   ![Context7 dashboard showing the API Keys section with an existing key and the Create API Key button](@/assets/docs/agent-connectors/context7mcp/create-api-key.png)
+
+2. ### Create a connection in Scalekit
+
+   - In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**.
+   - Find **Context7 MCP** and click **Create**.
+   - Note the **Connection name** — use this as `connection_name` in your code (e.g., `context7mcp`).
+   - Click **Save**.
+
+3. ### Add a connected account
+
+   Connected accounts link a user in your system to their Context7 API key.
+
+   **Via dashboard (for testing)**
+
+   - Open the connection and click the **Connected Accounts** tab → **Add account**.
+   - Fill in **Your User's ID** and the **API Key** you copied in step 1.
+   - Click **Save**.
+
+   **Via API (for production)**
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```typescript
+       // Never hard-code API keys — retrieve from secure storage
+       const context7ApiKey = getUserContext7Key(); // retrieve from your secure store
+
+       await scalekit.actions.upsertConnectedAccount({
+         connectionName: 'context7mcp',
+         identifier: 'user_123',
+         credentials: { api_key: context7ApiKey },
+       });
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```python
+       # Never hard-code API keys — retrieve from secure storage
+       context7_api_key = get_user_context7_key()  # retrieve from your secure store
+
+       scalekit_client.actions.upsert_connected_account(
+           connection_name="context7mcp",
+           identifier="user_123",
+           credentials={"api_key": context7_api_key}
+       )
+       ```
+     </TabItem>
+   </Tabs>
+
+   <Aside type="tip" title="Production usage">
+     Call `upsertConnectedAccount` when a user enters their Context7 API key — for example, on a settings page in your app.
+   </Aside>
+</Steps>
