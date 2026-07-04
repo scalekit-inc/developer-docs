@@ -4,8 +4,7 @@ export const tools: Tool[] = [
   {
     name: 'typeformmcp_accounts_list_accounts',
     description: `Lists all accounts the authenticated user is a member of.`,
-    params: [
-    ],
+    params: [],
   },
   {
     name: 'typeformmcp_contacts_public_bulk_create_contacts_lists',
@@ -27,8 +26,18 @@ Always use this tool to create contacts lists, even when creating just one — p
 Confirm the created lists to the user, including each list's name and ID.
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `The ID of the Organization` },
-      { name: 'lists', type: 'array', required: true, description: `Array of list definitions to create. Always pass an array, even for a single list.` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization`,
+      },
+      {
+        name: 'lists',
+        type: 'array',
+        required: true,
+        description: `Array of list definitions to create. Always pass an array, even for a single list.`,
+      },
     ],
   },
   {
@@ -64,8 +73,18 @@ Use this tool when you need to create several custom fields at once, for example
 - The list of created properties.
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `The ID of the Organization` },
-      { name: 'properties', type: 'array', required: true, description: `Array of property definitions to create` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization`,
+      },
+      {
+        name: 'properties',
+        type: 'array',
+        required: true,
+        description: `Array of property definitions to create`,
+      },
     ],
   },
   {
@@ -96,8 +115,18 @@ When providing property values, use the following formats based on property type
 - Select (single_select, multi_select, text_list): {"type": "text_list", "text_list": ["option1"]}
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `The ID of the Organization` },
-      { name: 'contacts', type: 'array', required: true, description: `Array of contact definitions to create or update` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization`,
+      },
+      {
+        name: 'contacts',
+        type: 'array',
+        required: true,
+        description: `Array of contact definitions to create or update`,
+      },
     ],
   },
   {
@@ -124,8 +153,18 @@ When providing property values, use the following formats based on property type
 - Select (single_select, multi_select, text_list): {"type": "text_list", "text_list": ["option1"]}
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `The ID of the Organization` },
-      { name: 'properties', type: 'array', required: true, description: `Array of property ID and value pairs` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization`,
+      },
+      {
+        name: 'properties',
+        type: 'array',
+        required: true,
+        description: `Array of property ID and value pairs`,
+      },
     ],
   },
   {
@@ -144,8 +183,18 @@ When providing property values, use the following formats based on property type
 Confirm the created list to the user, including its name and ID.
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `The ID of the Organization` },
-      { name: 'name', type: 'string', required: true, description: `The name for the new contacts list` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name for the new contacts list`,
+      },
       { name: 'settings', type: 'string', required: true, description: `No description.` },
     ],
   },
@@ -192,9 +241,24 @@ These are the only truly boolean fields. Use source.type "boolean":
 Present the created form property mapping to the user.
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `The ID of the Organization` },
-      { name: 'form_id', type: 'string', required: true, description: `The ID of the form to connect` },
-      { name: 'mapping', type: 'array', required: true, description: `Array of property ID to mapping configuration pairs` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization`,
+      },
+      {
+        name: 'form_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the form to connect`,
+      },
+      {
+        name: 'mapping',
+        type: 'array',
+        required: true,
+        description: `Array of property ID to mapping configuration pairs`,
+      },
     ],
   },
   {
@@ -211,8 +275,18 @@ Present the created form property mapping to the user.
 Confirm the deletion was successful.
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `The ID of the Organization` },
-      { name: 'contact_id', type: 'string', required: true, description: `The ID of the contact to delete` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization`,
+      },
+      {
+        name: 'contact_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the contact to delete`,
+      },
     ],
   },
   {
@@ -244,8 +318,18 @@ WARNING: This action is irreversible. Either all properties are deleted successf
 Confirm all properties were successfully deleted with the count of deleted properties.
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `The ID of the Organization` },
-      { name: 'property_ids', type: 'array', required: true, description: `Array of property IDs to delete` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization`,
+      },
+      {
+        name: 'property_ids',
+        type: 'array',
+        required: true,
+        description: `Array of property IDs to delete`,
+      },
     ],
   },
   {
@@ -275,8 +359,18 @@ WARNING: This action is irreversible.
 Confirm the deletion was successful.
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `The ID of the Organization` },
-      { name: 'property_id', type: 'string', required: true, description: `The ID of the property to delete` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization`,
+      },
+      {
+        name: 'property_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the property to delete`,
+      },
     ],
   },
   {
@@ -294,8 +388,18 @@ Confirm the deletion was successful.
 Confirm the deletion was successful.
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `The ID of the Organization` },
-      { name: 'list_id', type: 'string', required: true, description: `The ID of the contacts list to delete` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization`,
+      },
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the contacts list to delete`,
+      },
     ],
   },
   {
@@ -312,8 +416,18 @@ Confirm the deletion was successful.
 Confirms the deletion was successful.
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `The ID of the Organization` },
-      { name: 'sync_config_id', type: 'string', required: true, description: `The ID of the sync config to delete` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization`,
+      },
+      {
+        name: 'sync_config_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the sync config to delete`,
+      },
     ],
   },
   {
@@ -337,8 +451,18 @@ form-to-contact mapping that references them.
 - The list of enabled properties.
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `The ID of the Organization` },
-      { name: 'property_ids', type: 'array', required: true, description: `An array of property IDs to enable` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization`,
+      },
+      {
+        name: 'property_ids',
+        type: 'array',
+        required: true,
+        description: `An array of property IDs to enable`,
+      },
     ],
   },
   {
@@ -366,8 +490,18 @@ Use this tool when you need to fetch a specific contact and want property names/
   - template_id: Standard property template ID (null for custom properties)
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `The ID of the Organization` },
-      { name: 'contact_id', type: 'string', required: true, description: `The UUID of the contact to fetch` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization`,
+      },
+      {
+        name: 'contact_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the contact to fetch`,
+      },
     ],
   },
   {
@@ -394,8 +528,18 @@ Use this tool when you need information about specific properties, particularly 
 - To check if all requested properties exist, compare the number of results with the number of requested IDs
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `The ID of the Organization` },
-      { name: 'property_ids', type: 'array', required: true, description: `Array of property IDs to retrieve` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization`,
+      },
+      {
+        name: 'property_ids',
+        type: 'array',
+        required: true,
+        description: `Array of property IDs to retrieve`,
+      },
     ],
   },
   {
@@ -421,8 +565,18 @@ Use this tool to inspect a list before performing operations like deletion, or t
 - Review list metadata: "What is the name of list xyz-456?"
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `The ID of the Organization` },
-      { name: 'list_id', type: 'string', required: true, description: `The ID of the contacts list to retrieve` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization`,
+      },
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the contacts list to retrieve`,
+      },
     ],
   },
   {
@@ -459,8 +613,18 @@ new custom ones.
 Use these to determine valid mappings when creating a sync config.
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `The ID of the Organization` },
-      { name: 'form_id', type: 'string', required: true, description: `The ID of the form to get property mappings for` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization`,
+      },
+      {
+        name: 'form_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the form to get property mappings for`,
+      },
     ],
   },
   {
@@ -478,8 +642,18 @@ Provide the form_id of the form you want to get mappings for.
 Returns the sync config for the form
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `The ID of the Organization` },
-      { name: 'form_id', type: 'string', required: true, description: `The ID of the form to get property mappings for` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization`,
+      },
+      {
+        name: 'form_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the form to get property mappings for`,
+      },
     ],
   },
   {
@@ -511,8 +685,18 @@ Use this tool to inspect a form property mapping before performing operations li
 - See what fields are mapped: "What mappings exist in sync config xyz-456?"
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `The ID of the Organization` },
-      { name: 'sync_config_id', type: 'string', required: true, description: `The ID of the form property mapping to retrieve` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization`,
+      },
+      {
+        name: 'sync_config_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the form property mapping to retrieve`,
+      },
     ],
   },
   {
@@ -531,8 +715,18 @@ Use this tool to inspect a form property mapping before performing operations li
 Confirms the import has been scheduled successfully.
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `The ID of the Organization` },
-      { name: 'sync_config_id', type: 'string', required: true, description: `The ID of the form property mapping (sync config) to use for the import` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization`,
+      },
+      {
+        name: 'sync_config_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the form property mapping (sync config) to use for the import`,
+      },
     ],
   },
   {
@@ -578,12 +772,42 @@ Use this tool when the user wants to see, search, or find contacts.
 - Select (single_select, multi_select, text_list): equals, contains, empty
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `The ID of the Organization` },
-      { name: 'filters', type: 'string', required: true, description: `Optional filters to apply when listing contacts` },
-      { name: 'page', type: 'integer', required: true, description: `Page number for pagination (default is 1)` },
-      { name: 'page_size', type: 'integer', required: true, description: `Number of contacts per page (max 100; useful to set to 0 to get only the total count)` },
-      { name: 'segment_id', type: 'string', required: true, description: `The ID of the segment to list contacts from` },
-      { name: 'sort', type: 'array', required: true, description: `Optional sort orders to apply when listing contacts; default is created_at desc` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization`,
+      },
+      {
+        name: 'filters',
+        type: 'string',
+        required: true,
+        description: `Optional filters to apply when listing contacts`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: true,
+        description: `Page number for pagination (default is 1)`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: true,
+        description: `Number of contacts per page (max 100; useful to set to 0 to get only the total count)`,
+      },
+      {
+        name: 'segment_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the segment to list contacts from`,
+      },
+      {
+        name: 'sort',
+        type: 'array',
+        required: true,
+        description: `Optional sort orders to apply when listing contacts; default is created_at desc`,
+      },
     ],
   },
   {
@@ -612,7 +836,12 @@ Use this tool when the user asks about their contact properties/fields or schema
 - valid_filter_operators → The comparison operators valid for filtering by this property. Always use one of these operators to avoid errors.
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `The ID of the Organization` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization`,
+      },
     ],
   },
   {
@@ -647,7 +876,12 @@ Use this tool when the user wants to see their saved contact lists.
 - Select (single_select, multi_select, text_list): equals, contains, empty
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `The ID of the Organization` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization`,
+      },
     ],
   },
   {
@@ -661,7 +895,12 @@ Use this tool when the user wants to see their saved contact lists.
 Present the list of form property mappings to the user.
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `The ID of the Organization` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization`,
+      },
     ],
   },
   {
@@ -688,9 +927,24 @@ When providing property values, use the following formats based on property type
 - Select (single_select, multi_select, text_list): {"type": "text_list", "text_list": ["option1"]}
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `The ID of the Organization` },
-      { name: 'contact_id', type: 'string', required: true, description: `The ID of the contact to update. Use list_contacts to find contact IDs.` },
-      { name: 'properties', type: 'array', required: true, description: `Array of property ID and value pairs` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization`,
+      },
+      {
+        name: 'contact_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the contact to update. Use list_contacts to find contact IDs.`,
+      },
+      {
+        name: 'properties',
+        type: 'array',
+        required: true,
+        description: `Array of property ID and value pairs`,
+      },
     ],
   },
   {
@@ -710,9 +964,24 @@ When providing property values, use the following formats based on property type
 Confirm the updated list to the user, including its new name and settings.
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `The ID of the Organization` },
-      { name: 'list_id', type: 'string', required: true, description: `The ID of the contacts list to update` },
-      { name: 'name', type: 'string', required: true, description: `The name for the contacts list` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization`,
+      },
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the contacts list to update`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name for the contacts list`,
+      },
       { name: 'settings', type: 'string', required: true, description: `No description.` },
     ],
   },
@@ -737,9 +1006,24 @@ To preserve existing mappings while adding new ones, include all desired mapping
 Present the updated form property mapping to the user.
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `The ID of the Organization` },
-      { name: 'mapping', type: 'array', required: true, description: `Array of property ID to mapping configuration pairs` },
-      { name: 'sync_config_id', type: 'string', required: true, description: `The ID of the sync config to update` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization`,
+      },
+      {
+        name: 'mapping',
+        type: 'array',
+        required: true,
+        description: `Array of property ID to mapping configuration pairs`,
+      },
+      {
+        name: 'sync_config_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the sync config to update`,
+      },
     ],
   },
   {
@@ -784,7 +1068,12 @@ Do NOT suggest adding fields via subsequent API calls — that capability does n
     params: [
       { name: 'account_id', type: 'string', required: true, description: `Account ID (required)` },
       { name: 'title', type: 'string', required: true, description: `Form title (required)` },
-      { name: 'workspace', type: 'string', required: true, description: `Workspace href URL, e.g. https://api.typeform.com/workspaces/abc123 (required)` },
+      {
+        name: 'workspace',
+        type: 'string',
+        required: true,
+        description: `Workspace href URL, e.g. https://api.typeform.com/workspaces/abc123 (required)`,
+      },
     ],
   },
   {
@@ -827,11 +1116,21 @@ Typical workflow: skeleton to find the field, fields to read its details, then p
     params: [
       { name: 'account_id', type: 'string', required: true, description: `Account ID (required)` },
       { name: 'id', type: 'string', required: true, description: `Form ID (required)` },
-      { name: 'refs', type: 'array', required: true, description: `Field refs to drill into (used only when view=fields). Max 50 per call.` },
-      { name: 'view', type: 'string', required: true, description: `skeleton: compact map of the form — id, title, and each field's ref/type/title/required/choice_count/rule_count. Container fields include their nested children inline under \`fields\`, so the agent sees nested refs without drilling. rule_count shows how many logic rules are triggered by that field (omitted when 0). Drops property bags, choice labels, theme, settings, and layout.
+      {
+        name: 'refs',
+        type: 'array',
+        required: true,
+        description: `Field refs to drill into (used only when view=fields). Max 50 per call.`,
+      },
+      {
+        name: 'view',
+        type: 'string',
+        required: true,
+        description: `skeleton: compact map of the form — id, title, and each field's ref/type/title/required/choice_count/rule_count. Container fields include their nested children inline under \`fields\`, so the agent sees nested refs without drilling. rule_count shows how many logic rules are triggered by that field (omitted when 0). Drops property bags, choice labels, theme, settings, and layout.
 fields: drill-down. Requires \`refs\`. Returns the same per-field shape as \`full\` but only for the requested refs, plus a \`missing\` array for refs not found.
 full (default): complete form including settings, theme, logic.
-` },
+`,
+      },
     ],
   },
   {
@@ -858,10 +1157,30 @@ Returns paginated list of forms with total count and form metadata.`,
       { name: 'account_id', type: 'string', required: true, description: `Account ID (required)` },
       { name: 'order_by', type: 'string', required: true, description: `Sort order: asc or desc` },
       { name: 'page', type: 'integer', required: true, description: `Page number (default: 1)` },
-      { name: 'page_size', type: 'integer', required: true, description: `Items per page (default: 10, max: 200)` },
-      { name: 'search', type: 'string', required: true, description: `Filter by title (partial match)` },
-      { name: 'sort_by', type: 'string', required: true, description: `Sort field: created_at, title, or last_updated_at` },
-      { name: 'workspace_id', type: 'string', required: true, description: `Filter by workspace ID` },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: true,
+        description: `Items per page (default: 10, max: 200)`,
+      },
+      {
+        name: 'search',
+        type: 'string',
+        required: true,
+        description: `Filter by title (partial match)`,
+      },
+      {
+        name: 'sort_by',
+        type: 'string',
+        required: true,
+        description: `Sort field: created_at, title, or last_updated_at`,
+      },
+      {
+        name: 'workspace_id',
+        type: 'string',
+        required: true,
+        description: `Filter by workspace ID`,
+      },
     ],
   },
   {
@@ -884,9 +1203,24 @@ parameter set to keywords from the user's message; it returns forms with titles 
 If multiple match, ask the user which form they mean before proceeding.
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `Account ID. Always required.` },
-      { name: 'audience_id', type: 'string', required: true, description: `Audience ID for contact data. Mutually exclusive with form_id.` },
-      { name: 'form_id', type: 'string', required: true, description: `Form ID for form response data. Mutually exclusive with audience_id.` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `Account ID. Always required.`,
+      },
+      {
+        name: 'audience_id',
+        type: 'string',
+        required: true,
+        description: `Audience ID for contact data. Mutually exclusive with form_id.`,
+      },
+      {
+        name: 'form_id',
+        type: 'string',
+        required: true,
+        description: `Form ID for form response data. Mutually exclusive with audience_id.`,
+      },
     ],
   },
   {
@@ -924,15 +1258,55 @@ Use this tool when the user wants to see individual records (text responses, num
 - To reconstruct one respondent's full set of answers: call this tool once per field, then join the resulting rows on row_id.
 `,
     params: [
-      { name: 'account_id', type: 'string', required: true, description: `Account ID. Always required.` },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `Account ID. Always required.`,
+      },
       { name: 'pagination', type: 'object', required: true, description: `Pagination parameters.` },
-      { name: 'time_range', type: 'object', required: true, description: `Time window for the query.` },
-      { name: 'audience_id', type: 'string', required: false, description: `Audience ID for the 'contacts' dataset. Mutually exclusive with form_id.` },
-      { name: 'field_id', type: 'string', required: false, description: `Field ID to list values for. 'forms' dataset only.` },
-      { name: 'filters', type: 'string', required: false, description: `Cross-field filter conditions.` },
-      { name: 'form_id', type: 'string', required: false, description: `Form ID for the 'forms' dataset. Mutually exclusive with audience_id.` },
-      { name: 'property_id', type: 'string', required: false, description: `Property ID to list values for. Required for the 'contacts' dataset together with audience_id.` },
-      { name: 'search', type: 'string', required: false, description: `Text search filter applied to values (ILIKE match).` },
+      {
+        name: 'time_range',
+        type: 'object',
+        required: true,
+        description: `Time window for the query.`,
+      },
+      {
+        name: 'audience_id',
+        type: 'string',
+        required: false,
+        description: `Audience ID for the 'contacts' dataset. Mutually exclusive with form_id.`,
+      },
+      {
+        name: 'field_id',
+        type: 'string',
+        required: false,
+        description: `Field ID to list values for. 'forms' dataset only.`,
+      },
+      {
+        name: 'filters',
+        type: 'string',
+        required: false,
+        description: `Cross-field filter conditions.`,
+      },
+      {
+        name: 'form_id',
+        type: 'string',
+        required: false,
+        description: `Form ID for the 'forms' dataset. Mutually exclusive with audience_id.`,
+      },
+      {
+        name: 'property_id',
+        type: 'string',
+        required: false,
+        description: `Property ID to list values for. Required for the 'contacts' dataset together with audience_id.`,
+      },
+      {
+        name: 'search',
+        type: 'string',
+        required: false,
+        description: `Text search filter applied to values (ILIKE match).`,
+      },
       { name: 'sort', type: 'string', required: false, description: `Sort order for results.` },
     ],
   },
@@ -940,9 +1314,24 @@ Use this tool when the user wants to see individual records (text responses, num
     name: 'typeformmcp_workspaces_list_workspaces',
     description: `List the workspaces the caller can see, with id, name, form_count, type (private/shared/custom), and account_id. Pair with forms-list_forms to discover forms in a specific workspace. Supports search by name and pagination.`,
     params: [
-      { name: 'page', type: 'integer', required: true, description: `1-indexed page number. Null uses default (1).` },
-      { name: 'page_size', type: 'integer', required: true, description: `Items per page. Null uses default (10).` },
-      { name: 'search', type: 'string', required: true, description: `Filter workspaces by name (partial match, case-insensitive). Null returns all workspaces.` },
+      {
+        name: 'page',
+        type: 'integer',
+        required: true,
+        description: `1-indexed page number. Null uses default (1).`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: true,
+        description: `Items per page. Null uses default (10).`,
+      },
+      {
+        name: 'search',
+        type: 'string',
+        required: true,
+        description: `Filter workspaces by name (partial match, case-insensitive). Null returns all workspaces.`,
+      },
     ],
   },
 ]
