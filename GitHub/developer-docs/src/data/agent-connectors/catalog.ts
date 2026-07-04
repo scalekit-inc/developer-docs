@@ -540,7 +540,14 @@ export const catalog: Record<string, ProviderMeta> = {
   microsoft365: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/microsoft365.svg',
     authType: 'OAuth 2.0',
-    categories: ['Productivity', 'Communication', 'Collaboration', 'Files & Documents', 'Calendar', 'Analytics'],
+    categories: [
+      'Productivity',
+      'Communication',
+      'Collaboration',
+      'Files & Documents',
+      'Calendar',
+      'Analytics',
+    ],
   },
   erasermcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/eraser.svg',
