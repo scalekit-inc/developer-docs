@@ -1,0 +1,326 @@
+---
+title: 'Migrate from Auth0 to Scalekit'
+description: 'Move users, organizations, and enterprise SSO off Auth0 to Scalekit Full Stack Auth with a safe, incremental cutover.'
+date: 2026-07-05
+tags: ['Full stack auth', 'Migration', 'SSO']
+excerpt: >
+  Switching a B2B app off Auth0 means moving users, organizations, and enterprise SSO
+  connections without locking anyone out. This recipe maps the Auth0 data model to Scalekit,
+  imports it with the SDK, and cuts over incrementally behind a feature flag.
+featured: false
+authors:
+  - name: 'Saif'
+    title: 'Developer Advocate'
+    url: 'https://www.linkedin.com/in/saif-shines/'
+    picture: '/images/blog/authors/saif.png'
+---
+
+import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import InstallSDK from '@components/templates/_installsdk.mdx';
+
+Migrating a B2B app off Auth0 is risky because three things move at once: user records, the organization or tenant structure, and enterprise SSO connections. Do it in one big switch and you risk locking customers out. This recipe moves each piece to [Scalekit Full Stack Auth](/authenticate/fsa/quickstart/) in a safe, reversible order, then cuts traffic over behind a feature flag.
+
+The approach avoids re-hashing passwords. Instead of copying credentials, you point your app at Scalekit's hosted login and let users re-authenticate through SSO, social login, or passwordless on their next visit. This is the recommended path for B2B products, where most enterprise users already sign in through an identity provider rather than a password.
+
+<Aside type="note" title="Prefer a guided cutover?">
+  The Scalekit Solutions team has run dozens of migrations. For password-hash migration or a staged
+  cut-over plan, [contact us](/support/contact-us) and we'll design the rollout with you.
+</Aside>
+
+## What you build
+
+- A field mapping from Auth0 users, organizations, and connections to Scalekit
+- A one-time import script that recreates organizations and users with `external_id` back-references
+- Enterprise SSO connections rebuilt in Scalekit for each customer that used them
+- An incremental cutover behind a feature flag, with a rollback path
+
+## Who needs this
+
+This recipe is for you if:
+
+- You authenticate a B2B or multi-tenant app on Auth0 today, using Auth0 Organizations or per-tenant connections.
+- You want Scalekit to own hosted login, sessions, enterprise SSO, and SCIM going forward.
+- You can run a short backfill script and toggle a feature flag in your app.
+
+## Prerequisites
+
+- An Auth0 tenant with a Machine-to-Machine application authorized for the Auth0 Management API.
+- A Scalekit account with API credentials from the dashboard. See [Set up Scalekit](/authenticate/fsa/quickstart/).
+- The Scalekit SDK installed in your backend.
+
+## How Auth0 concepts map to Scalekit
+
+Start from the data model. Every later step follows this mapping.
+
+| Auth0 concept | Scalekit concept | Notes |
+|---------------|------------------|-------|
+| Organization | Organization | Store the Auth0 `org_id` as the Scalekit `external_id`. |
+| User | User + membership | Users belong to an organization through a membership that carries roles. |
+| `user_id` (for example `auth0\|abc`) | User `external_id` | Preserves lookups between systems during cutover. |
+| Enterprise connection (SAML, OIDC) | SSO connection | Recreated per organization in Scalekit; secrets are not exportable from Auth0. |
+| Roles and permissions | Roles | Recreate roles in Scalekit, then attach them to memberships on import. |
+| Database (password) users | Hosted login re-auth | Users re-verify through SSO, social, or passwordless. See the following password note. |
+
+## Migrate the data
+
+<Steps>
+
+1. ## Export your Auth0 data
+
+   Pull three datasets from Auth0 using the [Management API](https://auth0.com/docs/api/management/v2) or the [User Import / Export extension](https://auth0.com/docs/customize/extensions/user-import-export-extension).
+
+   Create a [bulk user export job](https://auth0.com/docs/manage-users/user-migration/bulk-user-exports) to get every user as newline-delimited JSON:
+
+   ```bash title="Export Auth0 users"
+   # Security: pass the Management API token from an environment variable, never inline it.
+   curl "https://YOUR_AUTH0_DOMAIN/api/v2/jobs/users-exports" \
+     --request POST \
+     --header "Authorization: Bearer $AUTH0_MGMT_TOKEN" \
+     --header 'Content-Type: application/json' \
+     --data '{
+       "format": "json",
+       "fields": [
+         { "name": "user_id" },
+         { "name": "email" },
+         { "name": "email_verified" },
+         { "name": "given_name" },
+         { "name": "family_name" }
+       ]
+     }'
+   ```
+
+   Poll `GET /api/v2/jobs/{job_id}` until the job reports `completed`, then download the file it returns.
+
+   Then export [organizations](https://auth0.com/docs/manage-users/organizations) and their members:
+
+   ```bash title="Export Auth0 organizations and members"
+   curl "https://YOUR_AUTH0_DOMAIN/api/v2/organizations" \
+     --header "Authorization: Bearer $AUTH0_MGMT_TOKEN"
+
+   # For each organization id returned above:
+   curl "https://YOUR_AUTH0_DOMAIN/api/v2/organizations/{org_id}/members" \
+     --header "Authorization: Bearer $AUTH0_MGMT_TOKEN"
+   ```
+
+   Finally, list the enterprise connections you rebuild in Scalekit. Record the identity provider, metadata URL, and which organizations use each one. Connection secrets stay in the identity provider and are not exportable.
+
+   ```bash title="List Auth0 enterprise connections"
+   curl "https://YOUR_AUTH0_DOMAIN/api/v2/connections?strategy=samlp" \
+     --header "Authorization: Bearer $AUTH0_MGMT_TOKEN"
+   ```
+
+2. ## Install the Scalekit SDK
+
+   Add the SDK to the backend that runs your import script.
+
+   <InstallSDK />
+
+3. ## Import organizations first
+
+   Create each Auth0 organization in Scalekit and set `external_id` to the Auth0 `org_id`. This back-reference lets you attach users to the right organization and reconcile records during cutover.
+
+   <Tabs syncKey="tech-stack">
+   <TabItem label="Node.js" value="nodejs">
+   ```javascript title="import-organizations.js"
+   // organizations: rows read from your Auth0 organizations export
+   for (const org of organizations) {
+     const result = await scalekit.organization.createOrganization(org.display_name, {
+       externalId: org.id, // Auth0 org_id, preserved for lookups
+       metadata: { source: 'auth0' },
+     });
+     console.log(`Created organization: ${result.id}`);
+   }
+   ```
+   </TabItem>
+   <TabItem label="Python" value="python">
+   ```python title="import_organizations.py"
+   from scalekit.v1.organizations.organizations_pb2 import CreateOrganization
+
+   # organizations: rows read from your Auth0 organizations export
+   for org in organizations:
+       result = scalekit_client.organization.create_organization(
+           CreateOrganization(
+               display_name=org["display_name"],
+               external_id=org["id"],  # Auth0 org_id, preserved for lookups
+               metadata={"source": "auth0"},
+           )
+       )
+       print(f"Created organization: {result.id}")
+   ```
+   </TabItem>
+   <TabItem label="Go" value="go">
+   ```go title="import_organizations.go"
+   // organizations: rows read from your Auth0 organizations export
+   for _, org := range organizations {
+       result, err := scalekitClient.Organization.CreateOrganization(
+           ctx,
+           org.DisplayName,
+           scalekit.CreateOrganizationOptions{
+               ExternalID: org.ID, // Auth0 org_id, preserved for lookups
+               Metadata:   map[string]interface{}{"source": "auth0"},
+           },
+       )
+       if err != nil {
+           log.Fatal(err)
+       }
+       fmt.Printf("Created organization: %s\n", result.ID)
+   }
+   ```
+   </TabItem>
+   <TabItem label="Java" value="java">
+   ```java title="ImportOrganizations.java"
+   // organizations: rows read from your Auth0 organizations export
+   for (Map<String, Object> org : organizations) {
+       CreateOrganization createOrganization = CreateOrganization.newBuilder()
+           .setDisplayName((String) org.get("display_name"))
+           .setExternalId((String) org.get("id")) // Auth0 org_id, preserved for lookups
+           .putMetadata("source", "auth0")
+           .build();
+
+       Organization result = scalekitClient.organizations().create(createOrganization);
+       System.out.println("Created organization: " + result.getId());
+   }
+   ```
+   </TabItem>
+   </Tabs>
+
+4. ## Import users into their organizations
+
+   Create each user inside the organization it belongs to, and set the user `external_id` to the Auth0 `user_id`. Attach roles through the membership so access control works on the first login.
+
+   Set `sendInvitationEmail` to `false` to skip invite emails during a bulk backfill. Scalekit marks the membership `active` and treats the email as verified.
+
+   <Tabs syncKey="tech-stack">
+   <TabItem label="Node.js" value="nodejs">
+   ```javascript title="import-users.js"
+   const { user } = await scalekit.user.createUserAndMembership(organizationId, {
+     email: row.email,
+     externalId: row.user_id, // Auth0 user_id, e.g. "auth0|abc123"
+     sendInvitationEmail: false,
+     userProfile: {
+       firstName: row.given_name,
+       lastName: row.family_name,
+     },
+     metadata: { roles: row.roles?.join(',') ?? '' },
+   });
+   console.log(`Created user: ${user.id}`);
+   ```
+   </TabItem>
+   <TabItem label="Python" value="python">
+   ```python title="import_users.py"
+   from scalekit.v1.users.users_pb2 import CreateUser
+   from scalekit.v1.commons.commons_pb2 import UserProfile
+
+   user_msg = CreateUser(
+       email=row["email"],
+       external_id=row["user_id"],  # Auth0 user_id, e.g. "auth0|abc123"
+       user_profile=UserProfile(
+           first_name=row["given_name"],
+           last_name=row["family_name"],
+       ),
+   )
+
+   create_resp, _ = scalekit_client.user.create_user_and_membership(
+       organization_id, user_msg
+   )
+   print(f"Created user: {create_resp.user.id}")
+   ```
+   </TabItem>
+   <TabItem label="Go" value="go">
+   ```go title="import_users.go"
+   newUser := &usersv1.CreateUser{
+       Email:      row.Email,
+       ExternalId: row.UserID, // Auth0 user_id, e.g. "auth0|abc123"
+       UserProfile: &usersv1.CreateUserProfile{
+           FirstName: row.GivenName,
+           LastName:  row.FamilyName,
+       },
+   }
+
+   cuResp, err := scalekitClient.User().CreateUserAndMembership(ctx, organizationID, newUser, false)
+   if err != nil {
+       log.Fatal(err)
+   }
+   fmt.Printf("Created user: %s\n", cuResp.User.Id)
+   ```
+   </TabItem>
+   <TabItem label="Java" value="java">
+   ```java title="ImportUsers.java"
+   CreateUser createUser = CreateUser.newBuilder()
+       .setEmail(row.email)
+       .setExternalId(row.userId) // Auth0 user_id, e.g. "auth0|abc123"
+       .setUserProfile(
+           CreateUserProfile.newBuilder()
+               .setFirstName(row.givenName)
+               .setLastName(row.familyName)
+               .build())
+       .build();
+
+   CreateUserAndMembershipResponse cuResp = scalekitClient.users()
+       .createUserAndMembership(organizationId, createUser);
+   System.out.println("Created user: " + cuResp.getUser().getId());
+   ```
+   </TabItem>
+   </Tabs>
+
+   Batch the import and run requests in parallel for speed, but respect rate limits. Roles referenced on the membership must exist first. Create them under **User Management > Roles** or with the SDK. See [Create roles and permissions](/authenticate/authz/create-roles-permissions/).
+
+5. ## Rebuild enterprise SSO connections
+
+   For every customer that signed in through an Auth0 enterprise connection, recreate the connection in Scalekit against the same identity provider. You configure this per organization, so each customer keeps its own SAML or OIDC setup.
+
+   Follow [Add modular SSO](/authenticate/sso/add-modular-sso/) for each organization. Reuse the identity provider metadata you recorded during export, then re-run the identity provider's setup to issue fresh SAML or OIDC credentials to Scalekit. Connection secrets from Auth0 cannot be reused.
+
+6. ## Point your app at Scalekit hosted login
+
+   Replace the Auth0 login redirect and session validation with Scalekit.
+
+   - Register your callback and post-logout URLs under **Settings > Redirects**. See the [redirect URI guide](/guides/dashboard/redirects/).
+   - Swap Auth0 SDK session middleware for the Scalekit SDK, or validate access tokens against Scalekit's JWKS endpoint.
+   - Read authorization from the `roles` claim that Scalekit issues, in place of Auth0 roles or scopes.
+
+7. ## Cut over incrementally and verify
+
+   Roll out behind a feature flag so you can reverse the switch without a redeploy.
+
+   1. Route 5 to 10 percent of traffic to Scalekit login and confirm those users authenticate, receive sessions, and see the right roles.
+   2. Watch authentication success rates and error logs. Verify SSO connections resolve for enterprise organizations.
+   3. Increase the percentage in stages until all traffic uses Scalekit.
+   4. Keep the Auth0 tenant read-only until you're confident, so rollback stays available.
+
+</Steps>
+
+## Handle password-based users
+
+Auth0 database users authenticate with a password hash that stays inside Auth0 and can't be exported. Two paths keep those users signed in:
+
+- **Re-authentication (recommended).** On first visit after cutover, users sign in through SSO, social login, or [passwordless](/authenticate/auth-methods/passwordless/). No password moves, and the `external_id` mapping links them back to their imported record.
+- **Password-hash migration.** If you must carry password hashes over, the Scalekit Solutions team handles this directly. [Contact us](/support/contact-us) before you start the import.
+
+## Common mistakes
+
+<details>
+<summary>Users import but can't sign in after cutover</summary>
+
+Confirm your callback URL is registered under **Settings > Redirects**, and that the email on the Auth0 record matches the Scalekit record exactly. Mismatched or missing `external_id` values also break reconciliation during a staged rollout.
+</details>
+
+<details>
+<summary>Roles don't apply on first login</summary>
+
+Roles referenced on a membership must exist in Scalekit before import. Create them first, then re-run the affected user rows. Read access control from the `roles` claim, not from Auth0 scopes.
+</details>
+
+<details>
+<summary>Enterprise SSO fails for one customer</summary>
+
+Each organization needs its own SSO connection. Verify the connection is enabled for that organization and that the identity provider metadata matches what you recorded during export. Test with identity-provider-initiated login.
+</details>
+
+## Where to go next
+
+- [Migrate to Full Stack Auth](/fsa/guides/migration-guide/): the vendor-neutral migration reference this recipe builds on.
+- [Add modular SSO](/authenticate/sso/add-modular-sso/): rebuild each enterprise connection in Scalekit.
+- [Create roles and permissions](/authenticate/authz/create-roles-permissions/): set up the roles your imported memberships reference.
+
+STYLE-CHECK: PASSED
