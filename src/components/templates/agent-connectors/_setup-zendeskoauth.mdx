@@ -1,0 +1,58 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with Zendesk so Scalekit can handle the OAuth flow and token lifecycle for your users.
+
+<Steps>
+1. ### Copy the redirect URI from Scalekit
+
+   - In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**.
+   - Search for **Zendesk (OAUTH)** and click **Create**.
+   - Copy the **Redirect URI** from the connection details panel. It looks like:
+     ```
+     https://<YOUR_ENV>.scalekit.cloud/sso/v1/oauth/conn_<ID>/callback
+     ```
+
+2. ### Create an OAuth client in Zendesk
+
+   - Sign in to your Zendesk account and open **Admin Center**.
+   - In the left sidebar, go to **Apps and integrations** > **APIs** > **OAuth clients**.
+
+   ![Zendesk Admin Center showing the OAuth clients list with an Add OAuth client button](@/assets/docs/agent-connectors/zendeskoauth/oauth-clients-list.png)
+
+   - Click **Add OAuth client** (top right).
+
+3. ### Fill in the client details
+
+   - Enter a **Name** (shown to users during authorization, for example `Agent Connect`) and a unique **Identifier** (used in code — for example, `agent_connect_auth`).
+
+   <Aside type="note" title="Identifier is your Client ID">
+     Zendesk calls this field **Identifier**, but it maps to the **Client ID** you will enter in Scalekit. Copy it exactly as you typed it.
+   </Aside>
+
+   - Set **Client kind** to **Confidential** — this allows Zendesk to issue a client secret.
+   - Under **Redirect URLs**, paste the Scalekit redirect URI you copied in step 1. Add one URL per line.
+
+   ![Zendesk OAuth client form showing the Identifier field set to agent_connect_auth, Client kind set to Confidential, and Redirect URLs field](@/assets/docs/agent-connectors/zendeskoauth/create-oauth-client.png)
+
+4. ### Save and copy your credentials
+
+   - Click **Save**. Zendesk displays the full **Secret** immediately after saving.
+
+   ![Zendesk OAuth client form showing the Redirect URLs saved and the Secret field](@/assets/docs/agent-connectors/zendeskoauth/oauth-client-credentials.png)
+
+   <Aside type="caution" title="Copy the Secret now">
+     Zendesk shows the full Secret only once. If you navigate away without copying it, you must click **Regenerate** — this invalidates any existing tokens issued with the old secret.
+   </Aside>
+
+   Note both values:
+   - **Client ID** — the **Identifier** you entered (for example, `agent_connect_auth`)
+   - **Client Secret** — the value shown in the **Secret** field
+
+5. ### Add credentials in Scalekit
+
+   - Return to [Scalekit dashboard](https://app.scalekit.com) and open the Zendesk (OAUTH) connection you created.
+   - Enter:
+     - **Client ID** — the Identifier from your Zendesk OAuth client
+     - **Client Secret** — the Secret shown after saving
+   - Click **Save**.
+</Steps>

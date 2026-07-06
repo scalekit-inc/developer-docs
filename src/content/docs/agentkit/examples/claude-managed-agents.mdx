@@ -1,10 +1,10 @@
 ---
 title: Claude Managed Agents
-description: Connect a Claude Managed Agent to Scalekit-authenticated tools via MCP. Anthropic runs the agent loop; you describe the task, Claude handles the rest.
+description: Run Claude Managed Agents with Scalekit-authenticated tools using Virtual MCP Servers and Anthropic vaults.
 slug: agentkit/examples/claude-managed-agents
 sidebar:
   label: Claude Managed Agents
-tags: [agentkit, examples, claude, anthropic, managed-agents, mcp]
+tags: [agentkit, examples, claude, anthropic, managed-agents, mcp, virtual-mcp]
 tableOfContents: true
 prev:
   label: "CrewAI"
@@ -16,235 +16,241 @@ next:
 
 import { Aside, Steps } from '@astrojs/starlight/components';
 
-<Aside type="caution" title="Beta">
-  Claude Managed Agents is in public beta. All API requests require the `managed-agents-2026-04-01` beta header, which the Anthropic SDK sets automatically. API behavior may change between releases.
+<Aside type="tip" title="🚀 Complete working demo on GitHub">
+  Browse the full source for this guide at [Github](https://github.com/scalekit-inc/python-connect-demos/tree/main/claude-managed-agents).
 </Aside>
 
-Connect a Claude Managed Agent to Scalekit-authenticated Gmail tools via MCP. You generate a Scalekit MCP URL, pass it to the agent, and describe a task. Anthropic manages the agent loop: tool discovery, execution, retries, and session state.
+Run a background agent that reads Gmail and creates Google Calendar events — without managing any agent loop. Anthropic handles tool discovery, execution, retries, and session state. You provide the task.
 
-Compare this to the [Anthropic SDK example](/agentkit/examples/anthropic/): that approach uses the Messages API and requires you to fetch tool schemas, build a tool-use loop, and feed results back manually. Here, none of that exists in your code.
+Scalekit connects the agent to user-authorized tools via a [Virtual MCP Server](/agentkit/mcp/overview/). Before each run, you mint a short-lived session token and store it in an Anthropic vault. The agent accesses the MCP server using the vault credential.
 
 ## Prerequisites
 
-- A Scalekit account with a Gmail connection configured. See [Configure a connection](/agentkit/connections/).
-- A Scalekit MCP config and a per-user instance URL already created. See [Configure an MCP server](/agentkit/mcp/configure-mcp-server/) and [Generate user MCP URLs](/agentkit/mcp/generate-user-urls/).
-- An [Anthropic API key](https://platform.anthropic.com/settings/keys).
+- A Scalekit account with Gmail and Google Calendar connections configured. See [Configure a connection](/agentkit/connections/).
+- An [Anthropic API key](https://platform.anthropic.com/settings/keys) with access to the Managed Agents beta.
+- An Anthropic environment ID set as `ANTHROPIC_ENVIRONMENT_ID`.
+
+## How it works
+
+The flow has three phases:
+
+1. **Build** (one-time) — Create a Virtual MCP Server and a Claude Managed Agent. Save `mcp_id` and `agent_id`.
+2. **Authorize user for external connections** (once per user) — Authorize the user's Gmail and Google Calendar accounts.
+3. **Run a session** (per agent run) — Check connections, mint a session token, store it in an Anthropic vault, and start a session.
 
 ## Install
 
 ```sh
-pip install anthropic scalekit-sdk-python
+pip install anthropic scalekit-sdk-python python-dotenv
 ```
 
-## Get a Scalekit MCP URL
+## Build
 
-Generate a per-user MCP URL from your existing MCP config. This URL is pre-authenticated; it encodes the user's identity and their authorized connections.
+Run this once to create your Virtual MCP Server and Claude Managed Agent. Save the returned `mcp_id` and `agent_id` — you reuse them for every user and every session.
 
-```python
+```python title="builder.py"
 import os
-import scalekit.client
-
-scalekit_client = scalekit.client.ScalekitClient(
-    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
-    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
-    env_url=os.getenv("SCALEKIT_ENV_URL"),
-)
-actions = scalekit_client.actions
-
-inst_response = actions.mcp.ensure_instance(
-    config_name="email-assistant",  # your MCP config name
-    user_identifier="user_123",     # your app's unique user ID
-)
-mcp_url = inst_response.instance.url
-```
-
-<Aside type="caution" title="Keep the MCP URL server-side">
-  The MCP URL is pre-authenticated. Never expose it in client-side code or browser requests. Pass it directly to the Managed Agent from your backend.
-</Aside>
-
-Before passing the URL to the agent, confirm the user has authorized all connections the config requires. See [Check auth state](/agentkit/mcp/generate-user-urls/#check-auth-state).
-
-## Create the agent
-
-Define the agent once and reuse it across sessions. Pass the Scalekit MCP URL as an MCP server; no vault or additional auth configuration needed, because the URL is already authenticated.
-
-```python
-from anthropic import Anthropic
-
-client = Anthropic()
-
-agent = client.beta.agents.create(
-    name="Gmail Assistant",
-    model="claude-opus-4-7",
-    system="You are a helpful assistant with access to the user's Gmail account.",
-    mcp_servers=[
-        {
-            "type": "url",
-            "name": "scalekit",
-            "url": mcp_url,
-        },
-    ],
-    tools=[
-        {
-            "type": "mcp_toolset",
-            "mcp_server_name": "scalekit",
-            "default_config": {"permission_policy": {"type": "always_allow"}},
-        },
-    ],
-)
-```
-
-<Aside type="note" title="Tool confirmation policy">
-  MCP tools default to an `always_ask` permission policy, which pauses the agent before each tool call. The example above sets `always_allow` on the toolset so the agent runs without interruption. See [Permission policies](https://platform.claude.com/docs/en/managed-agents/permission-policies) in the Anthropic docs.
-</Aside>
-
-Save `agent.id`. You reference it in every session; no need to recreate the agent per user.
-
-## Create an environment
-
-An environment is the cloud container the agent runs in. Create one and reuse it.
-
-```python
-environment = client.beta.environments.create(
-    name="gmail-agent-env",
-    config={
-        "type": "cloud",
-        "networking": {"type": "unrestricted"},
-    },
-)
-```
-
-## Run a session
-
-Start a session, send a task, and stream results. No `vault_ids` needed; the Scalekit MCP URL handles authentication.
-
-```python
-session = client.beta.sessions.create(
-    agent=agent.id,
-    environment_id=environment.id,
-    title="Gmail session",
-)
-
-with client.beta.sessions.events.stream(session.id) as stream:
-    client.beta.sessions.events.send(
-        session.id,
-        events=[
-            {
-                "type": "user.message",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": "Fetch my last 5 unread emails and summarize them.",
-                    }
-                ],
-            },
-        ],
-    )
-
-    for event in stream:
-        match event.type:
-            case "agent.message":
-                for block in event.content:
-                    print(block.text, end="")
-            case "agent.tool_use":
-                print(f"\n[{event.name}]")
-            case "session.status_idle":
-                print("\n")
-                break
-```
-
-The agent discovers available Gmail tools from the Scalekit MCP server, executes them using the user's pre-authorized credentials, and streams results back. You don't manage any of that loop.
-
-<details>
-<summary>Complete example</summary>
-
-```python
-import os
-import scalekit.client
-from anthropic import Anthropic
+import anthropic
+from scalekit import ScalekitClient
+from scalekit.actions.models.mcp_config import McpConfigConnectionToolMapping
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# Get a pre-authenticated MCP URL for the user
-scalekit_client = scalekit.client.ScalekitClient(
-    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
-    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
-    env_url=os.getenv("SCALEKIT_ENV_URL"),
+anthropic_client = anthropic.Anthropic()
+scalekit_client = ScalekitClient(
+    env_url=os.environ["SCALEKIT_ENV_URL"],
+    client_id=os.environ["SCALEKIT_CLIENT_ID"],
+    client_secret=os.environ["SCALEKIT_CLIENT_SECRET"],
 )
-actions = scalekit_client.actions
 
-inst_response = actions.mcp.ensure_instance(
-    config_name="email-assistant",
-    user_identifier="user_123",
+GMAIL_TOOLS = ["gmail_fetch_mails"]
+GCAL_TOOLS = [
+    "googlecalendar_list_calendars",
+    "googlecalendar_list_events",
+    "googlecalendar_get_event_by_id",
+    "googlecalendar_create_event",
+    "googlecalendar_update_event",
+]
+
+vmcp_response = scalekit_client.actions.mcp.create_config(
+    name="email-calendar-demo",
+    connection_tool_mappings=[
+        McpConfigConnectionToolMapping(
+            connection_name="gmail",
+            tools=GMAIL_TOOLS,
+        ),
+        McpConfigConnectionToolMapping(
+            connection_name="googlecalendar",
+            tools=GCAL_TOOLS,
+        ),
+    ],
 )
-mcp_url = inst_response.instance.url
 
-# Create agent (once; reuse agent.id across sessions)
-client = Anthropic()
+mcp_id = vmcp_response.config.id
+mcp_server_url = vmcp_response.config.mcp_server_url
 
-agent = client.beta.agents.create(
-    name="Gmail Assistant",
-    model="claude-opus-4-7",
-    system="You are a helpful assistant with access to the user's Gmail account.",
+agent = anthropic_client.beta.agents.create(
+    name="Email Meeting Manager",
+    model="claude-haiku-4-5-20251001",
+    system=(
+        "You are an email and calendar assistant. When invoked, you will:\n"
+        "1. Fetch the single most recent unread email from Gmail.\n"
+        "2. Summarize it in 2-3 sentences.\n"
+        "3. Create a Google Calendar event titled 'Action Required: <email subject>' "
+        "with your summary as the description."
+    ),
     mcp_servers=[
         {
             "type": "url",
-            "name": "scalekit",
-            "url": mcp_url,
-        },
+            "name": "email-calendar-mcp",
+            "url": mcp_server_url,
+        }
     ],
     tools=[
+        {"type": "agent_toolset_20260401", "default_config": {"enabled": True}},
         {
             "type": "mcp_toolset",
-            "mcp_server_name": "scalekit",
-            "default_config": {"permission_policy": {"type": "always_allow"}},
+            "mcp_server_name": "email-calendar-mcp",
+            "default_config": {
+                "enabled": True,
+                "permission_policy": {"type": "always_allow"},
+            },
         },
     ],
 )
 
-# Create environment (once; reuse environment.id)
-environment = client.beta.environments.create(
-    name="gmail-agent-env",
-    config={
-        "type": "cloud",
-        "networking": {"type": "unrestricted"},
-    },
-)
-
-# Run a session
-session = client.beta.sessions.create(
-    agent=agent.id,
-    environment_id=environment.id,
-    title="Gmail session",
-)
-
-with client.beta.sessions.events.stream(session.id) as stream:
-    client.beta.sessions.events.send(
-        session.id,
-        events=[
-            {
-                "type": "user.message",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": "Fetch my last 5 unread emails and summarize them.",
-                    }
-                ],
-            },
-        ],
-    )
-
-    for event in stream:
-        match event.type:
-            case "agent.message":
-                for block in event.content:
-                    print(block.text, end="")
-            case "agent.tool_use":
-                print(f"\n[{event.name}]")
-            case "session.status_idle":
-                print("\n")
-                break
+print("Virtual MCP ID:", mcp_id)
+print("Agent ID: ", agent.id)
 ```
 
-</details>
+The agent definition references the `mcp_server_url` but carries no auth credentials. Authentication is injected at runtime via the Anthropic vault.
+
+## Authorize user for external connections
+
+Each user authorizes their Gmail and Google Calendar accounts once. All future agent sessions for that user reuse those connections.
+
+```python title="executor_setup.py"
+import os
+from scalekit import ScalekitClient
+from dotenv import load_dotenv
+
+load_dotenv()
+
+scalekit_client = ScalekitClient(
+    env_url=os.environ["SCALEKIT_ENV_URL"],
+    client_id=os.environ["SCALEKIT_CLIENT_ID"],
+    client_secret=os.environ["SCALEKIT_CLIENT_SECRET"],
+)
+
+# Retrieve mcp_id by listing Virtual MCP Servers filtered by name to use below
+accounts_response = scalekit_client.actions.mcp.list_mcp_connected_accounts(
+    config_id=mcp_id,
+    identifier=identifier,    # your app's unique user ID
+)
+
+for account in accounts_response.connected_accounts:
+    if account.connected_account_status != "ACTIVE":
+        auth_response = scalekit_client.actions.get_authorization_link(
+            identifier=identifier,
+            connection_name=account.connection_name,
+        )
+        print(f"{account.connection_name} needs auth: {auth_response.link}")
+    else:
+        print(f"✓ {account.connection_name} — {account.connected_account_status}")
+```
+
+Surface the auth link in your app UI or send it via email. Users only need to do this once.
+
+## Run a session
+
+Run the following for each agent execution.
+
+<Steps>
+
+1. ## Check that connections are active
+
+   Before minting a token, confirm all connections are still `"ACTIVE"`. OAuth tokens for connected accounts can expire or be revoked.
+
+   ```python title="executor.py"
+   accounts_response = scalekit_client.actions.mcp.list_mcp_connected_accounts(
+       config_id=mcp_id,
+       identifier=identifier,
+   )
+   inactive = [
+       a.connection_name
+       for a in accounts_response.connected_accounts
+       if a.connected_account_status != "ACTIVE"
+   ]
+   if inactive:
+       print("Inactive connections:", inactive)
+       # Prompt the user to re-authorize before proceeding
+   ```
+
+2. ## Mint a session token and store in vault
+
+   Mint a short-lived session token and store it in an Anthropic vault. Claude Managed Agents access the MCP server using the vault credential — not a direct bearer header.
+
+   ```python title="executor.py"
+   from datetime import timedelta
+
+   configs_response = scalekit_client.actions.mcp.list_configs(filter_id=mcp_id)
+   mcp_server_url = configs_response.configs[0].mcp_server_url
+
+   token_response = scalekit_client.actions.mcp.create_session_token(
+       mcp_config_id=mcp_id,
+       identifier=identifier,
+       expiry=timedelta(hours=1),
+   )
+   token = token_response.token
+
+   # Create vault and credential on first run; update the token on subsequent runs
+   if vault_id and credential_id:
+       anthropic_client.beta.vaults.credentials.update(
+           credential_id,
+           vault_id=vault_id,
+           auth={"type": "static_bearer", "token": token},
+       )
+   else:
+       vault = anthropic_client.beta.vaults.create(display_name="email-calendar-vault")
+       vault_id = vault.id
+       credential = anthropic_client.beta.vaults.credentials.create(
+           vault_id,
+           display_name="email-calendar-credential",
+           auth={
+               "type": "static_bearer",
+               "mcp_server_url": mcp_server_url,
+               "token": token,
+           },
+       )
+       credential_id = credential.id
+   ```
+
+3. ## Start the session
+
+   Pass `vault_ids` to the session so the agent can authenticate against the MCP server.
+
+   ```python title="executor.py"
+   session = anthropic_client.beta.sessions.create(
+       agent=agent_id,
+       environment_id=os.environ["ANTHROPIC_ENVIRONMENT_ID"],
+       vault_ids=[vault_id],
+   )
+
+   with anthropic_client.beta.sessions.events.stream(session_id=session.id) as stream:
+       anthropic_client.beta.sessions.events.send(
+           session_id=session.id,
+           events=[{"type": "user.message", "content": [{"type": "text", "text": prompt}]}],
+       )
+       for event in stream:
+           if event.type == "agent.message":
+               for block in event.content:
+                   if block.type == "text":
+                       print(block.text, end="", flush=True)
+           elif event.type == "agent.mcp_tool_use":
+               print(f"\n→ {event.name}", flush=True)
+           elif event.type in ("session.status_idle", "session.status_terminated"):
+               break
+   ```
+
+</Steps>

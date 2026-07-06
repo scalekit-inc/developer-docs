@@ -9,9 +9,24 @@ const { tools } = Astro.props
 ---
 
 <div class="tool-list not-content">
+  <div class="tool-filter">
+    <input
+      type="search"
+      class="tool-filter-input"
+      placeholder="Filter tools…"
+      aria-label="Filter tools by name or description"
+    />
+  </div>
+
   {
     tools.map((tool, i) => (
-      <details class="tool-card" id={tool.name} open={i === 0 || undefined}>
+      <details
+        class="tool-card"
+        id={tool.name}
+        open={i === 0 || undefined}
+        data-tool-name={tool.name.toLowerCase()}
+        data-tool-desc={(tool.description || '').toLowerCase()}
+      >
         <summary class="tool-header">
           <code class="tool-name">{tool.name}</code>
           <a
@@ -64,6 +79,29 @@ const { tools } = Astro.props
     flex-direction: column;
     gap: 0.5rem;
     margin-top: 1rem;
+  }
+
+  .tool-filter {
+    margin-bottom: 0.25rem;
+  }
+
+  .tool-filter-input {
+    width: 100%;
+    max-width: 28rem;
+    background: var(--sl-color-bg-nav);
+    border: 1px solid var(--sl-color-hairline);
+    color: var(--sl-color-text);
+    font-family: var(--sl-font-system);
+    font-size: var(--sl-text-sm);
+    padding: 0.375rem 0.625rem;
+    border-radius: 0.375rem;
+    outline: none;
+  }
+  .tool-filter-input:focus {
+    border-color: var(--sl-color-text-accent);
+  }
+  .tool-filter-input::placeholder {
+    color: var(--sl-color-gray-4);
   }
 
   .tool-card summary {
@@ -358,4 +396,29 @@ const { tools } = Astro.props
 
   openFromHash()
   window.addEventListener('hashchange', openFromHash)
+
+  // Simple client-side filter for the tool list (name + description)
+  const filterInput = document.querySelector<HTMLInputElement>('.tool-list .tool-filter-input')
+  if (filterInput) {
+    filterInput.addEventListener('input', () => {
+      const q = filterInput.value.toLowerCase().trim()
+      const cards = document.querySelectorAll<HTMLElement>('.tool-list .tool-card')
+
+      let visibleCount = 0
+
+      cards.forEach((card) => {
+        const n = card.dataset.toolName || ''
+        const d = card.dataset.toolDesc || ''
+        const show = !q || n.includes(q) || d.includes(q)
+        card.style.display = show ? '' : 'none'
+
+        if (show && q) {
+          if (visibleCount < 3) {
+            ;(card as HTMLDetailsElement).open = true
+          }
+          visibleCount++
+        }
+      })
+    })
+  }
 </script>

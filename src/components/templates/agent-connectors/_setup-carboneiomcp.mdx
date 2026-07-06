@@ -1,0 +1,54 @@
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+
+Register your Carbone API key with Scalekit so it can authenticate and proxy document generation requests on behalf of your users. Carbone.io MCP uses Bearer Token authentication — there is no redirect URI or OAuth flow.
+
+<Steps>
+1. ### Get a Carbone API key
+
+   - Go to [account.carbone.io](https://account.carbone.io) and sign in.
+   - Click **My subscription** in the left sidebar.
+   - On the right side, find the **API Access Keys** panel.
+   - For production use, click the lock icon next to **Production API key** to reveal and copy it.
+   - For testing, click the eye icon next to **Test API key** to reveal it.
+
+   ![Carbone Account dashboard showing the API Access Keys panel with Production and Test API keys](@/assets/docs/agent-connectors/carboneiomcp/api-access-keys.png)
+
+2. ### Create a connection in Scalekit
+
+   - In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** → **Connections** → **Create Connection**.
+   - Search for **Carbone.io MCP** and click **Create**.
+   - Note the **Connection name** — use this as `connection_name` in your code (e.g., `carboneiomcp`).
+
+3. ### Add a connected account
+
+   Connected accounts link a specific user identifier in your system to a Carbone API key. Add them via the dashboard for testing, or via the Scalekit API in production.
+
+   **Via dashboard (for testing)**
+
+   - Open the connection and click the **Connected Accounts** tab → **Add account**.
+   - Fill in **Your User's ID** and **API Key**, then click **Save**.
+
+   **Via API (for production)**
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```ts
+       await scalekit.connect.upsertConnectedAccount({
+         connectionName: 'carboneiomcp',
+         identifier: 'user@example.com',
+         credentials: { token: 'your-carbone-api-key' },
+       })
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```python
+       scalekit_client.connect.upsert_connected_account(
+           connection_name="carboneiomcp",
+           identifier="user@example.com",
+           credentials={"token": "your-carbone-api-key"},
+       )
+       ```
+     </TabItem>
+   </Tabs>
+
+</Steps>

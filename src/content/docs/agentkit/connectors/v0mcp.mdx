@@ -1,0 +1,83 @@
+---
+title: 'v0 MCP connector'
+tableOfContents: true
+description: 'Connect to v0 by Vercel to generate and iterate on web app UIs from natural language. Create chats, send follow-up messages, and inspect v0 Platform chats...'
+sidebar:
+  label: 'v0 MCP'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/v0.svg
+connectorAuthType: Bearer Token
+connectorCategories: [AI, Developer Tools, Design]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/v0mcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupV0mcpSection } from '@components/templates'
+import { QuickstartGenericApikeySection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your v0 MCP credentials with Scalekit so it can authenticate requests on your behalf. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupV0mcpSection />
+
+   </details>
+
+4. ### Make your first call
+
+   <QuickstartGenericApikeySection connector="v0mcp" toolName="v0mcp_findchats" providerName="v0 MCP" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Createchat records** — Create a new chat using the v0 Platform API
+- **Findchats records** — Find all chats using the v0 Platform API
+- **Getchat records** — Get a specific chat by ID using the v0 Platform API
+- **Getuser records** — Get user information using the v0 Platform API
+- **Sendchatmessage records** — Send a new message to an existing chat using the v0 Platform API
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

@@ -1,0 +1,406 @@
+---
+title: 'Migrate from Composio to Scalekit'
+description: 'Map Composio concepts to Scalekit AgentKit equivalents and update your agent code step by step.'
+sidebar:
+  label: 'Migrate from Composio'
+tags: [agentkit, migration, composio, tool-calling]
+tableOfContents:
+  maxHeadingLevel: 3
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+This guide maps Composio concepts to their Scalekit AgentKit equivalents and walks through each migration step: SDK setup, authentication, tool execution, and MCP. Use it as a reference while porting your agent code.
+
+<Aside type="note" title="Users must re-authorize">
+  OAuth refresh tokens are bound to the OAuth client that issued them. After migration, each user must complete the OAuth consent flow once through Scalekit to create a new connected account. Existing Composio tokens cannot be transferred.
+</Aside>
+
+## Concept mapping
+
+| Composio | Scalekit | Notes |
+|---|---|---|
+| Toolkit (e.g. `GITHUB`) | **Connector** (e.g. `github`) | Scalekit uses lowercase slugs |
+| Tool (e.g. `GITHUB_CREATE_ISSUE`) | **Tool** (e.g. `github_create_issue`) | Same concept, lowercase naming |
+| Auth config | **Connection** | OAuth app credentials, scopes, redirect URIs |
+| Connected account | **Connected account** | Per-user credential record |
+| `user_id` / entity ID | **`identifier`** | Your app's unique user ID, passed per API call |
+| Connect Link | **Authorization link** | OAuth redirect URL for user consent |
+| Session (`composio.create()`) | No equivalent | Scalekit is stateless — pass `identifier` per call |
+| Provider package (`composio_openai`) | No equivalent | Scalekit uses a single SDK for all frameworks |
+| `session.tools()` | `listScopedTools()` | Get tools a user is authorized to call |
+| `session.tools.execute()` | `executeTool()` | Execute a tool on behalf of a user |
+| `session.mcp.url` | **Virtual MCP Server URL + session token** | Static server URL with a short-lived bearer token per agent run |
+| Custom tool (in-memory) | **Custom tool** (API Proxy) | Defined in your app code using `actions.request()` |
+| `executeToolRequest` (proxy) | `actions.request()` | Proxied REST API call |
+| Trigger | No equivalent | Scalekit does not support event-driven triggers |
+| `COMPOSIO_SEARCH_TOOLS` | No equivalent | Use `listScopedTools` with connection name filters |
+| `COMPOSIO_REMOTE_WORKBENCH` | No equivalent | No remote sandbox execution |
+
+## 1. Set up Scalekit
+
+<Steps>
+1. **Create a Scalekit account**
+
+   Sign up at [app.scalekit.com](https://app.scalekit.com) and copy your API credentials from **Dashboard > Developers > Settings > API Credentials**.
+
+2. **Set environment variables**
+
+   ```bash
+   SCALEKIT_CLIENT_ID=your_client_id
+   SCALEKIT_CLIENT_SECRET=your_client_secret
+   SCALEKIT_ENV_URL=https://your-env.scalekit.com
+   ```
+
+3. **Install the SDK**
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Python">
+   ```bash
+   pip install scalekit-sdk-python
+   ```
+     </TabItem>
+     <TabItem label="Node.js">
+   ```bash
+   npm install @scalekit-sdk/node
+   ```
+     </TabItem>
+   </Tabs>
+
+4. **Initialize the client**
+
+   Scalekit uses a single client instance. There is no session object — you pass `identifier` on each API call.
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Python">
+   ```python
+   import os
+   import scalekit.client
+
+   scalekit_client = scalekit.client.ScalekitClient(
+       client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+       client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+       env_url=os.getenv("SCALEKIT_ENV_URL"),
+   )
+   actions = scalekit_client.actions
+   ```
+     </TabItem>
+     <TabItem label="Node.js">
+   ```typescript
+   import { ScalekitClient } from '@scalekit-sdk/node';
+
+   const scalekit = new ScalekitClient({
+     clientId: process.env.SCALEKIT_CLIENT_ID!,
+     clientSecret: process.env.SCALEKIT_CLIENT_SECRET!,
+     envUrl: process.env.SCALEKIT_ENV_URL!,
+   });
+   ```
+     </TabItem>
+   </Tabs>
+
+</Steps>
+
+## 2. Configure connections
+
+In Composio, auth configs are created programmatically or via the dashboard. In Scalekit, you configure **connections** in the dashboard.
+
+For each Composio toolkit your agent uses (Gmail, Slack, GitHub, etc.), create a corresponding connection in **Dashboard > AgentKit > Connections > Add connection**. See [Configure a connection](/agentkit/connections/) for the full walkthrough.
+
+| Composio auth type | Scalekit equivalent |
+|---|---|
+| OAuth 2.0 (Composio managed) | OAuth 2.0 (use Scalekit credentials to start, then bring your own) |
+| OAuth 2.0 (custom) | OAuth 2.0 (bring your own credentials) |
+| API key | API key (user provides during connected account creation) |
+| Bearer token | Bearer token |
+| Basic auth | Basic auth |
+
+<Aside type="tip" title="Scalekit credentials for quick testing">
+  Some connectors offer a **Use Scalekit credentials** option that lets you skip OAuth app registration during development. Switch to your own credentials before production. See [Bring your own OAuth](/agentkit/advanced/bring-your-own-oauth/).
+</Aside>
+
+## 3. Migrate authentication
+
+Both platforms create per-user records (connected accounts) and generate OAuth links. The SDK methods differ.
+
+#### Create a connected account and authorize
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+**Before (Composio):**
+```python
+# Composio handles auth in-chat or via connect link
+session = composio.create(user_id="user_123")
+# Auth is triggered automatically when a tool requires it
+```
+
+**After (Scalekit):**
+```python
+# Create or retrieve the connected account
+response = actions.get_or_create_connected_account(
+    connection_name="gmail",
+    identifier="user_123",
+)
+connected_account = response.connected_account
+
+# Generate an authorization link if the account is not yet active
+if connected_account.status != "ACTIVE":
+    link_response = actions.get_authorization_link(
+        connection_name="gmail",
+        identifier="user_123",
+    )
+    auth_url = link_response.link
+    # Redirect or send auth_url to the user
+```
+  </TabItem>
+  <TabItem label="Node.js">
+**Before (Composio):**
+```typescript
+// Composio handles auth in-chat or via connect link
+const session = await composio.create("user_123");
+// Auth is triggered automatically when a tool requires it
+```
+
+**After (Scalekit):**
+```typescript
+// Create or retrieve the connected account
+const response = await scalekit.actions.getOrCreateConnectedAccount({
+  connectionName: 'gmail',
+  identifier: 'user_123',
+});
+
+const connectedAccount = response.connectedAccount;
+
+// Generate an authorization link if the account is not yet active
+if (connectedAccount?.status !== 'ACTIVE') {
+  const linkResponse = await scalekit.actions.getAuthorizationLink({
+    connectionName: 'gmail',
+    identifier: 'user_123',
+  });
+  const authUrl = linkResponse.link;
+  // Redirect or send authUrl to the user
+}
+```
+  </TabItem>
+</Tabs>
+
+**Key difference:** Composio can trigger auth in-chat automatically. With Scalekit, your app explicitly creates the connected account and sends the authorization link to the user. Once the user completes the OAuth flow, the connected account becomes `ACTIVE` and your agent can execute tools.
+
+#### Check connected account status
+
+Composio tracks two statuses (`ACTIVE` and `INACTIVE`). Scalekit uses more granular states:
+
+| Scalekit status | Meaning |
+|---|---|
+| `PENDING` | User hasn't completed authentication |
+| `ACTIVE` | Credentials valid, ready for tool calls |
+| `EXPIRED` | Credentials expired or invalidated, re-authentication required |
+| `REVOKED` | User revoked access or credentials were invalidated |
+| `ERROR` | Authentication or configuration error |
+
+Check status before executing tools. If the account is not `ACTIVE`, generate a new authorization link.
+
+## 4. Migrate tool calls
+
+#### List available tools
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+**Before (Composio):**
+```python
+session = composio.create(user_id="user_123")
+tools = session.tools()  # all tools the user is authorized for
+```
+
+**After (Scalekit):**
+```python
+tools_response = scalekit_client.actions.tools.list_scoped_tools(
+    identifier="user_123",
+    filter={"connection_names": ["gmail"]},  # optional; omit for all connectors
+    page_size=100,
+)
+```
+  </TabItem>
+  <TabItem label="Node.js">
+**Before (Composio):**
+```typescript
+const session = await composio.create("user_123");
+const tools = await session.tools();  // all tools the user is authorized for
+```
+
+**After (Scalekit):**
+```typescript
+const { tools } = await scalekit.tools.listScopedTools('user_123', {
+  filter: { connectionNames: ['gmail'] },  // optional; omit for all connectors
+  pageSize: 100,
+});
+```
+  </TabItem>
+</Tabs>
+
+#### Execute a tool
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+**Before (Composio):**
+```python
+session = composio.create(user_id="user_123")
+tools = session.tools()
+# Framework handles execution via the agent loop, or:
+# composio.tools.execute(tool_name="GMAIL_FETCH_MAILS", params={...})
+```
+
+**After (Scalekit):**
+```python
+result = actions.execute_tool(
+    tool_name="gmail_fetch_mails",
+    identifier="user_123",
+    connection_name="gmail",
+    tool_input={"query": "is:unread", "max_results": 5},
+)
+print(result.data)
+```
+  </TabItem>
+  <TabItem label="Node.js">
+**Before (Composio):**
+```typescript
+const session = await composio.create("user_123");
+const tools = await session.tools();
+// Framework handles execution via the agent loop
+```
+
+**After (Scalekit):**
+```typescript
+const result = await scalekit.actions.executeTool({
+  toolName: 'gmail_fetch_mails',
+  identifier: 'user_123',
+  connectionName: 'gmail',
+  toolInput: { query: 'is:unread', max_results: 5 },
+});
+console.log(result.data);
+```
+  </TabItem>
+</Tabs>
+
+**Key differences:**
+- Composio tool names are uppercase (`GMAIL_FETCH_MAILS`); Scalekit uses lowercase (`gmail_fetch_mails`)
+- Composio's session model means you don't pass `user_id` on each call. With Scalekit, pass `identifier` and `connection_name` on every `executeTool` call
+- Both return structured, LLM-ready output
+
+### Map tool names
+
+Composio and Scalekit may name tools differently for the same connector. Browse the connector's tool list in the [Scalekit connector catalog](/agentkit/connectors/) to find the exact tool names. Common patterns:
+
+| Composio tool name | Scalekit tool name |
+|---|---|
+| `GMAIL_FETCH_MAILS` | `gmail_fetch_mails` |
+| `SLACK_SEND_MESSAGE` | `slack_send_message` |
+| `GITHUB_CREATE_ISSUE` | `github_create_issue` |
+| `NOTION_CREATE_PAGE` | `notion_create_page` |
+
+Tool input schemas may also differ. Check each tool's parameters in the connector catalog and update your agent's tool input accordingly.
+
+## 5. Migrate MCP
+
+Both platforms support MCP (Model Context Protocol) for framework-agnostic tool discovery and execution.
+
+**Before (Composio):**
+```json
+{
+  "mcpServers": {
+    "composio": {
+      "url": "https://backend.composio.dev/v3/mcp/{SERVER_ID}?user_id={USER_ID}",
+      "headers": {
+        "x-api-key": "<COMPOSIO_API_KEY>"
+      }
+    }
+  }
+}
+```
+
+**After (Scalekit):**
+
+Scalekit MCP uses Virtual MCP Servers:
+
+1. **Create an MCP config** — define which connections and tools the server exposes (one-time). This gives you a static `mcp_server_url`.
+2. **Mint a session token** — before each agent run, call `create_session_token` for the user. Pass it as a bearer auth header.
+
+See [Virtual MCP Servers](/agentkit/mcp/overview/) for the full setup.
+
+```json
+{
+  "mcpServers": {
+    "scalekit": {
+      "url": "<MCP_SERVER_URL>",
+      "headers": {
+        "Authorization": "Bearer <SESSION_TOKEN>"
+      }
+    }
+  }
+}
+```
+
+**Key difference:** Composio embeds the user ID in the URL. Scalekit uses a static server URL shared across all users, with a short-lived session token per agent run for authentication.
+
+## 6. Migrate custom tools
+
+In Composio, custom tools are defined in code with decorators and stored in memory — they're lost on restart. In Scalekit, custom tools use **API Proxy mode** (`actions.request`). The proxy is available out of the box for every connector with no extra configuration. You define the tool contract in your application code and call the provider's REST endpoint through Scalekit, which injects the user's credentials automatically.
+
+| Composio approach | Scalekit approach |
+|---|---|
+| `@composio.tools.custom_tool` decorator | Define the tool in your app code |
+| In-memory, lost on restart | Lives in your codebase |
+| `executeToolRequest` for authenticated API calls | `actions.request()` — works out of the box for every connector |
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+```python
+response = actions.request(
+    connection_name="gmail",
+    identifier="user_123",
+    method="GET",
+    path="/gmail/v1/users/me/messages",
+)
+```
+  </TabItem>
+  <TabItem label="Node.js">
+```typescript
+const response = await scalekit.actions.request({
+  connectionName: 'gmail',
+  identifier: 'user_123',
+  method: 'GET',
+  path: '/gmail/v1/users/me/messages',
+});
+```
+  </TabItem>
+</Tabs>
+
+## 7. Add custom connectors
+
+If your agent connects to an API or MCP server that isn't in Scalekit's built-in catalog, you can add your own connector. Custom connectors support OAuth 2.0, API keys, bearer tokens, and other auth types. Once created, they work exactly like built-in connectors — same connected account flow, same `actions.request()` proxy, same MCP tool calling.
+
+This goes beyond what Composio offers with in-memory custom tools: Scalekit custom connectors are persistent, support any SaaS API, partner system, or internal service, and keep all credential handling centralized.
+
+See [Add your own connector](/agentkit/bring-your-own-connector/overview/) for the full walkthrough.
+
+## Checklist
+
+- [ ] Scalekit account created, API credentials saved as environment variables
+- [ ] Scalekit SDK installed
+- [ ] Connections created in the Scalekit Dashboard for each connector
+- [ ] Connected account creation and authorization link flow ported
+- [ ] Tool names updated from uppercase to lowercase
+- [ ] `executeTool` calls updated with `identifier` and `connection_name`
+- [ ] Tool input schemas verified against the Scalekit connector catalog
+- [ ] MCP config created and session token flow implemented (if using MCP)
+- [ ] Custom tools ported to `actions.request()` (if applicable)
+- [ ] Agent tested end-to-end with a test user
+- [ ] Users re-authorized through Scalekit's OAuth flow

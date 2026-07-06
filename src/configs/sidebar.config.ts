@@ -113,11 +113,15 @@ export const sidebar = [
         ],
       },
       {
+        label: 'Manage encryption keys',
+        link: 'authenticate/encryption-keys',
+      },
+      {
         label: 'View auth integrations',
         link: 'guides/integrations',
       },
       {
-        label: 'Go Live',
+        label: 'Go live',
         items: [
           'authenticate/launch-checklist',
           'authenticate/run-e2e-tests',
@@ -183,12 +187,11 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Agent tools over MCP',
+        label: 'Virtual MCP servers',
         collapsed: false,
         items: [
-          { label: 'Configure an MCP server', link: 'agentkit/mcp/configure-mcp-server' },
-          { label: 'Generate user MCP URLs', link: 'agentkit/mcp/generate-user-urls' },
-          { label: 'Connect an MCP client', link: 'agentkit/mcp/connect-mcp-client' },
+          { label: 'Overview', link: 'agentkit/mcp/overview' },
+          { label: 'Set up and connect', link: 'agentkit/mcp/configure-mcp-server' },
         ],
       },
       {
@@ -200,8 +203,17 @@ export const sidebar = [
         ],
       },
       {
+        label: 'Manage encryption keys',
+        link: 'agentkit/encryption-keys',
+      },
+      {
         label: 'Go live',
-        items: ['agentkit/advanced/custom-domain', 'agentkit/advanced/launch-checklist'],
+        items: [
+          'agentkit/advanced/custom-domain',
+          'agentkit/advanced/launch-checklist',
+          'agentkit/authentication/troubleshooting',
+          { label: 'Migrate from Composio', link: 'agentkit/advanced/migrate-from-composio' },
+        ],
       },
     ],
   },
@@ -213,9 +225,7 @@ export const sidebar = [
     items: [
       {
         label: 'Connectors',
-        autogenerate: {
-          directory: 'agentkit/connectors',
-        },
+        items: [{ autogenerate: { directory: 'agentkit/connectors' } }],
       },
     ],
   },
@@ -239,6 +249,7 @@ export const sidebar = [
         label: 'AI tools',
         collapsed: false,
         items: [
+          'dev-kit/cli',
           'dev-kit/ai-assisted-development/scalekit-mcp-server',
           'dev-kit/resources/ai-assisted-setup',
           'dev-kit/ai-assisted-development/context7',
@@ -272,6 +283,34 @@ export const sidebar = [
     ],
   },
   {
+    label: 'Self-hosted',
+    id: 'self-hosted',
+    link: '/self-hosted/overview/',
+    icon: 'server',
+    items: [
+      {
+        label: 'Getting started',
+        items: [
+          'self-hosted/overview',
+          'self-hosted/quickstart',
+          'self-hosted/system-requirements',
+        ],
+      },
+      {
+        label: 'Deploy Scalekit',
+        items: [
+          'self-hosted/configuration',
+          'self-hosted/setup-script',
+          'self-hosted/installation',
+        ],
+      },
+      {
+        label: 'Maintain and upgrade',
+        items: ['self-hosted/upgrades', 'self-hosted/troubleshooting'],
+      },
+    ],
+  },
+  {
     label: 'Resources',
     id: 'resources',
     link: '/guides/integrations',
@@ -292,17 +331,38 @@ export const sidebar = [
       {
         label: 'Social connections',
         collapsed: true,
-        autogenerate: { directory: 'guides/integrations/social-connections' },
+        items: [
+          {
+            autogenerate: {
+              directory: 'guides/integrations/social-connections',
+              collapsed: true,
+            },
+          },
+        ],
       },
       {
         label: 'SSO integrations',
         collapsed: true,
-        autogenerate: { directory: 'guides/integrations/sso-integrations' },
+        items: [
+          {
+            autogenerate: {
+              directory: 'guides/integrations/sso-integrations',
+              collapsed: true,
+            },
+          },
+        ],
       },
       {
         label: 'SCIM integrations',
         collapsed: true,
-        autogenerate: { directory: 'guides/integrations/scim-integrations' },
+        items: [
+          {
+            autogenerate: {
+              directory: 'guides/integrations/scim-integrations',
+              collapsed: true,
+            },
+          },
+        ],
       },
       createSpacing(),
       createSectionHeader('Workflows'),
@@ -323,6 +383,10 @@ export const sidebar = [
         ],
       },
       { label: 'Admin portal events', link: 'reference/admin-portal/ui-events' },
+      createSpacing(),
+      createSectionHeader('Platform'),
+      'reference/rate-limits',
+      'reference/outbound-ip-addresses',
     ],
   },
   {
@@ -394,7 +458,7 @@ export const sidebar = [
       },
       {
         label: 'Integrate SSO with own auth',
-        autogenerate: { directory: 'guides/integrations/auth-systems' },
+        items: [{ autogenerate: { directory: 'guides/integrations/auth-systems' } }],
       },
       {
         label: 'How to...',
@@ -518,6 +582,10 @@ export const sidebar = [
         // Note: No SDK reference yet - only Overview page
       },
       {
+        label: 'iOS SDK',
+        link: '/sdks/ios/',
+      },
+      {
         label: 'APIs',
         link: '/apis/#description/overview',
         attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
@@ -564,6 +632,9 @@ export const topics = {
 
   // Modular SCIM (directory provisioning)
   'modular-scim': ['/directory/**/*'],
+
+  // Self-hosted deployment (dedicated sidebar for on-prem docs)
+  'self-hosted': ['/self-hosted/**/*'],
 
   // Agent connectors (dedicated connectors sidebar — must come before connect)
   'agent-connectors': ['/agentkit/connectors/**/*'],
@@ -659,6 +730,9 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
 
   // Modular SCIM sidebar → SaaSKit SCIM tab
   'modular-scim': 'saaskit-scim',
+
+  // Self-hosted deployment → Developer Resources
+  'self-hosted': 'developer-resources',
 
   // Agent connectors sidebar → AgentKit Connectors tab
   'agent-connectors': 'agentkit-connectors',

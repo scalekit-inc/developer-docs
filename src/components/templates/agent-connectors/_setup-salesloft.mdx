@@ -1,0 +1,71 @@
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with the Salesloft connector so Scalekit handles the OAuth 2.0 flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically.
+
+<Steps>
+1. ### Create a Salesloft OAuth application
+
+   - Sign in to [Salesloft](https://accounts.salesloft.com) and go to **Settings** → **Your Applications** → **OAuth Applications**.
+   - Click **+ New Application**.
+   - Fill in the application name (e.g., `My Sales Agent`) and description.
+   - In the **Redirect URI** field, paste the redirect URI from Scalekit (see step 2 — you can return to add it after).
+   - Under **Scopes**, select the permissions your agent needs:
+
+     | Scope | Enables |
+     | --- | --- |
+     | `read` | Read access to contacts, cadences, and activities |
+     | `write` | Create and update records |
+
+   - Click **Save**. On the application detail page, copy your **Client ID** and **Client Secret**.
+
+   ![Salesloft OAuth application detail page showing the Client ID and Client Secret fields with Copy buttons](@/assets/docs/agent-connectors/salesloft/create-oauth-app.png)
+
+   <Aside type="caution" title="Save your client secret">
+     The client secret is shown only once. Copy it before leaving the page.
+   </Aside>
+
+2. ### Create a connection in Scalekit
+
+   - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **Salesloft** and click **Create**.
+   - Click **Use your own credentials** and copy the **Redirect URI**:
+     `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`
+   - Return to your Salesloft OAuth app and add this redirect URI.
+   - Back in Scalekit, enter your **Client ID**, **Client Secret**, and the **Permissions** (scopes) you selected.
+   - Note the **Connection name** (e.g., `salesloft`) — use this as `connection_name` in your code.
+   - Click **Save**.
+
+3. ### Add a connected account
+
+   **Via dashboard (for testing)**
+   - Open the connection and click the **Connected Accounts** tab → **Add account**.
+   - Enter a **User ID** and click **Save**. You will be redirected to Salesloft to authorize access.
+
+   **Via API (for production)**
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```typescript
+       const { link } = await scalekit.actions.getAuthorizationLink({
+         connectionName: 'salesloft',
+         identifier: 'user_123',
+       });
+       // Redirect your user to `link` to authorize access
+       console.log('Authorize at:', link);
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```python
+       response = scalekit_client.actions.get_authorization_link(
+           connection_name="salesloft",
+           identifier="user_123"
+       )
+       # Redirect your user to response.link to authorize access
+       print("Authorize at:", response.link)
+       ```
+     </TabItem>
+   </Tabs>
+
+   <Aside type="tip" title="Token refresh">
+     Salesloft access tokens expire periodically. Scalekit automatically refreshes them — no re-authorization needed for active sessions.
+   </Aside>
+</Steps>

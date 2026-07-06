@@ -14,6 +14,7 @@
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { execSync } from 'child_process'
 import dotenv from 'dotenv'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
@@ -1447,6 +1448,9 @@ async function main() {
   // Build the set of file names this run will produce
   const expectedFiles = new Set(providers.map((p) => toSafeIdentifier(p.identifier || '') + '.mdx'))
 
+  // Collect compact index for connector + tool search (used by ProviderCatalog)
+  const toolsSearchIndex = []
+
   // Remove orphaned .mdx files not in the expected set.
   // Skip connectors that have hand-authored template files — the naming convention
   // (_setup-*, _section-*, _quickstart-*) signals that the page is hand-maintained
@@ -1474,6 +1478,19 @@ async function main() {
     const providerTools = toolsByProvider.get(identifier) || []
 
     const safeIdentifier = toSafeIdentifier(identifier)
+
+    // Accumulate for the tools search index (name + description only)
+    for (const t of providerTools) {
+      if (t && t.name) {
+        const d = t.description || ''
+        const desc = d.length > 280 ? d.slice(0, 279) + '…' : d
+        toolsSearchIndex.push({
+          slug: safeIdentifier,
+          name: t.name,
+          description: desc,
+        })
+      }
+    }
 
     const mdxContent = generateMdxContent(provider, providerTools)
     const fileName = safeIdentifier + '.mdx'
@@ -1505,17 +1522,76 @@ async function main() {
   fs.writeFileSync(catalogPath, catalogContent, 'utf8')
   console.log('✓ Written catalog.ts')
 
+  // Write compact tools search index (for /agentkit/connectors/ search + per-connector filtering)
+  const toolsIndexJson = JSON.stringify(toolsSearchIndex)
+  const toolsIndexSrcPath = path.join(dataOutputDir, 'tools-index.json')
+  fs.writeFileSync(toolsIndexSrcPath, toolsIndexJson, 'utf8')
+
+  const pubDir = path.join(__dirname, '../public/data')
+  fs.mkdirSync(pubDir, { recursive: true })
+  fs.writeFileSync(path.join(pubDir, 'agent-tools-index.json'), toolsIndexJson, 'utf8')
+  console.log('✓ Written tools-index.json (connector + tool search)')
+
+  // Auto-format generated TypeScript data files.
+  // This prevents massive "formatting only" diffs when teammates run pnpm format.
+  try {
+    const filesToFormat = [
+      path.join(dataOutputDir, 'catalog.ts'),
+      path.join(dataOutputDir, 'tools-index.json'),
+      ...providers.map((p) => {
+        const slug = toSafeIdentifier(p.identifier || '')
+        return path.join(dataOutputDir, `${slug}.ts`)
+      }),
+    ].filter((f) => fs.existsSync(f))
+
+    if (filesToFormat.length > 0) {
+      execSync(`npx prettier --write ${filesToFormat.map((f) => `"${f}"`).join(' ')}`, {
+        stdio: 'inherit',
+      })
+      console.log('✓ Auto-formatted generated data files')
+    }
+  } catch (err) {
+    console.warn('⚠️  Could not auto-format generated files. Run `pnpm format` manually if needed.')
+  }
+
   console.log(`\n📊 Summary:`)
   console.log(`   Providers: ${providers.length}`)
   console.log(`   Tools: ${tools.length}`)
-  console.log(`   Files written: ${written} MDX + ${written} TS data + catalog.ts`)
+  console.log(
+    `   Files written: ${written} MDX + ${written} TS data + catalog.ts + tools-index.json`,
+  )
   console.log(`   Orphans removed: ${removed}`)
   console.log(`   MDX output: src/content/docs/agentkit/connectors/`)
   console.log(`   Data output: src/data/agent-connectors/`)
   console.log('🎉 Done!')
 }
 
-main().catch((err) => {
-  console.error('❌ Error:', err.message)
-  process.exit(1)
-})
+// Only run main() when invoked directly (e.g. `node scripts/sync-agent-connectors.js`).
+// Skips execution when this module is imported by sync-agent-connectors-local.js,
+// which reuses the pure helpers exported below.
+const invokedDirectly =
+  process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+if (invokedDirectly) {
+  main().catch((err) => {
+    console.error('❌ Error:', err.message)
+    process.exit(1)
+  })
+}
+
+// Public exports — consumed by scripts/sync-agent-connectors-local.js to reuse
+// the same MDX / .ts / catalog generators without changing this script's
+// runtime behaviour.
+export {
+  generateMdxContent,
+  generateTsDataFile,
+  generateCatalogFile,
+  toSafeIdentifier,
+  resolveAuthType,
+  normalizeConnectorCategories,
+  syncTemplateIndex,
+  SETUP_STEM_MAP,
+  USAGE_STEM_MAP,
+  QUICKSTART_STEM_MAP,
+  SECTION_ENTRIES,
+  CONNECTED_ACCOUNT_STEM_MAP,
+}

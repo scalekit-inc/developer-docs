@@ -1,0 +1,72 @@
+---
+title: 'Mem0 MCP connector'
+tableOfContents: true
+description: 'Connect to Mem0 MCP. Store, search, and retrieve persistent memory for AI agents and applications using semantic search.'
+sidebar:
+  label: 'Mem0 MCP'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/mem0.svg
+connectorAuthType: OAuth 2.1/DCR
+connectorCategories: [AI, Databases]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/mem0mcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="mem0mcp" toolName="mem0mcp_get_event_status" providerName="Mem0 MCP" toolInputNode="{ event_id: 'YOUR_EVENT_ID' }" toolInputPython='{"event_id":"YOUR_EVENT_ID"}' />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Update memory** — Overwrite an existing memory's text
+- **Search memories** — Run a semantic search over existing memories
+- **List events, entities** — List memory operation events with optional filters and pagination
+- **Get memory, memories, event status** — Fetch a single memory by ID
+- **Delete memory, entities, all memories** — Delete one memory after the user confirms its memory_id
+- **Memory add** — Store a new preference, fact, or conversation snippet
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

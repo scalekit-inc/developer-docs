@@ -1,0 +1,851 @@
+---
+title: 'Sync B2B billing with Scalekit and Chargebee'
+description: 'Map Scalekit organizations to Chargebee customers, run hosted checkout, and keep subscription state in sync via webhooks.'
+date: 2026-06-15
+sidebar:
+  label: 'Chargebee B2B billing'
+tableOfContents: true
+excerpt: >
+  B2B billing breaks when your auth org model and Chargebee customer records drift apart.
+  This cookbook shows how to use the Scalekit organization ID as the billing reference,
+  provision Chargebee customers on org creation, run hosted checkout, and reconcile
+  subscription state from Chargebee webhooks.
+featured: false
+authors:
+  - name: 'Saif'
+    title: 'Developer Advocate'
+    url: 'https://www.linkedin.com/in/saif-shines/'
+    picture: '/images/blog/authors/saif.png'
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Multi-tenant B2B SaaS apps authenticate users through Scalekit organizations, but bill through Chargebee subscriptions. Those two systems do not share a database. Without an explicit mapping, you end up with duplicate Chargebee customers, subscriptions that never activate after checkout, or feature gates that read stale plan data.
+
+This cookbook wires Scalekit organizations and sessions to Chargebee using **org-mode billing**: the organization ID from the access token (`oid`) becomes the billing `referenceId`, Scalekit webhooks provision Chargebee customers, and Chargebee webhooks keep your local subscription table current. You own the routes, schema, and authorization that connect the two systems.
+
+<Aside type="note" title="Working example repo">
+  Patterns below are implemented end-to-end in [saas-auth-chargebee-example](https://github.com/scalekit-developers/saas-auth-chargebee-example) (Next.js, Scalekit, Chargebee Node SDK, Drizzle + SQLite). Clone it to follow along locally, including the in-app journey at `/guide`.
+</Aside>
+
+## What you get
+
+- Chargebee customers created when Scalekit fires `organization.created` (not on every user signup)
+- Local org ↔ Chargebee customer mapping keyed by the Scalekit organization ID
+- Hosted checkout and customer portal via Chargebee hosted pages
+- Local subscription cache driven by Chargebee webhooks, plus optional eager sync on checkout redirect
+- Session-scoped authorization so billing APIs only act on the caller's org (`referenceId === oid`)
+- Lifecycle hooks for product logic (after customer create, subscription complete/cancel, authorize deny)
+
+## Who needs this
+
+This cookbook is for you if:
+
+- ✅ You authenticate with Scalekit and use **organizations** (`oid` in access tokens)
+- ✅ You bill **per organization**, not per individual user
+- ✅ You use Chargebee hosted checkout or the customer portal
+- ✅ You maintain a local subscription cache to gate features in your app
+
+You **don't** need this if:
+
+- ❌ You bill per user, not per organization
+- ❌ Scalekit manages your entire product catalog and entitlements (no separate billing system)
+
+## How the integration fits together
+
+Treat the Scalekit **organization ID** as the single billing reference for the tenant. The integration has four seams:
+
+1. **Provision on org create** — Scalekit `organization.created` webhook → create a Chargebee customer and store the mapping locally.
+2. **Authorize every billing call** — session `oid` must match the billing `referenceId` before any Chargebee API call.
+3. **Future subscription before checkout** — create a local row with `status: future`, stamp `pendingSubscriptionId` on Chargebee customer metadata, then redirect to hosted checkout.
+4. **Reconcile from Chargebee** — subscription webhooks (and an eager sync on checkout redirect) update the local row to `active`, `in_trial`, or cancelled.
+
+```text
+Scalekit organization.created → local organization + Chargebee customer
+User login (Scalekit) → session with oid claim
+POST /api/subscription/create → future row + hosted checkout URL
+Chargebee checkout success → /api/subscription/success (eager sync)
+Chargebee webhooks → sync subscription + items to your database
+GET /api/subscription/list → billing UI / feature gates
+```
+
+## Before you start
+
+| Prerequisite | Where to get it |
+|--------------|-----------------|
+| Scalekit environment with organizations | [Scalekit dashboard](https://app.scalekit.com/) |
+| OAuth client (`skc_...`) + redirect URI | **API Keys** in the dashboard |
+| Chargebee sandbox site (Product Catalog 2.0) | Chargebee test site |
+| Plan **item price** ID (for example `growth-plan-monthly`) | Chargebee **Product Catalog** — reference prices by ID in code |
+| Test payment gateway (`gw_...`) | Chargebee **Payment Gateways** |
+| Public tunnel for webhooks | ngrok, LocalTunnel, or similar |
+
+## Step 1: Install packages
+
+Install the Scalekit and Chargebee SDKs on the **server** (API routes, webhook handlers). Use whichever package manager you use in your app (`npm`, `pnpm`, or `yarn`); the example below matches the reference app:
+
+```bash title="Terminal"
+npm install @scalekit-sdk/node chargebee
+```
+
+Snippets in this cookbook are **Node.js / Next.js App Router**, aligned with the reference app. Scalekit client concepts (token validation, webhook verification, `oid`) apply across SDKs; adapt routes and session storage if you run another stack. Chargebee’s primary SDK surface used here is the Node package.
+
+Use your ORM of choice for the local billing tables (the reference app uses Drizzle + SQLite). Keep Chargebee secret API keys server-side only; publishable keys for Chargebee.js may use `NEXT_PUBLIC_*` if you embed payment components.
+
+## Step 2: Configure environment variables
+
+Define these in your server environment (for example `.env` locally and your host’s secrets store in production).
+
+| Variable | Purpose |
+| --- | --- |
+| `SCALEKIT_ENV_URL` | Scalekit environment URL |
+| `SCALEKIT_CLIENT_ID` / `SCALEKIT_CLIENT_SECRET` | OAuth client |
+| `SCALEKIT_REDIRECT_URI` | OAuth callback (for example `http://localhost:3000/auth/callback`) |
+| `SCALEKIT_WEBHOOK_SECRET` | Verify Scalekit webhook signatures |
+| `CHARGEBEE_SITE` | Chargebee site subdomain |
+| `CHARGEBEE_API_KEY` | Full-access API key for your Chargebee site |
+| `CHARGEBEE_PLAN_ITEM_PRICE_ID` | Default plan item price ID from Product Catalog 2.0 |
+| `CHARGEBEE_GATEWAY_ACCOUNT_ID` | Optional gateway pin for hosted checkout (`gw_...`) |
+| `CHARGEBEE_WEBHOOK_USERNAME` / `CHARGEBEE_WEBHOOK_PASSWORD` | Basic Auth for Chargebee webhooks (recommended in production) |
+| `NEXT_PUBLIC_APP_URL` | App base URL for hosted-page redirects |
+
+```bash title=".env.example"
+SCALEKIT_ENV_URL=https://your-env.scalekit.dev
+SCALEKIT_CLIENT_ID=skc_...
+SCALEKIT_CLIENT_SECRET=
+SCALEKIT_REDIRECT_URI=http://localhost:3000/auth/callback
+SCALEKIT_WEBHOOK_SECRET=
+CHARGEBEE_SITE=your-site-test
+CHARGEBEE_API_KEY=
+CHARGEBEE_PLAN_ITEM_PRICE_ID=growth-plan-monthly
+CHARGEBEE_GATEWAY_ACCOUNT_ID=gw_your_test_gateway_id
+CHARGEBEE_WEBHOOK_USERNAME=
+CHARGEBEE_WEBHOOK_PASSWORD=
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+## Step 3: Add local schema
+
+Add tables for organizations, subscriptions, and optional line items. The organization row holds the Chargebee customer ID; subscriptions are keyed by `reference_id` (the Scalekit org ID from `oid`). Default new subscriptions to `future` so checkout can reconcile before Chargebee assigns a subscription ID.
+
+```sql title="db/schema.sql"
+CREATE TABLE organization (
+  id TEXT PRIMARY KEY,
+  display_name TEXT,
+  chargebee_customer_id TEXT UNIQUE,
+  updated_at INTEGER
+);
+
+CREATE TABLE subscription (
+  id TEXT PRIMARY KEY,
+  reference_id TEXT NOT NULL,
+  chargebee_customer_id TEXT,
+  chargebee_subscription_id TEXT UNIQUE,
+  status TEXT NOT NULL DEFAULT 'future',
+  period_start INTEGER,
+  period_end INTEGER,
+  trial_start INTEGER,
+  trial_end INTEGER,
+  canceled_at INTEGER,
+  seats INTEGER,
+  metadata TEXT
+);
+
+CREATE TABLE subscription_item (
+  id TEXT PRIMARY KEY,
+  subscription_id TEXT NOT NULL REFERENCES subscription(id) ON DELETE CASCADE,
+  item_price_id TEXT NOT NULL,
+  item_type TEXT NOT NULL,
+  quantity INTEGER NOT NULL,
+  unit_price INTEGER,
+  amount INTEGER
+);
+```
+
+Translate to your ORM. Index `reference_id` — webhook handlers and list endpoints query by org ID on every request.
+
+**After this step:** migrations applied; empty tables ready for provisioning and checkout.
+
+## Step 4: Initialize clients
+
+Create lazy singletons from environment variables. Never hardcode API keys.
+
+```ts title="lib/scalekit.ts"
+import { ScalekitClient } from '@scalekit-sdk/node';
+
+let scalekitClient: ScalekitClient | null = null;
+
+export function getScalekitClient(): ScalekitClient {
+  if (!scalekitClient) {
+    const envUrl = process.env.SCALEKIT_ENV_URL;
+    const clientId = process.env.SCALEKIT_CLIENT_ID;
+    const clientSecret = process.env.SCALEKIT_CLIENT_SECRET;
+    if (!envUrl || !clientId || !clientSecret) {
+      throw new Error(
+        'Set SCALEKIT_ENV_URL, SCALEKIT_CLIENT_ID, and SCALEKIT_CLIENT_SECRET.'
+      );
+    }
+    scalekitClient = new ScalekitClient(envUrl, clientId, clientSecret);
+  }
+  return scalekitClient;
+}
+```
+
+```ts title="lib/chargebee.ts"
+import Chargebee from 'chargebee';
+
+let chargebeeClient: Chargebee | null = null;
+
+export function getChargebeeClient(): Chargebee {
+  if (!chargebeeClient) {
+    const site = process.env.CHARGEBEE_SITE;
+    const apiKey = process.env.CHARGEBEE_API_KEY;
+    if (!site || !apiKey) {
+      throw new Error('Set CHARGEBEE_SITE and CHARGEBEE_API_KEY.');
+    }
+    chargebeeClient = new Chargebee({ site, apiKey });
+  }
+  return chargebeeClient;
+}
+```
+
+## Step 5: Provision Chargebee customers from Scalekit webhooks
+
+Register a Scalekit webhook for `organization.created`, `organization.updated`, and `organization.deleted`. Point it at your public URL (use a tunnel in local dev):
+
+```text
+https://your-domain.com/api/webhooks/scalekit
+```
+
+Verify the signature on the **raw request body** before parsing JSON.
+
+<Aside type="caution" title="Verify webhook signatures">
+  Never parse the body before verification. Re-serialized JSON breaks signature checks. Read `req.text()` (or the raw buffer), verify, then `JSON.parse`.
+</Aside>
+
+```ts title="api/webhooks/scalekit/route.ts"
+import { NextRequest, NextResponse } from 'next/server';
+import { getScalekitClient } from '@/lib/scalekit';
+import { createOrgCustomer } from '@/lib/billing/create-org-customer';
+import { cleanupOrganizationBilling } from '@/lib/billing/cleanup-org';
+import { upsertOrganization } from '@/lib/db/organizations';
+
+export async function POST(req: NextRequest) {
+  const rawBody = await req.text();
+  const secret = process.env.SCALEKIT_WEBHOOK_SECRET;
+  if (!secret) {
+    return NextResponse.json({ error: 'Webhook secret not configured' }, { status: 500 });
+  }
+
+  const headers: Record<string, string> = {};
+  req.headers.forEach((value, key) => {
+    headers[key.toLowerCase()] = value;
+  });
+
+  const client = getScalekitClient();
+  const isValid = client.verifyWebhookPayload(secret, headers, rawBody);
+  if (!isValid) {
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+  }
+
+  const event = JSON.parse(rawBody);
+  const organizationId = event.organization_id ?? event.data?.id;
+
+  if (event.type === 'organization.created' && organizationId) {
+    await createOrgCustomer({
+      organizationId,
+      displayName: event.data?.display_name ?? null,
+    });
+  } else if (event.type === 'organization.updated' && organizationId) {
+    await upsertOrganization({
+      id: organizationId,
+      displayName: event.data?.display_name ?? null,
+    });
+  } else if (event.type === 'organization.deleted' && organizationId) {
+    await cleanupOrganizationBilling(organizationId);
+  }
+
+  return NextResponse.json({ received: true });
+}
+```
+
+`createOrgCustomer` upserts the local organization row, creates a Chargebee customer if one does not exist, and stores `organizationId` in Chargebee `meta_data`. Make it idempotent: check the local mapping before calling `customer.create`, and handle races if checkout runs before the webhook finishes.
+
+```ts title="lib/billing/create-org-customer.ts"
+const { customer } = await chargebee.customer.create({
+  company: displayName ?? undefined,
+  email: email ?? undefined,
+  preferred_currency_code: 'USD',
+  meta_data: {
+    organizationId,
+    customerType: 'organization',
+  },
+});
+
+await setChargebeeCustomerId(organizationId, customer.id);
+```
+
+Return `2xx` after accepting the event. Scalekit retries on non-2xx responses. The reference app enqueues work with `setImmediate` so the HTTP response is fast; either pattern works if handlers are idempotent.
+
+**After this step:** create an organization in Scalekit → local `organization` row and a Chargebee customer with matching `organizationId` metadata appear.
+
+## Step 6: Read the organization ID from the session
+
+Billing routes need org context from the access token. Validate the token on every request and require the `oid` claim. Do not call `/userinfo` for billing context.
+
+```ts title="lib/auth/require-session.ts"
+import { decodeJwt } from 'jose';
+
+const isValid = await scalekit.validateAccessToken(accessToken);
+if (!isValid) {
+  throw new SessionError(401, 'Invalid or expired token');
+}
+
+// Safe after validateAccessToken: signature and standard claims already checked.
+const claims = decodeJwt(accessToken);
+
+const organizationId = claims.oid as string | undefined;
+if (!organizationId) {
+  throw new SessionError(403, 'Organization context required for billing');
+}
+
+return {
+  userId: claims.sub as string,
+  email: claims.email as string,
+  organizationId,
+};
+```
+
+## Step 7: Authorize billing references
+
+Before any Chargebee API call, confirm the caller's session org matches the billing reference. Extend with a product hook to deny delinquent orgs without changing Chargebee configuration.
+
+```ts title="lib/auth/authorize-reference.ts"
+export type AuthorizeReferenceAction =
+  | 'create'
+  | 'update'
+  | 'cancel'
+  | 'portal'
+  | 'list';
+
+export async function authorizeReference({
+  userId,
+  organizationId,
+  referenceId,
+  action,
+}: {
+  userId: string;
+  organizationId: string;
+  referenceId: string;
+  action: AuthorizeReferenceAction;
+}): Promise<boolean> {
+  if (referenceId !== organizationId) {
+    return false;
+  }
+  // Optional: return false from onAuthorizeReference to deny specific orgs.
+  return onAuthorizeReference({ userId, organizationId, referenceId, action }) !== false;
+}
+```
+
+**After this step:** a request with `referenceId` that does not match session `oid` returns `403` before Chargebee is called.
+
+## Step 8: Start hosted checkout with a future subscription
+
+When an org admin clicks **Subscribe**, create a local `future` row first, stamp pending IDs on the Chargebee customer, then call `hostedPage.checkoutNewForItems`. Use **item price IDs** from your Chargebee product catalog.
+
+```ts title="api/subscription/create/route.ts"
+const ctx = await requireSession();
+const referenceId = body.referenceId ?? ctx.organizationId;
+
+if (
+  !(await authorizeReference({
+    userId: ctx.userId,
+    organizationId: ctx.organizationId,
+    referenceId,
+    action: 'create',
+  }))
+) {
+  return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+}
+
+const active = await findActiveByReferenceId(referenceId);
+if (active) {
+  return NextResponse.json(
+    { error: 'An active subscription already exists for this organization' },
+    { status: 400 }
+  );
+}
+
+const customerId = await getOrCreateCustomerId({
+  organizationId: referenceId,
+  email: ctx.email,
+});
+
+const localSub = await createFutureSubscription({
+  referenceId,
+  chargebeeCustomerId: customerId,
+});
+
+await chargebee.customer.update(customerId, {
+  meta_data: {
+    pendingSubscriptionId: localSub.id,
+    pendingReferenceId: referenceId,
+    organizationId: referenceId,
+    userId: ctx.userId,
+  },
+});
+
+const result = await chargebee.hostedPage.checkoutNewForItems({
+  subscription_items: [{ item_price_id: planItemPriceId, quantity: seats }],
+  customer: { id: customerId },
+  redirect_url: successRedirect, // includes local subscriptionId for eager sync
+  cancel_url: absoluteUrl(cancelUrl),
+  // Optional: pin gateway when Smart Routing cannot auto-select
+  // ...getHostedCheckoutCardOptions(),
+});
+
+return NextResponse.json({ mode: 'hosted', url: result.hosted_page.url });
+```
+
+The `future` row gives your app a stable ID to reconcile against before Chargebee assigns a subscription ID. Reject create when an active subscription already exists for the org.
+
+**After this step:** `POST /api/subscription/create` returns `{ mode: 'hosted', url }`; completing checkout in the sandbox creates or updates the Chargebee subscription.
+
+## Step 9: Configure Chargebee webhooks
+
+In the Chargebee dashboard, create a webhook endpoint that points to:
+
+```text
+https://your-domain.com/api/webhooks/chargebee
+```
+
+Protect the route with HTTP Basic Auth using `CHARGEBEE_WEBHOOK_USERNAME` and `CHARGEBEE_WEBHOOK_PASSWORD`. Enter the same credentials under Basic Authentication in the Chargebee webhook settings.
+
+Subscribe at least to these events (names as in Chargebee / the Node SDK):
+
+| Chargebee event | Action |
+|-----------------|--------|
+| `subscription_created` | Link `chargebee_subscription_id`, set status |
+| `subscription_activated` / `subscription_started` | Mark `active` or `in_trial`, run entitlements hooks |
+| `subscription_changed` / `subscription_renewed` | Update plan, seats, period dates |
+| `subscription_cancelled` | Mark cancelled, revoke entitlements |
+| `customer_deleted` | Clear local customer mapping |
+
+Lookup order when matching a webhook to a local row:
+
+1. `chargebee_subscription_id` on the local row
+2. Subscription metadata (if you stamp IDs on the Chargebee subscription)
+3. `meta_data.pendingSubscriptionId` on the Chargebee customer
+4. `future` row by `reference_id`
+
+<Aside type="note" title="Chargebee retries on failure">
+  Return `500` when your handler fails so Chargebee retries. Return `200` only after the database write succeeds. Scalekit org webhooks can return `200` immediately and process async — failure modes differ by provider.
+</Aside>
+
+```ts title="api/webhooks/chargebee/route.ts"
+import { NextRequest, NextResponse } from 'next/server';
+import {
+  WebhookAuthenticationError,
+  basicAuthValidator,
+} from 'chargebee';
+import { processChargebeeWebhookEvent } from '@/lib/billing/chargebee-webhook-handler';
+
+export async function POST(req: NextRequest) {
+  const username = process.env.CHARGEBEE_WEBHOOK_USERNAME;
+  const password = process.env.CHARGEBEE_WEBHOOK_PASSWORD;
+
+  const headers: Record<string, string | string[] | undefined> = {};
+  req.headers.forEach((value, key) => {
+    headers[key.toLowerCase()] = value;
+  });
+
+  if (username && password) {
+    try {
+      await basicAuthValidator(
+        (user, pass) => user === username && pass === password
+      )(headers);
+    } catch (err) {
+      if (err instanceof WebhookAuthenticationError) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+  }
+
+  const event = await req.json();
+  await processChargebeeWebhookEvent(event);
+  return NextResponse.json({ received: true });
+}
+```
+
+**After this step:** cancel or change a plan in Chargebee → local subscription status updates without a page refresh loop.
+
+## Step 10: Eager-sync on checkout redirect
+
+Hosted checkout redirects to your success URL before webhooks arrive. Add an eager sync so the billing page shows the subscription immediately. Webhooks remain the source of truth for ongoing changes.
+
+```ts title="api/subscription/success/route.ts"
+export async function GET(request: NextRequest) {
+  const subscriptionId = request.nextUrl.searchParams.get('subscriptionId');
+  const callbackURL =
+    request.nextUrl.searchParams.get('callbackURL') ?? '/billing?success=1';
+
+  if (subscriptionId) {
+    const local = await findSubscriptionById(subscriptionId);
+    if (local?.chargebeeSubscriptionId) {
+      const result = await chargebee.subscription.retrieve(
+        local.chargebeeSubscriptionId
+      );
+      await syncLocalFromChargebeeSubscription(local, result.subscription);
+    } else if (local?.chargebeeCustomerId) {
+      // Fallback: list recent subscriptions for the customer and sync the latest
+      const result = await chargebee.subscription.subscriptionsForCustomer(
+        local.chargebeeCustomerId,
+        { limit: 10 }
+      );
+      // ...sync latest to local row
+    }
+  }
+
+  return NextResponse.redirect(new URL(callbackURL, request.url));
+}
+```
+
+Validate `callbackURL` against an allowlist of relative paths so redirects cannot leave your site.
+
+## Define plans
+
+Customer provisioning works without a plan catalog in code. To sell plans, map Chargebee **item price IDs** to names, limits, and optional trials. Keep pricing ownership in Chargebee; store entitlement metadata in your app.
+
+**Static configuration** (fine for a small catalog):
+
+```ts title="lib/billing/plans.ts"
+export type PlanConfig = {
+  itemPriceId: string;
+  name: string;
+  limits: Record<string, number>;
+  freeTrial?: { days: number };
+};
+
+export const PLANS: PlanConfig[] = [
+  {
+    itemPriceId:
+      process.env.CHARGEBEE_PLAN_ITEM_PRICE_ID ?? 'growth-plan-monthly',
+    name: 'Growth',
+    limits: { seats: 25 },
+    freeTrial: { days: 14 },
+  },
+];
+```
+
+**Dynamic configuration (recommended for maintainability):** load plans from your database so marketing and price IDs stay out of source control. Map rows to the same `PlanConfig` shape and fail closed if the query errors.
+
+## Common flows
+
+Expand a question when you need that path. Each answer assumes the numbered steps above are in place (schema, webhooks, authorize, hosted checkout).
+
+<details>
+<summary>How do I start hosted checkout for a plan?</summary>
+
+Call your create route from the client with the Chargebee **item price ID** and redirect URLs. After authorize and a local `future` row, the server returns a hosted page URL.
+
+```ts title="app/billing/checkout (client)"
+const res = await fetch('/api/subscription/create', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    itemPriceId: 'growth-plan-monthly',
+    successUrl: '/billing?success=1',
+    cancelUrl: '/billing',
+  }),
+});
+const data = await res.json();
+if (data.url) {
+  window.location.href = data.url;
+}
+```
+
+</details>
+
+<details>
+<summary>How do I list active subscriptions for the current org?</summary>
+
+Read from your **local** cache after `authorizeReference` — not from Chargebee on every request. Use that result for billing UI and feature gates.
+
+```ts title="api/subscription/list/route.ts"
+const subs = await findActiveByReferenceId(ctx.organizationId);
+return NextResponse.json({
+  subscriptions: subs.map((sub) => ({
+    id: sub.id,
+    status: sub.status,
+    seats: sub.seats,
+    trialEnd: sub.trialEnd,
+    periodEnd: sub.periodEnd,
+  })),
+});
+```
+
+</details>
+
+<details>
+<summary>How do I change plans when a subscription already exists?</summary>
+
+Use an update route that authorizes the reference, then opens Chargebee hosted update (or applies a subscription change API) for the existing `chargebee_subscription_id`.
+
+Do not call create again while an active subscription exists. Return a clear error (for example `400` with “active subscription already exists”) so the UI can open the portal or update flow instead.
+
+</details>
+
+<details>
+<summary>How do I send users to the Chargebee billing portal?</summary>
+
+Create a portal session for the org’s Chargebee customer and redirect to `access_url` so they manage payment methods and invoices.
+
+```ts title="api/subscription/portal/route.ts"
+// After authorizeReference(..., action: 'portal')
+const portalSession = await chargebee.portalSession.create({
+  customer: { id: chargebeeCustomerId },
+  redirect_url: absoluteUrl(returnUrl),
+});
+return NextResponse.json({
+  url: portalSession.portal_session.access_url,
+});
+```
+
+</details>
+
+<details>
+<summary>How do I gate a feature behind an active plan?</summary>
+
+Check local subscription status (and plan line items if you store them). Treat `active` and `in_trial` as entitled unless your product rules differ.
+
+```ts title="lib/billing/require-active-plan.ts"
+async function requireActivePlan(
+  organizationId: string,
+  planItemPriceId: string
+): Promise<boolean> {
+  const subs = await findActiveByReferenceId(organizationId);
+  // Join subscription_item or stored plan metadata as your schema requires
+  return subs.some(
+    (sub) =>
+      (sub.status === 'active' || sub.status === 'in_trial') &&
+      /* plan matches planItemPriceId */
+      true
+  );
+}
+```
+
+</details>
+
+<details>
+<summary>How do I restrict who can create or update org billing?</summary>
+
+Org-mode billing already scopes by session `oid` via `authorizeReference`. Tighten further by combining that check with role checks (owner/admin) from the Scalekit token or your membership store before calling Chargebee.
+
+</details>
+
+## Customer customization (optional)
+
+Use hooks so product logic stays out of webhook routes.
+
+```ts title="lib/subscription-hooks.ts"
+export async function onCustomerCreate(params: {
+  organizationId: string;
+  chargebeeCustomerId: string;
+  displayName?: string | null;
+}): Promise<void> {
+  // Analytics, CRM sync, internal tenant linking
+}
+
+export async function onSubscriptionComplete(ctx: {
+  referenceId: string;
+  subscriptionId: string;
+  chargebeeSubscriptionId: string;
+  status: string;
+}): Promise<void> {
+  // Enable SSO, flip feature flags, send onboarding email
+}
+
+/** Return false to deny billing actions for a reference. */
+export async function onAuthorizeReference(_params: {
+  userId: string;
+  organizationId: string;
+  referenceId: string;
+  action: 'create' | 'update' | 'cancel' | 'portal' | 'list';
+}): Promise<boolean> {
+  return true;
+}
+```
+
+## Database schema overview
+
+| Model | Role |
+| --- | --- |
+| **`organization`** | Optional `chargebee_customer_id`; primary key is the Scalekit org ID |
+| **`subscription`** | `reference_id` (org), Chargebee subscription/customer IDs, status, trial and period dates, seats, metadata |
+| **`subscription_item`** | Line items (plans, addons, charges) with quantity and pricing details |
+
+**Source of truth:** Chargebee owns catalog, invoices, and payment state. Your database is a cache for authorization and UI. After schema changes, migrate your app database the same way you migrate other tables—there is no separate billing CLI.
+
+## Testing
+
+Run this validation after wiring both webhook endpoints through a tunnel:
+
+1. **Create an organization** in Scalekit (or fire `organization.created` from the dashboard).
+2. **Confirm provisioning** — local `organization` row exists; Chargebee shows a customer with matching `organizationId` metadata.
+3. **Sign in** as a user in that org and open your billing page.
+4. **Start checkout** — `POST /api/subscription/create` returns `{ mode: 'hosted', url }`. Complete payment with test card `4111 1111 1111 1111`.
+5. **Confirm redirect** — browser lands on `/billing?success=1` and the subscription appears without a manual refresh.
+6. **Replay a webhook** — send a test `subscription_activated` event from Chargebee and confirm the local row updates.
+
+```bash title="Check session org context"
+curl -s http://localhost:3000/api/session \
+  -H "Cookie: scalekit_session=<your-session-cookie>" | jq '.organizationId'
+```
+
+## Troubleshooting
+
+| Symptom | What to check |
+| --- | --- |
+| Orphan org / no Chargebee customer | Scalekit webhook URL and events; `SCALEKIT_WEBHOOK_SECRET`; signature uses **raw** body; handler logs |
+| Webhooks ignored (Chargebee) | URL path; Basic Auth credentials match env; selected events; tunnel health |
+| Checkout OK, UI still free tier | Was a `future` row created? Is `pendingSubscriptionId` on the customer? Eager sync route? Chargebee webhooks delivering? |
+| Status out of date | `chargebee_customer_id` / `chargebee_subscription_id` populated? Event types subscribed? Handler returns 500 on DB failure so Chargebee retries? |
+| Billing API returns 403 | `referenceId` must equal session `oid`; do not key customers by email alone |
+| `no_applicable_gateway` on hosted checkout | Add a test gateway; set `CHARGEBEE_GATEWAY_ACCOUNT_ID`; enable Smart Routing |
+| Checkout succeeds but no redirect | `NEXT_PUBLIC_APP_URL` must be in Chargebee **Allowed redirect domains**; declined cards prevent redirect |
+| Duplicate Chargebee customers | Race between org webhook and first checkout — make `createOrgCustomer` idempotent |
+
+## Production notes
+
+- **Replace SQLite** with Postgres or your production database. Keep the `reference_id` index.
+- **Rotate webhook secrets** independently for Scalekit and Chargebee. Store them in a secrets manager.
+- **Make handlers idempotent** — Chargebee retries; upsert by `chargebee_subscription_id`.
+- **Handle org deletion** — on `organization.deleted`, cancel active Chargebee subscriptions and delete local rows so billing does not continue.
+- **Do not expose Chargebee secret API keys client-side** — only publishable keys belong in `NEXT_PUBLIC_*` variables.
+
+## Helpful prompts
+
+Use these FAQ-style prompts with an AI coding agent (Cursor, Claude Code, Copilot CLI, Codex, and similar). First install the Scalekit authstack plugin for your agent, then paste a prompt from a section below (replace bracketed placeholders with your stack).
+
+### 1. Set up your coding agent
+
+Run the Scalekit CLI setup so your agent loads Scalekit auth patterns (reduces hallucinations on sessions, webhooks, and orgs):
+
+```bash title="Terminal"
+npx @scalekit-inc/cli setup
+```
+
+For repeated use:
+
+```bash title="Terminal"
+npm install -g @scalekit-inc/cli
+scalekit setup
+```
+
+`setup` with no arguments launches an interactive wizard and detects installed tools. Target one agent explicitly if you prefer:
+
+```bash title="Terminal"
+npx @scalekit-inc/cli setup cursor
+npx @scalekit-inc/cli setup claude
+npx @scalekit-inc/cli setup codex
+npx @scalekit-inc/cli setup copilot
+```
+
+See the [Scalekit CLI](/dev-kit/cli/) for flags and what gets installed. After setup, open your agent and use a prompt below.
+
+### 2. Prompts (after setup)
+
+<details>
+<summary>How do I scaffold Scalekit webhooks and Chargebee customer provisioning?</summary>
+
+```text showLineNumbers=false
+I'm integrating Chargebee with Scalekit organizations (org-mode billing). Generate:
+1. Scalekit webhook route that verifies the raw body with verifyWebhookPayload
+2. createOrgCustomer that upserts local org and creates a Chargebee customer with
+   meta_data.organizationId and customerType organization
+3. authorizeReference requiring referenceId === session oid
+My framework is [Next.js App Router / Express / Hono]. Database is [Drizzle / Prisma / Kysely].
+```
+
+</details>
+
+<details>
+<summary>How do I scaffold subscription create with a future row and hosted checkout?</summary>
+
+```text showLineNumbers=false
+Write POST /api/subscription/create that:
+- requireSession with oid
+- authorizeReference for action create
+- rejects if an active subscription exists for the org
+- creates a local future subscription row
+- stamps pendingSubscriptionId on the Chargebee customer metadata
+- calls hostedPage.checkoutNewForItems with item price IDs
+Return { mode: "hosted", url }.
+```
+
+</details>
+
+<details>
+<summary>How do I test Scalekit and Chargebee webhooks locally?</summary>
+
+```text showLineNumbers=false
+Walk me through testing Scalekit and Chargebee webhooks locally with ngrok.
+App runs on port 3000. Endpoints: /api/webhooks/scalekit and /api/webhooks/chargebee.
+Include ngrok command, dashboard URLs to register, SCALEKIT_WEBHOOK_SECRET,
+and CHARGEBEE_WEBHOOK_USERNAME/PASSWORD Basic Auth.
+```
+
+</details>
+
+<details>
+<summary>How do I generate a pricing page that starts checkout?</summary>
+
+```text showLineNumbers=false
+Generate a React pricing page that calls POST /api/subscription/create with
+itemPriceId, successUrl /billing?success=1, cancelUrl /billing.
+Show loading while redirecting. If the API says an active subscription exists,
+call POST /api/subscription/portal instead.
+```
+
+</details>
+
+<details>
+<summary>How do I implement a feature gate for an active plan?</summary>
+
+```text showLineNumbers=false
+Using a local subscriptions table keyed by Scalekit organization ID, write
+requireActivePlan(organizationId, itemPriceId) that returns true only for
+active or in_trial rows. Show usage in a Next.js API route.
+```
+
+</details>
+
+<details>
+<summary>Why are my webhooks not reaching the server?</summary>
+
+```text showLineNumbers=false
+My Scalekit or Chargebee webhooks are not reaching the server. Auth base paths
+are /api/webhooks/scalekit and /api/webhooks/chargebee. Host is [Vercel / Railway / VPS].
+Walk through DNS, routing, middleware, signature/Basic Auth, and env configuration.
+```
+
+</details>
+
+<details>
+<summary>Why is subscription status not updating after checkout or cancel?</summary>
+
+```text showLineNumbers=false
+Subscription status in my database does not update after checkout or cancel.
+Setup: Scalekit organizations + Chargebee, local future row + pendingSubscriptionId.
+List likely causes and how to verify chargebee_customer_id and
+chargebee_subscription_id are populated.
+```
+
+</details>
+
+## Resources
+
+- [saas-auth-chargebee-example](https://github.com/scalekit-developers/saas-auth-chargebee-example) — runnable reference app
+- [External IDs and metadata](/guides/external-ids-and-metadata/) — map Scalekit orgs to internal tenant IDs
+- [Implement webhooks](https://docs.scalekit.com/authenticate/implement-workflows/implement-webhooks/#_top) — webhook reference

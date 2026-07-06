@@ -1,0 +1,21 @@
+export const sectionTitle = 'Clone dashboards'
+
+import { Aside } from '@astrojs/starlight/components'
+
+<Aside type="note" title="Dashboard clone does not accept a name">
+  The Salesforce Analytics REST API does not support a `name` field in the dashboard clone payload. This differs from the Report clone API (`POST /analytics/reports?cloneId={id}`), which accepts a name via `reportMetadata`. Both APIs live under `/analytics/`, so the difference is easy to miss.
+</Aside>
+
+To rename a cloned dashboard, use a two-step pattern:
+
+1. Call `salesforce_dashboard_clone` with the source dashboard ID.
+2. Call `salesforce_dashboard_update` with the cloned dashboard ID and the new name.
+
+```json
+{
+  "dashboard_id": "<cloned_dashboard_id>",
+  "name": "New dashboard name"
+}
+```
+
+See the [Salesforce Dashboard clone API](https://developer.salesforce.com/docs/atlas.en-us.api_analytics.meta/api_analytics/sforce_analytics_rest_api_clone_dashboard.htm) for clone payload fields.

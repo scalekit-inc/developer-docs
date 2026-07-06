@@ -1,0 +1,87 @@
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components'
+
+Register your Chili Piper API token with Scalekit so it stores it securely and injects it into every request. Chili Piper uses bearer token authentication — there is no redirect URI or OAuth flow.
+
+<Steps>
+1. ### Get your Chili Piper API token
+
+   - Sign in to [Chili Piper](https://app.chilipiper.com) and go to **Integrations** in the left sidebar.
+   - Click the **API & Credentials** tab, then select **API Access Tokens**.
+   - Click **Generate Token**, give it a name (e.g., `Agent Auth`), and copy the token value immediately — it is only shown once.
+
+   ![Chili Piper Integrations → API & Credentials → API Access Tokens page showing the Generate Token button and a list of existing tokens](@/assets/docs/agent-connectors/chilipipermcp/api-key.png)
+
+   <Aside type="caution" title="Save the token immediately">
+     The token value is only shown once when generated. Store it in a secrets manager right away — you cannot retrieve it again from the Chili Piper dashboard.
+   </Aside>
+
+2. ### Create a connection in Scalekit
+
+   - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** → **Connections** → **Create Connection**. Find **ChiliPiper MCP** and click **Create**.
+   - Note the **Connection name** — you will use this as `connection_name` in your code (e.g., `chilipipermcp`).
+   - Click **Save**.
+
+3. ### Add a connected account
+
+   Connected accounts link a specific user identifier in your system to their Chili Piper API token. Add them via the dashboard for testing, or via the Scalekit API in production.
+
+   **Via dashboard (for testing)**
+
+   - Open the connection you created and click the **Connected Accounts** tab → **Add account**.
+   - Fill in:
+     - **Your User's ID** — a unique identifier for this user in your system (e.g., `user_123`)
+     - **Token** — the Chili Piper API token from step 1
+   - Click **Create Account**.
+
+   **Via API (for production)**
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```typescript
+       import { Scalekit } from '@scalekit-sdk/node';
+
+       const scalekit = new Scalekit(
+         process.env.SCALEKIT_ENV_URL,
+         process.env.SCALEKIT_CLIENT_ID,
+         process.env.SCALEKIT_CLIENT_SECRET,
+       );
+
+       // Never hard-code credentials — read from secure storage or user input
+       const chilipiperToken = getUserChilipiperToken(); // retrieve from your secure store
+
+       await scalekit.actions.upsertConnectedAccount({
+         connectionName: 'chilipipermcp',
+         identifier: 'user_123',
+         credentials: {
+           username: chilipiperToken,
+         },
+       });
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```python
+       import os
+       from scalekit import ScalekitClient
+
+       scalekit_client = ScalekitClient(
+           env_url=os.environ["SCALEKIT_ENV_URL"],
+           client_id=os.environ["SCALEKIT_CLIENT_ID"],
+           client_secret=os.environ["SCALEKIT_CLIENT_SECRET"],
+       )
+
+       # Never hard-code credentials — read from secure storage or user input
+       chilipiper_token = get_user_chilipiper_token()  # retrieve from your secure store
+
+       scalekit_client.actions.upsert_connected_account(
+           connection_name="chilipipermcp",
+           identifier="user_123",
+           credentials={"username": chilipiper_token},
+       )
+       ```
+     </TabItem>
+   </Tabs>
+
+   <Aside type="tip" title="Production usage tip">
+     In production, call `upsert_connected_account` (Python) / `upsertConnectedAccount` (Node.js) when a user connects their Chili Piper account — for example, on an integrations settings page in your app.
+   </Aside>
+</Steps>

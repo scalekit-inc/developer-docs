@@ -1,0 +1,72 @@
+---
+title: 'Stack.ai MCP connector'
+tableOfContents: true
+description: 'Connect to Stack AI MCP. Build, run, and manage AI workflow projects, search knowledge bases, list integration providers, and inspect execution traces...'
+sidebar:
+  label: 'Stack.ai MCP'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/stackai.svg
+connectorAuthType: OAuth 2.1/DCR
+connectorCategories: [AI, Automation, Developer Tools]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/stackaimcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="stackaimcp" toolName="stackaimcp_list_connections" providerName="Stack.ai MCP" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Whoami records** — Return the authenticated user's profile, active organization, plan, and paginated list of all organizations
+- **Workflow validate** — Run pre-flight validation checks on a project draft and return paginated errors and warnings with stable codes and fix hints
+- **Org switch** — Set the active organization for the current session, routing all subsequent org-scoped tools to that org
+- **Search kb** — Search a Stack AI knowledge base and return the top matching chunks ranked by relevance
+- **Run project** — Execute a published Stack AI project by supplying a key-value inputs map that matches the flow's declared input schema
+- **List triggers, providers actions, projects** — List the cron, polling, and webhook triggers configured on a specific project
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

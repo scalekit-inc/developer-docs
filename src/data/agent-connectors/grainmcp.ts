@@ -5,16 +5,36 @@ export const tools: Tool[] = [
     name: 'grainmcp_add_clips_to_story',
     description: `Adds one or more clips to an existing story. Use list_stories or fetch_story to find the story ID, and create_clip or list_clips to get clip IDs.`,
     params: [
-      { name: 'clip_ids', type: 'array', required: true, description: `List of clip IDs to add to the story. Use create_clip or list_clips to get clip IDs.` },
-      { name: 'story_id', type: 'string', required: true, description: `ID of the story to add clips to.` },
+      {
+        name: 'clip_ids',
+        type: 'array',
+        required: true,
+        description: `List of clip IDs to add to the story. Use create_clip or list_clips to get clip IDs.`,
+      },
+      {
+        name: 'story_id',
+        type: 'string',
+        required: true,
+        description: `ID of the story to add clips to.`,
+      },
     ],
   },
   {
     name: 'grainmcp_add_recordings_to_project',
     description: `Adds one or more recordings to an existing project by recording ID. Use list_meetings or search_in_transcripts first to find recording IDs.`,
     params: [
-      { name: 'project_id', type: 'string', required: true, description: `The project ID to add recordings to.` },
-      { name: 'recording_ids', type: 'array', required: true, description: `Recording IDs to add to the project.` },
+      {
+        name: 'project_id',
+        type: 'string',
+        required: true,
+        description: `The project ID to add recordings to.`,
+      },
+      {
+        name: 'recording_ids',
+        type: 'array',
+        required: true,
+        description: `Recording IDs to add to the project.`,
+      },
     ],
   },
   {
@@ -27,25 +47,60 @@ Invalid ranges (start_ms >= end_ms, or end_ms past the recording's duration) ret
 `,
     params: [
       { name: 'clip_title', type: 'string', required: true, description: `Title for the clip.` },
-      { name: 'end_ms', type: 'integer', required: true, description: `Timestamp in milliseconds where the clip should end.` },
-      { name: 'meeting_id', type: 'string', required: true, description: `The meeting ID to create a clip on.` },
-      { name: 'start_ms', type: 'integer', required: true, description: `Timestamp in milliseconds where the clip should start.` },
+      {
+        name: 'end_ms',
+        type: 'integer',
+        required: true,
+        description: `Timestamp in milliseconds where the clip should end.`,
+      },
+      {
+        name: 'meeting_id',
+        type: 'string',
+        required: true,
+        description: `The meeting ID to create a clip on.`,
+      },
+      {
+        name: 'start_ms',
+        type: 'integer',
+        required: true,
+        description: `Timestamp in milliseconds where the clip should start.`,
+      },
     ],
   },
   {
     name: 'grainmcp_create_project',
     description: `Creates a new empty project with the given title. The project is created with restricted visibility (only you can see it). Use add_recordings_to_project to add meetings, and update_project_share_state to change visibility.`,
     params: [
-      { name: 'title', type: 'string', required: true, description: `The title for the new project.` },
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `The title for the new project.`,
+      },
     ],
   },
   {
     name: 'grainmcp_create_story',
     description: `Creates a new story with the given title.`,
     params: [
-      { name: 'title', type: 'string', required: true, description: `The title for the new story.` },
-      { name: 'clip_ids', type: 'array', required: false, description: `Optional list of clip IDs to be added to the story.` },
-      { name: 'description', type: 'string', required: false, description: `Optional description for the story.` },
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `The title for the new story.`,
+      },
+      {
+        name: 'clip_ids',
+        type: 'array',
+        required: false,
+        description: `Optional list of clip IDs to be added to the story.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Optional description for the story.`,
+      },
     ],
   },
   {
@@ -54,9 +109,7 @@ Invalid ranges (start_ms >= end_ms, or end_ms past the recording's duration) ret
 In addition to returning the same data as returned by list_all_deals, this returns
 data about all the activity that has occurred on the deal.
 `,
-    params: [
-      { name: 'deal_id', type: 'string', required: true, description: `ID of a deal.` },
-    ],
+    params: [{ name: 'deal_id', type: 'string', required: true, description: `ID of a deal.` }],
   },
   {
     name: 'grainmcp_fetch_meeting',
@@ -122,7 +175,12 @@ including the list of recordings it contains with their URLs.
 (clips and text sections). Use list_stories first to find story IDs.
 `,
     params: [
-      { name: 'story_id', type: 'string', required: true, description: `ID of the story to fetch.` },
+      {
+        name: 'story_id',
+        type: 'string',
+        required: true,
+        description: `ID of the story to fetch.`,
+      },
     ],
   },
   {
@@ -141,9 +199,24 @@ by calling the tool again and passing the \`cursor\` along with the same \`filte
 The list will be empty if there are no deals matching the supplied filters.
 `,
     params: [
-      { name: 'cursor', type: 'string', required: false, description: `Optional cursor value from a previous request in order to fetch the next page of results.` },
-      { name: 'filters', type: 'object', required: false, description: `Optional filters that can be used to reduce the result set of deals that are searched against.` },
-      { name: 'limit', type: 'integer', required: false, description: `Number of results to return per request page. Value should be between 1 and 20. If not specified, the default is 10.` },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Optional cursor value from a previous request in order to fetch the next page of results.`,
+      },
+      {
+        name: 'filters',
+        type: 'object',
+        required: false,
+        description: `Optional filters that can be used to reduce the result set of deals that are searched against.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return per request page. Value should be between 1 and 20. If not specified, the default is 10.`,
+      },
     ],
   },
   {
@@ -156,9 +229,24 @@ The list will be empty if there are no meetings matching the supplied filters.
 If also looking to include meetings the user didn't attend, use \`list_meetings\` instead.
 `,
     params: [
-      { name: 'cursor', type: 'string', required: false, description: `Optional cursor value from a previous request in order to fetch the next page of results.` },
-      { name: 'filters', type: 'object', required: false, description: `Optional filters that can be used to reduce the result set of meetings that are searched against.` },
-      { name: 'limit', type: 'integer', required: false, description: `Number of results to return per request page. Value should be between 1 and 20. If not specified, the default is 10.` },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Optional cursor value from a previous request in order to fetch the next page of results.`,
+      },
+      {
+        name: 'filters',
+        type: 'object',
+        required: false,
+        description: `Optional filters that can be used to reduce the result set of meetings that are searched against.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return per request page. Value should be between 1 and 20. If not specified, the default is 10.`,
+      },
     ],
   },
   {
@@ -171,9 +259,24 @@ Only returns clips whose media has finished processing, so newly-created clips m
 a few minutes to appear.
 `,
     params: [
-      { name: 'cursor', type: 'string', required: false, description: `Optional cursor value from a previous request in order to fetch the next page of results.` },
-      { name: 'filters', type: 'object', required: false, description: `Optional filters to narrow down the list of clips.` },
-      { name: 'limit', type: 'integer', required: false, description: `Number of results to return per request page. Value should be between 1 and 20. If not specified, the default is 10.` },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Optional cursor value from a previous request in order to fetch the next page of results.`,
+      },
+      {
+        name: 'filters',
+        type: 'object',
+        required: false,
+        description: `Optional filters to narrow down the list of clips.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return per request page. Value should be between 1 and 20. If not specified, the default is 10.`,
+      },
     ],
   },
   {
@@ -185,9 +288,24 @@ by calling the tool again and passing the \`cursor\` along with the same \`filte
 The list will be empty if there are no meetings matching the supplied filters.
 `,
     params: [
-      { name: 'cursor', type: 'string', required: false, description: `Optional cursor value from a previous request in order to fetch the next page of results.` },
-      { name: 'filters', type: 'object', required: false, description: `Optional filters that can be used to reduce the result set of meetings that are searched against.` },
-      { name: 'limit', type: 'integer', required: false, description: `Number of results to return per request page. Value should be between 1 and 20. If not specified, the default is 10.` },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Optional cursor value from a previous request in order to fetch the next page of results.`,
+      },
+      {
+        name: 'filters',
+        type: 'object',
+        required: false,
+        description: `Optional filters that can be used to reduce the result set of meetings that are searched against.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return per request page. Value should be between 1 and 20. If not specified, the default is 10.`,
+      },
     ],
   },
   {
@@ -200,9 +318,24 @@ The list will be empty if there are no meetings matching the supplied filters.
 If only looking for meetings the user attended, use \`list_attended_meetings\` instead.
 `,
     params: [
-      { name: 'cursor', type: 'string', required: false, description: `Optional cursor value from a previous request in order to fetch the next page of results.` },
-      { name: 'filters', type: 'object', required: false, description: `Optional filters that can be used to reduce the result set of meetings that are searched against.` },
-      { name: 'limit', type: 'integer', required: false, description: `Number of results to return per request page. Value should be between 1 and 20. If not specified, the default is 10.` },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Optional cursor value from a previous request in order to fetch the next page of results.`,
+      },
+      {
+        name: 'filters',
+        type: 'object',
+        required: false,
+        description: `Optional filters that can be used to reduce the result set of meetings that are searched against.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return per request page. Value should be between 1 and 20. If not specified, the default is 10.`,
+      },
     ],
   },
   {
@@ -215,9 +348,24 @@ The list will be empty if there are no open deals matching the supplied filters.
 If also looking to include closed deals, use \`list_all_deals\` instead.
 `,
     params: [
-      { name: 'cursor', type: 'string', required: false, description: `Optional cursor value from a previous request in order to fetch the next page of results.` },
-      { name: 'filters', type: 'object', required: false, description: `Optional filters that can be used to reduce the result set of deals that are searched against.` },
-      { name: 'limit', type: 'integer', required: false, description: `Number of results to return per request page. Value should be between 1 and 20. If not specified, the default is 10.` },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Optional cursor value from a previous request in order to fetch the next page of results.`,
+      },
+      {
+        name: 'filters',
+        type: 'object',
+        required: false,
+        description: `Optional filters that can be used to reduce the result set of deals that are searched against.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return per request page. Value should be between 1 and 20. If not specified, the default is 10.`,
+      },
     ],
   },
   {
@@ -230,9 +378,24 @@ by calling the tool again and passing the \`cursor\` along with the same \`filte
 The list will be empty if there are no projects matching the supplied filters.
 `,
     params: [
-      { name: 'cursor', type: 'string', required: false, description: `Optional cursor value from a previous request in order to fetch the next page of results.` },
-      { name: 'filters', type: 'object', required: false, description: `Optional filters to narrow down the list of projects.` },
-      { name: 'limit', type: 'integer', required: false, description: `Number of results to return per request page. Value should be between 1 and 20. If not specified, the default is 10.` },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Optional cursor value from a previous request in order to fetch the next page of results.`,
+      },
+      {
+        name: 'filters',
+        type: 'object',
+        required: false,
+        description: `Optional filters to narrow down the list of projects.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return per request page. Value should be between 1 and 20. If not specified, the default is 10.`,
+      },
     ],
   },
   {
@@ -243,16 +406,30 @@ If the list contains more than \`limit\` stories, the response will also contain
 non-null \`cursor\` value that can be used to fetch the next page by calling the tool again.
 `,
     params: [
-      { name: 'cursor', type: 'string', required: false, description: `Optional cursor value from a previous request in order to fetch the next page of results.` },
-      { name: 'filters', type: 'object', required: false, description: `Optional filters to narrow down the list of stories.` },
-      { name: 'limit', type: 'integer', required: false, description: `Number of results to return per request page. Value should be between 1 and 20. If not specified, the default is 10.` },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Optional cursor value from a previous request in order to fetch the next page of results.`,
+      },
+      {
+        name: 'filters',
+        type: 'object',
+        required: false,
+        description: `Optional filters to narrow down the list of stories.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return per request page. Value should be between 1 and 20. If not specified, the default is 10.`,
+      },
     ],
   },
   {
     name: 'grainmcp_list_workspace_users',
     description: `Get information about all the users in the logged-in Grain user's workspace. Each user's person ID is also returned and can be used to list recordings attended by that person.`,
-    params: [
-    ],
+    params: [],
   },
   {
     name: 'grainmcp_resolve_urls',
@@ -263,7 +440,12 @@ Each returned item contains either a \`url\` on success or an \`error\` string i
 accessible to the current user.
 `,
     params: [
-      { name: 'items', type: 'array', required: true, description: `List of entity references to resolve URLs for.` },
+      {
+        name: 'items',
+        type: 'array',
+        required: true,
+        description: `List of entity references to resolve URLs for.`,
+      },
     ],
   },
   {
@@ -272,9 +454,24 @@ accessible to the current user.
 access to.
 `,
     params: [
-      { name: 'filters', type: 'object', required: false, description: `Optional filters that can be used to reduce the result set of meetings that are searched against.` },
-      { name: 'limit', type: 'integer', required: false, description: `Number of results to return per request page. Value should be between 1 and 20. If not specified, the default is 10.` },
-      { name: 'search_string', type: 'string', required: false, description: `Only search companies whose name or domain contains the specified substring.` },
+      {
+        name: 'filters',
+        type: 'object',
+        required: false,
+        description: `Optional filters that can be used to reduce the result set of meetings that are searched against.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return per request page. Value should be between 1 and 20. If not specified, the default is 10.`,
+      },
+      {
+        name: 'search_string',
+        type: 'string',
+        required: false,
+        description: `Only search companies whose name or domain contains the specified substring.`,
+      },
     ],
   },
   {
@@ -288,7 +485,11 @@ chunks annotated with summaries, topics, entities, and speaker info. Results are
 grouped by meeting and ordered by relevance.
 `,
     params: [
-      { name: 'search_queries', type: 'array', required: true, description: `Array of 1-3 search queries optimized for hybrid BM25 + vector search over meeting transcript segments.
+      {
+        name: 'search_queries',
+        type: 'array',
+        required: true,
+        description: `Array of 1-3 search queries optimized for hybrid BM25 + vector search over meeting transcript segments.
 Segments group related discussion into chunks with descriptive summaries.
 BM25 keyword matching against summaries is the strongest signal.
 
@@ -301,11 +502,32 @@ Rules:
 - ALWAYS preserve person names, product names, dates, and specific terms
 - Keep queries keyword-dense, no filler words
 - Do NOT write conversational/spoken-style queries
-` },
-      { name: 'filters', type: 'object', required: false, description: `Optional filters that can be used to reduce the result set of meetings that are searched against.` },
-      { name: 'limit', type: 'integer', required: false, description: `Number of results to return per request page. Value should be between 1 and 50. If not specified, the default is 10.` },
-      { name: 'meeting_ids', type: 'array', required: false, description: `Optional list of meeting IDs to restrict the search to. When provided, only these meetings will be searched. Can be combined with filters for further narrowing.` },
-      { name: 'offset', type: 'integer', required: false, description: `Number of results to skip for pagination. Use with \`limit\` to page through results beyond the first page. Defaults to 0.` },
+`,
+      },
+      {
+        name: 'filters',
+        type: 'object',
+        required: false,
+        description: `Optional filters that can be used to reduce the result set of meetings that are searched against.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return per request page. Value should be between 1 and 50. If not specified, the default is 10.`,
+      },
+      {
+        name: 'meeting_ids',
+        type: 'array',
+        required: false,
+        description: `Optional list of meeting IDs to restrict the search to. When provided, only these meetings will be searched. Can be combined with filters for further narrowing.`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `Number of results to skip for pagination. Use with \`limit\` to page through results beyond the first page. Defaults to 0.`,
+      },
     ],
   },
   {
@@ -314,26 +536,66 @@ Rules:
 access to.
 `,
     params: [
-      { name: 'filters', type: 'object', required: false, description: `Optional filters that can be used to reduce the result set of meetings that are searched against.` },
-      { name: 'limit', type: 'integer', required: false, description: `Number of results to return per request page. Value should be between 1 and 20. If not specified, the default is 10.` },
-      { name: 'search_string', type: 'string', required: false, description: `Only search persons whose name or email contains the specified substring.` },
+      {
+        name: 'filters',
+        type: 'object',
+        required: false,
+        description: `Optional filters that can be used to reduce the result set of meetings that are searched against.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return per request page. Value should be between 1 and 20. If not specified, the default is 10.`,
+      },
+      {
+        name: 'search_string',
+        type: 'string',
+        required: false,
+        description: `Only search persons whose name or email contains the specified substring.`,
+      },
     ],
   },
   {
     name: 'grainmcp_tag_meetings',
     description: `Add or remove a tag from one or more meetings by recording ID. Creates the tag if it doesn't exist (on add).`,
     params: [
-      { name: 'action', type: 'string', required: true, description: `Whether to add or remove the tag.` },
-      { name: 'recording_ids', type: 'array', required: true, description: `Recording IDs to tag or untag.` },
-      { name: 'tag', type: 'string', required: true, description: `The tag name to add or remove. Must start with a letter or digit, followed by letters, digits, or hyphens.` },
+      {
+        name: 'action',
+        type: 'string',
+        required: true,
+        description: `Whether to add or remove the tag.`,
+      },
+      {
+        name: 'recording_ids',
+        type: 'array',
+        required: true,
+        description: `Recording IDs to tag or untag.`,
+      },
+      {
+        name: 'tag',
+        type: 'string',
+        required: true,
+        description: `The tag name to add or remove. Must start with a letter or digit, followed by letters, digits, or hyphens.`,
+      },
     ],
   },
   {
     name: 'grainmcp_update_project_share_state',
     description: `Changes the visibility of a project. Options: 'restricted' (only shared users), 'workspace' (all workspace members), 'public' (anyone with the link).`,
     params: [
-      { name: 'project_id', type: 'string', required: true, description: `The project ID to update.` },
-      { name: 'share_state', type: 'string', required: true, description: `The new visibility level for the project.` },
+      {
+        name: 'project_id',
+        type: 'string',
+        required: true,
+        description: `The project ID to update.`,
+      },
+      {
+        name: 'share_state',
+        type: 'string',
+        required: true,
+        description: `The new visibility level for the project.`,
+      },
     ],
   },
 ]

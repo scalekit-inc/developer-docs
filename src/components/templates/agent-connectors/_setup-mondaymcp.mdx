@@ -1,0 +1,21 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Monday MCP uses Dynamic Client Registration (DCR) with PKCE — no client ID or secret is needed. Scalekit registers the OAuth client automatically the first time a user authorizes the connection, so creating the connection in Scalekit is the only setup step.
+
+<Steps>
+1. ### Create the Monday MCP connection in Scalekit
+
+   In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **Monday MCP** and click **Create**.
+
+   {/* TODO: add screenshot — alt: "Create the Monday MCP connection in the Scalekit dashboard", original src: @/assets/docs/agent-connectors/mondaymcp/create-connection.png */}
+
+   <Aside type="note" title="No OAuth app or credentials required">
+     Because Monday MCP supports DCR, you do not register an app in the monday.com Developer Center or paste a client ID and secret. Scalekit negotiates the OAuth client with the Monday MCP server at `https://mcp.monday.com/mcp` automatically.
+   </Aside>
+
+2. ### Have your user authorize the connection
+
+   Send the user through the connection's authorization link (the magic link Scalekit generates, or the link returned by the SDK). The user signs in to monday.com and grants access.
+
+   On first authorization, Scalekit completes Dynamic Client Registration and PKCE behind the scenes, then stores and refreshes tokens for every user who connects — no further configuration is needed.
+</Steps>

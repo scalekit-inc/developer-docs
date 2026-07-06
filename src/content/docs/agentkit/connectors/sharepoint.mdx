@@ -19,10 +19,12 @@ head:
       }
 ---
 
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/sharepoint'
 import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
 import { AgentKitCredentials } from '@components/templates'
 import { SetupSharepointSection } from '@components/templates'
-import { QuickstartGenericOauthNotoolsSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
 import { SectionAfterSetupSharepointCommonWorkflows } from '@components/templates'
 
 <Steps>
@@ -61,10 +63,27 @@ import { SectionAfterSetupSharepointCommonWorkflows } from '@components/template
 
 4. ### Authorize and make your first call
 
-   <QuickstartGenericOauthNotoolsSection connector="sharepoint" providerName="SharePoint" verifyPath="/v1.0/me/sites" verifyMethod="GET" />
+   <QuickstartGenericOauthSection connector="sharepoint" toolName="sharepoint_list_followed_sites" providerName="SharePoint" />
 
 </Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **File upload, download, checkout** — Create an upload session for uploading a file to a SharePoint document library
+- **Update site, list item, list field** — Update the display name or description of an existing SharePoint site
+- **Document unfollow, follow** — Stop following a SharePoint document or OneDrive file
+- **Webhook subscribe** — Create a webhook subscription to receive change notifications for a SharePoint list or site resource
+- **Search records** — Search across SharePoint sites, lists, drive items, and list items using the Microsoft Search API
+- **Item restore recycled, recycle** — Restore a previously recycled (soft-deleted) item in a SharePoint document library
 
 ## Common workflows
 
 <SectionAfterSetupSharepointCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

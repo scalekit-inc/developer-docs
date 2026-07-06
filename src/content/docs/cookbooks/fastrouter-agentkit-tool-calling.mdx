@@ -1,13 +1,12 @@
 ---
-title: 'FastRouter + Scalekit AgentKit tool calling'
-description: 'Build a Node.js agent that routes LLM calls through FastRouter and uses Scalekit AgentKit for per-user OAuth tools.'
+title: 'FastRouter + Scalekit tool calling'
+description: 'Build a Node.js agent that routes LLM calls through FastRouter and uses Scalekit for per-user OAuth tools.'
 date: 2026-05-26
-tags: ['Agent auth', 'Gmail', 'FastRouter', 'Tool calling', 'AgentKit']
 sidebar:
   label: 'Tool calling with FastRouter'
 tableOfContents: true
 excerpt: >
-  Connect FastRouter's OpenAI-compatible API to per-user OAuth tools via Scalekit AgentKit. The agent discovers available tools, runs an agentic loop through FastRouter, and executes each tool call via Scalekit — no per-integration OAuth code required.
+  Connect FastRouter's OpenAI-compatible API to per-user OAuth tools via Scalekit. The agent discovers available tools, runs an agentic loop through FastRouter, and executes each tool call via Scalekit — no per-integration OAuth code required.
 featured: false
 authors:
   - name: 'Saif'
@@ -18,14 +17,14 @@ authors:
 
 import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
-Build an agent that routes LLM calls through [FastRouter](https://fastrouter.ai) and executes OAuth-connected tools through Scalekit AgentKit. FastRouter provides an OpenAI-compatible chat completions API, so the integration requires only one configuration change: point the OpenAI SDK's `baseURL` at FastRouter. Scalekit handles OAuth token storage, tool discovery, and tool execution for every connected service.
+Build an agent that routes LLM calls through [FastRouter](https://fastrouter.ai). FastRouter provides an OpenAI-compatible chat completions API, so the integration requires only one configuration change: point the OpenAI SDK's `baseURL` at FastRouter. Scalekit extends that with per-user OAuth tool access, so your agent can read Gmail, create GitHub issues, or post to Slack on behalf of individual users. You can choose from [200+ connectors](/agentkit/connectors/). Scalekit handles OAuth token storage, tool discovery, and tool execution for every connected service.
 
 The sample repository is **[fastrouter-scalekit-demo](https://github.com/scalekit-developers/fastrouter-scalekit-demo)** on GitHub.
 
 ## What you are building
 
 - **FastRouter as the LLM provider** — All chat completions go through FastRouter's OpenAI-compatible endpoint. Switch models by changing one environment variable.
-- **Scalekit AgentKit for tool access** — `listScopedTools` returns per-user tool schemas ready to pass directly to FastRouter. `executeTool` runs each tool server-side and returns structured results.
+- **Scalekit for tool access** — `listScopedTools` returns per-user tool schemas ready to pass directly to FastRouter. `executeTool` runs each tool server-side and returns structured results.
 - **B2B OAuth without custom OAuth code** — Scalekit handles the OAuth flow, token storage, and refresh for each connected service. Your agent gets an auth link, waits for the user to authorize, and receives a verified, active connected account.
 - **Agentic loop** — The agent calls FastRouter, receives tool calls, executes them through Scalekit, and feeds results back — repeating until FastRouter returns a final answer.
 
@@ -35,6 +34,7 @@ The sample repository is **[fastrouter-scalekit-demo](https://github.com/scaleki
 - At least one AgentKit connection configured (Gmail, GitHub, or Slack)
 - FastRouter account and API key — [sign up at fastrouter.ai](https://fastrouter.ai)
 - Node.js 20 or later
+- For Python code examples: `pip install google-protobuf` (required for tool schema deserialization)
 
 ## Clone and run the sample
 
@@ -58,7 +58,7 @@ The sample repository is **[fastrouter-scalekit-demo](https://github.com/scaleki
 
    ```sh
    # Scalekit — find these in your Scalekit dashboard under API Keys
-   SCALEKIT_ENVIRONMENT_URL=https://your-env.scalekit.dev
+   SCALEKIT_ENV_URL=https://your-env.scalekit.dev
    SCALEKIT_CLIENT_ID=your_client_id
    SCALEKIT_CLIENT_SECRET=your_client_secret
 
@@ -118,12 +118,21 @@ Three pieces connect FastRouter to Scalekit tools.
 
 Scalekit handles the full OAuth flow. Your agent calls `getOrCreateConnectedAccount` to check whether the user's account is already connected, then calls `getAuthorizationLink` to get an auth URL if it isn't.
 
+<Aside type="note" title="SDK language support">
+The AgentKit SDK currently supports Node.js and Python. Go and Java support is planned for a later release, so this guide includes only those two language tabs.
+</Aside>
+
 <Tabs syncKey="tech-stack">
 <TabItem label="Node.js">
 
 ```typescript
 import { ConnectorStatus } from '@scalekit-sdk/node/lib/pkg/grpc/scalekit/v1/connected_accounts/connected_accounts_pb';
 import crypto from 'node:crypto';
+
+const connectionName = process.env.SCALEKIT_CONNECTION_NAME;
+if (!connectionName) {
+  throw new Error('SCALEKIT_CONNECTION_NAME is required');
+}
 
 const userVerifyUrl = 'http://localhost:3000/callback';
 
@@ -132,14 +141,14 @@ const userVerifyUrl = 'http://localhost:3000/callback';
 const state = crypto.randomUUID();
 
 const { connectedAccount } = await scalekit.actions.getOrCreateConnectedAccount({
-  connectionName: 'gmail',
+  connectionName,
   identifier: 'user_123',
   userVerifyUrl,
 });
 
 if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
   const { link } = await scalekit.actions.getAuthorizationLink({
-    connectionName: 'gmail',
+    connectionName,
     identifier: 'user_123',
     userVerifyUrl,
     state,
@@ -152,83 +161,29 @@ if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
 <TabItem label="Python">
 
 ```python
+import os
 import secrets
 
+connection_name = os.environ["SCALEKIT_CONNECTION_NAME"]
 user_verify_url = "http://localhost:3000/callback"
 
 # Generate and store a state value (e.g. in a secure, HTTP-only cookie) for CSRF protection
 state = secrets.token_urlsafe(32)
 
 response = scalekit_client.actions.get_or_create_connected_account(
-    connection_name="gmail",
+    connection_name=connection_name,
     identifier="user_123",
     user_verify_url=user_verify_url,
 )
 
 if response.connected_account.status != "ACTIVE":
     link_resp = scalekit_client.actions.get_authorization_link(
-        connection_name="gmail",
+        connection_name=connection_name,
         identifier="user_123",
         user_verify_url=user_verify_url,
         state=state,
     )
     # Show link_resp.link to the user
-```
-
-</TabItem>
-<TabItem label="Go">
-
-```go
-import (
-    "context"
-    "crypto/rand"
-    "encoding/hex"
-    "fmt"
-    "log"
-)
-
-userVerifyURL := "http://localhost:3000/callback"
-
-// generate state for CSRF protection (store it for callback validation)
-b := make([]byte, 16)
-rand.Read(b)
-state := hex.EncodeToString(b)
-
-resp, err := scalekitClient.Actions.GetOrCreateConnectedAccount(
-    context.Background(), "gmail", "user_123",
-)
-if err != nil {
-    log.Fatal(err)
-}
-
-if resp.ConnectedAccount.Status != "ACTIVE" {
-    link, _ := scalekitClient.Actions.GetAuthorizationLink(
-        context.Background(), "gmail", "user_123",
-    )
-    // Reference state + userVerifyURL so Go sees them as used.
-    fmt.Printf("Authorize: %s (state=%s, callback=%s)\n", link.Link, state, userVerifyURL)
-}
-```
-
-</TabItem>
-<TabItem label="Java">
-
-```java
-import java.util.UUID;
-
-// Generate state for CSRF protection (store for later validation in callback)
-String state = UUID.randomUUID().toString();
-
-ConnectedAccountResponse response = scalekitClient.actions()
-    .getOrCreateConnectedAccount("gmail", "user_123");
-
-ConnectedAccount account = response.getConnectedAccount();
-if (!"ACTIVE".equals(account.getStatus())) {
-    AuthorizationLink link = scalekitClient.actions()
-        .getAuthorizationLink("gmail", "user_123");
-    System.out.println("Authorize: " + link.getLink());
-    // Pass state and userVerifyUrl here when the Java SDK overload supports it
-}
 ```
 
 </TabItem>
@@ -284,34 +239,6 @@ result = scalekit_client.actions.verify_connected_account_user(
 ```
 
 </TabItem>
-<TabItem label="Go">
-
-```go
-// In your HTTP handler for the callback:
-// - Read state and auth_request_id from query params
-// - Validate state against the one you generated and stored
-// - Then call verify
-
-resp, err := scalekitClient.Actions.VerifyConnectedAccountUser(
-    context.Background(),
-    authRequestID,
-    "user_123",
-)
-```
-
-</TabItem>
-<TabItem label="Java">
-
-```java
-// In your servlet / controller callback handler:
-// 1. Validate state query param matches the stored value
-// 2. Call verify only on success
-
-VerifyConnectedAccountUserResponse resp = scalekitClient.actions()
-    .verifyConnectedAccountUser(authRequestId, "user_123");
-```
-
-</TabItem>
 </Tabs>
 
 <Aside type="tip" title="Production callback endpoint">
@@ -324,7 +251,7 @@ In a production web app, replace `localhost:3000/callback` with your server's ca
 
 ```typescript
 const { tools } = await scalekit.tools.listScopedTools('user_123', {
-  filter: { connectionNames: ['gmail'] },
+  filter: { connectionNames: [connectionName] },
   pageSize: 100,
 });
 
@@ -375,7 +302,7 @@ for (let turn = 0; turn < 8; turn++) {
     const result = await scalekit.actions.executeTool({
       toolName: call.function.name,
       identifier: 'user_123',
-      connector: 'gmail',
+      connector: connectionName,
       toolInput: JSON.parse(call.function.arguments),
     });
 
@@ -420,7 +347,7 @@ const { tools } = await scalekit.tools.listScopedTools('user_123', {
 
 ## Next steps
 
-- **[Scalekit AgentKit overview](/agentkit)** — Understand connected accounts, tool discovery, and tool execution in depth.
+- **[Scalekit overview](/agentkit/connections)** — Understand connected accounts, tool discovery, and tool execution in depth.
 - **[AgentKit connections](/agentkit/connectors)** — Set up Gmail, GitHub, Slack, and other connections.
 - **[OpenAI example](/agentkit/examples/openai)** — See the same tool-calling pattern with OpenAI directly.
 - **[LiteLLM inbox triage cookbook](/cookbooks/litellm-agentkit-inbox-triage)** — A more complex multi-connection agent with a web approval interface.

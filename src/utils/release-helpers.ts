@@ -70,6 +70,7 @@ export function getSDKConfigs(releases: any[]): Record<string, SDKConfig> {
   const goRelease = getLatestRelease(releases, 'scalekit-inc/scalekit-sdk-go')
   const javaRelease = getLatestRelease(releases, 'scalekit-inc/scalekit-sdk-java')
   const expoRelease = getLatestRelease(releases, 'scalekit-inc/scalekit-expo-sdk')
+  const iosRelease = getLatestRelease(releases, 'scalekit-inc/scalekit-sdk-ios')
 
   return {
     node: {
@@ -118,6 +119,16 @@ export function getSDKConfigs(releases: any[]): Record<string, SDKConfig> {
       description: 'Official Expo SDK with React Hooks for enterprise-ready mobile authentication',
       features: ['React Hooks & TypeScript', 'OAuth 2.0 with PKCE'],
       release: expoRelease,
+    },
+    ios: {
+      title: 'iOS',
+      showTitle: false,
+      icon: 'ios',
+      href: '/sdks/ios/',
+      repo: 'scalekit-inc/scalekit-sdk-ios',
+      description: 'Native iOS SDK for enterprise-ready mobile authentication via AppAuth',
+      features: ['Swift Package Manager', 'Keychain-backed sessions'],
+      release: iosRelease,
     },
   }
 }

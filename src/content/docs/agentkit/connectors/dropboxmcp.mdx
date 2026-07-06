@@ -1,0 +1,84 @@
+---
+title: 'Dropbox MCP connector'
+tableOfContents: true
+description: 'Connect to Dropbox. Manage files and folders, create shared links, search content, and handle file requests from your AI workflows.'
+sidebar:
+  label: 'Dropbox MCP'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/drop_box.svg
+connectorAuthType: OAuth 2.1
+connectorCategories: [Files & Documents, Productivity]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/dropboxmcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupDropboxmcpSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Dropbox MCP credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupDropboxmcpSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="dropboxmcp" toolName="dropboxmcp_check_job_status" providerName="Dropbox MCP" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **I who am** — Retrieve the current Dropbox account profile information
+- **Search records** — Search for files and folders in Dropbox by query with optional filters
+- **Move records** — Move one or more files or folders to a new location in Dropbox
+- **List shared links, folder, file requests** — List shared links for the account or a specific path with pagination
+- **Get usage and quota, shared link metadata, file request** — Retrieve the current storage usage and quota for the Dropbox account
+- **Link download** — Get temporary download URLs for one or more files
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

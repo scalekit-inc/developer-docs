@@ -1,0 +1,52 @@
+---
+title: Virtual MCP servers
+description: Scope your agent's tools to exactly what it needs — prevent overreach, cut token costs, and run agents safely across multiple users.
+tags: [agentkit, mcp, model-context-protocol, virtual-mcp, tools, connectors]
+sidebar:
+  label: Overview
+tableOfContents: true
+prev:
+  label: "Build custom tools"
+  link: "/agentkit/tools/custom-tools"
+next:
+  label: "Set up and connect"
+  link: "/agentkit/mcp/configure-mcp-server"
+---
+
+Standard MCP servers expose every tool they have. Virtual MCP Servers let you define exactly which tools an agent can see and whose credentials it acts with — a controlled, user-scoped endpoint purpose-built for each agent role in your application.
+
+## The problems this solves
+
+**Agent overreach**
+
+A Gmail MCP connection might expose 30 tools: fetch, send, delete, label, search, manage filters, export. A summarizer agent needs one: fetch. If you hand it the full server, it has access to all 30. Virtual MCP Servers enforce least privilege at the tool level — the agent sees only what you explicitly allow.
+
+**Token bloat**
+
+Every tool on an MCP server adds tokens to every context window. A server with 40 tools at ~200 tokens each burns roughly 8,000 tokens before your agent does any work. At thousands of runs per day, this is a real cost. Scoping a server to 5–10 tools reduces that overhead by 80%.
+
+**Per-user credential management**
+
+Running the same agent for multiple users requires each session to stay isolated. Virtual MCP Servers handle this with session tokens: one server definition serves all users, and each agent run receives a short-lived token scoped to that specific user's connected accounts. No credential sharing between users.
+
+## How it works
+
+Two objects drive the model:
+
+| Object | What it is | Lifetime |
+|---|---|---|
+| **Virtual MCP server** | A scoped endpoint declaring which connections and tools are exposed | Created once per agent role |
+| **Session token** | A short-lived credential bound to a specific user | Minted before each agent run |
+
+The lifecycle has two phases:
+
+1. **Setup (once per agent role)** — Define the server: which connections (Gmail, Google Calendar) and which tools from each. You get a static `mcp_server_url`. Do this once, not once per user.
+
+2. **Runtime (before each run)** — Confirm the user has authorized all required connections, mint a session token for that user, and pass the URL and token to your agent as bearer auth.
+
+## Use cases
+
+- **Background agents** — process data without a user present, such as summarizing overnight emails or syncing records between services
+- **Scheduled agents** — run on a timer on behalf of a user, such as a daily briefing that reads new emails and creates calendar events
+- **Interactive agents** — chat assistants that take real actions mid-conversation using the current user's connected accounts
+- **Multi-user SaaS apps** — one server definition shared across all users; each user connects their accounts once and receives a scoped token at runtime

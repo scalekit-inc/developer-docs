@@ -1,0 +1,72 @@
+---
+title: 'Magic Patterns MCP connector'
+tableOfContents: true
+description: 'Connect to Magic Patterns, the AI-powered UI design tool. Generate, edit, and manage design components and artifacts from your AI workflows.'
+sidebar:
+  label: 'Magic Patterns MCP'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/magicpatterns.svg
+connectorAuthType: OAuth2.1/DCR
+connectorCategories: [AI, Design]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/magicpatternsmcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="magicpatternsmcp" toolName="magicpatternsmcp_list_design_systems" providerName="Magic Patterns MCP" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Files write artifact** — Creates or overwrites one or more files in an artifact
+- **Send prompt** — Sends a natural language prompt to the Magic Patterns AI for an existing design
+- **Read recent message history, artifact files** — Reads the recent chat item history for a design, returning the last 10 chat items (user prompts, AI responses, artifact versions, edits)
+- **Artifact publish** — Compiles an artifact's source files and sets it as the active artifact for the design
+- **List version history, design systems** — Lists the artifact version history for a design, returning the most recent 20 versions with their artifact IDs, version labels, and titles
+- **Get editor id from url, design status, artifact** — Resolves a Magic Patterns URL to an editor ID
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

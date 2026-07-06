@@ -1,0 +1,357 @@
+import type { Tool } from '../../types/agent-connectors'
+
+export const tools: Tool[] = [
+  {
+    name: 'carboneiomcp_convert_document',
+    description: `Convert a document to another format without storing a template. Supports 100+ input/output format combinations.`,
+    params: [
+      {
+        name: 'convertTo',
+        type: 'string',
+        required: true,
+        description: `Target output format. Documents : "pdf", "docx", "xlsx", "pptx", "odt", "ods", "odp", "odg", "rtf", "epub". Web/text  : "html", "xhtml", "txt", "csv", "md", "xml", "idml". Images    : "png", "jpg", "jpeg", "webp", "svg", "tiff", "bmp", "gif". Archive   : "zip" (batch output). Simple usage: "pdf". Advanced usage: { "formatName": "pdf", "formatOptions": { "EncryptFile": true, "DocumentOpenPassword": "secret" } }.`,
+      },
+      {
+        name: 'file',
+        type: 'string',
+        required: true,
+        description: `The document to convert. Three input forms are accepted: (1) Local file path — absolute or relative, e.g. "/home/user/report.docx" or "./invoice.xlsx". (2) HTTPS URL — the file is downloaded automatically, e.g. "https://example.com/file.pptx". (3) Base64-encoded string — the raw file content encoded as base64. Supported input formats include: DOCX, XLSX, PPTX, ODT, ODS, ODP, ODG, HTML, XHTML, XML, IDML, Markdown (MD), PDF, TXT, CSV, PNG, JPG, SVG, and more. Full conversion matrix: https://carbone.io/documentation/developer/http-api/generate-reports.html#output-file-type`,
+      },
+      {
+        name: 'converter',
+        type: 'string',
+        required: false,
+        description: `Converter engine. Only relevant when convertTo is "pdf" (or an image format rasterised from a document). "L" — LibreOffice (default): best all-round engine for DOCX, XLSX, PPTX, ODT, ODS, ODP. "O" — OnlyOffice: highest fidelity rendering for Microsoft Office formats (DOCX, XLSX, PPTX). "C" — Chromium: best for HTML, CSS, JavaScript — full browser rendering. If omitted, LibreOffice is used by default.`,
+      },
+    ],
+  },
+  {
+    name: 'carboneiomcp_delete_template',
+    description: `Soft-delete a stored Carbone template by its template ID.`,
+    params: [
+      {
+        name: 'templateId',
+        type: 'string',
+        required: true,
+        description: `Template ID (64-bit) or Version ID (SHA-256) to delete. Template ID — deletes the template record and all its versions. Version ID — deletes only that specific version, leaving other versions intact. Both formats are returned by upload_template and list_templates.`,
+      },
+    ],
+  },
+  {
+    name: 'carboneiomcp_download_template',
+    description: `Download the original source file (DOCX, XLSX, PPTX, etc.) of a stored Carbone template.`,
+    params: [
+      {
+        name: 'templateId',
+        type: 'string',
+        required: true,
+        description: `Template ID (64-bit) or Version ID (SHA-256) to download. Template ID — downloads the currently deployed version of the template. Version ID — downloads that exact version regardless of deployment status. Both formats are returned by upload_template and list_templates.`,
+      },
+    ],
+  },
+  {
+    name: 'carboneiomcp_get_api_status',
+    description: `Check the Carbone API health and return the current API version and status.`,
+    params: [],
+  },
+  {
+    name: 'carboneiomcp_get_capabilities',
+    description: `Return a summary of all Carbone capabilities including supported formats, features, and usage examples.`,
+    params: [],
+  },
+  {
+    name: 'carboneiomcp_list_categories',
+    description: `List all template categories currently in use in your Carbone account.`,
+    params: [],
+  },
+  {
+    name: 'carboneiomcp_list_tags',
+    description: `List all tags currently used across templates in your Carbone account.`,
+    params: [],
+  },
+  {
+    name: 'carboneiomcp_list_templates',
+    description: `List stored Carbone templates with optional filtering by category, tag, ID, or search query.`,
+    params: [
+      {
+        name: 'category',
+        type: 'string',
+        required: false,
+        description: `Filter by category (e.g. "invoices", "legal").`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from the previous response nextCursor field. Use to fetch the next page.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: false,
+        description: `Filter by Template ID (64-bit format). Cannot be a Version ID.`,
+      },
+      {
+        name: 'includeVersions',
+        type: 'boolean',
+        required: false,
+        description: `If true, returns all versions for each template. Default: false (only deployed version).`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return (default: 100).`,
+      },
+      {
+        name: 'origin',
+        type: 'integer',
+        required: false,
+        description: `Filter by upload origin. 0 = uploaded via API, 1 = uploaded via Carbone Studio.`,
+      },
+      {
+        name: 'search',
+        type: 'string',
+        required: false,
+        description: `Fuzzy search in template names, or exact match on Template ID / Version ID.`,
+      },
+      {
+        name: 'versionId',
+        type: 'string',
+        required: false,
+        description: `Filter by Version ID (SHA-256 format).`,
+      },
+    ],
+  },
+  {
+    name: 'carboneiomcp_render_document',
+    description: `Generate a document by merging a Carbone template with JSON data, optionally converting the output format.`,
+    params: [
+      {
+        name: 'data',
+        type: 'object',
+        required: true,
+        description: `JSON data merged into the template. Access fields with {d.fieldName} tags. Nested objects: {d.customer.name}. Array loops: {d.items[i].description} … {d.items[i+1]}. Conditionals: {d.status == "active" ? "Yes" : "No"}. For pure document conversion without data injection, pass {}.`,
+      },
+      {
+        name: 'batchOutput',
+        type: 'string',
+        required: false,
+        description: `Container format for the batch result. Use "zip" to receive all generated documents as a single ZIP archive. Must be used together with batchSplitBy.`,
+      },
+      {
+        name: 'batchReportName',
+        type: 'string',
+        required: false,
+        description: `Filename pattern for each individual document inside the batch ZIP. Supports Carbone tags. Tags are resolved against the item's data (relative path) or the full dataset (absolute path). Examples: "invoice-{d.id}.pdf", "{d.client.name}-{d.date}.docx". Must be used together with batchSplitBy.`,
+      },
+      {
+        name: 'batchSplitBy',
+        type: 'string',
+        required: false,
+        description: `JSON path to the array in your data that drives batch generation. One document is generated per element of the array; all documents are bundled together. Use batchOutput: "zip" to receive a single ZIP archive. Use batchReportName to customise each filename inside the ZIP. Example: "d.invoices" — produces one PDF per item in data.invoices. Example: "d.employees" — produces one contract per employee.`,
+      },
+      {
+        name: 'complement',
+        type: 'object',
+        required: false,
+        description: `Extra data object accessible in templates with {c.field} tags (as opposed to {d.field} for main data). Useful for static or shared values that should not be mixed into the main dataset: company info, logo URLs, footer text, configuration constants. Example: { "company": "Acme Corp", "address": "123 Main St", "vatNumber": "FR12345" }`,
+      },
+      {
+        name: 'converter',
+        type: 'string',
+        required: false,
+        description: `Converter engine. Only relevant when convertTo is "pdf" (or an image rasterised from a document). "L" — LibreOffice (default): best all-round engine for DOCX, XLSX, PPTX, ODT, ODS, ODP. "O" — OnlyOffice: highest fidelity for Microsoft Office formats (DOCX, XLSX, PPTX). "C" — Chromium: best for HTML/CSS/JS templates — full browser rendering. If omitted, LibreOffice is used by default.`,
+      },
+      {
+        name: 'convertTo',
+        type: 'string',
+        required: false,
+        description: `Output format. If omitted, the output matches the template format. Documents : "pdf", "docx", "xlsx", "pptx", "odt", "ods", "odp", "odg", "rtf", "epub". Web/text  : "html", "xhtml", "txt", "csv", "md", "xml", "idml". Images    : "png", "jpg", "jpeg", "webp", "svg", "tiff", "bmp", "gif". Archive   : "zip" (use with batchSplitBy for batch output). Simple usage: "pdf". Advanced usage: { "formatName": "pdf", "formatOptions": { ... } } for PDF-specific options.`,
+      },
+      {
+        name: 'currencyRates',
+        type: 'object',
+        required: false,
+        description: `Exchange rate table used by :formatC for currency conversion. Keys are ISO 4217 currency codes; values are rates relative to a common base. The base currency should have rate 1. Example: { "EUR": 1, "USD": 1.08, "GBP": 0.86, "JPY": 160.5 }.`,
+      },
+      {
+        name: 'currencySource',
+        type: 'string',
+        required: false,
+        description: `ISO 4217 currency code of the monetary amounts in the JSON data. Used by the :formatC formatter as the conversion source. Must be set together with currencyTarget and currencyRates. Example: "EUR" if all prices in your data are in euros.`,
+      },
+      {
+        name: 'currencyTarget',
+        type: 'string',
+        required: false,
+        description: `ISO 4217 currency code of the output document. The :formatC formatter converts amounts from currencySource to this currency using currencyRates. Must be set together with currencySource and currencyRates. Example: "USD" to display prices in US dollars. Documentation: https://carbone.io/documentation.html#formatc-precisionorformat-`,
+      },
+      {
+        name: 'enum',
+        type: 'object',
+        required: false,
+        description: `Enumeration map used with the :convEnum(TYPE) formatter to translate code values into human-readable labels. Define one key per enum type; each value is an object mapping code → label. Example: { "STATUS": { "1": "Active", "2": "Inactive", "3": "Pending" }, "ROLE": { "A": "Admin", "U": "User" } }. Template usage: {d.status:convEnum(STATUS)}, {d.role:convEnum(ROLE)}. Documentation: https://carbone.io/documentation.html#convenum-type-`,
+      },
+      {
+        name: 'hardRefresh',
+        type: 'boolean',
+        required: false,
+        description: `If true, Carbone recomputes pagination and refreshes the table of contents after rendering. Requires convertTo to be defined. Use this for DOCX/ODT templates that contain a TOC field or cross-references that need updating after data injection.`,
+      },
+      {
+        name: 'lang',
+        type: 'string',
+        required: false,
+        description: `Locale of the generated document. Affects three things: (1) {t(key)} translation tags — selects the matching translation from the translations map. (2) :formatN number formatter — applies locale-specific thousand/decimal separators. (3) :formatC currency formatter — applies locale-specific currency symbols and formatting. Format: BCP-47 lowercase, e.g. "fr-fr", "en-us", "de-de", "es-es", "pt-br", "zh-cn", "ja-jp". Full list: https://github.com/carboneio/carbone/blob/master/formatters/_locale.js`,
+      },
+      {
+        name: 'reportName',
+        type: 'string',
+        required: false,
+        description: `Filename for the generated document, returned in the Content-Disposition header. Supports Carbone tags resolved against the data at render time. Examples: "invoice.pdf" (static), "{d.type}-{d.id}.pdf" (dynamic), "{d.client}-{d.date:formatD(YYYY-MM)}.docx".`,
+      },
+      {
+        name: 'template',
+        type: 'string',
+        required: false,
+        description: `Inline template for one-shot render without storing a template first. Accepts a local file path (e.g. /home/user/invoice.docx), a URL (https://example.com/template.docx), or a base64-encoded string. The template is uploaded and rendered in a single API request — no Template ID is returned. Use this for ephemeral renders; use upload_template + templateId when you need to reuse the template. Supported formats: DOCX, XLSX, PPTX, ODT, ODS, ODP, ODG, HTML, XHTML, IDML, XML, Markdown (MD), PDF, and more. Mutually exclusive with templateId — provide exactly one, never both.`,
+      },
+      {
+        name: 'templateId',
+        type: 'string',
+        required: false,
+        description: `The ID of a previously uploaded template to render. Two ID formats are accepted: (1) Template ID (64-bit) — stable identifier shared across versions; Carbone automatically uses the deployed version. (2) Version ID (SHA-256) — pins rendering to a specific version regardless of deployment status. Both are returned by upload_template. Mutually exclusive with template — provide exactly one, never both.`,
+      },
+      {
+        name: 'timezone',
+        type: 'string',
+        required: false,
+        description: `IANA timezone used to convert dates in the rendered document. Default: "Europe/Paris". Applied when templates use the :formatD formatter, e.g. {d.date:formatD(YYYY-MM-DD HH:mm)}. Common values: "UTC", "America/New_York", "America/Los_Angeles", "Europe/London", "Europe/Paris", "Europe/Berlin", "Asia/Tokyo", "Asia/Shanghai", "Australia/Sydney". Full list (TZ identifier column): https://en.wikipedia.org/wiki/List_of_tz_database_time_zones`,
+      },
+      {
+        name: 'translations',
+        type: 'object',
+        required: false,
+        description: `Translation map for multilingual documents. Requires "lang" to be set to select the active locale. Top-level keys are BCP-47 locale codes; values are key → translated-string maps. Template usage: {t(greeting)} is replaced by the matching string for the active locale. Example: { "fr-fr": { "greeting": "Bonjour", "total": "Total" }, "en-us": { "greeting": "Hello", "total": "Total" } }. Documentation: https://carbone.io/documentation.html#translations`,
+      },
+      {
+        name: 'variableStr',
+        type: 'string',
+        required: false,
+        description: `Carbone alias expressions evaluated once before rendering, available everywhere in the template. Used to pre-compute reusable values or shorten repetitive paths. Syntax: "{#aliasName = expression}". Example: "{#fullName = d.firstName + \\" \\" + d.lastName}{#total = d.price * d.qty}". Aliases are then used in the template as {#fullName}, {#total}. Documentation: https://carbone.io/documentation.html#alias`,
+      },
+      {
+        name: 'webhookHeaders',
+        type: 'object',
+        required: false,
+        description: `Custom headers Carbone will include when POSTing to your webhookUrl. Pass plain header names as keys — the prefix "carbone-webhook-header-" is added automatically before sending to Carbone, and Carbone forwards the original header names to your webhook endpoint. Example: { "authorization": "my-secret", "custom-id": "12345", "custom-name": "Jane Doe" } — Carbone will call your URL with headers: authorization: my-secret, custom-id: 12345, custom-name: Jane Doe. Requires webhookUrl to be set.`,
+      },
+      {
+        name: 'webhookUrl',
+        type: 'string',
+        required: false,
+        description: `Webhook URL to enable asynchronous rendering. When provided, Carbone returns immediately and POSTs { "success": true, "data": { "renderId": "..." } } to this URL when the document is ready. The default render timeout is extended to 5 minutes on Carbone Cloud (vs 60 s for synchronous requests). Download the document with GET /render/:renderId once the webhook is received. Required when using batchSplitBy (batch generation is always asynchronous). Example: "https://your-server.com/carbone-webhook".`,
+      },
+    ],
+  },
+  {
+    name: 'carboneiomcp_update_template_metadata',
+    description: `Update a stored template's name, comment, category, tags, or deployment timestamps.`,
+    params: [
+      {
+        name: 'templateId',
+        type: 'string',
+        required: true,
+        description: `Template ID (64-bit) or Version ID (SHA-256) to update. Using a Template ID updates the metadata shared by all versions. Using a Version ID updates only that specific version.`,
+      },
+      { name: 'category', type: 'string', required: false, description: `New category.` },
+      { name: 'comment', type: 'string', required: false, description: `New free-text comment.` },
+      {
+        name: 'deployedAt',
+        type: 'integer',
+        required: false,
+        description: `Unix timestamp (seconds) to set as the deployment time for this version. Carbone picks the version with the most recent deployedAt when rendering. Use 42000000000 to deploy immediately (special "NOW" value).`,
+      },
+      {
+        name: 'expireAt',
+        type: 'integer',
+        required: false,
+        description: `Unix timestamp (seconds) at which this template will be automatically deleted. Use 42000000000 to delete immediately.`,
+      },
+      { name: 'name', type: 'string', required: false, description: `New display name.` },
+      {
+        name: 'tags',
+        type: 'array',
+        required: false,
+        description: `New list of tags — replaces existing tags entirely.`,
+      },
+    ],
+  },
+  {
+    name: 'carboneiomcp_upload_template',
+    description: `Upload and store a reusable Carbone template for use with render_document.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Display name for the template (e.g. "Invoice Template", "NDA Contract").`,
+      },
+      {
+        name: 'template',
+        type: 'string',
+        required: true,
+        description: `The template file. Accepts a local file path (e.g. /home/user/invoice.docx), a URL (https://example.com/template.docx), or a base64-encoded string. Supported formats: DOCX, XLSX, PPTX, ODT, ODS, ODP, ODG, HTML, XHTML, IDML, XML, Markdown (MD), PDF, and more. Full list: https://carbone.io/documentation/developer/http-api/generate-reports.html#output-file-type`,
+      },
+      {
+        name: 'category',
+        type: 'string',
+        required: false,
+        description: `Group templates into folders/categories (e.g. "invoices", "legal", "hr").`,
+      },
+      {
+        name: 'comment',
+        type: 'string',
+        required: false,
+        description: `Free-text comment to describe the template version or its purpose.`,
+      },
+      {
+        name: 'deployedAt',
+        type: 'integer',
+        required: false,
+        description: `UTC Unix timestamp (seconds) to set as the deployment time for this version. Carbone uses the version with the most recent deployedAt when rendering via Template ID. Use 42000000000 to deploy immediately (special "NOW" sentinel value).`,
+      },
+      {
+        name: 'expireAt',
+        type: 'integer',
+        required: false,
+        description: `UTC Unix timestamp (seconds) at which this template will be automatically deleted. Use 42000000000 to delete immediately (special "NOW" sentinel value).`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: false,
+        description: `Existing Template ID (64-bit format) to add this upload to its version history. If omitted, a new Template ID is generated. Providing a Version ID (SHA-256) is not allowed and will cause an error.`,
+      },
+      {
+        name: 'sample',
+        type: 'array',
+        required: false,
+        description: `Sample input data attached to the template for testing in Carbone Studio. Each item must include data, complement, translations, and enum objects.`,
+      },
+      {
+        name: 'tags',
+        type: 'array',
+        required: false,
+        description: `Tags for searchability and filtering (e.g. ["sales", "billing", "v2"]).`,
+      },
+      {
+        name: 'versioning',
+        type: 'boolean',
+        required: false,
+        description: `Enable template versioning (default: true). When true, a stable Template ID is generated and multiple versions can be managed under it. When false, behaves as legacy mode and returns only a templateId (SHA-256 hash).`,
+      },
+    ],
+  },
+]

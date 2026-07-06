@@ -179,7 +179,7 @@ Fires before a user creates a new organization. Use this to validate email domai
 
 ## `PRE_SESSION_CREATION`
 
-Fires before session tokens are issued for a user. Use this to add custom claims to tokens, apply conditional access policies, or integrate with external authorization systems.
+Fires before session tokens are issued for a user. Use this to add custom claims to the access token, apply conditional access policies, or integrate with external authorization systems.
 
 ### Request body from Scalekit
 
@@ -233,7 +233,7 @@ Fires before session tokens are issued for a user. Use this to add custom claims
 {
   "decision": "ALLOW", // Required: ALLOW to issue tokens, DENY to block login
   "response": {
-    "claims": { // Optional: Custom claims added to both access and ID tokens
+    "claims": { // Optional: Custom claims added to the access token (under `custom_claims`)
       "subscription_tier": "enterprise",
       "data_region": "us-west-2",
       "feature_flags": ["analytics_dashboard", "api_access", "custom_branding"],
@@ -244,7 +244,7 @@ Fires before session tokens are issued for a user. Use this to add custom claims
 ```
 
 <Aside type='note' title='Modify token claims in the response'>
- The `claims` field lets you add custom information that will be included in both access tokens and ID tokens issued by Scalekit.
+ The `claims` field lets you add custom information that will be included in the access token issued by Scalekit (under the `custom_claims` key).
 </Aside>
 
 ## `PRE_USER_INVITATION`

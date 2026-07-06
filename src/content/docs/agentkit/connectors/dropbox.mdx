@@ -19,10 +19,12 @@ head:
       }
 ---
 
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/dropbox'
 import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
 import { AgentKitCredentials } from '@components/templates'
 import { SetupDropboxSection } from '@components/templates'
-import { QuickstartGenericOauthNotoolsSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
 import { SectionAfterSetupDropboxCommonWorkflows } from '@components/templates'
 
 <Steps>
@@ -61,10 +63,27 @@ import { SectionAfterSetupDropboxCommonWorkflows } from '@components/templates'
 
 4. ### Authorize and make your first call
 
-   <QuickstartGenericOauthNotoolsSection connector="dropbox" providerName="Dropbox" verifyPath="/2/users/get_current_account" verifyMethod="POST" />
+   <QuickstartGenericOauthSection connector="dropbox" toolName="dropbox_file_requests_list" providerName="Dropbox" />
 
 </Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Get users, sharing** — Get the current storage space usage for the authenticated Dropbox user, including used and allocated space
+- **Folder sharing share** — Share a Dropbox folder with other users
+- **Link sharing revoke shared** — Revoke a shared link in Dropbox, making it inaccessible
+- **List sharing, files** — List shared links for a file or folder in Dropbox
+- **Create sharing, files, file requests** — Create a shared link for a file or folder in Dropbox with optional visibility and access settings
+- **Member sharing add folder** — Add one or more members to a Dropbox shared folder
 
 ## Common workflows
 
 <SectionAfterSetupDropboxCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />
