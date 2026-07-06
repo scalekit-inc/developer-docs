@@ -1,4 +1,4 @@
-# Scalekit APIs
+# SaaSKit APIs
 
 - **OpenAPI Version:** `3.1.1`
 - **API Version:** `1.0.0`
@@ -176,6 +176,10 @@ Error responses include detailed information:
 }
 ```
 
+***
+
+Building AI agents that need OAuth tokens, tool execution, or connected accounts? See the [AgentKit API reference](https://docs.scalekit.com/agentkit/apis/). For the complete endpoint list across both products, see [All APIs](https://docs.scalekit.com/apis/).
+
 ## Servers
 
 - **URL:** `https://$SCALEKIT_ENVIRONMENT_URL`
@@ -244,7 +248,7 @@ Retrieves a list of connections in the environment
 
   - **`type`**
 
-    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN"` — Authentication protocol used by the connection
+    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authentication protocol used by the connection
 
 **Example:**
 
@@ -1521,6 +1525,10 @@ Retrieve a paginated list of organizations within your environment. The response
 
     `string` — Unique scalekit-generated identifier that uniquely references an organization
 
+  - **`logo_url`**
+
+    `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
+
   - **`metadata`**
 
     `object` — Key value pairs extension attributes.
@@ -1545,7 +1553,11 @@ Retrieve a paginated list of organizations within your environment. The response
 
       - **`name` (required)**
 
-        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification)
+        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
+
+  - **`slug`**
+
+    `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Unique per environment.
 
   - **`update_time`**
 
@@ -1570,11 +1582,13 @@ Retrieve a paginated list of organizations within your environment. The response
       "display_name": "Megasoft",
       "external_id": "my_unique_id",
       "id": "org_59615193906282635",
+      "logo_url": "https://cdn.example.com/acme-logo.png",
       "metadata": {
         "additionalProperty": ""
       },
       "region_code": "US",
       "settings": null,
+      "slug": "acme",
       "update_time": "2025-02-15T06:23:44.560000Z"
     }
   ],
@@ -1613,9 +1627,17 @@ Creates a new organization in your environment. Use this endpoint to add a new t
 
   `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
 
+- **`logo_url`**
+
+  `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
+
 - **`metadata`**
 
   `object`
+
+- **`slug`**
+
+  `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Unique per environment.
 
 **Example:**
 
@@ -1623,9 +1645,11 @@ Creates a new organization in your environment. Use this endpoint to add a new t
 {
   "display_name": "Megasoft Inc",
   "external_id": "my_unique_id",
+  "logo_url": "https://cdn.example.com/acme-logo.png",
   "metadata": {
     "additionalProperty": ""
-  }
+  },
+  "slug": "acme"
 }
 ```
 
@@ -1655,6 +1679,10 @@ Creates a new organization in your environment. Use this endpoint to add a new t
 
     `string` — Unique scalekit-generated identifier that uniquely references an organization
 
+  - **`logo_url`**
+
+    `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
+
   - **`metadata`**
 
     `object` — Key value pairs extension attributes.
@@ -1679,7 +1707,11 @@ Creates a new organization in your environment. Use this endpoint to add a new t
 
       - **`name` (required)**
 
-        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification)
+        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
+
+  - **`slug`**
+
+    `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Unique per environment.
 
   - **`update_time`**
 
@@ -1694,11 +1726,13 @@ Creates a new organization in your environment. Use this endpoint to add a new t
     "display_name": "Megasoft",
     "external_id": "my_unique_id",
     "id": "org_59615193906282635",
+    "logo_url": "https://cdn.example.com/acme-logo.png",
     "metadata": {
       "additionalProperty": ""
     },
     "region_code": "US",
     "settings": null,
+    "slug": "acme",
     "update_time": "2025-02-15T06:23:44.560000Z"
   }
 }
@@ -1738,6 +1772,10 @@ Retrieves organization details by Scalekit ID, including name, region, metadata,
 
     `string` — Unique scalekit-generated identifier that uniquely references an organization
 
+  - **`logo_url`**
+
+    `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
+
   - **`metadata`**
 
     `object` — Key value pairs extension attributes.
@@ -1762,7 +1800,11 @@ Retrieves organization details by Scalekit ID, including name, region, metadata,
 
       - **`name` (required)**
 
-        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification)
+        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
+
+  - **`slug`**
+
+    `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Unique per environment.
 
   - **`update_time`**
 
@@ -1777,11 +1819,13 @@ Retrieves organization details by Scalekit ID, including name, region, metadata,
     "display_name": "Megasoft",
     "external_id": "my_unique_id",
     "id": "org_59615193906282635",
+    "logo_url": "https://cdn.example.com/acme-logo.png",
     "metadata": {
       "additionalProperty": ""
     },
     "region_code": "US",
     "settings": null,
+    "slug": "acme",
     "update_time": "2025-02-15T06:23:44.560000Z"
   }
 }
@@ -1827,9 +1871,17 @@ Updates an organization's display name, external ID, or metadata. Requires a val
 
   `string` — Your application's unique identifier for this organization, used to link Scalekit with your system
 
+- **`logo_url`**
+
+  `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
+
 - **`metadata`**
 
   `object` — Custom key-value pairs to store with the organization. Keys must be 3-25 characters, values must be 1-256 characters. Maximum 10 pairs allowed.
+
+- **`slug`**
+
+  `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Send empty string to clear.
 
 **Example:**
 
@@ -1837,9 +1889,11 @@ Updates an organization's display name, external ID, or metadata. Requires a val
 {
   "display_name": "Acme Corporation",
   "external_id": "tenant_12345",
+  "logo_url": "https://cdn.example.com/acme-logo.png",
   "metadata": {
     "industry": "technology"
-  }
+  },
+  "slug": "acme"
 }
 ```
 
@@ -1869,6 +1923,10 @@ Updates an organization's display name, external ID, or metadata. Requires a val
 
     `string` — Unique scalekit-generated identifier that uniquely references an organization
 
+  - **`logo_url`**
+
+    `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
+
   - **`metadata`**
 
     `object` — Key value pairs extension attributes.
@@ -1893,7 +1951,11 @@ Updates an organization's display name, external ID, or metadata. Requires a val
 
       - **`name` (required)**
 
-        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification)
+        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
+
+  - **`slug`**
+
+    `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Unique per environment.
 
   - **`update_time`**
 
@@ -1908,11 +1970,13 @@ Updates an organization's display name, external ID, or metadata. Requires a val
     "display_name": "Megasoft",
     "external_id": "my_unique_id",
     "id": "org_59615193906282635",
+    "logo_url": "https://cdn.example.com/acme-logo.png",
     "metadata": {
       "additionalProperty": ""
     },
     "region_code": "US",
     "settings": null,
+    "slug": "acme",
     "update_time": "2025-02-15T06:23:44.560000Z"
   }
 }
@@ -1984,7 +2048,7 @@ Updates configuration settings for an organization. Supports modifying SSO confi
 
   - **`name` (required)**
 
-    `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification)
+    `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
 
 **Example:**
 
@@ -2029,6 +2093,10 @@ Updates configuration settings for an organization. Supports modifying SSO confi
 
     `string` — Unique scalekit-generated identifier that uniquely references an organization
 
+  - **`logo_url`**
+
+    `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
+
   - **`metadata`**
 
     `object` — Key value pairs extension attributes.
@@ -2053,7 +2121,11 @@ Updates configuration settings for an organization. Supports modifying SSO confi
 
       - **`name` (required)**
 
-        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification)
+        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
+
+  - **`slug`**
+
+    `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Unique per environment.
 
   - **`update_time`**
 
@@ -2068,11 +2140,13 @@ Updates configuration settings for an organization. Supports modifying SSO confi
     "display_name": "Megasoft",
     "external_id": "my_unique_id",
     "id": "org_59615193906282635",
+    "logo_url": "https://cdn.example.com/acme-logo.png",
     "metadata": {
       "additionalProperty": ""
     },
     "region_code": "US",
     "settings": null,
+    "slug": "acme",
     "update_time": "2025-02-15T06:23:44.560000Z"
   }
 }
@@ -3851,6 +3925,26 @@ Retrieves the complete configuration and status details for a specific connectio
 
     `boolean` — Controls whether users can sign in using this connection. When false, the connection exists but cannot be used for authentication.
 
+  - **`google_dwd_config`**
+
+    `object` — Configuration details for Google Domain-Wide Delegation. Present only when type is GOOGLE\_DWD.
+
+    - **`scopes`**
+
+      `array` — OAuth 2.0 scopes to request.
+
+      **Items:**
+
+      `string`
+
+    - **`service_account_json`**
+
+      `string` — Google Cloud service account JSON key. Write-only: reads return a masked value.
+
+    - **`token_uri`**
+
+      `string` — Google token endpoint. Defaults to https\://oauth2.googleapis.com/token.
+
   - **`id`**
 
     `string` — Unique identifier for this connection. Used in API calls to reference this specific connection.
@@ -3867,6 +3961,10 @@ Retrieves the complete configuration and status details for a specific connectio
 
       `string` — Access Type
 
+    - **`app_name`**
+
+      `string` — Application name used by providers that require it as an authorize query parameter (e.g., Trello's app\_name).
+
     - **`authorize_uri`**
 
       `string` — Authorize URI
@@ -3882,6 +3980,26 @@ Retrieves the complete configuration and status details for a specific connectio
     - **`custom_scope_name`**
 
       `string` — Custom Scope Name
+
+    - **`is_cimd`**
+
+      `boolean` — Indicates whether this connection was registered using Client ID Metadata Document (CIMD) instead of Dynamic Client Registration.
+
+    - **`optional_scopes`**
+
+      `object` — Optional scopes configuration for identity providers that support or require additional scopes to be sent in a custom field during authentication requests.
+
+      - **`field_name`**
+
+        `string` — Name of the field in which scope should be sent in the authentication request. This is required by some identity providers that expect scopes to be sent in a custom field instead of the standard 'scope' parameter.
+
+      - **`scopes`**
+
+        `array` — List of optional scopes that can be requested during authentication
+
+        **Items:**
+
+        `string`
 
     - **`pkce_enabled`**
 
@@ -4183,7 +4301,7 @@ Retrieves the complete configuration and status details for a specific connectio
 
   - **`type`**
 
-    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
+    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
 
   - **`webauthn_config`**
 
@@ -4325,6 +4443,7 @@ Retrieves the complete configuration and status details for a specific connectio
       }
     ],
     "enabled": false,
+    "google_dwd_config": null,
     "id": "conn_2123312131125533",
     "key_id": "",
     "oauth_config": null,
@@ -5521,6 +5640,181 @@ Permanently removes a domain record from an organization.
 null
 ```
 
+### Get organization session policy
+
+- **Method:** `GET`
+- **Path:** `/api/v1/organizations/{organization_id}/session-policy`
+- **Tags:** Organizations
+
+Retrieves the session policy for an organization. Returns session\_policy='APPLICATION' if the organization inherits the application-level defaults, or session\_policy='CUSTOM' with the configured values if a custom policy is active.
+
+#### Responses
+
+##### Status: 200 Session policy retrieved successfully.
+
+###### Content-Type: application/json
+
+- **`policy`**
+
+  `object` — The session policy for the organization.
+
+  - **`absolute_session_timeout`**
+
+    `integer`, format: `int32` — The absolute session timeout value. The unit is specified by absolute\_session\_timeout\_unit. Omitted when policy\_source is 'environment'.
+
+  - **`absolute_session_timeout_unit`**
+
+    `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for absolute\_session\_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
+
+  - **`idle_session_timeout`**
+
+    `integer`, format: `int32` — The idle session timeout value. The unit is specified by idle\_session\_timeout\_unit. Omitted when idle\_session\_timeout\_enabled is false or policy\_source is 'environment'.
+
+  - **`idle_session_timeout_enabled`**
+
+    `boolean` — Whether idle session timeout is enabled for this organization. Omitted when policy\_source is 'environment'.
+
+  - **`idle_session_timeout_unit`**
+
+    `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for idle\_session\_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
+
+  - **`policy_source`**
+
+    `string`, possible values: `"APPLICATION", "CUSTOM"` — Policy source. 'APPLICATION' means the organization inherits the application-level session policy. 'CUSTOM' means organization-specific timeout values are active.
+
+**Example:**
+
+```json
+{
+  "policy": {
+    "absolute_session_timeout": 360,
+    "absolute_session_timeout_unit": "minutes",
+    "idle_session_timeout": 84,
+    "idle_session_timeout_enabled": true,
+    "idle_session_timeout_unit": "minutes",
+    "policy_source": "CUSTOM"
+  }
+}
+```
+
+##### Status: 404 Organization not found.
+
+###### Content-Type: application/json
+
+**Example:**
+
+```json
+null
+```
+
+### Update organization session policy
+
+- **Method:** `PATCH`
+- **Path:** `/api/v1/organizations/{organization_id}/session-policy`
+- **Tags:** Organizations
+
+Sets a custom session policy for an organization or reverts to application-level settings. Send session\_policy='APPLICATION' to revert to application defaults. Send session\_policy='CUSTOM' with timeout values to activate a custom policy.
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`absolute_session_timeout`**
+
+  `integer`, format: `int32` — The absolute session timeout value. The unit is specified by absolute\_session\_timeout\_unit. Omit when policy\_source is APPLICATION.
+
+- **`absolute_session_timeout_unit`**
+
+  `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for absolute\_session\_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES.
+
+- **`idle_session_timeout`**
+
+  `integer`, format: `int32` — The idle session timeout value. The unit is specified by idle\_session\_timeout\_unit. Omit when idle\_session\_timeout\_enabled is false.
+
+- **`idle_session_timeout_enabled`**
+
+  `boolean` — Whether idle session timeout is enabled. Omit when policy\_source is APPLICATION.
+
+- **`idle_session_timeout_unit`**
+
+  `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for idle\_session\_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES.
+
+- **`policy_source`**
+
+  `string`, possible values: `"APPLICATION", "CUSTOM"` — Policy source. Send 'APPLICATION' to revert to application defaults. Send 'CUSTOM' with timeout values to activate a custom policy.
+
+**Example:**
+
+```json
+{
+  "absolute_session_timeout": 360,
+  "absolute_session_timeout_unit": "MINUTES",
+  "idle_session_timeout": 84,
+  "idle_session_timeout_enabled": true,
+  "idle_session_timeout_unit": "MINUTES",
+  "policy_source": "CUSTOM"
+}
+```
+
+#### Responses
+
+##### Status: 200 Session policy updated successfully.
+
+###### Content-Type: application/json
+
+- **`policy`**
+
+  `object` — The updated session policy for the organization.
+
+  - **`absolute_session_timeout`**
+
+    `integer`, format: `int32` — The absolute session timeout value. The unit is specified by absolute\_session\_timeout\_unit. Omitted when policy\_source is 'environment'.
+
+  - **`absolute_session_timeout_unit`**
+
+    `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for absolute\_session\_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
+
+  - **`idle_session_timeout`**
+
+    `integer`, format: `int32` — The idle session timeout value. The unit is specified by idle\_session\_timeout\_unit. Omitted when idle\_session\_timeout\_enabled is false or policy\_source is 'environment'.
+
+  - **`idle_session_timeout_enabled`**
+
+    `boolean` — Whether idle session timeout is enabled for this organization. Omitted when policy\_source is 'environment'.
+
+  - **`idle_session_timeout_unit`**
+
+    `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for idle\_session\_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
+
+  - **`policy_source`**
+
+    `string`, possible values: `"APPLICATION", "CUSTOM"` — Policy source. 'APPLICATION' means the organization inherits the application-level session policy. 'CUSTOM' means organization-specific timeout values are active.
+
+**Example:**
+
+```json
+{
+  "policy": {
+    "absolute_session_timeout": 360,
+    "absolute_session_timeout_unit": "minutes",
+    "idle_session_timeout": 84,
+    "idle_session_timeout_enabled": true,
+    "idle_session_timeout_unit": "minutes",
+    "policy_source": "CUSTOM"
+  }
+}
+```
+
+##### Status: 404 Organization not found.
+
+###### Content-Type: application/json
+
+**Example:**
+
+```json
+null
+```
+
 ### Upsert organization user setting
 
 - **Method:** `PATCH`
@@ -6617,7 +6911,7 @@ null
 - **Path:** `/api/v1/organizations:external/{external_id}`
 - **Tags:** Organizations
 
-Retrieves organization details by External ID, including name, region, metadata, and settings
+Retrieves organization details by external ID, including name, region, metadata, and settings. Only provide external\_id in the path. If the id query parameter is also supplied, it silently takes precedence over external\_id due to protobuf oneof semantics, which causes the request to fail with a 400 Bad Request ('ExternalId is required').
 
 #### Responses
 
@@ -6645,6 +6939,10 @@ Retrieves organization details by External ID, including name, region, metadata,
 
     `string` — Unique scalekit-generated identifier that uniquely references an organization
 
+  - **`logo_url`**
+
+    `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
+
   - **`metadata`**
 
     `object` — Key value pairs extension attributes.
@@ -6669,7 +6967,11 @@ Retrieves organization details by External ID, including name, region, metadata,
 
       - **`name` (required)**
 
-        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification)
+        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
+
+  - **`slug`**
+
+    `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Unique per environment.
 
   - **`update_time`**
 
@@ -6684,11 +6986,13 @@ Retrieves organization details by External ID, including name, region, metadata,
     "display_name": "Megasoft",
     "external_id": "my_unique_id",
     "id": "org_59615193906282635",
+    "logo_url": "https://cdn.example.com/acme-logo.png",
     "metadata": {
       "additionalProperty": ""
     },
     "region_code": "US",
     "settings": null,
+    "slug": "acme",
     "update_time": "2025-02-15T06:23:44.560000Z"
   }
 }
@@ -7957,26 +8261,6 @@ Permanently removes a role from the environment and reassigns users who had that
 #### Responses
 
 ##### Status: 200 Role successfully deleted and users reassigned. No content returned.
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-### Delete role inheritance relationship
-
-- **Method:** `DELETE`
-- **Path:** `/api/v1/roles/{role_name}/base`
-- **Tags:** Roles
-
-Removes the base role inheritance relationship for a specified role, effectively eliminating all inherited permissions from the base role. Use this endpoint when you want to break the hierarchical relationship between roles and remove inherited permissions. The role will retain only its directly assigned permissions after this operation. This action cannot be undone, so ensure the role has sufficient direct permissions before removing inheritance. Returns no content on successful removal of the base relationship.
-
-#### Responses
-
-##### Status: 200 Base role inheritance relationship successfully removed. The role now has only its directly assigned permissions.
 
 ###### Content-Type: application/json
 
@@ -10980,7 +11264,7 @@ Triggered when a permission is deleted
 
 * **`type`**
 
-  `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN"` — Authentication protocol used by the connection
+  `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authentication protocol used by the connection
 
 **Example:**
 
@@ -11054,7 +11338,7 @@ Triggered when a permission is deleted
 
   - **`type`**
 
-    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN"` — Authentication protocol used by the connection
+    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authentication protocol used by the connection
 
 **Example:**
 
@@ -12842,7 +13126,7 @@ Controls the activation state of a specific organization feature
 
 - **`name` (required)**
 
-  `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification)
+  `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
 
 **Example:**
 
@@ -12871,7 +13155,7 @@ Configuration options that control organization-level features and capabilities
 
   - **`name` (required)**
 
-    `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification)
+    `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
 
 **Example:**
 
@@ -12910,6 +13194,10 @@ Configuration options that control organization-level features and capabilities
 
   `string` — Unique scalekit-generated identifier that uniquely references an organization
 
+* **`logo_url`**
+
+  `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
+
 * **`metadata`**
 
   `object` — Key value pairs extension attributes.
@@ -12934,7 +13222,11 @@ Configuration options that control organization-level features and capabilities
 
     - **`name` (required)**
 
-      `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification)
+      `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
+
+* **`slug`**
+
+  `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Unique per environment.
 
 * **`update_time`**
 
@@ -12948,6 +13240,7 @@ Configuration options that control organization-level features and capabilities
   "display_name": "Megasoft",
   "external_id": "my_unique_id",
   "id": "org_59615193906282635",
+  "logo_url": "https://cdn.example.com/acme-logo.png",
   "metadata": {
     "additionalProperty": ""
   },
@@ -12964,6 +13257,7 @@ Configuration options that control organization-level features and capabilities
       }
     ]
   },
+  "slug": "acme",
   "update_time": "2025-02-15T06:23:44.560000Z"
 }
 ```
@@ -12998,6 +13292,10 @@ Configuration options that control organization-level features and capabilities
 
     `string` — Unique scalekit-generated identifier that uniquely references an organization
 
+  - **`logo_url`**
+
+    `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
+
   - **`metadata`**
 
     `object` — Key value pairs extension attributes.
@@ -13022,7 +13320,11 @@ Configuration options that control organization-level features and capabilities
 
       - **`name` (required)**
 
-        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification)
+        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
+
+  - **`slug`**
+
+    `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Unique per environment.
 
   - **`update_time`**
 
@@ -13047,11 +13349,13 @@ Configuration options that control organization-level features and capabilities
       "display_name": "Megasoft",
       "external_id": "my_unique_id",
       "id": "org_59615193906282635",
+      "logo_url": "https://cdn.example.com/acme-logo.png",
       "metadata": {
         "additionalProperty": ""
       },
       "region_code": "US",
       "settings": null,
+      "slug": "acme",
       "update_time": "2025-02-15T06:23:44.560000Z"
     }
   ],
@@ -13072,9 +13376,17 @@ Configuration options that control organization-level features and capabilities
 
   `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
 
+* **`logo_url`**
+
+  `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
+
 * **`metadata`**
 
   `object`
+
+* **`slug`**
+
+  `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Unique per environment.
 
 **Example:**
 
@@ -13082,9 +13394,11 @@ Configuration options that control organization-level features and capabilities
 {
   "display_name": "Megasoft Inc",
   "external_id": "my_unique_id",
+  "logo_url": "https://cdn.example.com/acme-logo.png",
   "metadata": {
     "additionalProperty": ""
-  }
+  },
+  "slug": "acme"
 }
 ```
 
@@ -13112,6 +13426,10 @@ Configuration options that control organization-level features and capabilities
 
     `string` — Unique scalekit-generated identifier that uniquely references an organization
 
+  - **`logo_url`**
+
+    `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
+
   - **`metadata`**
 
     `object` — Key value pairs extension attributes.
@@ -13136,7 +13454,11 @@ Configuration options that control organization-level features and capabilities
 
       - **`name` (required)**
 
-        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification)
+        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
+
+  - **`slug`**
+
+    `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Unique per environment.
 
   - **`update_time`**
 
@@ -13151,11 +13473,13 @@ Configuration options that control organization-level features and capabilities
     "display_name": "Megasoft",
     "external_id": "my_unique_id",
     "id": "org_59615193906282635",
+    "logo_url": "https://cdn.example.com/acme-logo.png",
     "metadata": {
       "additionalProperty": ""
     },
     "region_code": "US",
     "settings": null,
+    "slug": "acme",
     "update_time": "2025-02-15T06:23:44.560000Z"
   }
 }
@@ -13185,6 +13509,10 @@ Configuration options that control organization-level features and capabilities
 
     `string` — Unique scalekit-generated identifier that uniquely references an organization
 
+  - **`logo_url`**
+
+    `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
+
   - **`metadata`**
 
     `object` — Key value pairs extension attributes.
@@ -13209,7 +13537,11 @@ Configuration options that control organization-level features and capabilities
 
       - **`name` (required)**
 
-        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification)
+        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
+
+  - **`slug`**
+
+    `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Unique per environment.
 
   - **`update_time`**
 
@@ -13224,11 +13556,13 @@ Configuration options that control organization-level features and capabilities
     "display_name": "Megasoft",
     "external_id": "my_unique_id",
     "id": "org_59615193906282635",
+    "logo_url": "https://cdn.example.com/acme-logo.png",
     "metadata": {
       "additionalProperty": ""
     },
     "region_code": "US",
     "settings": null,
+    "slug": "acme",
     "update_time": "2025-02-15T06:23:44.560000Z"
   }
 }
@@ -13248,9 +13582,17 @@ For update messages ensure the indexes are same as the base model itself.
 
   `string` — Your application's unique identifier for this organization, used to link Scalekit with your system
 
+- **`logo_url`**
+
+  `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
+
 - **`metadata`**
 
   `object` — Custom key-value pairs to store with the organization. Keys must be 3-25 characters, values must be 1-256 characters. Maximum 10 pairs allowed.
+
+- **`slug`**
+
+  `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Send empty string to clear.
 
 **Example:**
 
@@ -13258,9 +13600,11 @@ For update messages ensure the indexes are same as the base model itself.
 {
   "display_name": "Acme Corporation",
   "external_id": "tenant_12345",
+  "logo_url": "https://cdn.example.com/acme-logo.png",
   "metadata": {
     "industry": "technology"
-  }
+  },
+  "slug": "acme"
 }
 ```
 
@@ -13288,6 +13632,10 @@ For update messages ensure the indexes are same as the base model itself.
 
     `string` — Unique scalekit-generated identifier that uniquely references an organization
 
+  - **`logo_url`**
+
+    `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
+
   - **`metadata`**
 
     `object` — Key value pairs extension attributes.
@@ -13312,7 +13660,11 @@ For update messages ensure the indexes are same as the base model itself.
 
       - **`name` (required)**
 
-        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification)
+        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
+
+  - **`slug`**
+
+    `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Unique per environment.
 
   - **`update_time`**
 
@@ -13327,11 +13679,13 @@ For update messages ensure the indexes are same as the base model itself.
     "display_name": "Megasoft",
     "external_id": "my_unique_id",
     "id": "org_59615193906282635",
+    "logo_url": "https://cdn.example.com/acme-logo.png",
     "metadata": {
       "additionalProperty": ""
     },
     "region_code": "US",
     "settings": null,
+    "slug": "acme",
     "update_time": "2025-02-15T06:23:44.560000Z"
   }
 }
@@ -15317,6 +15671,66 @@ Response message containing a paginated list of API clients for the specified or
 }
 ```
 
+### connectionsGoogleDWDConfig
+
+- **Type:**`object`
+
+* **`scopes`**
+
+  `array` — OAuth 2.0 scopes to request.
+
+  **Items:**
+
+  `string`
+
+* **`service_account_json`**
+
+  `string` — Google Cloud service account JSON key. Write-only: reads return a masked value.
+
+* **`token_uri`**
+
+  `string` — Google token endpoint. Defaults to https\://oauth2.googleapis.com/token.
+
+**Example:**
+
+```json
+{
+  "scopes": [
+    ""
+  ],
+  "service_account_json": "",
+  "token_uri": ""
+}
+```
+
+### connectionsOptionalScopes
+
+- **Type:**`object`
+
+* **`field_name`**
+
+  `string` — Name of the field in which scope should be sent in the authentication request. This is required by some identity providers that expect scopes to be sent in a custom field instead of the standard 'scope' parameter.
+
+* **`scopes`**
+
+  `array` — List of optional scopes that can be requested during authentication
+
+  **Items:**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "field_name": "optional_scope or bot_scope",
+  "scopes": [
+    "scope1",
+    "scope2"
+  ]
+}
+```
+
 ### connectionsOAuthConnectionConfig
 
 - **Type:**`object`
@@ -15324,6 +15738,10 @@ Response message containing a paginated list of API clients for the specified or
 * **`access_type`**
 
   `string` — Access Type
+
+* **`app_name`**
+
+  `string` — Application name used by providers that require it as an authorize query parameter (e.g., Trello's app\_name).
 
 * **`authorize_uri`**
 
@@ -15340,6 +15758,26 @@ Response message containing a paginated list of API clients for the specified or
 * **`custom_scope_name`**
 
   `string` — Custom Scope Name
+
+* **`is_cimd`**
+
+  `boolean` — Indicates whether this connection was registered using Client ID Metadata Document (CIMD) instead of Dynamic Client Registration.
+
+* **`optional_scopes`**
+
+  `object` — Optional scopes configuration for identity providers that support or require additional scopes to be sent in a custom field during authentication requests.
+
+  - **`field_name`**
+
+    `string` — Name of the field in which scope should be sent in the authentication request. This is required by some identity providers that expect scopes to be sent in a custom field instead of the standard 'scope' parameter.
+
+  - **`scopes`**
+
+    `array` — List of optional scopes that can be requested during authentication
+
+    **Items:**
+
+    `string`
 
 * **`pkce_enabled`**
 
@@ -15390,10 +15828,19 @@ Response message containing a paginated list of API clients for the specified or
 ```json
 {
   "access_type": "offline",
+  "app_name": "My Trello App",
   "authorize_uri": "https://youridp.com/service/oauth/authorize",
   "client_id": "oauth_client_id",
   "client_secret": "oauth_client_secret",
   "custom_scope_name": "user_scope",
+  "is_cimd": true,
+  "optional_scopes": {
+    "field_name": "optional_scope or bot_scope",
+    "scopes": [
+      "scope1",
+      "scope2"
+    ]
+  },
   "pkce_enabled": true,
   "prompt": "none",
   "redirect_uri": "https://yourapp.com/service/oauth/redirect",
@@ -16212,6 +16659,26 @@ Response message containing a paginated list of API clients for the specified or
 
   `boolean` — Controls whether users can sign in using this connection. When false, the connection exists but cannot be used for authentication.
 
+* **`google_dwd_config`**
+
+  `object` — Configuration details for Google Domain-Wide Delegation. Present only when type is GOOGLE\_DWD.
+
+  - **`scopes`**
+
+    `array` — OAuth 2.0 scopes to request.
+
+    **Items:**
+
+    `string`
+
+  - **`service_account_json`**
+
+    `string` — Google Cloud service account JSON key. Write-only: reads return a masked value.
+
+  - **`token_uri`**
+
+    `string` — Google token endpoint. Defaults to https\://oauth2.googleapis.com/token.
+
 * **`id`**
 
   `string` — Unique identifier for this connection. Used in API calls to reference this specific connection.
@@ -16228,6 +16695,10 @@ Response message containing a paginated list of API clients for the specified or
 
     `string` — Access Type
 
+  - **`app_name`**
+
+    `string` — Application name used by providers that require it as an authorize query parameter (e.g., Trello's app\_name).
+
   - **`authorize_uri`**
 
     `string` — Authorize URI
@@ -16243,6 +16714,26 @@ Response message containing a paginated list of API clients for the specified or
   - **`custom_scope_name`**
 
     `string` — Custom Scope Name
+
+  - **`is_cimd`**
+
+    `boolean` — Indicates whether this connection was registered using Client ID Metadata Document (CIMD) instead of Dynamic Client Registration.
+
+  - **`optional_scopes`**
+
+    `object` — Optional scopes configuration for identity providers that support or require additional scopes to be sent in a custom field during authentication requests.
+
+    - **`field_name`**
+
+      `string` — Name of the field in which scope should be sent in the authentication request. This is required by some identity providers that expect scopes to be sent in a custom field instead of the standard 'scope' parameter.
+
+    - **`scopes`**
+
+      `array` — List of optional scopes that can be requested during authentication
+
+      **Items:**
+
+      `string`
 
   - **`pkce_enabled`**
 
@@ -16544,7 +17035,7 @@ Response message containing a paginated list of API clients for the specified or
 
 * **`type`**
 
-  `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
+  `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
 
 * **`webauthn_config`**
 
@@ -16685,14 +17176,24 @@ Response message containing a paginated list of API clients for the specified or
     }
   ],
   "enabled": false,
+  "google_dwd_config": {
+    "scopes": [
+      ""
+    ],
+    "service_account_json": "",
+    "token_uri": ""
+  },
   "id": "conn_2123312131125533",
   "key_id": "",
   "oauth_config": {
     "access_type": "offline",
+    "app_name": "My Trello App",
     "authorize_uri": "https://youridp.com/service/oauth/authorize",
     "client_id": "oauth_client_id",
     "client_secret": "oauth_client_secret",
     "custom_scope_name": "user_scope",
+    "is_cimd": true,
+    "optional_scopes": null,
     "pkce_enabled": true,
     "prompt": "none",
     "redirect_uri": "https://yourapp.com/service/oauth/redirect",
@@ -16853,6 +17354,26 @@ Response message containing a paginated list of API clients for the specified or
 
     `boolean` — Controls whether users can sign in using this connection. When false, the connection exists but cannot be used for authentication.
 
+  - **`google_dwd_config`**
+
+    `object` — Configuration details for Google Domain-Wide Delegation. Present only when type is GOOGLE\_DWD.
+
+    - **`scopes`**
+
+      `array` — OAuth 2.0 scopes to request.
+
+      **Items:**
+
+      `string`
+
+    - **`service_account_json`**
+
+      `string` — Google Cloud service account JSON key. Write-only: reads return a masked value.
+
+    - **`token_uri`**
+
+      `string` — Google token endpoint. Defaults to https\://oauth2.googleapis.com/token.
+
   - **`id`**
 
     `string` — Unique identifier for this connection. Used in API calls to reference this specific connection.
@@ -16869,6 +17390,10 @@ Response message containing a paginated list of API clients for the specified or
 
       `string` — Access Type
 
+    - **`app_name`**
+
+      `string` — Application name used by providers that require it as an authorize query parameter (e.g., Trello's app\_name).
+
     - **`authorize_uri`**
 
       `string` — Authorize URI
@@ -16884,6 +17409,26 @@ Response message containing a paginated list of API clients for the specified or
     - **`custom_scope_name`**
 
       `string` — Custom Scope Name
+
+    - **`is_cimd`**
+
+      `boolean` — Indicates whether this connection was registered using Client ID Metadata Document (CIMD) instead of Dynamic Client Registration.
+
+    - **`optional_scopes`**
+
+      `object` — Optional scopes configuration for identity providers that support or require additional scopes to be sent in a custom field during authentication requests.
+
+      - **`field_name`**
+
+        `string` — Name of the field in which scope should be sent in the authentication request. This is required by some identity providers that expect scopes to be sent in a custom field instead of the standard 'scope' parameter.
+
+      - **`scopes`**
+
+        `array` — List of optional scopes that can be requested during authentication
+
+        **Items:**
+
+        `string`
 
     - **`pkce_enabled`**
 
@@ -17185,7 +17730,7 @@ Response message containing a paginated list of API clients for the specified or
 
   - **`type`**
 
-    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
+    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
 
   - **`webauthn_config`**
 
@@ -17327,6 +17872,7 @@ Response message containing a paginated list of API clients for the specified or
       }
     ],
     "enabled": false,
+    "google_dwd_config": null,
     "id": "conn_2123312131125533",
     "key_id": "",
     "oauth_config": null,
@@ -18662,6 +19208,194 @@ Response message containing a paginated list of API clients for the specified or
     "update_time": "2025-09-01T12:14:43.110455Z",
     "verification_method": "ADMIN",
     "verification_status": "AUTO_VERIFIED"
+  }
+}
+```
+
+### commonsTimeUnit
+
+- **Type:**`string`
+
+**Example:**
+
+### organizationsSessionPolicyType
+
+- **Type:**`string`
+
+**Example:**
+
+### organizationsOrganizationSessionPolicySettings
+
+- **Type:**`object`
+
+* **`absolute_session_timeout`**
+
+  `integer`, format: `int32` — The absolute session timeout value. The unit is specified by absolute\_session\_timeout\_unit. Omitted when policy\_source is 'environment'.
+
+* **`absolute_session_timeout_unit`**
+
+  `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for absolute\_session\_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
+
+* **`idle_session_timeout`**
+
+  `integer`, format: `int32` — The idle session timeout value. The unit is specified by idle\_session\_timeout\_unit. Omitted when idle\_session\_timeout\_enabled is false or policy\_source is 'environment'.
+
+* **`idle_session_timeout_enabled`**
+
+  `boolean` — Whether idle session timeout is enabled for this organization. Omitted when policy\_source is 'environment'.
+
+* **`idle_session_timeout_unit`**
+
+  `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for idle\_session\_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
+
+* **`policy_source`**
+
+  `string`, possible values: `"APPLICATION", "CUSTOM"` — Policy source. 'APPLICATION' means the organization inherits the application-level session policy. 'CUSTOM' means organization-specific timeout values are active.
+
+**Example:**
+
+```json
+{
+  "absolute_session_timeout": 360,
+  "absolute_session_timeout_unit": "minutes",
+  "idle_session_timeout": 84,
+  "idle_session_timeout_enabled": true,
+  "idle_session_timeout_unit": "minutes",
+  "policy_source": "CUSTOM"
+}
+```
+
+### organizationsGetOrganizationSessionPolicyResponse
+
+- **Type:**`object`
+
+* **`policy`**
+
+  `object` — The session policy for the organization.
+
+  - **`absolute_session_timeout`**
+
+    `integer`, format: `int32` — The absolute session timeout value. The unit is specified by absolute\_session\_timeout\_unit. Omitted when policy\_source is 'environment'.
+
+  - **`absolute_session_timeout_unit`**
+
+    `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for absolute\_session\_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
+
+  - **`idle_session_timeout`**
+
+    `integer`, format: `int32` — The idle session timeout value. The unit is specified by idle\_session\_timeout\_unit. Omitted when idle\_session\_timeout\_enabled is false or policy\_source is 'environment'.
+
+  - **`idle_session_timeout_enabled`**
+
+    `boolean` — Whether idle session timeout is enabled for this organization. Omitted when policy\_source is 'environment'.
+
+  - **`idle_session_timeout_unit`**
+
+    `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for idle\_session\_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
+
+  - **`policy_source`**
+
+    `string`, possible values: `"APPLICATION", "CUSTOM"` — Policy source. 'APPLICATION' means the organization inherits the application-level session policy. 'CUSTOM' means organization-specific timeout values are active.
+
+**Example:**
+
+```json
+{
+  "policy": {
+    "absolute_session_timeout": 360,
+    "absolute_session_timeout_unit": "minutes",
+    "idle_session_timeout": 84,
+    "idle_session_timeout_enabled": true,
+    "idle_session_timeout_unit": "minutes",
+    "policy_source": "CUSTOM"
+  }
+}
+```
+
+### OrganizationServiceUpdateOrganizationSessionPolicyBody
+
+- **Type:**`object`
+
+* **`absolute_session_timeout`**
+
+  `integer`, format: `int32` — The absolute session timeout value. The unit is specified by absolute\_session\_timeout\_unit. Omit when policy\_source is APPLICATION.
+
+* **`absolute_session_timeout_unit`**
+
+  `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for absolute\_session\_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES.
+
+* **`idle_session_timeout`**
+
+  `integer`, format: `int32` — The idle session timeout value. The unit is specified by idle\_session\_timeout\_unit. Omit when idle\_session\_timeout\_enabled is false.
+
+* **`idle_session_timeout_enabled`**
+
+  `boolean` — Whether idle session timeout is enabled. Omit when policy\_source is APPLICATION.
+
+* **`idle_session_timeout_unit`**
+
+  `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for idle\_session\_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES.
+
+* **`policy_source`**
+
+  `string`, possible values: `"APPLICATION", "CUSTOM"` — Policy source. Send 'APPLICATION' to revert to application defaults. Send 'CUSTOM' with timeout values to activate a custom policy.
+
+**Example:**
+
+```json
+{
+  "absolute_session_timeout": 360,
+  "absolute_session_timeout_unit": "MINUTES",
+  "idle_session_timeout": 84,
+  "idle_session_timeout_enabled": true,
+  "idle_session_timeout_unit": "MINUTES",
+  "policy_source": "CUSTOM"
+}
+```
+
+### organizationsUpdateOrganizationSessionPolicyResponse
+
+- **Type:**`object`
+
+* **`policy`**
+
+  `object` — The updated session policy for the organization.
+
+  - **`absolute_session_timeout`**
+
+    `integer`, format: `int32` — The absolute session timeout value. The unit is specified by absolute\_session\_timeout\_unit. Omitted when policy\_source is 'environment'.
+
+  - **`absolute_session_timeout_unit`**
+
+    `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for absolute\_session\_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
+
+  - **`idle_session_timeout`**
+
+    `integer`, format: `int32` — The idle session timeout value. The unit is specified by idle\_session\_timeout\_unit. Omitted when idle\_session\_timeout\_enabled is false or policy\_source is 'environment'.
+
+  - **`idle_session_timeout_enabled`**
+
+    `boolean` — Whether idle session timeout is enabled for this organization. Omitted when policy\_source is 'environment'.
+
+  - **`idle_session_timeout_unit`**
+
+    `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for idle\_session\_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
+
+  - **`policy_source`**
+
+    `string`, possible values: `"APPLICATION", "CUSTOM"` — Policy source. 'APPLICATION' means the organization inherits the application-level session policy. 'CUSTOM' means organization-specific timeout values are active.
+
+**Example:**
+
+```json
+{
+  "policy": {
+    "absolute_session_timeout": 360,
+    "absolute_session_timeout_unit": "minutes",
+    "idle_session_timeout": 84,
+    "idle_session_timeout_enabled": true,
+    "idle_session_timeout_unit": "minutes",
+    "policy_source": "CUSTOM"
   }
 }
 ```

@@ -53,10 +53,10 @@ The response includes an access token:
 
 ```json
 {
-  "access_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6InNua181Ok4OTEyMjU2NiIsInR5cCI6IkpXVCJ9...",
-  "token_type": "Bearer",
-  "expires_in": 86399,
-  "scope": "openid"
+	"access_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6InNua181Ok4OTEyMjU2NiIsInR5cCI6IkpXVCJ9...",
+	"token_type": "Bearer",
+	"expires_in": 86399,
+	"scope": "openid"
 }
 ```
 
@@ -73,13 +73,13 @@ npm install @scalekit-sdk/node
 Create a new Scalekit client instance after initializing the environment variables
 
 ```js
-import { Scalekit } from '@scalekit-sdk/node'
+import { Scalekit } from "@scalekit-sdk/node";
 
 export let scalekit = new Scalekit(
-  process.env.SCALEKIT_ENVIRONMENT_URL,
-  process.env.SCALEKIT_CLIENT_ID,
-  process.env.SCALEKIT_CLIENT_SECRET,
-)
+	process.env.SCALEKIT_ENVIRONMENT_URL,
+	process.env.SCALEKIT_CLIENT_ID,
+	process.env.SCALEKIT_CLIENT_SECRET
+);
 ```
 
 [See the Node SDK changelog](https://github.com/scalekit-inc/scalekit-sdk-node/releases)
@@ -165,14 +165,14 @@ Error responses include detailed information:
 
 ```json
 {
-  "code": 16,
-  "message": "Token empty",
-  "details": [
-    {
-      "@type": "type.googleapis.com/scalekit.v1.errdetails.ErrorInfo",
-      "error_code": "UNAUTHENTICATED"
-    }
-  ]
+	"code": 16,
+	"message": "Token empty",
+	"details": [
+		{
+			"@type": "type.googleapis.com/scalekit.v1.errdetails.ErrorInfo",
+			"error_code": "UNAUTHENTICATED"
+		}
+	]
 }
 ```
 
@@ -201,6 +201,7 @@ Retrieves a paginated list of connected accounts for third-party integrations. F
   `array` — List of connected accounts matching the filter criteria. Excludes sensitive authorization details for security.
 
   **Items:**
+
   - **`authorization_type`**
 
     `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authorization mechanism type.
@@ -243,11 +244,11 @@ Retrieves a paginated list of connected accounts for third-party integrations. F
 
 - **`next_page_token`**
 
-  `string` — Pagination token for retrieving the next page. Empty if this is the last page. Pass this value to page_token in the next request.
+  `string` — Pagination token for retrieving the next page. Empty if this is the last page. Pass this value to page\_token in the next request.
 
 - **`prev_page_token`**
 
-  `string` — Pagination token for retrieving the previous page. Empty if this is the first page. Pass this value to page_token to go back.
+  `string` — Pagination token for retrieving the previous page. Empty if this is the first page. Pass this value to page\_token to go back.
 
 - **`total_size`**
 
@@ -312,6 +313,7 @@ Updates authentication credentials and configuration for an existing connected a
 - **`connected_account`**
 
   `object` — Details of the connected account to update
+
   - **`api_config`**
 
     `object` — Updated JSON configuration for API-specific settings. Merges with existing configuration - only provided fields are modified.
@@ -319,9 +321,11 @@ Updates authentication credentials and configuration for an existing connected a
   - **`authorization_details`**
 
     `object` — Updated authentication credentials. Provide new OAuth tokens (e.g., after refresh) or updated static auth details. Only included fields will be modified.
+
     - **`google_dwd`**
 
-      `object` — Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections. Send only subject in requests; access_token, scopes, and token_expires_at are response-only.
+      `object` — Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connections. Send only subject in requests; access\_token, scopes, and token\_expires\_at are response-only.
+
       - **`access_token`**
 
         `string` — OAuth access token acquired via the jwt-bearer grant. Present in responses only.
@@ -345,6 +349,7 @@ Updates authentication credentials and configuration for an existing connected a
     - **`oauth_token`**
 
       `object`
+
       - **`access_token`**
 
         `string` — OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
@@ -368,6 +373,7 @@ Updates authentication credentials and configuration for an existing connected a
     - **`static_auth`**
 
       `object`
+
       - **`details`**
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
@@ -401,7 +407,10 @@ Updates authentication credentials and configuration for an existing connected a
       "oauth_token": {
         "access_token": "...",
         "refresh_token": "...",
-        "scopes": ["read", "write"]
+        "scopes": [
+          "read",
+          "write"
+        ]
       }
     },
     "authorization_type": "OAUTH2"
@@ -423,6 +432,7 @@ Updates authentication credentials and configuration for an existing connected a
 - **`connected_account`**
 
   `object` — The updated connected account with refreshed credentials, new token expiry, and modified configuration settings.
+
   - **`api_config`**
 
     `object` — Optional JSON configuration for connector-specific API settings such as rate limits, custom endpoints, or feature flags.
@@ -430,9 +440,11 @@ Updates authentication credentials and configuration for an existing connected a
   - **`authorization_details`**
 
     `object` — Sensitive authentication credentials including access tokens, refresh tokens, and scopes. Contains either OAuth tokens or static auth details.
+
     - **`google_dwd`**
 
-      `object` — Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections. Send only subject in requests; access_token, scopes, and token_expires_at are response-only.
+      `object` — Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connections. Send only subject in requests; access\_token, scopes, and token\_expires\_at are response-only.
+
       - **`access_token`**
 
         `string` — OAuth access token acquired via the jwt-bearer grant. Present in responses only.
@@ -456,6 +468,7 @@ Updates authentication credentials and configuration for an existing connected a
     - **`oauth_token`**
 
       `object`
+
       - **`access_token`**
 
         `string` — OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
@@ -479,6 +492,7 @@ Updates authentication credentials and configuration for an existing connected a
     - **`static_auth`**
 
       `object`
+
       - **`details`**
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
@@ -593,16 +607,19 @@ Creates a new connected account with OAuth tokens or API credentials for third-p
 - **`connected_account`**
 
   `object` — Details of the connected account to create
+
   - **`api_config`**
 
     `object` — Optional JSON configuration for connector-specific API settings such as rate limits, custom API endpoints, timeouts, or feature flags.
 
   - **`authorization_details`**
 
-    `object` — Optional authentication credentials for the connected account. Include OAuth tokens (access_token, refresh_token, scopes) or static auth details (API keys, bearer tokens). Can be provided later via update.
+    `object` — Optional authentication credentials for the connected account. Include OAuth tokens (access\_token, refresh\_token, scopes) or static auth details (API keys, bearer tokens). Can be provided later via update.
+
     - **`google_dwd`**
 
-      `object` — Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections. Send only subject in requests; access_token, scopes, and token_expires_at are response-only.
+      `object` — Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connections. Send only subject in requests; access\_token, scopes, and token\_expires\_at are response-only.
+
       - **`access_token`**
 
         `string` — OAuth access token acquired via the jwt-bearer grant. Present in responses only.
@@ -626,6 +643,7 @@ Creates a new connected account with OAuth tokens or API credentials for third-p
     - **`oauth_token`**
 
       `object`
+
       - **`access_token`**
 
         `string` — OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
@@ -649,6 +667,7 @@ Creates a new connected account with OAuth tokens or API credentials for third-p
     - **`static_auth`**
 
       `object`
+
       - **`details`**
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
@@ -678,7 +697,10 @@ Creates a new connected account with OAuth tokens or API credentials for third-p
       "oauth_token": {
         "access_token": "...",
         "refresh_token": "...",
-        "scopes": ["read", "write"]
+        "scopes": [
+          "read",
+          "write"
+        ]
       }
     },
     "authorization_type": "OAUTH2"
@@ -699,6 +721,7 @@ Creates a new connected account with OAuth tokens or API credentials for third-p
 - **`connected_account`**
 
   `object` — The newly created connected account with its unique identifier, status, and complete authorization details including access tokens.
+
   - **`api_config`**
 
     `object` — Optional JSON configuration for connector-specific API settings such as rate limits, custom endpoints, or feature flags.
@@ -706,9 +729,11 @@ Creates a new connected account with OAuth tokens or API credentials for third-p
   - **`authorization_details`**
 
     `object` — Sensitive authentication credentials including access tokens, refresh tokens, and scopes. Contains either OAuth tokens or static auth details.
+
     - **`google_dwd`**
 
-      `object` — Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections. Send only subject in requests; access_token, scopes, and token_expires_at are response-only.
+      `object` — Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connections. Send only subject in requests; access\_token, scopes, and token\_expires\_at are response-only.
+
       - **`access_token`**
 
         `string` — OAuth access token acquired via the jwt-bearer grant. Present in responses only.
@@ -732,6 +757,7 @@ Creates a new connected account with OAuth tokens or API credentials for third-p
     - **`oauth_token`**
 
       `object`
+
       - **`access_token`**
 
         `string` — OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
@@ -755,6 +781,7 @@ Creates a new connected account with OAuth tokens or API credentials for third-p
     - **`static_auth`**
 
       `object`
+
       - **`details`**
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
@@ -871,6 +898,7 @@ Retrieves complete authentication details for a connected account including OAut
 - **`connected_account`**
 
   `object` — The connected account with complete details including sensitive authorization credentials (access tokens, refresh tokens, scopes). Handle with appropriate access controls.
+
   - **`api_config`**
 
     `object` — Optional JSON configuration for connector-specific API settings such as rate limits, custom endpoints, or feature flags.
@@ -878,9 +906,11 @@ Retrieves complete authentication details for a connected account including OAut
   - **`authorization_details`**
 
     `object` — Sensitive authentication credentials including access tokens, refresh tokens, and scopes. Contains either OAuth tokens or static auth details.
+
     - **`google_dwd`**
 
-      `object` — Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections. Send only subject in requests; access_token, scopes, and token_expires_at are response-only.
+      `object` — Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connections. Send only subject in requests; access\_token, scopes, and token\_expires\_at are response-only.
+
       - **`access_token`**
 
         `string` — OAuth access token acquired via the jwt-bearer grant. Present in responses only.
@@ -904,6 +934,7 @@ Retrieves complete authentication details for a connected account including OAut
     - **`oauth_token`**
 
       `object`
+
       - **`access_token`**
 
         `string` — OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
@@ -927,6 +958,7 @@ Retrieves complete authentication details for a connected account including OAut
     - **`static_auth`**
 
       `object`
+
       - **`details`**
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
@@ -1043,6 +1075,7 @@ Returns metadata for a connected account including status, connector type, provi
 - **`connected_account`**
 
   `object` — The connected account with complete details including sensitive authorization credentials (access tokens, refresh tokens, scopes). Handle with appropriate access controls.
+
   - **`api_config`**
 
     `object` — Optional JSON configuration for connector-specific API settings such as rate limits, custom endpoints, or feature flags.
@@ -1050,9 +1083,11 @@ Returns metadata for a connected account including status, connector type, provi
   - **`authorization_details`**
 
     `object` — Sensitive authentication credentials including access tokens, refresh tokens, and scopes. Contains either OAuth tokens or static auth details.
+
     - **`google_dwd`**
 
-      `object` — Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections. Send only subject in requests; access_token, scopes, and token_expires_at are response-only.
+      `object` — Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connections. Send only subject in requests; access\_token, scopes, and token\_expires\_at are response-only.
+
       - **`access_token`**
 
         `string` — OAuth access token acquired via the jwt-bearer grant. Present in responses only.
@@ -1076,6 +1111,7 @@ Returns metadata for a connected account including status, connector type, provi
     - **`oauth_token`**
 
       `object`
+
       - **`access_token`**
 
         `string` — OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
@@ -1099,6 +1135,7 @@ Returns metadata for a connected account including status, connector type, provi
     - **`static_auth`**
 
       `object`
+
       - **`details`**
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
@@ -1301,7 +1338,7 @@ null
 - **Path:** `/api/v1/connected_accounts/user/verify`
 - **Tags:** Connected Accounts
 
-Confirms the user assertion and activates the connected account after the user completes third-party OAuth. Called by the B2B app server with auth_request_id and identifier. Validates that the asserted identifier matches the one stored on the auth request and promotes pending tokens to live.
+Confirms the user assertion and activates the connected account after the user completes third-party OAuth. Called by the B2B app server with auth\_request\_id and identifier. Validates that the asserted identifier matches the one stored on the auth request and promotes pending tokens to live.
 
 #### Request Body
 
@@ -1372,7 +1409,7 @@ null
 null
 ```
 
-##### Status: 404 Not found - no pending flow for the given auth_request_id or already consumed
+##### Status: 404 Not found - no pending flow for the given auth\_request\_id or already consumed
 
 ###### Content-Type: application/json
 
@@ -1487,6 +1524,7 @@ Search for connected accounts in your environment using a text query that matche
   `array` — List of connected accounts matching the search query. Excludes sensitive authorization details.
 
   **Items:**
+
   - **`authorization_type`**
 
     `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authorization mechanism type.
@@ -1602,6 +1640,7 @@ Retrieves a list of connections in the environment
   `array` — List of connections matching the request criteria
 
   **Items:**
+
   - **`domains`**
 
     `array` — List of domains configured with this connection
@@ -1652,7 +1691,10 @@ Retrieves a list of connections in the environment
 {
   "connections": [
     {
-      "domains": ["yourapp.com", "yourworkspace.com"],
+      "domains": [
+        "yourapp.com",
+        "yourworkspace.com"
+      ],
       "enabled": false,
       "id": "conn_2123312131125533",
       "key_id": "conn_2123312131125533",
@@ -1713,7 +1755,9 @@ Creates an environment-scoped custom provider (connector) with authentication pa
 
 ```json
 {
-  "auth_patterns": [{}],
+  "auth_patterns": [
+    {}
+  ],
   "description": "Connect to Google Workspace for email and calendar integration",
   "display_name": "Google Workspace",
   "icon_src": "https://example.com/images/my-connector.svg",
@@ -1735,6 +1779,7 @@ Creates an environment-scoped custom provider (connector) with authentication pa
 - **`provider`**
 
   `object`
+
   - **`auth_patterns`**
 
     `array`
@@ -1802,8 +1847,12 @@ Creates an environment-scoped custom provider (connector) with authentication pa
 ```json
 {
   "provider": {
-    "auth_patterns": [{}],
-    "categories": [""],
+    "auth_patterns": [
+      {}
+    ],
+    "categories": [
+      ""
+    ],
     "coming_soon": true,
     "description": "",
     "display_name": "",
@@ -1879,7 +1928,9 @@ Updates an existing environment-scoped custom provider (connector) by its identi
 
 ```json
 {
-  "auth_patterns": [{}],
+  "auth_patterns": [
+    {}
+  ],
   "description": "Connect to Google Workspace for email and calendar integration",
   "display_name": "Google Workspace",
   "icon_src": "https://example.com/images/my-connector.svg",
@@ -1901,6 +1952,7 @@ Updates an existing environment-scoped custom provider (connector) by its identi
 - **`provider`**
 
   `object`
+
   - **`auth_patterns`**
 
     `array`
@@ -1968,8 +2020,12 @@ Updates an existing environment-scoped custom provider (connector) by its identi
 ```json
 {
   "provider": {
-    "auth_patterns": [{}],
-    "categories": [""],
+    "auth_patterns": [
+      {}
+    ],
+    "categories": [
+      ""
+    ],
     "coming_soon": true,
     "description": "",
     "display_name": "",
@@ -2196,6 +2252,7 @@ Resends an invitation email to a user who has a pending or expired invitation in
 - **`invite`**
 
   `object` — Updated invitation object containing the resent invitation details, including new expiration time and incremented resend counter.
+
   - **`created_at`**
 
     `string`, format: `date-time` — Timestamp when the invite was originally created.
@@ -2249,6 +2306,7 @@ Resends an invitation email to a user who has a pending or expired invitation in
 - **`debug_info`**
 
   `object` — Describes additional debugging info.
+
   - **`detail`**
 
     `string` — Additional debugging information provided by the server.
@@ -2268,11 +2326,13 @@ Resends an invitation email to a user who has a pending or expired invitation in
 - **`help_info`**
 
   `object` — HelpInfo provides documentation links attached to an error response. When present in ErrorInfo, clients should surface these links to help developers resolve the error. For example, a missing required field error may include a link to the relevant guide.
+
   - **`links`**
 
     `array` — One or more links relevant to resolving the error.
 
     **Items:**
+
     - **`description`**
 
       `string` — Human-readable label for the link (e.g. "User verification flow").
@@ -2284,6 +2344,7 @@ Resends an invitation email to a user who has a pending or expired invitation in
 - **`localized_message_info`**
 
   `object`
+
   - **`locale`**
 
     `string`
@@ -2295,6 +2356,7 @@ Resends an invitation email to a user who has a pending or expired invitation in
 - **`request_info`**
 
   `object` — Contains metadata about the request that clients can attach when filing a bug or providing other forms of feedback.
+
   - **`request_id`**
 
     `string` — An opaque string that should only be interpreted by the service generating it. For example, it can be used to identify requests in the service's logs.
@@ -2306,6 +2368,7 @@ Resends an invitation email to a user who has a pending or expired invitation in
 - **`resource_info`**
 
   `object` — Describes the resource that is being accessed.
+
   - **`description`**
 
     `string` — Describes what error is encountered when accessing this resource. For example, updating a cloud project may require the \`writer\` permission on the developer console project.
@@ -2333,6 +2396,7 @@ Resends an invitation email to a user who has a pending or expired invitation in
 - **`tool_error_info`**
 
   `object`
+
   - **`execution_id`**
 
     `string`
@@ -2348,11 +2412,13 @@ Resends an invitation email to a user who has a pending or expired invitation in
 - **`validation_error_info`**
 
   `object` — Describes violations in a client request. This error type focuses on the syntactic aspects of the request.
+
   - **`field_violations`**
 
     `array` — Describes all violations in a client request.
 
     **Items:**
+
     - **`constraint`**
 
       `string`
@@ -2371,11 +2437,15 @@ Resends an invitation email to a user who has a pending or expired invitation in
 {
   "debug_info": {
     "detail": "",
-    "stack_entries": [""]
+    "stack_entries": [
+      ""
+    ]
   },
   "error_code": "",
   "help_info": {
-    "links": [{}]
+    "links": [
+      {}
+    ]
   },
   "localized_message_info": {
     "locale": "",
@@ -2388,7 +2458,9 @@ Resends an invitation email to a user who has a pending or expired invitation in
   "resource_info": {
     "description": "",
     "owner": "",
-    "required_permissions": [""],
+    "required_permissions": [
+      ""
+    ],
     "resource_name": "",
     "user": ""
   },
@@ -2398,7 +2470,9 @@ Resends an invitation email to a user who has a pending or expired invitation in
     "tool_error_message": ""
   },
   "validation_error_info": {
-    "field_violations": [{}]
+    "field_violations": [
+      {}
+    ]
   }
 }
 ```
@@ -2410,6 +2484,7 @@ Resends an invitation email to a user who has a pending or expired invitation in
 - **`debug_info`**
 
   `object` — Describes additional debugging info.
+
   - **`detail`**
 
     `string` — Additional debugging information provided by the server.
@@ -2429,11 +2504,13 @@ Resends an invitation email to a user who has a pending or expired invitation in
 - **`help_info`**
 
   `object` — HelpInfo provides documentation links attached to an error response. When present in ErrorInfo, clients should surface these links to help developers resolve the error. For example, a missing required field error may include a link to the relevant guide.
+
   - **`links`**
 
     `array` — One or more links relevant to resolving the error.
 
     **Items:**
+
     - **`description`**
 
       `string` — Human-readable label for the link (e.g. "User verification flow").
@@ -2445,6 +2522,7 @@ Resends an invitation email to a user who has a pending or expired invitation in
 - **`localized_message_info`**
 
   `object`
+
   - **`locale`**
 
     `string`
@@ -2456,6 +2534,7 @@ Resends an invitation email to a user who has a pending or expired invitation in
 - **`request_info`**
 
   `object` — Contains metadata about the request that clients can attach when filing a bug or providing other forms of feedback.
+
   - **`request_id`**
 
     `string` — An opaque string that should only be interpreted by the service generating it. For example, it can be used to identify requests in the service's logs.
@@ -2467,6 +2546,7 @@ Resends an invitation email to a user who has a pending or expired invitation in
 - **`resource_info`**
 
   `object` — Describes the resource that is being accessed.
+
   - **`description`**
 
     `string` — Describes what error is encountered when accessing this resource. For example, updating a cloud project may require the \`writer\` permission on the developer console project.
@@ -2494,6 +2574,7 @@ Resends an invitation email to a user who has a pending or expired invitation in
 - **`tool_error_info`**
 
   `object`
+
   - **`execution_id`**
 
     `string`
@@ -2509,11 +2590,13 @@ Resends an invitation email to a user who has a pending or expired invitation in
 - **`validation_error_info`**
 
   `object` — Describes violations in a client request. This error type focuses on the syntactic aspects of the request.
+
   - **`field_violations`**
 
     `array` — Describes all violations in a client request.
 
     **Items:**
+
     - **`constraint`**
 
       `string`
@@ -2532,11 +2615,15 @@ Resends an invitation email to a user who has a pending or expired invitation in
 {
   "debug_info": {
     "detail": "",
-    "stack_entries": [""]
+    "stack_entries": [
+      ""
+    ]
   },
   "error_code": "",
   "help_info": {
-    "links": [{}]
+    "links": [
+      {}
+    ]
   },
   "localized_message_info": {
     "locale": "",
@@ -2549,7 +2636,9 @@ Resends an invitation email to a user who has a pending or expired invitation in
   "resource_info": {
     "description": "",
     "owner": "",
-    "required_permissions": [""],
+    "required_permissions": [
+      ""
+    ],
     "resource_name": "",
     "user": ""
   },
@@ -2559,7 +2648,9 @@ Resends an invitation email to a user who has a pending or expired invitation in
     "tool_error_message": ""
   },
   "validation_error_info": {
-    "field_violations": [{}]
+    "field_violations": [
+      {}
+    ]
   }
 }
 ```
@@ -2571,6 +2662,7 @@ Resends an invitation email to a user who has a pending or expired invitation in
 - **`debug_info`**
 
   `object` — Describes additional debugging info.
+
   - **`detail`**
 
     `string` — Additional debugging information provided by the server.
@@ -2590,11 +2682,13 @@ Resends an invitation email to a user who has a pending or expired invitation in
 - **`help_info`**
 
   `object` — HelpInfo provides documentation links attached to an error response. When present in ErrorInfo, clients should surface these links to help developers resolve the error. For example, a missing required field error may include a link to the relevant guide.
+
   - **`links`**
 
     `array` — One or more links relevant to resolving the error.
 
     **Items:**
+
     - **`description`**
 
       `string` — Human-readable label for the link (e.g. "User verification flow").
@@ -2606,6 +2700,7 @@ Resends an invitation email to a user who has a pending or expired invitation in
 - **`localized_message_info`**
 
   `object`
+
   - **`locale`**
 
     `string`
@@ -2617,6 +2712,7 @@ Resends an invitation email to a user who has a pending or expired invitation in
 - **`request_info`**
 
   `object` — Contains metadata about the request that clients can attach when filing a bug or providing other forms of feedback.
+
   - **`request_id`**
 
     `string` — An opaque string that should only be interpreted by the service generating it. For example, it can be used to identify requests in the service's logs.
@@ -2628,6 +2724,7 @@ Resends an invitation email to a user who has a pending or expired invitation in
 - **`resource_info`**
 
   `object` — Describes the resource that is being accessed.
+
   - **`description`**
 
     `string` — Describes what error is encountered when accessing this resource. For example, updating a cloud project may require the \`writer\` permission on the developer console project.
@@ -2655,6 +2752,7 @@ Resends an invitation email to a user who has a pending or expired invitation in
 - **`tool_error_info`**
 
   `object`
+
   - **`execution_id`**
 
     `string`
@@ -2670,11 +2768,13 @@ Resends an invitation email to a user who has a pending or expired invitation in
 - **`validation_error_info`**
 
   `object` — Describes violations in a client request. This error type focuses on the syntactic aspects of the request.
+
   - **`field_violations`**
 
     `array` — Describes all violations in a client request.
 
     **Items:**
+
     - **`constraint`**
 
       `string`
@@ -2693,11 +2793,15 @@ Resends an invitation email to a user who has a pending or expired invitation in
 {
   "debug_info": {
     "detail": "",
-    "stack_entries": [""]
+    "stack_entries": [
+      ""
+    ]
   },
   "error_code": "",
   "help_info": {
-    "links": [{}]
+    "links": [
+      {}
+    ]
   },
   "localized_message_info": {
     "locale": "",
@@ -2710,7 +2814,9 @@ Resends an invitation email to a user who has a pending or expired invitation in
   "resource_info": {
     "description": "",
     "owner": "",
-    "required_permissions": [""],
+    "required_permissions": [
+      ""
+    ],
     "resource_name": "",
     "user": ""
   },
@@ -2720,7 +2826,9 @@ Resends an invitation email to a user who has a pending or expired invitation in
     "tool_error_message": ""
   },
   "validation_error_info": {
-    "field_violations": [{}]
+    "field_violations": [
+      {}
+    ]
   }
 }
 ```
@@ -2731,7 +2839,7 @@ Resends an invitation email to a user who has a pending or expired invitation in
 - **Path:** `/api/v1/mcp`
 - **Tags:** MCP
 
-Returns a list of existing MCPs, optionally filtered by connected_account_identifier and link_token.
+Returns a list of existing MCPs, optionally filtered by connected\_account\_identifier and link\_token.
 
 #### Responses
 
@@ -2744,6 +2852,7 @@ Returns a list of existing MCPs, optionally filtered by connected_account_identi
   `array` — List of MCPs
 
   **Items:**
+
   - **`connected_account_identifier`**
 
     `string` — Identifier for the connected account
@@ -2757,6 +2866,7 @@ Returns a list of existing MCPs, optionally filtered by connected_account_identi
     `array` — Provider name (e.g. GOOGLE)
 
     **Items:**
+
     - **`connection_name`**
 
       `string` — Connection name for the tool
@@ -2837,6 +2947,7 @@ Creates a new MCP for the configuration. If same configuration exists, it will r
   `array` — Provider name (e.g. GOOGLE)
 
   **Items:**
+
   - **`connection_name`**
 
     `string` — Connection name for the tool
@@ -2877,6 +2988,7 @@ Creates a new MCP for the configuration. If same configuration exists, it will r
 - **`mcp`**
 
   `object` — The MCP server details
+
   - **`connected_account_identifier`**
 
     `string` — Identifier for the connected account
@@ -2890,6 +3002,7 @@ Creates a new MCP for the configuration. If same configuration exists, it will r
     `array` — Provider name (e.g. GOOGLE)
 
     **Items:**
+
     - **`connection_name`**
 
       `string` — Connection name for the tool
@@ -2962,11 +3075,13 @@ Lists MCP configurations for the current environment with optional filters for i
   `array` — List of MCP configurations
 
   **Items:**
+
   - **`connection_tool_mappings`**
 
     `array` — List of connection-to-tool mappings for this MCP config
 
     **Items:**
+
     - **`connected_account_id`**
 
       `string` — Connected account backing this connection in the MCP instance context
@@ -3025,7 +3140,9 @@ Lists MCP configurations for the current environment with optional filters for i
 {
   "configs": [
     {
-      "connection_tool_mappings": [{}],
+      "connection_tool_mappings": [
+        {}
+      ],
       "description": "Summarizes daily emails and posts to Slack",
       "id": "cfg_85630864460904897",
       "name": "daily-summarizer"
@@ -3074,6 +3191,7 @@ Creates a new MCP configuration with a set of connections and tools.
   `array` — List of connection-to-tool mappings for this MCP config
 
   **Items:**
+
   - **`connected_account_id`**
 
     `string` — Connected account backing this connection in the MCP instance context
@@ -3125,7 +3243,9 @@ Creates a new MCP configuration with a set of connections and tools.
       "connection_id": "",
       "connection_name": "",
       "provider": "",
-      "tools": [""]
+      "tools": [
+        ""
+      ]
     }
   ],
   "description": "Summarizes daily emails and posts to Slack",
@@ -3143,11 +3263,13 @@ Creates a new MCP configuration with a set of connections and tools.
 - **`config`**
 
   `object` — The created MCP configuration
+
   - **`connection_tool_mappings`**
 
     `array` — List of connection-to-tool mappings for this MCP config
 
     **Items:**
+
     - **`connected_account_id`**
 
       `string` — Connected account backing this connection in the MCP instance context
@@ -3193,7 +3315,9 @@ Creates a new MCP configuration with a set of connections and tools.
 ```json
 {
   "config": {
-    "connection_tool_mappings": [{}],
+    "connection_tool_mappings": [
+      {}
+    ],
     "description": "Summarizes daily emails and posts to Slack",
     "id": "cfg_85630864460904897",
     "name": "daily-summarizer"
@@ -3238,11 +3362,13 @@ Returns a single MCP configuration for the current environment by ID.
 - **`config`**
 
   `object` — The requested MCP configuration
+
   - **`connection_tool_mappings`**
 
     `array` — List of connection-to-tool mappings for this MCP config
 
     **Items:**
+
     - **`connected_account_id`**
 
       `string` — Connected account backing this connection in the MCP instance context
@@ -3288,7 +3414,9 @@ Returns a single MCP configuration for the current environment by ID.
 ```json
 {
   "config": {
-    "connection_tool_mappings": [{}],
+    "connection_tool_mappings": [
+      {}
+    ],
     "description": "Summarizes daily emails and posts to Slack",
     "id": "cfg_85630864460904897",
     "name": "daily-summarizer"
@@ -3343,6 +3471,7 @@ Updates the name, description, and connection-to-tool mappings for an existing M
   `array` — Updated list of connection-to-tool mappings for this MCP config
 
   **Items:**
+
   - **`connected_account_id`**
 
     `string` — Connected account backing this connection in the MCP instance context
@@ -3386,7 +3515,9 @@ Updates the name, description, and connection-to-tool mappings for an existing M
       "connection_id": "",
       "connection_name": "",
       "provider": "",
-      "tools": [""]
+      "tools": [
+        ""
+      ]
     }
   ],
   "description": "Updated daily summarizer config"
@@ -3402,11 +3533,13 @@ Updates the name, description, and connection-to-tool mappings for an existing M
 - **`config`**
 
   `object` — The updated MCP configuration
+
   - **`connection_tool_mappings`**
 
     `array` — List of connection-to-tool mappings for this MCP config
 
     **Items:**
+
     - **`connected_account_id`**
 
       `string` — Connected account backing this connection in the MCP instance context
@@ -3452,7 +3585,9 @@ Updates the name, description, and connection-to-tool mappings for an existing M
 ```json
 {
   "config": {
-    "connection_tool_mappings": [{}],
+    "connection_tool_mappings": [
+      {}
+    ],
     "description": "Summarizes daily emails and posts to Slack",
     "id": "cfg_85630864460904897",
     "name": "daily-summarizer"
@@ -3559,14 +3694,17 @@ Lists MCP instances for the current environment with optional filters for instan
   `array` — List of MCP instances
 
   **Items:**
+
   - **`config`**
 
     `object` — Configuration backing this instance
+
     - **`connection_tool_mappings`**
 
       `array` — List of connection-to-tool mappings for this MCP config
 
       **Items:**
+
       - **`connected_account_id`**
 
         `string` — Connected account backing this connection in the MCP instance context
@@ -3727,14 +3865,17 @@ Returns an existing MCP instance for the given configuration, name, and user ide
 - **`instance`**
 
   `object` — Details of the MCP instance
+
   - **`config`**
 
     `object` — Configuration backing this instance
+
     - **`connection_tool_mappings`**
 
       `array` — List of connection-to-tool mappings for this MCP config
 
       **Items:**
+
       - **`connected_account_id`**
 
         `string` — Connected account backing this connection in the MCP instance context
@@ -3852,14 +3993,17 @@ Returns a single MCP instance for the current environment by ID.
 - **`instance`**
 
   `object` — The requested MCP instance
+
   - **`config`**
 
     `object` — Configuration backing this instance
+
     - **`connection_tool_mappings`**
 
       `array` — List of connection-to-tool mappings for this MCP config
 
       **Items:**
+
       - **`connected_account_id`**
 
         `string` — Connected account backing this connection in the MCP instance context
@@ -4058,14 +4202,17 @@ Updates attributes of an MCP instance. Currently only the config name can be cha
 - **`instance`**
 
   `object` — Updated MCP instance
+
   - **`config`**
 
     `object` — Configuration backing this instance
+
     - **`connection_tool_mappings`**
 
       `array` — List of connection-to-tool mappings for this MCP config
 
       **Items:**
+
       - **`connected_account_id`**
 
         `string` — Connected account backing this connection in the MCP instance context
@@ -4195,6 +4342,7 @@ Returns the connected account status and fresh authentication links for each con
   `array` — Status of each connection mapped to the instance
 
   **Items:**
+
   - **`authentication_link`**
 
     `string` — Magic link for reconnecting the connected account
@@ -4283,6 +4431,7 @@ Returns the existing MCP with the given ID.
 - **`mcp`**
 
   `object` — The MCP details
+
   - **`connected_account_identifier`**
 
     `string` — Identifier for the connected account
@@ -4296,6 +4445,7 @@ Returns the existing MCP with the given ID.
     `array` — Provider name (e.g. GOOGLE)
 
     **Items:**
+
     - **`connection_name`**
 
       `string` — Connection name for the tool
@@ -4434,6 +4584,7 @@ Adds an existing user to an organization and assigns them specific roles and per
   `array` — Role to assign to the user within the organization
 
   **Items:**
+
   - **`display_name`**
 
     `string` — Human-readable name for the role
@@ -4472,6 +4623,7 @@ Adds an existing user to an organization and assigns them specific roles and per
 - **`user`**
 
   `object`
+
   - **`create_time`**
 
     `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
@@ -4497,6 +4649,7 @@ Adds an existing user to an organization and assigns them specific roles and per
     `array` — List of organization memberships. Automatically populated based on group assignments.
 
     **Items:**
+
     - **`accepted_at`**
 
       `string`, format: `date-time` — Timestamp when the user accepted the invitation.
@@ -4547,13 +4700,14 @@ Adds an existing user to an organization and assigns them specific roles and per
 
     - **`provisioning_method`**
 
-      `string` — How the user was provisioned. Possible values: - \`jit_using_sso\` (Just-in-time provisioning during SSO login) - \`allowed_email_domain\` (User joined via allowed email domain matching) - \`org_creator\` (User created the organization) - \`direct_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
 
     - **`roles`**
 
       `array`
 
       **Items:**
+
       - **`display_name`**
 
         `string` — Human-readable name for the role
@@ -4577,6 +4731,7 @@ Adds an existing user to an organization and assigns them specific roles and per
   - **`user_profile`**
 
     `object` — User's personal information including name, address, and other profile attributes.
+
     - **`custom_attributes`**
 
       `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
@@ -4590,6 +4745,7 @@ Adds an existing user to an organization and assigns them specific roles and per
       `array` — List of external identity connections associated with the user profile.
 
       **Items:**
+
       - **`connection_id`**
 
         `string` — Unique identifier for the external identity connection. Immutable and read-only.
@@ -4656,7 +4812,7 @@ Adds an existing user to an organization and assigns them specific roles and per
 
     - **`name`**
 
-      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given_name and family_name fields.
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
 
     - **`phone_number`**
 
@@ -4684,7 +4840,9 @@ Adds an existing user to an organization and assigns them specific roles and per
     "external_id": "ext_12345a67b89c",
     "id": "usr_1234abcd5678efgh",
     "last_login_time": "",
-    "memberships": [{}],
+    "memberships": [
+      {}
+    ],
     "metadata": {
       "department": "engineering",
       "location": "nyc-office"
@@ -4736,6 +4894,7 @@ Updates a user's membership details within an organization by user ID or externa
   `array` — Role to assign to the user within the organization
 
   **Items:**
+
   - **`display_name`**
 
     `string` — Human-readable name for the role
@@ -4773,6 +4932,7 @@ Updates a user's membership details within an organization by user ID or externa
 - **`user`**
 
   `object`
+
   - **`create_time`**
 
     `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
@@ -4798,6 +4958,7 @@ Updates a user's membership details within an organization by user ID or externa
     `array` — List of organization memberships. Automatically populated based on group assignments.
 
     **Items:**
+
     - **`accepted_at`**
 
       `string`, format: `date-time` — Timestamp when the user accepted the invitation.
@@ -4848,13 +5009,14 @@ Updates a user's membership details within an organization by user ID or externa
 
     - **`provisioning_method`**
 
-      `string` — How the user was provisioned. Possible values: - \`jit_using_sso\` (Just-in-time provisioning during SSO login) - \`allowed_email_domain\` (User joined via allowed email domain matching) - \`org_creator\` (User created the organization) - \`direct_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
 
     - **`roles`**
 
       `array`
 
       **Items:**
+
       - **`display_name`**
 
         `string` — Human-readable name for the role
@@ -4878,6 +5040,7 @@ Updates a user's membership details within an organization by user ID or externa
   - **`user_profile`**
 
     `object` — User's personal information including name, address, and other profile attributes.
+
     - **`custom_attributes`**
 
       `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
@@ -4891,6 +5054,7 @@ Updates a user's membership details within an organization by user ID or externa
       `array` — List of external identity connections associated with the user profile.
 
       **Items:**
+
       - **`connection_id`**
 
         `string` — Unique identifier for the external identity connection. Immutable and read-only.
@@ -4957,7 +5121,7 @@ Updates a user's membership details within an organization by user ID or externa
 
     - **`name`**
 
-      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given_name and family_name fields.
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
 
     - **`phone_number`**
 
@@ -4985,7 +5149,9 @@ Updates a user's membership details within an organization by user ID or externa
     "external_id": "ext_12345a67b89c",
     "id": "usr_1234abcd5678efgh",
     "last_login_time": "",
-    "memberships": [{}],
+    "memberships": [
+      {}
+    ],
     "metadata": {
       "department": "engineering",
       "location": "nyc-office"
@@ -5019,6 +5185,7 @@ Retrieve a paginated list of organizations within your environment. The response
   `array` — List of organization objects
 
   **Items:**
+
   - **`create_time` (required)**
 
     `string`, format: `date-time` — Timestamp when the organization was created
@@ -5050,18 +5217,20 @@ Retrieve a paginated list of organizations within your environment. The response
   - **`settings`**
 
     `object` — Configuration options that control organization-level features and capabilities
+
     - **`features`**
 
       `array` — List of feature toggles that control organization capabilities such as SSO authentication and directory synchronization
 
       **Items:**
+
       - **`enabled` (required)**
 
         `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
 
       - **`name` (required)**
 
-        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory_sync" (Directory Synchronization), "domain_verification" (Domain Verification), "session_policy" (Organization-level session policy override)
+        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
 
   - **`slug`**
 
@@ -5170,6 +5339,7 @@ Creates a new organization in your environment. Use this endpoint to add a new t
 - **`organization`**
 
   `object` — The newly created organization containing its ID, settings, and metadata
+
   - **`create_time` (required)**
 
     `string`, format: `date-time` — Timestamp when the organization was created
@@ -5201,18 +5371,20 @@ Creates a new organization in your environment. Use this endpoint to add a new t
   - **`settings`**
 
     `object` — Configuration options that control organization-level features and capabilities
+
     - **`features`**
 
       `array` — List of feature toggles that control organization capabilities such as SSO authentication and directory synchronization
 
       **Items:**
+
       - **`enabled` (required)**
 
         `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
 
       - **`name` (required)**
 
-        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory_sync" (Directory Synchronization), "domain_verification" (Domain Verification), "session_policy" (Organization-level session policy override)
+        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
 
   - **`slug`**
 
@@ -5260,6 +5432,7 @@ Retrieves organization details by Scalekit ID, including name, region, metadata,
 - **`organization`**
 
   `object` — The newly created organization
+
   - **`create_time` (required)**
 
     `string`, format: `date-time` — Timestamp when the organization was created
@@ -5291,18 +5464,20 @@ Retrieves organization details by Scalekit ID, including name, region, metadata,
   - **`settings`**
 
     `object` — Configuration options that control organization-level features and capabilities
+
     - **`features`**
 
       `array` — List of feature toggles that control organization capabilities such as SSO authentication and directory synchronization
 
       **Items:**
+
       - **`enabled` (required)**
 
         `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
 
       - **`name` (required)**
 
-        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory_sync" (Directory Synchronization), "domain_verification" (Domain Verification), "session_policy" (Organization-level session policy override)
+        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
 
   - **`slug`**
 
@@ -5408,6 +5583,7 @@ Updates an organization's display name, external ID, or metadata. Requires a val
 - **`organization`**
 
   `object` — Updated organization details
+
   - **`create_time` (required)**
 
     `string`, format: `date-time` — Timestamp when the organization was created
@@ -5439,18 +5615,20 @@ Updates an organization's display name, external ID, or metadata. Requires a val
   - **`settings`**
 
     `object` — Configuration options that control organization-level features and capabilities
+
     - **`features`**
 
       `array` — List of feature toggles that control organization capabilities such as SSO authentication and directory synchronization
 
       **Items:**
+
       - **`enabled` (required)**
 
         `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
 
       - **`name` (required)**
 
-        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory_sync" (Directory Synchronization), "domain_verification" (Domain Verification), "session_policy" (Organization-level session policy override)
+        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
 
   - **`slug`**
 
@@ -5498,6 +5676,7 @@ Creates a single use Admin Portal URL valid for 1 minute. Once the generated adm
 - **`link`**
 
   `object` — Contains the generated admin portal link details. The link URL can be shared with organization administrators to set up: Single Sign-On (SSO) authentication and directory synchronization
+
   - **`expire_time`**
 
     `string`, format: `date-time` — Expiry time of the link. The link is valid for 1 minute.
@@ -5539,13 +5718,14 @@ Updates configuration settings for an organization. Supports modifying SSO confi
   `array` — List of feature toggles that control organization capabilities such as SSO authentication and directory synchronization
 
   **Items:**
+
   - **`enabled` (required)**
 
     `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
 
   - **`name` (required)**
 
-    `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory_sync" (Directory Synchronization), "domain_verification" (Domain Verification), "session_policy" (Organization-level session policy override)
+    `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
 
 **Example:**
 
@@ -5573,6 +5753,7 @@ Updates configuration settings for an organization. Supports modifying SSO confi
 - **`organization`**
 
   `object` — The newly created organization
+
   - **`create_time` (required)**
 
     `string`, format: `date-time` — Timestamp when the organization was created
@@ -5604,18 +5785,20 @@ Updates configuration settings for an organization. Supports modifying SSO confi
   - **`settings`**
 
     `object` — Configuration options that control organization-level features and capabilities
+
     - **`features`**
 
       `array` — List of feature toggles that control organization capabilities such as SSO authentication and directory synchronization
 
       **Items:**
+
       - **`enabled` (required)**
 
         `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
 
       - **`name` (required)**
 
-        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory_sync" (Directory Synchronization), "domain_verification" (Domain Verification), "session_policy" (Organization-level session policy override)
+        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
 
   - **`slug`**
 
@@ -5685,6 +5868,7 @@ Retrieves all environment roles and organization specific roles. Use this endpoi
   `array` — List of roles objects
 
   **Items:**
+
   - **`default_creator`**
 
     `boolean` — Indicates if this role is the default creator role for new organizations.
@@ -5726,6 +5910,7 @@ Retrieves all environment roles and organization specific roles. Use this endpoi
     `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time`
@@ -5826,7 +6011,10 @@ Creates a new role within the specified organization with basic configuration in
   "display_name": "Organization Viewer Role",
   "extends": "admin_role",
   "name": "org_viewer_role",
-  "permissions": ["read:users", "write:documents"]
+  "permissions": [
+    "read:users",
+    "write:documents"
+  ]
 }
 ```
 
@@ -5839,6 +6027,7 @@ Creates a new role within the specified organization with basic configuration in
 - **`role`**
 
   `object`
+
   - **`default_creator`**
 
     `boolean` — Indicates if this role is the default creator role for new organizations.
@@ -5880,6 +6069,7 @@ Creates a new role within the specified organization with basic configuration in
     `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time`
@@ -5951,6 +6141,7 @@ Retrieves complete information for a specific organization role including metada
 - **`role`**
 
   `object`
+
   - **`default_creator`**
 
     `boolean` — Indicates if this role is the default creator role for new organizations.
@@ -5992,6 +6183,7 @@ Retrieves complete information for a specific organization role including metada
     `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time`
@@ -6085,7 +6277,12 @@ Modifies an existing organization role's properties including display name, desc
   "description": "Can create, edit, publish, and approve content. Cannot delete content or manage user accounts.",
   "display_name": "Senior Content Editor",
   "extends": "content_editor",
-  "permissions": ["read:content", "write:content", "publish:content", "approve:content"]
+  "permissions": [
+    "read:content",
+    "write:content",
+    "publish:content",
+    "approve:content"
+  ]
 }
 ```
 
@@ -6098,6 +6295,7 @@ Modifies an existing organization role's properties including display name, desc
 - **`role`**
 
   `object`
+
   - **`default_creator`**
 
     `boolean` — Indicates if this role is the default creator role for new organizations.
@@ -6139,6 +6337,7 @@ Modifies an existing organization role's properties including display name, desc
     `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time`
@@ -6199,7 +6398,7 @@ Modifies an existing organization role's properties including display name, desc
 - **Path:** `/api/v1/organizations/{org_id}/roles/{role_name}`
 - **Tags:** Roles
 
-Permanently removes a role from the organization and optionally reassigns users who had that role to a different role. Use this endpoint when you need to clean up unused roles or restructure your organization's access control system. If users are assigned to the role being deleted, you can provide a reassign_role_name to move those users to a different role before deletion. This action cannot be undone, so ensure no critical users depend on the role before deletion.
+Permanently removes a role from the organization and optionally reassigns users who had that role to a different role. Use this endpoint when you need to clean up unused roles or restructure your organization's access control system. If users are assigned to the role being deleted, you can provide a reassign\_role\_name to move those users to a different role before deletion. This action cannot be undone, so ensure no critical users depend on the role before deletion.
 
 #### Responses
 
@@ -6246,6 +6445,7 @@ Updates the default member role for the specified organization. Use this endpoin
 - **`default_member`**
 
   `object` — Updated default member role
+
   - **`default_creator`**
 
     `boolean` — Indicates if this role is the default creator role for new organizations.
@@ -6287,6 +6487,7 @@ Updates the default member role for the specified organization. Use this endpoin
     `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time`
@@ -6343,6 +6544,7 @@ Retrieves a paginated list of API clients for a specific organization. Returns c
   `array` — List of API client objects for the organization. Each client includes its configuration, metadata, and active secrets (without exposing actual secret values).
 
   **Items:**
+
   - **`audience`**
 
     `array` — The intended recipients of access tokens issued to this client. Each audience value should be a URI that identifies an API or service.
@@ -6364,6 +6566,7 @@ Retrieves a paginated list of API clients for a specific organization. Returns c
     `array` — Additional claims included in access tokens issued to this client. These claims provide context about the client and can be used for authorization decisions.
 
     **Items:**
+
     - **`key`**
 
       `string` — The name of the custom claim. Must be between 1 and 128 characters. Use descriptive names that clearly indicate the claim's purpose.
@@ -6425,6 +6628,7 @@ Retrieves a paginated list of API clients for a specific organization. Returns c
     `array` — List of client secrets associated with this client. Each secret can be used for authentication, but only the most recently created secret is typically active. Secrets are stored securely and their values are never returned after creation.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time` — The timestamp when this secret was created. This field is automatically set by the server and cannot be modified.
@@ -6483,10 +6687,14 @@ Retrieves a paginated list of API clients for a specific organization. Returns c
 {
   "clients": [
     {
-      "audience": ["https://api.example.com"],
+      "audience": [
+        "https://api.example.com"
+      ],
       "client_id": "m2morg_1231234233424344",
       "create_time": "2024-01-05T14:48:00Z",
-      "custom_claims": [{}],
+      "custom_claims": [
+        {}
+      ],
       "description": "Service account for automated deployment processes",
       "expiry": 3600,
       "is_cimd": false,
@@ -6494,10 +6702,17 @@ Retrieves a paginated list of API clients for a specific organization. Returns c
       "metadata_uri": "https://example.com/client-metadata.json",
       "name": "GitHub Actions Deployment Service",
       "organization_id": "org_1231234233424344",
-      "redirect_uris": ["https://example.com/callback"],
+      "redirect_uris": [
+        "https://example.com/callback"
+      ],
       "resource_id": "app_1231234233424344",
-      "scopes": ["deploy:resources", "read:deployments"],
-      "secrets": [{}],
+      "scopes": [
+        "deploy:resources",
+        "read:deployments"
+      ],
+      "secrets": [
+        {}
+      ],
       "update_time": "2024-01-05T14:48:00Z"
     }
   ],
@@ -6532,6 +6747,7 @@ Creates a new API client for an organization. Returns the client details and a p
   `array` — Additional claims to be included in access tokens issued to this client. These claims provide context about the client and can be used for authorization decisions. Keep claims minimal to avoid increasing token size.
 
   **Items:**
+
   - **`key`**
 
     `string` — The name of the custom claim. Must be between 1 and 128 characters. Use descriptive names that clearly indicate the claim's purpose.
@@ -6564,7 +6780,10 @@ Creates a new API client for an organization. Returns the client details and a p
 
 ```json
 {
-  "audience": ["https://api.example.com/api/analytics", "https://deployment-api.acmecorp.com"],
+  "audience": [
+    "https://api.example.com/api/analytics",
+    "https://deployment-api.acmecorp.com"
+  ],
   "custom_claims": [
     {
       "key": "environment",
@@ -6578,7 +6797,10 @@ Creates a new API client for an organization. Returns the client details and a p
   "description": "Service account for GitHub Actions to deploy resources to production",
   "expiry": 3600,
   "name": "GitHub Actions Deployment Service",
-  "scopes": ["deploy:resources", "read:deployments"]
+  "scopes": [
+    "deploy:resources",
+    "read:deployments"
+  ]
 }
 ```
 
@@ -6591,6 +6813,7 @@ Creates a new API client for an organization. Returns the client details and a p
 - **`client`**
 
   `object` — Details of the created client
+
   - **`audience`**
 
     `array` — The intended recipients of access tokens issued to this client. Each audience value should be a URI that identifies an API or service.
@@ -6612,6 +6835,7 @@ Creates a new API client for an organization. Returns the client details and a p
     `array` — Additional claims included in access tokens issued to this client. These claims provide context about the client and can be used for authorization decisions.
 
     **Items:**
+
     - **`key`**
 
       `string` — The name of the custom claim. Must be between 1 and 128 characters. Use descriptive names that clearly indicate the claim's purpose.
@@ -6673,6 +6897,7 @@ Creates a new API client for an organization. Returns the client details and a p
     `array` — List of client secrets associated with this client. Each secret can be used for authentication, but only the most recently created secret is typically active. Secrets are stored securely and their values are never returned after creation.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time` — The timestamp when this secret was created. This field is automatically set by the server and cannot be modified.
@@ -6722,10 +6947,14 @@ Creates a new API client for an organization. Returns the client details and a p
 ```json
 {
   "client": {
-    "audience": ["https://api.example.com"],
+    "audience": [
+      "https://api.example.com"
+    ],
     "client_id": "m2morg_1231234233424344",
     "create_time": "2024-01-05T14:48:00Z",
-    "custom_claims": [{}],
+    "custom_claims": [
+      {}
+    ],
     "description": "Service account for automated deployment processes",
     "expiry": 3600,
     "is_cimd": false,
@@ -6733,10 +6962,17 @@ Creates a new API client for an organization. Returns the client details and a p
     "metadata_uri": "https://example.com/client-metadata.json",
     "name": "GitHub Actions Deployment Service",
     "organization_id": "org_1231234233424344",
-    "redirect_uris": ["https://example.com/callback"],
+    "redirect_uris": [
+      "https://example.com/callback"
+    ],
     "resource_id": "app_1231234233424344",
-    "scopes": ["deploy:resources", "read:deployments"],
-    "secrets": [{}],
+    "scopes": [
+      "deploy:resources",
+      "read:deployments"
+    ],
+    "secrets": [
+      {}
+    ],
     "update_time": "2024-01-05T14:48:00Z"
   },
   "plain_secret": "CdExsdErfccxDDssddfffgfeFHH1"
@@ -6760,6 +6996,7 @@ Retrieves details of a specific API client in an organization.
 - **`client`**
 
   `object` — Details of the requested client
+
   - **`audience`**
 
     `array` — The intended recipients of access tokens issued to this client. Each audience value should be a URI that identifies an API or service.
@@ -6781,6 +7018,7 @@ Retrieves details of a specific API client in an organization.
     `array` — Additional claims included in access tokens issued to this client. These claims provide context about the client and can be used for authorization decisions.
 
     **Items:**
+
     - **`key`**
 
       `string` — The name of the custom claim. Must be between 1 and 128 characters. Use descriptive names that clearly indicate the claim's purpose.
@@ -6842,6 +7080,7 @@ Retrieves details of a specific API client in an organization.
     `array` — List of client secrets associated with this client. Each secret can be used for authentication, but only the most recently created secret is typically active. Secrets are stored securely and their values are never returned after creation.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time` — The timestamp when this secret was created. This field is automatically set by the server and cannot be modified.
@@ -6887,10 +7126,14 @@ Retrieves details of a specific API client in an organization.
 ```json
 {
   "client": {
-    "audience": ["https://api.example.com"],
+    "audience": [
+      "https://api.example.com"
+    ],
     "client_id": "m2morg_1231234233424344",
     "create_time": "2024-01-05T14:48:00Z",
-    "custom_claims": [{}],
+    "custom_claims": [
+      {}
+    ],
     "description": "Service account for automated deployment processes",
     "expiry": 3600,
     "is_cimd": false,
@@ -6898,10 +7141,17 @@ Retrieves details of a specific API client in an organization.
     "metadata_uri": "https://example.com/client-metadata.json",
     "name": "GitHub Actions Deployment Service",
     "organization_id": "org_1231234233424344",
-    "redirect_uris": ["https://example.com/callback"],
+    "redirect_uris": [
+      "https://example.com/callback"
+    ],
     "resource_id": "app_1231234233424344",
-    "scopes": ["deploy:resources", "read:deployments"],
-    "secrets": [{}],
+    "scopes": [
+      "deploy:resources",
+      "read:deployments"
+    ],
+    "secrets": [
+      {}
+    ],
     "update_time": "2024-01-05T14:48:00Z"
   }
 }
@@ -6952,6 +7202,7 @@ Updates an existing organization API client. Only specified fields are modified.
   `array` — Additional claims to be included in access tokens issued to this client. These claims provide context about the client and can be used for authorization decisions. Keep claims minimal to avoid increasing token size.
 
   **Items:**
+
   - **`key`**
 
     `string` — The name of the custom claim. Must be between 1 and 128 characters. Use descriptive names that clearly indicate the claim's purpose.
@@ -6984,7 +7235,10 @@ Updates an existing organization API client. Only specified fields are modified.
 
 ```json
 {
-  "audience": ["https://api.example.com/api/analytics", "https://deployment-api.acmecorp.com"],
+  "audience": [
+    "https://api.example.com/api/analytics",
+    "https://deployment-api.acmecorp.com"
+  ],
   "custom_claims": [
     {
       "key": "environment",
@@ -6998,7 +7252,10 @@ Updates an existing organization API client. Only specified fields are modified.
   "description": "Service account for GitHub Actions to deploy resources to production",
   "expiry": 3600,
   "name": "GitHub Actions Deployment Service",
-  "scopes": ["deploy:resources", "read:deployments"]
+  "scopes": [
+    "deploy:resources",
+    "read:deployments"
+  ]
 }
 ```
 
@@ -7011,6 +7268,7 @@ Updates an existing organization API client. Only specified fields are modified.
 - **`client`**
 
   `object` — Updated details of the client
+
   - **`audience`**
 
     `array` — The intended recipients of access tokens issued to this client. Each audience value should be a URI that identifies an API or service.
@@ -7032,6 +7290,7 @@ Updates an existing organization API client. Only specified fields are modified.
     `array` — Additional claims included in access tokens issued to this client. These claims provide context about the client and can be used for authorization decisions.
 
     **Items:**
+
     - **`key`**
 
       `string` — The name of the custom claim. Must be between 1 and 128 characters. Use descriptive names that clearly indicate the claim's purpose.
@@ -7093,6 +7352,7 @@ Updates an existing organization API client. Only specified fields are modified.
     `array` — List of client secrets associated with this client. Each secret can be used for authentication, but only the most recently created secret is typically active. Secrets are stored securely and their values are never returned after creation.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time` — The timestamp when this secret was created. This field is automatically set by the server and cannot be modified.
@@ -7138,10 +7398,14 @@ Updates an existing organization API client. Only specified fields are modified.
 ```json
 {
   "client": {
-    "audience": ["https://api.example.com"],
+    "audience": [
+      "https://api.example.com"
+    ],
     "client_id": "m2morg_1231234233424344",
     "create_time": "2024-01-05T14:48:00Z",
-    "custom_claims": [{}],
+    "custom_claims": [
+      {}
+    ],
     "description": "Service account for automated deployment processes",
     "expiry": 3600,
     "is_cimd": false,
@@ -7149,10 +7413,17 @@ Updates an existing organization API client. Only specified fields are modified.
     "metadata_uri": "https://example.com/client-metadata.json",
     "name": "GitHub Actions Deployment Service",
     "organization_id": "org_1231234233424344",
-    "redirect_uris": ["https://example.com/callback"],
+    "redirect_uris": [
+      "https://example.com/callback"
+    ],
     "resource_id": "app_1231234233424344",
-    "scopes": ["deploy:resources", "read:deployments"],
-    "secrets": [{}],
+    "scopes": [
+      "deploy:resources",
+      "read:deployments"
+    ],
+    "secrets": [
+      {}
+    ],
     "update_time": "2024-01-05T14:48:00Z"
   }
 }
@@ -7179,6 +7450,7 @@ Creates a new secret for an organization API client. Returns the plain secret (a
 - **`secret`**
 
   `object` — Details of the created client secret
+
   - **`create_time`**
 
     `string`, format: `date-time` — The timestamp when this secret was created. This field is automatically set by the server and cannot be modified.
@@ -7271,6 +7543,7 @@ Retrieves the complete configuration and status details for a specific connectio
 - **`connection`**
 
   `object` — Complete connection details including provider configuration, protocol settings, status, and all metadata. Contains everything needed to understand the connection's current state.
+
   - **`attribute_mapping`**
 
     `object` — Maps identity provider attributes to user profile fields. For example, {'email': 'user.mail', 'name': 'user.displayName'}.
@@ -7288,6 +7561,7 @@ Retrieves the complete configuration and status details for a specific connectio
     `array` — Domain associated with this connection, used for domain-based authentication flows.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time` — Timestamp when the domain was first created.
@@ -7318,11 +7592,11 @@ Retrieves the complete configuration and status details for a specific connectio
 
     - **`verification_method`**
 
-      `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — Method that determines how domain ownership is verified. - ADMIN: domain is marked verified without DNS validation, typically by an admin. - DNS: domain must be verified by adding a TXT record to your DNS configuration. - NOT_APPLICABLE: verification does not apply to this domain type.
+      `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — Method that determines how domain ownership is verified. - ADMIN: domain is marked verified without DNS validation, typically by an admin. - DNS: domain must be verified by adding a TXT record to your DNS configuration. - NOT\_APPLICABLE: verification does not apply to this domain type.
 
     - **`verification_status`**
 
-      `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain. - PENDING: DNS TXT record has not been validated yet. - VERIFIED: domain confirmed via DNS TXT record validation or admin approval. - AUTO_VERIFIED: domain verified automatically without DNS changes. - FAILED: DNS TXT record was not validated within the verification window.
+      `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain. - PENDING: DNS TXT record has not been validated yet. - VERIFIED: domain confirmed via DNS TXT record validation or admin approval. - AUTO\_VERIFIED: domain verified automatically without DNS changes. - FAILED: DNS TXT record was not validated within the verification window.
 
   - **`enabled`**
 
@@ -7330,7 +7604,8 @@ Retrieves the complete configuration and status details for a specific connectio
 
   - **`google_dwd_config`**
 
-    `object` — Configuration details for Google Domain-Wide Delegation. Present only when type is GOOGLE_DWD.
+    `object` — Configuration details for Google Domain-Wide Delegation. Present only when type is GOOGLE\_DWD.
+
     - **`scopes`**
 
       `array` — OAuth 2.0 scopes to request.
@@ -7358,13 +7633,14 @@ Retrieves the complete configuration and status details for a specific connectio
   - **`oauth_config`**
 
     `object` — Configuration details for OAuth connections. Present only when type is OAUTH.
+
     - **`access_type`**
 
       `string` — Access Type
 
     - **`app_name`**
 
-      `string` — Application name used by providers that require it as an authorize query parameter (e.g., Trello's app_name).
+      `string` — Application name used by providers that require it as an authorize query parameter (e.g., Trello's app\_name).
 
     - **`authorize_uri`**
 
@@ -7389,6 +7665,7 @@ Retrieves the complete configuration and status details for a specific connectio
     - **`optional_scopes`**
 
       `object` — Optional scopes configuration for identity providers that support or require additional scopes to be sent in a custom field during authentication requests.
+
       - **`field_name`**
 
         `string` — Name of the field in which scope should be sent in the authentication request. This is required by some identity providers that expect scopes to be sent in a custom field instead of the standard 'scope' parameter.
@@ -7448,13 +7725,14 @@ Retrieves the complete configuration and status details for a specific connectio
   - **`oidc_config`**
 
     `object` — Configuration details for OpenID Connect (OIDC) connections. Present only when type is OIDC.
+
     - **`authorize_uri`**
 
       `string` — Authorize URI
 
     - **`backchannel_logout_redirect_uri`**
 
-      `string` — backchannel logout redirect uri where idp sends logout_token
+      `string` — backchannel logout redirect uri where idp sends logout\_token
 
     - **`client_id`**
 
@@ -7526,7 +7804,8 @@ Retrieves the complete configuration and status details for a specific connectio
 
   - **`passwordless_config`**
 
-    `object` — Configuration details for Magic Link authentication. Present only when type is MAGIC_LINK.
+    `object` — Configuration details for Magic Link authentication. Present only when type is MAGIC\_LINK.
+
     - **`code_challenge_length`**
 
       `integer`, format: `int64` — Code Challenge Length
@@ -7566,6 +7845,7 @@ Retrieves the complete configuration and status details for a specific connectio
   - **`saml_config`**
 
     `object` — Configuration details for SAML connections. Present only when type is SAML.
+
     - **`allow_idp_initiated_login`**
 
       `boolean` — Allow IDP Initiated Login
@@ -7591,6 +7871,7 @@ Retrieves the complete configuration and status details for a specific connectio
       `array` — IDP Certificates
 
       **Items:**
+
       - **`certificate`**
 
         `string` — IDP Certificate
@@ -7681,14 +7962,15 @@ Retrieves the complete configuration and status details for a specific connectio
 
   - **`static_config`**
 
-    `object` — Static configuration for custom connections. Present only when type is BASIC, BEARER, API_KEY, or custom.
+    `object` — Static configuration for custom connections. Present only when type is BASIC, BEARER, API\_KEY, or custom.
+
     - **`static_config`**
 
       `object`
 
   - **`status`**
 
-    `string`, possible values: `"DRAFT", "IN_PROGRESS", "COMPLETED"` — Current configuration status of the connection. Possible values include IN_PROGRESS, CONFIGURED, and ERROR.
+    `string`, possible values: `"DRAFT", "IN_PROGRESS", "COMPLETED"` — Current configuration status of the connection. Possible values include IN\_PROGRESS, CONFIGURED, and ERROR.
 
   - **`test_connection_uri`**
 
@@ -7696,14 +7978,16 @@ Retrieves the complete configuration and status details for a specific connectio
 
   - **`type`**
 
-    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC_LINK.
+    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
 
   - **`webauthn_config`**
 
     `object` — Configuration details for WebAuthn (passkeys). Present only when type is WEBAUTHN.
+
     - **`attestation`**
 
       `object`
+
       - **`conveyance_preference`**
 
         `string`
@@ -7719,6 +8003,7 @@ Retrieves the complete configuration and status details for a specific connectio
     - **`authenticator_selection`**
 
       `object`
+
       - **`authenticator_attachment`**
 
         `string`
@@ -7730,9 +8015,10 @@ Retrieves the complete configuration and status details for a specific connectio
     - **`authenticators`**
 
       `object`
+
       - **`desired_authenticator_status`**
 
-        `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate_status set to true.
+        `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate\_status set to true.
 
         **Items:**
 
@@ -7740,7 +8026,7 @@ Retrieves the complete configuration and status details for a specific connectio
 
       - **`undesired_authenticator_status`**
 
-        `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate_status set to true.
+        `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate\_status set to true.
 
         **Items:**
 
@@ -7756,11 +8042,11 @@ Retrieves the complete configuration and status details for a specific connectio
 
       - **`validate_entry`**
 
-        `boolean` — requires that the provided metadata has an entry for the given authenticator to be considered valid. By default an AAGUID which has a zero value should fail validation if validate_entry_permit_zero_aaguid is not provided with the value of true.
+        `boolean` — requires that the provided metadata has an entry for the given authenticator to be considered valid. By default an AAGUID which has a zero value should fail validation if validate\_entry\_permit\_zero\_aaguid is not provided with the value of true.
 
       - **`validate_entry_permit_zero_aaguid`**
 
-        `boolean` — is an option that permits a zero'd AAGUID from an attestation statement to automatically pass metadata validations. Generally helpful to use with validate_entry.
+        `boolean` — is an option that permits a zero'd AAGUID from an attestation statement to automatically pass metadata validations. Generally helpful to use with validate\_entry.
 
       - **`validate_status`**
 
@@ -7777,6 +8063,7 @@ Retrieves the complete configuration and status details for a specific connectio
     - **`rp`**
 
       `object`
+
       - **`ids`**
 
         `array`
@@ -7800,6 +8087,7 @@ Retrieves the complete configuration and status details for a specific connectio
     - **`timeout`**
 
       `object`
+
       - **`login`**
 
         `string`, default: `"\"300s\""` — Login timeout duration
@@ -7950,14 +8238,17 @@ Activate an existing connection for the specified organization. When enabled, us
   `array` — List of directories associated with the organization
 
   **Items:**
+
   - **`attribute_mappings`**
 
     `object` — Mappings between directory attributes and Scalekit user and group attributes
+
     - **`attributes`**
 
       `array`
 
       **Items:**
+
       - **`key`**
 
         `string`
@@ -8009,11 +8300,13 @@ Activate an existing connection for the specified organization. When enabled, us
   - **`role_assignments`**
 
     `object` — Role assignments associated with the directory, defining group based role assignments
+
     - **`assignments`**
 
       `array`
 
       **Items:**
+
       - **`group_id`**
 
         `string` — group ID for the role mapping
@@ -8027,6 +8320,7 @@ Activate an existing connection for the specified organization. When enabled, us
     `array` — List of secrets used for authenticating and synchronizing with the Directory Provider
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time` — Creation Time
@@ -8058,6 +8352,7 @@ Activate an existing connection for the specified organization. When enabled, us
   - **`stats`**
 
     `object` — Statistics and metrics related to the directory, such as synchronization status and error counts
+
     - **`group_updated_at`**
 
       `string`, format: `date-time` — Max time of Group Updated At for Directory
@@ -8104,7 +8399,9 @@ Activate an existing connection for the specified organization. When enabled, us
       "name": "Azure AD",
       "organization_id": "org_121312434123312",
       "role_assignments": null,
-      "secrets": [{}],
+      "secrets": [
+        {}
+      ],
       "stats": null,
       "status": "IN_PROGRESS",
       "total_groups": 10,
@@ -8133,6 +8430,7 @@ Retrieves all groups from a specified directory. Use this endpoint to view group
   `array` — List of directory groups retrieved from the specified directory
 
   **Items:**
+
   - **`display_name`**
 
     `string` — Display Name
@@ -8155,11 +8453,11 @@ Retrieves all groups from a specified directory. Use this endpoint to view group
 
 - **`next_page_token`**
 
-  `string` — Token to retrieve the next page of results. Use this token in the 'page_token' field of the next request
+  `string` — Token to retrieve the next page of results. Use this token in the 'page\_token' field of the next request
 
 - **`prev_page_token`**
 
-  `string` — Token to retrieve the previous page of results. Use this token in the 'page_token' field of the next request
+  `string` — Token to retrieve the previous page of results. Use this token in the 'page\_token' field of the next request
 
 - **`total_size`**
 
@@ -8200,11 +8498,11 @@ Retrieves a list of all users within a specified directory for an organization. 
 
 - **`next_page_token`**
 
-  `string` — Token for pagination. Use this token in the 'page_token' field of the next request to fetch the subsequent page of users
+  `string` — Token for pagination. Use this token in the 'page\_token' field of the next request to fetch the subsequent page of users
 
 - **`prev_page_token`**
 
-  `string` — Token for pagination. Use this token in the 'page_token' field of the next request to fetch the prior page of users
+  `string` — Token for pagination. Use this token in the 'page\_token' field of the next request to fetch the prior page of users
 
 - **`total_size`**
 
@@ -8215,6 +8513,7 @@ Retrieves a list of all users within a specified directory for an organization. 
   `array` — List of directory users retrieved from the specified directory
 
   **Items:**
+
   - **`email`**
 
     `string` — Email
@@ -8240,6 +8539,7 @@ Retrieves a list of all users within a specified directory for an organization. 
     `array` — Groups
 
     **Items:**
+
     - **`display_name`**
 
       `string` — Display Name
@@ -8286,10 +8586,14 @@ Retrieves a list of all users within a specified directory for an organization. 
   "users": [
     {
       "email": "johndoe",
-      "emails": [""],
+      "emails": [
+        ""
+      ],
       "family_name": "Doe",
       "given_name": "John",
-      "groups": [{}],
+      "groups": [
+        {}
+      ],
       "id": "diruser_121312434123312",
       "preferred_username": "johndoe",
       "updated_at": "2024-10-01T00:00:00Z",
@@ -8316,14 +8620,17 @@ Retrieves detailed information about a specific directory within an organization
 - **`directory`**
 
   `object` — Detailed information about the requested directory
+
   - **`attribute_mappings`**
 
     `object` — Mappings between directory attributes and Scalekit user and group attributes
+
     - **`attributes`**
 
       `array`
 
       **Items:**
+
       - **`key`**
 
         `string`
@@ -8375,11 +8682,13 @@ Retrieves detailed information about a specific directory within an organization
   - **`role_assignments`**
 
     `object` — Role assignments associated with the directory, defining group based role assignments
+
     - **`assignments`**
 
       `array`
 
       **Items:**
+
       - **`group_id`**
 
         `string` — group ID for the role mapping
@@ -8393,6 +8702,7 @@ Retrieves detailed information about a specific directory within an organization
     `array` — List of secrets used for authenticating and synchronizing with the Directory Provider
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time` — Creation Time
@@ -8424,6 +8734,7 @@ Retrieves detailed information about a specific directory within an organization
   - **`stats`**
 
     `object` — Statistics and metrics related to the directory, such as synchronization status and error counts
+
     - **`group_updated_at`**
 
       `string`, format: `date-time` — Max time of Group Updated At for Directory
@@ -8469,7 +8780,9 @@ Retrieves detailed information about a specific directory within an organization
     "name": "Azure AD",
     "organization_id": "org_121312434123312",
     "role_assignments": null,
-    "secrets": [{}],
+    "secrets": [
+      {}
+    ],
     "stats": null,
     "status": "IN_PROGRESS",
     "total_groups": 10,
@@ -8550,8 +8863,8 @@ Retrieves a paginated list of all domains configured for the specified organizat
 
 Domain types:
 
-- ALLOWED_EMAIL_DOMAIN: Trusted domains used to suggest the organization in the organization switcher during sign-in/sign-up (auth-method agnostic).
-- ORGANIZATION_DOMAIN: SSO discovery domains used to route users to the correct SSO provider and enforce SSO.
+- ALLOWED\_EMAIL\_DOMAIN: Trusted domains used to suggest the organization in the organization switcher during sign-in/sign-up (auth-method agnostic).
+- ORGANIZATION\_DOMAIN: SSO discovery domains used to route users to the correct SSO provider and enforce SSO.
 
 #### Responses
 
@@ -8564,6 +8877,7 @@ Domain types:
   `array` — Array of domain objects containing all domain details including verification status and configuration.
 
   **Items:**
+
   - **`create_time`**
 
     `string`, format: `date-time` — Timestamp when the domain was first created.
@@ -8594,11 +8908,11 @@ Domain types:
 
   - **`verification_method`**
 
-    `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — Method that determines how domain ownership is verified. - ADMIN: domain is marked verified without DNS validation, typically by an admin. - DNS: domain must be verified by adding a TXT record to your DNS configuration. - NOT_APPLICABLE: verification does not apply to this domain type.
+    `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — Method that determines how domain ownership is verified. - ADMIN: domain is marked verified without DNS validation, typically by an admin. - DNS: domain must be verified by adding a TXT record to your DNS configuration. - NOT\_APPLICABLE: verification does not apply to this domain type.
 
   - **`verification_status`**
 
-    `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain. - PENDING: DNS TXT record has not been validated yet. - VERIFIED: domain confirmed via DNS TXT record validation or admin approval. - AUTO_VERIFIED: domain verified automatically without DNS changes. - FAILED: DNS TXT record was not validated within the verification window.
+    `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain. - PENDING: DNS TXT record has not been validated yet. - VERIFIED: domain confirmed via DNS TXT record validation or admin approval. - AUTO\_VERIFIED: domain verified automatically without DNS changes. - FAILED: DNS TXT record was not validated within the verification window.
 
 - **`page_number`**
 
@@ -8640,8 +8954,8 @@ Creates and associates a domain with an organization.
 
 Use one of the following domain types:
 
-- ALLOWED_EMAIL_DOMAIN: Adds a trusted email domain for organization suggestions in the organization switcher during sign-in/sign-up (auth-method agnostic).
-- ORGANIZATION_DOMAIN: Enables SSO domain discovery. If a user signs in with a matching email domain, Scalekit redirects them to the organization’s SSO provider and enforces SSO.
+- ALLOWED\_EMAIL\_DOMAIN: Adds a trusted email domain for organization suggestions in the organization switcher during sign-in/sign-up (auth-method agnostic).
+- ORGANIZATION\_DOMAIN: Enables SSO domain discovery. If a user signs in with a matching email domain, Scalekit redirects them to the organization’s SSO provider and enforces SSO.
 
 The domain must be a valid business domain that you control. Public/disposable domains (e.g., gmail.com) are blocked for security.
 
@@ -8655,7 +8969,7 @@ The domain must be a valid business domain that you control. Public/disposable d
 
 - **`domain_type`**
 
-  `string`, possible values: `"ALLOWED_EMAIL_DOMAIN", "ORGANIZATION_DOMAIN"` — The domain type. - ALLOWED_EMAIL_DOMAIN: trusted domain used to suggest the organization in the organization switcher during sign-in/sign-up. - ORGANIZATION_DOMAIN: SSO discovery domain used to route users to the correct SSO provider and enforce SSO.
+  `string`, possible values: `"ALLOWED_EMAIL_DOMAIN", "ORGANIZATION_DOMAIN"` — The domain type. - ALLOWED\_EMAIL\_DOMAIN: trusted domain used to suggest the organization in the organization switcher during sign-in/sign-up. - ORGANIZATION\_DOMAIN: SSO discovery domain used to route users to the correct SSO provider and enforce SSO.
 
 **Example:**
 
@@ -8675,6 +8989,7 @@ The domain must be a valid business domain that you control. Public/disposable d
 - **`domain`**
 
   `object` — The newly created domain object with all configuration details and system-generated identifiers.
+
   - **`create_time`**
 
     `string`, format: `date-time` — Timestamp when the domain was first created.
@@ -8705,11 +9020,11 @@ The domain must be a valid business domain that you control. Public/disposable d
 
   - **`verification_method`**
 
-    `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — Method that determines how domain ownership is verified. - ADMIN: domain is marked verified without DNS validation, typically by an admin. - DNS: domain must be verified by adding a TXT record to your DNS configuration. - NOT_APPLICABLE: verification does not apply to this domain type.
+    `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — Method that determines how domain ownership is verified. - ADMIN: domain is marked verified without DNS validation, typically by an admin. - DNS: domain must be verified by adding a TXT record to your DNS configuration. - NOT\_APPLICABLE: verification does not apply to this domain type.
 
   - **`verification_status`**
 
-    `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain. - PENDING: DNS TXT record has not been validated yet. - VERIFIED: domain confirmed via DNS TXT record validation or admin approval. - AUTO_VERIFIED: domain verified automatically without DNS changes. - FAILED: DNS TXT record was not validated within the verification window.
+    `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain. - PENDING: DNS TXT record has not been validated yet. - VERIFIED: domain confirmed via DNS TXT record validation or admin approval. - AUTO\_VERIFIED: domain verified automatically without DNS changes. - FAILED: DNS TXT record was not validated within the verification window.
 
 **Example:**
 
@@ -8736,6 +9051,7 @@ The domain must be a valid business domain that you control. Public/disposable d
 - **`debug_info`**
 
   `object` — Describes additional debugging info.
+
   - **`detail`**
 
     `string` — Additional debugging information provided by the server.
@@ -8755,11 +9071,13 @@ The domain must be a valid business domain that you control. Public/disposable d
 - **`help_info`**
 
   `object` — HelpInfo provides documentation links attached to an error response. When present in ErrorInfo, clients should surface these links to help developers resolve the error. For example, a missing required field error may include a link to the relevant guide.
+
   - **`links`**
 
     `array` — One or more links relevant to resolving the error.
 
     **Items:**
+
     - **`description`**
 
       `string` — Human-readable label for the link (e.g. "User verification flow").
@@ -8771,6 +9089,7 @@ The domain must be a valid business domain that you control. Public/disposable d
 - **`localized_message_info`**
 
   `object`
+
   - **`locale`**
 
     `string`
@@ -8782,6 +9101,7 @@ The domain must be a valid business domain that you control. Public/disposable d
 - **`request_info`**
 
   `object` — Contains metadata about the request that clients can attach when filing a bug or providing other forms of feedback.
+
   - **`request_id`**
 
     `string` — An opaque string that should only be interpreted by the service generating it. For example, it can be used to identify requests in the service's logs.
@@ -8793,6 +9113,7 @@ The domain must be a valid business domain that you control. Public/disposable d
 - **`resource_info`**
 
   `object` — Describes the resource that is being accessed.
+
   - **`description`**
 
     `string` — Describes what error is encountered when accessing this resource. For example, updating a cloud project may require the \`writer\` permission on the developer console project.
@@ -8820,6 +9141,7 @@ The domain must be a valid business domain that you control. Public/disposable d
 - **`tool_error_info`**
 
   `object`
+
   - **`execution_id`**
 
     `string`
@@ -8835,11 +9157,13 @@ The domain must be a valid business domain that you control. Public/disposable d
 - **`validation_error_info`**
 
   `object` — Describes violations in a client request. This error type focuses on the syntactic aspects of the request.
+
   - **`field_violations`**
 
     `array` — Describes all violations in a client request.
 
     **Items:**
+
     - **`constraint`**
 
       `string`
@@ -8858,11 +9182,15 @@ The domain must be a valid business domain that you control. Public/disposable d
 {
   "debug_info": {
     "detail": "",
-    "stack_entries": [""]
+    "stack_entries": [
+      ""
+    ]
   },
   "error_code": "",
   "help_info": {
-    "links": [{}]
+    "links": [
+      {}
+    ]
   },
   "localized_message_info": {
     "locale": "",
@@ -8875,7 +9203,9 @@ The domain must be a valid business domain that you control. Public/disposable d
   "resource_info": {
     "description": "",
     "owner": "",
-    "required_permissions": [""],
+    "required_permissions": [
+      ""
+    ],
     "resource_name": "",
     "user": ""
   },
@@ -8885,7 +9215,9 @@ The domain must be a valid business domain that you control. Public/disposable d
     "tool_error_message": ""
   },
   "validation_error_info": {
-    "field_violations": [{}]
+    "field_violations": [
+      {}
+    ]
   }
 }
 ```
@@ -8907,6 +9239,7 @@ Retrieves complete details for a domain including domain type, timestamps, and c
 - **`domain`**
 
   `object` — The requested domain object with complete details including domain type, timestamps and configuration.
+
   - **`create_time`**
 
     `string`, format: `date-time` — Timestamp when the domain was first created.
@@ -8937,11 +9270,11 @@ Retrieves complete details for a domain including domain type, timestamps, and c
 
   - **`verification_method`**
 
-    `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — Method that determines how domain ownership is verified. - ADMIN: domain is marked verified without DNS validation, typically by an admin. - DNS: domain must be verified by adding a TXT record to your DNS configuration. - NOT_APPLICABLE: verification does not apply to this domain type.
+    `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — Method that determines how domain ownership is verified. - ADMIN: domain is marked verified without DNS validation, typically by an admin. - DNS: domain must be verified by adding a TXT record to your DNS configuration. - NOT\_APPLICABLE: verification does not apply to this domain type.
 
   - **`verification_status`**
 
-    `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain. - PENDING: DNS TXT record has not been validated yet. - VERIFIED: domain confirmed via DNS TXT record validation or admin approval. - AUTO_VERIFIED: domain verified automatically without DNS changes. - FAILED: DNS TXT record was not validated within the verification window.
+    `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain. - PENDING: DNS TXT record has not been validated yet. - VERIFIED: domain confirmed via DNS TXT record validation or admin approval. - AUTO\_VERIFIED: domain verified automatically without DNS changes. - FAILED: DNS TXT record was not validated within the verification window.
 
 **Example:**
 
@@ -8969,8 +9302,8 @@ Retrieves complete details for a domain including domain type, timestamps, and c
 
 Permanently removes a domain record from an organization.
 
-- Deleting an ORGANIZATION_DOMAIN disables SSO routing/enforcement for that domain.
-- Deleting an ALLOWED_EMAIL_DOMAIN stops organization suggestions for users with that email domain.
+- Deleting an ORGANIZATION\_DOMAIN disables SSO routing/enforcement for that domain.
+- Deleting an ALLOWED\_EMAIL\_DOMAIN stops organization suggestions for users with that email domain.
 
 #### Responses
 
@@ -8990,7 +9323,7 @@ null
 - **Path:** `/api/v1/organizations/{organization_id}/session-policy`
 - **Tags:** Organizations
 
-Retrieves the session policy for an organization. Returns session_policy='APPLICATION' if the organization inherits the application-level defaults, or session_policy='CUSTOM' with the configured values if a custom policy is active.
+Retrieves the session policy for an organization. Returns session\_policy='APPLICATION' if the organization inherits the application-level defaults, or session\_policy='CUSTOM' with the configured values if a custom policy is active.
 
 #### Responses
 
@@ -9001,25 +9334,26 @@ Retrieves the session policy for an organization. Returns session_policy='APPLIC
 - **`policy`**
 
   `object` — The session policy for the organization.
+
   - **`absolute_session_timeout`**
 
-    `integer`, format: `int32` — The absolute session timeout value. The unit is specified by absolute_session_timeout_unit. Omitted when policy_source is 'environment'.
+    `integer`, format: `int32` — The absolute session timeout value. The unit is specified by absolute\_session\_timeout\_unit. Omitted when policy\_source is 'environment'.
 
   - **`absolute_session_timeout_unit`**
 
-    `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for absolute_session_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
+    `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for absolute\_session\_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
 
   - **`idle_session_timeout`**
 
-    `integer`, format: `int32` — The idle session timeout value. The unit is specified by idle_session_timeout_unit. Omitted when idle_session_timeout_enabled is false or policy_source is 'environment'.
+    `integer`, format: `int32` — The idle session timeout value. The unit is specified by idle\_session\_timeout\_unit. Omitted when idle\_session\_timeout\_enabled is false or policy\_source is 'environment'.
 
   - **`idle_session_timeout_enabled`**
 
-    `boolean` — Whether idle session timeout is enabled for this organization. Omitted when policy_source is 'environment'.
+    `boolean` — Whether idle session timeout is enabled for this organization. Omitted when policy\_source is 'environment'.
 
   - **`idle_session_timeout_unit`**
 
-    `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for idle_session_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
+    `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for idle\_session\_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
 
   - **`policy_source`**
 
@@ -9056,7 +9390,7 @@ null
 - **Path:** `/api/v1/organizations/{organization_id}/session-policy`
 - **Tags:** Organizations
 
-Sets a custom session policy for an organization or reverts to application-level settings. Send session_policy='APPLICATION' to revert to application defaults. Send session_policy='CUSTOM' with timeout values to activate a custom policy.
+Sets a custom session policy for an organization or reverts to application-level settings. Send session\_policy='APPLICATION' to revert to application defaults. Send session\_policy='CUSTOM' with timeout values to activate a custom policy.
 
 #### Request Body
 
@@ -9064,23 +9398,23 @@ Sets a custom session policy for an organization or reverts to application-level
 
 - **`absolute_session_timeout`**
 
-  `integer`, format: `int32` — The absolute session timeout value. The unit is specified by absolute_session_timeout_unit. Omit when policy_source is APPLICATION.
+  `integer`, format: `int32` — The absolute session timeout value. The unit is specified by absolute\_session\_timeout\_unit. Omit when policy\_source is APPLICATION.
 
 - **`absolute_session_timeout_unit`**
 
-  `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for absolute_session_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES.
+  `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for absolute\_session\_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES.
 
 - **`idle_session_timeout`**
 
-  `integer`, format: `int32` — The idle session timeout value. The unit is specified by idle_session_timeout_unit. Omit when idle_session_timeout_enabled is false.
+  `integer`, format: `int32` — The idle session timeout value. The unit is specified by idle\_session\_timeout\_unit. Omit when idle\_session\_timeout\_enabled is false.
 
 - **`idle_session_timeout_enabled`**
 
-  `boolean` — Whether idle session timeout is enabled. Omit when policy_source is APPLICATION.
+  `boolean` — Whether idle session timeout is enabled. Omit when policy\_source is APPLICATION.
 
 - **`idle_session_timeout_unit`**
 
-  `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for idle_session_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES.
+  `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for idle\_session\_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES.
 
 - **`policy_source`**
 
@@ -9108,25 +9442,26 @@ Sets a custom session policy for an organization or reverts to application-level
 - **`policy`**
 
   `object` — The updated session policy for the organization.
+
   - **`absolute_session_timeout`**
 
-    `integer`, format: `int32` — The absolute session timeout value. The unit is specified by absolute_session_timeout_unit. Omitted when policy_source is 'environment'.
+    `integer`, format: `int32` — The absolute session timeout value. The unit is specified by absolute\_session\_timeout\_unit. Omitted when policy\_source is 'environment'.
 
   - **`absolute_session_timeout_unit`**
 
-    `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for absolute_session_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
+    `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for absolute\_session\_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
 
   - **`idle_session_timeout`**
 
-    `integer`, format: `int32` — The idle session timeout value. The unit is specified by idle_session_timeout_unit. Omitted when idle_session_timeout_enabled is false or policy_source is 'environment'.
+    `integer`, format: `int32` — The idle session timeout value. The unit is specified by idle\_session\_timeout\_unit. Omitted when idle\_session\_timeout\_enabled is false or policy\_source is 'environment'.
 
   - **`idle_session_timeout_enabled`**
 
-    `boolean` — Whether idle session timeout is enabled for this organization. Omitted when policy_source is 'environment'.
+    `boolean` — Whether idle session timeout is enabled for this organization. Omitted when policy\_source is 'environment'.
 
   - **`idle_session_timeout_unit`**
 
-    `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for idle_session_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
+    `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for idle\_session\_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
 
   - **`policy_source`**
 
@@ -9172,6 +9507,7 @@ Upsert user management settings for an organization
 - **`settings`**
 
   `object` — The new values for the setting fields to patch.
+
   - **`max_allowed_users`**
 
     `integer`, format: `int32` — Maximum number of users allowed in the organization. When nil (not set), there feature is not enabled. When explicitly set to zero, it also means no limit. When set to a positive integer, it enforces the maximum user limit.
@@ -9195,6 +9531,7 @@ Upsert user management settings for an organization
 - **`settings`**
 
   `object` — The updated setting.
+
   - **`max_allowed_users`**
 
     `integer`, format: `int32` — Maximum number of users allowed in the organization. When nil (not set), there feature is not enabled. When explicitly set to zero, it also means no limit. When set to a positive integer, it enforces the maximum user limit.
@@ -9237,9 +9574,10 @@ Retrieves a paginated list of all users who are members of the specified organiz
 
 - **`users`**
 
-  `array` — List of user objects for the current page. May contain fewer entries than requested page_size.
+  `array` — List of user objects for the current page. May contain fewer entries than requested page\_size.
 
   **Items:**
+
   - **`create_time`**
 
     `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
@@ -9265,6 +9603,7 @@ Retrieves a paginated list of all users who are members of the specified organiz
     `array` — List of organization memberships. Automatically populated based on group assignments.
 
     **Items:**
+
     - **`accepted_at`**
 
       `string`, format: `date-time` — Timestamp when the user accepted the invitation.
@@ -9315,13 +9654,14 @@ Retrieves a paginated list of all users who are members of the specified organiz
 
     - **`provisioning_method`**
 
-      `string` — How the user was provisioned. Possible values: - \`jit_using_sso\` (Just-in-time provisioning during SSO login) - \`allowed_email_domain\` (User joined via allowed email domain matching) - \`org_creator\` (User created the organization) - \`direct_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
 
     - **`roles`**
 
       `array`
 
       **Items:**
+
       - **`display_name`**
 
         `string` — Human-readable name for the role
@@ -9345,6 +9685,7 @@ Retrieves a paginated list of all users who are members of the specified organiz
   - **`user_profile`**
 
     `object` — User's personal information including name, address, and other profile attributes.
+
     - **`custom_attributes`**
 
       `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
@@ -9358,6 +9699,7 @@ Retrieves a paginated list of all users who are members of the specified organiz
       `array` — List of external identity connections associated with the user profile.
 
       **Items:**
+
       - **`connection_id`**
 
         `string` — Unique identifier for the external identity connection. Immutable and read-only.
@@ -9424,7 +9766,7 @@ Retrieves a paginated list of all users who are members of the specified organiz
 
     - **`name`**
 
-      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given_name and family_name fields.
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
 
     - **`phone_number`**
 
@@ -9456,7 +9798,9 @@ Retrieves a paginated list of all users who are members of the specified organiz
       "external_id": "ext_12345a67b89c",
       "id": "usr_1234abcd5678efgh",
       "last_login_time": "",
-      "memberships": [{}],
+      "memberships": [
+        {}
+      ],
       "metadata": {
         "department": "engineering",
         "location": "nyc-office"
@@ -9491,6 +9835,7 @@ Creates a new user account and immediately adds them to the specified organizati
 - **`membership`**
 
   `object` — List of organization memberships. Automatically populated based on group assignments.
+
   - **`inviter_email`**
 
     `string` — Email address of the user who invited this member. Must be a valid email address.
@@ -9504,6 +9849,7 @@ Creates a new user account and immediately adds them to the specified organizati
     `array` — Role to assign to the user within the organization
 
     **Items:**
+
     - **`display_name`**
 
       `string` — Human-readable name for the role
@@ -9523,6 +9869,7 @@ Creates a new user account and immediately adds them to the specified organizati
 - **`user_profile`**
 
   `object` — User's personal information including name, address, and other profile attributes.
+
   - **`custom_attributes`**
 
     `object` — Custom attributes for extended user profile data. Keys (3-25 chars), values (1-256 chars).
@@ -9557,7 +9904,7 @@ Creates a new user account and immediately adds them to the specified organizati
 
   - **`name`**
 
-    `string` — Full name in display format. Typically combines first_name and last_name.
+    `string` — Full name in display format. Typically combines first\_name and last\_name.
 
   - **`phone_number`**
 
@@ -9601,7 +9948,10 @@ Creates a new user account and immediately adds them to the specified organizati
     "family_name": "Doe",
     "gender": "male",
     "given_name": "John",
-    "groups": ["engineering", "managers"],
+    "groups": [
+      "engineering",
+      "managers"
+    ],
     "locale": "en-US",
     "metadata": {
       "account_status": "active",
@@ -9624,6 +9974,7 @@ Creates a new user account and immediately adds them to the specified organizati
 - **`user`**
 
   `object`
+
   - **`create_time`**
 
     `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
@@ -9649,6 +10000,7 @@ Creates a new user account and immediately adds them to the specified organizati
     `array` — List of organization memberships. Automatically populated based on group assignments.
 
     **Items:**
+
     - **`accepted_at`**
 
       `string`, format: `date-time` — Timestamp when the user accepted the invitation.
@@ -9699,13 +10051,14 @@ Creates a new user account and immediately adds them to the specified organizati
 
     - **`provisioning_method`**
 
-      `string` — How the user was provisioned. Possible values: - \`jit_using_sso\` (Just-in-time provisioning during SSO login) - \`allowed_email_domain\` (User joined via allowed email domain matching) - \`org_creator\` (User created the organization) - \`direct_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
 
     - **`roles`**
 
       `array`
 
       **Items:**
+
       - **`display_name`**
 
         `string` — Human-readable name for the role
@@ -9729,6 +10082,7 @@ Creates a new user account and immediately adds them to the specified organizati
   - **`user_profile`**
 
     `object` — User's personal information including name, address, and other profile attributes.
+
     - **`custom_attributes`**
 
       `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
@@ -9742,6 +10096,7 @@ Creates a new user account and immediately adds them to the specified organizati
       `array` — List of external identity connections associated with the user profile.
 
       **Items:**
+
       - **`connection_id`**
 
         `string` — Unique identifier for the external identity connection. Immutable and read-only.
@@ -9808,7 +10163,7 @@ Creates a new user account and immediately adds them to the specified organizati
 
     - **`name`**
 
-      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given_name and family_name fields.
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
 
     - **`phone_number`**
 
@@ -9836,7 +10191,9 @@ Creates a new user account and immediately adds them to the specified organizati
     "external_id": "ext_12345a67b89c",
     "id": "usr_1234abcd5678efgh",
     "last_login_time": "",
-    "memberships": [{}],
+    "memberships": [
+      {}
+    ],
     "metadata": {
       "department": "engineering",
       "location": "nyc-office"
@@ -9866,6 +10223,7 @@ Retrieves all permissions a user has access to within a specific organization. T
   `array` — List of permissions the user has access to
 
   **Items:**
+
   - **`description`**
 
     `string` — Description of what the permission allows
@@ -9911,6 +10269,7 @@ Retrieves all roles assigned to a user within a specific organization. This incl
   `array` — List of roles assigned to the user
 
   **Items:**
+
   - **`display_name`**
 
     `string` — Human-readable name for the role
@@ -9943,7 +10302,7 @@ Retrieves all roles assigned to a user within a specific organization. This incl
 - **Path:** `/api/v1/organizations/{organization_id}/users:search`
 - **Tags:** Users
 
-Searches for users within a specific organization by email address, user ID, or external ID. The query must be at least 3 characters and is case-insensitive. Scopes results strictly to the given organization. Returns a paginated list of matching users with up to 30 results per page. Use the next_page_token from the response to retrieve subsequent pages.
+Searches for users within a specific organization by email address, user ID, or external ID. The query must be at least 3 characters and is case-insensitive. Scopes results strictly to the given organization. Returns a paginated list of matching users with up to 30 results per page. Use the next\_page\_token from the response to retrieve subsequent pages.
 
 #### Responses
 
@@ -9968,6 +10327,7 @@ Searches for users within a specific organization by email address, user ID, or 
   `array` — List of matching users.
 
   **Items:**
+
   - **`create_time`**
 
     `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
@@ -9993,6 +10353,7 @@ Searches for users within a specific organization by email address, user ID, or 
     `array` — List of organization memberships. Automatically populated based on group assignments.
 
     **Items:**
+
     - **`accepted_at`**
 
       `string`, format: `date-time` — Timestamp when the user accepted the invitation.
@@ -10043,13 +10404,14 @@ Searches for users within a specific organization by email address, user ID, or 
 
     - **`provisioning_method`**
 
-      `string` — How the user was provisioned. Possible values: - \`jit_using_sso\` (Just-in-time provisioning during SSO login) - \`allowed_email_domain\` (User joined via allowed email domain matching) - \`org_creator\` (User created the organization) - \`direct_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
 
     - **`roles`**
 
       `array`
 
       **Items:**
+
       - **`display_name`**
 
         `string` — Human-readable name for the role
@@ -10073,6 +10435,7 @@ Searches for users within a specific organization by email address, user ID, or 
   - **`user_profile`**
 
     `object` — User's personal information including name, address, and other profile attributes.
+
     - **`custom_attributes`**
 
       `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
@@ -10086,6 +10449,7 @@ Searches for users within a specific organization by email address, user ID, or 
       `array` — List of external identity connections associated with the user profile.
 
       **Items:**
+
       - **`connection_id`**
 
         `string` — Unique identifier for the external identity connection. Immutable and read-only.
@@ -10152,7 +10516,7 @@ Searches for users within a specific organization by email address, user ID, or 
 
     - **`name`**
 
-      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given_name and family_name fields.
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
 
     - **`phone_number`**
 
@@ -10184,7 +10548,9 @@ Searches for users within a specific organization by email address, user ID, or 
       "external_id": "ext_12345a67b89c",
       "id": "usr_1234abcd5678efgh",
       "last_login_time": "",
-      "memberships": [{}],
+      "memberships": [
+        {}
+      ],
       "metadata": {
         "department": "engineering",
         "location": "nyc-office"
@@ -10196,7 +10562,7 @@ Searches for users within a specific organization by email address, user ID, or 
 }
 ```
 
-##### Status: 400 Bad Request - query must be at least 3 characters and no more than 100 characters, and organization_id must be a valid org\_ prefixed identifier.
+##### Status: 400 Bad Request - query must be at least 3 characters and no more than 100 characters, and organization\_id must be a valid org\_ prefixed identifier.
 
 ###### Content-Type: application/json
 
@@ -10222,7 +10588,7 @@ null
 - **Path:** `/api/v1/organizations:external/{external_id}`
 - **Tags:** Organizations
 
-Retrieves organization details by external ID, including name, region, metadata, and settings. Only provide external_id in the path. If the id query parameter is also supplied, it silently takes precedence over external_id due to protobuf oneof semantics, which causes the request to fail with a 400 Bad Request ('ExternalId is required').
+Retrieves organization details by external ID, including name, region, metadata, and settings. Only provide external\_id in the path. If the id query parameter is also supplied, it silently takes precedence over external\_id due to protobuf oneof semantics, which causes the request to fail with a 400 Bad Request ('ExternalId is required').
 
 #### Responses
 
@@ -10233,6 +10599,7 @@ Retrieves organization details by external ID, including name, region, metadata,
 - **`organization`**
 
   `object` — The newly created organization
+
   - **`create_time` (required)**
 
     `string`, format: `date-time` — Timestamp when the organization was created
@@ -10264,18 +10631,20 @@ Retrieves organization details by external ID, including name, region, metadata,
   - **`settings`**
 
     `object` — Configuration options that control organization-level features and capabilities
+
     - **`features`**
 
       `array` — List of feature toggles that control organization capabilities such as SSO authentication and directory synchronization
 
       **Items:**
+
       - **`enabled` (required)**
 
         `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
 
       - **`name` (required)**
 
-        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory_sync" (Directory Synchronization), "domain_verification" (Domain Verification), "session_policy" (Organization-level session policy override)
+        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
 
   - **`slug`**
 
@@ -10366,11 +10735,11 @@ Resend a verification email if the user didn't receive it or if the previous cod
 
 - **`expires_in`**
 
-  `integer`, format: `int64` — Number of seconds from now until the passwordless authentication expires. This is a convenience field calculated from the expires_at timestamp.
+  `integer`, format: `int64` — Number of seconds from now until the passwordless authentication expires. This is a convenience field calculated from the expires\_at timestamp.
 
 - **`passwordless_type`**
 
-  `string`, possible values: `"OTP", "LINK", "LINK_OTP"` — Type of passwordless authentication that was sent via email. OTP sends a numeric code, LINK sends a clickable magic link, and LINK_OTP provides both options for user convenience.
+  `string`, possible values: `"OTP", "LINK", "LINK_OTP"` — Type of passwordless authentication that was sent via email. OTP sends a numeric code, LINK sends a clickable magic link, and LINK\_OTP provides both options for user convenience.
 
 **Example:**
 
@@ -10405,7 +10774,7 @@ Send a verification email containing either a verification code (OTP), magic lin
 
 - **`magiclink_auth_uri`**
 
-  `string` — Your application's callback URL where users will be redirected after clicking the magic link in their email. The link token will be appended as a query parameter as link_token
+  `string` — Your application's callback URL where users will be redirected after clicking the magic link in their email. The link token will be appended as a query parameter as link\_token
 
 - **`state`**
 
@@ -10417,7 +10786,7 @@ Send a verification email containing either a verification code (OTP), magic lin
 
 - **`template_variables`**
 
-  `object` — A set of key-value pairs to personalize the email template. \* You may include up to 30 key-value pairs. \* The following variable names are reserved by the system and cannot be supplied: \`otp\`, \`expiry_time_relative\`, \`link\`, \`expire_time\`, \`expiry_time\`. \* Every variable referenced in your email template must be included as a key-value pair. Use these variables to insert custom information, such as a team name, URL or the user's employee ID. All variables are interpolated before the email is sent, regardless of the email provider.
+  `object` — A set of key-value pairs to personalize the email template. \* You may include up to 30 key-value pairs. \* The following variable names are reserved by the system and cannot be supplied: \`otp\`, \`expiry\_time\_relative\`, \`link\`, \`expire\_time\`, \`expiry\_time\`. \* Every variable referenced in your email template must be included as a key-value pair. Use these variables to insert custom information, such as a team name, URL or the user's employee ID. All variables are interpolated before the email is sent, regardless of the email provider.
 
 **Example:**
 
@@ -10450,11 +10819,11 @@ Send a verification email containing either a verification code (OTP), magic lin
 
 - **`expires_in`**
 
-  `integer`, format: `int64` — Number of seconds from now until the passwordless authentication expires. This is a convenience field calculated from the expires_at timestamp.
+  `integer`, format: `int64` — Number of seconds from now until the passwordless authentication expires. This is a convenience field calculated from the expires\_at timestamp.
 
 - **`passwordless_type`**
 
-  `string`, possible values: `"OTP", "LINK", "LINK_OTP"` — Type of passwordless authentication that was sent via email. OTP sends a numeric code, LINK sends a clickable magic link, and LINK_OTP provides both options for user convenience.
+  `string`, possible values: `"OTP", "LINK", "LINK_OTP"` — Type of passwordless authentication that was sent via email. OTP sends a numeric code, LINK sends a clickable magic link, and LINK\_OTP provides both options for user convenience.
 
 **Example:**
 
@@ -10557,6 +10926,7 @@ Retrieves a comprehensive, paginated list of all permissions available within th
   `array`
 
   **Items:**
+
   - **`create_time`**
 
     `string`, format: `date-time`
@@ -10647,6 +11017,7 @@ Creates a new permission that represents a specific action users can perform wit
 - **`permission`**
 
   `object`
+
   - **`create_time`**
 
     `string`, format: `date-time`
@@ -10703,6 +11074,7 @@ Retrieves complete information for a specific permission by its unique name iden
 - **`permission`**
 
   `object`
+
   - **`create_time`**
 
     `string`, format: `date-time`
@@ -10780,6 +11152,7 @@ Modifies an existing permission's attributes including description and metadata.
 - **`permission`**
 
   `object`
+
   - **`create_time`**
 
     `string`, format: `date-time`
@@ -10858,6 +11231,7 @@ Retrieves a comprehensive list of all roles available within the specified envir
   `array` — List of all roles in the environment with their metadata and optionally their permissions.
 
   **Items:**
+
   - **`default_creator`**
 
     `boolean` — Indicates if this role is the default creator role for new organizations.
@@ -10899,6 +11273,7 @@ Retrieves a comprehensive list of all roles available within the specified envir
     `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time`
@@ -10986,7 +11361,11 @@ Creates a new role within the environment with specified permissions and metadat
   "display_name": "Content Editor",
   "extends": "viewer",
   "name": "content_editor",
-  "permissions": ["read:content", "write:content", "publish:content"]
+  "permissions": [
+    "read:content",
+    "write:content",
+    "publish:content"
+  ]
 }
 ```
 
@@ -10999,6 +11378,7 @@ Creates a new role within the environment with specified permissions and metadat
 - **`role`**
 
   `object` — The created role object with system-generated ID and all configuration details.
+
   - **`default_creator`**
 
     `boolean` — Indicates if this role is the default creator role for new organizations.
@@ -11040,6 +11420,7 @@ Creates a new role within the environment with specified permissions and metadat
     `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time`
@@ -11091,7 +11472,8 @@ Updates the default creator and member roles for the current environment. Use th
 
 - **`default_creator`**
 
-  `object` — Default creator role (deprecated - use default_creator_role field instead)
+  `object` — Default creator role (deprecated - use default\_creator\_role field instead)
+
   - **`id`**
 
     `string`
@@ -11106,7 +11488,8 @@ Updates the default creator and member roles for the current environment. Use th
 
 - **`default_member`**
 
-  `object` — Default member role (deprecated - use default_member_role field instead)
+  `object` — Default member role (deprecated - use default\_member\_role field instead)
+
   - **`id`**
 
     `string`
@@ -11149,6 +11532,7 @@ Updates the default creator and member roles for the current environment. Use th
 - **`default_creator`**
 
   `object` — The role that is now set as the default creator role for the environment. Contains complete role information including permissions and metadata.
+
   - **`default_creator`**
 
     `boolean` — Indicates if this role is the default creator role for new organizations.
@@ -11190,6 +11574,7 @@ Updates the default creator and member roles for the current environment. Use th
     `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time`
@@ -11217,6 +11602,7 @@ Updates the default creator and member roles for the current environment. Use th
 - **`default_member`**
 
   `object` — The role that is now set as the default member role for the environment. Contains complete role information including permissions and metadata.
+
   - **`default_creator`**
 
     `boolean` — Indicates if this role is the default creator role for new organizations.
@@ -11258,6 +11644,7 @@ Updates the default creator and member roles for the current environment. Use th
     `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time`
@@ -11318,6 +11705,7 @@ Retrieves complete information for a specific role including metadata and inheri
 - **`role`**
 
   `object` — The complete role object with all metadata, permissions, and inheritance details.
+
   - **`default_creator`**
 
     `boolean` — Indicates if this role is the default creator role for new organizations.
@@ -11359,6 +11747,7 @@ Retrieves complete information for a specific role including metadata and inheri
     `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time`
@@ -11440,7 +11829,12 @@ Modifies an existing role's properties including display name, description, perm
   "description": "Can create, edit, publish, and approve content. Cannot delete content or manage user accounts.",
   "display_name": "Senior Content Editor",
   "extends": "content_editor",
-  "permissions": ["read:content", "write:content", "publish:content", "approve:content"]
+  "permissions": [
+    "read:content",
+    "write:content",
+    "publish:content",
+    "approve:content"
+  ]
 }
 ```
 
@@ -11453,6 +11847,7 @@ Modifies an existing role's properties including display name, description, perm
 - **`role`**
 
   `object` — The updated role object with all current configuration details.
+
   - **`default_creator`**
 
     `boolean` — Indicates if this role is the default creator role for new organizations.
@@ -11494,6 +11889,7 @@ Modifies an existing role's properties including display name, description, perm
     `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time`
@@ -11537,7 +11933,7 @@ Modifies an existing role's properties including display name, description, perm
 - **Path:** `/api/v1/roles/{role_name}`
 - **Tags:** Roles
 
-Permanently removes a role from the environment and reassigns users who had that role to a different role. Use this endpoint when you need to clean up unused roles or restructure your access control system. The role cannot be deleted if it has dependent roles (roles that extend it) unless you specify a replacement role. If users are assigned to the role being deleted, you must provide a reassign_role_name to move those users to a different role before deletion can proceed. This action cannot be undone, so ensure no critical users depend on the role before deletion.
+Permanently removes a role from the environment and reassigns users who had that role to a different role. Use this endpoint when you need to clean up unused roles or restructure your access control system. The role cannot be deleted if it has dependent roles (roles that extend it) unless you specify a replacement role. If users are assigned to the role being deleted, you must provide a reassign\_role\_name to move those users to a different role before deletion can proceed. This action cannot be undone, so ensure no critical users depend on the role before deletion.
 
 #### Responses
 
@@ -11570,6 +11966,7 @@ Retrieves all roles that directly extend the specified base role through inherit
   `array` — List of dependent roles
 
   **Items:**
+
   - **`default_creator`**
 
     `boolean` — Indicates if this role is the default creator role for new organizations.
@@ -11611,6 +12008,7 @@ Retrieves all roles that directly extend the specified base role through inherit
     `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time`
@@ -11686,6 +12084,7 @@ Retrieves all permissions directly assigned to the specified role, excluding per
   `array` — List of permissions directly assigned to the role
 
   **Items:**
+
   - **`create_time`**
 
     `string`, format: `date-time`
@@ -11751,7 +12150,9 @@ Adds one or more permissions to the specified role while preserving existing per
 
 ```json
 {
-  "permission_names": [""]
+  "permission_names": [
+    ""
+  ]
 }
 ```
 
@@ -11766,6 +12167,7 @@ Adds one or more permissions to the specified role while preserving existing per
   `array` — List of all permissions belonging to the role after addition
 
   **Items:**
+
   - **`create_time`**
 
     `string`, format: `date-time`
@@ -11846,6 +12248,7 @@ Retrieves the complete set of effective permissions for a role, including both d
   `array` — List of all effective permissions including those inherited from base roles
 
   **Items:**
+
   - **`create_time`**
 
     `string`, format: `date-time`
@@ -11927,7 +12330,8 @@ Updates the default creator and member roles for the current environment. Use th
 
 - **`default_creator`**
 
-  `object` — Default creator role (deprecated - use default_creator_role field instead)
+  `object` — Default creator role (deprecated - use default\_creator\_role field instead)
+
   - **`id`**
 
     `string`
@@ -11942,7 +12346,8 @@ Updates the default creator and member roles for the current environment. Use th
 
 - **`default_member`**
 
-  `object` — Default member role (deprecated - use default_member_role field instead)
+  `object` — Default member role (deprecated - use default\_member\_role field instead)
+
   - **`id`**
 
     `string`
@@ -11985,6 +12390,7 @@ Updates the default creator and member roles for the current environment. Use th
 - **`default_creator`**
 
   `object` — The role that is now set as the default creator role for the environment. Contains complete role information including permissions and metadata.
+
   - **`default_creator`**
 
     `boolean` — Indicates if this role is the default creator role for new organizations.
@@ -12026,6 +12432,7 @@ Updates the default creator and member roles for the current environment. Use th
     `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time`
@@ -12053,6 +12460,7 @@ Updates the default creator and member roles for the current environment. Use th
 - **`default_member`**
 
   `object` — The role that is now set as the default member role for the environment. Contains complete role information including permissions and metadata.
+
   - **`default_creator`**
 
     `boolean` — Indicates if this role is the default creator role for new organizations.
@@ -12094,6 +12502,7 @@ Updates the default creator and member roles for the current environment. Use th
     `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time`
@@ -12160,6 +12569,7 @@ Retrieves comprehensive details for a specific user session including authentica
   `array` — Details of the authenticated clients for this session: client ID and organization context.
 
   **Items:**
+
   - **`client_id`**
 
     `string` — Unique identifier of the authenticated client application.
@@ -12183,6 +12593,7 @@ Retrieves comprehensive details for a specific user session including authentica
 - **`device`**
 
   `object` — Complete device metadata associated with this session including browser, operating system, device type, and geographic location based on IP address.
+
   - **`browser`**
 
     `string` — Browser name and family extracted from the user agent. Examples: Chrome, Safari, Firefox, Edge, Mobile Safari.
@@ -12202,6 +12613,7 @@ Retrieves comprehensive details for a specific user session including authentica
   - **`location`**
 
     `object` — Geographic location information derived from IP address geolocation. Includes country, region, city, and coordinates. Note: Based on IP location data and may not represent the user's exact physical location.
+
     - **`city`**
 
       `string` — City name where the session originated based on IP geolocation. Approximate location derived from IP address.
@@ -12236,7 +12648,7 @@ Retrieves comprehensive details for a specific user session including authentica
 
 - **`expired_at`**
 
-  `string`, format: `date-time` — Timestamp when the session was terminated. Null if the session is still active. Set when the session expires due to reaching idle_expires_at or absolute_expires_at timeout, or when administratively revoked. Not set for user-initiated logout (see logout_at instead).
+  `string`, format: `date-time` — Timestamp when the session was terminated. Null if the session is still active. Set when the session expires due to reaching idle\_expires\_at or absolute\_expires\_at timeout, or when administratively revoked. Not set for user-initiated logout (see logout\_at instead).
 
 - **`idle_expires_at`**
 
@@ -12281,7 +12693,10 @@ Retrieves comprehensive details for a specific user session including authentica
       "organization_id": "org_1234567890"
     }
   ],
-  "authenticated_organizations": ["org_123", "org_456"],
+  "authenticated_organizations": [
+    "org_123",
+    "org_456"
+  ],
   "created_at": "2025-01-15T10:30:00Z",
   "device": {
     "browser": "Chrome",
@@ -12322,6 +12737,7 @@ Immediately invalidates a specific user session by session ID, setting its statu
 - **`revoked_session`**
 
   `object` — Details of the revoked session including session ID, user ID, creation and revocation timestamps, and final device information.
+
   - **`absolute_expires_at`**
 
     `string`, format: `date-time` — The absolute expiration timestamp that was configured for this session before revocation. Represents the hard deadline regardless of activity.
@@ -12412,6 +12828,7 @@ Retrieves a paginated list of all users across your entire environment. Use this
   `array` — List of users.
 
   **Items:**
+
   - **`create_time`**
 
     `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
@@ -12437,6 +12854,7 @@ Retrieves a paginated list of all users across your entire environment. Use this
     `array` — List of organization memberships. Automatically populated based on group assignments.
 
     **Items:**
+
     - **`accepted_at`**
 
       `string`, format: `date-time` — Timestamp when the user accepted the invitation.
@@ -12487,13 +12905,14 @@ Retrieves a paginated list of all users across your entire environment. Use this
 
     - **`provisioning_method`**
 
-      `string` — How the user was provisioned. Possible values: - \`jit_using_sso\` (Just-in-time provisioning during SSO login) - \`allowed_email_domain\` (User joined via allowed email domain matching) - \`org_creator\` (User created the organization) - \`direct_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
 
     - **`roles`**
 
       `array`
 
       **Items:**
+
       - **`display_name`**
 
         `string` — Human-readable name for the role
@@ -12517,6 +12936,7 @@ Retrieves a paginated list of all users across your entire environment. Use this
   - **`user_profile`**
 
     `object` — User's personal information including name, address, and other profile attributes.
+
     - **`custom_attributes`**
 
       `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
@@ -12530,6 +12950,7 @@ Retrieves a paginated list of all users across your entire environment. Use this
       `array` — List of external identity connections associated with the user profile.
 
       **Items:**
+
       - **`connection_id`**
 
         `string` — Unique identifier for the external identity connection. Immutable and read-only.
@@ -12596,7 +13017,7 @@ Retrieves a paginated list of all users across your entire environment. Use this
 
     - **`name`**
 
-      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given_name and family_name fields.
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
 
     - **`phone_number`**
 
@@ -12628,7 +13049,9 @@ Retrieves a paginated list of all users across your entire environment. Use this
       "external_id": "ext_12345a67b89c",
       "id": "usr_1234abcd5678efgh",
       "last_login_time": "",
-      "memberships": [{}],
+      "memberships": [
+        {}
+      ],
       "metadata": {
         "department": "engineering",
         "location": "nyc-office"
@@ -12657,6 +13080,7 @@ Retrieves all details for a user by system-generated user ID or external ID. The
 - **`user`**
 
   `object`
+
   - **`create_time`**
 
     `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
@@ -12682,6 +13106,7 @@ Retrieves all details for a user by system-generated user ID or external ID. The
     `array` — List of organization memberships. Automatically populated based on group assignments.
 
     **Items:**
+
     - **`accepted_at`**
 
       `string`, format: `date-time` — Timestamp when the user accepted the invitation.
@@ -12732,13 +13157,14 @@ Retrieves all details for a user by system-generated user ID or external ID. The
 
     - **`provisioning_method`**
 
-      `string` — How the user was provisioned. Possible values: - \`jit_using_sso\` (Just-in-time provisioning during SSO login) - \`allowed_email_domain\` (User joined via allowed email domain matching) - \`org_creator\` (User created the organization) - \`direct_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
 
     - **`roles`**
 
       `array`
 
       **Items:**
+
       - **`display_name`**
 
         `string` — Human-readable name for the role
@@ -12762,6 +13188,7 @@ Retrieves all details for a user by system-generated user ID or external ID. The
   - **`user_profile`**
 
     `object` — User's personal information including name, address, and other profile attributes.
+
     - **`custom_attributes`**
 
       `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
@@ -12775,6 +13202,7 @@ Retrieves all details for a user by system-generated user ID or external ID. The
       `array` — List of external identity connections associated with the user profile.
 
       **Items:**
+
       - **`connection_id`**
 
         `string` — Unique identifier for the external identity connection. Immutable and read-only.
@@ -12841,7 +13269,7 @@ Retrieves all details for a user by system-generated user ID or external ID. The
 
     - **`name`**
 
-      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given_name and family_name fields.
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
 
     - **`phone_number`**
 
@@ -12869,7 +13297,9 @@ Retrieves all details for a user by system-generated user ID or external ID. The
     "external_id": "ext_12345a67b89c",
     "id": "usr_1234abcd5678efgh",
     "last_login_time": "",
-    "memberships": [{}],
+    "memberships": [
+      {}
+    ],
     "metadata": {
       "department": "engineering",
       "location": "nyc-office"
@@ -12923,6 +13353,7 @@ Modifies user account information including profile details, metadata, and exter
 - **`user_profile`**
 
   `object` — User's personal information including name, address, and other profile attributes.
+
   - **`custom_attributes`**
 
     `object` — Updates custom attributes for extended user profile data and application-specific information. Use this field to store business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
@@ -12933,7 +13364,7 @@ Modifies user account information including profile details, metadata, and exter
 
   - **`first_name`**
 
-    `string` — \[DEPRECATED] Use given_name instead. User's given name. Maximum 200 characters.
+    `string` — \[DEPRECATED] Use given\_name instead. User's given name. Maximum 200 characters.
 
   - **`gender`**
 
@@ -12953,7 +13384,7 @@ Modifies user account information including profile details, metadata, and exter
 
   - **`last_name`**
 
-    `string` — \[DEPRECATED] Use family_name instead. User's family name. Maximum 200 characters.
+    `string` — \[DEPRECATED] Use family\_name instead. User's family name. Maximum 200 characters.
 
   - **`locale`**
 
@@ -12997,7 +13428,10 @@ Modifies user account information including profile details, metadata, and exter
     "first_name": "John",
     "gender": "male",
     "given_name": "John",
-    "groups": ["engineering", "managers"],
+    "groups": [
+      "engineering",
+      "managers"
+    ],
     "last_name": "Doe",
     "locale": "en-US",
     "metadata": {
@@ -13021,6 +13455,7 @@ Modifies user account information including profile details, metadata, and exter
 - **`user`**
 
   `object`
+
   - **`create_time`**
 
     `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
@@ -13046,6 +13481,7 @@ Modifies user account information including profile details, metadata, and exter
     `array` — List of organization memberships. Automatically populated based on group assignments.
 
     **Items:**
+
     - **`accepted_at`**
 
       `string`, format: `date-time` — Timestamp when the user accepted the invitation.
@@ -13096,13 +13532,14 @@ Modifies user account information including profile details, metadata, and exter
 
     - **`provisioning_method`**
 
-      `string` — How the user was provisioned. Possible values: - \`jit_using_sso\` (Just-in-time provisioning during SSO login) - \`allowed_email_domain\` (User joined via allowed email domain matching) - \`org_creator\` (User created the organization) - \`direct_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
 
     - **`roles`**
 
       `array`
 
       **Items:**
+
       - **`display_name`**
 
         `string` — Human-readable name for the role
@@ -13126,6 +13563,7 @@ Modifies user account information including profile details, metadata, and exter
   - **`user_profile`**
 
     `object` — User's personal information including name, address, and other profile attributes.
+
     - **`custom_attributes`**
 
       `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
@@ -13139,6 +13577,7 @@ Modifies user account information including profile details, metadata, and exter
       `array` — List of external identity connections associated with the user profile.
 
       **Items:**
+
       - **`connection_id`**
 
         `string` — Unique identifier for the external identity connection. Immutable and read-only.
@@ -13205,7 +13644,7 @@ Modifies user account information including profile details, metadata, and exter
 
     - **`name`**
 
-      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given_name and family_name fields.
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
 
     - **`phone_number`**
 
@@ -13233,7 +13672,9 @@ Modifies user account information including profile details, metadata, and exter
     "external_id": "ext_12345a67b89c",
     "id": "usr_1234abcd5678efgh",
     "last_login_time": "",
-    "memberships": [{}],
+    "memberships": [
+      {}
+    ],
     "metadata": {
       "department": "engineering",
       "location": "nyc-office"
@@ -13268,9 +13709,10 @@ Retrieves a paginated list of all sessions associated with a specific user acros
 
 - **`sessions`**
 
-  `array` — Array of session objects for the requested user. May contain fewer entries than the requested page_size when reaching the final page of results.
+  `array` — Array of session objects for the requested user. May contain fewer entries than the requested page\_size when reaching the final page of results.
 
   **Items:**
+
   - **`absolute_expires_at`**
 
     `string`, format: `date-time` — Hard expiration timestamp for the session regardless of user activity. The session will be forcibly terminated at this time. This represents the maximum session lifetime from creation.
@@ -13280,6 +13722,7 @@ Retrieves a paginated list of all sessions associated with a specific user acros
     `array` — Details of the authenticated clients for this session: client ID and organization context.
 
     **Items:**
+
     - **`client_id`**
 
       `string` — Unique identifier of the authenticated client application.
@@ -13303,6 +13746,7 @@ Retrieves a paginated list of all sessions associated with a specific user acros
   - **`device`**
 
     `object` — Complete device metadata associated with this session including browser, operating system, device type, and geographic location based on IP address.
+
     - **`browser`**
 
       `string` — Browser name and family extracted from the user agent. Examples: Chrome, Safari, Firefox, Edge, Mobile Safari.
@@ -13322,6 +13766,7 @@ Retrieves a paginated list of all sessions associated with a specific user acros
     - **`location`**
 
       `object` — Geographic location information derived from IP address geolocation. Includes country, region, city, and coordinates. Note: Based on IP location data and may not represent the user's exact physical location.
+
       - **`city`**
 
         `string` — City name where the session originated based on IP geolocation. Approximate location derived from IP address.
@@ -13356,7 +13801,7 @@ Retrieves a paginated list of all sessions associated with a specific user acros
 
   - **`expired_at`**
 
-    `string`, format: `date-time` — Timestamp when the session was terminated. Null if the session is still active. Set when the session expires due to reaching idle_expires_at or absolute_expires_at timeout, or when administratively revoked. Not set for user-initiated logout (see logout_at instead).
+    `string`, format: `date-time` — Timestamp when the session was terminated. Null if the session is still active. Set when the session expires due to reaching idle\_expires\_at or absolute\_expires\_at timeout, or when administratively revoked. Not set for user-initiated logout (see logout\_at instead).
 
   - **`idle_expires_at`**
 
@@ -13403,8 +13848,13 @@ Retrieves a paginated list of all sessions associated with a specific user acros
   "sessions": [
     {
       "absolute_expires_at": "2025-01-22T10:30:00Z",
-      "authenticated_clients": [{}],
-      "authenticated_organizations": ["org_123", "org_456"],
+      "authenticated_clients": [
+        {}
+      ],
+      "authenticated_organizations": [
+        "org_123",
+        "org_456"
+      ],
       "created_at": "2025-01-15T10:30:00Z",
       "device": null,
       "expired_at": "2025-01-15T12:00:00Z",
@@ -13441,6 +13891,7 @@ Immediately invalidates all active sessions for a specific user across all devic
   `array` — List of all sessions that were revoked, including detailed information for each revoked session with IDs, timestamps, and device details.
 
   **Items:**
+
   - **`absolute_expires_at`**
 
     `string`, format: `date-time` — The absolute expiration timestamp that was configured for this session before revocation. Represents the hard deadline regardless of activity.
@@ -13513,7 +13964,7 @@ Immediately invalidates all active sessions for a specific user across all devic
 - **Path:** `/api/v1/users:search`
 - **Tags:** Users
 
-Searches for users across the entire environment by email address, user ID, or external ID. The query must be at least 3 characters and is case-insensitive. Returns a paginated list of matching users with up to 30 results per page. Use the next_page_token from the response to retrieve subsequent pages.
+Searches for users across the entire environment by email address, user ID, or external ID. The query must be at least 3 characters and is case-insensitive. Returns a paginated list of matching users with up to 30 results per page. Use the next\_page\_token from the response to retrieve subsequent pages.
 
 #### Responses
 
@@ -13538,6 +13989,7 @@ Searches for users across the entire environment by email address, user ID, or e
   `array` — List of matching users.
 
   **Items:**
+
   - **`create_time`**
 
     `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
@@ -13563,6 +14015,7 @@ Searches for users across the entire environment by email address, user ID, or e
     `array` — List of organization memberships. Automatically populated based on group assignments.
 
     **Items:**
+
     - **`accepted_at`**
 
       `string`, format: `date-time` — Timestamp when the user accepted the invitation.
@@ -13613,13 +14066,14 @@ Searches for users across the entire environment by email address, user ID, or e
 
     - **`provisioning_method`**
 
-      `string` — How the user was provisioned. Possible values: - \`jit_using_sso\` (Just-in-time provisioning during SSO login) - \`allowed_email_domain\` (User joined via allowed email domain matching) - \`org_creator\` (User created the organization) - \`direct_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
 
     - **`roles`**
 
       `array`
 
       **Items:**
+
       - **`display_name`**
 
         `string` — Human-readable name for the role
@@ -13643,6 +14097,7 @@ Searches for users across the entire environment by email address, user ID, or e
   - **`user_profile`**
 
     `object` — User's personal information including name, address, and other profile attributes.
+
     - **`custom_attributes`**
 
       `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
@@ -13656,6 +14111,7 @@ Searches for users across the entire environment by email address, user ID, or e
       `array` — List of external identity connections associated with the user profile.
 
       **Items:**
+
       - **`connection_id`**
 
         `string` — Unique identifier for the external identity connection. Immutable and read-only.
@@ -13722,7 +14178,7 @@ Searches for users across the entire environment by email address, user ID, or e
 
     - **`name`**
 
-      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given_name and family_name fields.
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
 
     - **`phone_number`**
 
@@ -13754,7 +14210,9 @@ Searches for users across the entire environment by email address, user ID, or e
       "external_id": "ext_12345a67b89c",
       "id": "usr_1234abcd5678efgh",
       "last_login_time": "",
-      "memberships": [{}],
+      "memberships": [
+        {}
+      ],
       "metadata": {
         "department": "engineering",
         "location": "nyc-office"
@@ -13793,6 +14251,7 @@ Retrieves all registered passkeys for the current user, including device informa
 - **`all_accepted_credentials_options`**
 
   `object` — Options including RP ID and all accepted credential IDs for authentication
+
   - **`all_accepted_credential_ids`**
 
     `array` — List of credential IDs the user can authenticate with
@@ -13814,6 +14273,7 @@ Retrieves all registered passkeys for the current user, including device informa
   `array` — All passkeys registered for the user
 
   **Items:**
+
   - **`attestation_type`**
 
     `string` — Type of attestation: "none", "indirect", or "direct"
@@ -13821,6 +14281,7 @@ Retrieves all registered passkeys for the current user, including device informa
   - **`authenticator`**
 
     `object` — Authenticator information including model and name
+
     - **`aaguid`**
 
       `string` — Authenticator Attestation GUID (AAGUID) identifying the device model
@@ -13844,6 +14305,7 @@ Retrieves all registered passkeys for the current user, including device informa
   - **`authenticator_flags`**
 
     `object` — Flags indicating authenticator capabilities
+
     - **`backup_eligible`**
 
       `boolean` — Whether this credential can be backed up to another device
@@ -13863,6 +14325,7 @@ Retrieves all registered passkeys for the current user, including device informa
   - **`client_info`**
 
     `object` — Geographic and network information from registration
+
     - **`city`**
 
       `string` — City name
@@ -13910,6 +14373,7 @@ Retrieves all registered passkeys for the current user, including device informa
   - **`user_agent`**
 
     `object` — Browser and device information from registration
+
     - **`browser`**
 
       `string` — Browser name (e.g., "Chrome", "Safari")
@@ -13951,7 +14415,9 @@ Retrieves all registered passkeys for the current user, including device informa
 ```json
 {
   "all_accepted_credentials_options": {
-    "all_accepted_credential_ids": [""],
+    "all_accepted_credential_ids": [
+      ""
+    ],
     "rp_id": "example.com",
     "user_id": "user_xyz789"
   },
@@ -13965,7 +14431,9 @@ Retrieves all registered passkeys for the current user, including device informa
       "credential_id": "",
       "display_name": "My Yubikey",
       "id": "cred_abc123",
-      "transports": [""],
+      "transports": [
+        ""
+      ],
       "updated_at": "2025-02-15T06:23:44.560000Z",
       "user_agent": null,
       "user_id": "user_xyz789"
@@ -13995,6 +14463,7 @@ Deletes a specific passkey credential for the current user. After removal, the a
 - **`unknown_credential_options`**
 
   `object` — Options for handling unknown credentials in client applications
+
   - **`credential_id`**
 
     `string` — The deleted credential ID
@@ -14048,6 +14517,7 @@ Updates the display name of a passkey credential to help users identify their au
 - **`credential`**
 
   `object` — The updated credential with new display name
+
   - **`attestation_type`**
 
     `string` — Type of attestation: "none", "indirect", or "direct"
@@ -14055,6 +14525,7 @@ Updates the display name of a passkey credential to help users identify their au
   - **`authenticator`**
 
     `object` — Authenticator information including model and name
+
     - **`aaguid`**
 
       `string` — Authenticator Attestation GUID (AAGUID) identifying the device model
@@ -14078,6 +14549,7 @@ Updates the display name of a passkey credential to help users identify their au
   - **`authenticator_flags`**
 
     `object` — Flags indicating authenticator capabilities
+
     - **`backup_eligible`**
 
       `boolean` — Whether this credential can be backed up to another device
@@ -14097,6 +14569,7 @@ Updates the display name of a passkey credential to help users identify their au
   - **`client_info`**
 
     `object` — Geographic and network information from registration
+
     - **`city`**
 
       `string` — City name
@@ -14144,6 +14617,7 @@ Updates the display name of a passkey credential to help users identify their au
   - **`user_agent`**
 
     `object` — Browser and device information from registration
+
     - **`browser`**
 
       `string` — Browser name (e.g., "Chrome", "Safari")
@@ -14193,7 +14667,9 @@ Updates the display name of a passkey credential to help users identify their au
     "credential_id": "",
     "display_name": "My Yubikey",
     "id": "cred_abc123",
-    "transports": [""],
+    "transports": [
+      ""
+    ],
     "updated_at": "2025-02-15T06:23:44.560000Z",
     "user_agent": null,
     "user_id": "user_xyz789"
@@ -14489,6 +14965,7 @@ A documentation or reference link.
   `array` — Updated list of connection-to-tool mappings for this MCP config
 
   **Items:**
+
   - **`connected_account_id`**
 
     `string` — Connected account backing this connection in the MCP instance context
@@ -14532,7 +15009,9 @@ A documentation or reference link.
       "connection_id": "",
       "connection_name": "",
       "provider": "",
-      "tools": [""]
+      "tools": [
+        ""
+      ]
     }
   ],
   "description": "Updated daily summarizer config"
@@ -14566,23 +15045,23 @@ A documentation or reference link.
 
 * **`absolute_session_timeout`**
 
-  `integer`, format: `int32` — The absolute session timeout value. The unit is specified by absolute_session_timeout_unit. Omit when policy_source is APPLICATION.
+  `integer`, format: `int32` — The absolute session timeout value. The unit is specified by absolute\_session\_timeout\_unit. Omit when policy\_source is APPLICATION.
 
 * **`absolute_session_timeout_unit`**
 
-  `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for absolute_session_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES.
+  `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for absolute\_session\_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES.
 
 * **`idle_session_timeout`**
 
-  `integer`, format: `int32` — The idle session timeout value. The unit is specified by idle_session_timeout_unit. Omit when idle_session_timeout_enabled is false.
+  `integer`, format: `int32` — The idle session timeout value. The unit is specified by idle\_session\_timeout\_unit. Omit when idle\_session\_timeout\_enabled is false.
 
 * **`idle_session_timeout_enabled`**
 
-  `boolean` — Whether idle session timeout is enabled. Omit when policy_source is APPLICATION.
+  `boolean` — Whether idle session timeout is enabled. Omit when policy\_source is APPLICATION.
 
 * **`idle_session_timeout_unit`**
 
-  `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for idle_session_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES.
+  `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for idle\_session\_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES.
 
 * **`policy_source`**
 
@@ -14608,6 +15087,7 @@ A documentation or reference link.
 * **`settings`**
 
   `object` — The new values for the setting fields to patch.
+
   - **`max_allowed_users`**
 
     `integer`, format: `int32` — Maximum number of users allowed in the organization. When nil (not set), there feature is not enabled. When explicitly set to zero, it also means no limit. When set to a positive integer, it enforces the maximum user limit.
@@ -14638,7 +15118,9 @@ A documentation or reference link.
 
 ```json
 {
-  "permission_names": [""]
+  "permission_names": [
+    ""
+  ]
 }
 ```
 
@@ -14717,7 +15199,9 @@ A message type used to describe a single bad request field.
 ```json
 {
   "conveyance_preference": "",
-  "enterprise_approved_ids": [""]
+  "enterprise_approved_ids": [
+    ""
+  ]
 }
 ```
 
@@ -14748,7 +15232,7 @@ A message type used to describe a single bad request field.
 
 * **`desired_authenticator_status`**
 
-  `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate_status set to true.
+  `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate\_status set to true.
 
   **Items:**
 
@@ -14756,7 +15240,7 @@ A message type used to describe a single bad request field.
 
 * **`undesired_authenticator_status`**
 
-  `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate_status set to true.
+  `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate\_status set to true.
 
   **Items:**
 
@@ -14772,11 +15256,11 @@ A message type used to describe a single bad request field.
 
 * **`validate_entry`**
 
-  `boolean` — requires that the provided metadata has an entry for the given authenticator to be considered valid. By default an AAGUID which has a zero value should fail validation if validate_entry_permit_zero_aaguid is not provided with the value of true.
+  `boolean` — requires that the provided metadata has an entry for the given authenticator to be considered valid. By default an AAGUID which has a zero value should fail validation if validate\_entry\_permit\_zero\_aaguid is not provided with the value of true.
 
 * **`validate_entry_permit_zero_aaguid`**
 
-  `boolean` — is an option that permits a zero'd AAGUID from an attestation statement to automatically pass metadata validations. Generally helpful to use with validate_entry.
+  `boolean` — is an option that permits a zero'd AAGUID from an attestation statement to automatically pass metadata validations. Generally helpful to use with validate\_entry.
 
 * **`validate_status`**
 
@@ -14786,7 +15270,9 @@ A message type used to describe a single bad request field.
 
 ```json
 {
-  "desired_authenticator_status": ["[]"],
+  "desired_authenticator_status": [
+    "[]"
+  ],
   "undesired_authenticator_status": [
     "['ATTESTATION_KEY_COMPROMISE', 'USER_VERIFICATION_BYPASS', 'USER_KEY_REMOTE_COMPROMISE', 'USER_KEY_PHYSICAL_COMPROMISE', 'REVOKED']"
   ],
@@ -14822,8 +15308,12 @@ A message type used to describe a single bad request field.
 
 ```json
 {
-  "ids": [""],
-  "origins": [""]
+  "ids": [
+    ""
+  ],
+  "origins": [
+    ""
+  ]
 }
 ```
 
@@ -15104,6 +15594,7 @@ ClientSecretStatus indicates whether a client secret can be used for authenticat
 * **`client`**
 
   `object` — Details of the created client
+
   - **`audience`**
 
     `array` — The intended recipients of access tokens issued to this client. Each audience value should be a URI that identifies an API or service.
@@ -15125,6 +15616,7 @@ ClientSecretStatus indicates whether a client secret can be used for authenticat
     `array` — Additional claims included in access tokens issued to this client. These claims provide context about the client and can be used for authorization decisions.
 
     **Items:**
+
     - **`key`**
 
       `string` — The name of the custom claim. Must be between 1 and 128 characters. Use descriptive names that clearly indicate the claim's purpose.
@@ -15186,6 +15678,7 @@ ClientSecretStatus indicates whether a client secret can be used for authenticat
     `array` — List of client secrets associated with this client. Each secret can be used for authentication, but only the most recently created secret is typically active. Secrets are stored securely and their values are never returned after creation.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time` — The timestamp when this secret was created. This field is automatically set by the server and cannot be modified.
@@ -15235,10 +15728,14 @@ ClientSecretStatus indicates whether a client secret can be used for authenticat
 ```json
 {
   "client": {
-    "audience": ["https://api.example.com"],
+    "audience": [
+      "https://api.example.com"
+    ],
     "client_id": "m2morg_1231234233424344",
     "create_time": "2024-01-05T14:48:00Z",
-    "custom_claims": [{}],
+    "custom_claims": [
+      {}
+    ],
     "description": "Service account for automated deployment processes",
     "expiry": 3600,
     "is_cimd": false,
@@ -15246,10 +15743,17 @@ ClientSecretStatus indicates whether a client secret can be used for authenticat
     "metadata_uri": "https://example.com/client-metadata.json",
     "name": "GitHub Actions Deployment Service",
     "organization_id": "org_1231234233424344",
-    "redirect_uris": ["https://example.com/callback"],
+    "redirect_uris": [
+      "https://example.com/callback"
+    ],
     "resource_id": "app_1231234233424344",
-    "scopes": ["deploy:resources", "read:deployments"],
-    "secrets": [{}],
+    "scopes": [
+      "deploy:resources",
+      "read:deployments"
+    ],
+    "secrets": [
+      {}
+    ],
     "update_time": "2024-01-05T14:48:00Z"
   },
   "plain_secret": "CdExsdErfccxDDssddfffgfeFHH1"
@@ -15267,6 +15771,7 @@ ClientSecretStatus indicates whether a client secret can be used for authenticat
 * **`secret`**
 
   `object` — Details of the created client secret
+
   - **`create_time`**
 
     `string`, format: `date-time` — The timestamp when this secret was created. This field is automatically set by the server and cannot be modified.
@@ -15350,6 +15855,7 @@ ClientSecretStatus indicates whether a client secret can be used for authenticat
 * **`client`**
 
   `object` — Details of the requested client
+
   - **`audience`**
 
     `array` — The intended recipients of access tokens issued to this client. Each audience value should be a URI that identifies an API or service.
@@ -15371,6 +15877,7 @@ ClientSecretStatus indicates whether a client secret can be used for authenticat
     `array` — Additional claims included in access tokens issued to this client. These claims provide context about the client and can be used for authorization decisions.
 
     **Items:**
+
     - **`key`**
 
       `string` — The name of the custom claim. Must be between 1 and 128 characters. Use descriptive names that clearly indicate the claim's purpose.
@@ -15432,6 +15939,7 @@ ClientSecretStatus indicates whether a client secret can be used for authenticat
     `array` — List of client secrets associated with this client. Each secret can be used for authentication, but only the most recently created secret is typically active. Secrets are stored securely and their values are never returned after creation.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time` — The timestamp when this secret was created. This field is automatically set by the server and cannot be modified.
@@ -15477,10 +15985,14 @@ ClientSecretStatus indicates whether a client secret can be used for authenticat
 ```json
 {
   "client": {
-    "audience": ["https://api.example.com"],
+    "audience": [
+      "https://api.example.com"
+    ],
     "client_id": "m2morg_1231234233424344",
     "create_time": "2024-01-05T14:48:00Z",
-    "custom_claims": [{}],
+    "custom_claims": [
+      {}
+    ],
     "description": "Service account for automated deployment processes",
     "expiry": 3600,
     "is_cimd": false,
@@ -15488,10 +16000,17 @@ ClientSecretStatus indicates whether a client secret can be used for authenticat
     "metadata_uri": "https://example.com/client-metadata.json",
     "name": "GitHub Actions Deployment Service",
     "organization_id": "org_1231234233424344",
-    "redirect_uris": ["https://example.com/callback"],
+    "redirect_uris": [
+      "https://example.com/callback"
+    ],
     "resource_id": "app_1231234233424344",
-    "scopes": ["deploy:resources", "read:deployments"],
-    "secrets": [{}],
+    "scopes": [
+      "deploy:resources",
+      "read:deployments"
+    ],
+    "secrets": [
+      {}
+    ],
     "update_time": "2024-01-05T14:48:00Z"
   }
 }
@@ -15508,6 +16027,7 @@ Response message containing a paginated list of API clients for the specified or
   `array` — List of API client objects for the organization. Each client includes its configuration, metadata, and active secrets (without exposing actual secret values).
 
   **Items:**
+
   - **`audience`**
 
     `array` — The intended recipients of access tokens issued to this client. Each audience value should be a URI that identifies an API or service.
@@ -15529,6 +16049,7 @@ Response message containing a paginated list of API clients for the specified or
     `array` — Additional claims included in access tokens issued to this client. These claims provide context about the client and can be used for authorization decisions.
 
     **Items:**
+
     - **`key`**
 
       `string` — The name of the custom claim. Must be between 1 and 128 characters. Use descriptive names that clearly indicate the claim's purpose.
@@ -15590,6 +16111,7 @@ Response message containing a paginated list of API clients for the specified or
     `array` — List of client secrets associated with this client. Each secret can be used for authentication, but only the most recently created secret is typically active. Secrets are stored securely and their values are never returned after creation.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time` — The timestamp when this secret was created. This field is automatically set by the server and cannot be modified.
@@ -15648,10 +16170,14 @@ Response message containing a paginated list of API clients for the specified or
 {
   "clients": [
     {
-      "audience": ["https://api.example.com"],
+      "audience": [
+        "https://api.example.com"
+      ],
       "client_id": "m2morg_1231234233424344",
       "create_time": "2024-01-05T14:48:00Z",
-      "custom_claims": [{}],
+      "custom_claims": [
+        {}
+      ],
       "description": "Service account for automated deployment processes",
       "expiry": 3600,
       "is_cimd": false,
@@ -15659,10 +16185,17 @@ Response message containing a paginated list of API clients for the specified or
       "metadata_uri": "https://example.com/client-metadata.json",
       "name": "GitHub Actions Deployment Service",
       "organization_id": "org_1231234233424344",
-      "redirect_uris": ["https://example.com/callback"],
+      "redirect_uris": [
+        "https://example.com/callback"
+      ],
       "resource_id": "app_1231234233424344",
-      "scopes": ["deploy:resources", "read:deployments"],
-      "secrets": [{}],
+      "scopes": [
+        "deploy:resources",
+        "read:deployments"
+      ],
+      "secrets": [
+        {}
+      ],
       "update_time": "2024-01-05T14:48:00Z"
     }
   ],
@@ -15697,6 +16230,7 @@ Response message containing a paginated list of API clients for the specified or
   `array` — Additional claims included in access tokens issued to this client. These claims provide context about the client and can be used for authorization decisions.
 
   **Items:**
+
   - **`key`**
 
     `string` — The name of the custom claim. Must be between 1 and 128 characters. Use descriptive names that clearly indicate the claim's purpose.
@@ -15758,6 +16292,7 @@ Response message containing a paginated list of API clients for the specified or
   `array` — List of client secrets associated with this client. Each secret can be used for authentication, but only the most recently created secret is typically active. Secrets are stored securely and their values are never returned after creation.
 
   **Items:**
+
   - **`create_time`**
 
     `string`, format: `date-time` — The timestamp when this secret was created. This field is automatically set by the server and cannot be modified.
@@ -15802,7 +16337,9 @@ Response message containing a paginated list of API clients for the specified or
 
 ```json
 {
-  "audience": ["https://api.example.com"],
+  "audience": [
+    "https://api.example.com"
+  ],
   "client_id": "m2morg_1231234233424344",
   "create_time": "2024-01-05T14:48:00Z",
   "custom_claims": [
@@ -15818,9 +16355,14 @@ Response message containing a paginated list of API clients for the specified or
   "metadata_uri": "https://example.com/client-metadata.json",
   "name": "GitHub Actions Deployment Service",
   "organization_id": "org_1231234233424344",
-  "redirect_uris": ["https://example.com/callback"],
+  "redirect_uris": [
+    "https://example.com/callback"
+  ],
   "resource_id": "app_1231234233424344",
-  "scopes": ["deploy:resources", "read:deployments"],
+  "scopes": [
+    "deploy:resources",
+    "read:deployments"
+  ],
   "secrets": [
     {
       "create_time": "2024-01-05T14:48:00Z",
@@ -15855,6 +16397,7 @@ Response message containing a paginated list of API clients for the specified or
   `array` — Additional claims to be included in access tokens issued to this client. These claims provide context about the client and can be used for authorization decisions. Keep claims minimal to avoid increasing token size.
 
   **Items:**
+
   - **`key`**
 
     `string` — The name of the custom claim. Must be between 1 and 128 characters. Use descriptive names that clearly indicate the claim's purpose.
@@ -15887,7 +16430,10 @@ Response message containing a paginated list of API clients for the specified or
 
 ```json
 {
-  "audience": ["https://api.example.com/api/analytics", "https://deployment-api.acmecorp.com"],
+  "audience": [
+    "https://api.example.com/api/analytics",
+    "https://deployment-api.acmecorp.com"
+  ],
   "custom_claims": [
     {
       "key": "environment",
@@ -15901,7 +16447,10 @@ Response message containing a paginated list of API clients for the specified or
   "description": "Service account for GitHub Actions to deploy resources to production",
   "expiry": 3600,
   "name": "GitHub Actions Deployment Service",
-  "scopes": ["deploy:resources", "read:deployments"]
+  "scopes": [
+    "deploy:resources",
+    "read:deployments"
+  ]
 }
 ```
 
@@ -15912,6 +16461,7 @@ Response message containing a paginated list of API clients for the specified or
 * **`client`**
 
   `object` — Updated details of the client
+
   - **`audience`**
 
     `array` — The intended recipients of access tokens issued to this client. Each audience value should be a URI that identifies an API or service.
@@ -15933,6 +16483,7 @@ Response message containing a paginated list of API clients for the specified or
     `array` — Additional claims included in access tokens issued to this client. These claims provide context about the client and can be used for authorization decisions.
 
     **Items:**
+
     - **`key`**
 
       `string` — The name of the custom claim. Must be between 1 and 128 characters. Use descriptive names that clearly indicate the claim's purpose.
@@ -15994,6 +16545,7 @@ Response message containing a paginated list of API clients for the specified or
     `array` — List of client secrets associated with this client. Each secret can be used for authentication, but only the most recently created secret is typically active. Secrets are stored securely and their values are never returned after creation.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time` — The timestamp when this secret was created. This field is automatically set by the server and cannot be modified.
@@ -16039,10 +16591,14 @@ Response message containing a paginated list of API clients for the specified or
 ```json
 {
   "client": {
-    "audience": ["https://api.example.com"],
+    "audience": [
+      "https://api.example.com"
+    ],
     "client_id": "m2morg_1231234233424344",
     "create_time": "2024-01-05T14:48:00Z",
-    "custom_claims": [{}],
+    "custom_claims": [
+      {}
+    ],
     "description": "Service account for automated deployment processes",
     "expiry": 3600,
     "is_cimd": false,
@@ -16050,10 +16606,17 @@ Response message containing a paginated list of API clients for the specified or
     "metadata_uri": "https://example.com/client-metadata.json",
     "name": "GitHub Actions Deployment Service",
     "organization_id": "org_1231234233424344",
-    "redirect_uris": ["https://example.com/callback"],
+    "redirect_uris": [
+      "https://example.com/callback"
+    ],
     "resource_id": "app_1231234233424344",
-    "scopes": ["deploy:resources", "read:deployments"],
-    "secrets": [{}],
+    "scopes": [
+      "deploy:resources",
+      "read:deployments"
+    ],
+    "secrets": [
+      {}
+    ],
     "update_time": "2024-01-05T14:48:00Z"
   }
 }
@@ -16176,13 +16739,14 @@ Response message containing a paginated list of API clients for the specified or
 
 * **`provisioning_method`**
 
-  `string` — How the user was provisioned. Possible values: - \`jit_using_sso\` (Just-in-time provisioning during SSO login) - \`allowed_email_domain\` (User joined via allowed email domain matching) - \`org_creator\` (User created the organization) - \`direct_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+  `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
 
 * **`roles`**
 
   `array`
 
   **Items:**
+
   - **`display_name`**
 
     `string` — Human-readable name for the role
@@ -16212,7 +16776,11 @@ Response message containing a paginated list of API clients for the specified or
   },
   "name": "AcmeCorp",
   "organization_id": "org_1234abcd5678efgh",
-  "permissions": ["read_projects", "write_tasks", "manage_users"],
+  "permissions": [
+    "read_projects",
+    "write_tasks",
+    "manage_users"
+  ],
   "provisioning_method": "",
   "roles": [
     {
@@ -16279,6 +16847,7 @@ Response message containing a paginated list of API clients for the specified or
   `array` — List of external identity connections associated with the user profile.
 
   **Items:**
+
   - **`connection_id`**
 
     `string` — Unique identifier for the external identity connection. Immutable and read-only.
@@ -16345,7 +16914,7 @@ Response message containing a paginated list of API clients for the specified or
 
 * **`name`**
 
-  `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given_name and family_name fields.
+  `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
 
 * **`phone_number`**
 
@@ -16387,7 +16956,10 @@ Response message containing a paginated list of API clients for the specified or
   "family_name": "Doe",
   "gender": "male",
   "given_name": "John",
-  "groups": ["admin", "developer"],
+  "groups": [
+    "admin",
+    "developer"
+  ],
   "id": "usr_profile_1234abcd5678efgh",
   "locale": "en-US",
   "metadata": {
@@ -16409,7 +16981,8 @@ Response message containing a paginated list of API clients for the specified or
 
 * **`google_dwd`**
 
-  `object` — Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections. Send only subject in requests; access_token, scopes, and token_expires_at are response-only.
+  `object` — Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connections. Send only subject in requests; access\_token, scopes, and token\_expires\_at are response-only.
+
   - **`access_token`**
 
     `string` — OAuth access token acquired via the jwt-bearer grant. Present in responses only.
@@ -16433,6 +17006,7 @@ Response message containing a paginated list of API clients for the specified or
 * **`oauth_token`**
 
   `object`
+
   - **`access_token`**
 
     `string` — OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
@@ -16456,6 +17030,7 @@ Response message containing a paginated list of API clients for the specified or
 * **`static_auth`**
 
   `object`
+
   - **`details`**
 
     `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
@@ -16466,7 +17041,10 @@ Response message containing a paginated list of API clients for the specified or
 {
   "google_dwd": {
     "access_token": "ya29.a0AfH6SMBx...",
-    "scopes": ["openid", "https://www.googleapis.com/auth/userinfo.email"],
+    "scopes": [
+      "openid",
+      "https://www.googleapis.com/auth/userinfo.email"
+    ],
     "subject": "user@example.com",
     "token_expires_at": ""
   },
@@ -16488,7 +17066,7 @@ Response message containing a paginated list of API clients for the specified or
 }
 ```
 
-### connected_accountsConnectedAccount
+### connected\_accountsConnectedAccount
 
 - **Type:**`object`
 
@@ -16499,9 +17077,11 @@ Response message containing a paginated list of API clients for the specified or
 * **`authorization_details`**
 
   `object` — Sensitive authentication credentials including access tokens, refresh tokens, and scopes. Contains either OAuth tokens or static auth details.
+
   - **`google_dwd`**
 
-    `object` — Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections. Send only subject in requests; access_token, scopes, and token_expires_at are response-only.
+    `object` — Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connections. Send only subject in requests; access\_token, scopes, and token\_expires\_at are response-only.
+
     - **`access_token`**
 
       `string` — OAuth access token acquired via the jwt-bearer grant. Present in responses only.
@@ -16525,6 +17105,7 @@ Response message containing a paginated list of API clients for the specified or
   - **`oauth_token`**
 
     `object`
+
     - **`access_token`**
 
       `string` — OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
@@ -16548,6 +17129,7 @@ Response message containing a paginated list of API clients for the specified or
   - **`static_auth`**
 
     `object`
+
     - **`details`**
 
       `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
@@ -16686,8 +17268,8 @@ Response message containing a paginated list of API clients for the specified or
 
 * ACTIVE: Account is connected and credentials are valid
 * EXPIRED: Access token has expired and needs refresh
-* PENDING_AUTH: Account awaiting user authorization (re-auth initiated)
-* PENDING_VERIFICATION: OAuth complete; awaiting user identity verification before activation
+* PENDING\_AUTH: Account awaiting user authorization (re-auth initiated)
+* PENDING\_VERIFICATION: OAuth complete; awaiting user identity verification before activation
 * DISCONNECTED: Account has been manually disconnected
 
 **Example:**
@@ -16697,34 +17279,37 @@ Response message containing a paginated list of API clients for the specified or
 - **Type:**`string`
 
 * OAUTH: OAuth 2.0 authorization with access and refresh tokens
-* API_KEY: Static API key authentication
-* BASIC_AUTH: HTTP Basic Authentication (username/password)
-* BEARER_TOKEN: Bearer token authentication
+* API\_KEY: Static API key authentication
+* BASIC\_AUTH: HTTP Basic Authentication (username/password)
+* BEARER\_TOKEN: Bearer token authentication
 * CUSTOM: Custom authentication mechanism
 * BASIC: Basic authentication (alias)
-* OAUTH_M2M: OAuth 2.0 client credentials (machine-to-machine)
-* TRELLO_OAUTH1: Trello token-based OAuth1-style browser authorization
-* GOOGLE_DWD: Google Domain-Wide Delegation
+* OAUTH\_M2M: OAuth 2.0 client credentials (machine-to-machine)
+* TRELLO\_OAUTH1: Trello token-based OAuth1-style browser authorization
+* GOOGLE\_DWD: Google Domain-Wide Delegation
 
 **Example:**
 
-### connected_accountsCreateConnectedAccountRequest
+### connected\_accountsCreateConnectedAccountRequest
 
 - **Type:**`object`
 
 * **`connected_account`**
 
   `object` — Details of the connected account to create
+
   - **`api_config`**
 
     `object` — Optional JSON configuration for connector-specific API settings such as rate limits, custom API endpoints, timeouts, or feature flags.
 
   - **`authorization_details`**
 
-    `object` — Optional authentication credentials for the connected account. Include OAuth tokens (access_token, refresh_token, scopes) or static auth details (API keys, bearer tokens). Can be provided later via update.
+    `object` — Optional authentication credentials for the connected account. Include OAuth tokens (access\_token, refresh\_token, scopes) or static auth details (API keys, bearer tokens). Can be provided later via update.
+
     - **`google_dwd`**
 
-      `object` — Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections. Send only subject in requests; access_token, scopes, and token_expires_at are response-only.
+      `object` — Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connections. Send only subject in requests; access\_token, scopes, and token\_expires\_at are response-only.
+
       - **`access_token`**
 
         `string` — OAuth access token acquired via the jwt-bearer grant. Present in responses only.
@@ -16748,6 +17333,7 @@ Response message containing a paginated list of API clients for the specified or
     - **`oauth_token`**
 
       `object`
+
       - **`access_token`**
 
         `string` — OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
@@ -16771,6 +17357,7 @@ Response message containing a paginated list of API clients for the specified or
     - **`static_auth`**
 
       `object`
+
       - **`details`**
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
@@ -16800,7 +17387,10 @@ Response message containing a paginated list of API clients for the specified or
       "oauth_token": {
         "access_token": "...",
         "refresh_token": "...",
-        "scopes": ["read", "write"]
+        "scopes": [
+          "read",
+          "write"
+        ]
       }
     },
     "authorization_type": "OAUTH2"
@@ -16812,13 +17402,14 @@ Response message containing a paginated list of API clients for the specified or
 }
 ```
 
-### connected_accountsCreateConnectedAccountResponse
+### connected\_accountsCreateConnectedAccountResponse
 
 - **Type:**`object`
 
 * **`connected_account`**
 
   `object` — The newly created connected account with its unique identifier, status, and complete authorization details including access tokens.
+
   - **`api_config`**
 
     `object` — Optional JSON configuration for connector-specific API settings such as rate limits, custom endpoints, or feature flags.
@@ -16826,9 +17417,11 @@ Response message containing a paginated list of API clients for the specified or
   - **`authorization_details`**
 
     `object` — Sensitive authentication credentials including access tokens, refresh tokens, and scopes. Contains either OAuth tokens or static auth details.
+
     - **`google_dwd`**
 
-      `object` — Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections. Send only subject in requests; access_token, scopes, and token_expires_at are response-only.
+      `object` — Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connections. Send only subject in requests; access\_token, scopes, and token\_expires\_at are response-only.
+
       - **`access_token`**
 
         `string` — OAuth access token acquired via the jwt-bearer grant. Present in responses only.
@@ -16852,6 +17445,7 @@ Response message containing a paginated list of API clients for the specified or
     - **`oauth_token`**
 
       `object`
+
       - **`access_token`**
 
         `string` — OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
@@ -16875,6 +17469,7 @@ Response message containing a paginated list of API clients for the specified or
     - **`static_auth`**
 
       `object`
+
       - **`details`**
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
@@ -16944,7 +17539,7 @@ Response message containing a paginated list of API clients for the specified or
 }
 ```
 
-### connected_accountsDeleteConnectedAccountRequest
+### connected\_accountsDeleteConnectedAccountRequest
 
 - **Type:**`object`
 
@@ -16980,7 +17575,7 @@ Response message containing a paginated list of API clients for the specified or
 }
 ```
 
-### connected_accountsDeleteConnectedAccountResponse
+### connected\_accountsDeleteConnectedAccountResponse
 
 - **Type:**`object`
 
@@ -16990,13 +17585,14 @@ Response message containing a paginated list of API clients for the specified or
 {}
 ```
 
-### connected_accountsGetConnectedAccountByIdentifierResponse
+### connected\_accountsGetConnectedAccountByIdentifierResponse
 
 - **Type:**`object`
 
 * **`connected_account`**
 
   `object` — The connected account with complete details including sensitive authorization credentials (access tokens, refresh tokens, scopes). Handle with appropriate access controls.
+
   - **`api_config`**
 
     `object` — Optional JSON configuration for connector-specific API settings such as rate limits, custom endpoints, or feature flags.
@@ -17004,9 +17600,11 @@ Response message containing a paginated list of API clients for the specified or
   - **`authorization_details`**
 
     `object` — Sensitive authentication credentials including access tokens, refresh tokens, and scopes. Contains either OAuth tokens or static auth details.
+
     - **`google_dwd`**
 
-      `object` — Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections. Send only subject in requests; access_token, scopes, and token_expires_at are response-only.
+      `object` — Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connections. Send only subject in requests; access\_token, scopes, and token\_expires\_at are response-only.
+
       - **`access_token`**
 
         `string` — OAuth access token acquired via the jwt-bearer grant. Present in responses only.
@@ -17030,6 +17628,7 @@ Response message containing a paginated list of API clients for the specified or
     - **`oauth_token`**
 
       `object`
+
       - **`access_token`**
 
         `string` — OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
@@ -17053,6 +17652,7 @@ Response message containing a paginated list of API clients for the specified or
     - **`static_auth`**
 
       `object`
+
       - **`details`**
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
@@ -17122,7 +17722,7 @@ Response message containing a paginated list of API clients for the specified or
 }
 ```
 
-### connected_accountsGetMagicLinkForConnectedAccountRequest
+### connected\_accountsGetMagicLinkForConnectedAccountRequest
 
 - **Type:**`object`
 
@@ -17168,7 +17768,7 @@ Response message containing a paginated list of API clients for the specified or
 }
 ```
 
-### connected_accountsGetMagicLinkForConnectedAccountResponse
+### connected\_accountsGetMagicLinkForConnectedAccountResponse
 
 - **Type:**`object`
 
@@ -17189,11 +17789,11 @@ Response message containing a paginated list of API clients for the specified or
 }
 ```
 
-### connected_accountsGoogleDWDAuth
+### connected\_accountsGoogleDWDAuth
 
 - **Type:**`object`
 
-Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections. Send only subject in requests; access_token, scopes, and token_expires_at are response-only.
+Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connections. Send only subject in requests; access\_token, scopes, and token\_expires\_at are response-only.
 
 - **`access_token`**
 
@@ -17220,13 +17820,16 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 ```json
 {
   "access_token": "ya29.a0AfH6SMBx...",
-  "scopes": ["openid", "https://www.googleapis.com/auth/userinfo.email"],
+  "scopes": [
+    "openid",
+    "https://www.googleapis.com/auth/userinfo.email"
+  ],
   "subject": "user@example.com",
   "token_expires_at": ""
 }
 ```
 
-### connected_accountsListConnectedAccountsResponse
+### connected\_accountsListConnectedAccountsResponse
 
 - **Type:**`object`
 
@@ -17235,6 +17838,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   `array` — List of connected accounts matching the filter criteria. Excludes sensitive authorization details for security.
 
   **Items:**
+
   - **`authorization_type`**
 
     `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authorization mechanism type.
@@ -17277,11 +17881,11 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
 * **`next_page_token`**
 
-  `string` — Pagination token for retrieving the next page. Empty if this is the last page. Pass this value to page_token in the next request.
+  `string` — Pagination token for retrieving the next page. Empty if this is the last page. Pass this value to page\_token in the next request.
 
 * **`prev_page_token`**
 
-  `string` — Pagination token for retrieving the previous page. Empty if this is the first page. Pass this value to page_token to go back.
+  `string` — Pagination token for retrieving the previous page. Empty if this is the first page. Pass this value to page\_token to go back.
 
 * **`total_size`**
 
@@ -17349,7 +17953,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 }
 ```
 
-### connected_accountsSearchConnectedAccountsResponse
+### connected\_accountsSearchConnectedAccountsResponse
 
 - **Type:**`object`
 
@@ -17358,6 +17962,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   `array` — List of connected accounts matching the search query. Excludes sensitive authorization details.
 
   **Items:**
+
   - **`authorization_type`**
 
     `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authorization mechanism type.
@@ -17453,13 +18058,14 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 }
 ```
 
-### connected_accountsUpdateConnectedAccountRequest
+### connected\_accountsUpdateConnectedAccountRequest
 
 - **Type:**`object`
 
 * **`connected_account`**
 
   `object` — Details of the connected account to update
+
   - **`api_config`**
 
     `object` — Updated JSON configuration for API-specific settings. Merges with existing configuration - only provided fields are modified.
@@ -17467,9 +18073,11 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   - **`authorization_details`**
 
     `object` — Updated authentication credentials. Provide new OAuth tokens (e.g., after refresh) or updated static auth details. Only included fields will be modified.
+
     - **`google_dwd`**
 
-      `object` — Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections. Send only subject in requests; access_token, scopes, and token_expires_at are response-only.
+      `object` — Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connections. Send only subject in requests; access\_token, scopes, and token\_expires\_at are response-only.
+
       - **`access_token`**
 
         `string` — OAuth access token acquired via the jwt-bearer grant. Present in responses only.
@@ -17493,6 +18101,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
     - **`oauth_token`**
 
       `object`
+
       - **`access_token`**
 
         `string` — OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
@@ -17516,6 +18125,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
     - **`static_auth`**
 
       `object`
+
       - **`details`**
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
@@ -17549,7 +18159,10 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
       "oauth_token": {
         "access_token": "...",
         "refresh_token": "...",
-        "scopes": ["read", "write"]
+        "scopes": [
+          "read",
+          "write"
+        ]
       }
     },
     "authorization_type": "OAUTH2"
@@ -17562,13 +18175,14 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 }
 ```
 
-### connected_accountsUpdateConnectedAccountResponse
+### connected\_accountsUpdateConnectedAccountResponse
 
 - **Type:**`object`
 
 * **`connected_account`**
 
   `object` — The updated connected account with refreshed credentials, new token expiry, and modified configuration settings.
+
   - **`api_config`**
 
     `object` — Optional JSON configuration for connector-specific API settings such as rate limits, custom endpoints, or feature flags.
@@ -17576,9 +18190,11 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   - **`authorization_details`**
 
     `object` — Sensitive authentication credentials including access tokens, refresh tokens, and scopes. Contains either OAuth tokens or static auth details.
+
     - **`google_dwd`**
 
-      `object` — Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections. Send only subject in requests; access_token, scopes, and token_expires_at are response-only.
+      `object` — Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connections. Send only subject in requests; access\_token, scopes, and token\_expires\_at are response-only.
+
       - **`access_token`**
 
         `string` — OAuth access token acquired via the jwt-bearer grant. Present in responses only.
@@ -17602,6 +18218,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
     - **`oauth_token`**
 
       `object`
+
       - **`access_token`**
 
         `string` — OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
@@ -17625,6 +18242,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
     - **`static_auth`**
 
       `object`
+
       - **`details`**
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
@@ -17694,7 +18312,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 }
 ```
 
-### connected_accountsVerifyConnectedAccountUserRequest
+### connected\_accountsVerifyConnectedAccountUserRequest
 
 - **Type:**`object`
 
@@ -17715,7 +18333,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 }
 ```
 
-### connected_accountsVerifyConnectedAccountUserResponse
+### connected\_accountsVerifyConnectedAccountUserResponse
 
 - **Type:**`object`
 
@@ -17764,6 +18382,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   `array` — Domain associated with this connection, used for domain-based authentication flows.
 
   **Items:**
+
   - **`create_time`**
 
     `string`, format: `date-time` — Timestamp when the domain was first created.
@@ -17794,11 +18413,11 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
   - **`verification_method`**
 
-    `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — Method that determines how domain ownership is verified. - ADMIN: domain is marked verified without DNS validation, typically by an admin. - DNS: domain must be verified by adding a TXT record to your DNS configuration. - NOT_APPLICABLE: verification does not apply to this domain type.
+    `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — Method that determines how domain ownership is verified. - ADMIN: domain is marked verified without DNS validation, typically by an admin. - DNS: domain must be verified by adding a TXT record to your DNS configuration. - NOT\_APPLICABLE: verification does not apply to this domain type.
 
   - **`verification_status`**
 
-    `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain. - PENDING: DNS TXT record has not been validated yet. - VERIFIED: domain confirmed via DNS TXT record validation or admin approval. - AUTO_VERIFIED: domain verified automatically without DNS changes. - FAILED: DNS TXT record was not validated within the verification window.
+    `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain. - PENDING: DNS TXT record has not been validated yet. - VERIFIED: domain confirmed via DNS TXT record validation or admin approval. - AUTO\_VERIFIED: domain verified automatically without DNS changes. - FAILED: DNS TXT record was not validated within the verification window.
 
 * **`enabled`**
 
@@ -17806,7 +18425,8 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
 * **`google_dwd_config`**
 
-  `object` — Configuration details for Google Domain-Wide Delegation. Present only when type is GOOGLE_DWD.
+  `object` — Configuration details for Google Domain-Wide Delegation. Present only when type is GOOGLE\_DWD.
+
   - **`scopes`**
 
     `array` — OAuth 2.0 scopes to request.
@@ -17834,13 +18454,14 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 * **`oauth_config`**
 
   `object` — Configuration details for OAuth connections. Present only when type is OAUTH.
+
   - **`access_type`**
 
     `string` — Access Type
 
   - **`app_name`**
 
-    `string` — Application name used by providers that require it as an authorize query parameter (e.g., Trello's app_name).
+    `string` — Application name used by providers that require it as an authorize query parameter (e.g., Trello's app\_name).
 
   - **`authorize_uri`**
 
@@ -17865,6 +18486,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   - **`optional_scopes`**
 
     `object` — Optional scopes configuration for identity providers that support or require additional scopes to be sent in a custom field during authentication requests.
+
     - **`field_name`**
 
       `string` — Name of the field in which scope should be sent in the authentication request. This is required by some identity providers that expect scopes to be sent in a custom field instead of the standard 'scope' parameter.
@@ -17924,13 +18546,14 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 * **`oidc_config`**
 
   `object` — Configuration details for OpenID Connect (OIDC) connections. Present only when type is OIDC.
+
   - **`authorize_uri`**
 
     `string` — Authorize URI
 
   - **`backchannel_logout_redirect_uri`**
 
-    `string` — backchannel logout redirect uri where idp sends logout_token
+    `string` — backchannel logout redirect uri where idp sends logout\_token
 
   - **`client_id`**
 
@@ -18002,7 +18625,8 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
 * **`passwordless_config`**
 
-  `object` — Configuration details for Magic Link authentication. Present only when type is MAGIC_LINK.
+  `object` — Configuration details for Magic Link authentication. Present only when type is MAGIC\_LINK.
+
   - **`code_challenge_length`**
 
     `integer`, format: `int64` — Code Challenge Length
@@ -18042,6 +18666,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 * **`saml_config`**
 
   `object` — Configuration details for SAML connections. Present only when type is SAML.
+
   - **`allow_idp_initiated_login`**
 
     `boolean` — Allow IDP Initiated Login
@@ -18067,6 +18692,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
     `array` — IDP Certificates
 
     **Items:**
+
     - **`certificate`**
 
       `string` — IDP Certificate
@@ -18157,14 +18783,15 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
 * **`static_config`**
 
-  `object` — Static configuration for custom connections. Present only when type is BASIC, BEARER, API_KEY, or custom.
+  `object` — Static configuration for custom connections. Present only when type is BASIC, BEARER, API\_KEY, or custom.
+
   - **`static_config`**
 
     `object`
 
 * **`status`**
 
-  `string`, possible values: `"DRAFT", "IN_PROGRESS", "COMPLETED"` — Current configuration status of the connection. Possible values include IN_PROGRESS, CONFIGURED, and ERROR.
+  `string`, possible values: `"DRAFT", "IN_PROGRESS", "COMPLETED"` — Current configuration status of the connection. Possible values include IN\_PROGRESS, CONFIGURED, and ERROR.
 
 * **`test_connection_uri`**
 
@@ -18172,14 +18799,16 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
 * **`type`**
 
-  `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC_LINK.
+  `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
 
 * **`webauthn_config`**
 
   `object` — Configuration details for WebAuthn (passkeys). Present only when type is WEBAUTHN.
+
   - **`attestation`**
 
     `object`
+
     - **`conveyance_preference`**
 
       `string`
@@ -18195,6 +18824,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   - **`authenticator_selection`**
 
     `object`
+
     - **`authenticator_attachment`**
 
       `string`
@@ -18206,9 +18836,10 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   - **`authenticators`**
 
     `object`
+
     - **`desired_authenticator_status`**
 
-      `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate_status set to true.
+      `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate\_status set to true.
 
       **Items:**
 
@@ -18216,7 +18847,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
     - **`undesired_authenticator_status`**
 
-      `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate_status set to true.
+      `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate\_status set to true.
 
       **Items:**
 
@@ -18232,11 +18863,11 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
     - **`validate_entry`**
 
-      `boolean` — requires that the provided metadata has an entry for the given authenticator to be considered valid. By default an AAGUID which has a zero value should fail validation if validate_entry_permit_zero_aaguid is not provided with the value of true.
+      `boolean` — requires that the provided metadata has an entry for the given authenticator to be considered valid. By default an AAGUID which has a zero value should fail validation if validate\_entry\_permit\_zero\_aaguid is not provided with the value of true.
 
     - **`validate_entry_permit_zero_aaguid`**
 
-      `boolean` — is an option that permits a zero'd AAGUID from an attestation statement to automatically pass metadata validations. Generally helpful to use with validate_entry.
+      `boolean` — is an option that permits a zero'd AAGUID from an attestation statement to automatically pass metadata validations. Generally helpful to use with validate\_entry.
 
     - **`validate_status`**
 
@@ -18253,6 +18884,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   - **`rp`**
 
     `object`
+
     - **`ids`**
 
       `array`
@@ -18276,6 +18908,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   - **`timeout`**
 
     `object`
+
     - **`login`**
 
       `string`, default: `"\"300s\""` — Login timeout duration
@@ -18308,7 +18941,9 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   ],
   "enabled": false,
   "google_dwd_config": {
-    "scopes": [""],
+    "scopes": [
+      ""
+    ],
     "service_account_json": "",
     "token_uri": ""
   },
@@ -18326,7 +18961,10 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
     "pkce_enabled": true,
     "prompt": "none",
     "redirect_uri": "https://yourapp.com/service/oauth/redirect",
-    "scopes": ["openid", "profile"],
+    "scopes": [
+      "openid",
+      "profile"
+    ],
     "sync_user_profile_on_login": true,
     "tenant_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "token_access_type": "offline",
@@ -18347,7 +18985,10 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
     "pkce_enabled": true,
     "post_logout_redirect_uri": "https://yourapp.com/sso/v1/oidc/conn_1234/logout/callback",
     "redirect_uri": "https://yourapp.com/sso/v1/oidc/conn_1234/callback",
-    "scopes": ["openid", "profile"],
+    "scopes": [
+      "openid",
+      "profile"
+    ],
     "sync_user_profile_on_login": true,
     "token_auth_type": "URL_PARAMS",
     "token_uri": "https://youridp.com/service/oauth/token",
@@ -18371,7 +19012,9 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
     "certificate_id": "cer_35585423166144613",
     "default_redirect_uri": "https://yourapp.com/service/saml/redirect",
     "force_authn": true,
-    "idp_certificates": [{}],
+    "idp_certificates": [
+      {}
+    ],
     "idp_entity_id": "https://youridp.com/service/saml",
     "idp_metadata_url": "https://youridp.com/service/saml/metadata",
     "idp_name_id_format": "EMAIL",
@@ -18434,6 +19077,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 * **`connection`**
 
   `object` — Complete connection details including provider configuration, protocol settings, status, and all metadata. Contains everything needed to understand the connection's current state.
+
   - **`attribute_mapping`**
 
     `object` — Maps identity provider attributes to user profile fields. For example, {'email': 'user.mail', 'name': 'user.displayName'}.
@@ -18451,6 +19095,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
     `array` — Domain associated with this connection, used for domain-based authentication flows.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time` — Timestamp when the domain was first created.
@@ -18481,11 +19126,11 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
     - **`verification_method`**
 
-      `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — Method that determines how domain ownership is verified. - ADMIN: domain is marked verified without DNS validation, typically by an admin. - DNS: domain must be verified by adding a TXT record to your DNS configuration. - NOT_APPLICABLE: verification does not apply to this domain type.
+      `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — Method that determines how domain ownership is verified. - ADMIN: domain is marked verified without DNS validation, typically by an admin. - DNS: domain must be verified by adding a TXT record to your DNS configuration. - NOT\_APPLICABLE: verification does not apply to this domain type.
 
     - **`verification_status`**
 
-      `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain. - PENDING: DNS TXT record has not been validated yet. - VERIFIED: domain confirmed via DNS TXT record validation or admin approval. - AUTO_VERIFIED: domain verified automatically without DNS changes. - FAILED: DNS TXT record was not validated within the verification window.
+      `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain. - PENDING: DNS TXT record has not been validated yet. - VERIFIED: domain confirmed via DNS TXT record validation or admin approval. - AUTO\_VERIFIED: domain verified automatically without DNS changes. - FAILED: DNS TXT record was not validated within the verification window.
 
   - **`enabled`**
 
@@ -18493,7 +19138,8 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
   - **`google_dwd_config`**
 
-    `object` — Configuration details for Google Domain-Wide Delegation. Present only when type is GOOGLE_DWD.
+    `object` — Configuration details for Google Domain-Wide Delegation. Present only when type is GOOGLE\_DWD.
+
     - **`scopes`**
 
       `array` — OAuth 2.0 scopes to request.
@@ -18521,13 +19167,14 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   - **`oauth_config`**
 
     `object` — Configuration details for OAuth connections. Present only when type is OAUTH.
+
     - **`access_type`**
 
       `string` — Access Type
 
     - **`app_name`**
 
-      `string` — Application name used by providers that require it as an authorize query parameter (e.g., Trello's app_name).
+      `string` — Application name used by providers that require it as an authorize query parameter (e.g., Trello's app\_name).
 
     - **`authorize_uri`**
 
@@ -18552,6 +19199,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
     - **`optional_scopes`**
 
       `object` — Optional scopes configuration for identity providers that support or require additional scopes to be sent in a custom field during authentication requests.
+
       - **`field_name`**
 
         `string` — Name of the field in which scope should be sent in the authentication request. This is required by some identity providers that expect scopes to be sent in a custom field instead of the standard 'scope' parameter.
@@ -18611,13 +19259,14 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   - **`oidc_config`**
 
     `object` — Configuration details for OpenID Connect (OIDC) connections. Present only when type is OIDC.
+
     - **`authorize_uri`**
 
       `string` — Authorize URI
 
     - **`backchannel_logout_redirect_uri`**
 
-      `string` — backchannel logout redirect uri where idp sends logout_token
+      `string` — backchannel logout redirect uri where idp sends logout\_token
 
     - **`client_id`**
 
@@ -18689,7 +19338,8 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
   - **`passwordless_config`**
 
-    `object` — Configuration details for Magic Link authentication. Present only when type is MAGIC_LINK.
+    `object` — Configuration details for Magic Link authentication. Present only when type is MAGIC\_LINK.
+
     - **`code_challenge_length`**
 
       `integer`, format: `int64` — Code Challenge Length
@@ -18729,6 +19379,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   - **`saml_config`**
 
     `object` — Configuration details for SAML connections. Present only when type is SAML.
+
     - **`allow_idp_initiated_login`**
 
       `boolean` — Allow IDP Initiated Login
@@ -18754,6 +19405,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
       `array` — IDP Certificates
 
       **Items:**
+
       - **`certificate`**
 
         `string` — IDP Certificate
@@ -18844,14 +19496,15 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
   - **`static_config`**
 
-    `object` — Static configuration for custom connections. Present only when type is BASIC, BEARER, API_KEY, or custom.
+    `object` — Static configuration for custom connections. Present only when type is BASIC, BEARER, API\_KEY, or custom.
+
     - **`static_config`**
 
       `object`
 
   - **`status`**
 
-    `string`, possible values: `"DRAFT", "IN_PROGRESS", "COMPLETED"` — Current configuration status of the connection. Possible values include IN_PROGRESS, CONFIGURED, and ERROR.
+    `string`, possible values: `"DRAFT", "IN_PROGRESS", "COMPLETED"` — Current configuration status of the connection. Possible values include IN\_PROGRESS, CONFIGURED, and ERROR.
 
   - **`test_connection_uri`**
 
@@ -18859,14 +19512,16 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
   - **`type`**
 
-    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC_LINK.
+    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
 
   - **`webauthn_config`**
 
     `object` — Configuration details for WebAuthn (passkeys). Present only when type is WEBAUTHN.
+
     - **`attestation`**
 
       `object`
+
       - **`conveyance_preference`**
 
         `string`
@@ -18882,6 +19537,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
     - **`authenticator_selection`**
 
       `object`
+
       - **`authenticator_attachment`**
 
         `string`
@@ -18893,9 +19549,10 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
     - **`authenticators`**
 
       `object`
+
       - **`desired_authenticator_status`**
 
-        `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate_status set to true.
+        `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate\_status set to true.
 
         **Items:**
 
@@ -18903,7 +19560,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
       - **`undesired_authenticator_status`**
 
-        `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate_status set to true.
+        `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate\_status set to true.
 
         **Items:**
 
@@ -18919,11 +19576,11 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
       - **`validate_entry`**
 
-        `boolean` — requires that the provided metadata has an entry for the given authenticator to be considered valid. By default an AAGUID which has a zero value should fail validation if validate_entry_permit_zero_aaguid is not provided with the value of true.
+        `boolean` — requires that the provided metadata has an entry for the given authenticator to be considered valid. By default an AAGUID which has a zero value should fail validation if validate\_entry\_permit\_zero\_aaguid is not provided with the value of true.
 
       - **`validate_entry_permit_zero_aaguid`**
 
-        `boolean` — is an option that permits a zero'd AAGUID from an attestation statement to automatically pass metadata validations. Generally helpful to use with validate_entry.
+        `boolean` — is an option that permits a zero'd AAGUID from an attestation statement to automatically pass metadata validations. Generally helpful to use with validate\_entry.
 
       - **`validate_status`**
 
@@ -18940,6 +19597,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
     - **`rp`**
 
       `object`
+
       - **`ids`**
 
         `array`
@@ -18963,6 +19621,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
     - **`timeout`**
 
       `object`
+
       - **`login`**
 
         `string`, default: `"\"300s\""` — Login timeout duration
@@ -19038,7 +19697,9 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
 ```json
 {
-  "scopes": [""],
+  "scopes": [
+    ""
+  ],
   "service_account_json": "",
   "token_uri": ""
 }
@@ -19132,7 +19793,10 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
 ```json
 {
-  "domains": ["yourapp.com", "yourworkspace.com"],
+  "domains": [
+    "yourapp.com",
+    "yourworkspace.com"
+  ],
   "enabled": false,
   "id": "conn_2123312131125533",
   "key_id": "conn_2123312131125533",
@@ -19154,6 +19818,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   `array` — List of connections matching the request criteria
 
   **Items:**
+
   - **`domains`**
 
     `array` — List of domains configured with this connection
@@ -19204,7 +19869,10 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 {
   "connections": [
     {
-      "domains": ["yourapp.com", "yourworkspace.com"],
+      "domains": [
+        "yourapp.com",
+        "yourworkspace.com"
+      ],
       "enabled": false,
       "id": "conn_2123312131125533",
       "key_id": "conn_2123312131125533",
@@ -19235,7 +19903,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
 * **`app_name`**
 
-  `string` — Application name used by providers that require it as an authorize query parameter (e.g., Trello's app_name).
+  `string` — Application name used by providers that require it as an authorize query parameter (e.g., Trello's app\_name).
 
 * **`authorize_uri`**
 
@@ -19260,6 +19928,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 * **`optional_scopes`**
 
   `object` — Optional scopes configuration for identity providers that support or require additional scopes to be sent in a custom field during authentication requests.
+
   - **`field_name`**
 
     `string` — Name of the field in which scope should be sent in the authentication request. This is required by some identity providers that expect scopes to be sent in a custom field instead of the standard 'scope' parameter.
@@ -19329,12 +19998,18 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   "is_cimd": true,
   "optional_scopes": {
     "field_name": "optional_scope or bot_scope",
-    "scopes": ["scope1", "scope2"]
+    "scopes": [
+      "scope1",
+      "scope2"
+    ]
   },
   "pkce_enabled": true,
   "prompt": "none",
   "redirect_uri": "https://yourapp.com/service/oauth/redirect",
-  "scopes": ["openid", "profile"],
+  "scopes": [
+    "openid",
+    "profile"
+  ],
   "sync_user_profile_on_login": true,
   "tenant_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
   "token_access_type": "offline",
@@ -19354,7 +20029,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
 * **`backchannel_logout_redirect_uri`**
 
-  `string` — backchannel logout redirect uri where idp sends logout_token
+  `string` — backchannel logout redirect uri where idp sends logout\_token
 
 * **`client_id`**
 
@@ -19436,7 +20111,10 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   "pkce_enabled": true,
   "post_logout_redirect_uri": "https://yourapp.com/sso/v1/oidc/conn_1234/logout/callback",
   "redirect_uri": "https://yourapp.com/sso/v1/oidc/conn_1234/callback",
-  "scopes": ["openid", "profile"],
+  "scopes": [
+    "openid",
+    "profile"
+  ],
   "sync_user_profile_on_login": true,
   "token_auth_type": "URL_PARAMS",
   "token_uri": "https://youridp.com/service/oauth/token",
@@ -19471,7 +20149,10 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 ```json
 {
   "field_name": "optional_scope or bot_scope",
-  "scopes": ["scope1", "scope2"]
+  "scopes": [
+    "scope1",
+    "scope2"
+  ]
 }
 ```
 
@@ -19562,6 +20243,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   `array` — IDP Certificates
 
   **Items:**
+
   - **`certificate`**
 
     `string` — IDP Certificate
@@ -19744,6 +20426,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 * **`attestation`**
 
   `object`
+
   - **`conveyance_preference`**
 
     `string`
@@ -19759,6 +20442,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 * **`authenticator_selection`**
 
   `object`
+
   - **`authenticator_attachment`**
 
     `string`
@@ -19770,9 +20454,10 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 * **`authenticators`**
 
   `object`
+
   - **`desired_authenticator_status`**
 
-    `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate_status set to true.
+    `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate\_status set to true.
 
     **Items:**
 
@@ -19780,7 +20465,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
   - **`undesired_authenticator_status`**
 
-    `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate_status set to true.
+    `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate\_status set to true.
 
     **Items:**
 
@@ -19796,11 +20481,11 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
   - **`validate_entry`**
 
-    `boolean` — requires that the provided metadata has an entry for the given authenticator to be considered valid. By default an AAGUID which has a zero value should fail validation if validate_entry_permit_zero_aaguid is not provided with the value of true.
+    `boolean` — requires that the provided metadata has an entry for the given authenticator to be considered valid. By default an AAGUID which has a zero value should fail validation if validate\_entry\_permit\_zero\_aaguid is not provided with the value of true.
 
   - **`validate_entry_permit_zero_aaguid`**
 
-    `boolean` — is an option that permits a zero'd AAGUID from an attestation statement to automatically pass metadata validations. Generally helpful to use with validate_entry.
+    `boolean` — is an option that permits a zero'd AAGUID from an attestation statement to automatically pass metadata validations. Generally helpful to use with validate\_entry.
 
   - **`validate_status`**
 
@@ -19817,6 +20502,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 * **`rp`**
 
   `object`
+
   - **`ids`**
 
     `array`
@@ -19840,6 +20526,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 * **`timeout`**
 
   `object`
+
   - **`login`**
 
     `string`, default: `"\"300s\""` — Login timeout duration
@@ -19862,14 +20549,18 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 {
   "attestation": {
     "conveyance_preference": "",
-    "enterprise_approved_ids": [""]
+    "enterprise_approved_ids": [
+      ""
+    ]
   },
   "authenticator_selection": {
     "authenticator_attachment": "",
     "user_verification": ""
   },
   "authenticators": {
-    "desired_authenticator_status": ["[]"],
+    "desired_authenticator_status": [
+      "[]"
+    ],
     "undesired_authenticator_status": [
       "['ATTESTATION_KEY_COMPROMISE', 'USER_VERIFICATION_BYPASS', 'USER_KEY_REMOTE_COMPROMISE', 'USER_KEY_PHYSICAL_COMPROMISE', 'REVOKED']"
     ],
@@ -19882,8 +20573,12 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   "enable_auto_registration": true,
   "enable_conditional_login": true,
   "rp": {
-    "ids": [""],
-    "origins": [""]
+    "ids": [
+      ""
+    ],
+    "origins": [
+      ""
+    ]
   },
   "show_passkey_button": true,
   "timeout": {
@@ -19925,6 +20620,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   `array`
 
   **Items:**
+
   - **`key`**
 
     `string`
@@ -19953,11 +20649,13 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 * **`attribute_mappings`**
 
   `object` — Mappings between directory attributes and Scalekit user and group attributes
+
   - **`attributes`**
 
     `array`
 
     **Items:**
+
     - **`key`**
 
       `string`
@@ -20009,11 +20707,13 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 * **`role_assignments`**
 
   `object` — Role assignments associated with the directory, defining group based role assignments
+
   - **`assignments`**
 
     `array`
 
     **Items:**
+
     - **`group_id`**
 
       `string` — group ID for the role mapping
@@ -20027,6 +20727,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   `array` — List of secrets used for authenticating and synchronizing with the Directory Provider
 
   **Items:**
+
   - **`create_time`**
 
     `string`, format: `date-time` — Creation Time
@@ -20058,6 +20759,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 * **`stats`**
 
   `object` — Statistics and metrics related to the directory, such as synchronization status and error counts
+
   - **`group_updated_at`**
 
     `string`, format: `date-time` — Max time of Group Updated At for Directory
@@ -20091,7 +20793,9 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 ```json
 {
   "attribute_mappings": {
-    "attributes": [{}]
+    "attributes": [
+      {}
+    ]
   },
   "directory_endpoint": "https://yourapp.scalekit.com/api/v1/directoies/dir_123212312/scim/v2",
   "directory_provider": "OKTA",
@@ -20104,7 +20808,9 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   "name": "Azure AD",
   "organization_id": "org_121312434123312",
   "role_assignments": {
-    "assignments": [{}]
+    "assignments": [
+      {}
+    ]
   },
   "secrets": [
     {
@@ -20206,6 +20912,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   `array` — Groups
 
   **Items:**
+
   - **`display_name`**
 
     `string` — Display Name
@@ -20247,7 +20954,9 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 ```json
 {
   "email": "johndoe",
-  "emails": [""],
+  "emails": [
+    ""
+  ],
   "family_name": "Doe",
   "given_name": "John",
   "groups": [
@@ -20273,14 +20982,17 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 * **`directory`**
 
   `object` — Detailed information about the requested directory
+
   - **`attribute_mappings`**
 
     `object` — Mappings between directory attributes and Scalekit user and group attributes
+
     - **`attributes`**
 
       `array`
 
       **Items:**
+
       - **`key`**
 
         `string`
@@ -20332,11 +21044,13 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   - **`role_assignments`**
 
     `object` — Role assignments associated with the directory, defining group based role assignments
+
     - **`assignments`**
 
       `array`
 
       **Items:**
+
       - **`group_id`**
 
         `string` — group ID for the role mapping
@@ -20350,6 +21064,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
     `array` — List of secrets used for authenticating and synchronizing with the Directory Provider
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time` — Creation Time
@@ -20381,6 +21096,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   - **`stats`**
 
     `object` — Statistics and metrics related to the directory, such as synchronization status and error counts
+
     - **`group_updated_at`**
 
       `string`, format: `date-time` — Max time of Group Updated At for Directory
@@ -20426,7 +21142,9 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
     "name": "Azure AD",
     "organization_id": "org_121312434123312",
     "role_assignments": null,
-    "secrets": [{}],
+    "secrets": [
+      {}
+    ],
     "stats": null,
     "status": "IN_PROGRESS",
     "total_groups": 10,
@@ -20444,14 +21162,17 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   `array` — List of directories associated with the organization
 
   **Items:**
+
   - **`attribute_mappings`**
 
     `object` — Mappings between directory attributes and Scalekit user and group attributes
+
     - **`attributes`**
 
       `array`
 
       **Items:**
+
       - **`key`**
 
         `string`
@@ -20503,11 +21224,13 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   - **`role_assignments`**
 
     `object` — Role assignments associated with the directory, defining group based role assignments
+
     - **`assignments`**
 
       `array`
 
       **Items:**
+
       - **`group_id`**
 
         `string` — group ID for the role mapping
@@ -20521,6 +21244,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
     `array` — List of secrets used for authenticating and synchronizing with the Directory Provider
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time` — Creation Time
@@ -20552,6 +21276,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   - **`stats`**
 
     `object` — Statistics and metrics related to the directory, such as synchronization status and error counts
+
     - **`group_updated_at`**
 
       `string`, format: `date-time` — Max time of Group Updated At for Directory
@@ -20598,7 +21323,9 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
       "name": "Azure AD",
       "organization_id": "org_121312434123312",
       "role_assignments": null,
-      "secrets": [{}],
+      "secrets": [
+        {}
+      ],
       "stats": null,
       "status": "IN_PROGRESS",
       "total_groups": 10,
@@ -20617,6 +21344,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   `array` — List of directory groups retrieved from the specified directory
 
   **Items:**
+
   - **`display_name`**
 
     `string` — Display Name
@@ -20639,11 +21367,11 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
 * **`next_page_token`**
 
-  `string` — Token to retrieve the next page of results. Use this token in the 'page_token' field of the next request
+  `string` — Token to retrieve the next page of results. Use this token in the 'page\_token' field of the next request
 
 * **`prev_page_token`**
 
-  `string` — Token to retrieve the previous page of results. Use this token in the 'page_token' field of the next request
+  `string` — Token to retrieve the previous page of results. Use this token in the 'page\_token' field of the next request
 
 * **`total_size`**
 
@@ -20674,11 +21402,11 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
 * **`next_page_token`**
 
-  `string` — Token for pagination. Use this token in the 'page_token' field of the next request to fetch the subsequent page of users
+  `string` — Token for pagination. Use this token in the 'page\_token' field of the next request to fetch the subsequent page of users
 
 * **`prev_page_token`**
 
-  `string` — Token for pagination. Use this token in the 'page_token' field of the next request to fetch the prior page of users
+  `string` — Token for pagination. Use this token in the 'page\_token' field of the next request to fetch the prior page of users
 
 * **`total_size`**
 
@@ -20689,6 +21417,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   `array` — List of directory users retrieved from the specified directory
 
   **Items:**
+
   - **`email`**
 
     `string` — Email
@@ -20714,6 +21443,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
     `array` — Groups
 
     **Items:**
+
     - **`display_name`**
 
       `string` — Display Name
@@ -20760,10 +21490,14 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   "users": [
     {
       "email": "johndoe",
-      "emails": [""],
+      "emails": [
+        ""
+      ],
       "family_name": "Doe",
       "given_name": "John",
-      "groups": [{}],
+      "groups": [
+        {}
+      ],
       "id": "diruser_121312434123312",
       "preferred_username": "johndoe",
       "updated_at": "2024-10-01T00:00:00Z",
@@ -20803,6 +21537,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   `array`
 
   **Items:**
+
   - **`group_id`**
 
     `string` — group ID for the role mapping
@@ -20935,6 +21670,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 * **`domain`**
 
   `object` — The newly created domain object with all configuration details and system-generated identifiers.
+
   - **`create_time`**
 
     `string`, format: `date-time` — Timestamp when the domain was first created.
@@ -20965,11 +21701,11 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
   - **`verification_method`**
 
-    `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — Method that determines how domain ownership is verified. - ADMIN: domain is marked verified without DNS validation, typically by an admin. - DNS: domain must be verified by adding a TXT record to your DNS configuration. - NOT_APPLICABLE: verification does not apply to this domain type.
+    `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — Method that determines how domain ownership is verified. - ADMIN: domain is marked verified without DNS validation, typically by an admin. - DNS: domain must be verified by adding a TXT record to your DNS configuration. - NOT\_APPLICABLE: verification does not apply to this domain type.
 
   - **`verification_status`**
 
-    `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain. - PENDING: DNS TXT record has not been validated yet. - VERIFIED: domain confirmed via DNS TXT record validation or admin approval. - AUTO_VERIFIED: domain verified automatically without DNS changes. - FAILED: DNS TXT record was not validated within the verification window.
+    `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain. - PENDING: DNS TXT record has not been validated yet. - VERIFIED: domain confirmed via DNS TXT record validation or admin approval. - AUTO\_VERIFIED: domain verified automatically without DNS changes. - FAILED: DNS TXT record was not validated within the verification window.
 
 **Example:**
 
@@ -21023,11 +21759,11 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
 * **`verification_method`**
 
-  `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — Method that determines how domain ownership is verified. - ADMIN: domain is marked verified without DNS validation, typically by an admin. - DNS: domain must be verified by adding a TXT record to your DNS configuration. - NOT_APPLICABLE: verification does not apply to this domain type.
+  `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — Method that determines how domain ownership is verified. - ADMIN: domain is marked verified without DNS validation, typically by an admin. - DNS: domain must be verified by adding a TXT record to your DNS configuration. - NOT\_APPLICABLE: verification does not apply to this domain type.
 
 * **`verification_status`**
 
-  `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain. - PENDING: DNS TXT record has not been validated yet. - VERIFIED: domain confirmed via DNS TXT record validation or admin approval. - AUTO_VERIFIED: domain verified automatically without DNS changes. - FAILED: DNS TXT record was not validated within the verification window.
+  `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain. - PENDING: DNS TXT record has not been validated yet. - VERIFIED: domain confirmed via DNS TXT record validation or admin approval. - AUTO\_VERIFIED: domain verified automatically without DNS changes. - FAILED: DNS TXT record was not validated within the verification window.
 
 **Example:**
 
@@ -21058,6 +21794,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 * **`domain`**
 
   `object` — The requested domain object with complete details including domain type, timestamps and configuration.
+
   - **`create_time`**
 
     `string`, format: `date-time` — Timestamp when the domain was first created.
@@ -21088,11 +21825,11 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
   - **`verification_method`**
 
-    `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — Method that determines how domain ownership is verified. - ADMIN: domain is marked verified without DNS validation, typically by an admin. - DNS: domain must be verified by adding a TXT record to your DNS configuration. - NOT_APPLICABLE: verification does not apply to this domain type.
+    `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — Method that determines how domain ownership is verified. - ADMIN: domain is marked verified without DNS validation, typically by an admin. - DNS: domain must be verified by adding a TXT record to your DNS configuration. - NOT\_APPLICABLE: verification does not apply to this domain type.
 
   - **`verification_status`**
 
-    `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain. - PENDING: DNS TXT record has not been validated yet. - VERIFIED: domain confirmed via DNS TXT record validation or admin approval. - AUTO_VERIFIED: domain verified automatically without DNS changes. - FAILED: DNS TXT record was not validated within the verification window.
+    `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain. - PENDING: DNS TXT record has not been validated yet. - VERIFIED: domain confirmed via DNS TXT record validation or admin approval. - AUTO\_VERIFIED: domain verified automatically without DNS changes. - FAILED: DNS TXT record was not validated within the verification window.
 
 **Example:**
 
@@ -21121,6 +21858,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
   `array` — Array of domain objects containing all domain details including verification status and configuration.
 
   **Items:**
+
   - **`create_time`**
 
     `string`, format: `date-time` — Timestamp when the domain was first created.
@@ -21151,11 +21889,11 @@ Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections
 
   - **`verification_method`**
 
-    `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — Method that determines how domain ownership is verified. - ADMIN: domain is marked verified without DNS validation, typically by an admin. - DNS: domain must be verified by adding a TXT record to your DNS configuration. - NOT_APPLICABLE: verification does not apply to this domain type.
+    `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — Method that determines how domain ownership is verified. - ADMIN: domain is marked verified without DNS validation, typically by an admin. - DNS: domain must be verified by adding a TXT record to your DNS configuration. - NOT\_APPLICABLE: verification does not apply to this domain type.
 
   - **`verification_status`**
 
-    `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain. - PENDING: DNS TXT record has not been validated yet. - VERIFIED: domain confirmed via DNS TXT record validation or admin approval. - AUTO_VERIFIED: domain verified automatically without DNS changes. - FAILED: DNS TXT record was not validated within the verification window.
+    `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain. - PENDING: DNS TXT record has not been validated yet. - VERIFIED: domain confirmed via DNS TXT record validation or admin approval. - AUTO\_VERIFIED: domain verified automatically without DNS changes. - FAILED: DNS TXT record was not validated within the verification window.
 
 * **`page_number`**
 
@@ -21222,7 +21960,9 @@ Describes additional debugging info.
 ```json
 {
   "detail": "",
-  "stack_entries": [""]
+  "stack_entries": [
+    ""
+  ]
 }
 ```
 
@@ -21233,6 +21973,7 @@ Describes additional debugging info.
 * **`debug_info`**
 
   `object` — Describes additional debugging info.
+
   - **`detail`**
 
     `string` — Additional debugging information provided by the server.
@@ -21252,11 +21993,13 @@ Describes additional debugging info.
 * **`help_info`**
 
   `object` — HelpInfo provides documentation links attached to an error response. When present in ErrorInfo, clients should surface these links to help developers resolve the error. For example, a missing required field error may include a link to the relevant guide.
+
   - **`links`**
 
     `array` — One or more links relevant to resolving the error.
 
     **Items:**
+
     - **`description`**
 
       `string` — Human-readable label for the link (e.g. "User verification flow").
@@ -21268,6 +22011,7 @@ Describes additional debugging info.
 * **`localized_message_info`**
 
   `object`
+
   - **`locale`**
 
     `string`
@@ -21279,6 +22023,7 @@ Describes additional debugging info.
 * **`request_info`**
 
   `object` — Contains metadata about the request that clients can attach when filing a bug or providing other forms of feedback.
+
   - **`request_id`**
 
     `string` — An opaque string that should only be interpreted by the service generating it. For example, it can be used to identify requests in the service's logs.
@@ -21290,6 +22035,7 @@ Describes additional debugging info.
 * **`resource_info`**
 
   `object` — Describes the resource that is being accessed.
+
   - **`description`**
 
     `string` — Describes what error is encountered when accessing this resource. For example, updating a cloud project may require the \`writer\` permission on the developer console project.
@@ -21317,6 +22063,7 @@ Describes additional debugging info.
 * **`tool_error_info`**
 
   `object`
+
   - **`execution_id`**
 
     `string`
@@ -21332,11 +22079,13 @@ Describes additional debugging info.
 * **`validation_error_info`**
 
   `object` — Describes violations in a client request. This error type focuses on the syntactic aspects of the request.
+
   - **`field_violations`**
 
     `array` — Describes all violations in a client request.
 
     **Items:**
+
     - **`constraint`**
 
       `string`
@@ -21355,11 +22104,15 @@ Describes additional debugging info.
 {
   "debug_info": {
     "detail": "",
-    "stack_entries": [""]
+    "stack_entries": [
+      ""
+    ]
   },
   "error_code": "",
   "help_info": {
-    "links": [{}]
+    "links": [
+      {}
+    ]
   },
   "localized_message_info": {
     "locale": "",
@@ -21372,7 +22125,9 @@ Describes additional debugging info.
   "resource_info": {
     "description": "",
     "owner": "",
-    "required_permissions": [""],
+    "required_permissions": [
+      ""
+    ],
     "resource_name": "",
     "user": ""
   },
@@ -21382,7 +22137,9 @@ Describes additional debugging info.
     "tool_error_message": ""
   },
   "validation_error_info": {
-    "field_violations": [{}]
+    "field_violations": [
+      {}
+    ]
   }
 }
 ```
@@ -21398,6 +22155,7 @@ HelpInfo provides documentation links attached to an error response. When presen
   `array` — One or more links relevant to resolving the error.
 
   **Items:**
+
   - **`description`**
 
     `string` — Human-readable label for the link (e.g. "User verification flow").
@@ -21499,7 +22257,9 @@ Describes the resource that is being accessed.
 {
   "description": "",
   "owner": "",
-  "required_permissions": [""],
+  "required_permissions": [
+    ""
+  ],
   "resource_name": "",
   "user": ""
 }
@@ -21542,6 +22302,7 @@ Describes violations in a client request. This error type focuses on the syntact
   `array` — Describes all violations in a client request.
 
   **Items:**
+
   - **`constraint`**
 
     `string`
@@ -21575,11 +22336,13 @@ Describes violations in a client request. This error type focuses on the syntact
 * **`config`**
 
   `object` — The created MCP configuration
+
   - **`connection_tool_mappings`**
 
     `array` — List of connection-to-tool mappings for this MCP config
 
     **Items:**
+
     - **`connected_account_id`**
 
       `string` — Connected account backing this connection in the MCP instance context
@@ -21625,7 +22388,9 @@ Describes violations in a client request. This error type focuses on the syntact
 ```json
 {
   "config": {
-    "connection_tool_mappings": [{}],
+    "connection_tool_mappings": [
+      {}
+    ],
     "description": "Summarizes daily emails and posts to Slack",
     "id": "cfg_85630864460904897",
     "name": "daily-summarizer"
@@ -21640,6 +22405,7 @@ Describes violations in a client request. This error type focuses on the syntact
 * **`mcp`**
 
   `object` — The MCP server details
+
   - **`connected_account_identifier`**
 
     `string` — Identifier for the connected account
@@ -21653,6 +22419,7 @@ Describes violations in a client request. This error type focuses on the syntact
     `array` — Provider name (e.g. GOOGLE)
 
     **Items:**
+
     - **`connection_name`**
 
       `string` — Connection name for the tool
@@ -21749,14 +22516,17 @@ Describes violations in a client request. This error type focuses on the syntact
 * **`instance`**
 
   `object` — Details of the MCP instance
+
   - **`config`**
 
     `object` — Configuration backing this instance
+
     - **`connection_tool_mappings`**
 
       `array` — List of connection-to-tool mappings for this MCP config
 
       **Items:**
+
       - **`connected_account_id`**
 
         `string` — Connected account backing this connection in the MCP instance context
@@ -21844,11 +22614,13 @@ Describes violations in a client request. This error type focuses on the syntact
 * **`config`**
 
   `object` — The requested MCP configuration
+
   - **`connection_tool_mappings`**
 
     `array` — List of connection-to-tool mappings for this MCP config
 
     **Items:**
+
     - **`connected_account_id`**
 
       `string` — Connected account backing this connection in the MCP instance context
@@ -21894,7 +22666,9 @@ Describes violations in a client request. This error type focuses on the syntact
 ```json
 {
   "config": {
-    "connection_tool_mappings": [{}],
+    "connection_tool_mappings": [
+      {}
+    ],
     "description": "Summarizes daily emails and posts to Slack",
     "id": "cfg_85630864460904897",
     "name": "daily-summarizer"
@@ -21911,6 +22685,7 @@ Describes violations in a client request. This error type focuses on the syntact
   `array` — Status of each connection mapped to the instance
 
   **Items:**
+
   - **`authentication_link`**
 
     `string` — Magic link for reconnecting the connected account
@@ -21959,14 +22734,17 @@ Describes violations in a client request. This error type focuses on the syntact
 * **`instance`**
 
   `object` — The requested MCP instance
+
   - **`config`**
 
     `object` — Configuration backing this instance
+
     - **`connection_tool_mappings`**
 
       `array` — List of connection-to-tool mappings for this MCP config
 
       **Items:**
+
       - **`connected_account_id`**
 
         `string` — Connected account backing this connection in the MCP instance context
@@ -22054,6 +22832,7 @@ Describes violations in a client request. This error type focuses on the syntact
 * **`mcp`**
 
   `object` — The MCP details
+
   - **`connected_account_identifier`**
 
     `string` — Identifier for the connected account
@@ -22067,6 +22846,7 @@ Describes violations in a client request. This error type focuses on the syntact
     `array` — Provider name (e.g. GOOGLE)
 
     **Items:**
+
     - **`connection_name`**
 
       `string` — Connection name for the tool
@@ -22135,11 +22915,13 @@ Describes violations in a client request. This error type focuses on the syntact
   `array` — List of MCP configurations
 
   **Items:**
+
   - **`connection_tool_mappings`**
 
     `array` — List of connection-to-tool mappings for this MCP config
 
     **Items:**
+
     - **`connected_account_id`**
 
       `string` — Connected account backing this connection in the MCP instance context
@@ -22198,7 +22980,9 @@ Describes violations in a client request. This error type focuses on the syntact
 {
   "configs": [
     {
-      "connection_tool_mappings": [{}],
+      "connection_tool_mappings": [
+        {}
+      ],
       "description": "Summarizes daily emails and posts to Slack",
       "id": "cfg_85630864460904897",
       "name": "daily-summarizer"
@@ -22250,14 +23034,17 @@ Describes violations in a client request. This error type focuses on the syntact
   `array` — List of MCP instances
 
   **Items:**
+
   - **`config`**
 
     `object` — Configuration backing this instance
+
     - **`connection_tool_mappings`**
 
       `array` — List of connection-to-tool mappings for this MCP config
 
       **Items:**
+
       - **`connected_account_id`**
 
         `string` — Connected account backing this connection in the MCP instance context
@@ -22385,6 +23172,7 @@ Describes violations in a client request. This error type focuses on the syntact
   `array` — List of MCPs
 
   **Items:**
+
   - **`connected_account_identifier`**
 
     `string` — Identifier for the connected account
@@ -22398,6 +23186,7 @@ Describes violations in a client request. This error type focuses on the syntact
     `array` — Provider name (e.g. GOOGLE)
 
     **Items:**
+
     - **`connection_name`**
 
       `string` — Connection name for the tool
@@ -22450,6 +23239,7 @@ Describes violations in a client request. This error type focuses on the syntact
   `array` — Provider name (e.g. GOOGLE)
 
   **Items:**
+
   - **`connection_name`**
 
     `string` — Connection name for the tool
@@ -22490,6 +23280,7 @@ Describes violations in a client request. This error type focuses on the syntact
   `array` — List of connection-to-tool mappings for this MCP config
 
   **Items:**
+
   - **`connected_account_id`**
 
     `string` — Connected account backing this connection in the MCP instance context
@@ -22541,7 +23332,9 @@ Describes violations in a client request. This error type focuses on the syntact
       "connection_id": "",
       "connection_name": "",
       "provider": "",
-      "tools": [""]
+      "tools": [
+        ""
+      ]
     }
   ],
   "description": "Summarizes daily emails and posts to Slack",
@@ -22591,7 +23384,9 @@ Describes violations in a client request. This error type focuses on the syntact
   "connection_id": "",
   "connection_name": "",
   "provider": "",
-  "tools": [""]
+  "tools": [
+    ""
+  ]
 }
 ```
 
@@ -22602,11 +23397,13 @@ Describes violations in a client request. This error type focuses on the syntact
 * **`config`**
 
   `object` — Configuration backing this instance
+
   - **`connection_tool_mappings`**
 
     `array` — List of connection-to-tool mappings for this MCP config
 
     **Items:**
+
     - **`connected_account_id`**
 
       `string` — Connected account backing this connection in the MCP instance context
@@ -22676,7 +23473,9 @@ Describes violations in a client request. This error type focuses on the syntact
 ```json
 {
   "config": {
-    "connection_tool_mappings": [{}],
+    "connection_tool_mappings": [
+      {}
+    ],
     "description": "Summarizes daily emails and posts to Slack",
     "id": "cfg_85630864460904897",
     "name": "daily-summarizer"
@@ -22757,7 +23556,10 @@ Describes violations in a client request. This error type focuses on the syntact
 {
   "connection_name": "MY-GMAIL",
   "status": "ACTIVE",
-  "tool_names": ["GMAIL_FETCH_MAILS", "LIST_DRAFTS"]
+  "tool_names": [
+    "GMAIL_FETCH_MAILS",
+    "LIST_DRAFTS"
+  ]
 }
 ```
 
@@ -22768,11 +23570,13 @@ Describes violations in a client request. This error type focuses on the syntact
 * **`config`**
 
   `object` — The updated MCP configuration
+
   - **`connection_tool_mappings`**
 
     `array` — List of connection-to-tool mappings for this MCP config
 
     **Items:**
+
     - **`connected_account_id`**
 
       `string` — Connected account backing this connection in the MCP instance context
@@ -22818,7 +23622,9 @@ Describes violations in a client request. This error type focuses on the syntact
 ```json
 {
   "config": {
-    "connection_tool_mappings": [{}],
+    "connection_tool_mappings": [
+      {}
+    ],
     "description": "Summarizes daily emails and posts to Slack",
     "id": "cfg_85630864460904897",
     "name": "daily-summarizer"
@@ -22833,14 +23639,17 @@ Describes violations in a client request. This error type focuses on the syntact
 * **`instance`**
 
   `object` — Updated MCP instance
+
   - **`config`**
 
     `object` — Configuration backing this instance
+
     - **`connection_tool_mappings`**
 
       `array` — List of connection-to-tool mappings for this MCP config
 
       **Items:**
+
       - **`connected_account_id`**
 
         `string` — Connected account backing this connection in the MCP instance context
@@ -22928,6 +23737,7 @@ Describes violations in a client request. This error type focuses on the syntact
 * **`organization`**
 
   `object` — The newly created organization containing its ID, settings, and metadata
+
   - **`create_time` (required)**
 
     `string`, format: `date-time` — Timestamp when the organization was created
@@ -22959,18 +23769,20 @@ Describes violations in a client request. This error type focuses on the syntact
   - **`settings`**
 
     `object` — Configuration options that control organization-level features and capabilities
+
     - **`features`**
 
       `array` — List of feature toggles that control organization capabilities such as SSO authentication and directory synchronization
 
       **Items:**
+
       - **`enabled` (required)**
 
         `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
 
       - **`name` (required)**
 
-        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory_sync" (Directory Synchronization), "domain_verification" (Domain Verification), "session_policy" (Organization-level session policy override)
+        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
 
   - **`slug`**
 
@@ -23005,7 +23817,7 @@ Describes violations in a client request. This error type focuses on the syntact
 
 - **Type:**`string`
 
-* dir_sync: Enables directory synchronization configuration in the portal
+* dir\_sync: Enables directory synchronization configuration in the portal
 * sso: Enables Single Sign-On (SSO) configuration in the portal
 
 **Example:**
@@ -23017,6 +23829,7 @@ Describes violations in a client request. This error type focuses on the syntact
 * **`link`**
 
   `object` — Contains the generated admin portal link details. The link URL can be shared with organization administrators to set up: Single Sign-On (SSO) authentication and directory synchronization
+
   - **`expire_time`**
 
     `string`, format: `date-time` — Expiry time of the link. The link is valid for 1 minute.
@@ -23048,6 +23861,7 @@ Describes violations in a client request. This error type focuses on the syntact
 * **`organization`**
 
   `object` — The newly created organization
+
   - **`create_time` (required)**
 
     `string`, format: `date-time` — Timestamp when the organization was created
@@ -23079,18 +23893,20 @@ Describes violations in a client request. This error type focuses on the syntact
   - **`settings`**
 
     `object` — Configuration options that control organization-level features and capabilities
+
     - **`features`**
 
       `array` — List of feature toggles that control organization capabilities such as SSO authentication and directory synchronization
 
       **Items:**
+
       - **`enabled` (required)**
 
         `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
 
       - **`name` (required)**
 
-        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory_sync" (Directory Synchronization), "domain_verification" (Domain Verification), "session_policy" (Organization-level session policy override)
+        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
 
   - **`slug`**
 
@@ -23128,25 +23944,26 @@ Describes violations in a client request. This error type focuses on the syntact
 * **`policy`**
 
   `object` — The session policy for the organization.
+
   - **`absolute_session_timeout`**
 
-    `integer`, format: `int32` — The absolute session timeout value. The unit is specified by absolute_session_timeout_unit. Omitted when policy_source is 'environment'.
+    `integer`, format: `int32` — The absolute session timeout value. The unit is specified by absolute\_session\_timeout\_unit. Omitted when policy\_source is 'environment'.
 
   - **`absolute_session_timeout_unit`**
 
-    `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for absolute_session_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
+    `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for absolute\_session\_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
 
   - **`idle_session_timeout`**
 
-    `integer`, format: `int32` — The idle session timeout value. The unit is specified by idle_session_timeout_unit. Omitted when idle_session_timeout_enabled is false or policy_source is 'environment'.
+    `integer`, format: `int32` — The idle session timeout value. The unit is specified by idle\_session\_timeout\_unit. Omitted when idle\_session\_timeout\_enabled is false or policy\_source is 'environment'.
 
   - **`idle_session_timeout_enabled`**
 
-    `boolean` — Whether idle session timeout is enabled for this organization. Omitted when policy_source is 'environment'.
+    `boolean` — Whether idle session timeout is enabled for this organization. Omitted when policy\_source is 'environment'.
 
   - **`idle_session_timeout_unit`**
 
-    `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for idle_session_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
+    `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for idle\_session\_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
 
   - **`policy_source`**
 
@@ -23206,6 +24023,7 @@ Describes violations in a client request. This error type focuses on the syntact
   `array` — List of organization objects
 
   **Items:**
+
   - **`create_time` (required)**
 
     `string`, format: `date-time` — Timestamp when the organization was created
@@ -23237,18 +24055,20 @@ Describes violations in a client request. This error type focuses on the syntact
   - **`settings`**
 
     `object` — Configuration options that control organization-level features and capabilities
+
     - **`features`**
 
       `array` — List of feature toggles that control organization capabilities such as SSO authentication and directory synchronization
 
       **Items:**
+
       - **`enabled` (required)**
 
         `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
 
       - **`name` (required)**
 
-        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory_sync" (Directory Synchronization), "domain_verification" (Domain Verification), "session_policy" (Organization-level session policy override)
+        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
 
   - **`slug`**
 
@@ -23327,18 +24147,20 @@ Describes violations in a client request. This error type focuses on the syntact
 * **`settings`**
 
   `object` — Configuration options that control organization-level features and capabilities
+
   - **`features`**
 
     `array` — List of feature toggles that control organization capabilities such as SSO authentication and directory synchronization
 
     **Items:**
+
     - **`enabled` (required)**
 
       `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
 
     - **`name` (required)**
 
-      `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory_sync" (Directory Synchronization), "domain_verification" (Domain Verification), "session_policy" (Organization-level session policy override)
+      `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
 
 * **`slug`**
 
@@ -23384,23 +24206,23 @@ Describes violations in a client request. This error type focuses on the syntact
 
 * **`absolute_session_timeout`**
 
-  `integer`, format: `int32` — The absolute session timeout value. The unit is specified by absolute_session_timeout_unit. Omitted when policy_source is 'environment'.
+  `integer`, format: `int32` — The absolute session timeout value. The unit is specified by absolute\_session\_timeout\_unit. Omitted when policy\_source is 'environment'.
 
 * **`absolute_session_timeout_unit`**
 
-  `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for absolute_session_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
+  `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for absolute\_session\_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
 
 * **`idle_session_timeout`**
 
-  `integer`, format: `int32` — The idle session timeout value. The unit is specified by idle_session_timeout_unit. Omitted when idle_session_timeout_enabled is false or policy_source is 'environment'.
+  `integer`, format: `int32` — The idle session timeout value. The unit is specified by idle\_session\_timeout\_unit. Omitted when idle\_session\_timeout\_enabled is false or policy\_source is 'environment'.
 
 * **`idle_session_timeout_enabled`**
 
-  `boolean` — Whether idle session timeout is enabled for this organization. Omitted when policy_source is 'environment'.
+  `boolean` — Whether idle session timeout is enabled for this organization. Omitted when policy\_source is 'environment'.
 
 * **`idle_session_timeout_unit`**
 
-  `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for idle_session_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
+  `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for idle\_session\_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
 
 * **`policy_source`**
 
@@ -23430,13 +24252,14 @@ Configuration options that control organization-level features and capabilities
   `array` — List of feature toggles that control organization capabilities such as SSO authentication and directory synchronization
 
   **Items:**
+
   - **`enabled` (required)**
 
     `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
 
   - **`name` (required)**
 
-    `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory_sync" (Directory Synchronization), "domain_verification" (Domain Verification), "session_policy" (Organization-level session policy override)
+    `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
 
 **Example:**
 
@@ -23467,7 +24290,7 @@ Controls the activation state of a specific organization feature
 
 - **`name` (required)**
 
-  `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory_sync" (Directory Synchronization), "domain_verification" (Domain Verification), "session_policy" (Organization-level session policy override)
+  `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
 
 **Example:**
 
@@ -23507,6 +24330,7 @@ Controls the activation state of a specific organization feature
 * **`organization`**
 
   `object` — Updated organization details
+
   - **`create_time` (required)**
 
     `string`, format: `date-time` — Timestamp when the organization was created
@@ -23538,18 +24362,20 @@ Controls the activation state of a specific organization feature
   - **`settings`**
 
     `object` — Configuration options that control organization-level features and capabilities
+
     - **`features`**
 
       `array` — List of feature toggles that control organization capabilities such as SSO authentication and directory synchronization
 
       **Items:**
+
       - **`enabled` (required)**
 
         `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
 
       - **`name` (required)**
 
-        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory_sync" (Directory Synchronization), "domain_verification" (Domain Verification), "session_policy" (Organization-level session policy override)
+        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
 
   - **`slug`**
 
@@ -23587,25 +24413,26 @@ Controls the activation state of a specific organization feature
 * **`policy`**
 
   `object` — The updated session policy for the organization.
+
   - **`absolute_session_timeout`**
 
-    `integer`, format: `int32` — The absolute session timeout value. The unit is specified by absolute_session_timeout_unit. Omitted when policy_source is 'environment'.
+    `integer`, format: `int32` — The absolute session timeout value. The unit is specified by absolute\_session\_timeout\_unit. Omitted when policy\_source is 'environment'.
 
   - **`absolute_session_timeout_unit`**
 
-    `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for absolute_session_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
+    `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for absolute\_session\_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
 
   - **`idle_session_timeout`**
 
-    `integer`, format: `int32` — The idle session timeout value. The unit is specified by idle_session_timeout_unit. Omitted when idle_session_timeout_enabled is false or policy_source is 'environment'.
+    `integer`, format: `int32` — The idle session timeout value. The unit is specified by idle\_session\_timeout\_unit. Omitted when idle\_session\_timeout\_enabled is false or policy\_source is 'environment'.
 
   - **`idle_session_timeout_enabled`**
 
-    `boolean` — Whether idle session timeout is enabled for this organization. Omitted when policy_source is 'environment'.
+    `boolean` — Whether idle session timeout is enabled for this organization. Omitted when policy\_source is 'environment'.
 
   - **`idle_session_timeout_unit`**
 
-    `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for idle_session_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
+    `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for idle\_session\_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
 
   - **`policy_source`**
 
@@ -23633,6 +24460,7 @@ Controls the activation state of a specific organization feature
 * **`settings`**
 
   `object` — The updated setting.
+
   - **`max_allowed_users`**
 
     `integer`, format: `int32` — Maximum number of users allowed in the organization. When nil (not set), there feature is not enabled. When explicitly set to zero, it also means no limit. When set to a positive integer, it enforces the maximum user limit.
@@ -23677,7 +24505,7 @@ Controls the activation state of a specific organization feature
 
 * **`magiclink_auth_uri`**
 
-  `string` — Your application's callback URL where users will be redirected after clicking the magic link in their email. The link token will be appended as a query parameter as link_token
+  `string` — Your application's callback URL where users will be redirected after clicking the magic link in their email. The link token will be appended as a query parameter as link\_token
 
 * **`state`**
 
@@ -23689,7 +24517,7 @@ Controls the activation state of a specific organization feature
 
 * **`template_variables`**
 
-  `object` — A set of key-value pairs to personalize the email template. \* You may include up to 30 key-value pairs. \* The following variable names are reserved by the system and cannot be supplied: \`otp\`, \`expiry_time_relative\`, \`link\`, \`expire_time\`, \`expiry_time\`. \* Every variable referenced in your email template must be included as a key-value pair. Use these variables to insert custom information, such as a team name, URL or the user's employee ID. All variables are interpolated before the email is sent, regardless of the email provider.
+  `object` — A set of key-value pairs to personalize the email template. \* You may include up to 30 key-value pairs. \* The following variable names are reserved by the system and cannot be supplied: \`otp\`, \`expiry\_time\_relative\`, \`link\`, \`expire\_time\`, \`expiry\_time\`. \* Every variable referenced in your email template must be included as a key-value pair. Use these variables to insert custom information, such as a team name, URL or the user's employee ID. All variables are interpolated before the email is sent, regardless of the email provider.
 
 **Example:**
 
@@ -23720,11 +24548,11 @@ Controls the activation state of a specific organization feature
 
 * **`expires_in`**
 
-  `integer`, format: `int64` — Number of seconds from now until the passwordless authentication expires. This is a convenience field calculated from the expires_at timestamp.
+  `integer`, format: `int64` — Number of seconds from now until the passwordless authentication expires. This is a convenience field calculated from the expires\_at timestamp.
 
 * **`passwordless_type`**
 
-  `string`, possible values: `"OTP", "LINK", "LINK_OTP"` — Type of passwordless authentication that was sent via email. OTP sends a numeric code, LINK sends a clickable magic link, and LINK_OTP provides both options for user convenience.
+  `string`, possible values: `"OTP", "LINK", "LINK_OTP"` — Type of passwordless authentication that was sent via email. OTP sends a numeric code, LINK sends a clickable magic link, and LINK\_OTP provides both options for user convenience.
 
 **Example:**
 
@@ -23817,6 +24645,7 @@ The JSON representation for `NullValue` is JSON `null`.
 * **`provider`**
 
   `object`
+
   - **`auth_patterns`**
 
     `array`
@@ -23884,8 +24713,12 @@ The JSON representation for `NullValue` is JSON `null`.
 ```json
 {
   "provider": {
-    "auth_patterns": [{}],
-    "categories": [""],
+    "auth_patterns": [
+      {}
+    ],
+    "categories": [
+      ""
+    ],
     "coming_soon": true,
     "description": "",
     "display_name": "",
@@ -23985,8 +24818,12 @@ The JSON representation for `NullValue` is JSON `null`.
 
 ```json
 {
-  "auth_patterns": [{}],
-  "categories": [""],
+  "auth_patterns": [
+    {}
+  ],
+  "categories": [
+    ""
+  ],
   "coming_soon": true,
   "description": "",
   "display_name": "",
@@ -24012,6 +24849,7 @@ The JSON representation for `NullValue` is JSON `null`.
 * **`provider`**
 
   `object`
+
   - **`auth_patterns`**
 
     `array`
@@ -24079,8 +24917,12 @@ The JSON representation for `NullValue` is JSON `null`.
 ```json
 {
   "provider": {
-    "auth_patterns": [{}],
-    "categories": [""],
+    "auth_patterns": [
+      {}
+    ],
+    "categories": [
+      ""
+    ],
     "coming_soon": true,
     "description": "",
     "display_name": "",
@@ -24109,6 +24951,7 @@ The JSON representation for `NullValue` is JSON `null`.
   `array` — List of all permissions belonging to the role after addition
 
   **Items:**
+
   - **`create_time`**
 
     `string`, format: `date-time`
@@ -24157,6 +25000,7 @@ The JSON representation for `NullValue` is JSON `null`.
 * **`role`**
 
   `object`
+
   - **`default_creator`**
 
     `boolean` — Indicates if this role is the default creator role for new organizations.
@@ -24198,6 +25042,7 @@ The JSON representation for `NullValue` is JSON `null`.
     `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time`
@@ -24259,6 +25104,7 @@ The JSON representation for `NullValue` is JSON `null`.
 * **`permission`**
 
   `object`
+
   - **`create_time`**
 
     `string`, format: `date-time`
@@ -24305,6 +25151,7 @@ The JSON representation for `NullValue` is JSON `null`.
 * **`role`**
 
   `object` — The created role object with system-generated ID and all configuration details.
+
   - **`default_creator`**
 
     `boolean` — Indicates if this role is the default creator role for new organizations.
@@ -24346,6 +25193,7 @@ The JSON representation for `NullValue` is JSON `null`.
     `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time`
@@ -24390,6 +25238,7 @@ The JSON representation for `NullValue` is JSON `null`.
 * **`role`**
 
   `object`
+
   - **`default_creator`**
 
     `boolean` — Indicates if this role is the default creator role for new organizations.
@@ -24431,6 +25280,7 @@ The JSON representation for `NullValue` is JSON `null`.
     `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time`
@@ -24492,6 +25342,7 @@ The JSON representation for `NullValue` is JSON `null`.
 * **`permission`**
 
   `object`
+
   - **`create_time`**
 
     `string`, format: `date-time`
@@ -24538,6 +25389,7 @@ The JSON representation for `NullValue` is JSON `null`.
 * **`role`**
 
   `object` — The complete role object with all metadata, permissions, and inheritance details.
+
   - **`default_creator`**
 
     `boolean` — Indicates if this role is the default creator role for new organizations.
@@ -24579,6 +25431,7 @@ The JSON representation for `NullValue` is JSON `null`.
     `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time`
@@ -24646,6 +25499,7 @@ The JSON representation for `NullValue` is JSON `null`.
   `array` — List of dependent roles
 
   **Items:**
+
   - **`default_creator`**
 
     `boolean` — Indicates if this role is the default creator role for new organizations.
@@ -24687,6 +25541,7 @@ The JSON representation for `NullValue` is JSON `null`.
     `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time`
@@ -24752,6 +25607,7 @@ The JSON representation for `NullValue` is JSON `null`.
   `array` — List of all effective permissions including those inherited from base roles
 
   **Items:**
+
   - **`create_time`**
 
     `string`, format: `date-time`
@@ -24802,6 +25658,7 @@ The JSON representation for `NullValue` is JSON `null`.
   `array` — List of roles objects
 
   **Items:**
+
   - **`default_creator`**
 
     `boolean` — Indicates if this role is the default creator role for new organizations.
@@ -24843,6 +25700,7 @@ The JSON representation for `NullValue` is JSON `null`.
     `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time`
@@ -24912,6 +25770,7 @@ The JSON representation for `NullValue` is JSON `null`.
   `array`
 
   **Items:**
+
   - **`create_time`**
 
     `string`, format: `date-time`
@@ -24973,6 +25832,7 @@ The JSON representation for `NullValue` is JSON `null`.
   `array` — List of permissions directly assigned to the role
 
   **Items:**
+
   - **`create_time`**
 
     `string`, format: `date-time`
@@ -25023,6 +25883,7 @@ The JSON representation for `NullValue` is JSON `null`.
   `array` — List of all roles in the environment with their metadata and optionally their permissions.
 
   **Items:**
+
   - **`default_creator`**
 
     `boolean` — Indicates if this role is the default creator role for new organizations.
@@ -25064,6 +25925,7 @@ The JSON representation for `NullValue` is JSON `null`.
     `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time`
@@ -25202,6 +26064,7 @@ The JSON representation for `NullValue` is JSON `null`.
 * **`default_member`**
 
   `object` — Updated default member role
+
   - **`default_creator`**
 
     `boolean` — Indicates if this role is the default creator role for new organizations.
@@ -25243,6 +26106,7 @@ The JSON representation for `NullValue` is JSON `null`.
     `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time`
@@ -25307,7 +26171,8 @@ The JSON representation for `NullValue` is JSON `null`.
 
 * **`default_creator`**
 
-  `object` — Default creator role (deprecated - use default_creator_role field instead)
+  `object` — Default creator role (deprecated - use default\_creator\_role field instead)
+
   - **`id`**
 
     `string`
@@ -25322,7 +26187,8 @@ The JSON representation for `NullValue` is JSON `null`.
 
 * **`default_member`**
 
-  `object` — Default member role (deprecated - use default_member_role field instead)
+  `object` — Default member role (deprecated - use default\_member\_role field instead)
+
   - **`id`**
 
     `string`
@@ -25363,6 +26229,7 @@ The JSON representation for `NullValue` is JSON `null`.
 * **`default_creator`**
 
   `object` — The role that is now set as the default creator role for the environment. Contains complete role information including permissions and metadata.
+
   - **`default_creator`**
 
     `boolean` — Indicates if this role is the default creator role for new organizations.
@@ -25404,6 +26271,7 @@ The JSON representation for `NullValue` is JSON `null`.
     `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time`
@@ -25431,6 +26299,7 @@ The JSON representation for `NullValue` is JSON `null`.
 * **`default_member`**
 
   `object` — The role that is now set as the default member role for the environment. Contains complete role information including permissions and metadata.
+
   - **`default_creator`**
 
     `boolean` — Indicates if this role is the default creator role for new organizations.
@@ -25472,6 +26341,7 @@ The JSON representation for `NullValue` is JSON `null`.
     `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time`
@@ -25522,6 +26392,7 @@ The JSON representation for `NullValue` is JSON `null`.
 * **`role`**
 
   `object`
+
   - **`default_creator`**
 
     `boolean` — Indicates if this role is the default creator role for new organizations.
@@ -25563,6 +26434,7 @@ The JSON representation for `NullValue` is JSON `null`.
     `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time`
@@ -25624,6 +26496,7 @@ The JSON representation for `NullValue` is JSON `null`.
 * **`permission`**
 
   `object`
+
   - **`create_time`**
 
     `string`, format: `date-time`
@@ -25670,6 +26543,7 @@ The JSON representation for `NullValue` is JSON `null`.
 * **`role`**
 
   `object` — The updated role object with all current configuration details.
+
   - **`default_creator`**
 
     `boolean` — Indicates if this role is the default creator role for new organizations.
@@ -25711,6 +26585,7 @@ The JSON representation for `NullValue` is JSON `null`.
     `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
     **Items:**
+
     - **`create_time`**
 
       `string`, format: `date-time`
@@ -25794,6 +26669,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 * **`location`**
 
   `object` — Geographic location information derived from IP address geolocation. Includes country, region, city, and coordinates. Note: Based on IP location data and may not represent the user's exact physical location.
+
   - **`city`**
 
     `string` — City name where the session originated based on IP geolocation. Approximate location derived from IP address.
@@ -25856,6 +26732,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
   `array` — List of all sessions that were revoked, including detailed information for each revoked session with IDs, timestamps, and device details.
 
   **Items:**
+
   - **`absolute_expires_at`**
 
     `string`, format: `date-time` — The absolute expiration timestamp that was configured for this session before revocation. Represents the hard deadline regardless of activity.
@@ -25929,6 +26806,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 * **`revoked_session`**
 
   `object` — Details of the revoked session including session ID, user ID, creation and revocation timestamps, and final device information.
+
   - **`absolute_expires_at`**
 
     `string`, format: `date-time` — The absolute expiration timestamp that was configured for this session before revocation. Represents the hard deadline regardless of activity.
@@ -26062,6 +26940,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
   `array` — Details of the authenticated clients for this session: client ID and organization context.
 
   **Items:**
+
   - **`client_id`**
 
     `string` — Unique identifier of the authenticated client application.
@@ -26085,6 +26964,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 * **`device`**
 
   `object` — Complete device metadata associated with this session including browser, operating system, device type, and geographic location based on IP address.
+
   - **`browser`**
 
     `string` — Browser name and family extracted from the user agent. Examples: Chrome, Safari, Firefox, Edge, Mobile Safari.
@@ -26104,6 +26984,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
   - **`location`**
 
     `object` — Geographic location information derived from IP address geolocation. Includes country, region, city, and coordinates. Note: Based on IP location data and may not represent the user's exact physical location.
+
     - **`city`**
 
       `string` — City name where the session originated based on IP geolocation. Approximate location derived from IP address.
@@ -26138,7 +27019,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
 * **`expired_at`**
 
-  `string`, format: `date-time` — Timestamp when the session was terminated. Null if the session is still active. Set when the session expires due to reaching idle_expires_at or absolute_expires_at timeout, or when administratively revoked. Not set for user-initiated logout (see logout_at instead).
+  `string`, format: `date-time` — Timestamp when the session was terminated. Null if the session is still active. Set when the session expires due to reaching idle\_expires\_at or absolute\_expires\_at timeout, or when administratively revoked. Not set for user-initiated logout (see logout\_at instead).
 
 * **`idle_expires_at`**
 
@@ -26183,7 +27064,10 @@ AuthenticatedClients represents an authenticated client in a session along with 
       "organization_id": "org_1234567890"
     }
   ],
-  "authenticated_organizations": ["org_123", "org_456"],
+  "authenticated_organizations": [
+    "org_123",
+    "org_456"
+  ],
   "created_at": "2025-01-15T10:30:00Z",
   "device": {
     "browser": "Chrome",
@@ -26221,9 +27105,10 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
 * **`sessions`**
 
-  `array` — Array of session objects for the requested user. May contain fewer entries than the requested page_size when reaching the final page of results.
+  `array` — Array of session objects for the requested user. May contain fewer entries than the requested page\_size when reaching the final page of results.
 
   **Items:**
+
   - **`absolute_expires_at`**
 
     `string`, format: `date-time` — Hard expiration timestamp for the session regardless of user activity. The session will be forcibly terminated at this time. This represents the maximum session lifetime from creation.
@@ -26233,6 +27118,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
     `array` — Details of the authenticated clients for this session: client ID and organization context.
 
     **Items:**
+
     - **`client_id`**
 
       `string` — Unique identifier of the authenticated client application.
@@ -26256,6 +27142,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
   - **`device`**
 
     `object` — Complete device metadata associated with this session including browser, operating system, device type, and geographic location based on IP address.
+
     - **`browser`**
 
       `string` — Browser name and family extracted from the user agent. Examples: Chrome, Safari, Firefox, Edge, Mobile Safari.
@@ -26275,6 +27162,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
     - **`location`**
 
       `object` — Geographic location information derived from IP address geolocation. Includes country, region, city, and coordinates. Note: Based on IP location data and may not represent the user's exact physical location.
+
       - **`city`**
 
         `string` — City name where the session originated based on IP geolocation. Approximate location derived from IP address.
@@ -26309,7 +27197,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
   - **`expired_at`**
 
-    `string`, format: `date-time` — Timestamp when the session was terminated. Null if the session is still active. Set when the session expires due to reaching idle_expires_at or absolute_expires_at timeout, or when administratively revoked. Not set for user-initiated logout (see logout_at instead).
+    `string`, format: `date-time` — Timestamp when the session was terminated. Null if the session is still active. Set when the session expires due to reaching idle\_expires\_at or absolute\_expires\_at timeout, or when administratively revoked. Not set for user-initiated logout (see logout\_at instead).
 
   - **`idle_expires_at`**
 
@@ -26356,8 +27244,13 @@ AuthenticatedClients represents an authenticated client in a session along with 
   "sessions": [
     {
       "absolute_expires_at": "2025-01-22T10:30:00Z",
-      "authenticated_clients": [{}],
-      "authenticated_organizations": ["org_123", "org_456"],
+      "authenticated_clients": [
+        {}
+      ],
+      "authenticated_organizations": [
+        "org_123",
+        "org_456"
+      ],
       "created_at": "2025-01-15T10:30:00Z",
       "device": null,
       "expired_at": "2025-01-15T12:00:00Z",
@@ -26381,7 +27274,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
 * **`end_time`**
 
-  `string`, format: `date-time` — Filter to include only sessions created on or before this timestamp. Optional. Uses RFC 3339 format. Must be after start_time if both are specified.
+  `string`, format: `date-time` — Filter to include only sessions created on or before this timestamp. Optional. Uses RFC 3339 format. Must be after start\_time if both are specified.
 
 * **`start_time`**
 
@@ -26401,7 +27294,9 @@ AuthenticatedClients represents an authenticated client in a session along with 
 {
   "end_time": "2025-12-31T23:59:59Z",
   "start_time": "2025-01-01T00:00:00Z",
-  "status": ["active"]
+  "status": [
+    "active"
+  ]
 }
 ```
 
@@ -26492,6 +27387,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 * **`user`**
 
   `object`
+
   - **`create_time`**
 
     `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
@@ -26517,6 +27413,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
     `array` — List of organization memberships. Automatically populated based on group assignments.
 
     **Items:**
+
     - **`accepted_at`**
 
       `string`, format: `date-time` — Timestamp when the user accepted the invitation.
@@ -26567,13 +27464,14 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
     - **`provisioning_method`**
 
-      `string` — How the user was provisioned. Possible values: - \`jit_using_sso\` (Just-in-time provisioning during SSO login) - \`allowed_email_domain\` (User joined via allowed email domain matching) - \`org_creator\` (User created the organization) - \`direct_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
 
     - **`roles`**
 
       `array`
 
       **Items:**
+
       - **`display_name`**
 
         `string` — Human-readable name for the role
@@ -26597,6 +27495,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
   - **`user_profile`**
 
     `object` — User's personal information including name, address, and other profile attributes.
+
     - **`custom_attributes`**
 
       `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
@@ -26610,6 +27509,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
       `array` — List of external identity connections associated with the user profile.
 
       **Items:**
+
       - **`connection_id`**
 
         `string` — Unique identifier for the external identity connection. Immutable and read-only.
@@ -26676,7 +27576,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
     - **`name`**
 
-      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given_name and family_name fields.
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
 
     - **`phone_number`**
 
@@ -26704,7 +27604,9 @@ AuthenticatedClients represents an authenticated client in a session along with 
     "external_id": "ext_12345a67b89c",
     "id": "usr_1234abcd5678efgh",
     "last_login_time": "",
-    "memberships": [{}],
+    "memberships": [
+      {}
+    ],
     "metadata": {
       "department": "engineering",
       "location": "nyc-office"
@@ -26730,6 +27632,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 * **`membership`**
 
   `object` — List of organization memberships. Automatically populated based on group assignments.
+
   - **`inviter_email`**
 
     `string` — Email address of the user who invited this member. Must be a valid email address.
@@ -26743,6 +27646,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
     `array` — Role to assign to the user within the organization
 
     **Items:**
+
     - **`display_name`**
 
       `string` — Human-readable name for the role
@@ -26762,6 +27666,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 * **`user_profile`**
 
   `object` — User's personal information including name, address, and other profile attributes.
+
   - **`custom_attributes`**
 
     `object` — Custom attributes for extended user profile data. Keys (3-25 chars), values (1-256 chars).
@@ -26796,7 +27701,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
   - **`name`**
 
-    `string` — Full name in display format. Typically combines first_name and last_name.
+    `string` — Full name in display format. Typically combines first\_name and last\_name.
 
   - **`phone_number`**
 
@@ -26840,7 +27745,10 @@ AuthenticatedClients represents an authenticated client in a session along with 
     "family_name": "Doe",
     "gender": "male",
     "given_name": "John",
-    "groups": ["engineering", "managers"],
+    "groups": [
+      "engineering",
+      "managers"
+    ],
     "locale": "en-US",
     "metadata": {
       "account_status": "active",
@@ -26861,6 +27769,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 * **`user`**
 
   `object`
+
   - **`create_time`**
 
     `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
@@ -26886,6 +27795,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
     `array` — List of organization memberships. Automatically populated based on group assignments.
 
     **Items:**
+
     - **`accepted_at`**
 
       `string`, format: `date-time` — Timestamp when the user accepted the invitation.
@@ -26936,13 +27846,14 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
     - **`provisioning_method`**
 
-      `string` — How the user was provisioned. Possible values: - \`jit_using_sso\` (Just-in-time provisioning during SSO login) - \`allowed_email_domain\` (User joined via allowed email domain matching) - \`org_creator\` (User created the organization) - \`direct_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
 
     - **`roles`**
 
       `array`
 
       **Items:**
+
       - **`display_name`**
 
         `string` — Human-readable name for the role
@@ -26966,6 +27877,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
   - **`user_profile`**
 
     `object` — User's personal information including name, address, and other profile attributes.
+
     - **`custom_attributes`**
 
       `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
@@ -26979,6 +27891,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
       `array` — List of external identity connections associated with the user profile.
 
       **Items:**
+
       - **`connection_id`**
 
         `string` — Unique identifier for the external identity connection. Immutable and read-only.
@@ -27045,7 +27958,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
     - **`name`**
 
-      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given_name and family_name fields.
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
 
     - **`phone_number`**
 
@@ -27073,7 +27986,9 @@ AuthenticatedClients represents an authenticated client in a session along with 
     "external_id": "ext_12345a67b89c",
     "id": "usr_1234abcd5678efgh",
     "last_login_time": "",
-    "memberships": [{}],
+    "memberships": [
+      {}
+    ],
     "metadata": {
       "department": "engineering",
       "location": "nyc-office"
@@ -27122,7 +28037,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
 * **`name`**
 
-  `string` — Full name in display format. Typically combines first_name and last_name.
+  `string` — Full name in display format. Typically combines first\_name and last\_name.
 
 * **`phone_number`**
 
@@ -27147,7 +28062,10 @@ AuthenticatedClients represents an authenticated client in a session along with 
   "family_name": "Doe",
   "gender": "male",
   "given_name": "John",
-  "groups": ["engineering", "managers"],
+  "groups": [
+    "engineering",
+    "managers"
+  ],
   "locale": "en-US",
   "metadata": {
     "account_status": "active",
@@ -27167,6 +28085,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 * **`user`**
 
   `object`
+
   - **`create_time`**
 
     `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
@@ -27192,6 +28111,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
     `array` — List of organization memberships. Automatically populated based on group assignments.
 
     **Items:**
+
     - **`accepted_at`**
 
       `string`, format: `date-time` — Timestamp when the user accepted the invitation.
@@ -27242,13 +28162,14 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
     - **`provisioning_method`**
 
-      `string` — How the user was provisioned. Possible values: - \`jit_using_sso\` (Just-in-time provisioning during SSO login) - \`allowed_email_domain\` (User joined via allowed email domain matching) - \`org_creator\` (User created the organization) - \`direct_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
 
     - **`roles`**
 
       `array`
 
       **Items:**
+
       - **`display_name`**
 
         `string` — Human-readable name for the role
@@ -27272,6 +28193,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
   - **`user_profile`**
 
     `object` — User's personal information including name, address, and other profile attributes.
+
     - **`custom_attributes`**
 
       `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
@@ -27285,6 +28207,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
       `array` — List of external identity connections associated with the user profile.
 
       **Items:**
+
       - **`connection_id`**
 
         `string` — Unique identifier for the external identity connection. Immutable and read-only.
@@ -27351,7 +28274,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
     - **`name`**
 
-      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given_name and family_name fields.
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
 
     - **`phone_number`**
 
@@ -27379,7 +28302,9 @@ AuthenticatedClients represents an authenticated client in a session along with 
     "external_id": "ext_12345a67b89c",
     "id": "usr_1234abcd5678efgh",
     "last_login_time": "",
-    "memberships": [{}],
+    "memberships": [
+      {}
+    ],
     "metadata": {
       "department": "engineering",
       "location": "nyc-office"
@@ -27459,9 +28384,10 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
 * **`users`**
 
-  `array` — List of user objects for the current page. May contain fewer entries than requested page_size.
+  `array` — List of user objects for the current page. May contain fewer entries than requested page\_size.
 
   **Items:**
+
   - **`create_time`**
 
     `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
@@ -27487,6 +28413,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
     `array` — List of organization memberships. Automatically populated based on group assignments.
 
     **Items:**
+
     - **`accepted_at`**
 
       `string`, format: `date-time` — Timestamp when the user accepted the invitation.
@@ -27537,13 +28464,14 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
     - **`provisioning_method`**
 
-      `string` — How the user was provisioned. Possible values: - \`jit_using_sso\` (Just-in-time provisioning during SSO login) - \`allowed_email_domain\` (User joined via allowed email domain matching) - \`org_creator\` (User created the organization) - \`direct_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
 
     - **`roles`**
 
       `array`
 
       **Items:**
+
       - **`display_name`**
 
         `string` — Human-readable name for the role
@@ -27567,6 +28495,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
   - **`user_profile`**
 
     `object` — User's personal information including name, address, and other profile attributes.
+
     - **`custom_attributes`**
 
       `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
@@ -27580,6 +28509,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
       `array` — List of external identity connections associated with the user profile.
 
       **Items:**
+
       - **`connection_id`**
 
         `string` — Unique identifier for the external identity connection. Immutable and read-only.
@@ -27646,7 +28576,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
     - **`name`**
 
-      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given_name and family_name fields.
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
 
     - **`phone_number`**
 
@@ -27678,7 +28608,9 @@ AuthenticatedClients represents an authenticated client in a session along with 
       "external_id": "ext_12345a67b89c",
       "id": "usr_1234abcd5678efgh",
       "last_login_time": "",
-      "memberships": [{}],
+      "memberships": [
+        {}
+      ],
       "metadata": {
         "department": "engineering",
         "location": "nyc-office"
@@ -27699,6 +28631,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
   `array` — List of permissions the user has access to
 
   **Items:**
+
   - **`description`**
 
     `string` — Description of what the permission allows
@@ -27734,6 +28667,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
   `array` — List of roles assigned to the user
 
   **Items:**
+
   - **`display_name`**
 
     `string` — Human-readable name for the role
@@ -27781,6 +28715,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
   `array` — List of users.
 
   **Items:**
+
   - **`create_time`**
 
     `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
@@ -27806,6 +28741,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
     `array` — List of organization memberships. Automatically populated based on group assignments.
 
     **Items:**
+
     - **`accepted_at`**
 
       `string`, format: `date-time` — Timestamp when the user accepted the invitation.
@@ -27856,13 +28792,14 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
     - **`provisioning_method`**
 
-      `string` — How the user was provisioned. Possible values: - \`jit_using_sso\` (Just-in-time provisioning during SSO login) - \`allowed_email_domain\` (User joined via allowed email domain matching) - \`org_creator\` (User created the organization) - \`direct_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
 
     - **`roles`**
 
       `array`
 
       **Items:**
+
       - **`display_name`**
 
         `string` — Human-readable name for the role
@@ -27886,6 +28823,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
   - **`user_profile`**
 
     `object` — User's personal information including name, address, and other profile attributes.
+
     - **`custom_attributes`**
 
       `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
@@ -27899,6 +28837,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
       `array` — List of external identity connections associated with the user profile.
 
       **Items:**
+
       - **`connection_id`**
 
         `string` — Unique identifier for the external identity connection. Immutable and read-only.
@@ -27965,7 +28904,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
     - **`name`**
 
-      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given_name and family_name fields.
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
 
     - **`phone_number`**
 
@@ -27997,7 +28936,9 @@ AuthenticatedClients represents an authenticated client in a session along with 
       "external_id": "ext_12345a67b89c",
       "id": "usr_1234abcd5678efgh",
       "last_login_time": "",
-      "memberships": [{}],
+      "memberships": [
+        {}
+      ],
       "metadata": {
         "department": "engineering",
         "location": "nyc-office"
@@ -28042,6 +28983,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 * **`invite`**
 
   `object` — Updated invitation object containing the resent invitation details, including new expiration time and incremented resend counter.
+
   - **`created_at`**
 
     `string`, format: `date-time` — Timestamp when the invite was originally created.
@@ -28109,6 +29051,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
   `array` — List of matching users.
 
   **Items:**
+
   - **`create_time`**
 
     `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
@@ -28134,6 +29077,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
     `array` — List of organization memberships. Automatically populated based on group assignments.
 
     **Items:**
+
     - **`accepted_at`**
 
       `string`, format: `date-time` — Timestamp when the user accepted the invitation.
@@ -28184,13 +29128,14 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
     - **`provisioning_method`**
 
-      `string` — How the user was provisioned. Possible values: - \`jit_using_sso\` (Just-in-time provisioning during SSO login) - \`allowed_email_domain\` (User joined via allowed email domain matching) - \`org_creator\` (User created the organization) - \`direct_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
 
     - **`roles`**
 
       `array`
 
       **Items:**
+
       - **`display_name`**
 
         `string` — Human-readable name for the role
@@ -28214,6 +29159,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
   - **`user_profile`**
 
     `object` — User's personal information including name, address, and other profile attributes.
+
     - **`custom_attributes`**
 
       `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
@@ -28227,6 +29173,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
       `array` — List of external identity connections associated with the user profile.
 
       **Items:**
+
       - **`connection_id`**
 
         `string` — Unique identifier for the external identity connection. Immutable and read-only.
@@ -28293,7 +29240,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
     - **`name`**
 
-      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given_name and family_name fields.
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
 
     - **`phone_number`**
 
@@ -28325,7 +29272,9 @@ AuthenticatedClients represents an authenticated client in a session along with 
       "external_id": "ext_12345a67b89c",
       "id": "usr_1234abcd5678efgh",
       "last_login_time": "",
-      "memberships": [{}],
+      "memberships": [
+        {}
+      ],
       "metadata": {
         "department": "engineering",
         "location": "nyc-office"
@@ -28358,6 +29307,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
   `array` — List of matching users.
 
   **Items:**
+
   - **`create_time`**
 
     `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
@@ -28383,6 +29333,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
     `array` — List of organization memberships. Automatically populated based on group assignments.
 
     **Items:**
+
     - **`accepted_at`**
 
       `string`, format: `date-time` — Timestamp when the user accepted the invitation.
@@ -28433,13 +29384,14 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
     - **`provisioning_method`**
 
-      `string` — How the user was provisioned. Possible values: - \`jit_using_sso\` (Just-in-time provisioning during SSO login) - \`allowed_email_domain\` (User joined via allowed email domain matching) - \`org_creator\` (User created the organization) - \`direct_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
 
     - **`roles`**
 
       `array`
 
       **Items:**
+
       - **`display_name`**
 
         `string` — Human-readable name for the role
@@ -28463,6 +29415,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
   - **`user_profile`**
 
     `object` — User's personal information including name, address, and other profile attributes.
+
     - **`custom_attributes`**
 
       `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
@@ -28476,6 +29429,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
       `array` — List of external identity connections associated with the user profile.
 
       **Items:**
+
       - **`connection_id`**
 
         `string` — Unique identifier for the external identity connection. Immutable and read-only.
@@ -28542,7 +29496,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
     - **`name`**
 
-      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given_name and family_name fields.
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
 
     - **`phone_number`**
 
@@ -28574,7 +29528,9 @@ AuthenticatedClients represents an authenticated client in a session along with 
       "external_id": "ext_12345a67b89c",
       "id": "usr_1234abcd5678efgh",
       "last_login_time": "",
-      "memberships": [{}],
+      "memberships": [
+        {}
+      ],
       "metadata": {
         "department": "engineering",
         "location": "nyc-office"
@@ -28593,6 +29549,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 * **`user`**
 
   `object`
+
   - **`create_time`**
 
     `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
@@ -28618,6 +29575,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
     `array` — List of organization memberships. Automatically populated based on group assignments.
 
     **Items:**
+
     - **`accepted_at`**
 
       `string`, format: `date-time` — Timestamp when the user accepted the invitation.
@@ -28668,13 +29626,14 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
     - **`provisioning_method`**
 
-      `string` — How the user was provisioned. Possible values: - \`jit_using_sso\` (Just-in-time provisioning during SSO login) - \`allowed_email_domain\` (User joined via allowed email domain matching) - \`org_creator\` (User created the organization) - \`direct_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
 
     - **`roles`**
 
       `array`
 
       **Items:**
+
       - **`display_name`**
 
         `string` — Human-readable name for the role
@@ -28698,6 +29657,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
   - **`user_profile`**
 
     `object` — User's personal information including name, address, and other profile attributes.
+
     - **`custom_attributes`**
 
       `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
@@ -28711,6 +29671,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
       `array` — List of external identity connections associated with the user profile.
 
       **Items:**
+
       - **`connection_id`**
 
         `string` — Unique identifier for the external identity connection. Immutable and read-only.
@@ -28777,7 +29738,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
     - **`name`**
 
-      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given_name and family_name fields.
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
 
     - **`phone_number`**
 
@@ -28805,7 +29766,9 @@ AuthenticatedClients represents an authenticated client in a session along with 
     "external_id": "ext_12345a67b89c",
     "id": "usr_1234abcd5678efgh",
     "last_login_time": "",
-    "memberships": [{}],
+    "memberships": [
+      {}
+    ],
     "metadata": {
       "department": "engineering",
       "location": "nyc-office"
@@ -28830,7 +29793,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
 * **`first_name`**
 
-  `string` — \[DEPRECATED] Use given_name instead. User's given name. Maximum 200 characters.
+  `string` — \[DEPRECATED] Use given\_name instead. User's given name. Maximum 200 characters.
 
 * **`gender`**
 
@@ -28850,7 +29813,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
 * **`last_name`**
 
-  `string` — \[DEPRECATED] Use family_name instead. User's family name. Maximum 200 characters.
+  `string` — \[DEPRECATED] Use family\_name instead. User's family name. Maximum 200 characters.
 
 * **`locale`**
 
@@ -28888,7 +29851,10 @@ AuthenticatedClients represents an authenticated client in a session along with 
   "first_name": "John",
   "gender": "male",
   "given_name": "John",
-  "groups": ["engineering", "managers"],
+  "groups": [
+    "engineering",
+    "managers"
+  ],
   "last_name": "Doe",
   "locale": "en-US",
   "metadata": {
@@ -28909,6 +29875,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 * **`user`**
 
   `object`
+
   - **`create_time`**
 
     `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
@@ -28934,6 +29901,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
     `array` — List of organization memberships. Automatically populated based on group assignments.
 
     **Items:**
+
     - **`accepted_at`**
 
       `string`, format: `date-time` — Timestamp when the user accepted the invitation.
@@ -28984,13 +29952,14 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
     - **`provisioning_method`**
 
-      `string` — How the user was provisioned. Possible values: - \`jit_using_sso\` (Just-in-time provisioning during SSO login) - \`allowed_email_domain\` (User joined via allowed email domain matching) - \`org_creator\` (User created the organization) - \`direct_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
 
     - **`roles`**
 
       `array`
 
       **Items:**
+
       - **`display_name`**
 
         `string` — Human-readable name for the role
@@ -29014,6 +29983,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
   - **`user_profile`**
 
     `object` — User's personal information including name, address, and other profile attributes.
+
     - **`custom_attributes`**
 
       `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
@@ -29027,6 +29997,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
       `array` — List of external identity connections associated with the user profile.
 
       **Items:**
+
       - **`connection_id`**
 
         `string` — Unique identifier for the external identity connection. Immutable and read-only.
@@ -29093,7 +30064,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
     - **`name`**
 
-      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given_name and family_name fields.
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
 
     - **`phone_number`**
 
@@ -29121,7 +30092,9 @@ AuthenticatedClients represents an authenticated client in a session along with 
     "external_id": "ext_12345a67b89c",
     "id": "usr_1234abcd5678efgh",
     "last_login_time": "",
-    "memberships": [{}],
+    "memberships": [
+      {}
+    ],
     "metadata": {
       "department": "engineering",
       "location": "nyc-office"
@@ -29161,6 +30134,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
   `array` — List of organization memberships. Automatically populated based on group assignments.
 
   **Items:**
+
   - **`accepted_at`**
 
     `string`, format: `date-time` — Timestamp when the user accepted the invitation.
@@ -29211,13 +30185,14 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
   - **`provisioning_method`**
 
-    `string` — How the user was provisioned. Possible values: - \`jit_using_sso\` (Just-in-time provisioning during SSO login) - \`allowed_email_domain\` (User joined via allowed email domain matching) - \`org_creator\` (User created the organization) - \`direct_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+    `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
 
   - **`roles`**
 
     `array`
 
     **Items:**
+
     - **`display_name`**
 
       `string` — Human-readable name for the role
@@ -29241,6 +30216,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 * **`user_profile`**
 
   `object` — User's personal information including name, address, and other profile attributes.
+
   - **`custom_attributes`**
 
     `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
@@ -29254,6 +30230,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
     `array` — List of external identity connections associated with the user profile.
 
     **Items:**
+
     - **`connection_id`**
 
       `string` — Unique identifier for the external identity connection. Immutable and read-only.
@@ -29320,7 +30297,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
   - **`name`**
 
-    `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given_name and family_name fields.
+    `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
 
   - **`phone_number`**
 
@@ -29362,9 +30339,15 @@ AuthenticatedClients represents an authenticated client in a session along with 
       },
       "name": "AcmeCorp",
       "organization_id": "org_1234abcd5678efgh",
-      "permissions": ["read_projects", "write_tasks", "manage_users"],
+      "permissions": [
+        "read_projects",
+        "write_tasks",
+        "manage_users"
+      ],
       "provisioning_method": "",
-      "roles": [{}]
+      "roles": [
+        {}
+      ]
     }
   ],
   "metadata": {
@@ -29378,11 +30361,16 @@ AuthenticatedClients represents an authenticated client in a session along with 
       "security_clearance": "level2"
     },
     "email_verified": true,
-    "external_identities": [{}],
+    "external_identities": [
+      {}
+    ],
     "family_name": "Doe",
     "gender": "male",
     "given_name": "John",
-    "groups": ["admin", "developer"],
+    "groups": [
+      "admin",
+      "developer"
+    ],
     "id": "usr_profile_1234abcd5678efgh",
     "locale": "en-US",
     "metadata": {
@@ -29409,10 +30397,12 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
 * **`authorization_details`**
 
-  `object` — Optional authentication credentials for the connected account. Include OAuth tokens (access_token, refresh_token, scopes) or static auth details (API keys, bearer tokens). Can be provided later via update.
+  `object` — Optional authentication credentials for the connected account. Include OAuth tokens (access\_token, refresh\_token, scopes) or static auth details (API keys, bearer tokens). Can be provided later via update.
+
   - **`google_dwd`**
 
-    `object` — Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections. Send only subject in requests; access_token, scopes, and token_expires_at are response-only.
+    `object` — Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connections. Send only subject in requests; access\_token, scopes, and token\_expires\_at are response-only.
+
     - **`access_token`**
 
       `string` — OAuth access token acquired via the jwt-bearer grant. Present in responses only.
@@ -29436,6 +30426,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
   - **`oauth_token`**
 
     `object`
+
     - **`access_token`**
 
       `string` — OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
@@ -29459,6 +30450,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
   - **`static_auth`**
 
     `object`
+
     - **`details`**
 
       `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
@@ -29476,7 +30468,10 @@ AuthenticatedClients represents an authenticated client in a session along with 
     "oauth_token": {
       "access_token": "ya29.a0...",
       "refresh_token": "1//0g...",
-      "scopes": ["email", "profile"]
+      "scopes": [
+        "email",
+        "profile"
+      ]
     }
   }
 }
@@ -29493,9 +30488,11 @@ AuthenticatedClients represents an authenticated client in a session along with 
 * **`authorization_details`**
 
   `object` — Updated authentication credentials. Provide new OAuth tokens (e.g., after refresh) or updated static auth details. Only included fields will be modified.
+
   - **`google_dwd`**
 
-    `object` — Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections. Send only subject in requests; access_token, scopes, and token_expires_at are response-only.
+    `object` — Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connections. Send only subject in requests; access\_token, scopes, and token\_expires\_at are response-only.
+
     - **`access_token`**
 
       `string` — OAuth access token acquired via the jwt-bearer grant. Present in responses only.
@@ -29519,6 +30516,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
   - **`oauth_token`**
 
     `object`
+
     - **`access_token`**
 
       `string` — OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
@@ -29542,6 +30540,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
   - **`static_auth`**
 
     `object`
+
     - **`details`**
 
       `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
@@ -29558,7 +30557,11 @@ AuthenticatedClients represents an authenticated client in a session along with 
     "oauth_token": {
       "access_token": "ya29.new_token...",
       "refresh_token": "1//0g...",
-      "scopes": ["email", "profile", "calendar"]
+      "scopes": [
+        "email",
+        "profile",
+        "calendar"
+      ]
     }
   }
 }
@@ -29574,7 +30577,7 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
 * **`domain_type`**
 
-  `string`, possible values: `"ALLOWED_EMAIL_DOMAIN", "ORGANIZATION_DOMAIN"` — The domain type. - ALLOWED_EMAIL_DOMAIN: trusted domain used to suggest the organization in the organization switcher during sign-in/sign-up. - ORGANIZATION_DOMAIN: SSO discovery domain used to route users to the correct SSO provider and enforce SSO.
+  `string`, possible values: `"ALLOWED_EMAIL_DOMAIN", "ORGANIZATION_DOMAIN"` — The domain type. - ALLOWED\_EMAIL\_DOMAIN: trusted domain used to suggest the organization in the organization switcher during sign-in/sign-up. - ORGANIZATION\_DOMAIN: SSO discovery domain used to route users to the correct SSO provider and enforce SSO.
 
 **Example:**
 
@@ -29701,7 +30704,9 @@ For update messages ensure the indexes are same as the base model itself.
 
 ```json
 {
-  "auth_patterns": [{}],
+  "auth_patterns": [
+    {}
+  ],
   "description": "Connect to Google Workspace for email and calendar integration",
   "display_name": "Google Workspace",
   "icon_src": "https://example.com/images/my-connector.svg",
@@ -29752,7 +30757,9 @@ For update messages ensure the indexes are same as the base model itself.
 
 ```json
 {
-  "auth_patterns": [{}],
+  "auth_patterns": [
+    {}
+  ],
   "description": "Connect to Google Workspace for email and calendar integration",
   "display_name": "Google Workspace",
   "icon_src": "https://example.com/images/my-connector.svg",
@@ -29801,7 +30808,10 @@ For update messages ensure the indexes are same as the base model itself.
   "display_name": "Organization Viewer Role",
   "extends": "admin_role",
   "name": "org_viewer_role",
-  "permissions": ["read:users", "write:documents"]
+  "permissions": [
+    "read:users",
+    "write:documents"
+  ]
 }
 ```
 
@@ -29862,7 +30872,11 @@ For update messages ensure the indexes are same as the base model itself.
   "display_name": "Content Editor",
   "extends": "viewer",
   "name": "content_editor",
-  "permissions": ["read:content", "write:content", "publish:content"]
+  "permissions": [
+    "read:content",
+    "write:content",
+    "publish:content"
+  ]
 }
 ```
 
@@ -29911,6 +30925,7 @@ For update messages ensure the indexes are same as the base model itself.
   `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
 
   **Items:**
+
   - **`create_time`**
 
     `string`, format: `date-time`
@@ -29994,7 +31009,12 @@ For update messages ensure the indexes are same as the base model itself.
   "description": "Can create, edit, publish, and approve content. Cannot delete content or manage user accounts.",
   "display_name": "Senior Content Editor",
   "extends": "content_editor",
-  "permissions": ["read:content", "write:content", "publish:content", "approve:content"]
+  "permissions": [
+    "read:content",
+    "write:content",
+    "publish:content",
+    "approve:content"
+  ]
 }
 ```
 
@@ -30051,6 +31071,7 @@ For update messages ensure the indexes are same as the base model itself.
   `array` — Role to assign to the user within the organization
 
   **Items:**
+
   - **`display_name`**
 
     `string` — Human-readable name for the role
@@ -30093,6 +31114,7 @@ For update messages ensure the indexes are same as the base model itself.
   `array` — Role to assign to the user within the organization
 
   **Items:**
+
   - **`display_name`**
 
     `string` — Human-readable name for the role
@@ -30136,6 +31158,7 @@ For update messages ensure the indexes are same as the base model itself.
 * **`user_profile`**
 
   `object` — User's personal information including name, address, and other profile attributes.
+
   - **`custom_attributes`**
 
     `object` — Updates custom attributes for extended user profile data and application-specific information. Use this field to store business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
@@ -30146,7 +31169,7 @@ For update messages ensure the indexes are same as the base model itself.
 
   - **`first_name`**
 
-    `string` — \[DEPRECATED] Use given_name instead. User's given name. Maximum 200 characters.
+    `string` — \[DEPRECATED] Use given\_name instead. User's given name. Maximum 200 characters.
 
   - **`gender`**
 
@@ -30166,7 +31189,7 @@ For update messages ensure the indexes are same as the base model itself.
 
   - **`last_name`**
 
-    `string` — \[DEPRECATED] Use family_name instead. User's family name. Maximum 200 characters.
+    `string` — \[DEPRECATED] Use family\_name instead. User's family name. Maximum 200 characters.
 
   - **`locale`**
 
@@ -30210,7 +31233,10 @@ For update messages ensure the indexes are same as the base model itself.
     "first_name": "John",
     "gender": "male",
     "given_name": "John",
-    "groups": ["engineering", "managers"],
+    "groups": [
+      "engineering",
+      "managers"
+    ],
     "last_name": "Doe",
     "locale": "en-US",
     "metadata": {
@@ -30249,7 +31275,9 @@ For update messages ensure the indexes are same as the base model itself.
 
 ```json
 {
-  "all_accepted_credential_ids": [""],
+  "all_accepted_credential_ids": [
+    ""
+  ],
   "rp_id": "example.com",
   "user_id": "user_xyz789"
 }
@@ -30266,6 +31294,7 @@ For update messages ensure the indexes are same as the base model itself.
 * **`unknown_credential_options`**
 
   `object` — Options for handling unknown credentials in client applications
+
   - **`credential_id`**
 
     `string` — The deleted credential ID
@@ -30293,6 +31322,7 @@ For update messages ensure the indexes are same as the base model itself.
 * **`all_accepted_credentials_options`**
 
   `object` — Options including RP ID and all accepted credential IDs for authentication
+
   - **`all_accepted_credential_ids`**
 
     `array` — List of credential IDs the user can authenticate with
@@ -30314,6 +31344,7 @@ For update messages ensure the indexes are same as the base model itself.
   `array` — All passkeys registered for the user
 
   **Items:**
+
   - **`attestation_type`**
 
     `string` — Type of attestation: "none", "indirect", or "direct"
@@ -30321,6 +31352,7 @@ For update messages ensure the indexes are same as the base model itself.
   - **`authenticator`**
 
     `object` — Authenticator information including model and name
+
     - **`aaguid`**
 
       `string` — Authenticator Attestation GUID (AAGUID) identifying the device model
@@ -30344,6 +31376,7 @@ For update messages ensure the indexes are same as the base model itself.
   - **`authenticator_flags`**
 
     `object` — Flags indicating authenticator capabilities
+
     - **`backup_eligible`**
 
       `boolean` — Whether this credential can be backed up to another device
@@ -30363,6 +31396,7 @@ For update messages ensure the indexes are same as the base model itself.
   - **`client_info`**
 
     `object` — Geographic and network information from registration
+
     - **`city`**
 
       `string` — City name
@@ -30410,6 +31444,7 @@ For update messages ensure the indexes are same as the base model itself.
   - **`user_agent`**
 
     `object` — Browser and device information from registration
+
     - **`browser`**
 
       `string` — Browser name (e.g., "Chrome", "Safari")
@@ -30451,7 +31486,9 @@ For update messages ensure the indexes are same as the base model itself.
 ```json
 {
   "all_accepted_credentials_options": {
-    "all_accepted_credential_ids": [""],
+    "all_accepted_credential_ids": [
+      ""
+    ],
     "rp_id": "example.com",
     "user_id": "user_xyz789"
   },
@@ -30465,7 +31502,9 @@ For update messages ensure the indexes are same as the base model itself.
       "credential_id": "",
       "display_name": "My Yubikey",
       "id": "cred_abc123",
-      "transports": [""],
+      "transports": [
+        ""
+      ],
       "updated_at": "2025-02-15T06:23:44.560000Z",
       "user_agent": null,
       "user_id": "user_xyz789"
@@ -30502,6 +31541,7 @@ For update messages ensure the indexes are same as the base model itself.
 * **`credential`**
 
   `object` — The updated credential with new display name
+
   - **`attestation_type`**
 
     `string` — Type of attestation: "none", "indirect", or "direct"
@@ -30509,6 +31549,7 @@ For update messages ensure the indexes are same as the base model itself.
   - **`authenticator`**
 
     `object` — Authenticator information including model and name
+
     - **`aaguid`**
 
       `string` — Authenticator Attestation GUID (AAGUID) identifying the device model
@@ -30532,6 +31573,7 @@ For update messages ensure the indexes are same as the base model itself.
   - **`authenticator_flags`**
 
     `object` — Flags indicating authenticator capabilities
+
     - **`backup_eligible`**
 
       `boolean` — Whether this credential can be backed up to another device
@@ -30551,6 +31593,7 @@ For update messages ensure the indexes are same as the base model itself.
   - **`client_info`**
 
     `object` — Geographic and network information from registration
+
     - **`city`**
 
       `string` — City name
@@ -30598,6 +31641,7 @@ For update messages ensure the indexes are same as the base model itself.
   - **`user_agent`**
 
     `object` — Browser and device information from registration
+
     - **`browser`**
 
       `string` — Browser name (e.g., "Chrome", "Safari")
@@ -30647,7 +31691,9 @@ For update messages ensure the indexes are same as the base model itself.
     "credential_id": "",
     "display_name": "My Yubikey",
     "id": "cred_abc123",
-    "transports": [""],
+    "transports": [
+      ""
+    ],
     "updated_at": "2025-02-15T06:23:44.560000Z",
     "user_agent": null,
     "user_id": "user_xyz789"
@@ -30666,6 +31712,7 @@ For update messages ensure the indexes are same as the base model itself.
 * **`authenticator`**
 
   `object` — Authenticator information including model and name
+
   - **`aaguid`**
 
     `string` — Authenticator Attestation GUID (AAGUID) identifying the device model
@@ -30689,6 +31736,7 @@ For update messages ensure the indexes are same as the base model itself.
 * **`authenticator_flags`**
 
   `object` — Flags indicating authenticator capabilities
+
   - **`backup_eligible`**
 
     `boolean` — Whether this credential can be backed up to another device
@@ -30708,6 +31756,7 @@ For update messages ensure the indexes are same as the base model itself.
 * **`client_info`**
 
   `object` — Geographic and network information from registration
+
   - **`city`**
 
     `string` — City name
@@ -30755,6 +31804,7 @@ For update messages ensure the indexes are same as the base model itself.
 * **`user_agent`**
 
   `object` — Browser and device information from registration
+
   - **`browser`**
 
     `string` — Browser name (e.g., "Chrome", "Safari")
@@ -30819,7 +31869,9 @@ For update messages ensure the indexes are same as the base model itself.
   "credential_id": "",
   "display_name": "My Yubikey",
   "id": "cred_abc123",
-  "transports": [""],
+  "transports": [
+    ""
+  ],
   "updated_at": "2025-02-15T06:23:44.560000Z",
   "user_agent": {
     "browser": "Chrome",
@@ -30860,7 +31912,10 @@ For update messages ensure the indexes are same as the base model itself.
 ```json
 {
   "enabled": true,
-  "emails": ["alice+sktest@example.com", "bob+sktest@example.com"],
+  "emails": [
+    "alice+sktest@example.com",
+    "bob+sktest@example.com"
+  ],
   "static_confirmation_code": "424242"
 }
 ```

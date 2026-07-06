@@ -1,8 +1,8 @@
 {
   "openapi": "3.1.1",
   "info": {
-    "description": "The AgentKit API enables you to manage connected accounts for third-party integrations, execute tools on behalf of users, and handle OAuth connections to external services like Google, Notion, Slack, and other applications.\n\n## Quickstart\n\nThe Scalekit API uses OAuth 2.0 Client Credentials for authentication.\n\nCopy your API credentials from the Scalekit dashboard's API Config section and set them as environment variables.\n\n```sh\nSCALEKIT_ENVIRONMENT_URL='<YOUR_ENVIRONMENT_URL>'\nSCALEKIT_CLIENT_ID='<ENVIRONMENT_CLIENT_ID>'\nSCALEKIT_CLIENT_SECRET='<ENVIRONMENT_CLIENT_SECRET>'\n```\n\nGetting an access token\n\n1. Get your credentials from the [Scalekit Dashboard](https://app.scalekit.com)\n2. Request an access token:\n\n```sh\ncurl https://<SCALEKIT_ENVIRONMENT_URL>/oauth/token \\\n  -X POST \\\n  -H 'Content-Type: application/x-www-form-urlencoded' \\\n  -d 'client_id={client_id}' \\\n  -d 'client_secret={client_secret}' \\\n  -d 'grant_type=client_credentials'\n```\n\n3. Use the access token in API requests:\n\n```sh\ncurl https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/connected_accounts \\\n  -H 'Content-Type: application/json' \\\n  -H 'Authorization: Bearer {access_token}'\n```\n",
     "title": "AgentKit APIs",
+    "description": "# Overview\n\nThe AgentKit API gives your AI agents authenticated access to third-party apps — sending emails, reading calendars, creating tickets, querying databases, and more. Your agent calls a tool; Scalekit handles the OAuth flow, token storage, and API call.\n\n**Base URLs:**\n\n```\nhttps://{your-subdomain}.scalekit.dev (Development)\nhttps://{your-subdomain}.scalekit.com (Production)\n```\n\n## Quickstart\n\n### 1. Get an access token\n\nUse your API credentials from the [Scalekit Dashboard](https://app.scalekit.com) → **Developers → Settings → API Credentials**.\n\n```sh\ncurl -X POST https://<SCALEKIT_ENVIRONMENT_URL>/oauth/token \\\n  -H 'Content-Type: application/x-www-form-urlencoded' \\\n  -d 'client_id={client_id}' \\\n  -d 'client_secret={client_secret}' \\\n  -d 'grant_type=client_credentials'\n```\n\n### 2. List connected accounts\n\n```sh\ncurl https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/connected_accounts \\\n  -H 'Authorization: Bearer {access_token}'\n```\n\n### 3. Execute a tool on behalf of a user\n\n```sh\ncurl -X POST https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/execute_tool \\\n  -H 'Authorization: Bearer {access_token}' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\n    \"connected_account_id\": \"{connected_account_id}\",\n    \"tool_name\": \"gmail_fetch_emails\",\n    \"tool_input\": { \"max_results\": 5 }\n  }'\n```\n\n## SDKs\n\n```sh\nnpm install @scalekit-sdk/node    # Node.js\npip install scalekit-sdk-python    # Python\n```\n\nFor the full product guide, see the [AgentKit documentation](https://docs.scalekit.com/agentkit/quickstart/).\n\n---\n\nLooking for SSO, SCIM, directory sync, or user management APIs? See the [SaaSKit API reference](https://docs.scalekit.com/saaskit/apis/). For the complete endpoint list across both products, see [All APIs](https://docs.scalekit.com/apis/).\n",
     "contact": {
       "name": "Scalekit Inc",
       "url": "https://scalekit.com",
@@ -26,21 +26,39 @@
   ],
   "tags": [
     {
-      "description": "Manage connected accounts for third-party integrations and OAuth connections. Connected accounts represent authenticated access to external services like Google, Notion, Slack, and other applications.",
-      "name": "Connected Accounts"
+      "name": "Connected Accounts",
+      "description": "Manage connected accounts for third-party integrations and OAuth connections. Connected accounts represent authenticated access to external services like Google, Notion, Slack, and other applications."
+    },
+    {
+      "name": "Connectors",
+      "description": "Manage built-in and custom connectors (providers) that agents can use to authenticate against third-party services."
+    },
+    {
+      "name": "Tool Calling",
+      "description": "Execute tools on behalf of users via their connected accounts. Supports both named/pre-defined tools and custom API proxy calls."
+    },
+    {
+      "name": "MCP",
+      "description": "High-level MCP server management."
+    },
+    {
+      "name": "MCP Configurations",
+      "description": "Create and manage reusable MCP configurations."
+    },
+    {
+      "name": "MCP Instances",
+      "description": "Create, manage, and interact with live MCP server instances."
     }
   ],
   "externalDocs": {
-    "description": "Scalekit Docs",
-    "url": "https://docs.scalekit.com/"
+    "description": "AgentKit Docs",
+    "url": "https://docs.scalekit.com/agentkit/quickstart/"
   },
   "paths": {
     "/api/v1/connected_accounts": {
       "get": {
         "description": "Retrieves a paginated list of connected accounts for third-party integrations. Filter by organization, user, connector type, provider, or identifier. Returns OAuth tokens, API keys, and connection status for each account. Use pagination tokens to navigate through large result sets.",
-        "tags": [
-          "Connected Accounts"
-        ],
+        "tags": ["Connected Accounts"],
         "summary": "List connected accounts",
         "operationId": "ConnectedAccountService_ListConnectedAccounts",
         "parameters": [
@@ -64,7 +82,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Filter by connector type. Connector identifier such as 'notion', 'slack', 'google', etc. Alphanumeric with spaces, hyphens, underscores, and colons allowed.",
+            "description": "Filter by connector type (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.",
             "name": "connector",
             "in": "query"
           },
@@ -137,13 +155,33 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "// Coming soon — accurate SDK snippets for List connected accounts will be added via scalekit-code-doctor (SK-399)\n"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "# Coming soon — accurate SDK snippets for List connected accounts will be added via scalekit-code-doctor (SK-399)\n"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "// Coming soon — accurate SDK snippets for List connected accounts will be added via scalekit-code-doctor (SK-399)\n"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "// Coming soon — accurate SDK snippets for List connected accounts will be added via scalekit-code-doctor (SK-399)\n"
+          }
+        ]
       },
       "put": {
         "description": "Updates authentication credentials and configuration for an existing connected account. Modify OAuth tokens, refresh tokens, access scopes, or API configuration settings. Specify the account by ID, or by combination of organization/user, connector, and identifier. Returns the updated account with new token expiry and status information.",
-        "tags": [
-          "Connected Accounts"
-        ],
+        "tags": ["Connected Accounts"],
         "summary": "Update connected account credentials",
         "operationId": "ConnectedAccountService_UpdateConnectedAccount",
         "responses": {
@@ -195,9 +233,7 @@
       },
       "post": {
         "description": "Creates a new connected account with OAuth tokens or API credentials for third-party service integration. Supply authorization details including access tokens, refresh tokens, scopes, and optional API configuration. The account can be scoped to an organization or user. Returns the created account with its unique identifier and authentication status.",
-        "tags": [
-          "Connected Accounts"
-        ],
+        "tags": ["Connected Accounts"],
         "summary": "Create a connected account",
         "operationId": "ConnectedAccountService_CreateConnectedAccount",
         "responses": {
@@ -251,10 +287,8 @@
     "/api/v1/connected_accounts/auth": {
       "get": {
         "description": "Retrieves complete authentication details for a connected account including OAuth tokens, refresh tokens, scopes, and API configuration. Query by account ID or by combination of organization/user, connector, and identifier. Returns sensitive credential information - use appropriate access controls.",
-        "tags": [
-          "Connected Accounts"
-        ],
-        "summary": "Get connected account details",
+        "tags": ["Connected Accounts"],
+        "summary": "Get connected account auth credentials",
         "operationId": "ConnectedAccountService_GetConnectedAccountAuth",
         "parameters": [
           {
@@ -277,7 +311,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Connector identifier",
+            "description": "Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.",
             "name": "connector",
             "in": "query"
           },
@@ -336,12 +370,96 @@
         }
       }
     },
+    "/api/v1/connected_accounts/details": {
+      "get": {
+        "description": "Returns metadata for a connected account including status, connector type, provider, and configuration without exposing stored authorization credentials. Look up by account ID, or by a combination of organization (or user), connector, and external identifier.",
+        "tags": ["Connected Accounts"],
+        "summary": "Get connected account metadata",
+        "operationId": "ConnectedAccountService_GetConnectedAccountDetails",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Organization ID for the connector",
+            "name": "organization_id",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "User ID for the connector",
+            "name": "user_id",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.",
+            "name": "connector",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).",
+            "name": "identifier",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique identifier for the connected account",
+            "name": "id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved connected account details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/connected_accountsGetConnectedAccountByIdentifierResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request - missing required query parameters",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required - missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Connected account not found - no account matches the specified criteria",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/connected_accounts/magic_link": {
       "post": {
         "description": "Creates a time-limited magic link for connecting or re-authorizing a third-party account. The link directs users to the OAuth authorization flow for the specified connector. Returns the generated link URL and expiration timestamp. Links typically expire after a short duration for security.",
-        "tags": [
-          "Connected Accounts"
-        ],
+        "tags": ["Connected Accounts"],
         "summary": "Generate authentication magic link",
         "operationId": "ConnectedAccountService_GetMagicLinkForConnectedAccount",
         "responses": {
@@ -387,9 +505,7 @@
     "/api/v1/connected_accounts/user/verify": {
       "post": {
         "description": "Confirms the user assertion and activates the connected account after the user completes third-party OAuth. Called by the B2B app server with auth_request_id and identifier. Validates that the asserted identifier matches the one stored on the auth request and promotes pending tokens to live.",
-        "tags": [
-          "Connected Accounts"
-        ],
+        "tags": ["Connected Accounts"],
         "summary": "Verify connected account user",
         "operationId": "ConnectedAccountService_VerifyConnectedAccountUser",
         "responses": {
@@ -451,9 +567,7 @@
     "/api/v1/connected_accounts:delete": {
       "post": {
         "description": "Permanently removes a connected account and revokes all associated authentication credentials. Identify the account by ID, or by combination of organization/user, connector, and identifier. This action cannot be undone. All OAuth tokens and API keys for this account will be invalidated.",
-        "tags": [
-          "Connected Accounts"
-        ],
+        "tags": ["Connected Accounts"],
         "summary": "Delete a connected account",
         "operationId": "ConnectedAccountService_DeleteConnectedAccount",
         "responses": {
@@ -505,9 +619,7 @@
     "/api/v1/connected_accounts:search": {
       "get": {
         "description": "Search for connected accounts in your environment using a text query that matches against identifiers, providers, or connectors. The search performs case-insensitive matching across account details. Returns paginated results with account status and authentication type information.",
-        "tags": [
-          "Connected Accounts"
-        ],
+        "tags": ["Connected Accounts"],
         "summary": "Search connected accounts",
         "operationId": "ConnectedAccountService_SearchConnectedAccounts",
         "parameters": [
@@ -575,12 +687,143 @@
         }
       }
     },
+    "/api/v1/custom-providers": {
+      "post": {
+        "description": "Creates an environment-scoped custom provider (connector) with authentication patterns and optional proxy configuration. The returned identifier must be used for all subsequent update and delete operations on this provider.",
+        "tags": ["Connectors"],
+        "summary": "Create a custom provider",
+        "operationId": "ProviderService_CreateCustomProvider",
+        "responses": {
+          "201": {
+            "description": "Returns the newly created custom provider, including its system-generated identifier and configuration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/providersCreateProviderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request - the provider payload failed validation (e.g. missing required fields or invalid proxy URL)",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Details of the custom connected app provider to create. Identifier is derived by the system and the identifier returned in the response must be used for update and delete operations.",
+                "$ref": "#/components/schemas/v1providersCreateCustomProvider"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/custom-providers/{identifier}": {
+      "put": {
+        "description": "Updates an existing environment-scoped custom provider (connector) by its identifier. Only the fields provided in the request are modified.",
+        "tags": ["Connectors"],
+        "summary": "Update a custom provider",
+        "operationId": "ProviderService_UpdateCustomProvider",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the custom connected app provider to update.",
+            "name": "identifier",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the updated custom provider with its current configuration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/providersUpdateProviderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request - the update payload failed validation",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - no custom provider exists with the given identifier",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Fields to update for the custom connected app provider. This aligns with the create custom provider payload.",
+                "$ref": "#/components/schemas/v1providersUpdateCustomProvider"
+              }
+            }
+          },
+          "required": true
+        }
+      },
+      "delete": {
+        "description": "Deletes an environment-scoped custom provider (connector) by its identifier. This operation is permanent and removes the provider definition from the environment.",
+        "tags": ["Connectors"],
+        "summary": "Delete a custom provider",
+        "operationId": "ProviderService_DeleteCustomProvider",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "name": "identifier",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The custom provider was successfully deleted (no content returned)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/providersDeleteProviderResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - no custom provider exists with the given identifier",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/execute_tool": {
       "post": {
         "description": "Executes a tool action using authentication credentials from a connected account. Specify the tool by name and provide required parameters as JSON. The connected account can be identified by ID, or by combination of organization/user, connector, and identifier. Returns the execution result data and a unique execution ID for tracking. Use this endpoint to perform actions like sending emails, creating calendar events, or managing resources in external services.",
-        "tags": [
-          "Connected Accounts"
-        ],
+        "tags": ["Tool Calling"],
         "summary": "Execute a tool using a connected account",
         "operationId": "ToolService_ExecuteTool",
         "responses": {
@@ -636,6 +879,905 @@
             }
           },
           "required": true
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "// Coming soon — accurate SDK snippets for Execute tool (Tool Calling) will be added via scalekit-code-doctor (SK-399)\n"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "# Coming soon — accurate SDK snippets for Execute tool (Tool Calling) will be added via scalekit-code-doctor (SK-399)\n"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "// Coming soon — accurate SDK snippets for Execute tool (Tool Calling) will be added via scalekit-code-doctor (SK-399)\n"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "// Coming soon — accurate SDK snippets for Execute tool (Tool Calling) will be added via scalekit-code-doctor (SK-399)\n"
+          }
+        ]
+      }
+    },
+    "/api/v1/mcp": {
+      "get": {
+        "description": "Returns a list of existing MCPs, optionally filtered by connected_account_identifier and link_token.",
+        "tags": ["MCP"],
+        "summary": "List MCPs",
+        "operationId": "McpService_ListMcp",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by connected account identifier",
+            "name": "filter.connected_account_identifier",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by link token",
+            "name": "filter.link_token",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of MCPs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcpListMcpResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new MCP for the configuration. If same configuration exists, it will return the existing MCP.",
+        "tags": ["MCP"],
+        "summary": "Create or retrieve MCP",
+        "operationId": "McpService_CreateMcp",
+        "responses": {
+          "200": {
+            "description": "The created or existing MCP",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcpCreateMcpResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "MCP tool configuration to create or update",
+                "$ref": "#/components/schemas/mcpMcp"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/mcp/{mcp_id}": {
+      "get": {
+        "description": "Returns the existing MCP with the given ID.",
+        "tags": ["MCP"],
+        "summary": "Get MCP by ID",
+        "operationId": "McpService_GetMcp",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the MCP to retrieve",
+            "name": "mcp_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested MCP",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcpGetMcpResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - MCP does not exist",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes the MCP with the given ID.",
+        "tags": ["MCP"],
+        "summary": "Delete MCP by ID",
+        "operationId": "McpService_DeleteMcp",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the MCP to delete",
+            "name": "mcp_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "MCP deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - MCP does not exist",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mcp/configs": {
+      "get": {
+        "description": "Lists MCP configurations for the current environment with optional filters for id, name prefix, and provider.",
+        "tags": ["MCP Configurations"],
+        "summary": "List MCP configurations",
+        "operationId": "McpService_ListMcpConfigs",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by MCP configuration id",
+            "name": "filter.id",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Case-insensitive prefix search on configuration name (minimum 3 characters)",
+            "name": "filter.name",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter configs that include this provider",
+            "name": "filter.provider",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Look ahead text search on config name",
+            "name": "search",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "Number of configs to return per page (max 30)",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Pagination token to fetch the next or previous page",
+            "name": "page_token",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of MCP configurations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcpListMcpConfigsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request - bad filter or pagination parameters",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new MCP configuration with a set of connections and tools.",
+        "tags": ["MCP Configurations"],
+        "summary": "Create a new MCP configuration",
+        "operationId": "McpService_CreateMcpConfig",
+        "responses": {
+          "201": {
+            "description": "The newly created MCP configuration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcpCreateMcpConfigResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request - missing required fields or invalid connection/tool mappings",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required - missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "MCP configuration details to create",
+                "$ref": "#/components/schemas/mcpMcpConfig"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/mcp/configs/{config_id}": {
+      "get": {
+        "description": "Returns a single MCP configuration for the current environment by ID.",
+        "tags": ["MCP Configurations"],
+        "summary": "Fetch an MCP configuration",
+        "operationId": "McpService_GetMcpConfig",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the MCP configuration to fetch",
+            "name": "config_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested MCP configuration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcpGetMcpConfigResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - MCP configuration does not exist",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Updates the name, description, and connection-to-tool mappings for an existing MCP configuration.",
+        "tags": ["MCP Configurations"],
+        "summary": "Update an existing MCP configuration",
+        "operationId": "McpService_UpdateMcpConfig",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the MCP configuration to update",
+            "name": "config_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The updated MCP configuration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcpUpdateMcpConfigResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request - malformed payload or invalid mappings",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - MCP configuration does not exist",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/McpServiceUpdateMcpConfigBody"
+              }
+            }
+          },
+          "required": true
+        }
+      },
+      "delete": {
+        "description": "Deletes the MCP configuration and any associated mappings and instances in the current environment.",
+        "tags": ["MCP Configurations"],
+        "summary": "Delete an MCP configuration",
+        "operationId": "McpService_DeleteMcpConfig",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the MCP configuration to delete",
+            "name": "config_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "MCP configuration and associated data deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - MCP configuration does not exist",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mcp/instances": {
+      "get": {
+        "description": "Lists MCP instances for the current environment with optional filters for instance id, name, configuration, and text search across name or user identifier.",
+        "tags": ["MCP Instances"],
+        "summary": "List MCP instances",
+        "operationId": "McpService_ListMcpInstances",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by MCP instance id",
+            "name": "filter.id",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by exact instance name",
+            "name": "filter.name",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by MCP configuration name",
+            "name": "filter.config_name",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by user identifier",
+            "name": "filter.user_identifier",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Case-insensitive look-ahead search across instance name and user identifier",
+            "name": "search",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "Number of instances to return per page (max 30)",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Pagination token to fetch the next or previous page",
+            "name": "page_token",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of MCP instances",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcpListMcpInstancesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Returns an existing MCP instance for the given configuration, name, and user identifier or creates one if none exists.",
+        "tags": ["MCP Instances"],
+        "summary": "Get or create an MCP instance",
+        "operationId": "McpService_EnsureMcpInstance",
+        "responses": {
+          "200": {
+            "description": "The existing or newly created MCP instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcpEnsureMcpInstanceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/mcpEnsureMcpInstanceRequest"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/mcp/instances/{instance_id}": {
+      "get": {
+        "description": "Returns a single MCP instance for the current environment by ID.",
+        "tags": ["MCP Instances"],
+        "summary": "Fetch an MCP instance",
+        "operationId": "McpService_GetMcpInstance",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the MCP instance to fetch",
+            "name": "instance_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested MCP instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcpGetMcpInstanceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - MCP instance does not exist",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a single MCP instance in the current environment.",
+        "tags": ["MCP Instances"],
+        "summary": "Delete an MCP instance",
+        "operationId": "McpService_DeleteMcpInstance",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the MCP instance to delete",
+            "name": "instance_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "MCP instance deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - MCP instance does not exist",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "description": "Updates attributes of an MCP instance. Currently only the config name can be changed, which rebuilds the instance mappings.",
+        "tags": ["MCP Instances"],
+        "summary": "Update an MCP instance",
+        "operationId": "McpService_UpdateMcpInstance",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the MCP instance to update",
+            "name": "instance_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The updated MCP instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcpUpdateMcpInstanceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - MCP instance does not exist",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/McpServiceUpdateMcpInstanceBody"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/mcp/instances/{instance_id}:get_auth_state": {
+      "post": {
+        "description": "Returns the connected account status and fresh authentication links for each connection mapped to the MCP instance.",
+        "tags": ["MCP Instances"],
+        "summary": "Fetch connection auth state for an MCP instance",
+        "operationId": "McpService_GetMcpInstanceAuthState",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the MCP instance whose connection statuses are requested",
+            "name": "instance_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Whether to generate fresh authentication links for each connection",
+            "name": "include_auth_links",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authentication state for each connection in the MCP instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcpGetMcpInstanceAuthStateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - MCP instance does not exist",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
         }
       }
     }
@@ -955,7 +2097,7 @@
     },
     "schemas": {
       "connected_accountsConnectorType": {
-        "description": "- OAUTH: OAuth 2.0 authorization with access and refresh tokens\n - API_KEY: Static API key authentication\n - BASIC_AUTH: HTTP Basic Authentication (username/password)\n - BEARER_TOKEN: Bearer token authentication\n - CUSTOM: Custom authentication mechanism\n - BASIC: Basic authentication (alias)",
+        "description": "- OAUTH: OAuth 2.0 authorization with access and refresh tokens\n - API_KEY: Static API key authentication\n - BASIC_AUTH: HTTP Basic Authentication (username/password)\n - BEARER_TOKEN: Bearer token authentication\n - CUSTOM: Custom authentication mechanism\n - BASIC: Basic authentication (alias)\n - OAUTH_M2M: OAuth 2.0 client credentials (machine-to-machine)\n - TRELLO_OAUTH1: Trello token-based OAuth1-style browser authorization\n - GOOGLE_DWD: Google Domain-Wide Delegation",
         "type": "string",
         "title": "Type of authentication mechanism used for the connected account",
         "enum": [
@@ -964,19 +2106,17 @@
           "BASIC_AUTH",
           "BEARER_TOKEN",
           "CUSTOM",
-          "BASIC"
+          "BASIC",
+          "OAUTH_M2M",
+          "TRELLO_OAUTH1",
+          "GOOGLE_DWD"
         ]
       },
       "connected_accountsConnectorStatus": {
-        "description": "- ACTIVE: Account is connected and credentials are valid\n - EXPIRED: Access token has expired and needs refresh\n - PENDING_AUTH: Account awaiting user authorization (re-auth initiated)\n - PENDING_VERIFICATION: OAuth complete; awaiting user identity verification\nbefore activation",
+        "description": "- ACTIVE: Account is connected and credentials are valid\n - EXPIRED: Access token has expired and needs refresh\n - PENDING_AUTH: Account awaiting user authorization (re-auth initiated)\n - PENDING_VERIFICATION: OAuth complete; awaiting user identity verification\nbefore activation\n - DISCONNECTED: Account has been manually disconnected",
         "type": "string",
         "title": "Status of a connected account indicating its current state",
-        "enum": [
-          "ACTIVE",
-          "EXPIRED",
-          "PENDING_AUTH",
-          "PENDING_VERIFICATION"
-        ]
+        "enum": ["ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"]
       },
       "connected_accountsConnectedAccountForList": {
         "type": "object",
@@ -989,45 +2129,33 @@
           "connection_id": {
             "description": "Parent connection configuration reference.",
             "type": "string",
-            "examples": [
-              "conn_24834495392086178"
-            ]
+            "examples": ["conn_24834495392086178"]
           },
           "connector": {
             "description": "Connector identifier.",
             "type": "string",
-            "examples": [
-              "notion"
-            ]
+            "examples": ["notion"]
           },
           "id": {
             "description": "Unique connected account identifier.",
             "type": "string",
-            "examples": [
-              "ca_24834495392086178"
-            ]
+            "examples": ["ca_24834495392086178"]
           },
           "identifier": {
             "description": "The unique identifier for this account in the third-party service.",
             "type": "string",
-            "examples": [
-              "user@example.com"
-            ]
+            "examples": ["user@example.com"]
           },
           "last_used_at": {
             "description": "Last usage timestamp.",
             "type": "string",
             "format": "date-time",
-            "examples": [
-              "2024-03-20T14:30:00Z"
-            ]
+            "examples": ["2024-03-20T14:30:00Z"]
           },
           "provider": {
             "description": "OAuth provider name (e.g., 'google', 'microsoft').",
             "type": "string",
-            "examples": [
-              "google"
-            ]
+            "examples": ["google"]
           },
           "status": {
             "description": "Current connection status.",
@@ -1037,17 +2165,13 @@
             "description": "Token expiration timestamp.",
             "type": "string",
             "format": "date-time",
-            "examples": [
-              "2024-12-31T23:59:59Z"
-            ]
+            "examples": ["2024-12-31T23:59:59Z"]
           },
           "updated_at": {
             "description": "Last modification timestamp.",
             "type": "string",
             "format": "date-time",
-            "examples": [
-              "2024-03-20T15:04:05Z"
-            ]
+            "examples": ["2024-03-20T15:04:05Z"]
           }
         }
       },
@@ -1065,24 +2189,50 @@
           "next_page_token": {
             "description": "Pagination token for retrieving the next page. Empty if this is the last page. Pass this value to page_token in the next request.",
             "type": "string",
-            "examples": [
-              "eyJvZmZzZXQiOjIwfQ=="
-            ]
+            "examples": ["eyJvZmZzZXQiOjIwfQ=="]
           },
           "prev_page_token": {
             "description": "Pagination token for retrieving the previous page. Empty if this is the first page. Pass this value to page_token to go back.",
             "type": "string",
-            "examples": [
-              "eyJvZmZzZXQiOjB9"
-            ]
+            "examples": ["eyJvZmZzZXQiOjB9"]
           },
           "total_size": {
             "description": "Total count of connected accounts matching the filter criteria across all pages. Use for calculating pagination.",
             "type": "integer",
             "format": "int64",
-            "examples": [
-              100
-            ]
+            "examples": [100]
+          }
+        }
+      },
+      "connected_accountsGoogleDWDAuth": {
+        "description": "Google Domain-Wide Delegation authentication — used for GOOGLE_DWD connections.\nSend only subject in requests; access_token, scopes, and token_expires_at are response-only.",
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "description": "OAuth access token acquired via the jwt-bearer grant. Present in responses only.",
+            "type": "string",
+            "readOnly": true,
+            "examples": ["ya29.a0AfH6SMBx..."]
+          },
+          "scopes": {
+            "description": "OAuth scopes granted to this token. Present in responses only.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "examples": [["openid", "https://www.googleapis.com/auth/userinfo.email"]]
+          },
+          "subject": {
+            "description": "Email address of the Google Workspace user to impersonate via Domain-Wide Delegation.",
+            "type": "string",
+            "examples": ["user@example.com"]
+          },
+          "token_expires_at": {
+            "description": "When the access token expires. Present in responses only.",
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
           }
         }
       },
@@ -1093,23 +2243,17 @@
           "access_token": {
             "description": "OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.",
             "type": "string",
-            "examples": [
-              "ya29.a0AfH6SMBx..."
-            ]
+            "examples": ["ya29.a0AfH6SMBx..."]
           },
           "domain": {
             "description": "Associated domain for workspace or organization-scoped OAuth connections (e.g., Google Workspace domain).",
             "type": "string",
-            "examples": [
-              "example.com"
-            ]
+            "examples": ["example.com"]
           },
           "refresh_token": {
             "description": "OAuth refresh token for obtaining new access tokens. Long-lived and used to maintain persistent authorization.",
             "type": "string",
-            "examples": [
-              "1//0gHJxZ-Lb2..."
-            ]
+            "examples": ["1//0gHJxZ-Lb2..."]
           },
           "scopes": {
             "description": "List of granted OAuth scopes defining the permissions and access levels for this connection.",
@@ -1146,6 +2290,10 @@
         "type": "object",
         "title": "Authentication credentials container supporting multiple auth types",
         "properties": {
+          "google_dwd": {
+            "title": "Google Domain-Wide Delegation credentials",
+            "$ref": "#/components/schemas/connected_accountsGoogleDWDAuth"
+          },
           "oauth_token": {
             "title": "OAuth 2.0 credentials",
             "$ref": "#/components/schemas/connected_accountsOauthToken"
@@ -1178,11 +2326,7 @@
                 "oauth_token": {
                   "access_token": "ya29.new_token...",
                   "refresh_token": "1//0g...",
-                  "scopes": [
-                    "email",
-                    "profile",
-                    "calendar"
-                  ]
+                  "scopes": ["email", "profile", "calendar"]
                 }
               }
             ]
@@ -1201,10 +2345,7 @@
                   "oauth_token": {
                     "access_token": "...",
                     "refresh_token": "...",
-                    "scopes": [
-                      "read",
-                      "write"
-                    ]
+                    "scopes": ["read", "write"]
                   }
                 },
                 "authorization_type": "OAUTH2"
@@ -1212,39 +2353,29 @@
             ]
           },
           "connector": {
-            "description": "Connector identifier",
+            "description": "Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.",
             "type": "string",
-            "examples": [
-              "notion"
-            ]
+            "examples": ["notion"]
           },
           "id": {
             "description": "Unique identifier for the connected account to update",
             "type": "string",
-            "examples": [
-              "ca_123"
-            ]
+            "examples": ["ca_123"]
           },
           "identifier": {
             "description": "The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).",
             "type": "string",
-            "examples": [
-              "user@example.com"
-            ]
+            "examples": ["user@example.com"]
           },
           "organization_id": {
             "description": "Organization ID for the connector",
             "type": "string",
-            "examples": [
-              "org_121312434123312"
-            ]
+            "examples": ["org_121312434123312"]
           },
           "user_id": {
             "description": "User ID for the connector",
             "type": "string",
-            "examples": [
-              "user_121312434123312"
-            ]
+            "examples": ["user_121312434123312"]
           }
         }
       },
@@ -1273,45 +2404,33 @@
           "connection_id": {
             "description": "Reference to the parent connection configuration. Links this account to a specific connector setup in your environment.",
             "type": "string",
-            "examples": [
-              "conn_24834495392086178"
-            ]
+            "examples": ["conn_24834495392086178"]
           },
           "connector": {
             "description": "Connector identifier (e.g., 'notion', 'slack', 'salesforce'). Indicates which third-party application this account connects to.",
             "type": "string",
-            "examples": [
-              "notion"
-            ]
+            "examples": ["notion"]
           },
           "id": {
             "description": "Unique Scalekit-generated identifier for this connected account. Always prefixed with 'ca_'.",
             "type": "string",
-            "examples": [
-              "ca_24834495392086178"
-            ]
+            "examples": ["ca_24834495392086178"]
           },
           "identifier": {
             "description": "The unique identifier for this account in the third-party service. Typically an email address, user ID, or workspace identifier.",
             "type": "string",
-            "examples": [
-              "user@example.com"
-            ]
+            "examples": ["user@example.com"]
           },
           "last_used_at": {
             "description": "Timestamp when this connected account was last used to make an API call. Useful for tracking active connections.",
             "type": "string",
             "format": "date-time",
-            "examples": [
-              "2024-03-20T14:30:00Z"
-            ]
+            "examples": ["2024-03-20T14:30:00Z"]
           },
           "provider": {
             "description": "OAuth provider name (e.g., 'google', 'microsoft', 'github'). Identifies which authentication service manages this connection.",
             "type": "string",
-            "examples": [
-              "google"
-            ]
+            "examples": ["google"]
           },
           "status": {
             "description": "Current status of the connected account. Indicates if the account is active, expired, pending authorization, or pending user identity verification.",
@@ -1321,17 +2440,13 @@
             "description": "Expiration timestamp for the access token. After this time, the token must be refreshed or re-authorized.",
             "type": "string",
             "format": "date-time",
-            "examples": [
-              "2024-12-31T23:59:59Z"
-            ]
+            "examples": ["2024-12-31T23:59:59Z"]
           },
           "updated_at": {
             "description": "Timestamp when this connected account was last modified. Updated whenever credentials or configuration changes.",
             "type": "string",
             "format": "date-time",
-            "examples": [
-              "2024-03-20T15:04:05Z"
-            ]
+            "examples": ["2024-03-20T15:04:05Z"]
           }
         }
       },
@@ -1367,10 +2482,7 @@
                 "oauth_token": {
                   "access_token": "ya29.a0...",
                   "refresh_token": "1//0g...",
-                  "scopes": [
-                    "email",
-                    "profile"
-                  ]
+                  "scopes": ["email", "profile"]
                 }
               }
             ]
@@ -1389,10 +2501,7 @@
                   "oauth_token": {
                     "access_token": "...",
                     "refresh_token": "...",
-                    "scopes": [
-                      "read",
-                      "write"
-                    ]
+                    "scopes": ["read", "write"]
                   }
                 },
                 "authorization_type": "OAUTH2"
@@ -1400,32 +2509,24 @@
             ]
           },
           "connector": {
-            "description": "Connector identifier",
+            "description": "Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.",
             "type": "string",
-            "examples": [
-              "notion"
-            ]
+            "examples": ["notion"]
           },
           "identifier": {
             "description": "The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).",
             "type": "string",
-            "examples": [
-              "user@example.com"
-            ]
+            "examples": ["user@example.com"]
           },
           "organization_id": {
             "description": "Organization ID for the connector",
             "type": "string",
-            "examples": [
-              "org_121312434123312"
-            ]
+            "examples": ["org_121312434123312"]
           },
           "user_id": {
             "description": "User ID for the connector",
             "type": "string",
-            "examples": [
-              "user_121312434123312"
-            ]
+            "examples": ["user_121312434123312"]
           }
         }
       },
@@ -1451,53 +2552,39 @@
         "type": "object",
         "properties": {
           "connector": {
-            "description": "Connector identifier",
+            "description": "Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.",
             "type": "string",
-            "examples": [
-              "notion"
-            ]
+            "examples": ["notion"]
           },
           "id": {
             "description": "Unique identifier for the connected account",
             "type": "string",
-            "examples": [
-              "ca_123"
-            ]
+            "examples": ["ca_123"]
           },
           "identifier": {
             "description": "The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).",
             "type": "string",
-            "examples": [
-              "user@example.com"
-            ]
+            "examples": ["user@example.com"]
           },
           "organization_id": {
             "description": "Organization ID for the connector",
             "type": "string",
-            "examples": [
-              "org_121312434123312"
-            ]
+            "examples": ["org_121312434123312"]
           },
           "state": {
             "description": "Optional opaque state value. State added to the user verify redirect URL query params to validate the user verification",
             "type": "string",
-            "examples": [
-              "QVNDSUFyY2hhYml0dGVyXzE2ODQ5NzIwNzI0NTY="
-            ]
+            "examples": ["QVNDSUFyY2hhYml0dGVyXzE2ODQ5NzIwNzI0NTY="]
           },
           "user_id": {
             "description": "User ID for the connector",
             "type": "string",
-            "examples": [
-              "user_121312434123312"
-            ]
+            "examples": ["user_121312434123312"]
           },
           "user_verify_url": {
             "description": "B2B app's user verify redirect URL",
             "type": "string",
-            "examples": [
-              "https://app.yourapp.com/user/verify/callback"
-            ]
+            "examples": ["https://app.yourapp.com/user/verify/callback"]
           }
         }
       },
@@ -1508,39 +2595,28 @@
             "description": "Expiry timestamp for the authentication link",
             "type": "string",
             "format": "date-time",
-            "examples": [
-              "2024-03-20T15:04:05Z"
-            ]
+            "examples": ["2024-03-20T15:04:05Z"]
           },
           "link": {
             "description": "Authentication link for the connector",
             "type": "string",
-            "examples": [
-              "https://notion.com/oauth/authorize?client_id=..."
-            ]
+            "examples": ["https://notion.com/oauth/authorize?client_id=..."]
           }
         }
       },
       "connected_accountsVerifyConnectedAccountUserRequest": {
         "type": "object",
-        "required": [
-          "auth_request_id",
-          "identifier"
-        ],
+        "required": ["auth_request_id", "identifier"],
         "properties": {
           "auth_request_id": {
             "description": "Auth request ID as base64url-encoded opaque token from the user verify redirect URL query params",
             "type": "string",
-            "examples": [
-              "QVNDSUFyY2hhYml0dGVyXzE2ODQ5NzIwNzI0NTY="
-            ]
+            "examples": ["QVNDSUFyY2hhYml0dGVyXzE2ODQ5NzIwNzI0NTY="]
           },
           "identifier": {
             "description": "Current logged in user's connected account identifier",
             "type": "string",
-            "examples": [
-              "user@example.com"
-            ]
+            "examples": ["user@example.com"]
           }
         }
       },
@@ -1550,9 +2626,7 @@
           "post_user_verify_redirect_url": {
             "description": "URL to redirect the user to after successful verification",
             "type": "string",
-            "examples": [
-              "https://env1.example.com/connect/success"
-            ]
+            "examples": ["https://env1.example.com/connect/success"]
           }
         }
       },
@@ -1560,39 +2634,29 @@
         "type": "object",
         "properties": {
           "connector": {
-            "description": "Connector identifier",
+            "description": "Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.",
             "type": "string",
-            "examples": [
-              "notion"
-            ]
+            "examples": ["notion"]
           },
           "id": {
             "description": "Unique identifier for the connected account to delete",
             "type": "string",
-            "examples": [
-              "ca_123"
-            ]
+            "examples": ["ca_123"]
           },
           "identifier": {
             "description": "The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).",
             "type": "string",
-            "examples": [
-              "user@example.com"
-            ]
+            "examples": ["user@example.com"]
           },
           "organization_id": {
             "description": "Organization ID for the connector",
             "type": "string",
-            "examples": [
-              "org_121312434123312"
-            ]
+            "examples": ["org_121312434123312"]
           },
           "user_id": {
             "description": "User ID for the connector",
             "type": "string",
-            "examples": [
-              "user_121312434123312"
-            ]
+            "examples": ["user_121312434123312"]
           }
         }
       },
@@ -1610,57 +2674,236 @@
           "next_page_token": {
             "description": "Pagination token for the next page. Empty if this is the last page.",
             "type": "string",
-            "examples": [
-              "eyJvZmZzZXQiOjMwfQ=="
-            ]
+            "examples": ["eyJvZmZzZXQiOjMwfQ=="]
           },
           "prev_page_token": {
             "description": "Pagination token for the previous page. Empty if this is the first page.",
             "type": "string",
-            "examples": [
-              "eyJvZmZzZXQiOjB9"
-            ]
+            "examples": ["eyJvZmZzZXQiOjB9"]
           },
           "total_size": {
             "description": "Total count of accounts matching the search query across all pages.",
             "type": "integer",
             "format": "int64",
-            "examples": [
-              100
-            ]
+            "examples": [100]
           }
         }
+      },
+      "v1providersCreateCustomProvider": {
+        "type": "object",
+        "properties": {
+          "auth_patterns": {
+            "description": "Authentication patterns for the connected app provider",
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "description": {
+            "description": "Description of the connected app provider",
+            "type": "string",
+            "examples": ["Connect to Google Workspace for email and calendar integration"]
+          },
+          "display_name": {
+            "description": "Display name for the connected app provider",
+            "type": "string",
+            "examples": ["Google Workspace"]
+          },
+          "icon_src": {
+            "description": "URL for the provider icon. Should be an SVG image sized 800x800 pixels for best rendering experience.",
+            "type": "string",
+            "examples": ["https://example.com/images/my-connector.svg"]
+          },
+          "metadata": {
+            "description": "Custom key-value metadata for this provider. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.",
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "examples": [
+              {
+                "api_version": "v2",
+                "region": "us-east-1"
+              }
+            ]
+          },
+          "proxy_enabled": {
+            "description": "This flag indicates whether proxying is turned on for the connected app provider. When enabled, requests are routed through the provider proxy instead of being sent directly.",
+            "type": "boolean",
+            "examples": [true]
+          },
+          "proxy_url": {
+            "description": "Proxy URL for the connected app provider. Must start with https://",
+            "type": "string",
+            "examples": ["https://mcp.example.com/mcp"]
+          }
+        }
+      },
+      "providersProvider": {
+        "type": "object",
+        "title": "Provider represents a connected app provider",
+        "properties": {
+          "auth_patterns": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "coming_soon": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "display_priority": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "icon_src": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "identifier": {
+            "type": "string"
+          },
+          "is_custom": {
+            "description": "Indicates whether the provider is environment-scoped (custom provider)",
+            "type": "boolean",
+            "examples": [false]
+          },
+          "is_custom_mcp": {
+            "description": "Indicates whether this is an environment-scoped MCP-based custom provider",
+            "type": "boolean",
+            "examples": [false]
+          },
+          "metadata": {
+            "description": "Custom key-value metadata stored for this provider. Returned for all providers; defaults to {} when no metadata has been set.",
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "examples": [
+              {
+                "api_version": "v2",
+                "region": "us-east-1"
+              }
+            ]
+          },
+          "proxy_enabled": {
+            "type": "boolean"
+          },
+          "proxy_url": {
+            "type": "string"
+          }
+        }
+      },
+      "providersCreateProviderResponse": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "$ref": "#/components/schemas/providersProvider"
+          }
+        }
+      },
+      "v1providersUpdateCustomProvider": {
+        "type": "object",
+        "properties": {
+          "auth_patterns": {
+            "description": "Authentication patterns for the connected app provider",
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "description": {
+            "description": "Description of the connected app provider",
+            "type": "string",
+            "examples": ["Connect to Google Workspace for email and calendar integration"]
+          },
+          "display_name": {
+            "description": "Display name for the connected app provider",
+            "type": "string",
+            "examples": ["Google Workspace"]
+          },
+          "icon_src": {
+            "description": "URL for the provider icon. Should be an SVG image sized 800x800 pixels for best rendering experience.",
+            "type": "string",
+            "examples": ["https://example.com/images/my-connector.svg"]
+          },
+          "metadata": {
+            "description": "Custom key-value metadata for this provider. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.",
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "examples": [
+              {
+                "api_version": "v2",
+                "region": "us-east-1"
+              }
+            ]
+          },
+          "proxy_enabled": {
+            "description": "This flag indicates whether proxying is turned on for the connected app provider. When enabled, requests are routed through the provider proxy instead of being sent directly.",
+            "type": "boolean",
+            "examples": [true]
+          },
+          "proxy_url": {
+            "description": "Proxy URL for the connected app provider. Must start with https://",
+            "type": "string",
+            "examples": ["https://mcp.example.com/mcp"]
+          }
+        }
+      },
+      "providersUpdateProviderResponse": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "$ref": "#/components/schemas/providersProvider"
+          }
+        }
+      },
+      "providersDeleteProviderResponse": {
+        "type": "object"
       },
       "toolsExecuteToolRequest": {
         "type": "object",
         "properties": {
+          "agent_run_id": {
+            "description": "Optional. Customer-supplied identifier grouping multiple tool calls into a single agent run. Useful for correlating logs across an agentic workflow.",
+            "type": "string",
+            "examples": ["run_abc123"]
+          },
           "connected_account_id": {
             "description": "Optional. The unique ID of the connected account. Use this to directly identify the connected account instead of using identifier + connector combination.",
             "type": "string",
-            "examples": [
-              "ca_123"
-            ]
+            "examples": ["ca_123"]
           },
           "connector": {
-            "description": "Optional. The name of the connector/provider (e.g., 'Google Workspace', 'Slack', 'Notion'). Use this in combination with identifier to identify the connected account.",
+            "description": "Optional. The name of the connector/provider (e.g., 'Google Workspace', 'Slack', 'Notion'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed. Use this in combination with identifier to identify the connected account.",
             "type": "string",
-            "examples": [
-              "Google Workspace"
-            ]
+            "examples": ["Google Workspace"]
           },
           "identifier": {
             "description": "Optional. The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier). Use this in combination with connector to identify the connected account.",
             "type": "string",
-            "examples": [
-              "user@example.com"
-            ]
+            "examples": ["user@example.com"]
           },
           "organization_id": {
             "description": "Optional. The organization ID to scope the connected account lookup. Use this to narrow down the search when the same identifier exists across multiple organizations.",
             "type": "string",
-            "examples": [
-              "org_123"
-            ]
+            "examples": ["org_123"]
           },
           "params": {
             "description": "JSON object containing the parameters required for tool execution. The structure depends on the specific tool being executed.",
@@ -1676,16 +2919,12 @@
           "tool_name": {
             "description": "Name of the tool to execute",
             "type": "string",
-            "examples": [
-              "send_email"
-            ]
+            "examples": ["send_email"]
           },
           "user_id": {
             "description": "Optional. The user ID to scope the connected account lookup. Use this to narrow down the search when the same identifier exists across multiple users.",
             "type": "string",
-            "examples": [
-              "user_123"
-            ]
+            "examples": ["user_123"]
           }
         }
       },
@@ -1706,22 +2945,405 @@
           "execution_id": {
             "description": "Unique identifier for the tool execution",
             "type": "string",
-            "examples": [
-              "123456789"
-            ]
+            "examples": ["123456789"]
+          }
+        }
+      },
+      "mcpToolMapping": {
+        "type": "object",
+        "properties": {
+          "connection_name": {
+            "description": "Connection name for the tool",
+            "type": "string",
+            "examples": ["MY-GMAIL"]
+          },
+          "status": {
+            "description": "Authentication status of the tool",
+            "type": "string",
+            "readOnly": true,
+            "examples": ["ACTIVE"]
+          },
+          "tool_names": {
+            "description": "List of tool names",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "examples": [["GMAIL_FETCH_MAILS", "LIST_DRAFTS"]]
+          }
+        }
+      },
+      "mcpMcp": {
+        "type": "object",
+        "properties": {
+          "connected_account_identifier": {
+            "description": "Identifier for the connected account",
+            "type": "string",
+            "examples": ["account_123"]
+          },
+          "id": {
+            "description": "Unique ID of the tool",
+            "type": "string",
+            "readOnly": true,
+            "examples": ["res_123"]
+          },
+          "tool_mappings": {
+            "description": "Provider name (e.g. GOOGLE)",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "$ref": "#/components/schemas/mcpToolMapping"
+            },
+            "examples": ["GOOGLE"]
+          },
+          "url": {
+            "description": "Unique ID of the tool",
+            "type": "string",
+            "readOnly": true,
+            "examples": ["https://example.com/mcp/v1/abc"]
+          }
+        }
+      },
+      "mcpListMcpResponse": {
+        "type": "object",
+        "properties": {
+          "mcps": {
+            "description": "List of MCPs",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "$ref": "#/components/schemas/mcpMcp"
+            }
+          }
+        }
+      },
+      "mcpCreateMcpResponse": {
+        "type": "object",
+        "properties": {
+          "mcp": {
+            "description": "The MCP server details",
+            "$ref": "#/components/schemas/mcpMcp"
+          }
+        }
+      },
+      "mcpGetMcpResponse": {
+        "type": "object",
+        "properties": {
+          "mcp": {
+            "description": "The MCP details",
+            "$ref": "#/components/schemas/mcpMcp"
+          }
+        }
+      },
+      "mcpMcpConfigConnectionToolMapping": {
+        "type": "object",
+        "properties": {
+          "connected_account_id": {
+            "description": "Connected account backing this connection in the MCP instance context",
+            "type": "string"
+          },
+          "connected_account_status": {
+            "description": "Authentication status for the connected account",
+            "type": "string"
+          },
+          "connection_id": {
+            "description": "Unique ID of the connection",
+            "type": "string",
+            "readOnly": true
+          },
+          "connection_name": {
+            "description": "Developer-assigned connection name",
+            "type": "string"
+          },
+          "provider": {
+            "description": "Provider name for this connection",
+            "type": "string",
+            "readOnly": true
+          },
+          "tools": {
+            "description": "List of tool names linked to this connection (empty = all tools)",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "mcpMcpConfig": {
+        "type": "object",
+        "properties": {
+          "connection_tool_mappings": {
+            "description": "List of connection-to-tool mappings for this MCP config",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "$ref": "#/components/schemas/mcpMcpConfigConnectionToolMapping"
+            }
+          },
+          "description": {
+            "description": "Description of the MCP configuration",
+            "type": "string",
+            "examples": ["Summarizes daily emails and posts to Slack"]
+          },
+          "id": {
+            "description": "Unique ID of the MCP config",
+            "type": "string",
+            "readOnly": true,
+            "examples": ["cfg_85630864460904897"]
+          },
+          "name": {
+            "description": "Unique name for the MCP configuration",
+            "type": "string",
+            "examples": ["daily-summarizer"]
+          }
+        }
+      },
+      "mcpListMcpConfigsResponse": {
+        "type": "object",
+        "properties": {
+          "configs": {
+            "description": "List of MCP configurations",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "$ref": "#/components/schemas/mcpMcpConfig"
+            }
+          },
+          "next_page_token": {
+            "description": "Pagination token to fetch the next page",
+            "type": "string"
+          },
+          "prev_page_token": {
+            "description": "Pagination token to fetch the previous page",
+            "type": "string"
+          },
+          "total_size": {
+            "description": "Total number of configs matching the filter",
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "mcpCreateMcpConfigResponse": {
+        "type": "object",
+        "properties": {
+          "config": {
+            "description": "The created MCP configuration",
+            "$ref": "#/components/schemas/mcpMcpConfig"
+          }
+        }
+      },
+      "mcpGetMcpConfigResponse": {
+        "type": "object",
+        "properties": {
+          "config": {
+            "description": "The requested MCP configuration",
+            "$ref": "#/components/schemas/mcpMcpConfig"
+          }
+        }
+      },
+      "McpServiceUpdateMcpConfigBody": {
+        "type": "object",
+        "properties": {
+          "connection_tool_mappings": {
+            "description": "Updated list of connection-to-tool mappings for this MCP config",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "$ref": "#/components/schemas/mcpMcpConfigConnectionToolMapping"
+            }
+          },
+          "description": {
+            "description": "Updated description for the MCP configuration",
+            "type": "string",
+            "examples": ["Updated daily summarizer config"]
+          }
+        }
+      },
+      "mcpUpdateMcpConfigResponse": {
+        "type": "object",
+        "properties": {
+          "config": {
+            "description": "The updated MCP configuration",
+            "$ref": "#/components/schemas/mcpMcpConfig"
+          }
+        }
+      },
+      "mcpMcpInstance": {
+        "type": "object",
+        "properties": {
+          "config": {
+            "description": "Configuration backing this instance",
+            "$ref": "#/components/schemas/mcpMcpConfig"
+          },
+          "id": {
+            "description": "Unique ID of the MCP instance",
+            "type": "string",
+            "readOnly": true,
+            "examples": ["inst_88630864544790977"]
+          },
+          "last_used_at": {
+            "description": "Timestamp when the instance was last used",
+            "type": "string",
+            "format": "date-time",
+            "examples": ["0001-01-01T00:00:00Z"]
+          },
+          "name": {
+            "description": "Display name of the instance",
+            "type": "string",
+            "examples": ["daily-digest"]
+          },
+          "updated_at": {
+            "description": "Timestamp when the instance was last updated",
+            "type": "string",
+            "format": "date-time",
+            "examples": ["2025-10-07T12:21:00Z"]
+          },
+          "url": {
+            "description": "URL to reach the MCP instance",
+            "type": "string",
+            "examples": ["https://example.com/mcp/v1/abc123"]
+          },
+          "user_identifier": {
+            "description": "Identifier for the user who owns or uses this instance",
+            "type": "string",
+            "examples": ["akshay.parihar"]
+          }
+        }
+      },
+      "mcpListMcpInstancesResponse": {
+        "type": "object",
+        "properties": {
+          "instances": {
+            "description": "List of MCP instances",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "$ref": "#/components/schemas/mcpMcpInstance"
+            }
+          },
+          "next_page_token": {
+            "description": "Pagination token to fetch the next page",
+            "type": "string"
+          },
+          "prev_page_token": {
+            "description": "Pagination token to fetch the previous page",
+            "type": "string"
+          },
+          "total_size": {
+            "description": "Total number of instances matching the filter",
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "mcpEnsureMcpInstanceRequest": {
+        "type": "object",
+        "properties": {
+          "config_name": {
+            "description": "Name of the MCP configuration to associate with the instance",
+            "type": "string",
+            "examples": ["daily-summarizer"]
+          },
+          "name": {
+            "description": "Display name for the MCP instance",
+            "type": "string",
+            "examples": ["daily-digest"]
+          },
+          "user_identifier": {
+            "description": "Identifier for the end user requesting the instance",
+            "type": "string",
+            "examples": ["akshay.parihar"]
+          }
+        }
+      },
+      "mcpEnsureMcpInstanceResponse": {
+        "type": "object",
+        "properties": {
+          "instance": {
+            "description": "Details of the MCP instance",
+            "$ref": "#/components/schemas/mcpMcpInstance"
+          }
+        }
+      },
+      "mcpGetMcpInstanceResponse": {
+        "type": "object",
+        "properties": {
+          "instance": {
+            "description": "The requested MCP instance",
+            "$ref": "#/components/schemas/mcpMcpInstance"
+          }
+        }
+      },
+      "McpServiceUpdateMcpInstanceBody": {
+        "type": "object",
+        "properties": {
+          "config_name": {
+            "description": "New MCP configuration name to attach to the instance",
+            "type": "string",
+            "examples": ["daily-summarizer"]
+          },
+          "name": {
+            "description": "New display name for the MCP instance",
+            "type": "string",
+            "examples": ["daily-digest-updated"]
+          }
+        }
+      },
+      "mcpUpdateMcpInstanceResponse": {
+        "type": "object",
+        "properties": {
+          "instance": {
+            "description": "Updated MCP instance",
+            "$ref": "#/components/schemas/mcpMcpInstance"
+          }
+        }
+      },
+      "mcpMcpInstanceConnectionAuthState": {
+        "type": "object",
+        "properties": {
+          "authentication_link": {
+            "description": "Magic link for reconnecting the connected account",
+            "type": "string"
+          },
+          "connected_account_id": {
+            "description": "Connected account backing the connection",
+            "type": "string"
+          },
+          "connected_account_status": {
+            "description": "Current authentication status of the connected account",
+            "type": "string"
+          },
+          "connection_id": {
+            "description": "Underlying connection identifier",
+            "type": "string"
+          },
+          "connection_name": {
+            "description": "Developer-assigned connection name",
+            "type": "string"
+          },
+          "provider": {
+            "description": "Provider backing the connection",
+            "type": "string"
+          }
+        }
+      },
+      "mcpGetMcpInstanceAuthStateResponse": {
+        "type": "object",
+        "properties": {
+          "connections": {
+            "description": "Status of each connection mapped to the instance",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "$ref": "#/components/schemas/mcpMcpInstanceConnectionAuthState"
+            }
           }
         }
       },
       "ScalekitEvent": {
         "type": "object",
-        "required": [
-          "spec_version",
-          "id",
-          "type",
-          "occurred_at",
-          "environment_id",
-          "object"
-        ],
+        "required": ["spec_version", "id", "type", "occurred_at", "environment_id", "object"],
         "properties": {
           "spec_version": {
             "type": "string",

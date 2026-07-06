@@ -116,12 +116,12 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: |-
+          source: |
             // List connections by organization id
-            const connections = await scalekit.connection.listConnections(organizationId);
+            const connections = await scalekit.connection.listConnections(organizationId)
 
             // List connections by domain
-            const connections = await scalekit.connection.listConnectionsByDomain(domain);
+            const connections = await scalekit.connection.listConnectionsByDomain(domain)
         - label: Python SDK
           lang: python
           source: |-
@@ -245,7 +245,20 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: "import { ScalekitClient } from \"@scalekit-sdk/node\";\nconst scalekit = new ScalekitClient(\n\tprocess.env.SCALEKIT_ENV_URL,\n\tprocess.env.SCALEKIT_CLIENT_ID,\n\tprocess.env.SCALEKIT_CLIENT_SECRET\n);\nawait scalekit.user.createMembership(\"org_123\", \"usr_123\", {\n\troles: [\"admin\"],\n\tmetadata: {\n\t\tdepartment: \"engineering\",\n\t\tlocation: \"nyc-office\",\n\t},\n});"
+          source: |
+            import { ScalekitClient } from '@scalekit-sdk/node'
+            const scalekit = new ScalekitClient(
+              process.env.SCALEKIT_ENV_URL,
+              process.env.SCALEKIT_CLIENT_ID,
+              process.env.SCALEKIT_CLIENT_SECRET,
+            )
+            await scalekit.user.createMembership('org_123', 'usr_123', {
+              roles: ['admin'],
+              metadata: {
+                department: 'engineering',
+                location: 'nyc-office',
+              },
+            })
         - label: Python SDK
           lang: python
           source: |-
@@ -435,7 +448,10 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: "const organizations = await scalekit.organization.listOrganization({\n\tpageSize: 10,\n});"
+          source: |
+            const organizations = await scalekit.organization.listOrganization({
+              pageSize: 10,
+            })
         - label: Python SDK
           lang: python
           source: |-
@@ -475,7 +491,10 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: "const organization = await scalekit.organization.createOrganization(name, {\n\n\texternalId: \"externalId\",\n\n});"
+          source: |
+            const organization = await scalekit.organization.createOrganization(name, {
+              externalId: 'externalId',
+            })
         - label: Python SDK
           lang: python
           source: |-
@@ -535,14 +554,14 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: |-
+          source: |
+            import { ScalekitClient } from '@scalekit-sdk/node'
             const scalekit = new ScalekitClient(
-              <SCALEKIT_ENVIRONMENT_URL>,
-              <SCALEKIT_CLIENT_ID>,
-              <SCALEKIT_CLIENT_SECRET>
-            );
-
-            const organization = await scalekit.organization.getOrganization(organization_id);
+              process.env.SCALEKIT_ENV_URL,
+              process.env.SCALEKIT_CLIENT_ID,
+              process.env.SCALEKIT_CLIENT_SECRET,
+            )
+            const organization = await scalekit.organization.getOrganization(organization_id)
         - label: Python SDK
           lang: python
           source: |-
@@ -600,7 +619,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: await scalekit.organization.deleteOrganization(organizationId);
+          source: |
+            await scalekit.organization.deleteOrganization(organizationId)
         - label: Python SDK
           lang: python
           source: scalekit_client.organization.delete_organization(organization_id)
@@ -644,11 +664,11 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: |-
+          source: |
             const organization = await scalekit.organization.updateOrganization(organization_id, {
               displayName: 'displayName',
               externalId: 'externalId',
-            });
+            })
         - label: Python SDK
           lang: python
           source: |-
@@ -728,7 +748,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: const link = await scalekit.organization.generatePortalLink(organizationId);
+          source: |
+            const link = await scalekit.organization.generatePortalLink(organizationId)
         - label: Python SDK
           lang: python
           source: |-
@@ -782,7 +803,7 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: |-
+          source: |
             const settings = {
               features: [
                 {
@@ -794,9 +815,9 @@ paths:
                   enabled: true,
                 },
               ],
-            };
+            }
 
-            await scalekit.organization.updateOrganizationSettings('<organization_id>', settings);
+            await scalekit.organization.updateOrganizationSettings('<organization_id>', settings)
         - label: Python SDK
           lang: python
           source: |-
@@ -862,7 +883,7 @@ paths:
           required: true
         - schema:
             type: string
-          description: 'Include additional data in the response. Valid values: ''permissions'' (direct permissions only), ''permissions:all'' (includes inherited permissions)'
+          description: "Include additional data in the response. Valid values: 'permissions' (direct permissions only), 'permissions:all' (includes inherited permissions)"
           name: include
           in: query
       responses:
@@ -875,7 +896,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: const res = await scalekit.role.listOrganizationRoles("org_123");
+          source: |
+            const res = await scalekit.role.listOrganizationRoles('org_123')
         - label: Python SDK
           lang: python
           source: res = scalekit_client.roles.list_organization_roles(org_id="org_123")
@@ -911,14 +933,14 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: |-
-            await scalekit.role.createOrganizationRole("org_123", {
-              name: "org_admin",
-              displayName: "Org Admin",
-              description: "Organization-scoped role",
-               extends: "base_role_name", // optional
-               permissions: ["perm.read", "perm.write"] // optional
-            });
+          source: |
+            await scalekit.role.createOrganizationRole('org_123', {
+              name: 'org_admin',
+              displayName: 'Org Admin',
+              description: 'Organization-scoped role',
+              extends: 'base_role_name', // optional
+              permissions: ['perm.read', 'perm.write'], // optional
+            })
         - label: Python SDK
           lang: python
           source: |-
@@ -987,7 +1009,7 @@ paths:
           required: true
         - schema:
             type: string
-          description: 'Include additional data in the response. Valid values: ''permissions'' (direct permissions only), ''permissions:all'' (includes inherited permissions)'
+          description: "Include additional data in the response. Valid values: 'permissions' (direct permissions only), 'permissions:all' (includes inherited permissions)"
           name: include
           in: query
       responses:
@@ -1000,7 +1022,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: const res = await scalekit.role.getOrganizationRole("org_123", "org_admin");
+          source: |
+            const res = await scalekit.role.getOrganizationRole('org_123', 'org_admin')
         - label: Python SDK
           lang: python
           source: |-
@@ -1046,11 +1069,11 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: |-
-            await scalekit.role.updateOrganizationRole("org_123", "org_admin", {
-              displayName: "Org Admin (Updated)",
-              description: "Updated org role description"
-            });
+          source: |
+            await scalekit.role.updateOrganizationRole('org_123', 'org_admin', {
+              displayName: 'Org Admin (Updated)',
+              description: 'Updated org role description',
+            })
         - label: Python SDK
           lang: python
           source: |-
@@ -1128,12 +1151,12 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: |-
+          source: |
             // Basic delete
-            await scalekit.role.deleteOrganizationRole("org_123", "org_role_admin");
+            await scalekit.role.deleteOrganizationRole('org_123', 'org_role_admin')
 
             // With reassignment
-            await scalekit.role.deleteOrganizationRole("org_123", "org_role_admin", "org_role_member");
+            await scalekit.role.deleteOrganizationRole('org_123', 'org_role_admin', 'org_role_member')
         - label: Python SDK
           lang: python
           source: |-
@@ -1190,10 +1213,10 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: |-
-            const res = await scalekit.role.updateDefaultOrganizationRoles("org_123", {
-              defaultMemberRole: "org_member"
-            });
+          source: |
+            const res = await scalekit.role.updateDefaultOrganizationRoles('org_123', {
+              defaultMemberRole: 'org_member',
+            })
         - label: Python SDK
           lang: python
           source: |-
@@ -1585,11 +1608,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: |-
-            const connection = await scalekit.connection.getConnection(
-              organizationId,
-              connectionId
-            );
+          source: |
+            const connection = await scalekit.connection.getConnection(organizationId, connectionId)
         - label: Python SDK
           lang: python
           source: |-
@@ -1636,7 +1656,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: await scalekit.connection.deleteConnection(organizationId, connectionId);
+          source: |
+            await scalekit.connection.deleteConnection(organizationId, connectionId)
         - label: Python SDK
           lang: python
           source: |-
@@ -1685,7 +1706,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: await scalekit.connection.disableConnection(organizationId, connectionId);
+          source: |
+            await scalekit.connection.disableConnection(organizationId, connectionId)
         - label: Python SDK
           lang: python
           source: |-
@@ -1734,7 +1756,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: await scalekit.connection.enableConnection(organizationId, connectionId);
+          source: |
+            await scalekit.connection.enableConnection(organizationId, connectionId)
         - label: Python SDK
           lang: python
           source: |-
@@ -1776,7 +1799,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: await scalekit.directory.listDirectories('<organization_id>');
+          source: |
+            await scalekit.directory.listDirectories('<organization_id>')
         - label: Python SDK
           lang: python
           source: "directories_list = scalekit_client.directory.list_directories(\n\torganization_id='<organization_id>'\n)"
@@ -1843,11 +1867,11 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: |-
+          source: |
             const { groups } = await scalekit.directory.listDirectoryGroups(
               '<organization_id>',
-              '<directory_id>'
-            );
+              '<directory_id>',
+            )
         - label: Python SDK
           lang: python
           source: |-
@@ -1926,11 +1950,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: |-
-            const { users } = await scalekit.directory.listDirectoryUsers(
-              '<organization_id>',
-              '<directory_id>'
-            );
+          source: |
+            const { users } = await scalekit.directory.listDirectoryUsers('<organization_id>', '<directory_id>')
         - label: Python SDK
           lang: python
           source: |-
@@ -1982,11 +2003,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: |-
-            const { directory } = await scalekit.directory.getDirectory(
-              organizationId,
-              directoryId
-            );
+          source: |
+            const { directory } = await scalekit.directory.getDirectory(organizationId, directoryId)
         - label: Python SDK
           lang: python
           source: |-
@@ -2030,11 +2048,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: |-
-            await scalekit.directory.disableDirectory(
-              '<organization_id>',
-              '<directory_id>'
-            );
+          source: |
+            await scalekit.directory.disableDirectory('<organization_id>', '<directory_id>')
         - label: Python SDK
           lang: python
           source: |-
@@ -2080,7 +2095,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: await scalekit.directory.enableDirectory('<organization_id>', '<directory_id>');
+          source: |
+            await scalekit.directory.enableDirectory('<organization_id>', '<directory_id>')
         - label: Python SDK
           lang: python
           source: |-
@@ -2154,7 +2170,17 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: "// List all domains in an organization\nconst response = await scalekit.domain.listDomains(organizationId, {\n\tdomainType: \"ORGANIZATION_DOMAIN\"\n});\n\n// Domain object contains:\n// - id: Domain identifier\n// - domain: Domain name\n// - organizationId: Owning organization\n// - domainType: Configuration type"
+          source: |
+            // List all domains in an organization
+            const response = await scalekit.domain.listDomains(organizationId, {
+              domainType: 'ORGANIZATION_DOMAIN',
+            })
+
+            // Domain object contains:
+            // - id: Domain identifier
+            // - domain: Domain name
+            // - organizationId: Owning organization
+            // - domainType: Configuration type
         - label: Python SDK
           lang: python
           source: |-
@@ -2211,7 +2237,13 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: "// Add a new domain to an organization\nconst response = await scalekit.createDomain(\"org-123\", \"example.com\", {\n\n\t// Domain type: controls user authentication and email validation\n\n\tdomainType: \"ORGANIZATION_DOMAIN\",\n\n});"
+          source: |
+            // Add a new domain to an organization
+            const response = await scalekit.createDomain('org-123', 'example.com', {
+              // Domain type: controls user authentication and email validation
+
+              domainType: 'ORGANIZATION_DOMAIN',
+            })
         - label: Python SDK
           lang: python
           source: "# Add a new domain to an organization\nresponse = scalekit_client.domain.create_domain(organization_id=\"org-123\",\n\n\t\t\tdomain_name=\"example.com\",\n \t\t\tdomain_type=\"ORGANIZATION_DOMAIN\")"
@@ -2260,9 +2292,9 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: |-
+          source: |
             // Fetch details of a specific domain
-            const response = await scalekit.domain.getDomain(organizationId, domainId);
+            const response = await scalekit.domain.getDomain(organizationId, domainId)
 
             // Domain object properties:
             // - id: Domain identifier
@@ -2313,10 +2345,10 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: |-
+          source: |
             // Remove a domain from an organization
             // Caution: Deletion is permanent and may affect user access
-            const response = await scalekit.domain.deleteDomain(organizationId, domainId);
+            const response = await scalekit.domain.deleteDomain(organizationId, domainId)
         - label: Python SDK
           lang: python
           source: |-
@@ -2451,7 +2483,11 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: "const response = await scalekit.user.\n  listOrganizationUsers(\"org_123\", {\n\tpageSize: 50,\n});\nconsole.log(response.users);"
+          source: |
+            const response = await scalekit.user.listOrganizationUsers('org_123', {
+              pageSize: 50,
+            })
+            console.log(response.users)
         - label: Python SDK
           lang: python
           source: resp, _ = scalekit_client.users.list_users(organization_id="org_123", page_size=50)
@@ -2498,7 +2534,16 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: "const {\n   user } = await scalekit.user.\n    createUserAndMembership(\"org_123\", {\n\temail: \"user@example.com\",\n\texternalId: \"ext_12345a67b89c\",\n\tmetadata: { department: \"engineering\", \n\t  location: \"nyc-office\" },\n\tuserProfile: {\n\t\tfirstName: \"John\",\n\t\tlastName: \"Doe\",\n\t},\n});"
+          source: |
+            const { user } = await scalekit.user.createUserAndMembership('org_123', {
+              email: 'user@example.com',
+              externalId: 'ext_12345a67b89c',
+              metadata: { department: 'engineering', location: 'nyc-office' },
+              userProfile: {
+                firstName: 'John',
+                lastName: 'Doe',
+              },
+            })
         - label: Python SDK
           lang: python
           source: |-
@@ -2601,7 +2646,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: const { permissions } = await scalekit.user.listUserPermissions("org_123", "usr_123");
+          source: |
+            const { permissions } = await scalekit.user.listUserPermissions('org_123', 'usr_123')
         - label: Python SDK
           lang: python
           source: |-
@@ -2653,7 +2699,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: const { roles } = await scalekit.user.listUserRoles("org_123", "usr_123");
+          source: |
+            const { roles } = await scalekit.user.listUserRoles('org_123', 'usr_123')
         - label: Python SDK
           lang: python
           source: |-
@@ -2780,7 +2827,9 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: "const { authRequestId } = sendResponse;\nconst resendResponse = await scalekit.passwordless.resendPasswordlessEmail(\n\n\tauthRequestId\n\n);"
+          source: |
+            const { authRequestId } = sendResponse
+            const resendResponse = await scalekit.passwordless.resendPasswordlessEmail(authRequestId)
         - label: Python SDK
           lang: python
           source: |-
@@ -2828,7 +2877,17 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: "const response = await scalekit.passwordless.sendPasswordlessEmail(\n\t\"john.doe@example.com\",\n\t{\n\t\ttemplate: \"SIGNIN\",\n\t\texpiresIn: 100,\n\t\tmagiclinkAuthUri: \"https://www.google.com\",\n\t\ttemplateVariables: {\n\t\t\temployeeID: \"EMP523\",\n\t\t\tteamName: \"Alpha Team\",\n\t\t\tsupportEmail: \"support@yourcompany.com\",\n\t\t},\n\t}\n);"
+          source: |
+            const response = await scalekit.passwordless.sendPasswordlessEmail('john.doe@example.com', {
+              template: 'SIGNIN',
+              expiresIn: 100,
+              magiclinkAuthUri: 'https://www.google.com',
+              templateVariables: {
+                employeeID: 'EMP523',
+                teamName: 'Alpha Team',
+                supportEmail: 'support@yourcompany.com',
+              },
+            })
         - label: Python SDK
           lang: python
           source: |-
@@ -2915,7 +2974,19 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: "const { authRequestId } = sendResponse;\nconst verifyResponse = await scalekit.passwordless.verifyPasswordlessEmail(\n\n\t// Verification Code (OTP)\n\n\t{ code: \"123456\" },\n\n\t// Magic Link Token\n\n\t{ linkToken: link_token },\n\n\tauthRequestId\n\n);"
+          source: |
+            const { authRequestId } = sendResponse
+            const verifyResponse = await scalekit.passwordless.verifyPasswordlessEmail(
+              // Verification Code (OTP)
+
+              { code: '123456' },
+
+              // Magic Link Token
+
+              { linkToken: link_token },
+
+              authRequestId,
+            )
         - label: Python SDK
           lang: python
           source: |-
@@ -3028,7 +3099,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: const res = await scalekit.permission.listPermissions();
+          source: |
+            const res = await scalekit.permission.listPermissions()
         - label: Python SDK
           lang: python
           source: res = scalekit_client.permissions.list_permissions()
@@ -3057,11 +3129,11 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: |-
+          source: |
             await scalekit.permission.createPermission({
-              name: "read:users",
-              description: "Allows reading users"
-            });
+              name: 'read:users',
+              description: 'Allows reading users',
+            })
         - label: Python SDK
           lang: python
           source: |-
@@ -3119,7 +3191,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: const res = await scalekit.permission.getPermission("read:users");
+          source: |
+            const res = await scalekit.permission.getPermission('read:users')
         - label: Python SDK
           lang: python
           source: |-
@@ -3158,11 +3231,11 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: |-
-            await scalekit.permission.updatePermission("read:users", {
-              name: "read:users",
-              description: "Allows reading user resources"
-            });
+          source: |
+            await scalekit.permission.updatePermission('read:users', {
+              name: 'read:users',
+              description: 'Allows reading user resources',
+            })
         - label: Python SDK
           lang: python
           source: |-
@@ -3226,7 +3299,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: await scalekit.permission.deletePermission("read:users");
+          source: |
+            await scalekit.permission.deletePermission('read:users')
         - label: Python SDK
           lang: python
           source: |-
@@ -3251,7 +3325,7 @@ paths:
       parameters:
         - schema:
             type: string
-          description: 'Include additional data in the response. Valid values: ''permissions'' (direct permissions only), ''permissions:all'' (includes inherited permissions from role hierarchy)'
+          description: "Include additional data in the response. Valid values: 'permissions' (direct permissions only), 'permissions:all' (includes inherited permissions from role hierarchy)"
           name: include
           in: query
       responses:
@@ -3264,7 +3338,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: const res = await scalekit.role.listRoles();
+          source: |
+            const res = await scalekit.role.listRoles()
         - label: Python SDK
           lang: python
           source: res = scalekit_client.roles.list_roles()
@@ -3293,14 +3368,14 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: |-
+          source: |
             await scalekit.role.createRole({
-              name: "admin",
-              displayName: "Admin",
-              description: "Environment-level role",
-              extends: "base_role",                // optional
-              permissions: ["read:users"]          // optional
-            });
+              name: 'admin',
+              displayName: 'Admin',
+              description: 'Environment-level role',
+              extends: 'base_role', // optional
+              permissions: ['read:users'], // optional
+            })
         - label: Python SDK
           lang: python
           source: |-
@@ -3384,7 +3459,7 @@ paths:
           required: true
         - schema:
             type: string
-          description: 'Include additional data in the response. Valid values: ''permissions'' (direct permissions only), ''permissions:all'' (includes inherited permissions from role hierarchy)'
+          description: "Include additional data in the response. Valid values: 'permissions' (direct permissions only), 'permissions:all' (includes inherited permissions from role hierarchy)"
           name: include
           in: query
       responses:
@@ -3397,7 +3472,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: const res = await scalekit.role.getRole("admin");
+          source: |
+            const res = await scalekit.role.getRole('admin')
         - label: Python SDK
           lang: python
           source: res = scalekit_client.roles.get_role(role_name="admin")
@@ -3433,11 +3509,11 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: |-
-            await scalekit.role.updateRole("admin", {
-              displayName: "Admin (Updated)",
-              description: "Updated description"
-            });
+          source: |
+            await scalekit.role.updateRole('admin', {
+              displayName: 'Admin (Updated)',
+              description: 'Updated description',
+            })
         - label: Python SDK
           lang: python
           source: |-
@@ -3515,12 +3591,12 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: |-
+          source: |
             // Basic delete
-            await scalekit.role.deleteRole("admin");
+            await scalekit.role.deleteRole('admin')
 
             // With reassignment
-            await scalekit.role.deleteRole("admin", "member");
+            await scalekit.role.deleteRole('admin', 'member')
         - label: Python SDK
           lang: python
           source: |-
@@ -3573,7 +3649,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: const res = await scalekit.role.listDependentRoles("admin");
+          source: |
+            const res = await scalekit.role.listDependentRoles('admin')
         - label: Python SDK
           lang: python
           source: res = scalekit_client.roles.list_dependent_roles(role_name="admin")
@@ -3610,7 +3687,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: const res = await scalekit.permission.listRolePermissions("admin");
+          source: |
+            const res = await scalekit.permission.listRolePermissions('admin')
         - label: Python SDK
           lang: python
           source: res = scalekit_client.permissions.list_role_permissions(role_name="admin")
@@ -3646,7 +3724,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: await scalekit.permission.addPermissionsToRole("role_admin", ["perm.read", "perm.write"]);
+          source: |
+            await scalekit.permission.addPermissionsToRole('role_admin', ['perm.read', 'perm.write'])
         - label: Python SDK
           lang: python
           source: |-
@@ -3702,7 +3781,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: await scalekit.permission.removePermissionFromRole("admin", "read:users");
+          source: |
+            await scalekit.permission.removePermissionFromRole('admin', 'read:users')
         - label: Python SDK
           lang: python
           source: |-
@@ -3763,7 +3843,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: const res = await scalekit.role.getRoleUsersCount("admin");
+          source: |
+            const res = await scalekit.role.getRoleUsersCount('admin')
         - label: Python SDK
           lang: python
           source: res = scalekit_client.roles.get_role_users_count(role_name="admin")
@@ -3793,10 +3874,10 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: |-
+          source: |
             const res = await scalekit.role.updateDefaultRoles({
-              defaultMemberRole: "member"
-            });
+              defaultMemberRole: 'member',
+            })
         - label: Python SDK
           lang: python
           source: |-
@@ -3851,7 +3932,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: const res = await scalekit.session.getSession("ses_123456789");
+          source: |
+            const res = await scalekit.session.getSession('ses_123456789')
         - label: Python SDK
           lang: python
           source: res = scalekit_client.sessions.get_session(session_id="ses_123456789")
@@ -3888,7 +3970,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: const res = await scalekit.session.revokeSession("ses_123456789");
+          source: |
+            const res = await scalekit.session.revokeSession('ses_123456789')
         - label: Python SDK
           lang: python
           source: res = scalekit_client.sessions.revoke_session(session_id="ses_123456789")
@@ -3930,9 +4013,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: |-
-            const response = await scalekit.user.listUsers(
-              { pageSize: 100 });
+          source: |
+            const response = await scalekit.user.listUsers({ pageSize: 100 })
         - label: Python SDK
           lang: python
           source: |-
@@ -3976,7 +4058,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: const { user } = await scalekit.user.getUser("usr_123456");
+          source: |
+            const { user } = await scalekit.user.getUser('usr_123456')
         - label: Python SDK
           lang: python
           source: |-
@@ -4022,7 +4105,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: await scalekit.user.deleteUser("usr_123");
+          source: |
+            await scalekit.user.deleteUser('usr_123')
         - label: Python SDK
           lang: python
           source: |-
@@ -4066,7 +4150,16 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: "await scalekit.user.updateUser(\"usr_123\", {\n\tuserProfile: {\n\t\tfirstName: \"John\",\n\t\tlastName: \"Smith\",\n\t},\n\tmetadata: {\n\t\tdepartment: \"sales\",\n\t},\n});"
+          source: |
+            await scalekit.user.updateUser('usr_123', {
+              userProfile: {
+                firstName: 'John',
+                lastName: 'Smith',
+              },
+              metadata: {
+                department: 'sales',
+              },
+            })
         - label: Python SDK
           lang: python
           source: |-
@@ -4156,7 +4249,7 @@ paths:
               type: string
           style: form
           explode: true
-          description: 'Filter sessions by one or more status values. Possible values: ''active'', ''expired'', ''revoked'', ''logout''. Leave empty to include all statuses. Multiple values use OR logic (e.g., status=[''active'', ''expired''] returns sessions that are either active OR expired).'
+          description: "Filter sessions by one or more status values. Possible values: 'active', 'expired', 'revoked', 'logout'. Leave empty to include all statuses. Multiple values use OR logic (e.g., status=['active', 'expired'] returns sessions that are either active OR expired)."
           name: filter.status
           in: query
         - schema:
@@ -4181,20 +4274,20 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: |-
+          source: |
             // Basic usage
-            const res = await scalekit.session.getUserSessions("user_123");
+            const res = await scalekit.session.getUserSessions('user_123')
 
             // With pagination and filtering
-            const res = await scalekit.session.getUserSessions("user_123", {
+            const res = await scalekit.session.getUserSessions('user_123', {
               pageSize: 10,
-              pageToken: "next_page_token",
+              pageToken: 'next_page_token',
               filter: {
-                status: ["ACTIVE"],
-                startTime: new Date("2024-01-01"),
-                endTime: new Date("2024-12-31")
-              }
-            });
+                status: ['ACTIVE'],
+                startTime: new Date('2024-01-01'),
+                endTime: new Date('2024-12-31'),
+              },
+            })
         - label: Python SDK
           lang: python
           source: |-
@@ -4272,7 +4365,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: const res = await scalekit.session.revokeAllUserSessions("user_123");
+          source: |
+            const res = await scalekit.session.revokeAllUserSessions('user_123')
         - label: Python SDK
           lang: python
           source: res = scalekit_client.sessions.revoke_all_user_sessions(user_id="user_123")
@@ -4349,7 +4443,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: const res = await scalekit.webauthn.listCredentials("user_123");
+          source: |
+            const res = await scalekit.webauthn.listCredentials('user_123')
         - label: Python SDK
           lang: python
           source: res = scalekit_client.webauthn.list_credentials(user_id="user_123")
@@ -4386,7 +4481,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: const res = await scalekit.webauthn.deleteCredential("wac_123");
+          source: |
+            const res = await scalekit.webauthn.deleteCredential('wac_123')
         - label: Python SDK
           lang: python
           source: res = scalekit_client.webauthn.delete_credential(credential_id="wac_123")
@@ -4422,11 +4518,8 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: |-
-            const res = await scalekit.webauthn.updateCredential(
-              "wac_123",
-              "Work Laptop Passkey"
-            );
+          source: |
+            const res = await scalekit.webauthn.updateCredential('wac_123', 'Work Laptop Passkey')
         - label: Python SDK
           lang: python
           source: |-
@@ -7528,7 +7621,7 @@ components:
           type: array
           items:
             type: string
-            default: '[''ATTESTATION_KEY_COMPROMISE'', ''USER_VERIFICATION_BYPASS'', ''USER_KEY_REMOTE_COMPROMISE'', ''USER_KEY_PHYSICAL_COMPROMISE'', ''REVOKED'']'
+            default: "['ATTESTATION_KEY_COMPROMISE', 'USER_VERIFICATION_BYPASS', 'USER_KEY_REMOTE_COMPROMISE', 'USER_KEY_PHYSICAL_COMPROMISE', 'REVOKED']"
         validate_anchors:
           description: when set to true enables the validation of the attestation statement against the trust anchor from the metadata statement.
           type: boolean
@@ -7608,7 +7701,7 @@ components:
       type: object
       properties:
         attribute_mapping:
-          description: 'Maps identity provider attributes to user profile fields. For example, {''email'': ''user.mail'', ''name'': ''user.displayName''}.'
+          description: "Maps identity provider attributes to user profile fields. For example, {'email': 'user.mail', 'name': 'user.displayName'}."
           type: object
           additionalProperties:
             type: string
@@ -8138,7 +8231,7 @@ components:
           examples:
             - 360
         absolute_session_timeout_unit:
-          description: 'Unit for absolute_session_timeout. Accepted values: ''minutes'', ''hours'', ''days''. Responses always return ''minutes''.'
+          description: "Unit for absolute_session_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'."
           $ref: '#/components/schemas/commonsTimeUnit'
           examples:
             - minutes
@@ -8154,7 +8247,7 @@ components:
           examples:
             - true
         idle_session_timeout_unit:
-          description: 'Unit for idle_session_timeout. Accepted values: ''minutes'', ''hours'', ''days''. Responses always return ''minutes''.'
+          description: "Unit for idle_session_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'."
           $ref: '#/components/schemas/commonsTimeUnit'
           examples:
             - minutes
@@ -8179,7 +8272,7 @@ components:
           examples:
             - 360
         absolute_session_timeout_unit:
-          description: 'Unit for absolute_session_timeout. Accepted values: ''MINUTES'', ''HOURS'', ''DAYS''. Defaults to MINUTES.'
+          description: "Unit for absolute_session_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES."
           $ref: '#/components/schemas/commonsTimeUnit'
           examples:
             - MINUTES
@@ -8195,7 +8288,7 @@ components:
           examples:
             - true
         idle_session_timeout_unit:
-          description: 'Unit for idle_session_timeout. Accepted values: ''MINUTES'', ''HOURS'', ''DAYS''. Defaults to MINUTES.'
+          description: "Unit for idle_session_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES."
           $ref: '#/components/schemas/commonsTimeUnit'
           examples:
             - MINUTES
@@ -8840,12 +8933,12 @@ components:
           examples:
             - San Francisco
         latitude:
-          description: 'Latitude coordinate of the estimated location. Decimal format (e.g., ''37.7749''). Note: Represents IP geolocation center and may not be precise.'
+          description: "Latitude coordinate of the estimated location. Decimal format (e.g., '37.7749'). Note: Represents IP geolocation center and may not be precise."
           type: string
           examples:
             - '37.7749'
         longitude:
-          description: 'Longitude coordinate of the estimated location. Decimal format (e.g., ''-122.4194''). Note: Represents IP geolocation center and may not be precise.'
+          description: "Longitude coordinate of the estimated location. Decimal format (e.g., '-122.4194'). Note: Represents IP geolocation center and may not be precise."
           type: string
           examples:
             - '-122.4194'
@@ -8873,7 +8966,7 @@ components:
           examples:
             - 120.0.0.0
         device_type:
-          description: 'Categorized device type classification. Possible values: ''desktop'' (traditional computers), ''mobile'' (smartphones and small tablets), ''tablet'' (large tablets), ''other''. Useful for displaying session information by device category.'
+          description: "Categorized device type classification. Possible values: 'desktop' (traditional computers), 'mobile' (smartphones and small tablets), 'tablet' (large tablets), 'other'. Useful for displaying session information by device category."
           type: string
           examples:
             - desktop
@@ -8883,7 +8976,7 @@ components:
           examples:
             - 192.0.2.1
         location:
-          description: 'Geographic location information derived from IP address geolocation. Includes country, region, city, and coordinates. Note: Based on IP location data and may not represent the user''s exact physical location.'
+          description: "Geographic location information derived from IP address geolocation. Includes country, region, city, and coordinates. Note: Based on IP location data and may not represent the user's exact physical location."
           $ref: '#/components/schemas/v1sessionsLocation'
         os:
           description: 'Operating system name extracted from the user agent and device headers. Examples: macOS, Windows, Linux, iOS, Android.'
@@ -8967,7 +9060,7 @@ components:
           examples:
             - ses_1234567890123456
         status:
-          description: 'Current operational status of the session. Possible values: ''active'' (session is valid and requests are allowed), ''expired'' (session terminated due to idle or absolute timeout), ''revoked'' (session was administratively revoked), ''logout'' (user explicitly logged out). Use this to determine if the session can be used for new requests.'
+          description: "Current operational status of the session. Possible values: 'active' (session is valid and requests are allowed), 'expired' (session terminated due to idle or absolute timeout), 'revoked' (session was administratively revoked), 'logout' (user explicitly logged out). Use this to determine if the session can be used for new requests."
           type: string
           examples:
             - active
@@ -9095,7 +9188,7 @@ components:
           examples:
             - Doe
         first_name:
-          description: '[DEPRECATED] Use given_name instead. User''s given name. Maximum 200 characters.'
+          description: "[DEPRECATED] Use given_name instead. User's given name. Maximum 200 characters."
           type: string
           examples:
             - John
@@ -9118,7 +9211,7 @@ components:
             - - engineering
               - managers
         last_name:
-          description: '[DEPRECATED] Use family_name instead. User''s family name. Maximum 200 characters.'
+          description: "[DEPRECATED] Use family_name instead. User's family name. Maximum 200 characters."
           type: string
           examples:
             - Doe

@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "netlify dev:exec pnpm run start",
     "start": "cross-env NETLIFY_DEV=1 astro dev",
-    "build": "node scripts/generate-agent-tools-index.js && pnpm format:check && astro build && node scripts/generate-llms-index.js",
+    "build": "node scripts/generate-agent-tools-index.js && pnpm run bundle:apis && pnpm format:check && astro build && node scripts/generate-llms-index.js",
     "agent-markdown:audit": "node scripts/agent-markdown-audit.js",
     "agent-markdown:audit:strict": "node scripts/agent-markdown-audit.js --strict",
     "preview": "astro preview",
@@ -19,8 +19,8 @@
     "reorder-swagger": "node scripts/reorder-swagger.js public/api/scalekit.scalar.json",
     "split-api": "redocly split public/api/scalekit.scalar.yaml --outDir=openapi && redocly bundle agentkit --remove-unused-components && redocly bundle saaskit --remove-unused-components",
     "split-api:lint": "redocly lint openapi/agentkit.yaml && redocly lint openapi/saaskit.yaml",
-    "bundle:agentkit": "redocly bundle agentkit --remove-unused-components --output public/api/agentkit.scalar.yaml",
-    "bundle:saaskit": "redocly bundle saaskit --remove-unused-components --output public/api/saaskit.scalar.yaml",
+    "bundle:agentkit": "redocly bundle agentkit --remove-unused-components --output public/api/agentkit.scalar.yaml && redocly bundle agentkit --remove-unused-components --ext json",
+    "bundle:saaskit": "redocly bundle saaskit --remove-unused-components --output public/api/saaskit.scalar.yaml && redocly bundle saaskit --remove-unused-components --ext json",
     "bundle:apis": "pnpm run bundle:agentkit && pnpm run bundle:saaskit",
     "sync-agent-connectors": "node scripts/sync-agent-connectors.js"
   },
