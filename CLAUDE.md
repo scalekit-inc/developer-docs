@@ -529,6 +529,13 @@ Documentation must be organized into logical sections (FSA, SSO, Directory/SCIM,
 3. **Temporary Changes**: Direct edits to spec files in `public/api/` are temporary and will be overwritten
 4. **Permanent Changes**: All API reference changes MUST be made in the `scalekit-inc/scalekit` repository
 
+### Diagram SVGs (d2)
+
+Diagrams authored in fenced `d2` code blocks render to SVG files under `public/d2/`. Netlify sets `skipGeneration` for `astro-d2` (`skipGeneration: !!process.env['NETLIFY']` in `astro.config.mjs`), so production builds do NOT run the `d2` binary — they serve the pre-generated SVGs committed to the repository. A local build regenerates SVGs on the fly, which hides the problem locally.
+
+- **Check in the SVGs for the diagrams you add or change**: When you add or edit a `d2` block, run a local build (or `pnpm dev`) to generate its SVG under `public/d2/…`, then commit that file alongside your MDX. Without it, the Netlify deploy fails when it renders the page.
+- **Commit only the SVGs related to your change**: A local build often rewrites unrelated SVGs due to `d2` version drift. Reset those with `git checkout -- <file>` and stage only the SVGs for the pages you actually touched — never commit the full `public/d2/` churn.
+
 ### Adding New Concepts
 
 Before creating new documentation articles:
