@@ -1,4 +1,3 @@
-{/* TODO: stub cloned from _section-after-setup-hubspot-common-workflows.mdx for  SMART App on FHIR. Review and update connector-specific references (URLs, scopes, app-registration steps) before merging. */}
 export const sectionTitle = 'Common workflows'
 
 import { Tabs, TabItem } from '@astrojs/starlight/components'
@@ -6,13 +5,15 @@ import { Tabs, TabItem } from '@astrojs/starlight/components'
 <details>
 <summary>Proxy API call</summary>
 
+Call the FHIR server's REST API directly through the Scalekit proxy. Use standard FHIR search paths such as `/Patient` or `/Observation`.
+
 <Tabs syncKey="tech-stack">
   <TabItem label="Node.js">
     ```typescript
     const result = await actions.request({
       connectionName: 'customsmartfhir',
       identifier: 'user_123',
-      path: '/crm/v3/owners',
+      path: '/Patient?family=Smith&_count=10',
       method: 'GET',
     });
     console.log(result);
@@ -23,7 +24,7 @@ import { Tabs, TabItem } from '@astrojs/starlight/components'
     result = actions.request(
         connection_name='customsmartfhir',
         identifier='user_123',
-        path="/crm/v3/owners",
+        path="/Patient?family=Smith&_count=10",
         method="GET"
     )
     print(result)
@@ -34,43 +35,39 @@ import { Tabs, TabItem } from '@astrojs/starlight/components'
 </details>
 
 <details>
-<summary>Create a contact</summary>
+<summary>Search for patients</summary>
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Node.js">
     ```typescript
-    const contact = await actions.executeTool({
+    const patients = await actions.executeTool({
       connector: 'customsmartfhir',
       identifier: 'user_123',
-      toolName: 'customsmartfhir_contact_create',
+      toolName: 'customsmartfhir_patient_search',
       toolInput: {
-        email: 'jane.smith@acme.com',
-        firstname: 'Jane',
-        lastname: 'Smith',
-        jobtitle: 'VP of Engineering',
-        company: 'Acme Corp',
-        lifecyclestage: 'lead',
+        family: 'Smith',
+        given: 'Jane',
+        birthdate: '1985-04-12',
+        _count: 10,
       },
     });
-    console.log('Created contact ID:', contact.id);
+    console.log('Matching patients:', patients);
     ```
   </TabItem>
   <TabItem label="Python">
     ```python
-    contact = actions.execute_tool(
+    patients = actions.execute_tool(
         connection_name='customsmartfhir',
         identifier='user_123',
-        tool_name="customsmartfhir_contact_create",
+        tool_name="customsmartfhir_patient_search",
         tool_input={
-            "email": "jane.smith@acme.com",
-            "firstname": "Jane",
-            "lastname": "Smith",
-            "jobtitle": "VP of Engineering",
-            "company": "Acme Corp",
-            "lifecyclestage": "lead",
+            "family": "Smith",
+            "given": "Jane",
+            "birthdate": "1985-04-12",
+            "_count": 10,
         },
     )
-    print("Created contact ID:", contact["id"])
+    print("Matching patients:", patients)
     ```
   </TabItem>
 </Tabs>
@@ -78,45 +75,39 @@ import { Tabs, TabItem } from '@astrojs/starlight/components'
 </details>
 
 <details>
-<summary>Search deals</summary>
+<summary>Retrieve everything for a patient</summary>
+
+Invoke the FHIR `$everything` operation to pull all clinical resources for one patient in a single Bundle. Pass `_type` to limit the response to specific resource types.
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Node.js">
     ```typescript
-    const deals = await actions.executeTool({
+    const bundle = await actions.executeTool({
       connector: 'customsmartfhir',
       identifier: 'user_123',
-      toolName: 'customsmartfhir_deals_search',
+      toolName: 'customsmartfhir_patient_everything',
       toolInput: {
-        query: 'enterprise',
-        filterGroups: JSON.stringify([{
-          filters: [{ propertyName: 'dealstage', operator: 'EQ', value: 'qualifiedtobuy' }]
-        }]),
-        properties: 'dealname,amount,dealstage,closedate',
-        limit: 10,
+        patient_id: 'a1b2c3d4-0000-1111-2222-333344445555',
+        _type: 'Condition,Observation,MedicationRequest',
+        _count: 50,
       },
     });
-    console.log('Found deals:', deals.results);
+    console.log('Bundle entries:', bundle);
     ```
   </TabItem>
   <TabItem label="Python">
     ```python
-    import json
-
-    deals = actions.execute_tool(
+    bundle = actions.execute_tool(
         connection_name='customsmartfhir',
         identifier='user_123',
-        tool_name="customsmartfhir_deals_search",
+        tool_name="customsmartfhir_patient_everything",
         tool_input={
-            "query": "enterprise",
-            "filterGroups": json.dumps([{
-                "filters": [{"propertyName": "dealstage", "operator": "EQ", "value": "qualifiedtobuy"}]
-            }]),
-            "properties": "dealname,amount,dealstage,closedate",
-            "limit": 10,
+            "patient_id": "a1b2c3d4-0000-1111-2222-333344445555",
+            "_type": "Condition,Observation,MedicationRequest",
+            "_count": 50,
         },
     )
-    print("Found deals:", deals["results"])
+    print("Bundle entries:", bundle)
     ```
   </TabItem>
 </Tabs>
@@ -124,113 +115,93 @@ import { Tabs, TabItem } from '@astrojs/starlight/components'
 </details>
 
 <details>
-<summary>Log a call</summary>
+<summary>Search a patient's observations</summary>
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Node.js">
     ```typescript
-    const call = await actions.executeTool({
+    const observations = await actions.executeTool({
       connector: 'customsmartfhir',
       identifier: 'user_123',
-      toolName: 'customsmartfhir_call_log',
+      toolName: 'customsmartfhir_observation_search',
       toolInput: {
-        hs_call_title: 'Q4 Renewal Discussion',
-        hs_timestamp: new Date().toISOString(),
-        hs_call_body: 'Discussed renewal terms. Customer is interested in the enterprise plan.',
-        hs_call_direction: 'OUTBOUND',
-        hs_call_duration: 900000, // 15 minutes in ms
-        hs_call_status: 'COMPLETED',
+        patient: 'a1b2c3d4-0000-1111-2222-333344445555',
+        category: 'vital-signs',
+        date: 'ge2026-01-01',
+        _count: 25,
       },
     });
-    console.log('Logged call ID:', call.id);
+    console.log('Observations:', observations);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    observations = actions.execute_tool(
+        connection_name='customsmartfhir',
+        identifier='user_123',
+        tool_name="customsmartfhir_observation_search",
+        tool_input={
+            "patient": "a1b2c3d4-0000-1111-2222-333344445555",
+            "category": "vital-signs",
+            "date": "ge2026-01-01",
+            "_count": 25,
+        },
+    )
+    print("Observations:", observations)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Record a vital-sign observation</summary>
+
+Create an Observation such as a heart-rate reading. The `code` and `code_system` identify the measurement — this example uses the LOINC code `8867-4` (Heart rate).
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const observation = await actions.executeTool({
+      connector: 'customsmartfhir',
+      identifier: 'user_123',
+      toolName: 'customsmartfhir_observation_create',
+      toolInput: {
+        patient_id: 'a1b2c3d4-0000-1111-2222-333344445555',
+        status: 'final',
+        code: '8867-4',
+        code_system: 'http://loinc.org',
+        code_display: 'Heart rate',
+        category: 'vital-signs',
+        effective_date_time: new Date().toISOString(),
+        value: 72,
+        unit: '/min',
+      },
+    });
+    console.log('Created observation:', observation);
     ```
   </TabItem>
   <TabItem label="Python">
     ```python
     from datetime import datetime, timezone
 
-    call = actions.execute_tool(
+    observation = actions.execute_tool(
         connection_name='customsmartfhir',
         identifier='user_123',
-        tool_name="customsmartfhir_call_log",
+        tool_name="customsmartfhir_observation_create",
         tool_input={
-            "hs_call_title": "Q4 Renewal Discussion",
-            "hs_timestamp": datetime.now(timezone.utc).isoformat(),
-            "hs_call_body": "Discussed renewal terms. Customer is interested in the enterprise plan.",
-            "hs_call_direction": "OUTBOUND",
-            "hs_call_duration": 900000,  # 15 minutes in ms
-            "hs_call_status": "COMPLETED",
+            "patient_id": "a1b2c3d4-0000-1111-2222-333344445555",
+            "status": "final",
+            "code": "8867-4",
+            "code_system": "http://loinc.org",
+            "code_display": "Heart rate",
+            "category": "vital-signs",
+            "effective_date_time": datetime.now(timezone.utc).isoformat(),
+            "value": 72,
+            "unit": "/min",
         },
     )
-    print("Logged call ID:", call["id"])
-    ```
-  </TabItem>
-</Tabs>
-
-</details>
-
-<details>
-<summary>Create and associate a ticket</summary>
-
-<Tabs syncKey="tech-stack">
-  <TabItem label="Node.js">
-    ```typescript
-    // Create the ticket
-    const ticket = await actions.executeTool({
-      connector: 'customsmartfhir',
-      identifier: 'user_123',
-      toolName: 'customsmartfhir_ticket_create',
-      toolInput: {
-        subject: 'Cannot export data to CSV',
-        hs_pipeline_stage: '1', // "New" stage
-        content: 'Customer reports that the CSV export button is unresponsive on the Reports page.',
-        hs_ticket_priority: 'HIGH',
-      },
-    });
-
-    // Associate with a contact
-    await actions.executeTool({
-      connector: 'customsmartfhir',
-      identifier: 'user_123',
-      toolName: 'customsmartfhir_association_create',
-      toolInput: {
-        from_object_type: 'tickets',
-        from_object_id: ticket.id,
-        to_object_type: 'contacts',
-        to_object_id: '12345',
-      },
-    });
-    console.log('Ticket created and associated:', ticket.id);
-    ```
-  </TabItem>
-  <TabItem label="Python">
-    ```python
-    # Create the ticket
-    ticket = actions.execute_tool(
-        connection_name='customsmartfhir',
-        identifier='user_123',
-        tool_name="customsmartfhir_ticket_create",
-        tool_input={
-            "subject": "Cannot export data to CSV",
-            "hs_pipeline_stage": "1",  # "New" stage
-            "content": "Customer reports that the CSV export button is unresponsive on the Reports page.",
-            "hs_ticket_priority": "HIGH",
-        },
-    )
-
-    # Associate with a contact
-    actions.execute_tool(
-        connection_name='customsmartfhir',
-        identifier='user_123',
-        tool_name="customsmartfhir_association_create",
-        tool_input={
-            "from_object_type": "tickets",
-            "from_object_id": ticket["id"],
-            "to_object_type": "contacts",
-            "to_object_id": "12345",
-        },
-    )
-    print("Ticket created and associated:", ticket["id"])
+    print("Created observation:", observation)
     ```
   </TabItem>
 </Tabs>
