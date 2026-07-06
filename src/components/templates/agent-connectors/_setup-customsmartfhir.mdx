@@ -1,0 +1,72 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+SMART App on FHIR uses an OAuth 2.0 authorization code flow with PKCE. Because every FHIR server exposes its own endpoints, you supply the authorization and token endpoints, the audience (`aud`), and the FHIR server domain when you create the connection. You also register a client with your FHIR server to obtain a client ID, and a client secret if the server issues one.
+
+<Steps>
+1. ### Discover your FHIR server's SMART configuration
+
+   Every SMART on FHIR server publishes its OAuth endpoints at a well-known discovery URL:
+
+   ```text
+   <fhir-base-url>/.well-known/smart-configuration
+   ```
+
+   Fetch that URL and note these values:
+
+   - `authorization_endpoint` — the **Authorization endpoint**
+   - `token_endpoint` — the **Token endpoint**
+   - the FHIR server base URL, for example `https://fhir.example.com/r4` — this gives you both the **Audience (`aud`)** value and the **FHIR server domain** (the same URL without the `https://` scheme, for example `fhir.example.com`)
+
+   {/* TODO: add provider-specific steps — where to find the FHIR base URL for this specific EHR/FHIR server (for example, an Epic App Orchard sandbox URL or a Cerner Code Console tenant URL) */}
+
+   <Aside type="note" title="Why aud is required">
+     SMART on FHIR requires every authorization request to include an `aud` parameter set to the FHIR resource server's base URL. If `aud` doesn't match the server exactly, the authorization request fails.
+   </Aside>
+
+2. ### Register an app with your FHIR server
+
+   - Register a new app in your FHIR server's developer portal or app-registration console to obtain a **client ID**. Scalekit uses PKCE, so a public client works; if your FHIR server issues a **client secret**, note it as well and add it in the next step.
+
+     {/* TODO: add provider-specific steps — app registration flow for this FHIR server (for example, Epic App Orchard "Build Apps", Cerner Code Console, or a custom EHR admin portal) */}
+
+     {/* TODO: add screenshot — alt: "App registration form in the FHIR server developer portal" */}
+
+   - When prompted for a redirect URI, leave the field open for now — you'll copy the exact value from Scalekit in the next step.
+
+3. ### Copy the redirect URI from Scalekit
+
+   In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **SMART App on FHIR** and click **Create**. Copy the redirect URI — it looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+   {/* TODO: add screenshot — alt: "Copy redirect URI from Scalekit dashboard for SMART App on FHIR" */}
+
+   Return to your FHIR server's app registration and paste this redirect URI into the app's allowed redirect URIs.
+
+   {/* TODO: add provider-specific steps — where to paste the redirect URI back into this FHIR server's app settings */}
+
+4. ### Create the connection in Scalekit
+
+   Back in the Scalekit dashboard, finish creating the connection with the values you gathered:
+
+   - **Client ID** — the client ID from your FHIR server app registration
+   - **Client Secret** — the client secret from your FHIR server app registration, if one was issued; leave blank for a public PKCE client
+   - **Authorization Endpoint** — the `authorization_endpoint` from `.well-known/smart-configuration`
+   - **Token Endpoint** — the `token_endpoint` from `.well-known/smart-configuration`
+   - **Audience (`aud`)** — the FHIR server base URL, sent as the required `aud` parameter on the authorization request
+   - **FHIR Server Domain** — the FHIR server domain without the `https://` scheme, for example `fhir.example.com`. Scalekit routes every tool call to this host
+
+   <Aside type="caution" title="FHIR server domain is required for tool calls">
+     Scalekit uses the **FHIR Server Domain** as the base host for every API request a tool makes. If you leave it blank, authorization can still succeed, but every tool call fails because Scalekit has no server to route the request to.
+   </Aside>
+
+   Under **Scopes**, select the SMART on FHIR scopes your agent needs. Start with `openid` and `offline_access` for identity and refresh tokens, then add resource-specific scopes such as `patient/Patient.read`, `patient/Observation.read`, or the broader `patient/*.read` and `patient/*.rs` scopes. The scopes you select here must match what's enabled on your FHIR server app registration.
+
+   {/* TODO: add screenshot — alt: "SMART App on FHIR connection configuration form in Scalekit dashboard" */}
+
+   Click **Save**.
+
+5. ### Verify the connection is active
+
+   Go to **Connected Accounts** for your SMART App on FHIR connection and confirm the status shows **Active** after a user completes authorization.
+
+   {/* TODO: add screenshot — alt: "Active connected account status for SMART App on FHIR" */}
+</Steps>

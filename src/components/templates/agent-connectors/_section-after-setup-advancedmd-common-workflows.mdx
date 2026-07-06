@@ -1,0 +1,209 @@
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+<details>
+<summary>Proxy API call</summary>
+
+Call the FHIR server's REST API directly through the Scalekit proxy. Use standard FHIR search paths such as `/Patient` or `/Observation`.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.request({
+      connectionName: 'advancedmd',
+      identifier: 'user_123',
+      path: '/Patient?family=Smith&_count=10',
+      method: 'GET',
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.request(
+        connection_name='advancedmd',
+        identifier='user_123',
+        path="/Patient?family=Smith&_count=10",
+        method="GET"
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Search for patients</summary>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const patients = await actions.executeTool({
+      connector: 'advancedmd',
+      identifier: 'user_123',
+      toolName: 'advancedmd_patient_search',
+      toolInput: {
+        family: 'Smith',
+        given: 'Jane',
+        birthdate: '1985-04-12',
+        _count: 10,
+      },
+    });
+    console.log('Matching patients:', patients);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    patients = actions.execute_tool(
+        connection_name='advancedmd',
+        identifier='user_123',
+        tool_name="advancedmd_patient_search",
+        tool_input={
+            "family": "Smith",
+            "given": "Jane",
+            "birthdate": "1985-04-12",
+            "_count": 10,
+        },
+    )
+    print("Matching patients:", patients)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Retrieve everything for a patient</summary>
+
+Invoke the FHIR `$everything` operation to pull all clinical resources for one patient in a single Bundle. Pass `_type` to limit the response to specific resource types.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const bundle = await actions.executeTool({
+      connector: 'advancedmd',
+      identifier: 'user_123',
+      toolName: 'advancedmd_patient_everything',
+      toolInput: {
+        patient_id: 'a1b2c3d4-0000-1111-2222-333344445555',
+        _type: 'Condition,Observation,MedicationRequest',
+        _count: 50,
+      },
+    });
+    console.log('Bundle entries:', bundle);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    bundle = actions.execute_tool(
+        connection_name='advancedmd',
+        identifier='user_123',
+        tool_name="advancedmd_patient_everything",
+        tool_input={
+            "patient_id": "a1b2c3d4-0000-1111-2222-333344445555",
+            "_type": "Condition,Observation,MedicationRequest",
+            "_count": 50,
+        },
+    )
+    print("Bundle entries:", bundle)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Search a patient's observations</summary>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const observations = await actions.executeTool({
+      connector: 'advancedmd',
+      identifier: 'user_123',
+      toolName: 'advancedmd_observation_search',
+      toolInput: {
+        patient: 'a1b2c3d4-0000-1111-2222-333344445555',
+        category: 'vital-signs',
+        date: 'ge2026-01-01',
+        _count: 25,
+      },
+    });
+    console.log('Observations:', observations);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    observations = actions.execute_tool(
+        connection_name='advancedmd',
+        identifier='user_123',
+        tool_name="advancedmd_observation_search",
+        tool_input={
+            "patient": "a1b2c3d4-0000-1111-2222-333344445555",
+            "category": "vital-signs",
+            "date": "ge2026-01-01",
+            "_count": 25,
+        },
+    )
+    print("Observations:", observations)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>Record a vital-sign observation</summary>
+
+Create an Observation such as a heart-rate reading. The `code` and `code_system` identify the measurement — this example uses the LOINC code `8867-4` (Heart rate).
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const observation = await actions.executeTool({
+      connector: 'advancedmd',
+      identifier: 'user_123',
+      toolName: 'advancedmd_observation_create',
+      toolInput: {
+        patient_id: 'a1b2c3d4-0000-1111-2222-333344445555',
+        status: 'final',
+        code: '8867-4',
+        code_system: 'http://loinc.org',
+        code_display: 'Heart rate',
+        category: 'vital-signs',
+        effective_date_time: new Date().toISOString(),
+        value: 72,
+        unit: '/min',
+      },
+    });
+    console.log('Created observation:', observation);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    from datetime import datetime, timezone
+
+    observation = actions.execute_tool(
+        connection_name='advancedmd',
+        identifier='user_123',
+        tool_name="advancedmd_observation_create",
+        tool_input={
+            "patient_id": "a1b2c3d4-0000-1111-2222-333344445555",
+            "status": "final",
+            "code": "8867-4",
+            "code_system": "http://loinc.org",
+            "code_display": "Heart rate",
+            "category": "vital-signs",
+            "effective_date_time": datetime.now(timezone.utc).isoformat(),
+            "value": 72,
+            "unit": "/min",
+        },
+    )
+    print("Created observation:", observation)
+    ```
+  </TabItem>
+</Tabs>
+
+</details>
