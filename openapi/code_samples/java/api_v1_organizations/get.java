@@ -1,0 +1,1 @@
+ListOrganizationsResponse organizations = scalekitClient.organizations().listOrganizations(10, "");

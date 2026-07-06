@@ -1,0 +1,1 @@
+ListDirectoriesResponse response = scalekitClient.directories().listDirectories(organizationId);

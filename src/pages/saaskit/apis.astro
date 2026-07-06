@@ -1,0 +1,261 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
+import { ScalarComponent } from '@scalar/astro'
+
+const template = 'splash' as const
+const frontmatter = {
+  title: 'SaaSKit API Reference',
+  description: 'API reference for Scalekit SaaSKit — SSO, SCIM, directories, sessions, and more',
+  template,
+  editUrl: false as const,
+  head: [
+    {
+      tag: 'style' as const,
+      content: `
+        footer {
+          display: none !important;
+        }
+        .content-panel:first-of-type:has(.sl-container:empty),
+        .content-panel:first-of-type:not(:has(.api-reference-wrapper)) {
+          display: none !important;
+        }
+        .content-panel:first-of-type:empty {
+          display: none !important;
+        }
+        .content-panel {
+          border-top: none !important;
+        }
+        .footer-fold-separator {
+          display: none !important;
+        }
+        .scalar-api-reference {
+          position: sticky;
+          top: var(--sl-nav-height);
+          height: calc(100vh - var(--sl-nav-height));
+          overflow: auto;
+        }
+        :root {
+          --sl-content-width: 100%;
+        }
+      `,
+    },
+  ],
+}
+---
+
+<div class="scalar-api-reference">
+  <script is:inline>
+    ;(() => {
+      try {
+        const KEY = 'scalar-reference-selected-client-v2'
+        if (!window?.localStorage?.getItem(KEY)) {
+          window.localStorage.setItem(KEY, 'shell/curl')
+        }
+        window.localStorage.setItem('colorMode', 'light')
+      } catch {
+        // Ignore storage errors
+      }
+    })()
+  </script>
+  <script is:inline>
+    ;(() => {
+      const SELECTED_CLIENT_KEY = 'scalar-reference-selected-client-v2'
+
+      const sdkLabelToClientId = new Map([
+        ['Node.js SDK', 'custom/javascript'],
+        ['Python SDK', 'custom/python'],
+        ['Go SDK', 'custom/go'],
+        ['Java SDK', 'custom/java'],
+      ])
+
+      const normalizeText = (value) => (value ?? '').replace(/\s+/g, ' ').trim()
+
+      const isInsideApiClientDialog = (el) => Boolean(el?.closest?.('[role="dialog"]'))
+      const findClosestRequestCard = (el) => el?.closest?.('.request-card')
+      const findScalarInstanceRoot = (el) =>
+        el?.closest?.('[id^="scalar-client-"]') ?? document.getElementById('scalar-client-0')
+
+      const syncCustomClientSelection = (sourceEl) => {
+        if (!(sourceEl instanceof Element)) return
+        if (isInsideApiClientDialog(sourceEl)) return
+
+        const card = findClosestRequestCard(sourceEl)
+        if (!card) return
+
+        const pickerButton = card.querySelector('[data-testid="client-picker"]')
+        if (!(pickerButton instanceof HTMLElement)) return
+
+        const label = normalizeText(pickerButton.textContent)
+        const clientId = sdkLabelToClientId.get(label)
+        if (!clientId) return
+
+        try {
+          const current = window?.localStorage?.getItem(SELECTED_CLIENT_KEY)
+          if (current === clientId) return
+
+          window.localStorage.setItem(SELECTED_CLIENT_KEY, clientId)
+
+          const root = findScalarInstanceRoot(card)
+          root?.dispatchEvent(
+            new CustomEvent('scalar-update-selected-client', {
+              detail: clientId,
+              bubbles: true,
+              composed: true,
+              cancelable: false,
+            }),
+          )
+        } catch {
+          // Ignore storage/DOM errors
+        }
+      }
+
+      const observedButtons = new WeakSet()
+      const attachObservers = () => {
+        document.querySelectorAll('[data-testid="client-picker"]').forEach((btn) => {
+          if (!(btn instanceof HTMLElement)) return
+          if (observedButtons.has(btn)) return
+
+          observedButtons.add(btn)
+
+          const observer = new MutationObserver(() => syncCustomClientSelection(btn))
+          observer.observe(btn, { childList: true, subtree: true, characterData: true })
+        })
+      }
+
+      attachObservers()
+      const pageObserver = new MutationObserver(() => attachObservers())
+      pageObserver.observe(document.documentElement, { childList: true, subtree: true })
+    })()
+  </script>
+  <ScalarComponent
+    configuration={{
+      url: '/api/saaskit.scalar.yaml',
+      theme: 'default',
+      layout: 'modern',
+      pageTitle: 'SaaSKit API',
+      hideTestRequestButton: false,
+      withDefaultFonts: false,
+      hideModels: true,
+      searchHotKey: 'p',
+      hideDarkModeToggle: true,
+      darkMode: false,
+      proxyUrl: 'https://proxy.scalar.com',
+      defaultOpenAllTags: false,
+      tagsSorter: (a, b) => {
+        const tagOrder = [
+          'Organizations',
+          'Permissions',
+          'Users',
+          'Connections',
+          'Directory',
+          'Roles',
+          'Sessions',
+          'Domains',
+          'API Auth',
+          'Magic link & OTP',
+          'Passkeys',
+        ]
+        const getTagRank = (name) => {
+          const rank = tagOrder.indexOf(name ?? '')
+          return rank === -1 ? Number.POSITIVE_INFINITY : rank
+        }
+        const rankA = getTagRank(a?.name)
+        const rankB = getTagRank(b?.name)
+
+        if (rankA !== rankB) {
+          return rankA - rankB
+        }
+
+        return (a?.name ?? '').localeCompare(b?.name ?? '')
+      },
+      operationsSorter: (a, b) => {
+        const methodOrder = ['get', 'post', 'put', 'patch', 'delete']
+        const getMethodRank = (method) => {
+          const rank = methodOrder.indexOf((method ?? '').toLowerCase())
+          return rank === -1 ? Number.POSITIVE_INFINITY : rank
+        }
+        const methodComparison = getMethodRank(a?.method) - getMethodRank(b?.method)
+
+        if (methodComparison !== 0) {
+          return methodComparison
+        }
+
+        return (a?.path ?? '').localeCompare(b?.path ?? '')
+      },
+      servers: [
+        {
+          url: 'https://{SCALEKIT_ENVIRONMENT_URL}',
+          description: 'Scalekit Environment',
+          variables: {
+            SCALEKIT_ENVIRONMENT_URL: {
+              default: 'your-env.scalekit.com',
+              description:
+                'Your full Scalekit environment URL (e.g., my-env.scalekit.com or my-env.scalekit.dev)',
+            },
+          },
+        },
+      ],
+      authentication: {
+        preferredSecurityScheme: 'oauth2',
+        securitySchemes: {
+          oauth2: {
+            type: 'oauth2',
+            flows: {
+              clientCredentials: {
+                tokenUrl: 'https://{SCALEKIT_ENVIRONMENT_URL}/oauth/token',
+                'x-scalar-credentials-location': 'body',
+                'x-scalar-security-body': {
+                  grant_type: 'client_credentials',
+                },
+              },
+            },
+          },
+        },
+      },
+      hiddenClients: {
+        c: ['libcurl'],
+        csharp: ['httpclient', 'restsharp'],
+        clojure: ['clj_http'],
+        dart: ['http'],
+        go: ['native'],
+        http: ['http1.1', 'http1', 'http2'],
+        java: ['asynchttp', 'okhttp', 'unirest', 'nethttp'],
+        js: ['xhr', 'fetch', 'axios', 'jquery', 'ofetch', 'request'],
+        kotlin: ['okhttp'],
+        node: ['undici', 'axios', 'fetch', 'ofetch'],
+        objc: ['nsurlsession'],
+        ocaml: ['cohttp'],
+        fsharp: ['httpclient'],
+        php: ['curl', 'guzzle'],
+        powershell: ['restmethod', 'webrequest'],
+        python: ['python3', 'requests', 'httpx_sync', 'httpx_async'],
+        r: ['httr'],
+        ruby: ['native'],
+        rust: ['reqwest'],
+        shell: ['httpie', 'wget'],
+        swift: ['nsurlsession'],
+      },
+      favicon:
+        'https://cdn.prod.website-files.com/65b87d98fa638289e10b8f61/67ab35acf2f180e0fe0a94a8_S%20Icon%20-%20Black%20-%2032x32.png',
+      hideClientButton: true,
+      baseServerURL: 'https://scalekit.com',
+      documentDownloadType: 'json',
+      customCss: `
+        #scalar-client-0 { margin-top: 8rem; }
+        .introduction-card-item.scalar-reference-intro-clients { display: none; }
+      `,
+      generateWebhookSlug: (webhook) => {
+        const name = webhook.name || webhook.summary || 'list-of-events'
+
+        return name
+          .toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '')
+      },
+    }}
+  />
+</div>
+
+<StarlightPage frontmatter={frontmatter} />

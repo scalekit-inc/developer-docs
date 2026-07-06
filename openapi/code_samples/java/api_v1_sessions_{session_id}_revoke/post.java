@@ -1,0 +1,1 @@
+RevokeSessionResponse res = scalekitClient.sessions().revokeSession("ses_123456789");

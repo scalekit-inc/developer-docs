@@ -1,0 +1,1 @@
+users.deleteUser("usr_123");

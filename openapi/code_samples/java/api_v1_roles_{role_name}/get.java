@@ -1,0 +1,1 @@
+GetRoleResponse res = scalekitClient.roles().getRole("admin");

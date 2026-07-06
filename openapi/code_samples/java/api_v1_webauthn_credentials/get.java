@@ -1,0 +1,1 @@
+ListCredentialsResponse res = scalekitClient.webauthn().listCredentials("user_123");

@@ -1,0 +1,1 @@
+res = scalekit_client.sessions.revoke_session(session_id="ses_123456789")
