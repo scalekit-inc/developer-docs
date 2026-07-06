@@ -52,6 +52,9 @@ const INTERNAL_USER_EMAIL_PATTERNS = [
   /rexlosthismind/i,
   /^mabnuxr@gmail\.com$/i,
   /^rjmohan535@gmail\.com$/i,
+  /testscalekit/i,
+  /skituser/i,
+  /@scalekit\.cloud$/i,
 ]
 
 const isInternalUser = (function () {
