@@ -410,6 +410,7 @@ export const sidebar = [
           'mcp/auth-methods/enterprise',
           'mcp/auth-methods/social',
           'mcp/auth-methods/custom-auth',
+          'mcp/auth-methods/xaa',
         ],
       },
       {
