@@ -1,0 +1,267 @@
+include:
+  tags:
+    - Organizations
+    - Permissions
+    - Users
+    - Connections
+    - Directory
+    - Roles
+    - Sessions
+    - Domains
+    - API Auth
+    - Magic link & OTP
+    - Passkeys
+  webhooks:
+    - organization.
+    - user.
+    - role.
+    - permission.
+info:
+  title: SaaSKit APIs
+  description: |
+    # Overview
+
+    The Scalekit API is a RESTful API that enables you to manage organizations, users, and authentication settings. All requests must use HTTPS.
+    All API requests use the following base URLs:
+
+    ```
+    https://{your-subdomain}.scalekit.dev (Development)
+    https://{your-subdomain}.scalekit.com (Production)
+    https://auth.yourapp.com (Custom domain)
+    ```
+
+    Scalekit operates two separate environments: Development and Production. Resources cannot be moved between environments.
+
+    ## Quickstart
+
+    The Scalekit API uses OAuth 2.0 Client Credentials for authentication.
+
+    Copy your API credentials from the Scalekit dashboard's API Config section and set them as environment variables.
+
+    ```sh
+    SCALEKIT_ENVIRONMENT_URL='<YOUR_ENVIRONMENT_URL>'
+    SCALEKIT_CLIENT_ID='<ENVIRONMENT_CLIENT_ID>'
+    SCALEKIT_CLIENT_SECRET='<ENVIRONMENT_CLIENT_SECRET>'
+    ```
+
+    Getting an access token
+
+    1. Get your credentials from the [Scalekit Dashboard](https://app.scalekit.com)
+    2. Request an access token:
+
+    ```sh
+    curl https://<SCALEKIT_ENVIRONMENT_URL>/oauth/token \
+      -X POST \
+      -H 'Content-Type: application/x-www-form-urlencoded' \
+      -d 'client_id={client_id}' \
+      -d 'client_secret={client_secret}' \
+      -d 'grant_type=client_credentials'
+    ```
+
+    3. Use the access token in API requests:
+
+    ```sh
+    curl https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations \
+      -H 'Content-Type: application/json' \
+      -H 'Authorization: Bearer {access_token}'
+    ```
+
+    The response includes an access token:
+
+    ```json
+    {
+    	"access_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6InNua181Ok4OTEyMjU2NiIsInR5cCI6IkpXVCJ9...",
+    	"token_type": "Bearer",
+    	"expires_in": 86399,
+    	"scope": "openid"
+    }
+    ```
+
+    ## SDKs
+
+    Scalekit provides official SDKs for multiple programming languages. Check the changelog at GitHub repositories for the latest updates.
+
+    ### Node.js
+
+    ```sh
+    npm install @scalekit-sdk/node
+    ```
+
+    Create a new Scalekit client instance after initializing the environment variables
+
+    ```js
+    import { Scalekit } from "@scalekit-sdk/node";
+
+    export let scalekit = new Scalekit(
+    	process.env.SCALEKIT_ENVIRONMENT_URL,
+    	process.env.SCALEKIT_CLIENT_ID,
+    	process.env.SCALEKIT_CLIENT_SECRET
+    );
+    ```
+
+    [See the Node SDK changelog](https://github.com/scalekit-inc/scalekit-sdk-node/releases)
+
+    ### Python
+
+    ```sh
+    pip install scalekit-sdk-python
+    ```
+
+    Create a new Scalekit client instance after initializing the environment variables.
+
+    ```py
+    from scalekit import ScalekitClient
+    import os
+
+    scalekit_client = ScalekitClient(
+        os.environ.get('SCALEKIT_ENVIRONMENT_URL'),
+        os.environ.get('SCALEKIT_CLIENT_ID'),
+        os.environ.get('SCALEKIT_CLIENT_SECRET')
+    )
+    ```
+
+    [See the Python SDK changelog](https://github.com/scalekit-inc/scalekit-sdk-python/releases)
+
+    ### Go
+
+    ```sh
+    go get -u github.com/scalekit-inc/scalekit-sdk-go
+    ```
+
+    Create a new Scalekit client instance after initializing the environment variables.
+
+    ```go
+    package main
+
+    import (
+        "os"
+        "github.com/scalekit-inc/scalekit-sdk-go"
+    )
+
+    scalekitClient := scalekit.NewScalekitClient(
+        os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+        os.Getenv("SCALEKIT_CLIENT_ID"),
+        os.Getenv("SCALEKIT_CLIENT_SECRET"),
+    )
+    ```
+
+    [See the Go SDK changelog](https://github.com/scalekit-inc/scalekit-sdk-go/releases)
+
+    ### Java
+
+    ```gradle
+    /* Gradle users - add the following to your dependencies in build file */
+    implementation "com.scalekit:scalekit-sdk-java:2.0.11"
+    ```
+
+    ```xml
+    <!-- Maven users - add the following to your `pom.xml` -->
+    <dependency>
+        <groupId>com.scalekit</groupId>
+        <artifactId>scalekit-sdk-java</artifactId>
+        <version>2.0.11</version>
+    </dependency>
+    ```
+
+    [See the Java SDK changelog](https://github.com/scalekit-inc/scalekit-sdk-java/releases)
+
+    ### Error handling
+
+    The API uses standard HTTP status codes:
+
+    | Code        | Description          |
+    | ----------- | -------------------- |
+    | 200/201     | Success              |
+    | 400         | Invalid request      |
+    | 401         | Authentication error |
+    | 404         | Resource not found   |
+    | 429         | Rate limit exceeded  |
+    | 500/501/504 | Server error         |
+
+    Error responses include detailed information:
+
+    ```json
+    {
+    	"code": 16,
+    	"message": "Token empty",
+    	"details": [
+    		{
+    			"@type": "type.googleapis.com/scalekit.v1.errdetails.ErrorInfo",
+    			"error_code": "UNAUTHENTICATED"
+    		}
+    	]
+    }
+    ```
+
+    ---
+
+    Building AI agents that need OAuth tokens, tool execution, or connected accounts? See the [AgentKit API reference](https://docs.scalekit.com/agentkit/apis/). For the complete endpoint list across both products, see [All APIs](https://docs.scalekit.com/apis/).
+  x-scalar-sdk-installation:
+    - lang: shell
+      description: Set up OAuth 2.0 Client Credentials authentication to access Scalekit APIs. Includes credential configuration, token exchange, and authenticated API request examples.
+      source: |
+
+        # 1. Obtain API Credentials
+        # Get your credentials from the Scalekit dashboard
+        export SCALEKIT_ENVIRONMENT_URL="https://your-org.scalekit.dev" # Your Scalekit environment URL
+        export SCALEKIT_CLIENT_ID="your_client_id"                      # Your client ID
+        export SCALEKIT_CLIENT_SECRET="your_client_secret"              # Your client secret
+
+        # 2. Exchange client credentials an OAuth 2.0 access token
+        TOKEN_RESPONSE=$(curl -s -X POST "${SCALEKIT_ENVIRONMENT_URL}/oauth/token" \
+          -H "Content-Type: application/x-www-form-urlencoded" \
+          -d "client_id=${SCALEKIT_CLIENT_ID}" \
+          -d "client_secret=${SCALEKIT_CLIENT_SECRET}" \
+          -d "grant_type=client_credentials")
+
+        # 3. Make Authenticated API Requests
+        curl -X GET "${SCALEKIT_ENVIRONMENT_URL}/api/v1/organizations" \
+          -H "Content-Type: application/json" \
+          -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+          -H "Accept: application/json"
+tags:
+  - description: |
+      Organization represents a customer or a tenant of your product. This is the top level entity and all resources are mapped to this Organization object. Each organization is uniquely identified by `organization_id`.
+
+      <!-- ## Organization Attributes
+
+      | Attribute Name             | Attribute Description                                                                                                                        |
+      | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+      | `id`<br>_string_           | Unique ID of an Organization. Required for all API operations against this organization.                                                     |
+      | `display_name`<br>_string_ | Name of the Organization                                                                                                                     |
+      | `create_time`<br>_string_  | Creation timestamp in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.<br>Example: `2011-10-05T14:48:00.000Z`                      |
+      | `update_time`<br>_string_  | Last update timestamp in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.<br>Example: `2021-10-05T14:48:00.000Z`                   |
+      | `external_id`<br>_string_  | Your system's unique ID for this organization. You can use this to fetch Organization and Connection details without storing Scalekit's IDs. |
+      | `metadata`<br>_object_     | Additional organization information stored as JSON.<br>Example: `{"key":"value"}`                                                            |
+      | `region_code`<br>_string_  | Data center region where organization data is stored. Currently always returns `US`.                                                         | -->
+    name: Organizations
+  - description: Permission management for defining and controlling access to system resources. Create, retrieve, update, and delete granular permissions that represent specific actions users can perform. Permissions are the building blocks of role-based access control (RBAC) and can be assigned to roles to grant users the ability to perform specific operations. Use this service to define custom permissions for your application's unique access control requirements.
+    name: Permissions
+  - description: Comprehensive user management operations including user lifecycle, organization memberships, and invitation workflows. This service provides endpoints for creating, retrieving, updating, and deleting user accounts across your Scalekit environment. It supports both individual user operations and bulk operations for user administration, including user search, pagination, and metadata management. The service also handles user invitations and organization membership management.
+    name: Users
+  - description: Manage enterprise connections for your Scalekit environment. This service provides endpoints for retrieving, and updating connections.
+    name: Connections
+  - description: Directory management for viewing and controlling external identity provider connections in your Scalekit environment. This service provides endpoints for retrieving directory information, listing directories and their contents, and enabling or disabling directory synchronization.
+    name: Directory
+  - description: Role-based access control (RBAC) for defining and managing permissions in an environment. Create and update custom roles with explicit permissions, model role hierarchies through inheritance, view dependent roles, manage role-permission assignments, and list roles and permissions. Also provides a utility to count users assigned to a role.
+    name: Roles
+  - description: Comprehensive session management for user authentication and authorization. This service provides endpoints for retrieving session details, managing user sessions across devices, revoking individual sessions, and terminating all active sessions for a user. It supports session auditing, device tracking, and security monitoring with detailed session metadata including device information, IP geolocation, and activity timestamps.
+    name: Sessions
+  - description: |
+      Manage organization-level domains. Scalekit supports two domain types:
+
+      - ORGANIZATION_DOMAIN: Used for SSO domain discovery. When a user signs in with a matching email domain, Scalekit routes them to the organization’s SSO provider and enforces SSO.
+      - ALLOWED_EMAIL_DOMAIN: Used to mark trusted email domains for an organization. When a user signs in or signs up with a matching domain, Scalekit suggests the organization in the organization switcher (authentication-method agnostic).
+    name: Domains
+  - description: Endpoints for managing API client applications. API clients enable secure, automated interactions between software systems without human intervention. Each client is uniquely identified by a `client_id` and can be configured with authentication settings, redirect URIs, and security parameters. Use these endpoints to create, manage, and configure API clients for your API clients.
+    name: API Auth
+    externalDocs:
+      url: https://docs.scalekit.com/m2m/overview
+  - description: Endpoints for sending and verifying passwordless authentication emails. These APIs allow users to authenticate without passwords by receiving a verification code or magic link in their email.
+    name: Magic link & OTP
+  - description: Endpoints for passkey-based authentication using WebAuthn/FIDO2 standards.
+    name: Passkeys
+root:
+  externalDocs:
+    description: Scalekit Docs
+    url: https://docs.scalekit.com/

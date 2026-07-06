@@ -1,11 +1,9 @@
-openapi: 3.1.1
 info:
   description: |
     # Overview
 
-    The Scalekit API is a RESTful API that covers both **AgentKit** (AI-agent OAuth, tool calling, connected accounts) and **SaaSKit** (organizations, users, SSO, directory sync, RBAC, sessions).
-
-    All requests must use HTTPS. All API requests use the following base URLs:
+    The Scalekit API is a RESTful API that enables you to manage organizations, users, and authentication settings. All requests must use HTTPS.
+    All API requests use the following base URLs:
 
     ```
     https://{your-subdomain}.scalekit.dev (Development)
@@ -13,23 +11,169 @@ info:
     https://auth.yourapp.com (Custom domain)
     ```
 
-    ## Authentication
+    Scalekit operates two separate environments: Development and Production. Resources cannot be moved between environments.
 
-    Scalekit uses OAuth 2.0 Client Credentials for API authentication.
+    ## Quickstart
+
+    The Scalekit API uses OAuth 2.0 Client Credentials for authentication.
+
+    Copy your API credentials from the Scalekit dashboard's API Config section and set them as environment variables.
 
     ```sh
-    curl -X POST https://<SCALEKIT_ENVIRONMENT_URL>/oauth/token \
+    SCALEKIT_ENVIRONMENT_URL='<YOUR_ENVIRONMENT_URL>'
+    SCALEKIT_CLIENT_ID='<ENVIRONMENT_CLIENT_ID>'
+    SCALEKIT_CLIENT_SECRET='<ENVIRONMENT_CLIENT_SECRET>'
+    ```
+
+    Getting an access token
+
+    1. Get your credentials from the [Scalekit Dashboard](https://app.scalekit.com)
+    2. Request an access token:
+
+    ```sh
+    curl https://<SCALEKIT_ENVIRONMENT_URL>/oauth/token \
+      -X POST \
       -H 'Content-Type: application/x-www-form-urlencoded' \
       -d 'client_id={client_id}' \
       -d 'client_secret={client_secret}' \
       -d 'grant_type=client_credentials'
     ```
 
-    ## Product-specific references
+    3. Use the access token in API requests:
 
-    - [AgentKit APIs](https://docs.scalekit.com/agentkit/apis/) — Connected accounts, connectors, tool calling, MCP configurations
-    - [SaaSKit APIs](https://docs.scalekit.com/saaskit/apis/) — Organizations, users, SSO, directory sync, RBAC, sessions
-  title: Scalekit API Reference
+    ```sh
+    curl https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations \
+      -H 'Content-Type: application/json' \
+      -H 'Authorization: Bearer {access_token}'
+    ```
+
+    The response includes an access token:
+
+    ```json
+    {
+    	"access_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6InNua181Ok4OTEyMjU2NiIsInR5cCI6IkpXVCJ9...",
+    	"token_type": "Bearer",
+    	"expires_in": 86399,
+    	"scope": "openid"
+    }
+    ```
+
+    ## SDKs
+
+    Scalekit provides official SDKs for multiple programming languages. Check the changelog at GitHub repositories for the latest updates.
+
+    ### Node.js
+
+    ```sh
+    npm install @scalekit-sdk/node
+    ```
+
+    Create a new Scalekit client instance after initializing the environment variables
+
+    ```js
+    import { Scalekit } from "@scalekit-sdk/node";
+
+    export let scalekit = new Scalekit(
+    	process.env.SCALEKIT_ENVIRONMENT_URL,
+    	process.env.SCALEKIT_CLIENT_ID,
+    	process.env.SCALEKIT_CLIENT_SECRET
+    );
+    ```
+
+    [See the Node SDK changelog](https://github.com/scalekit-inc/scalekit-sdk-node/releases)
+
+    ### Python
+
+    ```sh
+    pip install scalekit-sdk-python
+    ```
+
+    Create a new Scalekit client instance after initializing the environment variables.
+
+    ```py
+    from scalekit import ScalekitClient
+    import os
+
+    scalekit_client = ScalekitClient(
+        os.environ.get('SCALEKIT_ENVIRONMENT_URL'),
+        os.environ.get('SCALEKIT_CLIENT_ID'),
+        os.environ.get('SCALEKIT_CLIENT_SECRET')
+    )
+    ```
+
+    [See the Python SDK changelog](https://github.com/scalekit-inc/scalekit-sdk-python/releases)
+
+    ### Go
+
+    ```sh
+    go get -u github.com/scalekit-inc/scalekit-sdk-go
+    ```
+
+    Create a new Scalekit client instance after initializing the environment variables.
+
+    ```go
+    package main
+
+    import (
+        "os"
+        "github.com/scalekit-inc/scalekit-sdk-go"
+    )
+
+    scalekitClient := scalekit.NewScalekitClient(
+        os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+        os.Getenv("SCALEKIT_CLIENT_ID"),
+        os.Getenv("SCALEKIT_CLIENT_SECRET"),
+    )
+    ```
+
+    [See the Go SDK changelog](https://github.com/scalekit-inc/scalekit-sdk-go/releases)
+
+    ### Java
+
+    ```gradle
+    /* Gradle users - add the following to your dependencies in build file */
+    implementation "com.scalekit:scalekit-sdk-java:2.0.11"
+    ```
+
+    ```xml
+    <!-- Maven users - add the following to your `pom.xml` -->
+    <dependency>
+        <groupId>com.scalekit</groupId>
+        <artifactId>scalekit-sdk-java</artifactId>
+        <version>2.0.11</version>
+    </dependency>
+    ```
+
+    [See the Java SDK changelog](https://github.com/scalekit-inc/scalekit-sdk-java/releases)
+
+    ### Error handling
+
+    The API uses standard HTTP status codes:
+
+    | Code        | Description          |
+    | ----------- | -------------------- |
+    | 200/201     | Success              |
+    | 400         | Invalid request      |
+    | 401         | Authentication error |
+    | 404         | Resource not found   |
+    | 429         | Rate limit exceeded  |
+    | 500/501/504 | Server error         |
+
+    Error responses include detailed information:
+
+    ```json
+    {
+    	"code": 16,
+    	"message": "Token empty",
+    	"details": [
+    		{
+    			"@type": "type.googleapis.com/scalekit.v1.errdetails.ErrorInfo",
+    			"error_code": "UNAUTHENTICATED"
+    		}
+    	]
+    }
+    ```
+  title: Scalekit APIs
   contact:
     name: Scalekit Inc
     url: https://scalekit.com
@@ -61,26 +205,6 @@ info:
           -H "Content-Type: application/json" \
           -H "Authorization: Bearer ${ACCESS_TOKEN}" \
           -H "Accept: application/json"
-servers:
-  - url: https://$SCALEKIT_ENVIRONMENT_URL
-security:
-  - oauth2: []
-tags:
-  - name: MCP
-    description: Manage MCP servers and their configurations for AI agents. MCP (Model Context Protocol) allows agents to securely access tools and data through authenticated connections.
-  - name: MCP Configurations
-    description: Create and manage reusable MCP configurations. A configuration defines which connections and tools are available to an MCP server instance.
-  - name: MCP Instances
-    description: Create, manage, and interact with live MCP server instances. An instance is a running MCP server tied to a specific configuration and user.
-  - name: Connectors
-    description: Manage connectors (also called providers) that your agents can use to authenticate with third-party services. This includes both built-in connectors and environment-scoped custom connectors.
-  - name: Tool Calling
-    description: Execute tools on behalf of a connected account. This is the primary public surface for running actions like sending emails, creating calendar events, or managing resources in external services.
-  - name: ToolService
-    x-scalar-ignore: true
-externalDocs:
-  description: Scalekit Docs
-  url: https://docs.scalekit.com/
 paths:
   /api/v1/connected_accounts:
     get:
@@ -1754,7 +1878,33 @@ paths:
             )
         - label: Go SDK
           lang: go
-          source: "settings := OrganizationSettings{\n\n\t\tFeatures: []Feature{\n\n\t\t\t{\n\n\t\t\t\tName:    \"sso\",\n\n\t\t\t\tEnabled: true,\n\n\t\t\t},\n\n\t\t\t{\n\n\t\t\t\tName:    \"dir_sync\",\n\n\t\t\t\tEnabled: true,\n\n\t\t\t},\n\n\t\t},\n\n\t}\n\n\norganization,err := scalekitClient.Organization().UpdateOrganizationSettings(ctx, organizationId, settings)"
+          source: |-
+            settings := OrganizationSettings{
+
+            		Features: []Feature{
+
+            			{
+
+            				Name:    "sso",
+
+            				Enabled: true,
+
+            			},
+
+            			{
+
+            				Name:    "dir_sync",
+
+            				Enabled: true,
+
+            			},
+
+            		},
+
+            	}
+
+
+            organization,err := scalekitClient.Organization().UpdateOrganizationSettings(ctx, organizationId, settings)
         - label: Java SDK
           lang: java
           source: |-
@@ -1870,7 +2020,20 @@ paths:
             )
         - label: Go SDK
           lang: go
-          source: "resp, err := scalekitClient.Role().CreateOrganizationRole(ctx, \"org_123\", &rolesv1.CreateOrganizationRole{\n\n\tName:        \"org_admin\",\n\n\tDisplayName: \"Org Admin\",\n\n\tDescription: proto.String(\"Organization-scoped role\"), // optional\n\n\tExtends:     proto.String(\"base_role_name\"),        // optional\n\n\tPermissions: []string{\"perm.read\", \"perm.write\"},   // optional\n\n})"
+          source: |-
+            resp, err := scalekitClient.Role().CreateOrganizationRole(ctx, "org_123", &rolesv1.CreateOrganizationRole{
+
+            	Name:        "org_admin",
+
+            	DisplayName: "Org Admin",
+
+            	Description: proto.String("Organization-scoped role"), // optional
+
+            	Extends:     proto.String("base_role_name"),        // optional
+
+            	Permissions: []string{"perm.read", "perm.write"},   // optional
+
+            })
         - label: Java SDK
           lang: java
           source: |-
@@ -2700,7 +2863,10 @@ paths:
           source: await scalekit.directory.listDirectories('<organization_id>')
         - label: Python SDK
           lang: python
-          source: "directories_list = scalekit_client.directory.list_directories(\n\torganization_id='<organization_id>'\n)"
+          source: |-
+            directories_list = scalekit_client.directory.list_directories(
+            	organization_id='<organization_id>'
+            )
         - label: Go SDK
           lang: go
           source: directories,err := scalekitClient.Directory().ListDirectories(ctx, organizationId)
@@ -2777,7 +2943,17 @@ paths:
             )
         - label: Go SDK
           lang: go
-          source: "options := &ListDirectoryGroupsOptions{\n\n\t\tPageSize: 10,\n\n\t\tPageToken:\"\",\n\n\t}\n\n\ndirectoryGroups, err := scalekitClient.Directory().ListDirectoryGroups(ctx, organizationId, directoryId, options)"
+          source: |-
+            options := &ListDirectoryGroupsOptions{
+
+            		PageSize: 10,
+
+            		PageToken:"",
+
+            	}
+
+
+            directoryGroups, err := scalekitClient.Directory().ListDirectoryGroups(ctx, organizationId, directoryId, options)
         - label: Java SDK
           lang: java
           source: |-
@@ -2856,7 +3032,16 @@ paths:
             )
         - label: Go SDK
           lang: go
-          source: "options := &ListDirectoryUsersOptions{\n\n\t\tPageSize: 10,\n\n\t\tPageToken: \"\",\n\n\t}\n\ndirectoryUsers,err := scalekitClient.Directory().ListDirectoryUsers(ctx, organizationId, directoryId, options)"
+          source: |-
+            options := &ListDirectoryUsersOptions{
+
+            		PageSize: 10,
+
+            		PageToken: "",
+
+            	}
+
+            directoryUsers,err := scalekitClient.Directory().ListDirectoryUsers(ctx, organizationId, directoryId, options)
         - label: Java SDK
           lang: java
           source: |-
@@ -3146,13 +3331,32 @@ paths:
             })
         - label: Python SDK
           lang: python
-          source: "# Add a new domain to an organization\nresponse = scalekit_client.domain.create_domain(organization_id=\"org-123\",\n\n\t\t\tdomain_name=\"example.com\",\n \t\t\tdomain_type=\"ORGANIZATION_DOMAIN\")"
+          source: |-
+            # Add a new domain to an organization
+            response = scalekit_client.domain.create_domain(organization_id="org-123",
+
+            			domain_name="example.com",
+             			domain_type="ORGANIZATION_DOMAIN")
         - label: Go SDK
           lang: go
-          source: "domain, err := scalekitClient.Domain().CreateDomain(ctx, \"org_id\", \"example.com\", &scalekit.CreateDomainOptions{\n\n\t\tDomainType: \"ORGANIZATION_DOMAIN\",\n\n\t})"
+          source: |-
+            domain, err := scalekitClient.Domain().CreateDomain(ctx, "org_id", "example.com", &scalekit.CreateDomainOptions{
+
+            		DomainType: "ORGANIZATION_DOMAIN",
+
+            	})
         - label: Java SDK
           lang: java
-          source: "CreateDomainRequest request = CreateDomainRequest.newBuilder()\n\t.setOrganizationId(organization.getId())\n\t.setDomain(CreateDomain.newBuilder()\n\t\t.setDomain(\"example.com\")\n\t\t.setDomainType(\"ORGANIZATION_DOMAIN\")\n\t\t.build())\n\t.build();\n\t\nDomain domain = scalekitClient.domains().createDomain(request);"
+          source: |-
+            CreateDomainRequest request = CreateDomainRequest.newBuilder()
+            	.setOrganizationId(organization.getId())
+            	.setDomain(CreateDomain.newBuilder()
+            		.setDomain("example.com")
+            		.setDomainType("ORGANIZATION_DOMAIN")
+            		.build())
+            	.build();
+            	
+            Domain domain = scalekitClient.domains().createDomain(request);
   /api/v1/organizations/{organization_id}/domains/{id}:
     get:
       description: |+
@@ -4043,7 +4247,16 @@ paths:
             scalekit_client.permissions.create_permission(permission=permission)
         - label: Go SDK
           lang: go
-          source: "resp, err := scalekitClient.Permission().CreatePermission(ctx, &rolesv1.CreatePermission{\n\n\tName:        \"read:users\",\n\n\tDescription: \"Allows reading users\",\n\n})\nif err != nil { /* handle err */ }\n_ = resp"
+          source: |-
+            resp, err := scalekitClient.Permission().CreatePermission(ctx, &rolesv1.CreatePermission{
+
+            	Name:        "read:users",
+
+            	Description: "Allows reading users",
+
+            })
+            if err != nil { /* handle err */ }
+            _ = resp
         - label: Java SDK
           lang: java
           source: |-
@@ -4293,7 +4506,20 @@ paths:
             scalekit_client.roles.create_role(role=role)
         - label: Go SDK
           lang: go
-          source: "resp, err := scalekitClient.Role().CreateRole(ctx, &rolesv1.CreateRole{\n\n\tName:        \"admin\",\n\n\tDisplayName: \"Admin\",\n\n\tDescription: \"Environment-level role\",\n\n\tExtends:     proto.String(\"base_role\"),      // optional\n\n\tPermissions: []string{\"read:users\"},        // optional\n\n})"
+          source: |-
+            resp, err := scalekitClient.Role().CreateRole(ctx, &rolesv1.CreateRole{
+
+            	Name:        "admin",
+
+            	DisplayName: "Admin",
+
+            	Description: "Environment-level role",
+
+            	Extends:     proto.String("base_role"),      // optional
+
+            	Permissions: []string{"read:users"},        // optional
+
+            })
         - label: Java SDK
           lang: java
           source: |-
@@ -5475,1344 +5701,25 @@ paths:
           source: |-
             UpdateCredentialResponse res = scalekitClient.webauthn()
                 .updateCredential("wac_123", "Work Laptop Passkey");
-webhooks:
-  organization.created:
-    post:
-      summary: Organization Created
-      description: Triggered when a new organization is created in Scalekit
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_1234567890
-              type: organization.created
-              object: Organization
-              occurred_at: '2024-01-15T10:30:00.123456789Z'
-              environment_id: env_1234567890
-              organization_id: org_1234567890
-              data:
-                create_time: '2025-12-09T09:25:02.02Z'
-                display_name: AcmeCorp
-                external_id: org_external_123
-                id: org_1234567890
-                metadata: null
-                region_code: US
-                update_time: '2025-12-09T09:25:02.025330364Z'
-                settings:
-                  features:
-                    - enabled: true
-                      name: sso
-                    - enabled: false
-                      name: dir_sync
-              display_name: Organization Created
-      responses:
-        '200':
-          description: Webhook received successfully
-  organization.updated:
-    post:
-      summary: Organization Updated
-      description: Triggered when an organization is updated
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_2345678901
-              type: organization.updated
-              object: Organization
-              occurred_at: '2024-01-15T10:35:00.123456789Z'
-              environment_id: env_1234567890
-              organization_id: org_1234567890
-              data:
-                create_time: '2025-12-09T09:25:02.02Z'
-                display_name: AcmeCorp
-                external_id: org_external_123
-                id: org_1234567890
-                metadata: null
-                region_code: US
-                update_time: '2025-12-09T09:25:02.025330364Z'
-                settings:
-                  features:
-                    - enabled: true
-                      name: sso
-                    - enabled: false
-                      name: dir_sync
-              display_name: Organization Updated
-      responses:
-        '200':
-          description: Webhook received successfully
-  organization.deleted:
-    post:
-      summary: Organization Deleted
-      description: Triggered when an organization is deleted
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_3456789012
-              type: organization.deleted
-              object: Organization
-              occurred_at: '2024-01-15T10:40:00.123456789Z'
-              environment_id: env_1234567890
-              organization_id: org_1234567890
-              data:
-                create_time: '2025-12-09T09:25:02.02Z'
-                deleted_at: '2025-12-09T10:25:45.337417Z'
-                display_name: AcmeCorp
-                external_id: org_external_123
-                id: org_1234567890
-                metadata: null
-                region_code: US
-                update_time: '2025-12-09T09:25:02.025330364Z'
-                settings:
-                  features:
-                    - enabled: true
-                      name: sso
-                    - enabled: false
-                      name: dir_sync
-              display_name: Organization Deleted
-      responses:
-        '200':
-          description: Webhook received successfully
-  user.signup:
-    post:
-      summary: User Signup
-      description: Triggered when a user signs up to create a new organization
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_1234567890
-              type: user.signup
-              object: OrgMembership
-              occurred_at: '2024-01-15T10:30:00.123456789Z'
-              environment_id: env_1234567890
-              organization_id: org_102690563312124938
-              data:
-                organization:
-                  id: org_102690563312124938
-                  create_time: '2025-12-09T10:19:05.48Z'
-                  display_name: ''
-                  external_id: null
-                  metadata: null
-                  region_code: US
-                  update_time: '2025-12-09T12:04:41.386974738Z'
-                  settings:
-                    features:
-                      - enabled: true
-                        name: sso
-                      - enabled: true
-                        name: dir_sync
-                user:
-                  create_time: '2025-12-09T12:04:41.39Z'
-                  email: amit.ash1996@gmail.com
-                  external_id: ''
-                  id: usr_102701193205121289
-                  metadata: {}
-                  update_time: '2025-12-09T12:04:41.391988278Z'
-                  user_profile:
-                    custom_attributes: null
-                    email_verified: true
-                    external_identities: null
-                    family_name: doe
-                    gender: ''
-                    given_name: John
-                    groups: null
-                    id: usp_102701193205186825
-                    locale: ''
-                    metadata: {}
-                    name: John Doe
-                    phone_number: ''
-                    phone_number_verified: false
-                    picture: https://lh3.googleusercontent.com/a/abcdef
-                    preferred_username: ''
-              display_name: User Signup
-      responses:
-        '200':
-          description: Webhook received successfully
-  user.login:
-    post:
-      summary: User Login
-      description: Triggered when a user logs in and a session is created
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_102701193859432713
-              type: user.login
-              object: User
-              occurred_at: '2025-12-09T12:04:41.781873312Z'
-              environment_id: env_96736846679245078
-              organization_id: org_102701193188409609
-              data:
-                user:
-                  create_time: '2025-12-09T12:04:41.39Z'
-                  email: john.doe@acmecorp.com
-                  external_id: ext_123456789
-                  id: usr_123456789
-                  last_login_time: '2025-12-09T12:04:41.48Z'
-                  metadata: {}
-                  update_time: '2025-12-09T12:04:41.391988Z'
-                  user_profile:
-                    custom_attributes: null
-                    email_verified: true
-                    external_identities:
-                      - connection_id: conn_97896332307464201
-                        connection_provider: GOOGLE
-                        connection_type: OAUTH
-                        connection_user_id: '105055379523565727691'
-                        created_time: '2025-12-09T12:04:41.47Z'
-                        is_social: true
-                        last_login_time: '2025-12-09T12:04:41.469311Z'
-                        last_synced_time: '2025-12-09T12:04:41.469311Z'
-                    family_name: Doe
-                    gender: ''
-                    given_name: John
-                    groups: null
-                    id: usp_102701193205186825
-                    locale: ''
-                    metadata: {}
-                    name: John Doe
-                    phone_number: ''
-                    phone_number_verified: false
-                    picture: https://lh3.googleusercontent.com/a/abcdef
-                    preferred_username: ''
-                user_session:
-                  absolute_expires_at: '2026-01-08T12:04:41.737394Z'
-                  authenticated_organizations:
-                    - org_102701193188409609
-                  created_at: '2025-12-09T12:04:41.48Z'
-                  expired_at: null
-                  idle_expires_at: '2025-12-16T12:04:41.737395Z'
-                  last_active_at: '2025-12-09T12:04:41.747206Z'
-                  logout_at: null
-                  organization_id: org_102701193188409609
-                  session_id: ses_102701193356116233
-                  status: ACTIVE
-                  updated_at: '2025-12-09T12:04:41.748512Z'
-                  user_id: usr_102701193205121289
-                  device:
-                    browser: Chrome
-                    browser_version: 142.0.0.0
-                    device_type: Desktop
-                    ip: 152.59.144.211
-                    location:
-                      city: Patna
-                      latitude: '25.594095'
-                      longitude: '85.137564'
-                      region: IN
-                      region_subdivision: INBR
-                    os: macOS
-                    os_version: 10.15.7
-                    user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36
-              display_name: User Login
-      responses:
-        '200':
-          description: Webhook received successfully
-  user.logout:
-    post:
-      summary: User Logout
-      description: Triggered when a user's session is terminated
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_102708230123160586
-              type: user.logout
-              object: User
-              occurred_at: '2025-12-09T13:14:35.722070822Z'
-              environment_id: env_96736846679245078
-              organization_id: org_102701193188409609
-              data:
-                user:
-                  create_time: '2025-12-09T12:04:41.39Z'
-                  email: john.doe@acmecorp.com
-                  external_id: ext_123456789
-                  id: usr_123456789
-                  last_login_time: '2025-12-09T12:04:41.48Z'
-                  metadata: {}
-                  update_time: '2025-12-09T12:04:41.391988Z'
-                  user_profile:
-                    custom_attributes: null
-                    email_verified: true
-                    external_identities:
-                      - connection_id: conn_97896332307464201
-                        connection_provider: GOOGLE
-                        connection_type: OAUTH
-                        connection_user_id: '105055379523565727691'
-                        created_time: '2025-12-09T12:04:41.47Z'
-                        is_social: true
-                        last_login_time: '2025-12-09T12:04:41.469311Z'
-                        last_synced_time: '2025-12-09T12:04:41.469311Z'
-                    family_name: Doe
-                    gender: ''
-                    given_name: John
-                    groups: null
-                    id: usp_102701193205186825
-                    locale: ''
-                    metadata: {}
-                    name: John Doe
-                    phone_number: ''
-                    phone_number_verified: false
-                    picture: https://lh3.googleusercontent.com/a/abcdef
-                    preferred_username: ''
-                user_session:
-                  absolute_expires_at: '2026-01-08T12:04:41.737394Z'
-                  authenticated_organizations:
-                    - org_102701193188409609
-                  created_at: '2025-12-09T12:04:41.48Z'
-                  expired_at: null
-                  idle_expires_at: '2025-12-16T12:04:41.737395Z'
-                  last_active_at: '2025-12-09T12:04:41.747206Z'
-                  logout_at: null
-                  organization_id: org_102701193188409609
-                  session_id: ses_102701193356116233
-                  status: ACTIVE
-                  updated_at: '2025-12-09T12:04:41.748512Z'
-                  user_id: usr_102701193205121289
-                  device:
-                    browser: Chrome
-                    browser_version: 142.0.0.0
-                    device_type: Desktop
-                    ip: 152.59.144.211
-                    location:
-                      city: Patna
-                      latitude: '25.594095'
-                      longitude: '85.137564'
-                      region: IN
-                      region_subdivision: INBR
-                    os: macOS
-                    os_version: 10.15.7
-                    user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36
-              display_name: User Logout
-      responses:
-        '200':
-          description: Webhook received successfully
-  user.organization_invitation:
-    post:
-      summary: User Organization Invitation
-      description: Triggered when a user is invited to join an organization
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_4567890123
-              type: user.organization_invitation
-              object: OrgMembership
-              occurred_at: '2024-01-15T11:00:00.123456789Z'
-              environment_id: env_1234567890
-              organization_id: org_102690563312124938
-              data:
-                organization:
-                  id: org_102690563312124938
-                  create_time: '2025-12-09T10:19:05.48Z'
-                  display_name: Acme Corp
-                  external_id: org_external_123
-                  metadata: null
-                  region_code: US
-                  update_time: '2025-12-09T12:04:41.386974738Z'
-                  settings:
-                    features:
-                      - enabled: true
-                        name: sso
-                      - enabled: true
-                        name: dir_sync
-                user:
-                  create_time: '2025-12-09T12:04:41.39Z'
-                  email: john.doe@acmecorp.com
-                  external_id: ext_123456789
-                  id: usr_123456789
-                  metadata: {}
-                  update_time: '2025-12-09T12:04:41.391988Z'
-                  user_profile:
-                    custom_attributes: null
-                    email_verified: true
-                    external_identities:
-                      - connection_id: conn_97896332307464201
-                        connection_provider: GOOGLE
-                        connection_type: OAUTH
-                        connection_user_id: '105055379523565727691'
-                        created_time: '2025-12-09T12:04:41.47Z'
-                        is_social: true
-                        last_login_time: '2025-12-09T12:04:41.469311Z'
-                        last_synced_time: '2025-12-09T12:04:41.469311Z'
-                    family_name: Doe
-                    gender: ''
-                    given_name: John
-                    groups: null
-                    id: usp_102701193205186825
-                    locale: ''
-                    metadata: {}
-                    name: John Doe
-                    phone_number: ''
-                    phone_number_verified: false
-                    picture: https://lh3.googleusercontent.com/a/abcdef
-                    preferred_username: ''
-              display_name: User Organization Invitation
-      responses:
-        '200':
-          description: Webhook received successfully
-  user.organization_membership_created:
-    post:
-      summary: User Organization Membership Created
-      description: Triggered when a user joins an organization
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_5678901234
-              type: user.organization_membership_created
-              object: OrgMembership
-              occurred_at: '2024-01-15T11:05:00.123456789Z'
-              environment_id: env_1234567890
-              organization_id: org_102690563312124938
-              data:
-                organization:
-                  id: org_102690563312124938
-                  create_time: '2025-12-09T10:19:05.48Z'
-                  display_name: Acme Corp
-                  external_id: org_external_123
-                  metadata: null
-                  region_code: US
-                  update_time: '2025-12-09T12:04:41.386974738Z'
-                  settings:
-                    features:
-                      - enabled: true
-                        name: sso
-                      - enabled: true
-                        name: dir_sync
-                user:
-                  create_time: '2025-12-09T12:04:41.39Z'
-                  email: john.doe@acmecorp.com
-                  external_id: ext_123456789
-                  id: usr_123456789
-                  metadata: {}
-                  update_time: '2025-12-09T12:04:41.391988Z'
-                  user_profile:
-                    custom_attributes: null
-                    email_verified: true
-                    external_identities:
-                      - connection_id: conn_97896332307464201
-                        connection_provider: GOOGLE
-                        connection_type: OAUTH
-                        connection_user_id: '105055379523565727691'
-                        created_time: '2025-12-09T12:04:41.47Z'
-                        is_social: true
-                        last_login_time: '2025-12-09T12:04:41.469311Z'
-                        last_synced_time: '2025-12-09T12:04:41.469311Z'
-                    family_name: Doe
-                    gender: ''
-                    given_name: John
-                    groups: null
-                    id: usp_102701193205186825
-                    locale: ''
-                    metadata: {}
-                    name: John Doe
-                    phone_number: ''
-                    phone_number_verified: false
-                    picture: https://lh3.googleusercontent.com/a/abcdef
-                    preferred_username: ''
-              display_name: User Organization Membership Created
-      responses:
-        '200':
-          description: Webhook received successfully
-  user.organization_membership_deleted:
-    post:
-      summary: User Organization Membership Deleted
-      description: Triggered when a user's membership in an organization is removed or deleted
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_9012345678
-              type: user.organization_membership_deleted
-              object: OrgMembership
-              occurred_at: '2024-01-15T11:10:00.123456789Z'
-              environment_id: env_1234567890
-              organization_id: org_102690563312124938
-              data:
-                organization:
-                  id: org_102690563312124938
-                  create_time: '2025-12-09T10:19:05.48Z'
-                  display_name: Acme Corp
-                  external_id: org_external_123
-                  metadata: null
-                  region_code: US
-                  update_time: '2025-12-09T12:04:41.386974738Z'
-                  settings:
-                    features:
-                      - enabled: true
-                        name: sso
-                      - enabled: true
-                        name: dir_sync
-                user:
-                  create_time: '2025-12-09T12:04:41.39Z'
-                  email: john.doe@acmecorp.com
-                  external_id: ext_123456789
-                  id: usr_123456789
-                  metadata: {}
-                  update_time: '2025-12-09T12:04:41.391988Z'
-                  user_profile:
-                    custom_attributes: null
-                    email_verified: true
-                    external_identities:
-                      - connection_id: conn_97896332307464201
-                        connection_provider: GOOGLE
-                        connection_type: OAUTH
-                        connection_user_id: '105055379523565727691'
-                        created_time: '2025-12-09T12:04:41.47Z'
-                        is_social: true
-                        last_login_time: '2025-12-09T12:04:41.469311Z'
-                        last_synced_time: '2025-12-09T12:04:41.469311Z'
-                        raw_attributes: '{}'
-                        updated_time: '2025-12-09T12:04:41.473087Z'
-                    family_name: Doe
-                    gender: ''
-                    given_name: John
-                    locale: ''
-                    metadata: {}
-                    name: John Doe
-                    phone_number: ''
-                    phone_number_verified: false
-                    picture: https://lh3.googleusercontent.com/a/abcdef
-                    preferred_username: ''
-              display_name: User Organization Membership Deleted
-      responses:
-        '200':
-          description: Webhook received successfully
-  user.organization_membership_updated:
-    post:
-      summary: User Organization Membership Updated
-      description: Triggered when a user's organization membership is updated, e.g., change of user's role in an organization
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_6789012345
-              type: user.organization_membership_updated
-              object: OrgMembership
-              occurred_at: '2024-01-15T11:10:00.123456789Z'
-              environment_id: env_1234567890
-              organization_id: org_102690563312124938
-              data:
-                organization:
-                  id: org_102690563312124938
-                  create_time: '2025-12-09T10:19:05.48Z'
-                  display_name: Acme Corp
-                  external_id: org_external_123
-                  metadata: null
-                  region_code: US
-                  update_time: '2025-12-09T12:04:41.386974738Z'
-                  settings:
-                    features:
-                      - enabled: true
-                        name: sso
-                      - enabled: true
-                        name: dir_sync
-                user:
-                  create_time: '2025-12-09T12:04:41.39Z'
-                  email: john.doe@acmecorp.com
-                  external_id: ext_123456789
-                  id: usr_123456789
-                  metadata: {}
-                  update_time: '2025-12-09T12:04:41.391988Z'
-                  user_profile:
-                    custom_attributes: null
-                    email_verified: true
-                    external_identities:
-                      - connection_id: conn_97896332307464201
-                        connection_provider: GOOGLE
-                        connection_type: OAUTH
-                        connection_user_id: '105055379523565727691'
-                        created_time: '2025-12-09T12:04:41.47Z'
-                        is_social: true
-                        last_login_time: '2025-12-09T12:04:41.469311Z'
-                        last_synced_time: '2025-12-09T12:04:41.469311Z'
-                        raw_attributes: '{}'
-                        updated_time: '2025-12-09T12:04:41.473087Z'
-                    family_name: Doe
-                    gender: ''
-                    given_name: John
-                    locale: ''
-                    metadata: {}
-                    name: John Doe
-                    phone_number: ''
-                    phone_number_verified: false
-                    picture: https://lh3.googleusercontent.com/a/abcdef
-                    preferred_username: ''
-              display_name: User Organization Membership Updated
-      responses:
-        '200':
-          description: Webhook received successfully
-  organization.directory_enabled:
-    post:
-      summary: Directory Enabled
-      description: Triggered when a directory sync is enabled
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_55136848686613000
-              type: organization.directory_enabled
-              object: Directory
-              occurred_at: '2025-01-15T08:55:22.802860294Z'
-              environment_id: env_27758032200925221
-              organization_id: org_55135410258444802
-              data:
-                directory_type: SCIM
-                enabled: true
-                id: dir_55135622825771522
-                organization_id: org_55135410258444802
-                provider: OKTA
-                updated_at: '2025-01-15T08:55:22.792993454Z'
-              display_name: Directory Enabled
-      responses:
-        '200':
-          description: Webhook received successfully
-  organization.directory_disabled:
-    post:
-      summary: Directory Disabled
-      description: Triggered when a directory sync is disabled
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_53891640779079756
-              type: organization.directory_disabled
-              object: Directory
-              occurred_at: '2025-01-06T18:45:21.057814Z'
-              environment_id: env_53814739859406915
-              organization_id: org_53879494091473415
-              data:
-                directory_type: SCIM
-                enabled: false
-                id: dir_53879621145330183
-                organization_id: org_53879494091473415
-                provider: OKTA
-                updated_at: '2025-01-06T18:45:21.04978184Z'
-              display_name: Directory Disabled
-      responses:
-        '200':
-          description: Webhook received successfully
-  organization.directory.user_created:
-    post:
-      summary: Directory User Created
-      description: Triggered when a new directory user is created
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_53891546994442316
-              type: organization.directory.user_created
-              object: DirectoryUser
-              occurred_at: '2025-01-06T18:44:25.153954Z'
-              environment_id: env_53814739859406915
-              organization_id: org_53879494091473415
-              data:
-                active: true
-                cost_center: QAUZJUHSTYCN
-                custom_attributes:
-                  mobile_phone_number: 1-579-4072
-                department: HNXJPGISMIFN
-                division: MJFUEYJOKICN
-                dp_id: <id from IDP>
-                email: flavio@runolfsdottir.co.duk
-                employee_id: AWNEDTILGaIZN
-                family_name: Jaquelin
-                given_name: Dayton
-                groups:
-                  - id: dirgroup_12312312312312
-                    name: Group Name
-                id: diruser_53891546960887884
-                language: se
-                locale: LLWLEWESPLDC
-                name: QDRGUZZDYMFU
-                nickname: DTUODYKGFPPC
-                organization: AUIITQVUQGVH
-                organization_id: org_53879494091473415
-                phone_number: 1-579-4072
-                preferred_username: kuntala1233a
-                profile: YMIUQUHKGVAX
-                raw_attributes: {}
-                title: FKQBHCWJXZSC
-                user_type: RBQFJSQEFAEH
-                zoneinfo: America/Araguaina
-                roles:
-                  - role_name: billing_admin
-              display_name: Directory User Created
-      responses:
-        '200':
-          description: Webhook received successfully
-  organization.directory.user_updated:
-    post:
-      summary: Directory User Updated
-      description: Triggered when a directory user is updated
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_53891546994442317
-              type: organization.directory.user_updated
-              object: DirectoryUser
-              occurred_at: '2025-01-06T18:44:25.153954Z'
-              environment_id: env_53814739859406915
-              organization_id: org_53879494091473415
-              data:
-                id: diruser_12312312312312
-                organization_id: org_53879494091473415
-                dp_id: <scim_external_id>
-                preferred_username: <idp_user_name>
-                email: john.doe@example.com
-                active: true
-                name: John Doe
-                roles:
-                  - role_name: billing_admin
-                groups:
-                  - id: dirgroup_12312312312312
-                    name: Group Name
-                given_name: John
-                family_name: Doe
-                nickname: Jhonny boy
-                picture: https://image.com/profile.jpg
-                phone_number: '1234567892'
-                address:
-                  postal_code: '64112'
-                  state: Missouri
-                  formatted: 123, Oxford Lane, Kansas City, Missouri, 64112
-                custom_attributes:
-                  attribute1: value1
-                  attribute2: value2
-                raw_attributes: {}
-              display_name: Directory User Updated
-      responses:
-        '200':
-          description: Webhook received successfully
-  organization.directory.user_deleted:
-    post:
-      summary: Directory User Deleted
-      description: Triggered when a directory user is deleted
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_53891546994442318
-              type: organization.directory.user_deleted
-              object: DirectoryUser
-              occurred_at: '2025-01-06T18:44:25.153954Z'
-              environment_id: env_53814739859406915
-              organization_id: org_53879494091473415
-              data:
-                id: diruser_12312312312312
-                organization_id: org_12312312312312
-                dp_id: <scim_external_id>
-                email: john.doe@example.com
-              display_name: Directory User Deleted
-      responses:
-        '200':
-          description: Webhook received successfully
-  organization.directory.group_created:
-    post:
-      summary: Directory Group Created
-      description: Triggered when a new directory group is created
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_38862741515010639
-              type: organization.directory.group_created
-              object: DirectoryGroup
-              occurred_at: '2024-09-25T02:26:39.036398577Z'
-              environment_id: env_32080745237316098
-              organization_id: org_38609339635728478
-              data:
-                directory_id: dir_38610496391217780
-                display_name: Avengers
-                external_id: null
-                id: dirgroup_38862741498233423
-                organization_id: org_38609339635728478
-                raw_attributes: {}
-              display_name: Directory Group Created
-      responses:
-        '200':
-          description: Webhook received successfully
-  organization.directory.group_updated:
-    post:
-      summary: Directory Group Updated
-      description: Triggered when a directory group is updated
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_38864948910162368
-              type: organization.directory.group_updated
-              object: DirectoryGroup
-              occurred_at: '2024-09-25T02:48:34.745030921Z'
-              environment_id: env_32080745237316098
-              organization_id: org_38609339635728478
-              data:
-                directory_id: dir_38610496391217780
-                display_name: Avengers
-                external_id: <external_id>
-                id: dirgroup_38862741498233423
-                organization_id: org_38609339635728478
-                raw_attributes: {}
-              display_name: Directory Group Updated
-      responses:
-        '200':
-          description: Webhook received successfully
-  organization.directory.group_deleted:
-    post:
-      summary: Directory Group Deleted
-      description: Triggered when a directory group is deleted
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_40650399597723966
-              type: organization.directory.group_deleted
-              object: DirectoryGroup
-              occurred_at: '2024-10-07T10:25:26.289331747Z'
-              environment_id: env_12205603854221623
-              organization_id: org_39802449573184223
-              data:
-                directory_id: dir_39802485862301855
-                display_name: Admins
-                dp_id: 7c66a173-79c6-4270-ac78-8f35a8121e0a
-                id: dirgroup_40072007005503806
-                organization_id: org_39802449573184223
-                raw_attributes: {}
-              display_name: Directory Group Deleted
-      responses:
-        '200':
-          description: Webhook received successfully
-  organization.sso_created:
-    post:
-      summary: SSO Connection Created
-      description: Triggered when a new SSO connection is created for an organization
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_94567862441607493
-              type: organization.sso_created
-              object: Connection
-              environment_id: env_74418471961625391
-              occurred_at: '2025-10-14T09:27:18.488720586Z'
-              organization_id: org_83544995172188677
-              data:
-                id: conn_94567862424830277
-                organization_id: org_83544995172188677
-                connection_type: OIDC
-                provider: OKTA
-              display_name: SSO Connection Created
-      responses:
-        '200':
-          description: Webhook received successfully
-  organization.sso_enabled:
-    post:
-      summary: SSO Connection Enabled
-      description: Triggered when an SSO connection is enabled for an organization
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_94568078213382471
-              type: organization.sso_enabled
-              object: Connection
-              environment_id: env_74418471961625391
-              occurred_at: '2025-10-14T09:29:27.098914861Z'
-              organization_id: org_83544995172188677
-              data:
-                id: conn_94567862424830277
-                organization_id: org_83544995172188677
-                connection_type: OIDC
-                provider: OKTA
-                enabled: true
-                status: COMPLETED
-              display_name: SSO Connection Enabled
-      responses:
-        '200':
-          description: Webhook received successfully
-  organization.sso_disabled:
-    post:
-      summary: SSO Connection Disabled
-      description: Triggered when an SSO connection is disabled for an organization
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_94557976165089560
-              type: organization.sso_disabled
-              object: Connection
-              environment_id: env_74418471961625391
-              occurred_at: '2025-10-14T07:49:05.809554456Z'
-              organization_id: org_83544995172188677
-              data:
-                id: conn_83545002856153607
-                organization_id: org_83544995172188677
-                connection_type: OIDC
-                provider: OKTA
-                enabled: false
-                status: COMPLETED
-              display_name: SSO Connection Disabled
-      responses:
-        '200':
-          description: Webhook received successfully
-  organization.sso_deleted:
-    post:
-      summary: SSO Connection Deleted
-      description: Triggered when an SSO connection is deleted for an organization
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_94557997639926040
-              type: organization.sso_deleted
-              object: Connection
-              environment_id: env_74418471961625391
-              occurred_at: '2025-10-14T07:49:18.604546332Z'
-              organization_id: org_83544995172188677
-              data:
-                id: conn_83545002856153607
-                organization_id: org_83544995172188677
-                connection_type: OIDC
-                provider: OKTA
-              display_name: SSO Connection Deleted
-      responses:
-        '200':
-          description: Webhook received successfully
-  role.created:
-    post:
-      summary: Role Created
-      description: Triggered when a new role is created
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_1234567890
-              type: role.created
-              object: Role
-              occurred_at: '2024-01-15T10:30:00.123456789Z'
-              environment_id: env_1234567890
-              data:
-                description: Viewer role with read-only access
-                display_name: Viewer
-                extends: member
-                id: role_1234567890
-                name: viewer
-              display_name: Role Created
-      responses:
-        '200':
-          description: Webhook received successfully
-  role.updated:
-    post:
-      summary: Role Updated
-      description: Triggered when a role is updated
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_2345678901
-              type: role.updated
-              object: Role
-              occurred_at: '2024-01-15T10:35:00.123456789Z'
-              environment_id: env_1234567890
-              data:
-                description: Updated viewer role with limited permissions
-                display_name: Viewer
-                extends: member
-                id: role_1234567890
-                name: viewer
-              display_name: Role Updated
-      responses:
-        '200':
-          description: Webhook received successfully
-  role.deleted:
-    post:
-      summary: Role Deleted
-      description: Triggered when a role is deleted
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_3456789012
-              type: role.deleted
-              object: Role
-              occurred_at: '2024-01-15T10:40:00.123456789Z'
-              environment_id: env_1234567890
-              data:
-                description: Updated viewer role with limited permissions
-                display_name: Viewer
-                extends: member
-                id: role_1234567890
-                name: viewer
-              display_name: Role Deleted
-      responses:
-        '200':
-          description: Webhook received successfully
-  permission.created:
-    post:
-      summary: Permission Created
-      description: Triggered when a new permission is created
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_1234567890
-              type: permission.created
-              object: Permission
-              occurred_at: '2024-01-15T10:30:00.123456789Z'
-              environment_id: env_1234567890
-              data:
-                description: Permission to manage data
-                id: perm_1234567890
-                name: data:manage
-              display_name: Permission Created
-      responses:
-        '200':
-          description: Webhook received successfully
-  permission.updated:
-    post:
-      summary: Permission Updated
-      description: Triggered when a permission is updated
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_2345678901
-              type: permission.updated
-              object: Permission
-              occurred_at: '2024-01-15T10:35:00.123456789Z'
-              environment_id: env_1234567890
-              data:
-                description: Updated permission to manage all data
-                id: perm_1234567890
-                name: data:manage
-              display_name: Permission Updated
-      responses:
-        '200':
-          description: Webhook received successfully
-  permission.deleted:
-    post:
-      summary: Permission Deleted
-      description: Triggered when a permission is deleted
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_3456789012
-              type: permission.deleted
-              object: Permission
-              occurred_at: '2024-01-15T10:40:00.123456789Z'
-              environment_id: env_1234567890
-              data:
-                description: Updated permission to manage all data
-                id: perm_1234567890
-                name: data:manage
-              display_name: Permission Deleted
-      responses:
-        '200':
-          description: Webhook received successfully
-  connected_account.created:
-    post:
-      summary: Connected Account Created
-      description: Triggered when a new connected account is created
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_101531404017336586
-              type: connected_account.created
-              object: ConnectedAccount
-              occurred_at: '2025-12-01T10:23:52.702980847Z'
-              environment_id: env_88640229614813449
-              data:
-                authorization_type: OAUTH
-                connection_id: conn_100668583155073286
-                id: ca_101531404000559370
-                identifier: Bruce
-                provider: CANVA
-                status: PENDING_AUTH
-      responses:
-        '200':
-          description: Webhook received successfully
-  connected_account.updated:
-    post:
-      summary: Connected Account Updated
-      description: Triggered when a connected account is updated
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_101652975398683158
-              type: connected_account.updated
-              object: ConnectedAccount
-              occurred_at: '2025-12-02T06:31:34.895815554Z'
-              environment_id: env_88640229614813449
-              display_name: Connected account updated
-              data:
-                authorization_type: OAUTH
-                connection_id: conn_100510054016352776
-                id: ca_100510623602835982
-                identifier: Pranesh
-                provider: SUPABASE
-                status: PENDING_AUTH
-      responses:
-        '200':
-          description: Webhook received successfully
-  connected_account.deleted:
-    post:
-      summary: Connected Account Deleted
-      description: Triggered when a connected account is deleted
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_101653010731500290
-              type: connected_account.deleted
-              object: ConnectedAccount
-              occurred_at: '2025-12-02T06:31:55.954027187Z'
-              environment_id: env_88640229614813449
-              display_name: connected account deleted
-              data:
-                authorization_type: OAUTH
-                connection_id: conn_101644109747323155
-                id: ca_101649788113519113
-                identifier: Clark
-                last_used_at: '2025-12-02T06:00:01.374253Z'
-                provider: GOOGLE_ADS
-                status: ACTIVE
-                token_expires_at: '2025-12-02T06:59:57.237447Z'
-      responses:
-        '200':
-          description: Webhook received successfully
-  connected_account.magic_link_generated:
-    post:
-      summary: Connected Account Magic Link Generated
-      description: Triggered when a magic link is generated for OAuth flow
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_101652975398683158
-              type: connected_account.magic_link_generated
-              object: ConnectedAccount
-              occurred_at: '2025-12-02T06:31:34.895815554Z'
-              environment_id: env_88640229614813448
-              data:
-                authorization_type: OAUTH
-                connection_id: conn_100510054016352776
-                id: ca_100510623602835982
-                identifier: Pranesh
-                provider: SUPABASE
-                status: PENDING_AUTH
-      responses:
-        '200':
-          description: Webhook received successfully
-  connected_account.oauth_tokens_fetched:
-    post:
-      summary: Connected Account OAuth Tokens Fetched
-      description: Triggered when OAuth tokens are successfully fetched
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_101649795042509316
-              type: connected_account.oauth_tokens_fetched
-              object: ConnectedAccount
-              occurred_at: '2025-12-02T05:59:59.250126407Z'
-              environment_id: env_88640229614813449
-              data:
-                authorization_type: OAUTH
-                connection_id: conn_101644109747323155
-                id: ca_101649788113519113
-                identifier: Clark
-                provider: GOOGLE_ADS
-                status: ACTIVE
-                token_expires_at: '2025-12-02T06:59:57.237447778Z'
-      responses:
-        '200':
-          description: Webhook received successfully
-  connected_account.token_refresh_succeeded:
-    post:
-      summary: Connected Account Token Refresh Succeeded
-      description: Triggered when token refresh succeeds
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_101651946317808143
-              type: connected_account.token_refresh_succeeded
-              object: ConnectedAccount
-              occurred_at: '2025-12-02T06:21:21.517480021Z'
-              environment_id: env_88640229614813449
-              data:
-                authorization_type: OAUTH
-                connection_id: conn_101644109747323155
-                id: ca_101644170698948883
-                identifier: Pranesh
-                last_used_at: '2025-12-02T06:21:21.393723232Z'
-                provider: GOOGLE_ADS
-                status: ACTIVE
-                token_expires_at: '2025-12-02T07:21:20.508197312Z'
-      responses:
-        '200':
-          description: Webhook received successfully
-  connected_account.token_refresh_failed:
-    post:
-      summary: Connected Account Token Refresh Failed
-      description: Triggered when token refresh fails
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_101649795042509316
-              type: connected_account.token_refresh_failed
-              object: ConnectedAccount
-              occurred_at: '2025-12-02T05:59:59.250126407Z'
-              environment_id: env_88640229614813445
-              data:
-                authorization_type: OAUTH
-                connection_id: conn_101644109747323155
-                id: ca_101649788113519113
-                identifier: Clark
-                provider: GOOGLE_ADS
-                status: ACTIVE
-                token_expires_at: '2025-12-02T06:59:57.237447778Z'
-      responses:
-        '200':
-          description: Webhook received successfully
-  connected_account.oauth_succeeded:
-    post:
-      summary: Connected Account OAuth Succeeded
-      description: Triggered when OAuth authentication succeeds
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScalekitEvent'
-            example:
-              spec_version: '1'
-              id: evt_101649484227871236
-              type: connected_account.oauth_succeeded
-              object: ConnectedAccount
-              occurred_at: '2025-12-02T05:56:53.994604757Z'
-              environment_id: env_88640229614813449
-              data:
-                authorization_type: OAUTH
-                connection_id: conn_101644109747323155
-                id: ca_101649474950005257
-                identifier: Bruce
-                provider: GOOGLE_ADS
-                status: ACTIVE
-                token_expires_at: '2025-12-02T06:56:52.976081699Z'
-      responses:
-        '200':
-          description: Webhook received successfully
+tags:
+  - name: MCP
+    description: Manage MCP servers and their configurations for AI agents. MCP (Model Context Protocol) allows agents to securely access tools and data through authenticated connections.
+  - name: MCP Configurations
+    description: Create and manage reusable MCP configurations. A configuration defines which connections and tools are available to an MCP server instance.
+  - name: MCP Instances
+    description: Create, manage, and interact with live MCP server instances. An instance is a running MCP server tied to a specific configuration and user.
+  - name: Connectors
+    description: Manage connectors (also called providers) that your agents can use to authenticate with third-party services. This includes both built-in connectors and environment-scoped custom connectors.
+  - name: Tool Calling
+    description: Execute tools on behalf of a connected account. This is the primary public surface for running actions like sending emails, creating calendar events, or managing resources in external services.
+  - name: ToolService
+    x-scalar-ignore: true
+externalDocs:
+  description: Scalekit Docs
+  url: https://docs.scalekit.com/
+openapi: 3.1.1
+servers:
+  - url: https://$SCALEKIT_ENVIRONMENT_URL
 components:
   schemas:
     HelpInfoLink:
@@ -7149,7 +6056,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2024-01-05T14:48:00Z'
+            - 2024-01-05T14:48:00Z
         created_by:
           description: The identifier of the user or system that created this secret. This field helps track who created the secret for audit and compliance purposes.
           type: string
@@ -7160,7 +6067,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2025-01-05T14:48:00Z'
+            - 2025-01-05T14:48:00Z
         id:
           description: The unique identifier for this client secret. This ID is used to reference the secret in API requests for management operations like updating or deleting the secret.
           type: string
@@ -7171,7 +6078,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2024-02-15T10:30:00Z'
+            - 2024-02-15T10:30:00Z
         plain_secret:
           description: The full plaintext secret value. This field is only populated when the secret is first created and is never stored by the server. It must be securely stored by the client application as it cannot be retrieved again.
           type: string
@@ -7192,7 +6099,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2024-01-10T09:12:00Z'
+            - 2024-01-10T09:12:00Z
     clientsClientSecretStatus:
       description: |-
         ClientSecretStatus indicates whether a client secret can be used for authentication.
@@ -7294,7 +6201,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2024-01-05T14:48:00Z'
+            - 2024-01-05T14:48:00Z
         custom_claims:
           description: Additional claims included in access tokens issued to this client. These claims provide context about the client and can be used for authorization decisions.
           type: array
@@ -7368,7 +6275,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2024-01-05T14:48:00Z'
+            - 2024-01-05T14:48:00Z
     clientsOrganizationClient:
       type: object
       properties:
@@ -7746,7 +6653,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2024-03-20T14:30:00Z'
+            - 2024-03-20T14:30:00Z
         provider:
           description: OAuth provider name (e.g., 'google', 'microsoft', 'github'). Identifies which authentication service manages this connection.
           type: string
@@ -7760,13 +6667,13 @@ components:
           type: string
           format: date-time
           examples:
-            - '2024-12-31T23:59:59Z'
+            - 2024-12-31T23:59:59Z
         updated_at:
           description: Timestamp when this connected account was last modified. Updated whenever credentials or configuration changes.
           type: string
           format: date-time
           examples:
-            - '2024-03-20T15:04:05Z'
+            - 2024-03-20T15:04:05Z
     connected_accountsConnectedAccountForList:
       type: object
       title: Connected account summary for list operations - excludes sensitive authorization details
@@ -7799,7 +6706,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2024-03-20T14:30:00Z'
+            - 2024-03-20T14:30:00Z
         provider:
           description: OAuth provider name (e.g., 'google', 'microsoft').
           type: string
@@ -7813,13 +6720,13 @@ components:
           type: string
           format: date-time
           examples:
-            - '2024-12-31T23:59:59Z'
+            - 2024-12-31T23:59:59Z
         updated_at:
           description: Last modification timestamp.
           type: string
           format: date-time
           examples:
-            - '2024-03-20T15:04:05Z'
+            - 2024-03-20T15:04:05Z
     connected_accountsConnectorStatus:
       description: |-
         - ACTIVE: Account is connected and credentials are valid
@@ -7933,6 +6840,8 @@ components:
           type: string
           examples:
             - user_121312434123312
+    connected_accountsDeleteConnectedAccountResponse:
+      type: object
     connected_accountsGetConnectedAccountByIdentifierResponse:
       type: object
       properties:
@@ -7985,7 +6894,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2024-03-20T15:04:05Z'
+            - 2024-03-20T15:04:05Z
         link:
           description: Authentication link for the connector
           type: string
@@ -8391,13 +7300,13 @@ components:
           type: string
           format: date-time
           examples:
-            - '2021-09-01T00:00:00Z'
+            - 2021-09-01T00:00:00Z
         expiry_time:
           description: Certificate Expiry Time
           type: string
           format: date-time
           examples:
-            - '2021-09-01T00:00:00Z'
+            - 2021-09-01T00:00:00Z
         id:
           description: Certificate ID
           type: string
@@ -9021,7 +7930,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2024-10-01T00:00:00Z'
+            - 2024-10-01T00:00:00Z
         name:
           description: Name of the directory, typically representing the connected Directory provider
           type: string
@@ -9088,7 +7997,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2024-10-01T00:00:00Z'
+            - 2024-10-01T00:00:00Z
     directoriesDirectoryProvider:
       type: string
       enum:
@@ -9149,7 +8058,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2024-10-01T00:00:00Z'
+            - 2024-10-01T00:00:00Z
         user_detail:
           description: Complete User Details Payload
           type: object
@@ -9232,7 +8141,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2024-10-01T00:00:00Z'
+            - 2024-10-01T00:00:00Z
         directory_id:
           description: Directory ID
           type: string
@@ -9243,7 +8152,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2025-10-01T00:00:00Z'
+            - 2025-10-01T00:00:00Z
         id:
           type: string
         last_used_time:
@@ -9251,7 +8160,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2024-10-01T00:00:00Z'
+            - 2024-10-01T00:00:00Z
         secret_suffix:
           description: Secret Suffix
           type: string
@@ -9274,7 +8183,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2024-10-01T00:00:00Z'
+            - 2024-10-01T00:00:00Z
         total_groups:
           description: Total Groups in the Directory
           type: integer
@@ -9292,7 +8201,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2024-10-01T00:00:00Z'
+            - 2024-10-01T00:00:00Z
     directoriesToggleDirectoryResponse:
       type: object
       properties:
@@ -9320,7 +8229,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2025-09-01T12:14:43.100000Z'
+            - 2025-09-01T12:14:43.100000Z
         domain:
           description: The business domain name that was configured for allowed email domain functionality (e.g., company.com, subdomain.company.com).
           type: string
@@ -9348,7 +8257,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2025-09-01T12:14:43.110455Z'
+            - 2025-09-01T12:14:43.110455Z
         verification_method:
           description: |-
             Method that determines how domain ownership is verified.
@@ -9546,12 +8455,30 @@ components:
           readOnly: true
           examples:
             - eyJhbGciOiJSUzI1NiIsImtpZCI6InNua18xMjMifQ.eyJhdWQiOlsiYWxpY2VAYWNtZS5jb20iXSwidG9rZW5fdHlwZSI6Im1jcF9zZXNzaW9uIn0.signature
+    mcpDeleteMcpConfigResponse:
+      type: object
     mcpGetMcpConfigResponse:
       type: object
       properties:
         config:
           description: The requested MCP configuration
           $ref: '#/components/schemas/mcpMcpConfig'
+    mcpListMcpConfigsRequestFilter:
+      type: object
+      properties:
+        id:
+          description: Filter by MCP configuration id
+          type: string
+        mcp_server_url:
+          description: Filter configs by MCP server URL. The UUID is extracted from the last path segment of the URL and used to find the matching configuration.
+          type: string
+        name:
+          description: 'Case-insensitive exact match on configuration name. Allowed characters: letters (a–z, A–Z), digits (0–9), hyphens (-), and underscores (_). Maximum 100 characters.'
+          type: string
+          maxLength: 100
+        provider:
+          description: Filter configs that include this provider
+          type: string
     mcpListMcpConfigsResponse:
       type: object
       properties:
@@ -9673,6 +8600,15 @@ components:
         organization:
           description: The newly created organization containing its ID, settings, and metadata
           $ref: '#/components/schemas/organizationsOrganization'
+    organizationsFeature:
+      description: |-
+        - dir_sync: Enables directory synchronization configuration in the portal
+         - sso: Enables Single Sign-On (SSO) configuration in the portal
+      type: string
+      title: Feature represents the available features that can be enabled for an organization's portal link
+      enum:
+        - dir_sync
+        - sso
     organizationsGeneratePortalLinkResponse:
       type: object
       properties:
@@ -9699,7 +8635,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2024-02-06T14:48:00Z'
+            - 2024-02-06T14:48:00Z
         id:
           description: Unique Identifier for the link
           type: string
@@ -9746,7 +8682,7 @@ components:
           format: date-time
           title: Created Time
           examples:
-            - '2025-02-15T06:23:44.560000Z'
+            - 2025-02-15T06:23:44.560000Z
         display_name:
           description: Name of the organization. Must be between 1 and 200 characters
           type: string
@@ -9801,7 +8737,7 @@ components:
           format: date-time
           title: Updated time
           examples:
-            - '2025-02-15T06:23:44.560000Z'
+            - 2025-02-15T06:23:44.560000Z
     organizationsOrganizationSessionPolicySettings:
       type: object
       properties:
@@ -10036,6 +8972,13 @@ components:
           $ref: '#/components/schemas/passwordlessTemplateType'
           examples:
             - SIGNIN
+    protobufNullValue:
+      description: |-
+        `NullValue` is a singleton enumeration to represent the null value for the
+        `Value` type union.
+
+        The JSON representation for `NullValue` is JSON `null`.
+      type: string
     providersCreateProviderResponse:
       type: object
       properties:
@@ -10256,6 +9199,11 @@ components:
         update_time:
           type: string
           format: date-time
+    rolesPermissionType:
+      type: string
+      enum:
+        - SCALEKIT
+        - ENVIRONMENT
     rolesRolePermission:
       type: object
       title: RolePermissions represents a permission with role source information
@@ -10451,37 +9399,37 @@ components:
           type: string
           format: date-time
           examples:
-            - '2025-01-22T10:30:00Z'
+            - 2025-01-22T10:30:00Z
         created_at:
           description: Timestamp indicating when the session was originally created before revocation.
           type: string
           format: date-time
           examples:
-            - '2025-01-15T10:30:00Z'
+            - 2025-01-15T10:30:00Z
         expired_at:
           description: Timestamp when the session was actually terminated. Set to the revocation time when the session is revoked.
           type: string
           format: date-time
           examples:
-            - '2025-01-15T12:00:00Z'
+            - 2025-01-15T12:00:00Z
         idle_expires_at:
           description: The idle expiration timestamp that was configured for this session before revocation. Represents when the session would have expired due to inactivity.
           type: string
           format: date-time
           examples:
-            - '2025-01-15T11:30:00Z'
+            - 2025-01-15T11:30:00Z
         last_active_at:
           description: Timestamp of the last recorded user activity in this session before revocation. Helps identify inactive sessions that were revoked.
           type: string
           format: date-time
           examples:
-            - '2025-01-15T10:55:30Z'
+            - 2025-01-15T10:55:30Z
         logout_at:
           description: Timestamp when the user explicitly logged out (if applicable). Null if the session was revoked without prior logout.
           type: string
           format: date-time
           examples:
-            - '2025-01-15T14:00:00Z'
+            - 2025-01-15T14:00:00Z
         session_id:
           description: Unique identifier for the revoked session. System-generated read-only field.
           type: string
@@ -10497,7 +9445,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2025-01-15T10:45:00Z'
+            - 2025-01-15T10:45:00Z
         user_id:
           description: Unique identifier for the user who owned this session.
           type: string
@@ -10511,7 +9459,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2025-01-22T10:30:00Z'
+            - 2025-01-22T10:30:00Z
         authenticated_clients:
           description: 'Details of the authenticated clients for this session: client ID and organization context.'
           type: array
@@ -10531,7 +9479,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2025-01-15T10:30:00Z'
+            - 2025-01-15T10:30:00Z
         device:
           description: Complete device metadata associated with this session including browser, operating system, device type, and geographic location based on IP address.
           $ref: '#/components/schemas/sessionsDeviceDetails'
@@ -10540,25 +9488,25 @@ components:
           type: string
           format: date-time
           examples:
-            - '2025-01-15T12:00:00Z'
+            - 2025-01-15T12:00:00Z
         idle_expires_at:
           description: Projected expiration timestamp if the session remains idle without user activity. This timestamp is recalculated with each user activity. Session will be automatically terminated at this time if no activity occurs.
           type: string
           format: date-time
           examples:
-            - '2025-01-15T11:30:00Z'
+            - 2025-01-15T11:30:00Z
         last_active_at:
           description: Timestamp of the most recent user activity detected in this session. Updated on each API request or user interaction. Used to determine if a session has exceeded the idle timeout threshold.
           type: string
           format: date-time
           examples:
-            - '2025-01-15T10:55:30Z'
+            - 2025-01-15T10:55:30Z
         logout_at:
           description: Timestamp when the user explicitly logged out from the session. Null if the user has not logged out. When set, indicates the session ended due to explicit user logout rather than timeout.
           type: string
           format: date-time
           examples:
-            - '2025-01-15T14:00:00Z'
+            - 2025-01-15T14:00:00Z
         organization_id:
           description: Organization ID for the user's most recently active organization within this session. This represents the primary organization context for the current session.
           type: string
@@ -10579,7 +9527,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2025-01-15T10:45:00Z'
+            - 2025-01-15T10:45:00Z
         user_id:
           description: Unique identifier for the user who owns and is authenticated within this session.
           type: string
@@ -10610,6 +9558,28 @@ components:
           format: int64
           examples:
             - 42
+    sessionsUserSessionFilter:
+      type: object
+      properties:
+        end_time:
+          description: Filter to include only sessions created on or before this timestamp. Optional. Uses RFC 3339 format. Must be after start_time if both are specified.
+          type: string
+          format: date-time
+          examples:
+            - 2025-12-31T23:59:59Z
+        start_time:
+          description: Filter to include only sessions created on or after this timestamp. Optional. Uses RFC 3339 format. Useful for querying sessions within a specific time window.
+          type: string
+          format: date-time
+          examples:
+            - 2025-01-01T00:00:00Z
+        status:
+          description: "Filter sessions by one or more status values. Possible values: 'active', 'expired', 'revoked', 'logout'. Leave empty to include all statuses. Multiple values use OR logic (e.g., status=['active', 'expired'] returns sessions that are either active OR expired)."
+          type: array
+          items:
+            type: string
+          examples:
+            - - active
     toolsExecuteToolRequest:
       type: object
       properties:
@@ -10787,13 +9757,13 @@ components:
           type: string
           format: date-time
           examples:
-            - '2025-07-10T08:00:00Z'
+            - 2025-07-10T08:00:00Z
         expires_at:
           description: The time at which the invite expires.
           type: string
           format: date-time
           examples:
-            - '2025-12-31T23:59:59Z'
+            - 2025-12-31T23:59:59Z
         inviter_email:
           description: Identifier of the user or system that initiated the invite.
           type: string
@@ -10809,7 +9779,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2025-07-15T09:30:00Z'
+            - 2025-07-15T09:30:00Z
         resent_count:
           description: Number of times the invite has been resent.
           type: integer
@@ -10920,7 +9890,7 @@ components:
           description: Updated invitation object containing the resent invitation details, including new expiration time and incremented resend counter.
           $ref: '#/components/schemas/usersInvite'
           examples:
-            - expires_at: '2025-12-31T23:59:59Z'
+            - expires_at: 2025-12-31T23:59:59Z
               organization_id: org_123
               resent_count: 2
               status: pending_invite
@@ -11662,7 +10632,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2025-02-15T06:23:44.560000Z'
+            - 2025-02-15T06:23:44.560000Z
         credential_id:
           description: The actual credential ID bytes from the authenticator
           type: string
@@ -11687,7 +10657,7 @@ components:
           type: string
           format: date-time
           examples:
-            - '2025-02-15T06:23:44.560000Z'
+            - 2025-02-15T06:23:44.560000Z
         user_agent:
           description: Browser and device information from registration
           $ref: '#/components/schemas/WebAuthnCredentialUserAgent'
@@ -11696,6 +10666,29 @@ components:
           type: string
           examples:
             - user_xyz789
+    TestUser:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: Whether test user mode is enabled for this environment.
+          example: true
+        emails:
+          type: array
+          items:
+            type: string
+            format: email
+          description: Explicit list of test user email addresses. Each email must contain '+sktest' in the local part (e.g. alice+sktest@example.com). Maximum 5 emails per environment (configurable server-side).
+          example:
+            - alice+sktest@example.com
+            - bob+sktest@example.com
+        static_confirmation_code:
+          type: string
+          pattern: ^[0-9]{6}$
+          minLength: 6
+          maxLength: 6
+          description: Six-digit static OTP code used in place of a real verification email for matched test users.
+          example: '424242'
     ScalekitEvent:
       type: object
       required:
@@ -11755,7 +10748,7 @@ components:
           type: string
           format: date-time
           description: When the event occurred (ISO 8601 format)
-          example: '2024-01-01T00:00:00Z'
+          example: 2024-01-01T00:00:00Z
         environment_id:
           type: string
           pattern: ^env_
@@ -11791,7 +10784,7 @@ components:
           example:
             id: org_1234567890abcdef
             name: Example Organization
-            created_at: '2024-01-01T00:00:00Z'
+            created_at: 2024-01-01T00:00:00Z
         display_name:
           type: string
           description: Human-readable display name for the event
@@ -11821,7 +10814,1347 @@ x-scalar-active-environment: staging
 x-scalekit-docs-operation-rank:
   default: 0
   path-segments:
-    - match: ':external'
+    - match: :external
       rank: 1
-    - match: ':search'
+    - match: :search
       rank: 2
+security:
+  - oauth2: []
+webhooks:
+  organization.created:
+    post:
+      summary: Organization Created
+      description: Triggered when a new organization is created in Scalekit
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_1234567890
+              type: organization.created
+              object: Organization
+              occurred_at: 2024-01-15T10:30:00.123456789Z
+              environment_id: env_1234567890
+              organization_id: org_1234567890
+              data:
+                create_time: 2025-12-09T09:25:02.02Z
+                display_name: AcmeCorp
+                external_id: org_external_123
+                id: org_1234567890
+                metadata: null
+                region_code: US
+                update_time: 2025-12-09T09:25:02.025330364Z
+                settings:
+                  features:
+                    - enabled: true
+                      name: sso
+                    - enabled: false
+                      name: dir_sync
+              display_name: Organization Created
+      responses:
+        '200':
+          description: Webhook received successfully
+  organization.updated:
+    post:
+      summary: Organization Updated
+      description: Triggered when an organization is updated
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_2345678901
+              type: organization.updated
+              object: Organization
+              occurred_at: 2024-01-15T10:35:00.123456789Z
+              environment_id: env_1234567890
+              organization_id: org_1234567890
+              data:
+                create_time: 2025-12-09T09:25:02.02Z
+                display_name: AcmeCorp
+                external_id: org_external_123
+                id: org_1234567890
+                metadata: null
+                region_code: US
+                update_time: 2025-12-09T09:25:02.025330364Z
+                settings:
+                  features:
+                    - enabled: true
+                      name: sso
+                    - enabled: false
+                      name: dir_sync
+              display_name: Organization Updated
+      responses:
+        '200':
+          description: Webhook received successfully
+  organization.deleted:
+    post:
+      summary: Organization Deleted
+      description: Triggered when an organization is deleted
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_3456789012
+              type: organization.deleted
+              object: Organization
+              occurred_at: 2024-01-15T10:40:00.123456789Z
+              environment_id: env_1234567890
+              organization_id: org_1234567890
+              data:
+                create_time: 2025-12-09T09:25:02.02Z
+                deleted_at: 2025-12-09T10:25:45.337417Z
+                display_name: AcmeCorp
+                external_id: org_external_123
+                id: org_1234567890
+                metadata: null
+                region_code: US
+                update_time: 2025-12-09T09:25:02.025330364Z
+                settings:
+                  features:
+                    - enabled: true
+                      name: sso
+                    - enabled: false
+                      name: dir_sync
+              display_name: Organization Deleted
+      responses:
+        '200':
+          description: Webhook received successfully
+  user.signup:
+    post:
+      summary: User Signup
+      description: Triggered when a user signs up to create a new organization
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_1234567890
+              type: user.signup
+              object: OrgMembership
+              occurred_at: 2024-01-15T10:30:00.123456789Z
+              environment_id: env_1234567890
+              organization_id: org_102690563312124938
+              data:
+                organization:
+                  id: org_102690563312124938
+                  create_time: 2025-12-09T10:19:05.48Z
+                  display_name: ''
+                  external_id: null
+                  metadata: null
+                  region_code: US
+                  update_time: 2025-12-09T12:04:41.386974738Z
+                  settings:
+                    features:
+                      - enabled: true
+                        name: sso
+                      - enabled: true
+                        name: dir_sync
+                user:
+                  create_time: 2025-12-09T12:04:41.39Z
+                  email: amit.ash1996@gmail.com
+                  external_id: ''
+                  id: usr_102701193205121289
+                  metadata: {}
+                  update_time: 2025-12-09T12:04:41.391988278Z
+                  user_profile:
+                    custom_attributes: null
+                    email_verified: true
+                    external_identities: null
+                    family_name: doe
+                    gender: ''
+                    given_name: John
+                    groups: null
+                    id: usp_102701193205186825
+                    locale: ''
+                    metadata: {}
+                    name: John Doe
+                    phone_number: ''
+                    phone_number_verified: false
+                    picture: https://lh3.googleusercontent.com/a/abcdef
+                    preferred_username: ''
+              display_name: User Signup
+      responses:
+        '200':
+          description: Webhook received successfully
+  user.login:
+    post:
+      summary: User Login
+      description: Triggered when a user logs in and a session is created
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_102701193859432713
+              type: user.login
+              object: User
+              occurred_at: 2025-12-09T12:04:41.781873312Z
+              environment_id: env_96736846679245078
+              organization_id: org_102701193188409609
+              data:
+                user:
+                  create_time: 2025-12-09T12:04:41.39Z
+                  email: john.doe@acmecorp.com
+                  external_id: ext_123456789
+                  id: usr_123456789
+                  last_login_time: 2025-12-09T12:04:41.48Z
+                  metadata: {}
+                  update_time: 2025-12-09T12:04:41.391988Z
+                  user_profile:
+                    custom_attributes: null
+                    email_verified: true
+                    external_identities:
+                      - connection_id: conn_97896332307464201
+                        connection_provider: GOOGLE
+                        connection_type: OAUTH
+                        connection_user_id: '105055379523565727691'
+                        created_time: 2025-12-09T12:04:41.47Z
+                        is_social: true
+                        last_login_time: 2025-12-09T12:04:41.469311Z
+                        last_synced_time: 2025-12-09T12:04:41.469311Z
+                    family_name: Doe
+                    gender: ''
+                    given_name: John
+                    groups: null
+                    id: usp_102701193205186825
+                    locale: ''
+                    metadata: {}
+                    name: John Doe
+                    phone_number: ''
+                    phone_number_verified: false
+                    picture: https://lh3.googleusercontent.com/a/abcdef
+                    preferred_username: ''
+                user_session:
+                  absolute_expires_at: 2026-01-08T12:04:41.737394Z
+                  authenticated_organizations:
+                    - org_102701193188409609
+                  created_at: 2025-12-09T12:04:41.48Z
+                  expired_at: null
+                  idle_expires_at: 2025-12-16T12:04:41.737395Z
+                  last_active_at: 2025-12-09T12:04:41.747206Z
+                  logout_at: null
+                  organization_id: org_102701193188409609
+                  session_id: ses_102701193356116233
+                  status: ACTIVE
+                  updated_at: 2025-12-09T12:04:41.748512Z
+                  user_id: usr_102701193205121289
+                  device:
+                    browser: Chrome
+                    browser_version: 142.0.0.0
+                    device_type: Desktop
+                    ip: 152.59.144.211
+                    location:
+                      city: Patna
+                      latitude: '25.594095'
+                      longitude: '85.137564'
+                      region: IN
+                      region_subdivision: INBR
+                    os: macOS
+                    os_version: 10.15.7
+                    user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36
+              display_name: User Login
+      responses:
+        '200':
+          description: Webhook received successfully
+  user.logout:
+    post:
+      summary: User Logout
+      description: Triggered when a user's session is terminated
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_102708230123160586
+              type: user.logout
+              object: User
+              occurred_at: 2025-12-09T13:14:35.722070822Z
+              environment_id: env_96736846679245078
+              organization_id: org_102701193188409609
+              data:
+                user:
+                  create_time: 2025-12-09T12:04:41.39Z
+                  email: john.doe@acmecorp.com
+                  external_id: ext_123456789
+                  id: usr_123456789
+                  last_login_time: 2025-12-09T12:04:41.48Z
+                  metadata: {}
+                  update_time: 2025-12-09T12:04:41.391988Z
+                  user_profile:
+                    custom_attributes: null
+                    email_verified: true
+                    external_identities:
+                      - connection_id: conn_97896332307464201
+                        connection_provider: GOOGLE
+                        connection_type: OAUTH
+                        connection_user_id: '105055379523565727691'
+                        created_time: 2025-12-09T12:04:41.47Z
+                        is_social: true
+                        last_login_time: 2025-12-09T12:04:41.469311Z
+                        last_synced_time: 2025-12-09T12:04:41.469311Z
+                    family_name: Doe
+                    gender: ''
+                    given_name: John
+                    groups: null
+                    id: usp_102701193205186825
+                    locale: ''
+                    metadata: {}
+                    name: John Doe
+                    phone_number: ''
+                    phone_number_verified: false
+                    picture: https://lh3.googleusercontent.com/a/abcdef
+                    preferred_username: ''
+                user_session:
+                  absolute_expires_at: 2026-01-08T12:04:41.737394Z
+                  authenticated_organizations:
+                    - org_102701193188409609
+                  created_at: 2025-12-09T12:04:41.48Z
+                  expired_at: null
+                  idle_expires_at: 2025-12-16T12:04:41.737395Z
+                  last_active_at: 2025-12-09T12:04:41.747206Z
+                  logout_at: null
+                  organization_id: org_102701193188409609
+                  session_id: ses_102701193356116233
+                  status: ACTIVE
+                  updated_at: 2025-12-09T12:04:41.748512Z
+                  user_id: usr_102701193205121289
+                  device:
+                    browser: Chrome
+                    browser_version: 142.0.0.0
+                    device_type: Desktop
+                    ip: 152.59.144.211
+                    location:
+                      city: Patna
+                      latitude: '25.594095'
+                      longitude: '85.137564'
+                      region: IN
+                      region_subdivision: INBR
+                    os: macOS
+                    os_version: 10.15.7
+                    user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36
+              display_name: User Logout
+      responses:
+        '200':
+          description: Webhook received successfully
+  user.organization_invitation:
+    post:
+      summary: User Organization Invitation
+      description: Triggered when a user is invited to join an organization
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_4567890123
+              type: user.organization_invitation
+              object: OrgMembership
+              occurred_at: 2024-01-15T11:00:00.123456789Z
+              environment_id: env_1234567890
+              organization_id: org_102690563312124938
+              data:
+                organization:
+                  id: org_102690563312124938
+                  create_time: 2025-12-09T10:19:05.48Z
+                  display_name: Acme Corp
+                  external_id: org_external_123
+                  metadata: null
+                  region_code: US
+                  update_time: 2025-12-09T12:04:41.386974738Z
+                  settings:
+                    features:
+                      - enabled: true
+                        name: sso
+                      - enabled: true
+                        name: dir_sync
+                user:
+                  create_time: 2025-12-09T12:04:41.39Z
+                  email: john.doe@acmecorp.com
+                  external_id: ext_123456789
+                  id: usr_123456789
+                  metadata: {}
+                  update_time: 2025-12-09T12:04:41.391988Z
+                  user_profile:
+                    custom_attributes: null
+                    email_verified: true
+                    external_identities:
+                      - connection_id: conn_97896332307464201
+                        connection_provider: GOOGLE
+                        connection_type: OAUTH
+                        connection_user_id: '105055379523565727691'
+                        created_time: 2025-12-09T12:04:41.47Z
+                        is_social: true
+                        last_login_time: 2025-12-09T12:04:41.469311Z
+                        last_synced_time: 2025-12-09T12:04:41.469311Z
+                    family_name: Doe
+                    gender: ''
+                    given_name: John
+                    groups: null
+                    id: usp_102701193205186825
+                    locale: ''
+                    metadata: {}
+                    name: John Doe
+                    phone_number: ''
+                    phone_number_verified: false
+                    picture: https://lh3.googleusercontent.com/a/abcdef
+                    preferred_username: ''
+              display_name: User Organization Invitation
+      responses:
+        '200':
+          description: Webhook received successfully
+  user.organization_membership_created:
+    post:
+      summary: User Organization Membership Created
+      description: Triggered when a user joins an organization
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_5678901234
+              type: user.organization_membership_created
+              object: OrgMembership
+              occurred_at: 2024-01-15T11:05:00.123456789Z
+              environment_id: env_1234567890
+              organization_id: org_102690563312124938
+              data:
+                organization:
+                  id: org_102690563312124938
+                  create_time: 2025-12-09T10:19:05.48Z
+                  display_name: Acme Corp
+                  external_id: org_external_123
+                  metadata: null
+                  region_code: US
+                  update_time: 2025-12-09T12:04:41.386974738Z
+                  settings:
+                    features:
+                      - enabled: true
+                        name: sso
+                      - enabled: true
+                        name: dir_sync
+                user:
+                  create_time: 2025-12-09T12:04:41.39Z
+                  email: john.doe@acmecorp.com
+                  external_id: ext_123456789
+                  id: usr_123456789
+                  metadata: {}
+                  update_time: 2025-12-09T12:04:41.391988Z
+                  user_profile:
+                    custom_attributes: null
+                    email_verified: true
+                    external_identities:
+                      - connection_id: conn_97896332307464201
+                        connection_provider: GOOGLE
+                        connection_type: OAUTH
+                        connection_user_id: '105055379523565727691'
+                        created_time: 2025-12-09T12:04:41.47Z
+                        is_social: true
+                        last_login_time: 2025-12-09T12:04:41.469311Z
+                        last_synced_time: 2025-12-09T12:04:41.469311Z
+                    family_name: Doe
+                    gender: ''
+                    given_name: John
+                    groups: null
+                    id: usp_102701193205186825
+                    locale: ''
+                    metadata: {}
+                    name: John Doe
+                    phone_number: ''
+                    phone_number_verified: false
+                    picture: https://lh3.googleusercontent.com/a/abcdef
+                    preferred_username: ''
+              display_name: User Organization Membership Created
+      responses:
+        '200':
+          description: Webhook received successfully
+  user.organization_membership_deleted:
+    post:
+      summary: User Organization Membership Deleted
+      description: Triggered when a user's membership in an organization is removed or deleted
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_9012345678
+              type: user.organization_membership_deleted
+              object: OrgMembership
+              occurred_at: 2024-01-15T11:10:00.123456789Z
+              environment_id: env_1234567890
+              organization_id: org_102690563312124938
+              data:
+                organization:
+                  id: org_102690563312124938
+                  create_time: 2025-12-09T10:19:05.48Z
+                  display_name: Acme Corp
+                  external_id: org_external_123
+                  metadata: null
+                  region_code: US
+                  update_time: 2025-12-09T12:04:41.386974738Z
+                  settings:
+                    features:
+                      - enabled: true
+                        name: sso
+                      - enabled: true
+                        name: dir_sync
+                user:
+                  create_time: 2025-12-09T12:04:41.39Z
+                  email: john.doe@acmecorp.com
+                  external_id: ext_123456789
+                  id: usr_123456789
+                  metadata: {}
+                  update_time: 2025-12-09T12:04:41.391988Z
+                  user_profile:
+                    custom_attributes: null
+                    email_verified: true
+                    external_identities:
+                      - connection_id: conn_97896332307464201
+                        connection_provider: GOOGLE
+                        connection_type: OAUTH
+                        connection_user_id: '105055379523565727691'
+                        created_time: 2025-12-09T12:04:41.47Z
+                        is_social: true
+                        last_login_time: 2025-12-09T12:04:41.469311Z
+                        last_synced_time: 2025-12-09T12:04:41.469311Z
+                        raw_attributes: '{}'
+                        updated_time: 2025-12-09T12:04:41.473087Z
+                    family_name: Doe
+                    gender: ''
+                    given_name: John
+                    locale: ''
+                    metadata: {}
+                    name: John Doe
+                    phone_number: ''
+                    phone_number_verified: false
+                    picture: https://lh3.googleusercontent.com/a/abcdef
+                    preferred_username: ''
+              display_name: User Organization Membership Deleted
+      responses:
+        '200':
+          description: Webhook received successfully
+  user.organization_membership_updated:
+    post:
+      summary: User Organization Membership Updated
+      description: Triggered when a user's organization membership is updated, e.g., change of user's role in an organization
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_6789012345
+              type: user.organization_membership_updated
+              object: OrgMembership
+              occurred_at: 2024-01-15T11:10:00.123456789Z
+              environment_id: env_1234567890
+              organization_id: org_102690563312124938
+              data:
+                organization:
+                  id: org_102690563312124938
+                  create_time: 2025-12-09T10:19:05.48Z
+                  display_name: Acme Corp
+                  external_id: org_external_123
+                  metadata: null
+                  region_code: US
+                  update_time: 2025-12-09T12:04:41.386974738Z
+                  settings:
+                    features:
+                      - enabled: true
+                        name: sso
+                      - enabled: true
+                        name: dir_sync
+                user:
+                  create_time: 2025-12-09T12:04:41.39Z
+                  email: john.doe@acmecorp.com
+                  external_id: ext_123456789
+                  id: usr_123456789
+                  metadata: {}
+                  update_time: 2025-12-09T12:04:41.391988Z
+                  user_profile:
+                    custom_attributes: null
+                    email_verified: true
+                    external_identities:
+                      - connection_id: conn_97896332307464201
+                        connection_provider: GOOGLE
+                        connection_type: OAUTH
+                        connection_user_id: '105055379523565727691'
+                        created_time: 2025-12-09T12:04:41.47Z
+                        is_social: true
+                        last_login_time: 2025-12-09T12:04:41.469311Z
+                        last_synced_time: 2025-12-09T12:04:41.469311Z
+                        raw_attributes: '{}'
+                        updated_time: 2025-12-09T12:04:41.473087Z
+                    family_name: Doe
+                    gender: ''
+                    given_name: John
+                    locale: ''
+                    metadata: {}
+                    name: John Doe
+                    phone_number: ''
+                    phone_number_verified: false
+                    picture: https://lh3.googleusercontent.com/a/abcdef
+                    preferred_username: ''
+              display_name: User Organization Membership Updated
+      responses:
+        '200':
+          description: Webhook received successfully
+  organization.directory_enabled:
+    post:
+      summary: Directory Enabled
+      description: Triggered when a directory sync is enabled
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_55136848686613000
+              type: organization.directory_enabled
+              object: Directory
+              occurred_at: 2025-01-15T08:55:22.802860294Z
+              environment_id: env_27758032200925221
+              organization_id: org_55135410258444802
+              data:
+                directory_type: SCIM
+                enabled: true
+                id: dir_55135622825771522
+                organization_id: org_55135410258444802
+                provider: OKTA
+                updated_at: 2025-01-15T08:55:22.792993454Z
+              display_name: Directory Enabled
+      responses:
+        '200':
+          description: Webhook received successfully
+  organization.directory_disabled:
+    post:
+      summary: Directory Disabled
+      description: Triggered when a directory sync is disabled
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_53891640779079756
+              type: organization.directory_disabled
+              object: Directory
+              occurred_at: 2025-01-06T18:45:21.057814Z
+              environment_id: env_53814739859406915
+              organization_id: org_53879494091473415
+              data:
+                directory_type: SCIM
+                enabled: false
+                id: dir_53879621145330183
+                organization_id: org_53879494091473415
+                provider: OKTA
+                updated_at: 2025-01-06T18:45:21.04978184Z
+              display_name: Directory Disabled
+      responses:
+        '200':
+          description: Webhook received successfully
+  organization.directory.user_created:
+    post:
+      summary: Directory User Created
+      description: Triggered when a new directory user is created
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_53891546994442316
+              type: organization.directory.user_created
+              object: DirectoryUser
+              occurred_at: 2025-01-06T18:44:25.153954Z
+              environment_id: env_53814739859406915
+              organization_id: org_53879494091473415
+              data:
+                active: true
+                cost_center: QAUZJUHSTYCN
+                custom_attributes:
+                  mobile_phone_number: 1-579-4072
+                department: HNXJPGISMIFN
+                division: MJFUEYJOKICN
+                dp_id: <id from IDP>
+                email: flavio@runolfsdottir.co.duk
+                employee_id: AWNEDTILGaIZN
+                family_name: Jaquelin
+                given_name: Dayton
+                groups:
+                  - id: dirgroup_12312312312312
+                    name: Group Name
+                id: diruser_53891546960887884
+                language: se
+                locale: LLWLEWESPLDC
+                name: QDRGUZZDYMFU
+                nickname: DTUODYKGFPPC
+                organization: AUIITQVUQGVH
+                organization_id: org_53879494091473415
+                phone_number: 1-579-4072
+                preferred_username: kuntala1233a
+                profile: YMIUQUHKGVAX
+                raw_attributes: {}
+                title: FKQBHCWJXZSC
+                user_type: RBQFJSQEFAEH
+                zoneinfo: America/Araguaina
+                roles:
+                  - role_name: billing_admin
+              display_name: Directory User Created
+      responses:
+        '200':
+          description: Webhook received successfully
+  organization.directory.user_updated:
+    post:
+      summary: Directory User Updated
+      description: Triggered when a directory user is updated
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_53891546994442317
+              type: organization.directory.user_updated
+              object: DirectoryUser
+              occurred_at: 2025-01-06T18:44:25.153954Z
+              environment_id: env_53814739859406915
+              organization_id: org_53879494091473415
+              data:
+                id: diruser_12312312312312
+                organization_id: org_53879494091473415
+                dp_id: <scim_external_id>
+                preferred_username: <idp_user_name>
+                email: john.doe@example.com
+                active: true
+                name: John Doe
+                roles:
+                  - role_name: billing_admin
+                groups:
+                  - id: dirgroup_12312312312312
+                    name: Group Name
+                given_name: John
+                family_name: Doe
+                nickname: Jhonny boy
+                picture: https://image.com/profile.jpg
+                phone_number: '1234567892'
+                address:
+                  postal_code: '64112'
+                  state: Missouri
+                  formatted: 123, Oxford Lane, Kansas City, Missouri, 64112
+                custom_attributes:
+                  attribute1: value1
+                  attribute2: value2
+                raw_attributes: {}
+              display_name: Directory User Updated
+      responses:
+        '200':
+          description: Webhook received successfully
+  organization.directory.user_deleted:
+    post:
+      summary: Directory User Deleted
+      description: Triggered when a directory user is deleted
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_53891546994442318
+              type: organization.directory.user_deleted
+              object: DirectoryUser
+              occurred_at: 2025-01-06T18:44:25.153954Z
+              environment_id: env_53814739859406915
+              organization_id: org_53879494091473415
+              data:
+                id: diruser_12312312312312
+                organization_id: org_12312312312312
+                dp_id: <scim_external_id>
+                email: john.doe@example.com
+              display_name: Directory User Deleted
+      responses:
+        '200':
+          description: Webhook received successfully
+  organization.directory.group_created:
+    post:
+      summary: Directory Group Created
+      description: Triggered when a new directory group is created
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_38862741515010639
+              type: organization.directory.group_created
+              object: DirectoryGroup
+              occurred_at: 2024-09-25T02:26:39.036398577Z
+              environment_id: env_32080745237316098
+              organization_id: org_38609339635728478
+              data:
+                directory_id: dir_38610496391217780
+                display_name: Avengers
+                external_id: null
+                id: dirgroup_38862741498233423
+                organization_id: org_38609339635728478
+                raw_attributes: {}
+              display_name: Directory Group Created
+      responses:
+        '200':
+          description: Webhook received successfully
+  organization.directory.group_updated:
+    post:
+      summary: Directory Group Updated
+      description: Triggered when a directory group is updated
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_38864948910162368
+              type: organization.directory.group_updated
+              object: DirectoryGroup
+              occurred_at: 2024-09-25T02:48:34.745030921Z
+              environment_id: env_32080745237316098
+              organization_id: org_38609339635728478
+              data:
+                directory_id: dir_38610496391217780
+                display_name: Avengers
+                external_id: <external_id>
+                id: dirgroup_38862741498233423
+                organization_id: org_38609339635728478
+                raw_attributes: {}
+              display_name: Directory Group Updated
+      responses:
+        '200':
+          description: Webhook received successfully
+  organization.directory.group_deleted:
+    post:
+      summary: Directory Group Deleted
+      description: Triggered when a directory group is deleted
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_40650399597723966
+              type: organization.directory.group_deleted
+              object: DirectoryGroup
+              occurred_at: 2024-10-07T10:25:26.289331747Z
+              environment_id: env_12205603854221623
+              organization_id: org_39802449573184223
+              data:
+                directory_id: dir_39802485862301855
+                display_name: Admins
+                dp_id: 7c66a173-79c6-4270-ac78-8f35a8121e0a
+                id: dirgroup_40072007005503806
+                organization_id: org_39802449573184223
+                raw_attributes: {}
+              display_name: Directory Group Deleted
+      responses:
+        '200':
+          description: Webhook received successfully
+  organization.sso_created:
+    post:
+      summary: SSO Connection Created
+      description: Triggered when a new SSO connection is created for an organization
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_94567862441607493
+              type: organization.sso_created
+              object: Connection
+              environment_id: env_74418471961625391
+              occurred_at: 2025-10-14T09:27:18.488720586Z
+              organization_id: org_83544995172188677
+              data:
+                id: conn_94567862424830277
+                organization_id: org_83544995172188677
+                connection_type: OIDC
+                provider: OKTA
+              display_name: SSO Connection Created
+      responses:
+        '200':
+          description: Webhook received successfully
+  organization.sso_enabled:
+    post:
+      summary: SSO Connection Enabled
+      description: Triggered when an SSO connection is enabled for an organization
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_94568078213382471
+              type: organization.sso_enabled
+              object: Connection
+              environment_id: env_74418471961625391
+              occurred_at: 2025-10-14T09:29:27.098914861Z
+              organization_id: org_83544995172188677
+              data:
+                id: conn_94567862424830277
+                organization_id: org_83544995172188677
+                connection_type: OIDC
+                provider: OKTA
+                enabled: true
+                status: COMPLETED
+              display_name: SSO Connection Enabled
+      responses:
+        '200':
+          description: Webhook received successfully
+  organization.sso_disabled:
+    post:
+      summary: SSO Connection Disabled
+      description: Triggered when an SSO connection is disabled for an organization
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_94557976165089560
+              type: organization.sso_disabled
+              object: Connection
+              environment_id: env_74418471961625391
+              occurred_at: 2025-10-14T07:49:05.809554456Z
+              organization_id: org_83544995172188677
+              data:
+                id: conn_83545002856153607
+                organization_id: org_83544995172188677
+                connection_type: OIDC
+                provider: OKTA
+                enabled: false
+                status: COMPLETED
+              display_name: SSO Connection Disabled
+      responses:
+        '200':
+          description: Webhook received successfully
+  organization.sso_deleted:
+    post:
+      summary: SSO Connection Deleted
+      description: Triggered when an SSO connection is deleted for an organization
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_94557997639926040
+              type: organization.sso_deleted
+              object: Connection
+              environment_id: env_74418471961625391
+              occurred_at: 2025-10-14T07:49:18.604546332Z
+              organization_id: org_83544995172188677
+              data:
+                id: conn_83545002856153607
+                organization_id: org_83544995172188677
+                connection_type: OIDC
+                provider: OKTA
+              display_name: SSO Connection Deleted
+      responses:
+        '200':
+          description: Webhook received successfully
+  role.created:
+    post:
+      summary: Role Created
+      description: Triggered when a new role is created
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_1234567890
+              type: role.created
+              object: Role
+              occurred_at: 2024-01-15T10:30:00.123456789Z
+              environment_id: env_1234567890
+              data:
+                description: Viewer role with read-only access
+                display_name: Viewer
+                extends: member
+                id: role_1234567890
+                name: viewer
+              display_name: Role Created
+      responses:
+        '200':
+          description: Webhook received successfully
+  role.updated:
+    post:
+      summary: Role Updated
+      description: Triggered when a role is updated
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_2345678901
+              type: role.updated
+              object: Role
+              occurred_at: 2024-01-15T10:35:00.123456789Z
+              environment_id: env_1234567890
+              data:
+                description: Updated viewer role with limited permissions
+                display_name: Viewer
+                extends: member
+                id: role_1234567890
+                name: viewer
+              display_name: Role Updated
+      responses:
+        '200':
+          description: Webhook received successfully
+  role.deleted:
+    post:
+      summary: Role Deleted
+      description: Triggered when a role is deleted
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_3456789012
+              type: role.deleted
+              object: Role
+              occurred_at: 2024-01-15T10:40:00.123456789Z
+              environment_id: env_1234567890
+              data:
+                description: Updated viewer role with limited permissions
+                display_name: Viewer
+                extends: member
+                id: role_1234567890
+                name: viewer
+              display_name: Role Deleted
+      responses:
+        '200':
+          description: Webhook received successfully
+  permission.created:
+    post:
+      summary: Permission Created
+      description: Triggered when a new permission is created
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_1234567890
+              type: permission.created
+              object: Permission
+              occurred_at: 2024-01-15T10:30:00.123456789Z
+              environment_id: env_1234567890
+              data:
+                description: Permission to manage data
+                id: perm_1234567890
+                name: data:manage
+              display_name: Permission Created
+      responses:
+        '200':
+          description: Webhook received successfully
+  permission.updated:
+    post:
+      summary: Permission Updated
+      description: Triggered when a permission is updated
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_2345678901
+              type: permission.updated
+              object: Permission
+              occurred_at: 2024-01-15T10:35:00.123456789Z
+              environment_id: env_1234567890
+              data:
+                description: Updated permission to manage all data
+                id: perm_1234567890
+                name: data:manage
+              display_name: Permission Updated
+      responses:
+        '200':
+          description: Webhook received successfully
+  permission.deleted:
+    post:
+      summary: Permission Deleted
+      description: Triggered when a permission is deleted
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_3456789012
+              type: permission.deleted
+              object: Permission
+              occurred_at: 2024-01-15T10:40:00.123456789Z
+              environment_id: env_1234567890
+              data:
+                description: Updated permission to manage all data
+                id: perm_1234567890
+                name: data:manage
+              display_name: Permission Deleted
+      responses:
+        '200':
+          description: Webhook received successfully
+  connected_account.created:
+    post:
+      summary: Connected Account Created
+      description: Triggered when a new connected account is created
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_101531404017336586
+              type: connected_account.created
+              object: ConnectedAccount
+              occurred_at: 2025-12-01T10:23:52.702980847Z
+              environment_id: env_88640229614813449
+              data:
+                authorization_type: OAUTH
+                connection_id: conn_100668583155073286
+                id: ca_101531404000559370
+                identifier: Bruce
+                provider: CANVA
+                status: PENDING_AUTH
+      responses:
+        '200':
+          description: Webhook received successfully
+  connected_account.updated:
+    post:
+      summary: Connected Account Updated
+      description: Triggered when a connected account is updated
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_101652975398683158
+              type: connected_account.updated
+              object: ConnectedAccount
+              occurred_at: 2025-12-02T06:31:34.895815554Z
+              environment_id: env_88640229614813449
+              display_name: Connected account updated
+              data:
+                authorization_type: OAUTH
+                connection_id: conn_100510054016352776
+                id: ca_100510623602835982
+                identifier: Pranesh
+                provider: SUPABASE
+                status: PENDING_AUTH
+      responses:
+        '200':
+          description: Webhook received successfully
+  connected_account.deleted:
+    post:
+      summary: Connected Account Deleted
+      description: Triggered when a connected account is deleted
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_101653010731500290
+              type: connected_account.deleted
+              object: ConnectedAccount
+              occurred_at: 2025-12-02T06:31:55.954027187Z
+              environment_id: env_88640229614813449
+              display_name: connected account deleted
+              data:
+                authorization_type: OAUTH
+                connection_id: conn_101644109747323155
+                id: ca_101649788113519113
+                identifier: Clark
+                last_used_at: 2025-12-02T06:00:01.374253Z
+                provider: GOOGLE_ADS
+                status: ACTIVE
+                token_expires_at: 2025-12-02T06:59:57.237447Z
+      responses:
+        '200':
+          description: Webhook received successfully
+  connected_account.magic_link_generated:
+    post:
+      summary: Connected Account Magic Link Generated
+      description: Triggered when a magic link is generated for OAuth flow
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_101652975398683158
+              type: connected_account.magic_link_generated
+              object: ConnectedAccount
+              occurred_at: 2025-12-02T06:31:34.895815554Z
+              environment_id: env_88640229614813448
+              data:
+                authorization_type: OAUTH
+                connection_id: conn_100510054016352776
+                id: ca_100510623602835982
+                identifier: Pranesh
+                provider: SUPABASE
+                status: PENDING_AUTH
+      responses:
+        '200':
+          description: Webhook received successfully
+  connected_account.oauth_tokens_fetched:
+    post:
+      summary: Connected Account OAuth Tokens Fetched
+      description: Triggered when OAuth tokens are successfully fetched
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_101649795042509316
+              type: connected_account.oauth_tokens_fetched
+              object: ConnectedAccount
+              occurred_at: 2025-12-02T05:59:59.250126407Z
+              environment_id: env_88640229614813449
+              data:
+                authorization_type: OAUTH
+                connection_id: conn_101644109747323155
+                id: ca_101649788113519113
+                identifier: Clark
+                provider: GOOGLE_ADS
+                status: ACTIVE
+                token_expires_at: 2025-12-02T06:59:57.237447778Z
+      responses:
+        '200':
+          description: Webhook received successfully
+  connected_account.token_refresh_succeeded:
+    post:
+      summary: Connected Account Token Refresh Succeeded
+      description: Triggered when token refresh succeeds
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_101651946317808143
+              type: connected_account.token_refresh_succeeded
+              object: ConnectedAccount
+              occurred_at: 2025-12-02T06:21:21.517480021Z
+              environment_id: env_88640229614813449
+              data:
+                authorization_type: OAUTH
+                connection_id: conn_101644109747323155
+                id: ca_101644170698948883
+                identifier: Pranesh
+                last_used_at: 2025-12-02T06:21:21.393723232Z
+                provider: GOOGLE_ADS
+                status: ACTIVE
+                token_expires_at: 2025-12-02T07:21:20.508197312Z
+      responses:
+        '200':
+          description: Webhook received successfully
+  connected_account.token_refresh_failed:
+    post:
+      summary: Connected Account Token Refresh Failed
+      description: Triggered when token refresh fails
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_101649795042509316
+              type: connected_account.token_refresh_failed
+              object: ConnectedAccount
+              occurred_at: 2025-12-02T05:59:59.250126407Z
+              environment_id: env_88640229614813445
+              data:
+                authorization_type: OAUTH
+                connection_id: conn_101644109747323155
+                id: ca_101649788113519113
+                identifier: Clark
+                provider: GOOGLE_ADS
+                status: ACTIVE
+                token_expires_at: 2025-12-02T06:59:57.237447778Z
+      responses:
+        '200':
+          description: Webhook received successfully
+  connected_account.oauth_succeeded:
+    post:
+      summary: Connected Account OAuth Succeeded
+      description: Triggered when OAuth authentication succeeds
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_101649484227871236
+              type: connected_account.oauth_succeeded
+              object: ConnectedAccount
+              occurred_at: 2025-12-02T05:56:53.994604757Z
+              environment_id: env_88640229614813449
+              data:
+                authorization_type: OAUTH
+                connection_id: conn_101644109747323155
+                id: ca_101649474950005257
+                identifier: Bruce
+                provider: GOOGLE_ADS
+                status: ACTIVE
+                token_expires_at: 2025-12-02T06:56:52.976081699Z
+      responses:
+        '200':
+          description: Webhook received successfully

@@ -226,6 +226,10 @@ Retrieves a list of connections in the environment
 
     `string` — Alternative identifier for this connection, typically used in frontend applications or URLs
 
+  - **`mcp_server_url`**
+
+    `string` — MCP virtual server URL for this connection. Agents can point directly at this URL to access only the tools for this connection, without needing to call list\_connections or execute\_tool with a connection\_name. Empty when the MCP virtual servers feature is not enabled for this environment.
+
   - **`organization_id`**
 
     `string` — Unique identifier of the organization that owns this connection
@@ -248,7 +252,7 @@ Retrieves a list of connections in the environment
 
   - **`type`**
 
-    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authentication protocol used by the connection
+    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authentication protocol used by the connection
 
 **Example:**
 
@@ -263,6 +267,7 @@ Retrieves a list of connections in the environment
       "enabled": false,
       "id": "conn_2123312131125533",
       "key_id": "conn_2123312131125533",
+      "mcp_server_url": "https://acmecorp.scalekit.dev/mcp/v3/connections/gmail_work",
       "organization_id": "org_2123312131125533",
       "organization_name": "Your Organization",
       "provider": "CUSTOM",
@@ -1182,7 +1187,7 @@ Adds an existing user to an organization and assigns them specific roles and per
 - **Path:** `/api/v1/memberships/organizations/{organization_id}/users/{id}`
 - **Tags:** Users
 
-Removes a user from an organization by user ID or external ID. If the user has no memberships left and cascade is true, the user is also deleted. This action is irreversible and may also remove related group memberships.
+Removes a user from an organization by user ID. This action is irreversible and may also remove related group memberships.
 
 #### Responses
 
@@ -1202,7 +1207,7 @@ null
 - **Path:** `/api/v1/memberships/organizations/{organization_id}/users/{id}`
 - **Tags:** Users
 
-Updates a user's membership details within an organization by user ID or external ID. You can update roles and membership metadata.
+Updates a user's membership details within an organization by user ID. You can update roles and membership metadata.
 
 #### Request Body
 
@@ -4556,6 +4561,10 @@ Retrieves the complete configuration and status details for a specific connectio
 
     `string` — Alternative identifier for this connection, typically used in frontend applications or URLs.
 
+  - **`mcp_server_url`**
+
+    `string` — URL of the MCP server for this connection. Agents can point directly at this URL to access only the tools for this connection, without needing to call list\_connections or execute\_tool with a connection\_name. Empty when the MCP virtual servers feature is not enabled for this environment.
+
   - **`oauth_config`**
 
     `object` — Configuration details for OAuth connections. Present only when type is OAUTH.
@@ -4583,6 +4592,26 @@ Retrieves the complete configuration and status details for a specific connectio
     - **`custom_scope_name`**
 
       `string` — Custom Scope Name
+
+    - **`extensions`**
+
+      `object` — OAuth extension profiles for this connection, such as SMART on FHIR. Carries typed extension configuration plus a generic escape hatch for provider-specific authorize query parameters.
+
+      - **`extra_authorize_params`**
+
+        `object` — Provider-specific query parameters added to the authorization request. Reserved OAuth/OIDC parameters (client\_id, redirect\_uri, scope, state, code\_challenge, aud, and similar) are rejected.
+
+      - **`smart`**
+
+        `object` — SMART on FHIR (SMART App Launch) configuration. Set this to issue a SMART-compliant standalone launch authorization request to a FHIR server.
+
+        - **`aud`**
+
+          `string` — FHIR resource server base URL, sent as the required 'aud' authorization parameter per the SMART App Launch specification. Binds the issued token to the intended FHIR server.
+
+        - **`domain`**
+
+          `string` — FHIR server domain for the SMART on FHIR connection. Stored alongside the audience and editable through the connection update API.
 
     - **`is_cimd`**
 
@@ -4904,7 +4933,7 @@ Retrieves the complete configuration and status details for a specific connectio
 
   - **`type`**
 
-    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
+    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
 
   - **`webauthn_config`**
 
@@ -5049,6 +5078,7 @@ Retrieves the complete configuration and status details for a specific connectio
     "google_dwd_config": null,
     "id": "conn_2123312131125533",
     "key_id": "",
+    "mcp_server_url": "https://acmecorp.scalekit.dev/mcp/v3/connections/gmail_work",
     "oauth_config": null,
     "oidc_config": null,
     "organization_id": "org_2123312131125533",
@@ -7923,7 +7953,7 @@ Creates a new permission that represents a specific action users can perform wit
 
 - **`name`**
 
-  `string` — Unique name/ID of the permission
+  `string` — Unique name/ID of the permission. Must be 1–64 characters using only letters, numbers, underscores (\_), and colons (:).
 
 **Example:**
 
@@ -8058,7 +8088,7 @@ Modifies an existing permission's attributes including description and metadata.
 
 - **`name`**
 
-  `string` — Unique name/ID of the permission
+  `string` — Unique name/ID of the permission. Must be 1–64 characters using only letters, numbers, underscores (\_), and colons (:).
 
 **Example:**
 
@@ -9995,7 +10025,7 @@ Retrieves a paginated list of all users across your entire environment. Use this
 - **Path:** `/api/v1/users/{id}`
 - **Tags:** Users
 
-Retrieves all details for a user by system-generated user ID or external ID. The response includes organization memberships and user metadata.
+Retrieves all details for a user by system-generated user ID. The response includes organization memberships and user metadata.
 
 #### Responses
 
@@ -10608,6 +10638,279 @@ Modifies user account information including profile details, metadata, and exter
     "update_time": "",
     "user_profile": null
   }
+}
+```
+
+### List user sessions
+
+- **Method:** `GET`
+- **Path:** `/api/v1/users/{user_id}/sessions`
+- **Tags:** Sessions
+
+Retrieves a paginated list of all sessions associated with a specific user across all devices and browsers. Use this endpoint to audit user activity, display all active sessions in account management interfaces, or verify user authentication status across devices. Supports filtering by session status (active, expired, revoked, logout) and time range (creation date). Returns session details for each session including device information, IP address, geolocation, and current status. The response includes pagination metadata (page tokens and total count) to handle large session lists efficiently.
+
+#### Responses
+
+##### Status: 200 Successfully retrieved user sessions. Returns a list of sessions with pagination information
+
+###### Content-Type: application/json
+
+- **`next_page_token`**
+
+  `string` — Pagination token for retrieving the next page of results. Empty string if there are no more pages (you have reached the final page of results).
+
+- **`prev_page_token`**
+
+  `string` — Pagination token for retrieving the previous page of results. Empty string for the first page. Use this to navigate backward through result pages.
+
+- **`sessions`**
+
+  `array` — Array of session objects for the requested user. May contain fewer entries than the requested page\_size when reaching the final page of results.
+
+  **Items:**
+
+  - **`absolute_expires_at`**
+
+    `string`, format: `date-time` — Hard expiration timestamp for the session regardless of user activity. The session will be forcibly terminated at this time. This represents the maximum session lifetime from creation.
+
+  - **`authenticated_clients`**
+
+    `array` — Details of the authenticated clients for this session: client ID and organization context.
+
+    **Items:**
+
+    - **`client_id`**
+
+      `string` — Unique identifier of the authenticated client application.
+
+    - **`organization_id`**
+
+      `string` — Active or last active Organization ID associated with the authenticated client.
+
+  - **`authenticated_organizations`**
+
+    `array` — List of organization IDs that have been authenticated for this user within the current session. Contains all organizations where the user has successfully completed SSO or authentication.
+
+    **Items:**
+
+    `string`
+
+  - **`created_at`**
+
+    `string`, format: `date-time` — Timestamp indicating when the session was created. This is set once at session creation and remains constant throughout the session lifetime.
+
+  - **`device`**
+
+    `object` — Complete device metadata associated with this session including browser, operating system, device type, and geographic location based on IP address.
+
+    - **`browser`**
+
+      `string` — Browser name and family extracted from the user agent. Examples: Chrome, Safari, Firefox, Edge, Mobile Safari.
+
+    - **`browser_version`**
+
+      `string` — Version of the browser application. Represents the specific release version of the browser being used.
+
+    - **`device_type`**
+
+      `string` — Categorized device type classification. Possible values: 'desktop' (traditional computers), 'mobile' (smartphones and small tablets), 'tablet' (large tablets), 'other'. Useful for displaying session information by device category.
+
+    - **`ip`**
+
+      `string` — IP address of the device that initiated the session. This is the public-facing IP address used to connect to the application. Useful for security audits and geographic distribution analysis.
+
+    - **`location`**
+
+      `object` — Geographic location information derived from IP address geolocation. Includes country, region, city, and coordinates. Note: Based on IP location data and may not represent the user's exact physical location.
+
+      - **`city`**
+
+        `string` — City name where the session originated based on IP geolocation. Approximate location derived from IP address.
+
+      - **`latitude`**
+
+        `string` — Latitude coordinate of the estimated location. Decimal format (e.g., '37.7749'). Note: Represents IP geolocation center and may not be precise.
+
+      - **`longitude`**
+
+        `string` — Longitude coordinate of the estimated location. Decimal format (e.g., '-122.4194'). Note: Represents IP geolocation center and may not be precise.
+
+      - **`region`**
+
+        `string` — Geographic region name derived from IP geolocation. Represents the country-level location (e.g., 'United States', 'France').
+
+      - **`region_subdivision`**
+
+        `string` — Regional subdivision code or name (e.g., state abbreviation for US, province for Canada). Two-letter ISO format when applicable.
+
+    - **`os`**
+
+      `string` — Operating system name extracted from the user agent and device headers. Examples: macOS, Windows, Linux, iOS, Android.
+
+    - **`os_version`**
+
+      `string` — Version of the operating system. Represents the specific OS release the device is running.
+
+    - **`user_agent`**
+
+      `string` — Complete HTTP User-Agent header string from the client request. Contains browser type, version, and operating system information. Used for detailed device fingerprinting and user agent analysis.
+
+  - **`expired_at`**
+
+    `string`, format: `date-time` — Timestamp when the session was terminated. Null if the session is still active. Set when the session expires due to reaching idle\_expires\_at or absolute\_expires\_at timeout, or when administratively revoked. Not set for user-initiated logout (see logout\_at instead).
+
+  - **`idle_expires_at`**
+
+    `string`, format: `date-time` — Projected expiration timestamp if the session remains idle without user activity. This timestamp is recalculated with each user activity. Session will be automatically terminated at this time if no activity occurs.
+
+  - **`last_active_at`**
+
+    `string`, format: `date-time` — Timestamp of the most recent user activity detected in this session. Updated on each API request or user interaction. Used to determine if a session has exceeded the idle timeout threshold.
+
+  - **`logout_at`**
+
+    `string`, format: `date-time` — Timestamp when the user explicitly logged out from the session. Null if the user has not logged out. When set, indicates the session ended due to explicit user logout rather than timeout.
+
+  - **`organization_id`**
+
+    `string` — Organization ID for the user's most recently active organization within this session. This represents the primary organization context for the current session.
+
+  - **`session_id`**
+
+    `string` — Unique identifier for the session. System-generated read-only field used to reference this session.
+
+  - **`status`**
+
+    `string` — Current operational status of the session. Possible values: 'active' (session is valid and requests are allowed), 'expired' (session terminated due to idle or absolute timeout), 'revoked' (session was administratively revoked), 'logout' (user explicitly logged out). Use this to determine if the session can be used for new requests.
+
+  - **`updated_at`**
+
+    `string`, format: `date-time` — Timestamp indicating when the session was last updated. Updated whenever session state changes such as organization context changes or metadata updates.
+
+  - **`user_id`**
+
+    `string` — Unique identifier for the user who owns and is authenticated within this session.
+
+- **`total_size`**
+
+  `integer`, format: `int64` — Total number of sessions matching the applied filter criteria, regardless of pagination. This represents the complete result set size before pagination is applied.
+
+**Example:**
+
+```json
+{
+  "next_page_token": "eyJwYWdlIjogMiwgImxhc3RfaWQiOiAic2VzXzEyMzQ1In0=",
+  "prev_page_token": "eyJwYWdlIjogMCwgImZpcnN0X2lkIjogInNlc183OTAxIn0=",
+  "sessions": [
+    {
+      "absolute_expires_at": "2025-01-22T10:30:00Z",
+      "authenticated_clients": [
+        {}
+      ],
+      "authenticated_organizations": [
+        "org_123",
+        "org_456"
+      ],
+      "created_at": "2025-01-15T10:30:00Z",
+      "device": null,
+      "expired_at": "2025-01-15T12:00:00Z",
+      "idle_expires_at": "2025-01-15T11:30:00Z",
+      "last_active_at": "2025-01-15T10:55:30Z",
+      "logout_at": "2025-01-15T14:00:00Z",
+      "organization_id": "org_1234567890123456",
+      "session_id": "ses_1234567890123456",
+      "status": "active",
+      "updated_at": "2025-01-15T10:45:00Z",
+      "user_id": "usr_1234567890123456"
+    }
+  ],
+  "total_size": 42
+}
+```
+
+### Revoke all user sessions
+
+- **Method:** `POST`
+- **Path:** `/api/v1/users/{user_id}/sessions/revoke`
+- **Tags:** Sessions
+
+Immediately invalidates all active sessions for a specific user across all devices and browsers, setting their status to 'revoked'. Use this endpoint to implement global logout functionality, force re-authentication after security incidents, or terminate all sessions following a password reset or credential compromise. Only active sessions are revoked; already expired, logout, or previously revoked sessions remain unchanged. The revocation is atomic and instantaneous. Returns a list of all revoked sessions with their details and a total count of sessions revoked.
+
+#### Responses
+
+##### Status: 200 Successfully revoked all user sessions. Returns the list of revoked sessions and total count
+
+###### Content-Type: application/json
+
+- **`revoked_sessions`**
+
+  `array` — List of all sessions that were revoked, including detailed information for each revoked session with IDs, timestamps, and device details.
+
+  **Items:**
+
+  - **`absolute_expires_at`**
+
+    `string`, format: `date-time` — The absolute expiration timestamp that was configured for this session before revocation. Represents the hard deadline regardless of activity.
+
+  - **`created_at`**
+
+    `string`, format: `date-time` — Timestamp indicating when the session was originally created before revocation.
+
+  - **`expired_at`**
+
+    `string`, format: `date-time` — Timestamp when the session was actually terminated. Set to the revocation time when the session is revoked.
+
+  - **`idle_expires_at`**
+
+    `string`, format: `date-time` — The idle expiration timestamp that was configured for this session before revocation. Represents when the session would have expired due to inactivity.
+
+  - **`last_active_at`**
+
+    `string`, format: `date-time` — Timestamp of the last recorded user activity in this session before revocation. Helps identify inactive sessions that were revoked.
+
+  - **`logout_at`**
+
+    `string`, format: `date-time` — Timestamp when the user explicitly logged out (if applicable). Null if the session was revoked without prior logout.
+
+  - **`session_id`**
+
+    `string` — Unique identifier for the revoked session. System-generated read-only field.
+
+  - **`status`**
+
+    `string` — Status of the session after revocation. Always 'revoked' since only active sessions can be revoked. Sessions that were already expired or logged out are not included in the revocation response.
+
+  - **`updated_at`**
+
+    `string`, format: `date-time` — Timestamp indicating when the session was last modified before revocation.
+
+  - **`user_id`**
+
+    `string` — Unique identifier for the user who owned this session.
+
+- **`total_revoked`**
+
+  `integer`, format: `int64` — Total count of active sessions that were revoked. Useful for confirmation and audit logging.
+
+**Example:**
+
+```json
+{
+  "revoked_sessions": [
+    {
+      "absolute_expires_at": "2025-01-22T10:30:00Z",
+      "created_at": "2025-01-15T10:30:00Z",
+      "expired_at": "2025-01-15T12:00:00Z",
+      "idle_expires_at": "2025-01-15T11:30:00Z",
+      "last_active_at": "2025-01-15T10:55:30Z",
+      "logout_at": "2025-01-15T14:00:00Z",
+      "session_id": "ses_1234567890123456",
+      "status": "revoked",
+      "updated_at": "2025-01-15T10:45:00Z",
+      "user_id": "usr_1234567890123456"
+    }
+  ],
+  "total_revoked": 5
 }
 ```
 
@@ -11230,279 +11533,6 @@ Modifies user account information for a user identified by your application's ex
     "update_time": "",
     "user_profile": null
   }
-}
-```
-
-### List user sessions
-
-- **Method:** `GET`
-- **Path:** `/api/v1/users/{user_id}/sessions`
-- **Tags:** Sessions
-
-Retrieves a paginated list of all sessions associated with a specific user across all devices and browsers. Use this endpoint to audit user activity, display all active sessions in account management interfaces, or verify user authentication status across devices. Supports filtering by session status (active, expired, revoked, logout) and time range (creation date). Returns session details for each session including device information, IP address, geolocation, and current status. The response includes pagination metadata (page tokens and total count) to handle large session lists efficiently.
-
-#### Responses
-
-##### Status: 200 Successfully retrieved user sessions. Returns a list of sessions with pagination information
-
-###### Content-Type: application/json
-
-- **`next_page_token`**
-
-  `string` — Pagination token for retrieving the next page of results. Empty string if there are no more pages (you have reached the final page of results).
-
-- **`prev_page_token`**
-
-  `string` — Pagination token for retrieving the previous page of results. Empty string for the first page. Use this to navigate backward through result pages.
-
-- **`sessions`**
-
-  `array` — Array of session objects for the requested user. May contain fewer entries than the requested page\_size when reaching the final page of results.
-
-  **Items:**
-
-  - **`absolute_expires_at`**
-
-    `string`, format: `date-time` — Hard expiration timestamp for the session regardless of user activity. The session will be forcibly terminated at this time. This represents the maximum session lifetime from creation.
-
-  - **`authenticated_clients`**
-
-    `array` — Details of the authenticated clients for this session: client ID and organization context.
-
-    **Items:**
-
-    - **`client_id`**
-
-      `string` — Unique identifier of the authenticated client application.
-
-    - **`organization_id`**
-
-      `string` — Active or last active Organization ID associated with the authenticated client.
-
-  - **`authenticated_organizations`**
-
-    `array` — List of organization IDs that have been authenticated for this user within the current session. Contains all organizations where the user has successfully completed SSO or authentication.
-
-    **Items:**
-
-    `string`
-
-  - **`created_at`**
-
-    `string`, format: `date-time` — Timestamp indicating when the session was created. This is set once at session creation and remains constant throughout the session lifetime.
-
-  - **`device`**
-
-    `object` — Complete device metadata associated with this session including browser, operating system, device type, and geographic location based on IP address.
-
-    - **`browser`**
-
-      `string` — Browser name and family extracted from the user agent. Examples: Chrome, Safari, Firefox, Edge, Mobile Safari.
-
-    - **`browser_version`**
-
-      `string` — Version of the browser application. Represents the specific release version of the browser being used.
-
-    - **`device_type`**
-
-      `string` — Categorized device type classification. Possible values: 'desktop' (traditional computers), 'mobile' (smartphones and small tablets), 'tablet' (large tablets), 'other'. Useful for displaying session information by device category.
-
-    - **`ip`**
-
-      `string` — IP address of the device that initiated the session. This is the public-facing IP address used to connect to the application. Useful for security audits and geographic distribution analysis.
-
-    - **`location`**
-
-      `object` — Geographic location information derived from IP address geolocation. Includes country, region, city, and coordinates. Note: Based on IP location data and may not represent the user's exact physical location.
-
-      - **`city`**
-
-        `string` — City name where the session originated based on IP geolocation. Approximate location derived from IP address.
-
-      - **`latitude`**
-
-        `string` — Latitude coordinate of the estimated location. Decimal format (e.g., '37.7749'). Note: Represents IP geolocation center and may not be precise.
-
-      - **`longitude`**
-
-        `string` — Longitude coordinate of the estimated location. Decimal format (e.g., '-122.4194'). Note: Represents IP geolocation center and may not be precise.
-
-      - **`region`**
-
-        `string` — Geographic region name derived from IP geolocation. Represents the country-level location (e.g., 'United States', 'France').
-
-      - **`region_subdivision`**
-
-        `string` — Regional subdivision code or name (e.g., state abbreviation for US, province for Canada). Two-letter ISO format when applicable.
-
-    - **`os`**
-
-      `string` — Operating system name extracted from the user agent and device headers. Examples: macOS, Windows, Linux, iOS, Android.
-
-    - **`os_version`**
-
-      `string` — Version of the operating system. Represents the specific OS release the device is running.
-
-    - **`user_agent`**
-
-      `string` — Complete HTTP User-Agent header string from the client request. Contains browser type, version, and operating system information. Used for detailed device fingerprinting and user agent analysis.
-
-  - **`expired_at`**
-
-    `string`, format: `date-time` — Timestamp when the session was terminated. Null if the session is still active. Set when the session expires due to reaching idle\_expires\_at or absolute\_expires\_at timeout, or when administratively revoked. Not set for user-initiated logout (see logout\_at instead).
-
-  - **`idle_expires_at`**
-
-    `string`, format: `date-time` — Projected expiration timestamp if the session remains idle without user activity. This timestamp is recalculated with each user activity. Session will be automatically terminated at this time if no activity occurs.
-
-  - **`last_active_at`**
-
-    `string`, format: `date-time` — Timestamp of the most recent user activity detected in this session. Updated on each API request or user interaction. Used to determine if a session has exceeded the idle timeout threshold.
-
-  - **`logout_at`**
-
-    `string`, format: `date-time` — Timestamp when the user explicitly logged out from the session. Null if the user has not logged out. When set, indicates the session ended due to explicit user logout rather than timeout.
-
-  - **`organization_id`**
-
-    `string` — Organization ID for the user's most recently active organization within this session. This represents the primary organization context for the current session.
-
-  - **`session_id`**
-
-    `string` — Unique identifier for the session. System-generated read-only field used to reference this session.
-
-  - **`status`**
-
-    `string` — Current operational status of the session. Possible values: 'active' (session is valid and requests are allowed), 'expired' (session terminated due to idle or absolute timeout), 'revoked' (session was administratively revoked), 'logout' (user explicitly logged out). Use this to determine if the session can be used for new requests.
-
-  - **`updated_at`**
-
-    `string`, format: `date-time` — Timestamp indicating when the session was last updated. Updated whenever session state changes such as organization context changes or metadata updates.
-
-  - **`user_id`**
-
-    `string` — Unique identifier for the user who owns and is authenticated within this session.
-
-- **`total_size`**
-
-  `integer`, format: `int64` — Total number of sessions matching the applied filter criteria, regardless of pagination. This represents the complete result set size before pagination is applied.
-
-**Example:**
-
-```json
-{
-  "next_page_token": "eyJwYWdlIjogMiwgImxhc3RfaWQiOiAic2VzXzEyMzQ1In0=",
-  "prev_page_token": "eyJwYWdlIjogMCwgImZpcnN0X2lkIjogInNlc183OTAxIn0=",
-  "sessions": [
-    {
-      "absolute_expires_at": "2025-01-22T10:30:00Z",
-      "authenticated_clients": [
-        {}
-      ],
-      "authenticated_organizations": [
-        "org_123",
-        "org_456"
-      ],
-      "created_at": "2025-01-15T10:30:00Z",
-      "device": null,
-      "expired_at": "2025-01-15T12:00:00Z",
-      "idle_expires_at": "2025-01-15T11:30:00Z",
-      "last_active_at": "2025-01-15T10:55:30Z",
-      "logout_at": "2025-01-15T14:00:00Z",
-      "organization_id": "org_1234567890123456",
-      "session_id": "ses_1234567890123456",
-      "status": "active",
-      "updated_at": "2025-01-15T10:45:00Z",
-      "user_id": "usr_1234567890123456"
-    }
-  ],
-  "total_size": 42
-}
-```
-
-### Revoke all user sessions
-
-- **Method:** `POST`
-- **Path:** `/api/v1/users/{user_id}/sessions/revoke`
-- **Tags:** Sessions
-
-Immediately invalidates all active sessions for a specific user across all devices and browsers, setting their status to 'revoked'. Use this endpoint to implement global logout functionality, force re-authentication after security incidents, or terminate all sessions following a password reset or credential compromise. Only active sessions are revoked; already expired, logout, or previously revoked sessions remain unchanged. The revocation is atomic and instantaneous. Returns a list of all revoked sessions with their details and a total count of sessions revoked.
-
-#### Responses
-
-##### Status: 200 Successfully revoked all user sessions. Returns the list of revoked sessions and total count
-
-###### Content-Type: application/json
-
-- **`revoked_sessions`**
-
-  `array` — List of all sessions that were revoked, including detailed information for each revoked session with IDs, timestamps, and device details.
-
-  **Items:**
-
-  - **`absolute_expires_at`**
-
-    `string`, format: `date-time` — The absolute expiration timestamp that was configured for this session before revocation. Represents the hard deadline regardless of activity.
-
-  - **`created_at`**
-
-    `string`, format: `date-time` — Timestamp indicating when the session was originally created before revocation.
-
-  - **`expired_at`**
-
-    `string`, format: `date-time` — Timestamp when the session was actually terminated. Set to the revocation time when the session is revoked.
-
-  - **`idle_expires_at`**
-
-    `string`, format: `date-time` — The idle expiration timestamp that was configured for this session before revocation. Represents when the session would have expired due to inactivity.
-
-  - **`last_active_at`**
-
-    `string`, format: `date-time` — Timestamp of the last recorded user activity in this session before revocation. Helps identify inactive sessions that were revoked.
-
-  - **`logout_at`**
-
-    `string`, format: `date-time` — Timestamp when the user explicitly logged out (if applicable). Null if the session was revoked without prior logout.
-
-  - **`session_id`**
-
-    `string` — Unique identifier for the revoked session. System-generated read-only field.
-
-  - **`status`**
-
-    `string` — Status of the session after revocation. Always 'revoked' since only active sessions can be revoked. Sessions that were already expired or logged out are not included in the revocation response.
-
-  - **`updated_at`**
-
-    `string`, format: `date-time` — Timestamp indicating when the session was last modified before revocation.
-
-  - **`user_id`**
-
-    `string` — Unique identifier for the user who owned this session.
-
-- **`total_revoked`**
-
-  `integer`, format: `int64` — Total count of active sessions that were revoked. Useful for confirmation and audit logging.
-
-**Example:**
-
-```json
-{
-  "revoked_sessions": [
-    {
-      "absolute_expires_at": "2025-01-22T10:30:00Z",
-      "created_at": "2025-01-15T10:30:00Z",
-      "expired_at": "2025-01-15T12:00:00Z",
-      "idle_expires_at": "2025-01-15T11:30:00Z",
-      "last_active_at": "2025-01-15T10:55:30Z",
-      "logout_at": "2025-01-15T14:00:00Z",
-      "session_id": "ses_1234567890123456",
-      "status": "revoked",
-      "updated_at": "2025-01-15T10:45:00Z",
-      "user_id": "usr_1234567890123456"
-    }
-  ],
-  "total_revoked": 5
 }
 ```
 
@@ -12425,314 +12455,6 @@ Triggered when a permission is deleted
 
 ## Schemas
 
-### connectionsConnectionProvider
-
-- **Type:**`string`
-
-**Example:**
-
-### connectionsConnectionStatus
-
-- **Type:**`string`
-
-**Example:**
-
-### connectionsConnectionType
-
-- **Type:**`string`
-
-**Example:**
-
-### connectionsListConnection
-
-- **Type:**`object`
-
-* **`domains`**
-
-  `array` — List of domains configured with this connection
-
-  **Items:**
-
-  `string`
-
-* **`enabled`**
-
-  `boolean` — Whether the connection is currently active for organization users
-
-* **`id`**
-
-  `string` — Unique identifier of the connection
-
-* **`key_id`**
-
-  `string` — Alternative identifier for this connection, typically used in frontend applications or URLs
-
-* **`organization_id`**
-
-  `string` — Unique identifier of the organization that owns this connection
-
-* **`organization_name`**
-
-  `string` — Name of the organization of the connection
-
-* **`provider`**
-
-  `string`, possible values: `"OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "PING_IDENTITY", "JUMPCLOUD", "CUSTOM", "GITHUB", "GITLAB", "LINKEDIN", "SALESFORCE", "MICROSOFT", "IDP_SIMULATOR", "SCALEKIT", "ADFS"` — Identity provider type (e.g., OKTA, Google, Azure AD)
-
-* **`provider_key`**
-
-  `string` — Key ID of the identity provider service that handles authentication
-
-* **`status`**
-
-  `string`, possible values: `"DRAFT", "IN_PROGRESS", "COMPLETED"` — Current configuration status of the connection
-
-* **`type`**
-
-  `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authentication protocol used by the connection
-
-**Example:**
-
-```json
-{
-  "domains": [
-    "yourapp.com",
-    "yourworkspace.com"
-  ],
-  "enabled": false,
-  "id": "conn_2123312131125533",
-  "key_id": "conn_2123312131125533",
-  "organization_id": "org_2123312131125533",
-  "organization_name": "Your Organization",
-  "provider": "CUSTOM",
-  "provider_key": "google",
-  "status": "IN_PROGRESS",
-  "type": "OIDC"
-}
-```
-
-### connectionsListConnectionsResponse
-
-- **Type:**`object`
-
-* **`connections`**
-
-  `array` — List of connections matching the request criteria
-
-  **Items:**
-
-  - **`domains`**
-
-    `array` — List of domains configured with this connection
-
-    **Items:**
-
-    `string`
-
-  - **`enabled`**
-
-    `boolean` — Whether the connection is currently active for organization users
-
-  - **`id`**
-
-    `string` — Unique identifier of the connection
-
-  - **`key_id`**
-
-    `string` — Alternative identifier for this connection, typically used in frontend applications or URLs
-
-  - **`organization_id`**
-
-    `string` — Unique identifier of the organization that owns this connection
-
-  - **`organization_name`**
-
-    `string` — Name of the organization of the connection
-
-  - **`provider`**
-
-    `string`, possible values: `"OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "PING_IDENTITY", "JUMPCLOUD", "CUSTOM", "GITHUB", "GITLAB", "LINKEDIN", "SALESFORCE", "MICROSOFT", "IDP_SIMULATOR", "SCALEKIT", "ADFS"` — Identity provider type (e.g., OKTA, Google, Azure AD)
-
-  - **`provider_key`**
-
-    `string` — Key ID of the identity provider service that handles authentication
-
-  - **`status`**
-
-    `string`, possible values: `"DRAFT", "IN_PROGRESS", "COMPLETED"` — Current configuration status of the connection
-
-  - **`type`**
-
-    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authentication protocol used by the connection
-
-**Example:**
-
-```json
-{
-  "connections": [
-    {
-      "domains": [
-        "yourapp.com",
-        "yourworkspace.com"
-      ],
-      "enabled": false,
-      "id": "conn_2123312131125533",
-      "key_id": "conn_2123312131125533",
-      "organization_id": "org_2123312131125533",
-      "organization_name": "Your Organization",
-      "provider": "CUSTOM",
-      "provider_key": "google",
-      "status": "IN_PROGRESS",
-      "type": "OIDC"
-    }
-  ]
-}
-```
-
-### UserServiceResendInviteBody
-
-- **Type:**`object`
-
-**Example:**
-
-```json
-{}
-```
-
-### usersInvite
-
-- **Type:**`object`
-
-* **`created_at`**
-
-  `string`, format: `date-time` — Timestamp when the invite was originally created.
-
-* **`expires_at`**
-
-  `string`, format: `date-time` — The time at which the invite expires.
-
-* **`inviter_email`**
-
-  `string` — Identifier of the user or system that initiated the invite.
-
-* **`organization_id`**
-
-  `string` — The organization to which the invite belongs.
-
-* **`resent_at`**
-
-  `string`, format: `date-time` — Timestamp when the invite was last resent, if applicable.
-
-* **`resent_count`**
-
-  `integer`, format: `int32` — Number of times the invite has been resent.
-
-* **`status`**
-
-  `string` — Current status of the invite (e.g., pending, accepted, expired, revoked).
-
-* **`user_id`**
-
-  `string` — User ID to whom the invite is sent. May be empty if the user has not signed up yet.
-
-**Example:**
-
-```json
-{
-  "created_at": "2025-07-10T08:00:00Z",
-  "expires_at": "2025-12-31T23:59:59Z",
-  "inviter_email": "admin@example.com",
-  "organization_id": "org_987654321",
-  "resent_at": "2025-07-15T09:30:00Z",
-  "resent_count": 2,
-  "status": "pending_invite",
-  "user_id": "usr_123456"
-}
-```
-
-### usersResendInviteResponse
-
-- **Type:**`object`
-
-* **`invite`**
-
-  `object` — Updated invitation object containing the resent invitation details, including new expiration time and incremented resend counter.
-
-  - **`created_at`**
-
-    `string`, format: `date-time` — Timestamp when the invite was originally created.
-
-  - **`expires_at`**
-
-    `string`, format: `date-time` — The time at which the invite expires.
-
-  - **`inviter_email`**
-
-    `string` — Identifier of the user or system that initiated the invite.
-
-  - **`organization_id`**
-
-    `string` — The organization to which the invite belongs.
-
-  - **`resent_at`**
-
-    `string`, format: `date-time` — Timestamp when the invite was last resent, if applicable.
-
-  - **`resent_count`**
-
-    `integer`, format: `int32` — Number of times the invite has been resent.
-
-  - **`status`**
-
-    `string` — Current status of the invite (e.g., pending, accepted, expired, revoked).
-
-  - **`user_id`**
-
-    `string` — User ID to whom the invite is sent. May be empty if the user has not signed up yet.
-
-**Example:**
-
-```json
-{
-  "invite": {
-    "expires_at": "2025-12-31T23:59:59Z",
-    "organization_id": "org_123",
-    "resent_count": 2,
-    "status": "pending_invite",
-    "user_id": "usr_456"
-  }
-}
-```
-
-### errdetailsDebugInfo
-
-- **Type:**`object`
-
-Describes additional debugging info.
-
-- **`detail`**
-
-  `string` — Additional debugging information provided by the server.
-
-- **`stack_entries`**
-
-  `array` — The stack trace entries indicating where the error occurred.
-
-  **Items:**
-
-  `string`
-
-**Example:**
-
-```json
-{
-  "detail": "",
-  "stack_entries": [
-    ""
-  ]
-}
-```
-
 ### HelpInfoLink
 
 - **Type:**`object`
@@ -12756,151 +12478,115 @@ A documentation or reference link.
 }
 ```
 
-### errdetailsHelpInfo
+### OrganizationServiceUpdateOrganizationSessionPolicyBody
 
 - **Type:**`object`
 
-HelpInfo provides documentation links attached to an error response. When present in ErrorInfo, clients should surface these links to help developers resolve the error. For example, a missing required field error may include a link to the relevant guide.
+* **`absolute_session_timeout`**
 
-- **`links`**
+  `integer`, format: `int32` — The absolute session timeout value. The unit is specified by absolute\_session\_timeout\_unit. Omit when policy\_source is APPLICATION.
 
-  `array` — One or more links relevant to resolving the error.
+* **`absolute_session_timeout_unit`**
 
-  **Items:**
+  `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for absolute\_session\_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES.
 
-  - **`description`**
+* **`idle_session_timeout`**
 
-    `string` — Human-readable label for the link (e.g. "User verification flow").
+  `integer`, format: `int32` — The idle session timeout value. The unit is specified by idle\_session\_timeout\_unit. Omit when idle\_session\_timeout\_enabled is false.
 
-  - **`url`**
+* **`idle_session_timeout_enabled`**
 
-    `string` — Absolute URL to the documentation page (e.g. "https\://docs.scalekit.com/...").
+  `boolean` — Whether idle session timeout is enabled. Omit when policy\_source is APPLICATION.
+
+* **`idle_session_timeout_unit`**
+
+  `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for idle\_session\_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES.
+
+* **`policy_source`**
+
+  `string`, possible values: `"APPLICATION", "CUSTOM"` — Policy source. Send 'APPLICATION' to revert to application defaults. Send 'CUSTOM' with timeout values to activate a custom policy.
 
 **Example:**
 
 ```json
 {
-  "links": [
-    {
-      "description": "",
-      "url": ""
-    }
+  "absolute_session_timeout": 360,
+  "absolute_session_timeout_unit": "MINUTES",
+  "idle_session_timeout": 84,
+  "idle_session_timeout_enabled": true,
+  "idle_session_timeout_unit": "MINUTES",
+  "policy_source": "CUSTOM"
+}
+```
+
+### OrganizationServiceUpsertUserManagementSettingsBody
+
+- **Type:**`object`
+
+* **`settings`**
+
+  `object` — The new values for the setting fields to patch.
+
+  - **`max_allowed_users`**
+
+    `integer`, format: `int32` — Maximum number of users allowed in the organization. When nil (not set), there feature is not enabled. When explicitly set to zero, it also means no limit. When set to a positive integer, it enforces the maximum user limit.
+
+**Example:**
+
+```json
+{
+  "settings": {
+    "max_allowed_users": 100
+  }
+}
+```
+
+### RolesServiceAddPermissionsToRoleBody
+
+- **Type:**`object`
+
+* **`permission_names`**
+
+  `array` — List of permission names to add to the role
+
+  **Items:**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "permission_names": [
+    ""
   ]
 }
 ```
 
-### errdetailsLocalizedMessageInfo
+### RolesServiceUpdateDefaultOrganizationRolesBody
 
 - **Type:**`object`
 
-* **`locale`**
+* **`default_member_role`**
 
-  `string`
-
-* **`message`**
-
-  `string`
+  `string` — Unique name of the default member role
 
 **Example:**
 
 ```json
 {
-  "locale": "",
-  "message": ""
+  "default_member_role": "member"
 }
 ```
 
-### errdetailsRequestInfo
+### UserServiceResendInviteBody
 
 - **Type:**`object`
-
-Contains metadata about the request that clients can attach when filing a bug or providing other forms of feedback.
-
-- **`request_id`**
-
-  `string` — An opaque string that should only be interpreted by the service generating it. For example, it can be used to identify requests in the service's logs.
-
-- **`serving_data`**
-
-  `string` — Any data that was used to serve this request. For example, an encrypted stack trace that can be sent back to the service provider for debugging.
 
 **Example:**
 
 ```json
-{
-  "request_id": "",
-  "serving_data": ""
-}
-```
-
-### errdetailsResourceInfo
-
-- **Type:**`object`
-
-Describes the resource that is being accessed.
-
-- **`description`**
-
-  `string` — Describes what error is encountered when accessing this resource. For example, updating a cloud project may require the \`writer\` permission on the developer console project.
-
-- **`owner`**
-
-  `string`
-
-- **`required_permissions`**
-
-  `array` — The required permissions needed to access the resource.
-
-  **Items:**
-
-  `string`
-
-- **`resource_name`**
-
-  `string`
-
-- **`user`**
-
-  `string`
-
-**Example:**
-
-```json
-{
-  "description": "",
-  "owner": "",
-  "required_permissions": [
-    ""
-  ],
-  "resource_name": "",
-  "user": ""
-}
-```
-
-### errdetailsToolErrorInfo
-
-- **Type:**`object`
-
-* **`execution_id`**
-
-  `string`
-
-* **`tool_error_code`**
-
-  `string`
-
-* **`tool_error_message`**
-
-  `string`
-
-**Example:**
-
-```json
-{
-  "execution_id": "",
-  "tool_error_code": "",
-  "tool_error_message": ""
-}
+{}
 ```
 
 ### ValidationErrorInfoFieldViolation
@@ -12931,2822 +12617,344 @@ A message type used to describe a single bad request field.
 }
 ```
 
-### errdetailsValidationErrorInfo
+### Attestation preferences for registration
 
 - **Type:**`object`
 
-Describes violations in a client request. This error type focuses on the syntactic aspects of the request.
-
-- **`field_violations`**
-
-  `array` — Describes all violations in a client request.
-
-  **Items:**
-
-  - **`constraint`**
-
-    `string`
-
-  - **`description`**
-
-    `string` — A description of why the request element is bad.
-
-  - **`field`**
-
-    `string`
-
-**Example:**
-
-```json
-{
-  "field_violations": [
-    {
-      "constraint": "",
-      "description": "",
-      "field": ""
-    }
-  ]
-}
-```
-
-### errdetailsErrorInfo
-
-- **Type:**`object`
-
-* **`debug_info`**
-
-  `object` — Describes additional debugging info.
-
-  - **`detail`**
-
-    `string` — Additional debugging information provided by the server.
-
-  - **`stack_entries`**
-
-    `array` — The stack trace entries indicating where the error occurred.
-
-    **Items:**
-
-    `string`
-
-* **`error_code`**
+* **`conveyance_preference`**
 
   `string`
 
-* **`help_info`**
-
-  `object` — HelpInfo provides documentation links attached to an error response. When present in ErrorInfo, clients should surface these links to help developers resolve the error. For example, a missing required field error may include a link to the relevant guide.
-
-  - **`links`**
-
-    `array` — One or more links relevant to resolving the error.
-
-    **Items:**
-
-    - **`description`**
-
-      `string` — Human-readable label for the link (e.g. "User verification flow").
-
-    - **`url`**
-
-      `string` — Absolute URL to the documentation page (e.g. "https\://docs.scalekit.com/...").
-
-* **`localized_message_info`**
-
-  `object`
-
-  - **`locale`**
-
-    `string`
-
-  - **`message`**
-
-    `string`
-
-* **`request_info`**
-
-  `object` — Contains metadata about the request that clients can attach when filing a bug or providing other forms of feedback.
-
-  - **`request_id`**
-
-    `string` — An opaque string that should only be interpreted by the service generating it. For example, it can be used to identify requests in the service's logs.
-
-  - **`serving_data`**
-
-    `string` — Any data that was used to serve this request. For example, an encrypted stack trace that can be sent back to the service provider for debugging.
-
-* **`resource_info`**
-
-  `object` — Describes the resource that is being accessed.
-
-  - **`description`**
-
-    `string` — Describes what error is encountered when accessing this resource. For example, updating a cloud project may require the \`writer\` permission on the developer console project.
-
-  - **`owner`**
-
-    `string`
-
-  - **`required_permissions`**
-
-    `array` — The required permissions needed to access the resource.
-
-    **Items:**
-
-    `string`
-
-  - **`resource_name`**
-
-    `string`
-
-  - **`user`**
-
-    `string`
-
-* **`tool_error_info`**
-
-  `object`
-
-  - **`execution_id`**
-
-    `string`
-
-  - **`tool_error_code`**
-
-    `string`
-
-  - **`tool_error_message`**
-
-    `string`
-
-* **`validation_error_info`**
-
-  `object` — Describes violations in a client request. This error type focuses on the syntactic aspects of the request.
-
-  - **`field_violations`**
-
-    `array` — Describes all violations in a client request.
-
-    **Items:**
-
-    - **`constraint`**
-
-      `string`
-
-    - **`description`**
-
-      `string` — A description of why the request element is bad.
-
-    - **`field`**
-
-      `string`
-
-**Example:**
-
-```json
-{
-  "debug_info": {
-    "detail": "",
-    "stack_entries": [
-      ""
-    ]
-  },
-  "error_code": "",
-  "help_info": {
-    "links": [
-      {}
-    ]
-  },
-  "localized_message_info": {
-    "locale": "",
-    "message": ""
-  },
-  "request_info": {
-    "request_id": "",
-    "serving_data": ""
-  },
-  "resource_info": {
-    "description": "",
-    "owner": "",
-    "required_permissions": [
-      ""
-    ],
-    "resource_name": "",
-    "user": ""
-  },
-  "tool_error_info": {
-    "execution_id": "",
-    "tool_error_code": "",
-    "tool_error_message": ""
-  },
-  "validation_error_info": {
-    "field_violations": [
-      {}
-    ]
-  }
-}
-```
-
-### commonsRole
-
-- **Type:**`object`
-
-* **`display_name`**
-
-  `string` — Human-readable name for the role
-
-* **`id`**
-
-  `string` — Role ID
-
-* **`name`**
-
-  `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
-
-**Example:**
-
-```json
-{
-  "display_name": "Dev Team",
-  "id": "role_79643236410327240",
-  "name": "team_dev"
-}
-```
-
-### v1usersCreateMembership
-
-- **Type:**`object`
-
-* **`inviter_email`**
-
-  `string` — Email address of the user who invited this member. Must be a valid email address.
-
-* **`metadata`**
-
-  `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
-
-* **`roles`**
-
-  `array` — Role to assign to the user within the organization
-
-  **Items:**
-
-  - **`display_name`**
-
-    `string` — Human-readable name for the role
-
-  - **`id`**
-
-    `string` — Role ID
-
-  - **`name`**
-
-    `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
-
-**Example:**
-
-```json
-{
-  "inviter_email": "john.doe@example.com",
-  "metadata": {
-    "department": "engineering",
-    "location": "nyc-office"
-  },
-  "roles": [
-    {
-      "name": "admin"
-    }
-  ]
-}
-```
-
-### commonsMembershipStatus
-
-- **Type:**`string`
-
-**Example:**
-
-### commonsOrganizationMembership
-
-- **Type:**`object`
-
-* **`accepted_at`**
-
-  `string`, format: `date-time` — Timestamp when the user accepted the invitation.
-
-* **`created_at`**
-
-  `string`, format: `date-time` — Timestamp when the invitation was created.
-
-* **`display_name`**
-
-  `string` — Organization display name. This field stores a user-friendly name for the organization that may be different from the formal name, often used for UI display purposes.
-
-* **`expires_at`**
-
-  `string`, format: `date-time` — Timestamp when the invitation expired.
-
-* **`inviter_email`**
-
-  `string` — ID of the user who invited this user.
-
-* **`join_time`**
-
-  `string`, format: `date-time` — Timestamp when the membership was created. Automatically set by the server.
-
-* **`membership_status`**
-
-  `string`, possible values: `"ACTIVE", "INACTIVE", "PENDING_INVITE", "INVITE_EXPIRED"`
-
-* **`metadata`**
-
-  `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
-
-* **`name`**
-
-  `string` — Organization name. This field stores the formal organization name used for identification and display purposes.
-
-* **`organization_id`**
-
-  `string` — Unique identifier for the organization. Immutable and read-only.
-
-* **`permissions`**
-
-  `array` — Effective permissions granted to the user within the organization (including inherited permissions from assigned roles). Lists the specific actions and access rights the user can perform.
-
-  **Items:**
-
-  `string`
-
-* **`provisioning_method`**
-
-  `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
-
-* **`roles`**
+* **`enterprise_approved_ids`**
 
   `array`
 
   **Items:**
 
-  - **`display_name`**
-
-    `string` — Human-readable name for the role
-
-  - **`id`**
-
-    `string` — Role ID
-
-  - **`name`**
-
-    `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
+  `string`
 
 **Example:**
 
 ```json
 {
-  "accepted_at": "",
-  "created_at": "",
-  "display_name": "Acme Corporation",
-  "expires_at": "",
-  "inviter_email": "",
-  "join_time": "",
-  "membership_status": "ACTIVE",
-  "metadata": {
-    "department": "engineering",
-    "location": "nyc-office"
-  },
-  "name": "AcmeCorp",
-  "organization_id": "org_1234abcd5678efgh",
-  "permissions": [
-    "read_projects",
-    "write_tasks",
-    "manage_users"
-  ],
-  "provisioning_method": "",
-  "roles": [
-    {
-      "display_name": "Dev Team",
-      "id": "role_79643236410327240",
-      "name": "team_dev"
-    }
+  "conveyance_preference": "",
+  "enterprise_approved_ids": [
+    ""
   ]
 }
 ```
 
-### commonsIdentityProviderType
+### WebAuthConfigurationAuthenticatorSelection
+
+- **Type:**`object`
+
+* **`authenticator_attachment`**
+
+  `string`
+
+* **`user_verification`**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "authenticator_attachment": "",
+  "user_verification": ""
+}
+```
+
+### WebAuthConfigurationAuthenticators
+
+- **Type:**`object`
+
+* **`desired_authenticator_status`**
+
+  `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate\_status set to true.
+
+  **Items:**
+
+  `string`, default: `"[]"`
+
+* **`undesired_authenticator_status`**
+
+  `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate\_status set to true.
+
+  **Items:**
+
+  `string`, default: `"['ATTESTATION_KEY_COMPROMISE', 'USER_VERIFICATION_BYPASS', 'USER_KEY_REMOTE_COMPROMISE', 'USER_KEY_PHYSICAL_COMPROMISE', 'REVOKED']"`
+
+* **`validate_anchors`**
+
+  `boolean` — when set to true enables the validation of the attestation statement against the trust anchor from the metadata statement.
+
+* **`validate_attestation_type`**
+
+  `boolean` — when set to true enables the validation of the attestation statements type against the known types the authenticator can produce.
+
+* **`validate_entry`**
+
+  `boolean` — requires that the provided metadata has an entry for the given authenticator to be considered valid. By default an AAGUID which has a zero value should fail validation if validate\_entry\_permit\_zero\_aaguid is not provided with the value of true.
+
+* **`validate_entry_permit_zero_aaguid`**
+
+  `boolean` — is an option that permits a zero'd AAGUID from an attestation statement to automatically pass metadata validations. Generally helpful to use with validate\_entry.
+
+* **`validate_status`**
+
+  `boolean` — when set to true enables the validation of the attestation statements AAGUID against the desired and undesired lists
+
+**Example:**
+
+```json
+{
+  "desired_authenticator_status": [
+    "[]"
+  ],
+  "undesired_authenticator_status": [
+    "['ATTESTATION_KEY_COMPROMISE', 'USER_VERIFICATION_BYPASS', 'USER_KEY_REMOTE_COMPROMISE', 'USER_KEY_PHYSICAL_COMPROMISE', 'REVOKED']"
+  ],
+  "validate_anchors": true,
+  "validate_attestation_type": true,
+  "validate_entry": true,
+  "validate_entry_permit_zero_aaguid": true,
+  "validate_status": true
+}
+```
+
+### Rp contains relying party identifiers and origins
+
+- **Type:**`object`
+
+* **`ids`**
+
+  `array`
+
+  **Items:**
+
+  `string`
+
+* **`origins`**
+
+  `array`
+
+  **Items:**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "ids": [
+    ""
+  ],
+  "origins": [
+    ""
+  ]
+}
+```
+
+### WebAuthConfigurationTimeout
+
+- **Type:**`object`
+
+* **`login`**
+
+  `string`, default: `"\"300s\""` — Login timeout duration
+
+* **`login_uvd`**
+
+  `string`, default: `"\"300s\""` — Login timeout duration when user verification is discouraged
+
+* **`registration`**
+
+  `string`, default: `"\"300s\""` — Registration timeout duration
+
+* **`registration_uvd`**
+
+  `string`, default: `"\"300s\""` — Registration timeout duration when user verification is discouraged
+
+**Example:**
+
+```json
+{
+  "login": "\"300s\"",
+  "login_uvd": "\"300s\"",
+  "registration": "\"300s\"",
+  "registration_uvd": "\"300s\""
+}
+```
+
+### WebAuthnCredentialAuthenticator
+
+- **Type:**`object`
+
+* **`aaguid`**
+
+  `string` — Authenticator Attestation GUID (AAGUID) identifying the device model
+
+* **`attachment`**
+
+  `string` — Attachment type: "platform" (built-in) or "cross-platform"
+
+* **`icon_dark`**
+
+  `string` — Icon URL for dark theme display
+
+* **`icon_light`**
+
+  `string` — Icon URL for light theme display
+
+* **`name`**
+
+  `string` — Human-readable name of the authenticator model
+
+**Example:**
+
+```json
+{
+  "aaguid": "",
+  "attachment": "platform",
+  "icon_dark": "",
+  "icon_light": "",
+  "name": "Apple Touch ID"
+}
+```
+
+### WebAuthnCredentialAuthenticatorFlags
+
+- **Type:**`object`
+
+* **`backup_eligible`**
+
+  `boolean` — Whether this credential can be backed up to another device
+
+* **`backup_state`**
+
+  `boolean` — Whether this credential was synced or backed up
+
+* **`user_present`**
+
+  `boolean` — Whether the user was present during authentication
+
+* **`user_verified`**
+
+  `boolean` — Whether the user was verified (e.g., fingerprint, PIN)
+
+**Example:**
+
+```json
+{
+  "backup_eligible": true,
+  "backup_state": true,
+  "user_present": true,
+  "user_verified": true
+}
+```
+
+### WebAuthnCredentialClientInfo
+
+- **Type:**`object`
+
+* **`city`**
+
+  `string` — City name
+
+* **`ip`**
+
+  `string` — IP address from which credential was registered
+
+* **`region`**
+
+  `string` — Geographic region (e.g., "US")
+
+* **`region_subdivision`**
+
+  `string` — Regional subdivision (e.g., "CA")
+
+**Example:**
+
+```json
+{
+  "city": "San Francisco",
+  "ip": "192.0.2.1",
+  "region": "US",
+  "region_subdivision": "CA"
+}
+```
+
+### WebAuthnCredentialUserAgent
+
+- **Type:**`object`
+
+* **`browser`**
+
+  `string` — Browser name (e.g., "Chrome", "Safari")
+
+* **`browser_version`**
+
+  `string` — Browser version number
+
+* **`device_model`**
+
+  `string` — Device model if available
+
+* **`device_type`**
+
+  `string` — Device type: "desktop", "mobile", or "tablet"
+
+* **`os`**
+
+  `string` — Operating system name (e.g., "Windows", "iOS")
+
+* **`os_version`**
+
+  `string` — Operating system version
+
+* **`raw`**
+
+  `string` — Raw user agent string from the browser
+
+* **`url`**
+
+  `string` — Parsed user agent URL reference
+
+**Example:**
+
+```json
+{
+  "browser": "Chrome",
+  "browser_version": "120.0.6099.129",
+  "device_model": "iPhone15,2",
+  "device_type": "mobile",
+  "os": "macOS",
+  "os_version": "14.2",
+  "raw": "",
+  "url": ""
+}
+```
+
+### WebAuthnServiceUpdateCredentialBody
+
+- **Type:**`object`
+
+* **`display_name`**
+
+  `string` — Human-friendly name for this credential (1-120 characters)
+
+**Example:**
+
+```json
+{
+  "display_name": "My iPhone 15 Pro"
+}
+```
+
+### authpasswordlessPasswordlessType
 
 - **Type:**`string`
-
-**Example:**
-
-### commonsExternalIdentity
-
-- **Type:**`object`
-
-* **`connection_id`**
-
-  `string` — Unique identifier for the external identity connection. Immutable and read-only.
-
-* **`connection_provider`**
-
-  `string`, possible values: `"OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "PING_IDENTITY", "JUMPCLOUD", "CUSTOM", "GITHUB", "GITLAB", "LINKEDIN", "SALESFORCE", "MICROSOFT", "IDP_SIMULATOR", "SCALEKIT", "ADFS"` — Type of the identity provider.
-
-* **`connection_type`**
-
-  `string` — Name of the external identity connection.
-
-* **`connection_user_id`**
-
-  `string` — Unique identifier for the user in the external identity provider system. Immutable and read-only.
-
-* **`created_time`**
-
-  `string`, format: `date-time` — Timestamp when this external identity connection was first created. Immutable and read-only.
-
-* **`is_social`**
-
-  `boolean` — Indicates if the identity provider is a social provider (true) or enterprise/custom provider (false). Read-only.
-
-* **`last_login_time`**
-
-  `string`, format: `date-time` — Timestamp of the user's last successful login via this external identity provider. Automatically updated by the system.
-
-* **`last_synced_time`**
-
-  `string`, format: `date-time` — Timestamp of the last data synchronization for this external identity from the provider. Automatically updated by the system.
-
-**Example:**
-
-```json
-{
-  "connection_id": "conn_1234abcd5678efgh",
-  "connection_provider": "GOOGLE",
-  "connection_type": "OAUTH",
-  "connection_user_id": "ext_user_12345",
-  "created_time": "",
-  "is_social": true,
-  "last_login_time": "",
-  "last_synced_time": ""
-}
-```
-
-### commonsUserProfile
-
-- **Type:**`object`
-
-* **`custom_attributes`**
-
-  `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
-
-* **`email_verified`**
-
-  `boolean` — Indicates if the user's email address has been verified. Automatically updated by the system.
-
-* **`external_identities`**
-
-  `array` — List of external identity connections associated with the user profile.
-
-  **Items:**
-
-  - **`connection_id`**
-
-    `string` — Unique identifier for the external identity connection. Immutable and read-only.
-
-  - **`connection_provider`**
-
-    `string`, possible values: `"OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "PING_IDENTITY", "JUMPCLOUD", "CUSTOM", "GITHUB", "GITLAB", "LINKEDIN", "SALESFORCE", "MICROSOFT", "IDP_SIMULATOR", "SCALEKIT", "ADFS"` — Type of the identity provider.
-
-  - **`connection_type`**
-
-    `string` — Name of the external identity connection.
-
-  - **`connection_user_id`**
-
-    `string` — Unique identifier for the user in the external identity provider system. Immutable and read-only.
-
-  - **`created_time`**
-
-    `string`, format: `date-time` — Timestamp when this external identity connection was first created. Immutable and read-only.
-
-  - **`is_social`**
-
-    `boolean` — Indicates if the identity provider is a social provider (true) or enterprise/custom provider (false). Read-only.
-
-  - **`last_login_time`**
-
-    `string`, format: `date-time` — Timestamp of the user's last successful login via this external identity provider. Automatically updated by the system.
-
-  - **`last_synced_time`**
-
-    `string`, format: `date-time` — Timestamp of the last data synchronization for this external identity from the provider. Automatically updated by the system.
-
-* **`family_name`**
-
-  `string` — The user's family name (last name or surname). This field stores the user's last name and is combined with the given name to create the full display name. The family name is used in formal communications, user listings, and organizational directories throughout the system. Maximum 255 characters allowed.
-
-* **`gender`**
-
-  `string` — The user's gender identity information. This field stores the user's gender identity for personalization, compliance reporting, or organizational analytics purposes. This field supports any string value to accommodate diverse gender identities and should be handled with appropriate privacy considerations according to your organization's policies and applicable regulations.
-
-* **`given_name`**
-
-  `string` — The user's given name (first name). This field stores the user's first name and is used for personalization, display purposes, and when generating the full display name. The given name appears in user interfaces, formal communications, and user listings throughout the system. Maximum 255 characters allowed.
-
-* **`groups`**
-
-  `array` — The list of group names the user belongs to within the organization. This field stores the user's group memberships for role-based access control, team assignments, and organizational structure. Groups are typically used for permission management, collaborative access, and organizational hierarchy. Each group name represents a distinct organizational unit or team that the user is associated with.
-
-  **Items:**
-
-  `string`
-
-* **`id`**
-
-  `string` — Unique system-generated identifier for the user profile. Immutable and read-only.
-
-* **`locale`**
-
-  `string` — The user's preferred language and region settings using BCP-47 format codes. This field customizes the user's experience with localized content, date formats, number formatting, and UI language throughout the system. When not specified, the user inherits the organization's default locale settings. Common values include \`en-US\`, \`en-GB\`, \`fr-FR\`, \`de-DE\`, and \`es-ES\`.
-
-* **`metadata`**
-
-  `object` — Raw attributes received from identity providers during authentication. This field stores the original user profile data as received from external IdP systems (SAML, OIDC, etc.) including provider-specific claims and attributes. These fields preserve the complete set of attributes received from the identity source and are used for mapping, synchronization, and audit purposes. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
-
-* **`name`**
-
-  `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
-
-* **`phone_number`**
-
-  `string` — The user's phone number in E.164 international format. This field stores the phone number for user contact and identification purposes. The phone number must include the country code and be formatted according to E.164 standards (e.g., \`+1\` for US numbers). This field is optional.
-
-* **`phone_number_verified`**
-
-  `boolean` — Indicates if the user's phone number has been verified. Automatically updated by the system.
-
-* **`picture`**
-
-  `string` — The URL to the user's profile picture or avatar image. This field stores the location of the user's profile photo that appears in user interfaces, directory listings, and collaborative features throughout the system. The URL should point to a publicly accessible image file. Supported formats typically include JPEG, PNG, and GIF. This image is used for visual identification and personalization across the platform.
-
-* **`preferred_username`**
-
-  `string` — The user's preferred username for display and identification purposes. This field stores a custom username that the user prefers to be known by, which may differ from their email or formal name. This username appears in user interfaces, mentions, informal communications, and collaborative features throughout the system. Maximum 512 characters allowed.
-
-**Example:**
-
-```json
-{
-  "custom_attributes": {
-    "department": "engineering",
-    "security_clearance": "level2"
-  },
-  "email_verified": true,
-  "external_identities": [
-    {
-      "connection_id": "conn_1234abcd5678efgh",
-      "connection_provider": "GOOGLE",
-      "connection_type": "OAUTH",
-      "connection_user_id": "ext_user_12345",
-      "created_time": "",
-      "is_social": true,
-      "last_login_time": "",
-      "last_synced_time": ""
-    }
-  ],
-  "family_name": "Doe",
-  "gender": "male",
-  "given_name": "John",
-  "groups": [
-    "admin",
-    "developer"
-  ],
-  "id": "usr_profile_1234abcd5678efgh",
-  "locale": "en-US",
-  "metadata": {
-    "department": "engineering",
-    "employee_type": "full-time",
-    "idp_user_id": "12345"
-  },
-  "name": "John Michael Doe",
-  "phone_number": "+14155552671",
-  "phone_number_verified": true,
-  "picture": "https://example.com/avatar.jpg",
-  "preferred_username": "johndoe"
-}
-```
-
-### usersUser
-
-- **Type:**`object`
-
-* **`create_time`**
-
-  `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
-
-* **`email`**
-
-  `string` — Primary email address for the user. Must be unique across the environment and valid per RFC 5322.
-
-* **`external_id`**
-
-  `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
-
-* **`id`**
-
-  `string` — Unique system-generated identifier for the user. Immutable once created.
-
-* **`last_login_time`**
-
-  `string`, format: `date-time` — Timestamp of the user's most recent successful authentication. Updated automatically.
-
-* **`memberships`**
-
-  `array` — List of organization memberships. Automatically populated based on group assignments.
-
-  **Items:**
-
-  - **`accepted_at`**
-
-    `string`, format: `date-time` — Timestamp when the user accepted the invitation.
-
-  - **`created_at`**
-
-    `string`, format: `date-time` — Timestamp when the invitation was created.
-
-  - **`display_name`**
-
-    `string` — Organization display name. This field stores a user-friendly name for the organization that may be different from the formal name, often used for UI display purposes.
-
-  - **`expires_at`**
-
-    `string`, format: `date-time` — Timestamp when the invitation expired.
-
-  - **`inviter_email`**
-
-    `string` — ID of the user who invited this user.
-
-  - **`join_time`**
-
-    `string`, format: `date-time` — Timestamp when the membership was created. Automatically set by the server.
-
-  - **`membership_status`**
-
-    `string`, possible values: `"ACTIVE", "INACTIVE", "PENDING_INVITE", "INVITE_EXPIRED"`
-
-  - **`metadata`**
-
-    `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
-
-  - **`name`**
-
-    `string` — Organization name. This field stores the formal organization name used for identification and display purposes.
-
-  - **`organization_id`**
-
-    `string` — Unique identifier for the organization. Immutable and read-only.
-
-  - **`permissions`**
-
-    `array` — Effective permissions granted to the user within the organization (including inherited permissions from assigned roles). Lists the specific actions and access rights the user can perform.
-
-    **Items:**
-
-    `string`
-
-  - **`provisioning_method`**
-
-    `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
-
-  - **`roles`**
-
-    `array`
-
-    **Items:**
-
-    - **`display_name`**
-
-      `string` — Human-readable name for the role
-
-    - **`id`**
-
-      `string` — Role ID
-
-    - **`name`**
-
-      `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
-
-* **`metadata`**
-
-  `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
-
-* **`update_time`**
-
-  `string`, format: `date-time` — Timestamp of the last modification to the user account. Automatically updated by the server.
-
-* **`user_profile`**
-
-  `object` — User's personal information including name, address, and other profile attributes.
-
-  - **`custom_attributes`**
-
-    `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
-
-  - **`email_verified`**
-
-    `boolean` — Indicates if the user's email address has been verified. Automatically updated by the system.
-
-  - **`external_identities`**
-
-    `array` — List of external identity connections associated with the user profile.
-
-    **Items:**
-
-    - **`connection_id`**
-
-      `string` — Unique identifier for the external identity connection. Immutable and read-only.
-
-    - **`connection_provider`**
-
-      `string`, possible values: `"OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "PING_IDENTITY", "JUMPCLOUD", "CUSTOM", "GITHUB", "GITLAB", "LINKEDIN", "SALESFORCE", "MICROSOFT", "IDP_SIMULATOR", "SCALEKIT", "ADFS"` — Type of the identity provider.
-
-    - **`connection_type`**
-
-      `string` — Name of the external identity connection.
-
-    - **`connection_user_id`**
-
-      `string` — Unique identifier for the user in the external identity provider system. Immutable and read-only.
-
-    - **`created_time`**
-
-      `string`, format: `date-time` — Timestamp when this external identity connection was first created. Immutable and read-only.
-
-    - **`is_social`**
-
-      `boolean` — Indicates if the identity provider is a social provider (true) or enterprise/custom provider (false). Read-only.
-
-    - **`last_login_time`**
-
-      `string`, format: `date-time` — Timestamp of the user's last successful login via this external identity provider. Automatically updated by the system.
-
-    - **`last_synced_time`**
-
-      `string`, format: `date-time` — Timestamp of the last data synchronization for this external identity from the provider. Automatically updated by the system.
-
-  - **`family_name`**
-
-    `string` — The user's family name (last name or surname). This field stores the user's last name and is combined with the given name to create the full display name. The family name is used in formal communications, user listings, and organizational directories throughout the system. Maximum 255 characters allowed.
-
-  - **`gender`**
-
-    `string` — The user's gender identity information. This field stores the user's gender identity for personalization, compliance reporting, or organizational analytics purposes. This field supports any string value to accommodate diverse gender identities and should be handled with appropriate privacy considerations according to your organization's policies and applicable regulations.
-
-  - **`given_name`**
-
-    `string` — The user's given name (first name). This field stores the user's first name and is used for personalization, display purposes, and when generating the full display name. The given name appears in user interfaces, formal communications, and user listings throughout the system. Maximum 255 characters allowed.
-
-  - **`groups`**
-
-    `array` — The list of group names the user belongs to within the organization. This field stores the user's group memberships for role-based access control, team assignments, and organizational structure. Groups are typically used for permission management, collaborative access, and organizational hierarchy. Each group name represents a distinct organizational unit or team that the user is associated with.
-
-    **Items:**
-
-    `string`
-
-  - **`id`**
-
-    `string` — Unique system-generated identifier for the user profile. Immutable and read-only.
-
-  - **`locale`**
-
-    `string` — The user's preferred language and region settings using BCP-47 format codes. This field customizes the user's experience with localized content, date formats, number formatting, and UI language throughout the system. When not specified, the user inherits the organization's default locale settings. Common values include \`en-US\`, \`en-GB\`, \`fr-FR\`, \`de-DE\`, and \`es-ES\`.
-
-  - **`metadata`**
-
-    `object` — Raw attributes received from identity providers during authentication. This field stores the original user profile data as received from external IdP systems (SAML, OIDC, etc.) including provider-specific claims and attributes. These fields preserve the complete set of attributes received from the identity source and are used for mapping, synchronization, and audit purposes. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
-
-  - **`name`**
-
-    `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
-
-  - **`phone_number`**
-
-    `string` — The user's phone number in E.164 international format. This field stores the phone number for user contact and identification purposes. The phone number must include the country code and be formatted according to E.164 standards (e.g., \`+1\` for US numbers). This field is optional.
-
-  - **`phone_number_verified`**
-
-    `boolean` — Indicates if the user's phone number has been verified. Automatically updated by the system.
-
-  - **`picture`**
-
-    `string` — The URL to the user's profile picture or avatar image. This field stores the location of the user's profile photo that appears in user interfaces, directory listings, and collaborative features throughout the system. The URL should point to a publicly accessible image file. Supported formats typically include JPEG, PNG, and GIF. This image is used for visual identification and personalization across the platform.
-
-  - **`preferred_username`**
-
-    `string` — The user's preferred username for display and identification purposes. This field stores a custom username that the user prefers to be known by, which may differ from their email or formal name. This username appears in user interfaces, mentions, informal communications, and collaborative features throughout the system. Maximum 512 characters allowed.
-
-**Example:**
-
-```json
-{
-  "create_time": "",
-  "email": "user@example.com",
-  "external_id": "ext_12345a67b89c",
-  "id": "usr_1234abcd5678efgh",
-  "last_login_time": "",
-  "memberships": [
-    {
-      "accepted_at": "",
-      "created_at": "",
-      "display_name": "Acme Corporation",
-      "expires_at": "",
-      "inviter_email": "",
-      "join_time": "",
-      "membership_status": null,
-      "metadata": {
-        "department": "engineering",
-        "location": "nyc-office"
-      },
-      "name": "AcmeCorp",
-      "organization_id": "org_1234abcd5678efgh",
-      "permissions": [
-        "read_projects",
-        "write_tasks",
-        "manage_users"
-      ],
-      "provisioning_method": "",
-      "roles": [
-        {}
-      ]
-    }
-  ],
-  "metadata": {
-    "department": "engineering",
-    "location": "nyc-office"
-  },
-  "update_time": "",
-  "user_profile": {
-    "custom_attributes": {
-      "department": "engineering",
-      "security_clearance": "level2"
-    },
-    "email_verified": true,
-    "external_identities": [
-      {}
-    ],
-    "family_name": "Doe",
-    "gender": "male",
-    "given_name": "John",
-    "groups": [
-      "admin",
-      "developer"
-    ],
-    "id": "usr_profile_1234abcd5678efgh",
-    "locale": "en-US",
-    "metadata": {
-      "department": "engineering",
-      "employee_type": "full-time",
-      "idp_user_id": "12345"
-    },
-    "name": "John Michael Doe",
-    "phone_number": "+14155552671",
-    "phone_number_verified": true,
-    "picture": "https://example.com/avatar.jpg",
-    "preferred_username": "johndoe"
-  }
-}
-```
-
-### usersCreateMembershipResponse
-
-- **Type:**`object`
-
-* **`user`**
-
-  `object`
-
-  - **`create_time`**
-
-    `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
-
-  - **`email`**
-
-    `string` — Primary email address for the user. Must be unique across the environment and valid per RFC 5322.
-
-  - **`external_id`**
-
-    `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
-
-  - **`id`**
-
-    `string` — Unique system-generated identifier for the user. Immutable once created.
-
-  - **`last_login_time`**
-
-    `string`, format: `date-time` — Timestamp of the user's most recent successful authentication. Updated automatically.
-
-  - **`memberships`**
-
-    `array` — List of organization memberships. Automatically populated based on group assignments.
-
-    **Items:**
-
-    - **`accepted_at`**
-
-      `string`, format: `date-time` — Timestamp when the user accepted the invitation.
-
-    - **`created_at`**
-
-      `string`, format: `date-time` — Timestamp when the invitation was created.
-
-    - **`display_name`**
-
-      `string` — Organization display name. This field stores a user-friendly name for the organization that may be different from the formal name, often used for UI display purposes.
-
-    - **`expires_at`**
-
-      `string`, format: `date-time` — Timestamp when the invitation expired.
-
-    - **`inviter_email`**
-
-      `string` — ID of the user who invited this user.
-
-    - **`join_time`**
-
-      `string`, format: `date-time` — Timestamp when the membership was created. Automatically set by the server.
-
-    - **`membership_status`**
-
-      `string`, possible values: `"ACTIVE", "INACTIVE", "PENDING_INVITE", "INVITE_EXPIRED"`
-
-    - **`metadata`**
-
-      `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
-
-    - **`name`**
-
-      `string` — Organization name. This field stores the formal organization name used for identification and display purposes.
-
-    - **`organization_id`**
-
-      `string` — Unique identifier for the organization. Immutable and read-only.
-
-    - **`permissions`**
-
-      `array` — Effective permissions granted to the user within the organization (including inherited permissions from assigned roles). Lists the specific actions and access rights the user can perform.
-
-      **Items:**
-
-      `string`
-
-    - **`provisioning_method`**
-
-      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
-
-    - **`roles`**
-
-      `array`
-
-      **Items:**
-
-      - **`display_name`**
-
-        `string` — Human-readable name for the role
-
-      - **`id`**
-
-        `string` — Role ID
-
-      - **`name`**
-
-        `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
-
-  - **`metadata`**
-
-    `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
-
-  - **`update_time`**
-
-    `string`, format: `date-time` — Timestamp of the last modification to the user account. Automatically updated by the server.
-
-  - **`user_profile`**
-
-    `object` — User's personal information including name, address, and other profile attributes.
-
-    - **`custom_attributes`**
-
-      `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
-
-    - **`email_verified`**
-
-      `boolean` — Indicates if the user's email address has been verified. Automatically updated by the system.
-
-    - **`external_identities`**
-
-      `array` — List of external identity connections associated with the user profile.
-
-      **Items:**
-
-      - **`connection_id`**
-
-        `string` — Unique identifier for the external identity connection. Immutable and read-only.
-
-      - **`connection_provider`**
-
-        `string`, possible values: `"OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "PING_IDENTITY", "JUMPCLOUD", "CUSTOM", "GITHUB", "GITLAB", "LINKEDIN", "SALESFORCE", "MICROSOFT", "IDP_SIMULATOR", "SCALEKIT", "ADFS"` — Type of the identity provider.
-
-      - **`connection_type`**
-
-        `string` — Name of the external identity connection.
-
-      - **`connection_user_id`**
-
-        `string` — Unique identifier for the user in the external identity provider system. Immutable and read-only.
-
-      - **`created_time`**
-
-        `string`, format: `date-time` — Timestamp when this external identity connection was first created. Immutable and read-only.
-
-      - **`is_social`**
-
-        `boolean` — Indicates if the identity provider is a social provider (true) or enterprise/custom provider (false). Read-only.
-
-      - **`last_login_time`**
-
-        `string`, format: `date-time` — Timestamp of the user's last successful login via this external identity provider. Automatically updated by the system.
-
-      - **`last_synced_time`**
-
-        `string`, format: `date-time` — Timestamp of the last data synchronization for this external identity from the provider. Automatically updated by the system.
-
-    - **`family_name`**
-
-      `string` — The user's family name (last name or surname). This field stores the user's last name and is combined with the given name to create the full display name. The family name is used in formal communications, user listings, and organizational directories throughout the system. Maximum 255 characters allowed.
-
-    - **`gender`**
-
-      `string` — The user's gender identity information. This field stores the user's gender identity for personalization, compliance reporting, or organizational analytics purposes. This field supports any string value to accommodate diverse gender identities and should be handled with appropriate privacy considerations according to your organization's policies and applicable regulations.
-
-    - **`given_name`**
-
-      `string` — The user's given name (first name). This field stores the user's first name and is used for personalization, display purposes, and when generating the full display name. The given name appears in user interfaces, formal communications, and user listings throughout the system. Maximum 255 characters allowed.
-
-    - **`groups`**
-
-      `array` — The list of group names the user belongs to within the organization. This field stores the user's group memberships for role-based access control, team assignments, and organizational structure. Groups are typically used for permission management, collaborative access, and organizational hierarchy. Each group name represents a distinct organizational unit or team that the user is associated with.
-
-      **Items:**
-
-      `string`
-
-    - **`id`**
-
-      `string` — Unique system-generated identifier for the user profile. Immutable and read-only.
-
-    - **`locale`**
-
-      `string` — The user's preferred language and region settings using BCP-47 format codes. This field customizes the user's experience with localized content, date formats, number formatting, and UI language throughout the system. When not specified, the user inherits the organization's default locale settings. Common values include \`en-US\`, \`en-GB\`, \`fr-FR\`, \`de-DE\`, and \`es-ES\`.
-
-    - **`metadata`**
-
-      `object` — Raw attributes received from identity providers during authentication. This field stores the original user profile data as received from external IdP systems (SAML, OIDC, etc.) including provider-specific claims and attributes. These fields preserve the complete set of attributes received from the identity source and are used for mapping, synchronization, and audit purposes. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
-
-    - **`name`**
-
-      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
-
-    - **`phone_number`**
-
-      `string` — The user's phone number in E.164 international format. This field stores the phone number for user contact and identification purposes. The phone number must include the country code and be formatted according to E.164 standards (e.g., \`+1\` for US numbers). This field is optional.
-
-    - **`phone_number_verified`**
-
-      `boolean` — Indicates if the user's phone number has been verified. Automatically updated by the system.
-
-    - **`picture`**
-
-      `string` — The URL to the user's profile picture or avatar image. This field stores the location of the user's profile photo that appears in user interfaces, directory listings, and collaborative features throughout the system. The URL should point to a publicly accessible image file. Supported formats typically include JPEG, PNG, and GIF. This image is used for visual identification and personalization across the platform.
-
-    - **`preferred_username`**
-
-      `string` — The user's preferred username for display and identification purposes. This field stores a custom username that the user prefers to be known by, which may differ from their email or formal name. This username appears in user interfaces, mentions, informal communications, and collaborative features throughout the system. Maximum 512 characters allowed.
-
-**Example:**
-
-```json
-{
-  "user": {
-    "create_time": "",
-    "email": "user@example.com",
-    "external_id": "ext_12345a67b89c",
-    "id": "usr_1234abcd5678efgh",
-    "last_login_time": "",
-    "memberships": [
-      {}
-    ],
-    "metadata": {
-      "department": "engineering",
-      "location": "nyc-office"
-    },
-    "update_time": "",
-    "user_profile": null
-  }
-}
-```
-
-### v1usersUpdateMembership
-
-- **Type:**`object`
-
-* **`metadata`**
-
-  `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
-
-* **`roles`**
-
-  `array` — Role to assign to the user within the organization
-
-  **Items:**
-
-  - **`display_name`**
-
-    `string` — Human-readable name for the role
-
-  - **`id`**
-
-    `string` — Role ID
-
-  - **`name`**
-
-    `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
-
-**Example:**
-
-```json
-{
-  "metadata": {
-    "department": "engineering",
-    "location": "nyc-office"
-  },
-  "roles": [
-    {
-      "name": "admin"
-    }
-  ]
-}
-```
-
-### usersUpdateMembershipResponse
-
-- **Type:**`object`
-
-* **`user`**
-
-  `object`
-
-  - **`create_time`**
-
-    `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
-
-  - **`email`**
-
-    `string` — Primary email address for the user. Must be unique across the environment and valid per RFC 5322.
-
-  - **`external_id`**
-
-    `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
-
-  - **`id`**
-
-    `string` — Unique system-generated identifier for the user. Immutable once created.
-
-  - **`last_login_time`**
-
-    `string`, format: `date-time` — Timestamp of the user's most recent successful authentication. Updated automatically.
-
-  - **`memberships`**
-
-    `array` — List of organization memberships. Automatically populated based on group assignments.
-
-    **Items:**
-
-    - **`accepted_at`**
-
-      `string`, format: `date-time` — Timestamp when the user accepted the invitation.
-
-    - **`created_at`**
-
-      `string`, format: `date-time` — Timestamp when the invitation was created.
-
-    - **`display_name`**
-
-      `string` — Organization display name. This field stores a user-friendly name for the organization that may be different from the formal name, often used for UI display purposes.
-
-    - **`expires_at`**
-
-      `string`, format: `date-time` — Timestamp when the invitation expired.
-
-    - **`inviter_email`**
-
-      `string` — ID of the user who invited this user.
-
-    - **`join_time`**
-
-      `string`, format: `date-time` — Timestamp when the membership was created. Automatically set by the server.
-
-    - **`membership_status`**
-
-      `string`, possible values: `"ACTIVE", "INACTIVE", "PENDING_INVITE", "INVITE_EXPIRED"`
-
-    - **`metadata`**
-
-      `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
-
-    - **`name`**
-
-      `string` — Organization name. This field stores the formal organization name used for identification and display purposes.
-
-    - **`organization_id`**
-
-      `string` — Unique identifier for the organization. Immutable and read-only.
-
-    - **`permissions`**
-
-      `array` — Effective permissions granted to the user within the organization (including inherited permissions from assigned roles). Lists the specific actions and access rights the user can perform.
-
-      **Items:**
-
-      `string`
-
-    - **`provisioning_method`**
-
-      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
-
-    - **`roles`**
-
-      `array`
-
-      **Items:**
-
-      - **`display_name`**
-
-        `string` — Human-readable name for the role
-
-      - **`id`**
-
-        `string` — Role ID
-
-      - **`name`**
-
-        `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
-
-  - **`metadata`**
-
-    `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
-
-  - **`update_time`**
-
-    `string`, format: `date-time` — Timestamp of the last modification to the user account. Automatically updated by the server.
-
-  - **`user_profile`**
-
-    `object` — User's personal information including name, address, and other profile attributes.
-
-    - **`custom_attributes`**
-
-      `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
-
-    - **`email_verified`**
-
-      `boolean` — Indicates if the user's email address has been verified. Automatically updated by the system.
-
-    - **`external_identities`**
-
-      `array` — List of external identity connections associated with the user profile.
-
-      **Items:**
-
-      - **`connection_id`**
-
-        `string` — Unique identifier for the external identity connection. Immutable and read-only.
-
-      - **`connection_provider`**
-
-        `string`, possible values: `"OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "PING_IDENTITY", "JUMPCLOUD", "CUSTOM", "GITHUB", "GITLAB", "LINKEDIN", "SALESFORCE", "MICROSOFT", "IDP_SIMULATOR", "SCALEKIT", "ADFS"` — Type of the identity provider.
-
-      - **`connection_type`**
-
-        `string` — Name of the external identity connection.
-
-      - **`connection_user_id`**
-
-        `string` — Unique identifier for the user in the external identity provider system. Immutable and read-only.
-
-      - **`created_time`**
-
-        `string`, format: `date-time` — Timestamp when this external identity connection was first created. Immutable and read-only.
-
-      - **`is_social`**
-
-        `boolean` — Indicates if the identity provider is a social provider (true) or enterprise/custom provider (false). Read-only.
-
-      - **`last_login_time`**
-
-        `string`, format: `date-time` — Timestamp of the user's last successful login via this external identity provider. Automatically updated by the system.
-
-      - **`last_synced_time`**
-
-        `string`, format: `date-time` — Timestamp of the last data synchronization for this external identity from the provider. Automatically updated by the system.
-
-    - **`family_name`**
-
-      `string` — The user's family name (last name or surname). This field stores the user's last name and is combined with the given name to create the full display name. The family name is used in formal communications, user listings, and organizational directories throughout the system. Maximum 255 characters allowed.
-
-    - **`gender`**
-
-      `string` — The user's gender identity information. This field stores the user's gender identity for personalization, compliance reporting, or organizational analytics purposes. This field supports any string value to accommodate diverse gender identities and should be handled with appropriate privacy considerations according to your organization's policies and applicable regulations.
-
-    - **`given_name`**
-
-      `string` — The user's given name (first name). This field stores the user's first name and is used for personalization, display purposes, and when generating the full display name. The given name appears in user interfaces, formal communications, and user listings throughout the system. Maximum 255 characters allowed.
-
-    - **`groups`**
-
-      `array` — The list of group names the user belongs to within the organization. This field stores the user's group memberships for role-based access control, team assignments, and organizational structure. Groups are typically used for permission management, collaborative access, and organizational hierarchy. Each group name represents a distinct organizational unit or team that the user is associated with.
-
-      **Items:**
-
-      `string`
-
-    - **`id`**
-
-      `string` — Unique system-generated identifier for the user profile. Immutable and read-only.
-
-    - **`locale`**
-
-      `string` — The user's preferred language and region settings using BCP-47 format codes. This field customizes the user's experience with localized content, date formats, number formatting, and UI language throughout the system. When not specified, the user inherits the organization's default locale settings. Common values include \`en-US\`, \`en-GB\`, \`fr-FR\`, \`de-DE\`, and \`es-ES\`.
-
-    - **`metadata`**
-
-      `object` — Raw attributes received from identity providers during authentication. This field stores the original user profile data as received from external IdP systems (SAML, OIDC, etc.) including provider-specific claims and attributes. These fields preserve the complete set of attributes received from the identity source and are used for mapping, synchronization, and audit purposes. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
-
-    - **`name`**
-
-      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
-
-    - **`phone_number`**
-
-      `string` — The user's phone number in E.164 international format. This field stores the phone number for user contact and identification purposes. The phone number must include the country code and be formatted according to E.164 standards (e.g., \`+1\` for US numbers). This field is optional.
-
-    - **`phone_number_verified`**
-
-      `boolean` — Indicates if the user's phone number has been verified. Automatically updated by the system.
-
-    - **`picture`**
-
-      `string` — The URL to the user's profile picture or avatar image. This field stores the location of the user's profile photo that appears in user interfaces, directory listings, and collaborative features throughout the system. The URL should point to a publicly accessible image file. Supported formats typically include JPEG, PNG, and GIF. This image is used for visual identification and personalization across the platform.
-
-    - **`preferred_username`**
-
-      `string` — The user's preferred username for display and identification purposes. This field stores a custom username that the user prefers to be known by, which may differ from their email or formal name. This username appears in user interfaces, mentions, informal communications, and collaborative features throughout the system. Maximum 512 characters allowed.
-
-**Example:**
-
-```json
-{
-  "user": {
-    "create_time": "",
-    "email": "user@example.com",
-    "external_id": "ext_12345a67b89c",
-    "id": "usr_1234abcd5678efgh",
-    "last_login_time": "",
-    "memberships": [
-      {}
-    ],
-    "metadata": {
-      "department": "engineering",
-      "location": "nyc-office"
-    },
-    "update_time": "",
-    "user_profile": null
-  }
-}
-```
-
-### commonsRegionCode
-
-- **Type:**`string`
-
-**Example:**
-
-### Organization Feature Toggle
-
-- **Type:**`object`
-
-Controls the activation state of a specific organization feature
-
-- **`enabled` (required)**
-
-  `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
-
-- **`name` (required)**
-
-  `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
-
-**Example:**
-
-```json
-{
-  "enabled": true,
-  "name": "sso"
-}
-```
-
-### Organization Settings
-
-- **Type:**`object`
-
-Configuration options that control organization-level features and capabilities
-
-- **`features`**
-
-  `array` — List of feature toggles that control organization capabilities such as SSO authentication and directory synchronization
-
-  **Items:**
-
-  - **`enabled` (required)**
-
-    `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
-
-  - **`name` (required)**
-
-    `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
-
-**Example:**
-
-```json
-{
-  "features": [
-    {
-      "enabled": true,
-      "name": "sso"
-    },
-    {
-      "enabled": false,
-      "name": "directory_sync"
-    }
-  ]
-}
-```
-
-### organizationsOrganization
-
-- **Type:**`object`
-
-* **`create_time` (required)**
-
-  `string`, format: `date-time` — Timestamp when the organization was created
-
-* **`display_name`**
-
-  `string` — Name of the organization. Must be between 1 and 200 characters
-
-* **`external_id`**
-
-  `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
-
-* **`id`**
-
-  `string` — Unique scalekit-generated identifier that uniquely references an organization
-
-* **`logo_url`**
-
-  `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
-
-* **`metadata`**
-
-  `object` — Key value pairs extension attributes.
-
-* **`region_code`**
-
-  `string`, possible values: `"US", "EU"` — Geographic region code for the organization. Currently limited to US.
-
-* **`settings`**
-
-  `object` — Configuration options that control organization-level features and capabilities
-
-  - **`features`**
-
-    `array` — List of feature toggles that control organization capabilities such as SSO authentication and directory synchronization
-
-    **Items:**
-
-    - **`enabled` (required)**
-
-      `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
-
-    - **`name` (required)**
-
-      `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
-
-* **`slug`**
-
-  `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Unique per environment.
-
-* **`update_time`**
-
-  `string`, format: `date-time` — Timestamp when the organization was last updated
-
-**Example:**
-
-```json
-{
-  "create_time": "2025-02-15T06:23:44.560000Z",
-  "display_name": "Megasoft",
-  "external_id": "my_unique_id",
-  "id": "org_59615193906282635",
-  "logo_url": "https://cdn.example.com/acme-logo.png",
-  "metadata": {
-    "additionalProperty": ""
-  },
-  "region_code": "US",
-  "settings": {
-    "features": [
-      {
-        "enabled": true,
-        "name": "sso"
-      },
-      {
-        "enabled": false,
-        "name": "directory_sync"
-      }
-    ]
-  },
-  "slug": "acme",
-  "update_time": "2025-02-15T06:23:44.560000Z"
-}
-```
-
-### organizationsListOrganizationsResponse
-
-- **Type:**`object`
-
-* **`next_page_token`**
-
-  `string` — Pagination token for the next page of results. Use this token to fetch the next page.
-
-* **`organizations`**
-
-  `array` — List of organization objects
-
-  **Items:**
-
-  - **`create_time` (required)**
-
-    `string`, format: `date-time` — Timestamp when the organization was created
-
-  - **`display_name`**
-
-    `string` — Name of the organization. Must be between 1 and 200 characters
-
-  - **`external_id`**
-
-    `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
-
-  - **`id`**
-
-    `string` — Unique scalekit-generated identifier that uniquely references an organization
-
-  - **`logo_url`**
-
-    `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
-
-  - **`metadata`**
-
-    `object` — Key value pairs extension attributes.
-
-  - **`region_code`**
-
-    `string`, possible values: `"US", "EU"` — Geographic region code for the organization. Currently limited to US.
-
-  - **`settings`**
-
-    `object` — Configuration options that control organization-level features and capabilities
-
-    - **`features`**
-
-      `array` — List of feature toggles that control organization capabilities such as SSO authentication and directory synchronization
-
-      **Items:**
-
-      - **`enabled` (required)**
-
-        `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
-
-      - **`name` (required)**
-
-        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
-
-  - **`slug`**
-
-    `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Unique per environment.
-
-  - **`update_time`**
-
-    `string`, format: `date-time` — Timestamp when the organization was last updated
-
-* **`prev_page_token`**
-
-  `string` — Pagination token for the previous page of results. Use this token to fetch the previous page.
-
-* **`total_size`**
-
-  `integer`, format: `int64` — Total number of organizations in the environment.
-
-**Example:**
-
-```json
-{
-  "next_page_token": "<next_page_token>",
-  "organizations": [
-    {
-      "create_time": "2025-02-15T06:23:44.560000Z",
-      "display_name": "Megasoft",
-      "external_id": "my_unique_id",
-      "id": "org_59615193906282635",
-      "logo_url": "https://cdn.example.com/acme-logo.png",
-      "metadata": {
-        "additionalProperty": ""
-      },
-      "region_code": "US",
-      "settings": null,
-      "slug": "acme",
-      "update_time": "2025-02-15T06:23:44.560000Z"
-    }
-  ],
-  "prev_page_token": "<prev_page_token>",
-  "total_size": 30
-}
-```
-
-### v1organizationsCreateOrganization
-
-- **Type:**`object`
-
-* **`display_name` (required)**
-
-  `string` — Name of the organization. Must be between 1 and 200 characters.
-
-* **`external_id`**
-
-  `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
-
-* **`logo_url`**
-
-  `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
-
-* **`metadata`**
-
-  `object`
-
-* **`slug`**
-
-  `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Unique per environment.
-
-**Example:**
-
-```json
-{
-  "display_name": "Megasoft Inc",
-  "external_id": "my_unique_id",
-  "logo_url": "https://cdn.example.com/acme-logo.png",
-  "metadata": {
-    "additionalProperty": ""
-  },
-  "slug": "acme"
-}
-```
-
-### organizationsCreateOrganizationResponse
-
-- **Type:**`object`
-
-* **`organization`**
-
-  `object` — The newly created organization containing its ID, settings, and metadata
-
-  - **`create_time` (required)**
-
-    `string`, format: `date-time` — Timestamp when the organization was created
-
-  - **`display_name`**
-
-    `string` — Name of the organization. Must be between 1 and 200 characters
-
-  - **`external_id`**
-
-    `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
-
-  - **`id`**
-
-    `string` — Unique scalekit-generated identifier that uniquely references an organization
-
-  - **`logo_url`**
-
-    `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
-
-  - **`metadata`**
-
-    `object` — Key value pairs extension attributes.
-
-  - **`region_code`**
-
-    `string`, possible values: `"US", "EU"` — Geographic region code for the organization. Currently limited to US.
-
-  - **`settings`**
-
-    `object` — Configuration options that control organization-level features and capabilities
-
-    - **`features`**
-
-      `array` — List of feature toggles that control organization capabilities such as SSO authentication and directory synchronization
-
-      **Items:**
-
-      - **`enabled` (required)**
-
-        `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
-
-      - **`name` (required)**
-
-        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
-
-  - **`slug`**
-
-    `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Unique per environment.
-
-  - **`update_time`**
-
-    `string`, format: `date-time` — Timestamp when the organization was last updated
-
-**Example:**
-
-```json
-{
-  "organization": {
-    "create_time": "2025-02-15T06:23:44.560000Z",
-    "display_name": "Megasoft",
-    "external_id": "my_unique_id",
-    "id": "org_59615193906282635",
-    "logo_url": "https://cdn.example.com/acme-logo.png",
-    "metadata": {
-      "additionalProperty": ""
-    },
-    "region_code": "US",
-    "settings": null,
-    "slug": "acme",
-    "update_time": "2025-02-15T06:23:44.560000Z"
-  }
-}
-```
-
-### organizationsGetOrganizationResponse
-
-- **Type:**`object`
-
-* **`organization`**
-
-  `object` — The newly created organization
-
-  - **`create_time` (required)**
-
-    `string`, format: `date-time` — Timestamp when the organization was created
-
-  - **`display_name`**
-
-    `string` — Name of the organization. Must be between 1 and 200 characters
-
-  - **`external_id`**
-
-    `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
-
-  - **`id`**
-
-    `string` — Unique scalekit-generated identifier that uniquely references an organization
-
-  - **`logo_url`**
-
-    `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
-
-  - **`metadata`**
-
-    `object` — Key value pairs extension attributes.
-
-  - **`region_code`**
-
-    `string`, possible values: `"US", "EU"` — Geographic region code for the organization. Currently limited to US.
-
-  - **`settings`**
-
-    `object` — Configuration options that control organization-level features and capabilities
-
-    - **`features`**
-
-      `array` — List of feature toggles that control organization capabilities such as SSO authentication and directory synchronization
-
-      **Items:**
-
-      - **`enabled` (required)**
-
-        `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
-
-      - **`name` (required)**
-
-        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
-
-  - **`slug`**
-
-    `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Unique per environment.
-
-  - **`update_time`**
-
-    `string`, format: `date-time` — Timestamp when the organization was last updated
-
-**Example:**
-
-```json
-{
-  "organization": {
-    "create_time": "2025-02-15T06:23:44.560000Z",
-    "display_name": "Megasoft",
-    "external_id": "my_unique_id",
-    "id": "org_59615193906282635",
-    "logo_url": "https://cdn.example.com/acme-logo.png",
-    "metadata": {
-      "additionalProperty": ""
-    },
-    "region_code": "US",
-    "settings": null,
-    "slug": "acme",
-    "update_time": "2025-02-15T06:23:44.560000Z"
-  }
-}
-```
-
-### v1organizationsUpdateOrganization
-
-- **Type:**`object`
-
-For update messages ensure the indexes are same as the base model itself.
-
-- **`display_name`**
-
-  `string` — Name of the organization to display in the UI. Must be between 1 and 200 characters
-
-- **`external_id`**
-
-  `string` — Your application's unique identifier for this organization, used to link Scalekit with your system
-
-- **`logo_url`**
-
-  `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
-
-- **`metadata`**
-
-  `object` — Custom key-value pairs to store with the organization. Keys must be 3-25 characters, values must be 1-256 characters. Maximum 10 pairs allowed.
-
-- **`slug`**
-
-  `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Send empty string to clear.
-
-**Example:**
-
-```json
-{
-  "display_name": "Acme Corporation",
-  "external_id": "tenant_12345",
-  "logo_url": "https://cdn.example.com/acme-logo.png",
-  "metadata": {
-    "industry": "technology"
-  },
-  "slug": "acme"
-}
-```
-
-### organizationsUpdateOrganizationResponse
-
-- **Type:**`object`
-
-* **`organization`**
-
-  `object` — Updated organization details
-
-  - **`create_time` (required)**
-
-    `string`, format: `date-time` — Timestamp when the organization was created
-
-  - **`display_name`**
-
-    `string` — Name of the organization. Must be between 1 and 200 characters
-
-  - **`external_id`**
-
-    `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
-
-  - **`id`**
-
-    `string` — Unique scalekit-generated identifier that uniquely references an organization
-
-  - **`logo_url`**
-
-    `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
-
-  - **`metadata`**
-
-    `object` — Key value pairs extension attributes.
-
-  - **`region_code`**
-
-    `string`, possible values: `"US", "EU"` — Geographic region code for the organization. Currently limited to US.
-
-  - **`settings`**
-
-    `object` — Configuration options that control organization-level features and capabilities
-
-    - **`features`**
-
-      `array` — List of feature toggles that control organization capabilities such as SSO authentication and directory synchronization
-
-      **Items:**
-
-      - **`enabled` (required)**
-
-        `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
-
-      - **`name` (required)**
-
-        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
-
-  - **`slug`**
-
-    `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Unique per environment.
-
-  - **`update_time`**
-
-    `string`, format: `date-time` — Timestamp when the organization was last updated
-
-**Example:**
-
-```json
-{
-  "organization": {
-    "create_time": "2025-02-15T06:23:44.560000Z",
-    "display_name": "Megasoft",
-    "external_id": "my_unique_id",
-    "id": "org_59615193906282635",
-    "logo_url": "https://cdn.example.com/acme-logo.png",
-    "metadata": {
-      "additionalProperty": ""
-    },
-    "region_code": "US",
-    "settings": null,
-    "slug": "acme",
-    "update_time": "2025-02-15T06:23:44.560000Z"
-  }
-}
-```
-
-### organizationsLink
-
-- **Type:**`object`
-
-* **`expire_time`**
-
-  `string`, format: `date-time` — Expiry time of the link. The link is valid for 1 minute.
-
-* **`id`**
-
-  `string` — Unique Identifier for the link
-
-* **`location`**
-
-  `string` — Location of the link. This is the URL that can be used to access the Admin portal. The link is valid for 1 minute
-
-**Example:**
-
-```json
-{
-  "expire_time": "2024-02-06T14:48:00Z",
-  "id": "lnk_123123123123123",
-  "location": "https://scalekit.com/portal/lnk_123123123123123"
-}
-```
-
-### organizationsGeneratePortalLinkResponse
-
-- **Type:**`object`
-
-* **`link`**
-
-  `object` — Contains the generated admin portal link details. The link URL can be shared with organization administrators to set up: Single Sign-On (SSO) authentication and directory synchronization
-
-  - **`expire_time`**
-
-    `string`, format: `date-time` — Expiry time of the link. The link is valid for 1 minute.
-
-  - **`id`**
-
-    `string` — Unique Identifier for the link
-
-  - **`location`**
-
-    `string` — Location of the link. This is the URL that can be used to access the Admin portal. The link is valid for 1 minute
-
-**Example:**
-
-```json
-{
-  "link": {
-    "expire_time": "2024-02-06T14:48:00Z",
-    "id": "lnk_123123123123123",
-    "location": "https://scalekit.com/portal/lnk_123123123123123"
-  }
-}
-```
-
-### RolePermissions represents a permission with role source information
-
-- **Type:**`object`
-
-* **`create_time`**
-
-  `string`, format: `date-time`
-
-* **`description`**
-
-  `string`
-
-* **`id`**
-
-  `string`
-
-* **`name`**
-
-  `string`
-
-* **`role_name`**
-
-  `string` — Name of the role from which this permission was sourced
-
-* **`update_time`**
-
-  `string`, format: `date-time`
-
-**Example:**
-
-```json
-{
-  "create_time": "",
-  "description": "",
-  "id": "",
-  "name": "",
-  "role_name": "admin_role",
-  "update_time": ""
-}
-```
-
-### v1rolesRole
-
-- **Type:**`object`
-
-* **`default_creator`**
-
-  `boolean` — Indicates if this role is the default creator role for new organizations.
-
-* **`default_member`**
-
-  `boolean` — Indicates if this role is the default member role for new users.
-
-* **`dependent_roles_count`**
-
-  `integer`, format: `int32` — Number of roles that extend from this role (dependent roles count). Read-only field.
-
-* **`description`**
-
-  `string` — Detailed description of the role's purpose and capabilities. Maximum 2000 characters.
-
-* **`display_name`**
-
-  `string` — Human-readable display name for the role. Used in user interfaces and reports.
-
-* **`extends`**
-
-  `string` — Name of the base role that this role extends. Enables hierarchical role inheritance.
-
-* **`id`**
-
-  `string` — Unique system-generated identifier for the role. Immutable once created.
-
-* **`is_org_role`**
-
-  `boolean` — Indicates if this role is an organization role.
-
-* **`name`**
-
-  `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.
-
-* **`permissions`**
-
-  `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
-
-  **Items:**
-
-  - **`create_time`**
-
-    `string`, format: `date-time`
-
-  - **`description`**
-
-    `string`
-
-  - **`id`**
-
-    `string`
-
-  - **`name`**
-
-    `string`
-
-  - **`role_name`**
-
-    `string` — Name of the role from which this permission was sourced
-
-  - **`update_time`**
-
-    `string`, format: `date-time`
-
-**Example:**
-
-```json
-{
-  "default_creator": true,
-  "default_member": true,
-  "dependent_roles_count": 3,
-  "description": "Can create, edit, and publish content but cannot delete or manage users",
-  "display_name": "Content Editor",
-  "extends": "admin_role",
-  "id": "role_1234abcd5678efgh",
-  "is_org_role": true,
-  "name": "content_editor",
-  "permissions": [
-    {
-      "description": "Read Content",
-      "name": "read:content",
-      "role_name": "admin_role"
-    },
-    {
-      "description": "Write Content",
-      "name": "write:content",
-      "role_name": "editor_role"
-    }
-  ]
-}
-```
-
-### rolesListOrganizationRolesResponse
-
-- **Type:**`object`
-
-* **`roles`**
-
-  `array` — List of roles objects
-
-  **Items:**
-
-  - **`default_creator`**
-
-    `boolean` — Indicates if this role is the default creator role for new organizations.
-
-  - **`default_member`**
-
-    `boolean` — Indicates if this role is the default member role for new users.
-
-  - **`dependent_roles_count`**
-
-    `integer`, format: `int32` — Number of roles that extend from this role (dependent roles count). Read-only field.
-
-  - **`description`**
-
-    `string` — Detailed description of the role's purpose and capabilities. Maximum 2000 characters.
-
-  - **`display_name`**
-
-    `string` — Human-readable display name for the role. Used in user interfaces and reports.
-
-  - **`extends`**
-
-    `string` — Name of the base role that this role extends. Enables hierarchical role inheritance.
-
-  - **`id`**
-
-    `string` — Unique system-generated identifier for the role. Immutable once created.
-
-  - **`is_org_role`**
-
-    `boolean` — Indicates if this role is an organization role.
-
-  - **`name`**
-
-    `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.
-
-  - **`permissions`**
-
-    `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
-
-    **Items:**
-
-    - **`create_time`**
-
-      `string`, format: `date-time`
-
-    - **`description`**
-
-      `string`
-
-    - **`id`**
-
-      `string`
-
-    - **`name`**
-
-      `string`
-
-    - **`role_name`**
-
-      `string` — Name of the role from which this permission was sourced
-
-    - **`update_time`**
-
-      `string`, format: `date-time`
-
-**Example:**
-
-```json
-{
-  "roles": [
-    {
-      "default_creator": true,
-      "default_member": true,
-      "dependent_roles_count": 3,
-      "description": "Can create, edit, and publish content but cannot delete or manage users",
-      "display_name": "Content Editor",
-      "extends": "admin_role",
-      "id": "role_1234abcd5678efgh",
-      "is_org_role": true,
-      "name": "content_editor",
-      "permissions": [
-        {
-          "description": "Read Content",
-          "name": "read:content",
-          "role_name": "admin_role"
-        },
-        {
-          "description": "Write Content",
-          "name": "write:content",
-          "role_name": "editor_role"
-        }
-      ]
-    }
-  ]
-}
-```
-
-### v1rolesCreateOrganizationRole
-
-- **Type:**`object`
-
-* **`description`**
-
-  `string` — Description of the organization's role
-
-* **`display_name`**
-
-  `string` — Display name of the organization's role
-
-* **`extends`**
-
-  `string` — Base role name for hierarchical roles
-
-* **`name`**
-
-  `string` — Unique name of the organization's role
-
-* **`permissions`**
-
-  `array` — List of permission names to assign to this role. Permissions must exist in the current environment.
-
-  **Items:**
-
-  `string`
-
-**Example:**
-
-```json
-{
-  "description": "Organization Viewer Role will be used only for viewing the objects",
-  "display_name": "Organization Viewer Role",
-  "extends": "admin_role",
-  "name": "org_viewer_role",
-  "permissions": [
-    "read:users",
-    "write:documents"
-  ]
-}
-```
-
-### rolesCreateOrganizationRoleResponse
-
-- **Type:**`object`
-
-* **`role`**
-
-  `object`
-
-  - **`default_creator`**
-
-    `boolean` — Indicates if this role is the default creator role for new organizations.
-
-  - **`default_member`**
-
-    `boolean` — Indicates if this role is the default member role for new users.
-
-  - **`dependent_roles_count`**
-
-    `integer`, format: `int32` — Number of roles that extend from this role (dependent roles count). Read-only field.
-
-  - **`description`**
-
-    `string` — Detailed description of the role's purpose and capabilities. Maximum 2000 characters.
-
-  - **`display_name`**
-
-    `string` — Human-readable display name for the role. Used in user interfaces and reports.
-
-  - **`extends`**
-
-    `string` — Name of the base role that this role extends. Enables hierarchical role inheritance.
-
-  - **`id`**
-
-    `string` — Unique system-generated identifier for the role. Immutable once created.
-
-  - **`is_org_role`**
-
-    `boolean` — Indicates if this role is an organization role.
-
-  - **`name`**
-
-    `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.
-
-  - **`permissions`**
-
-    `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
-
-    **Items:**
-
-    - **`create_time`**
-
-      `string`, format: `date-time`
-
-    - **`description`**
-
-      `string`
-
-    - **`id`**
-
-      `string`
-
-    - **`name`**
-
-      `string`
-
-    - **`role_name`**
-
-      `string` — Name of the role from which this permission was sourced
-
-    - **`update_time`**
-
-      `string`, format: `date-time`
-
-**Example:**
-
-```json
-{
-  "role": {
-    "default_creator": true,
-    "default_member": true,
-    "dependent_roles_count": 3,
-    "description": "Can create, edit, and publish content but cannot delete or manage users",
-    "display_name": "Content Editor",
-    "extends": "admin_role",
-    "id": "role_1234abcd5678efgh",
-    "is_org_role": true,
-    "name": "content_editor",
-    "permissions": [
-      {
-        "description": "Read Content",
-        "name": "read:content",
-        "role_name": "admin_role"
-      },
-      {
-        "description": "Write Content",
-        "name": "write:content",
-        "role_name": "editor_role"
-      }
-    ]
-  }
-}
-```
-
-### rolesGetOrganizationRoleResponse
-
-- **Type:**`object`
-
-* **`role`**
-
-  `object`
-
-  - **`default_creator`**
-
-    `boolean` — Indicates if this role is the default creator role for new organizations.
-
-  - **`default_member`**
-
-    `boolean` — Indicates if this role is the default member role for new users.
-
-  - **`dependent_roles_count`**
-
-    `integer`, format: `int32` — Number of roles that extend from this role (dependent roles count). Read-only field.
-
-  - **`description`**
-
-    `string` — Detailed description of the role's purpose and capabilities. Maximum 2000 characters.
-
-  - **`display_name`**
-
-    `string` — Human-readable display name for the role. Used in user interfaces and reports.
-
-  - **`extends`**
-
-    `string` — Name of the base role that this role extends. Enables hierarchical role inheritance.
-
-  - **`id`**
-
-    `string` — Unique system-generated identifier for the role. Immutable once created.
-
-  - **`is_org_role`**
-
-    `boolean` — Indicates if this role is an organization role.
-
-  - **`name`**
-
-    `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.
-
-  - **`permissions`**
-
-    `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
-
-    **Items:**
-
-    - **`create_time`**
-
-      `string`, format: `date-time`
-
-    - **`description`**
-
-      `string`
-
-    - **`id`**
-
-      `string`
-
-    - **`name`**
-
-      `string`
-
-    - **`role_name`**
-
-      `string` — Name of the role from which this permission was sourced
-
-    - **`update_time`**
-
-      `string`, format: `date-time`
-
-**Example:**
-
-```json
-{
-  "role": {
-    "default_creator": true,
-    "default_member": true,
-    "dependent_roles_count": 3,
-    "description": "Can create, edit, and publish content but cannot delete or manage users",
-    "display_name": "Content Editor",
-    "extends": "admin_role",
-    "id": "role_1234abcd5678efgh",
-    "is_org_role": true,
-    "name": "content_editor",
-    "permissions": [
-      {
-        "description": "Read Content",
-        "name": "read:content",
-        "role_name": "admin_role"
-      },
-      {
-        "description": "Write Content",
-        "name": "write:content",
-        "role_name": "editor_role"
-      }
-    ]
-  }
-}
-```
-
-### v1rolesUpdateRole
-
-- **Type:**`object`
-
-* **`description`**
-
-  `string` — Detailed description of the role's purpose, capabilities, and intended use cases. Maximum 2000 characters.
-
-* **`display_name`**
-
-  `string` — Human-readable display name for the role. Used in user interfaces, reports, and user-facing communications.
-
-* **`extends`**
-
-  `string` — Name of the base role that this role extends. Enables hierarchical role inheritance where this role inherits all permissions from the base role.
-
-* **`permissions`**
-
-  `array` — List of permission names to assign to this role. When provided, this replaces all existing role-permission mappings. Permissions must exist in the current environment. Maximum 100 permissions per role.
-
-  **Items:**
-
-  `string`
-
-**Example:**
-
-```json
-{
-  "description": "Can create, edit, publish, and approve content. Cannot delete content or manage user accounts.",
-  "display_name": "Senior Content Editor",
-  "extends": "content_editor",
-  "permissions": [
-    "read:content",
-    "write:content",
-    "publish:content",
-    "approve:content"
-  ]
-}
-```
-
-### rolesUpdateOrganizationRoleResponse
-
-- **Type:**`object`
-
-* **`role`**
-
-  `object`
-
-  - **`default_creator`**
-
-    `boolean` — Indicates if this role is the default creator role for new organizations.
-
-  - **`default_member`**
-
-    `boolean` — Indicates if this role is the default member role for new users.
-
-  - **`dependent_roles_count`**
-
-    `integer`, format: `int32` — Number of roles that extend from this role (dependent roles count). Read-only field.
-
-  - **`description`**
-
-    `string` — Detailed description of the role's purpose and capabilities. Maximum 2000 characters.
-
-  - **`display_name`**
-
-    `string` — Human-readable display name for the role. Used in user interfaces and reports.
-
-  - **`extends`**
-
-    `string` — Name of the base role that this role extends. Enables hierarchical role inheritance.
-
-  - **`id`**
-
-    `string` — Unique system-generated identifier for the role. Immutable once created.
-
-  - **`is_org_role`**
-
-    `boolean` — Indicates if this role is an organization role.
-
-  - **`name`**
-
-    `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.
-
-  - **`permissions`**
-
-    `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
-
-    **Items:**
-
-    - **`create_time`**
-
-      `string`, format: `date-time`
-
-    - **`description`**
-
-      `string`
-
-    - **`id`**
-
-      `string`
-
-    - **`name`**
-
-      `string`
-
-    - **`role_name`**
-
-      `string` — Name of the role from which this permission was sourced
-
-    - **`update_time`**
-
-      `string`, format: `date-time`
-
-**Example:**
-
-```json
-{
-  "role": {
-    "default_creator": true,
-    "default_member": true,
-    "dependent_roles_count": 3,
-    "description": "Can create, edit, and publish content but cannot delete or manage users",
-    "display_name": "Content Editor",
-    "extends": "admin_role",
-    "id": "role_1234abcd5678efgh",
-    "is_org_role": true,
-    "name": "content_editor",
-    "permissions": [
-      {
-        "description": "Read Content",
-        "name": "read:content",
-        "role_name": "admin_role"
-      },
-      {
-        "description": "Write Content",
-        "name": "write:content",
-        "role_name": "editor_role"
-      }
-    ]
-  }
-}
-```
-
-### RolesServiceUpdateDefaultOrganizationRolesBody
-
-- **Type:**`object`
-
-* **`default_member_role`**
-
-  `string` — Unique name of the default member role
-
-**Example:**
-
-```json
-{
-  "default_member_role": "member"
-}
-```
-
-### rolesUpdateDefaultOrganizationRolesResponse
-
-- **Type:**`object`
-
-* **`default_member`**
-
-  `object` — Updated default member role
-
-  - **`default_creator`**
-
-    `boolean` — Indicates if this role is the default creator role for new organizations.
-
-  - **`default_member`**
-
-    `boolean` — Indicates if this role is the default member role for new users.
-
-  - **`dependent_roles_count`**
-
-    `integer`, format: `int32` — Number of roles that extend from this role (dependent roles count). Read-only field.
-
-  - **`description`**
-
-    `string` — Detailed description of the role's purpose and capabilities. Maximum 2000 characters.
-
-  - **`display_name`**
-
-    `string` — Human-readable display name for the role. Used in user interfaces and reports.
-
-  - **`extends`**
-
-    `string` — Name of the base role that this role extends. Enables hierarchical role inheritance.
-
-  - **`id`**
-
-    `string` — Unique system-generated identifier for the role. Immutable once created.
-
-  - **`is_org_role`**
-
-    `boolean` — Indicates if this role is an organization role.
-
-  - **`name`**
-
-    `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.
-
-  - **`permissions`**
-
-    `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
-
-    **Items:**
-
-    - **`create_time`**
-
-      `string`, format: `date-time`
-
-    - **`description`**
-
-      `string`
-
-    - **`id`**
-
-      `string`
-
-    - **`name`**
-
-      `string`
-
-    - **`role_name`**
-
-      `string` — Name of the role from which this permission was sourced
-
-    - **`update_time`**
-
-      `string`, format: `date-time`
-
-**Example:**
-
-```json
-{
-  "default_member": {
-    "description": "Role for regular members",
-    "display_name": "Member Role",
-    "id": "role_0987654321",
-    "name": "member"
-  }
-}
-```
-
-### clientsCustomClaim
-
-- **Type:**`object`
-
-* **`key`**
-
-  `string` — The name of the custom claim. Must be between 1 and 128 characters. Use descriptive names that clearly indicate the claim's purpose.
-
-* **`value`**
-
-  `string` — The value of the custom claim. This value will be included in access tokens issued to the client.
-
-**Example:**
-
-```json
-{
-  "key": "environment",
-  "value": "production"
-}
-```
-
-### clientsClientSecretStatus
-
-- **Type:**`string`
-
-ClientSecretStatus indicates whether a client secret can be used for authentication. ACTIVE secrets can be used for authentication while INACTIVE secrets cannot.
-
-- INACTIVE: The secret is inactive and cannot be used for authentication
 
 **Example:**
 
@@ -15808,93 +13016,200 @@ A secure credential used for authenticating an API client. Each client can have 
 }
 ```
 
-### clientsM2MClient
+### clientsClientSecretStatus
+
+- **Type:**`string`
+
+ClientSecretStatus indicates whether a client secret can be used for authentication. ACTIVE secrets can be used for authentication while INACTIVE secrets cannot.
+
+- INACTIVE: The secret is inactive and cannot be used for authentication
+
+**Example:**
+
+### clientsCreateOrganizationClientResponse
 
 - **Type:**`object`
 
-* **`audience`**
+* **`client`**
 
-  `array` — The intended recipients of access tokens issued to this client. Each audience value should be a URI that identifies an API or service.
+  `object` — Details of the created client
 
-  **Items:**
+  - **`audience`**
 
-  `string`
+    `array` — The intended recipients of access tokens issued to this client. Each audience value should be a URI that identifies an API or service.
 
-* **`client_id`**
+    **Items:**
 
-  `string` — The unique identifier for this API client. This ID is used to identify the client in API requests and logs. It is automatically generated when the client is created and cannot be modified.
+    `string`
 
-* **`create_time`**
+  - **`client_id`**
 
-  `string`, format: `date-time` — The timestamp when this API client was created. This field is automatically set by the server and cannot be modified.
+    `string` — The unique identifier for this API client. This ID is used to identify the client in API requests and logs. It is automatically generated when the client is created and cannot be modified.
 
-* **`custom_claims`**
+  - **`create_time`**
 
-  `array` — Additional claims included in access tokens issued to this client. These claims provide context about the client and can be used for authorization decisions.
+    `string`, format: `date-time` — The timestamp when this API client was created. This field is automatically set by the server and cannot be modified.
 
-  **Items:**
+  - **`custom_claims`**
 
-  - **`key`**
+    `array` — Additional claims included in access tokens issued to this client. These claims provide context about the client and can be used for authorization decisions.
 
-    `string` — The name of the custom claim. Must be between 1 and 128 characters. Use descriptive names that clearly indicate the claim's purpose.
+    **Items:**
 
-  - **`value`**
+    - **`key`**
 
-    `string` — The value of the custom claim. This value will be included in access tokens issued to the client.
+      `string` — The name of the custom claim. Must be between 1 and 128 characters. Use descriptive names that clearly indicate the claim's purpose.
 
-* **`description`**
+    - **`value`**
 
-  `string` — A detailed description of the client's purpose and usage. This helps administrators understand what the client is used for.
+      `string` — The value of the custom claim. This value will be included in access tokens issued to the client.
 
-* **`expiry`**
+  - **`description`**
 
-  `string`, format: `int64` — Expiry time in seconds for the token generated by the client
+    `string` — A detailed description of the client's purpose and usage. This helps administrators understand what the client is used for.
 
-* **`is_cimd`**
+  - **`expiry`**
 
-  `boolean` — Indicates if the client was created via Client ID Metadata Document (CIMD). CIMD clients can update their own configuration according to the CIMD specification.
+    `string`, format: `int64` — Expiry time in seconds for the token generated by the client
 
-* **`is_dcr`**
+  - **`is_cimd`**
 
-  `boolean` — Indicates if the client was created via Dynamic Client Registration (DCR). Clients created through DCR may have different management and lifecycle policies compared to those created manually.
+    `boolean` — Indicates if the client was created via Client ID Metadata Document (CIMD). CIMD clients can update their own configuration according to the CIMD specification.
 
-* **`metadata_uri`**
+  - **`is_dcr`**
 
-  `string` — The URI to the client's metadata, which is utilized to obtain the client's configuration details
+    `boolean` — Indicates if the client was created via Dynamic Client Registration (DCR). Clients created through DCR may have different management and lifecycle policies compared to those created manually.
 
-* **`name`**
+  - **`metadata_uri`**
 
-  `string` — The display name of the API client. This name helps identify the client in the dashboard and logs.
+    `string` — The URI to the client's metadata, which is utilized to obtain the client's configuration details
 
-* **`organization_id`**
+  - **`name`**
 
-  `string` — The ID of the organization that owns this API client. This ID is used to associate the client with the correct organization and enforce organization-specific access controls.
+    `string` — The display name of the API client. This name helps identify the client in the dashboard and logs.
 
-* **`redirect_uris`**
+  - **`organization_id`**
 
-  `array` — The redirect URI for this API client. This URI is used in the OAuth 2.0 authorization flow to redirect users after authentication.
+    `string` — The ID of the organization that owns this API client. This ID is used to associate the client with the correct organization and enforce organization-specific access controls.
 
-  **Items:**
+  - **`redirect_uris`**
 
-  `string`
+    `array` — The redirect URI for this API client. This URI is used in the OAuth 2.0 authorization flow to redirect users after authentication.
 
-* **`resource_id`**
+    **Items:**
 
-  `string` — The ID of the resource associated with this M2M client. This field is used to link the client to a specific resource in the system.
+    `string`
 
-* **`scopes`**
+  - **`resource_id`**
 
-  `array` — The OAuth 2.0 scopes granted to this client. These scopes determine what resources and actions the client can access.
+    `string` — The ID of the resource associated with this M2M client. This field is used to link the client to a specific resource in the system.
 
-  **Items:**
+  - **`scopes`**
 
-  `string`
+    `array` — The OAuth 2.0 scopes granted to this client. These scopes determine what resources and actions the client can access.
 
-* **`secrets`**
+    **Items:**
 
-  `array` — List of client secrets associated with this client. Each secret can be used for authentication, but only the most recently created secret is typically active. Secrets are stored securely and their values are never returned after creation.
+    `string`
 
-  **Items:**
+  - **`secrets`**
+
+    `array` — List of client secrets associated with this client. Each secret can be used for authentication, but only the most recently created secret is typically active. Secrets are stored securely and their values are never returned after creation.
+
+    **Items:**
+
+    - **`create_time`**
+
+      `string`, format: `date-time` — The timestamp when this secret was created. This field is automatically set by the server and cannot be modified.
+
+    - **`created_by`**
+
+      `string` — The identifier of the user or system that created this secret. This field helps track who created the secret for audit and compliance purposes.
+
+    - **`expire_time`**
+
+      `string`, format: `date-time` — The timestamp when this secret will expire. After this time, the secret cannot be used for authentication regardless of its status. If not set, the secret does not expire.
+
+    - **`id`**
+
+      `string` — The unique identifier for this client secret. This ID is used to reference the secret in API requests for management operations like updating or deleting the secret.
+
+    - **`last_used_time`**
+
+      `string`, format: `date-time` — The timestamp when this secret was last used for authentication. This field helps track secret usage for security monitoring and identifying unused secrets that may be candidates for rotation.
+
+    - **`plain_secret`**
+
+      `string` — The full plaintext secret value. This field is only populated when the secret is first created and is never stored by the server. It must be securely stored by the client application as it cannot be retrieved again.
+
+    - **`secret_suffix`**
+
+      `string` — A suffix that helps identify this secret. This is the last few characters of the full secret value but is not sufficient for authentication. Helps identify which secret is being used in logs and debugging.
+
+    - **`status`**
+
+      `string`, possible values: `"INACTIVE"` — The current status of this secret. A secret must be ACTIVE to be used for authentication. INACTIVE secrets cannot be used for authentication but are retained for audit purposes.
+
+    - **`update_time`**
+
+      `string`, format: `date-time` — The timestamp when this secret was last updated. This field is automatically updated by the server when the secret's status changes or other properties are modified.
+
+  - **`update_time`**
+
+    `string`, format: `date-time` — The timestamp when this API client was last updated. This field is automatically updated by the server whenever the client's configuration changes.
+
+* **`plain_secret`**
+
+  `string` — Client secret value (only returned once at creation)
+
+**Example:**
+
+```json
+{
+  "client": {
+    "audience": [
+      "https://api.example.com"
+    ],
+    "client_id": "m2morg_1231234233424344",
+    "create_time": "2024-01-05T14:48:00Z",
+    "custom_claims": [
+      {}
+    ],
+    "description": "Service account for automated deployment processes",
+    "expiry": 3600,
+    "is_cimd": false,
+    "is_dcr": false,
+    "metadata_uri": "https://example.com/client-metadata.json",
+    "name": "GitHub Actions Deployment Service",
+    "organization_id": "org_1231234233424344",
+    "redirect_uris": [
+      "https://example.com/callback"
+    ],
+    "resource_id": "app_1231234233424344",
+    "scopes": [
+      "deploy:resources",
+      "read:deployments"
+    ],
+    "secrets": [
+      {}
+    ],
+    "update_time": "2024-01-05T14:48:00Z"
+  },
+  "plain_secret": "CdExsdErfccxDDssddfffgfeFHH1"
+}
+```
+
+### clientsCreateOrganizationClientSecretResponse
+
+- **Type:**`object`
+
+* **`plain_secret`**
+
+  `string` — Client secret value (only returned once at creation)
+
+* **`secret`**
+
+  `object` — Details of the created client secret
 
   - **`create_time`**
 
@@ -15932,54 +13247,211 @@ A secure credential used for authenticating an API client. Each client can have 
 
     `string`, format: `date-time` — The timestamp when this secret was last updated. This field is automatically updated by the server when the secret's status changes or other properties are modified.
 
-* **`update_time`**
+**Example:**
 
-  `string`, format: `date-time` — The timestamp when this API client was last updated. This field is automatically updated by the server whenever the client's configuration changes.
+```json
+{
+  "plain_secret": "m2morg_client_secret_xyz123",
+  "secret": {
+    "create_time": "2024-01-05T14:48:00Z",
+    "created_by": "user_12345",
+    "expire_time": "2025-01-05T14:48:00Z",
+    "id": "sec_1234abcd5678efgh",
+    "last_used_time": "2024-02-15T10:30:00Z",
+    "plain_secret": "sec_1234567890abcdefghijklmnopqrstuvwxyz",
+    "secret_suffix": "xyzw",
+    "status": "INACTIVE",
+    "update_time": "2024-01-10T09:12:00Z"
+  }
+}
+```
+
+### clientsCustomClaim
+
+- **Type:**`object`
+
+* **`key`**
+
+  `string` — The name of the custom claim. Must be between 1 and 128 characters. Use descriptive names that clearly indicate the claim's purpose.
+
+* **`value`**
+
+  `string` — The value of the custom claim. This value will be included in access tokens issued to the client.
 
 **Example:**
 
 ```json
 {
-  "audience": [
-    "https://api.example.com"
-  ],
-  "client_id": "m2morg_1231234233424344",
-  "create_time": "2024-01-05T14:48:00Z",
-  "custom_claims": [
-    {
-      "key": "environment",
-      "value": "production"
-    }
-  ],
-  "description": "Service account for automated deployment processes",
-  "expiry": 3600,
-  "is_cimd": false,
-  "is_dcr": false,
-  "metadata_uri": "https://example.com/client-metadata.json",
-  "name": "GitHub Actions Deployment Service",
-  "organization_id": "org_1231234233424344",
-  "redirect_uris": [
-    "https://example.com/callback"
-  ],
-  "resource_id": "app_1231234233424344",
-  "scopes": [
-    "deploy:resources",
-    "read:deployments"
-  ],
-  "secrets": [
-    {
-      "create_time": "2024-01-05T14:48:00Z",
-      "created_by": "user_12345",
-      "expire_time": "2025-01-05T14:48:00Z",
-      "id": "sec_1234abcd5678efgh",
-      "last_used_time": "2024-02-15T10:30:00Z",
-      "plain_secret": "sec_1234567890abcdefghijklmnopqrstuvwxyz",
-      "secret_suffix": "xyzw",
-      "status": "INACTIVE",
-      "update_time": "2024-01-10T09:12:00Z"
-    }
-  ],
-  "update_time": "2024-01-05T14:48:00Z"
+  "key": "environment",
+  "value": "production"
+}
+```
+
+### clientsGetOrganizationClientResponse
+
+- **Type:**`object`
+
+* **`client`**
+
+  `object` — Details of the requested client
+
+  - **`audience`**
+
+    `array` — The intended recipients of access tokens issued to this client. Each audience value should be a URI that identifies an API or service.
+
+    **Items:**
+
+    `string`
+
+  - **`client_id`**
+
+    `string` — The unique identifier for this API client. This ID is used to identify the client in API requests and logs. It is automatically generated when the client is created and cannot be modified.
+
+  - **`create_time`**
+
+    `string`, format: `date-time` — The timestamp when this API client was created. This field is automatically set by the server and cannot be modified.
+
+  - **`custom_claims`**
+
+    `array` — Additional claims included in access tokens issued to this client. These claims provide context about the client and can be used for authorization decisions.
+
+    **Items:**
+
+    - **`key`**
+
+      `string` — The name of the custom claim. Must be between 1 and 128 characters. Use descriptive names that clearly indicate the claim's purpose.
+
+    - **`value`**
+
+      `string` — The value of the custom claim. This value will be included in access tokens issued to the client.
+
+  - **`description`**
+
+    `string` — A detailed description of the client's purpose and usage. This helps administrators understand what the client is used for.
+
+  - **`expiry`**
+
+    `string`, format: `int64` — Expiry time in seconds for the token generated by the client
+
+  - **`is_cimd`**
+
+    `boolean` — Indicates if the client was created via Client ID Metadata Document (CIMD). CIMD clients can update their own configuration according to the CIMD specification.
+
+  - **`is_dcr`**
+
+    `boolean` — Indicates if the client was created via Dynamic Client Registration (DCR). Clients created through DCR may have different management and lifecycle policies compared to those created manually.
+
+  - **`metadata_uri`**
+
+    `string` — The URI to the client's metadata, which is utilized to obtain the client's configuration details
+
+  - **`name`**
+
+    `string` — The display name of the API client. This name helps identify the client in the dashboard and logs.
+
+  - **`organization_id`**
+
+    `string` — The ID of the organization that owns this API client. This ID is used to associate the client with the correct organization and enforce organization-specific access controls.
+
+  - **`redirect_uris`**
+
+    `array` — The redirect URI for this API client. This URI is used in the OAuth 2.0 authorization flow to redirect users after authentication.
+
+    **Items:**
+
+    `string`
+
+  - **`resource_id`**
+
+    `string` — The ID of the resource associated with this M2M client. This field is used to link the client to a specific resource in the system.
+
+  - **`scopes`**
+
+    `array` — The OAuth 2.0 scopes granted to this client. These scopes determine what resources and actions the client can access.
+
+    **Items:**
+
+    `string`
+
+  - **`secrets`**
+
+    `array` — List of client secrets associated with this client. Each secret can be used for authentication, but only the most recently created secret is typically active. Secrets are stored securely and their values are never returned after creation.
+
+    **Items:**
+
+    - **`create_time`**
+
+      `string`, format: `date-time` — The timestamp when this secret was created. This field is automatically set by the server and cannot be modified.
+
+    - **`created_by`**
+
+      `string` — The identifier of the user or system that created this secret. This field helps track who created the secret for audit and compliance purposes.
+
+    - **`expire_time`**
+
+      `string`, format: `date-time` — The timestamp when this secret will expire. After this time, the secret cannot be used for authentication regardless of its status. If not set, the secret does not expire.
+
+    - **`id`**
+
+      `string` — The unique identifier for this client secret. This ID is used to reference the secret in API requests for management operations like updating or deleting the secret.
+
+    - **`last_used_time`**
+
+      `string`, format: `date-time` — The timestamp when this secret was last used for authentication. This field helps track secret usage for security monitoring and identifying unused secrets that may be candidates for rotation.
+
+    - **`plain_secret`**
+
+      `string` — The full plaintext secret value. This field is only populated when the secret is first created and is never stored by the server. It must be securely stored by the client application as it cannot be retrieved again.
+
+    - **`secret_suffix`**
+
+      `string` — A suffix that helps identify this secret. This is the last few characters of the full secret value but is not sufficient for authentication. Helps identify which secret is being used in logs and debugging.
+
+    - **`status`**
+
+      `string`, possible values: `"INACTIVE"` — The current status of this secret. A secret must be ACTIVE to be used for authentication. INACTIVE secrets cannot be used for authentication but are retained for audit purposes.
+
+    - **`update_time`**
+
+      `string`, format: `date-time` — The timestamp when this secret was last updated. This field is automatically updated by the server when the secret's status changes or other properties are modified.
+
+  - **`update_time`**
+
+    `string`, format: `date-time` — The timestamp when this API client was last updated. This field is automatically updated by the server whenever the client's configuration changes.
+
+**Example:**
+
+```json
+{
+  "client": {
+    "audience": [
+      "https://api.example.com"
+    ],
+    "client_id": "m2morg_1231234233424344",
+    "create_time": "2024-01-05T14:48:00Z",
+    "custom_claims": [
+      {}
+    ],
+    "description": "Service account for automated deployment processes",
+    "expiry": 3600,
+    "is_cimd": false,
+    "is_dcr": false,
+    "metadata_uri": "https://example.com/client-metadata.json",
+    "name": "GitHub Actions Deployment Service",
+    "organization_id": "org_1231234233424344",
+    "redirect_uris": [
+      "https://example.com/callback"
+    ],
+    "resource_id": "app_1231234233424344",
+    "scopes": [
+      "deploy:resources",
+      "read:deployments"
+    ],
+    "secrets": [
+      {}
+    ],
+    "update_time": "2024-01-05T14:48:00Z"
+  }
 }
 ```
 
@@ -16172,6 +13644,181 @@ Response message containing a paginated list of API clients for the specified or
 }
 ```
 
+### clientsM2MClient
+
+- **Type:**`object`
+
+* **`audience`**
+
+  `array` — The intended recipients of access tokens issued to this client. Each audience value should be a URI that identifies an API or service.
+
+  **Items:**
+
+  `string`
+
+* **`client_id`**
+
+  `string` — The unique identifier for this API client. This ID is used to identify the client in API requests and logs. It is automatically generated when the client is created and cannot be modified.
+
+* **`create_time`**
+
+  `string`, format: `date-time` — The timestamp when this API client was created. This field is automatically set by the server and cannot be modified.
+
+* **`custom_claims`**
+
+  `array` — Additional claims included in access tokens issued to this client. These claims provide context about the client and can be used for authorization decisions.
+
+  **Items:**
+
+  - **`key`**
+
+    `string` — The name of the custom claim. Must be between 1 and 128 characters. Use descriptive names that clearly indicate the claim's purpose.
+
+  - **`value`**
+
+    `string` — The value of the custom claim. This value will be included in access tokens issued to the client.
+
+* **`description`**
+
+  `string` — A detailed description of the client's purpose and usage. This helps administrators understand what the client is used for.
+
+* **`expiry`**
+
+  `string`, format: `int64` — Expiry time in seconds for the token generated by the client
+
+* **`is_cimd`**
+
+  `boolean` — Indicates if the client was created via Client ID Metadata Document (CIMD). CIMD clients can update their own configuration according to the CIMD specification.
+
+* **`is_dcr`**
+
+  `boolean` — Indicates if the client was created via Dynamic Client Registration (DCR). Clients created through DCR may have different management and lifecycle policies compared to those created manually.
+
+* **`metadata_uri`**
+
+  `string` — The URI to the client's metadata, which is utilized to obtain the client's configuration details
+
+* **`name`**
+
+  `string` — The display name of the API client. This name helps identify the client in the dashboard and logs.
+
+* **`organization_id`**
+
+  `string` — The ID of the organization that owns this API client. This ID is used to associate the client with the correct organization and enforce organization-specific access controls.
+
+* **`redirect_uris`**
+
+  `array` — The redirect URI for this API client. This URI is used in the OAuth 2.0 authorization flow to redirect users after authentication.
+
+  **Items:**
+
+  `string`
+
+* **`resource_id`**
+
+  `string` — The ID of the resource associated with this M2M client. This field is used to link the client to a specific resource in the system.
+
+* **`scopes`**
+
+  `array` — The OAuth 2.0 scopes granted to this client. These scopes determine what resources and actions the client can access.
+
+  **Items:**
+
+  `string`
+
+* **`secrets`**
+
+  `array` — List of client secrets associated with this client. Each secret can be used for authentication, but only the most recently created secret is typically active. Secrets are stored securely and their values are never returned after creation.
+
+  **Items:**
+
+  - **`create_time`**
+
+    `string`, format: `date-time` — The timestamp when this secret was created. This field is automatically set by the server and cannot be modified.
+
+  - **`created_by`**
+
+    `string` — The identifier of the user or system that created this secret. This field helps track who created the secret for audit and compliance purposes.
+
+  - **`expire_time`**
+
+    `string`, format: `date-time` — The timestamp when this secret will expire. After this time, the secret cannot be used for authentication regardless of its status. If not set, the secret does not expire.
+
+  - **`id`**
+
+    `string` — The unique identifier for this client secret. This ID is used to reference the secret in API requests for management operations like updating or deleting the secret.
+
+  - **`last_used_time`**
+
+    `string`, format: `date-time` — The timestamp when this secret was last used for authentication. This field helps track secret usage for security monitoring and identifying unused secrets that may be candidates for rotation.
+
+  - **`plain_secret`**
+
+    `string` — The full plaintext secret value. This field is only populated when the secret is first created and is never stored by the server. It must be securely stored by the client application as it cannot be retrieved again.
+
+  - **`secret_suffix`**
+
+    `string` — A suffix that helps identify this secret. This is the last few characters of the full secret value but is not sufficient for authentication. Helps identify which secret is being used in logs and debugging.
+
+  - **`status`**
+
+    `string`, possible values: `"INACTIVE"` — The current status of this secret. A secret must be ACTIVE to be used for authentication. INACTIVE secrets cannot be used for authentication but are retained for audit purposes.
+
+  - **`update_time`**
+
+    `string`, format: `date-time` — The timestamp when this secret was last updated. This field is automatically updated by the server when the secret's status changes or other properties are modified.
+
+* **`update_time`**
+
+  `string`, format: `date-time` — The timestamp when this API client was last updated. This field is automatically updated by the server whenever the client's configuration changes.
+
+**Example:**
+
+```json
+{
+  "audience": [
+    "https://api.example.com"
+  ],
+  "client_id": "m2morg_1231234233424344",
+  "create_time": "2024-01-05T14:48:00Z",
+  "custom_claims": [
+    {
+      "key": "environment",
+      "value": "production"
+    }
+  ],
+  "description": "Service account for automated deployment processes",
+  "expiry": 3600,
+  "is_cimd": false,
+  "is_dcr": false,
+  "metadata_uri": "https://example.com/client-metadata.json",
+  "name": "GitHub Actions Deployment Service",
+  "organization_id": "org_1231234233424344",
+  "redirect_uris": [
+    "https://example.com/callback"
+  ],
+  "resource_id": "app_1231234233424344",
+  "scopes": [
+    "deploy:resources",
+    "read:deployments"
+  ],
+  "secrets": [
+    {
+      "create_time": "2024-01-05T14:48:00Z",
+      "created_by": "user_12345",
+      "expire_time": "2025-01-05T14:48:00Z",
+      "id": "sec_1234abcd5678efgh",
+      "last_used_time": "2024-02-15T10:30:00Z",
+      "plain_secret": "sec_1234567890abcdefghijklmnopqrstuvwxyz",
+      "secret_suffix": "xyzw",
+      "status": "INACTIVE",
+      "update_time": "2024-01-10T09:12:00Z"
+    }
+  ],
+  "update_time": "2024-01-05T14:48:00Z"
+}
+```
+
 ### clientsOrganizationClient
 
 - **Type:**`object`
@@ -16243,347 +13890,6 @@ Response message containing a paginated list of API clients for the specified or
     "deploy:resources",
     "read:deployments"
   ]
-}
-```
-
-### clientsCreateOrganizationClientResponse
-
-- **Type:**`object`
-
-* **`client`**
-
-  `object` — Details of the created client
-
-  - **`audience`**
-
-    `array` — The intended recipients of access tokens issued to this client. Each audience value should be a URI that identifies an API or service.
-
-    **Items:**
-
-    `string`
-
-  - **`client_id`**
-
-    `string` — The unique identifier for this API client. This ID is used to identify the client in API requests and logs. It is automatically generated when the client is created and cannot be modified.
-
-  - **`create_time`**
-
-    `string`, format: `date-time` — The timestamp when this API client was created. This field is automatically set by the server and cannot be modified.
-
-  - **`custom_claims`**
-
-    `array` — Additional claims included in access tokens issued to this client. These claims provide context about the client and can be used for authorization decisions.
-
-    **Items:**
-
-    - **`key`**
-
-      `string` — The name of the custom claim. Must be between 1 and 128 characters. Use descriptive names that clearly indicate the claim's purpose.
-
-    - **`value`**
-
-      `string` — The value of the custom claim. This value will be included in access tokens issued to the client.
-
-  - **`description`**
-
-    `string` — A detailed description of the client's purpose and usage. This helps administrators understand what the client is used for.
-
-  - **`expiry`**
-
-    `string`, format: `int64` — Expiry time in seconds for the token generated by the client
-
-  - **`is_cimd`**
-
-    `boolean` — Indicates if the client was created via Client ID Metadata Document (CIMD). CIMD clients can update their own configuration according to the CIMD specification.
-
-  - **`is_dcr`**
-
-    `boolean` — Indicates if the client was created via Dynamic Client Registration (DCR). Clients created through DCR may have different management and lifecycle policies compared to those created manually.
-
-  - **`metadata_uri`**
-
-    `string` — The URI to the client's metadata, which is utilized to obtain the client's configuration details
-
-  - **`name`**
-
-    `string` — The display name of the API client. This name helps identify the client in the dashboard and logs.
-
-  - **`organization_id`**
-
-    `string` — The ID of the organization that owns this API client. This ID is used to associate the client with the correct organization and enforce organization-specific access controls.
-
-  - **`redirect_uris`**
-
-    `array` — The redirect URI for this API client. This URI is used in the OAuth 2.0 authorization flow to redirect users after authentication.
-
-    **Items:**
-
-    `string`
-
-  - **`resource_id`**
-
-    `string` — The ID of the resource associated with this M2M client. This field is used to link the client to a specific resource in the system.
-
-  - **`scopes`**
-
-    `array` — The OAuth 2.0 scopes granted to this client. These scopes determine what resources and actions the client can access.
-
-    **Items:**
-
-    `string`
-
-  - **`secrets`**
-
-    `array` — List of client secrets associated with this client. Each secret can be used for authentication, but only the most recently created secret is typically active. Secrets are stored securely and their values are never returned after creation.
-
-    **Items:**
-
-    - **`create_time`**
-
-      `string`, format: `date-time` — The timestamp when this secret was created. This field is automatically set by the server and cannot be modified.
-
-    - **`created_by`**
-
-      `string` — The identifier of the user or system that created this secret. This field helps track who created the secret for audit and compliance purposes.
-
-    - **`expire_time`**
-
-      `string`, format: `date-time` — The timestamp when this secret will expire. After this time, the secret cannot be used for authentication regardless of its status. If not set, the secret does not expire.
-
-    - **`id`**
-
-      `string` — The unique identifier for this client secret. This ID is used to reference the secret in API requests for management operations like updating or deleting the secret.
-
-    - **`last_used_time`**
-
-      `string`, format: `date-time` — The timestamp when this secret was last used for authentication. This field helps track secret usage for security monitoring and identifying unused secrets that may be candidates for rotation.
-
-    - **`plain_secret`**
-
-      `string` — The full plaintext secret value. This field is only populated when the secret is first created and is never stored by the server. It must be securely stored by the client application as it cannot be retrieved again.
-
-    - **`secret_suffix`**
-
-      `string` — A suffix that helps identify this secret. This is the last few characters of the full secret value but is not sufficient for authentication. Helps identify which secret is being used in logs and debugging.
-
-    - **`status`**
-
-      `string`, possible values: `"INACTIVE"` — The current status of this secret. A secret must be ACTIVE to be used for authentication. INACTIVE secrets cannot be used for authentication but are retained for audit purposes.
-
-    - **`update_time`**
-
-      `string`, format: `date-time` — The timestamp when this secret was last updated. This field is automatically updated by the server when the secret's status changes or other properties are modified.
-
-  - **`update_time`**
-
-    `string`, format: `date-time` — The timestamp when this API client was last updated. This field is automatically updated by the server whenever the client's configuration changes.
-
-* **`plain_secret`**
-
-  `string` — Client secret value (only returned once at creation)
-
-**Example:**
-
-```json
-{
-  "client": {
-    "audience": [
-      "https://api.example.com"
-    ],
-    "client_id": "m2morg_1231234233424344",
-    "create_time": "2024-01-05T14:48:00Z",
-    "custom_claims": [
-      {}
-    ],
-    "description": "Service account for automated deployment processes",
-    "expiry": 3600,
-    "is_cimd": false,
-    "is_dcr": false,
-    "metadata_uri": "https://example.com/client-metadata.json",
-    "name": "GitHub Actions Deployment Service",
-    "organization_id": "org_1231234233424344",
-    "redirect_uris": [
-      "https://example.com/callback"
-    ],
-    "resource_id": "app_1231234233424344",
-    "scopes": [
-      "deploy:resources",
-      "read:deployments"
-    ],
-    "secrets": [
-      {}
-    ],
-    "update_time": "2024-01-05T14:48:00Z"
-  },
-  "plain_secret": "CdExsdErfccxDDssddfffgfeFHH1"
-}
-```
-
-### clientsGetOrganizationClientResponse
-
-- **Type:**`object`
-
-* **`client`**
-
-  `object` — Details of the requested client
-
-  - **`audience`**
-
-    `array` — The intended recipients of access tokens issued to this client. Each audience value should be a URI that identifies an API or service.
-
-    **Items:**
-
-    `string`
-
-  - **`client_id`**
-
-    `string` — The unique identifier for this API client. This ID is used to identify the client in API requests and logs. It is automatically generated when the client is created and cannot be modified.
-
-  - **`create_time`**
-
-    `string`, format: `date-time` — The timestamp when this API client was created. This field is automatically set by the server and cannot be modified.
-
-  - **`custom_claims`**
-
-    `array` — Additional claims included in access tokens issued to this client. These claims provide context about the client and can be used for authorization decisions.
-
-    **Items:**
-
-    - **`key`**
-
-      `string` — The name of the custom claim. Must be between 1 and 128 characters. Use descriptive names that clearly indicate the claim's purpose.
-
-    - **`value`**
-
-      `string` — The value of the custom claim. This value will be included in access tokens issued to the client.
-
-  - **`description`**
-
-    `string` — A detailed description of the client's purpose and usage. This helps administrators understand what the client is used for.
-
-  - **`expiry`**
-
-    `string`, format: `int64` — Expiry time in seconds for the token generated by the client
-
-  - **`is_cimd`**
-
-    `boolean` — Indicates if the client was created via Client ID Metadata Document (CIMD). CIMD clients can update their own configuration according to the CIMD specification.
-
-  - **`is_dcr`**
-
-    `boolean` — Indicates if the client was created via Dynamic Client Registration (DCR). Clients created through DCR may have different management and lifecycle policies compared to those created manually.
-
-  - **`metadata_uri`**
-
-    `string` — The URI to the client's metadata, which is utilized to obtain the client's configuration details
-
-  - **`name`**
-
-    `string` — The display name of the API client. This name helps identify the client in the dashboard and logs.
-
-  - **`organization_id`**
-
-    `string` — The ID of the organization that owns this API client. This ID is used to associate the client with the correct organization and enforce organization-specific access controls.
-
-  - **`redirect_uris`**
-
-    `array` — The redirect URI for this API client. This URI is used in the OAuth 2.0 authorization flow to redirect users after authentication.
-
-    **Items:**
-
-    `string`
-
-  - **`resource_id`**
-
-    `string` — The ID of the resource associated with this M2M client. This field is used to link the client to a specific resource in the system.
-
-  - **`scopes`**
-
-    `array` — The OAuth 2.0 scopes granted to this client. These scopes determine what resources and actions the client can access.
-
-    **Items:**
-
-    `string`
-
-  - **`secrets`**
-
-    `array` — List of client secrets associated with this client. Each secret can be used for authentication, but only the most recently created secret is typically active. Secrets are stored securely and their values are never returned after creation.
-
-    **Items:**
-
-    - **`create_time`**
-
-      `string`, format: `date-time` — The timestamp when this secret was created. This field is automatically set by the server and cannot be modified.
-
-    - **`created_by`**
-
-      `string` — The identifier of the user or system that created this secret. This field helps track who created the secret for audit and compliance purposes.
-
-    - **`expire_time`**
-
-      `string`, format: `date-time` — The timestamp when this secret will expire. After this time, the secret cannot be used for authentication regardless of its status. If not set, the secret does not expire.
-
-    - **`id`**
-
-      `string` — The unique identifier for this client secret. This ID is used to reference the secret in API requests for management operations like updating or deleting the secret.
-
-    - **`last_used_time`**
-
-      `string`, format: `date-time` — The timestamp when this secret was last used for authentication. This field helps track secret usage for security monitoring and identifying unused secrets that may be candidates for rotation.
-
-    - **`plain_secret`**
-
-      `string` — The full plaintext secret value. This field is only populated when the secret is first created and is never stored by the server. It must be securely stored by the client application as it cannot be retrieved again.
-
-    - **`secret_suffix`**
-
-      `string` — A suffix that helps identify this secret. This is the last few characters of the full secret value but is not sufficient for authentication. Helps identify which secret is being used in logs and debugging.
-
-    - **`status`**
-
-      `string`, possible values: `"INACTIVE"` — The current status of this secret. A secret must be ACTIVE to be used for authentication. INACTIVE secrets cannot be used for authentication but are retained for audit purposes.
-
-    - **`update_time`**
-
-      `string`, format: `date-time` — The timestamp when this secret was last updated. This field is automatically updated by the server when the secret's status changes or other properties are modified.
-
-  - **`update_time`**
-
-    `string`, format: `date-time` — The timestamp when this API client was last updated. This field is automatically updated by the server whenever the client's configuration changes.
-
-**Example:**
-
-```json
-{
-  "client": {
-    "audience": [
-      "https://api.example.com"
-    ],
-    "client_id": "m2morg_1231234233424344",
-    "create_time": "2024-01-05T14:48:00Z",
-    "custom_claims": [
-      {}
-    ],
-    "description": "Service account for automated deployment processes",
-    "expiry": 3600,
-    "is_cimd": false,
-    "is_dcr": false,
-    "metadata_uri": "https://example.com/client-metadata.json",
-    "name": "GitHub Actions Deployment Service",
-    "organization_id": "org_1231234233424344",
-    "redirect_uris": [
-      "https://example.com/callback"
-    ],
-    "resource_id": "app_1231234233424344",
-    "scopes": [
-      "deploy:resources",
-      "read:deployments"
-    ],
-    "secrets": [
-      {}
-    ],
-    "update_time": "2024-01-05T14:48:00Z"
-  }
 }
 ```
 
@@ -16755,445 +14061,356 @@ Response message containing a paginated list of API clients for the specified or
 }
 ```
 
-### clientsCreateOrganizationClientSecretResponse
+### commonsExternalIdentity
 
 - **Type:**`object`
 
-* **`plain_secret`**
+* **`connection_id`**
 
-  `string` — Client secret value (only returned once at creation)
+  `string` — Unique identifier for the external identity connection. Immutable and read-only.
 
-* **`secret`**
+* **`connection_provider`**
 
-  `object` — Details of the created client secret
+  `string`, possible values: `"OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "PING_IDENTITY", "JUMPCLOUD", "CUSTOM", "GITHUB", "GITLAB", "LINKEDIN", "SALESFORCE", "MICROSOFT", "IDP_SIMULATOR", "SCALEKIT", "ADFS"` — Type of the identity provider.
 
-  - **`create_time`**
+* **`connection_type`**
 
-    `string`, format: `date-time` — The timestamp when this secret was created. This field is automatically set by the server and cannot be modified.
+  `string` — Name of the external identity connection.
 
-  - **`created_by`**
+* **`connection_user_id`**
 
-    `string` — The identifier of the user or system that created this secret. This field helps track who created the secret for audit and compliance purposes.
+  `string` — Unique identifier for the user in the external identity provider system. Immutable and read-only.
 
-  - **`expire_time`**
+* **`created_time`**
 
-    `string`, format: `date-time` — The timestamp when this secret will expire. After this time, the secret cannot be used for authentication regardless of its status. If not set, the secret does not expire.
+  `string`, format: `date-time` — Timestamp when this external identity connection was first created. Immutable and read-only.
 
-  - **`id`**
+* **`is_social`**
 
-    `string` — The unique identifier for this client secret. This ID is used to reference the secret in API requests for management operations like updating or deleting the secret.
+  `boolean` — Indicates if the identity provider is a social provider (true) or enterprise/custom provider (false). Read-only.
 
-  - **`last_used_time`**
+* **`last_login_time`**
 
-    `string`, format: `date-time` — The timestamp when this secret was last used for authentication. This field helps track secret usage for security monitoring and identifying unused secrets that may be candidates for rotation.
+  `string`, format: `date-time` — Timestamp of the user's last successful login via this external identity provider. Automatically updated by the system.
 
-  - **`plain_secret`**
+* **`last_synced_time`**
 
-    `string` — The full plaintext secret value. This field is only populated when the secret is first created and is never stored by the server. It must be securely stored by the client application as it cannot be retrieved again.
-
-  - **`secret_suffix`**
-
-    `string` — A suffix that helps identify this secret. This is the last few characters of the full secret value but is not sufficient for authentication. Helps identify which secret is being used in logs and debugging.
-
-  - **`status`**
-
-    `string`, possible values: `"INACTIVE"` — The current status of this secret. A secret must be ACTIVE to be used for authentication. INACTIVE secrets cannot be used for authentication but are retained for audit purposes.
-
-  - **`update_time`**
-
-    `string`, format: `date-time` — The timestamp when this secret was last updated. This field is automatically updated by the server when the secret's status changes or other properties are modified.
+  `string`, format: `date-time` — Timestamp of the last data synchronization for this external identity from the provider. Automatically updated by the system.
 
 **Example:**
 
 ```json
 {
-  "plain_secret": "m2morg_client_secret_xyz123",
-  "secret": {
-    "create_time": "2024-01-05T14:48:00Z",
-    "created_by": "user_12345",
-    "expire_time": "2025-01-05T14:48:00Z",
-    "id": "sec_1234abcd5678efgh",
-    "last_used_time": "2024-02-15T10:30:00Z",
-    "plain_secret": "sec_1234567890abcdefghijklmnopqrstuvwxyz",
-    "secret_suffix": "xyzw",
-    "status": "INACTIVE",
-    "update_time": "2024-01-10T09:12:00Z"
-  }
+  "connection_id": "conn_1234abcd5678efgh",
+  "connection_provider": "GOOGLE",
+  "connection_type": "OAUTH",
+  "connection_user_id": "ext_user_12345",
+  "created_time": "",
+  "is_social": true,
+  "last_login_time": "",
+  "last_synced_time": ""
 }
 ```
 
-### connectionsConfigurationType
+### commonsIdentityProviderType
 
 - **Type:**`string`
 
 **Example:**
 
-### domainsVerificationMethod
+### commonsMembershipStatus
 
 - **Type:**`string`
 
 **Example:**
 
-### domainsVerificationStatus
-
-- **Type:**`string`
-
-**Example:**
-
-### domainsDomain
+### commonsOrganizationMembership
 
 - **Type:**`object`
 
-* **`create_time`**
+* **`accepted_at`**
 
-  `string`, format: `date-time` — Timestamp when the domain was first created.
+  `string`, format: `date-time` — Timestamp when the user accepted the invitation.
 
-* **`domain`**
+* **`created_at`**
 
-  `string` — The business domain name that was configured for allowed email domain functionality (e.g., company.com, subdomain.company.com).
+  `string`, format: `date-time` — Timestamp when the invitation was created.
 
-* **`domain_type`**
+* **`display_name`**
 
-  `object`
+  `string` — Organization display name. This field stores a user-friendly name for the organization that may be different from the formal name, often used for UI display purposes.
 
-* **`environment_id`**
+* **`expires_at`**
 
-  `string` — The environment ID where this domain is configured.
+  `string`, format: `date-time` — Timestamp when the invitation expired.
 
-* **`id`**
+* **`inviter_email`**
 
-  `string` — Scalekit-generated unique identifier for this domain record.
+  `string` — ID of the user who invited this user.
+
+* **`join_time`**
+
+  `string`, format: `date-time` — Timestamp when the membership was created. Automatically set by the server.
+
+* **`membership_status`**
+
+  `string`, possible values: `"ACTIVE", "INACTIVE", "PENDING_INVITE", "INVITE_EXPIRED"`
+
+* **`metadata`**
+
+  `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+* **`name`**
+
+  `string` — Organization name. This field stores the formal organization name used for identification and display purposes.
 
 * **`organization_id`**
 
-  `string` — The organization to which the domain belongs.
+  `string` — Unique identifier for the organization. Immutable and read-only.
 
-* **`update_time`**
+* **`permissions`**
 
-  `string`, format: `date-time` — Timestamp when the domain was last updated.
-
-* **`verification_method`**
-
-  `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — Method that determines how domain ownership is verified. - ADMIN: domain is marked verified without DNS validation, typically by an admin. - DNS: domain must be verified by adding a TXT record to your DNS configuration. - NOT\_APPLICABLE: verification does not apply to this domain type.
-
-* **`verification_status`**
-
-  `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain. - PENDING: DNS TXT record has not been validated yet. - VERIFIED: domain confirmed via DNS TXT record validation or admin approval. - AUTO\_VERIFIED: domain verified automatically without DNS changes. - FAILED: DNS TXT record was not validated within the verification window.
-
-**Example:**
-
-```json
-{
-  "create_time": "2025-09-01T12:14:43.100000Z",
-  "domain": "customerdomain.com",
-  "domain_type": "ORGANIZATION_DOMAIN",
-  "environment_id": "env_58345499215790610",
-  "id": "dom_88351643129225005",
-  "organization_id": "org_81667076086825451",
-  "update_time": "2025-09-01T12:14:43.110455Z",
-  "verification_method": "ADMIN",
-  "verification_status": "AUTO_VERIFIED"
-}
-```
-
-### connectionsGoogleDWDConfig
-
-- **Type:**`object`
-
-* **`scopes`**
-
-  `array` — OAuth 2.0 scopes to request.
+  `array` — Effective permissions granted to the user within the organization (including inherited permissions from assigned roles). Lists the specific actions and access rights the user can perform.
 
   **Items:**
 
   `string`
 
-* **`service_account_json`**
+* **`provisioning_method`**
 
-  `string` — Google Cloud service account JSON key. Write-only: reads return a masked value.
+  `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
 
-* **`token_uri`**
+* **`roles`**
 
-  `string` — Google token endpoint. Defaults to https\://oauth2.googleapis.com/token.
+  `array`
+
+  **Items:**
+
+  - **`display_name`**
+
+    `string` — Human-readable name for the role
+
+  - **`id`**
+
+    `string` — Role ID
+
+  - **`name`**
+
+    `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
 
 **Example:**
 
 ```json
 {
-  "scopes": [
-    ""
+  "accepted_at": "",
+  "created_at": "",
+  "display_name": "Acme Corporation",
+  "expires_at": "",
+  "inviter_email": "",
+  "join_time": "",
+  "membership_status": "ACTIVE",
+  "metadata": {
+    "department": "engineering",
+    "location": "nyc-office"
+  },
+  "name": "AcmeCorp",
+  "organization_id": "org_1234abcd5678efgh",
+  "permissions": [
+    "read_projects",
+    "write_tasks",
+    "manage_users"
   ],
-  "service_account_json": "",
-  "token_uri": ""
-}
-```
-
-### connectionsOptionalScopes
-
-- **Type:**`object`
-
-* **`field_name`**
-
-  `string` — Name of the field in which scope should be sent in the authentication request. This is required by some identity providers that expect scopes to be sent in a custom field instead of the standard 'scope' parameter.
-
-* **`scopes`**
-
-  `array` — List of optional scopes that can be requested during authentication
-
-  **Items:**
-
-  `string`
-
-**Example:**
-
-```json
-{
-  "field_name": "optional_scope or bot_scope",
-  "scopes": [
-    "scope1",
-    "scope2"
+  "provisioning_method": "",
+  "roles": [
+    {
+      "display_name": "Dev Team",
+      "id": "role_79643236410327240",
+      "name": "team_dev"
+    }
   ]
 }
 ```
 
-### connectionsOAuthConnectionConfig
+### commonsRegionCode
+
+- **Type:**`string`
+
+**Example:**
+
+### commonsRole
 
 - **Type:**`object`
 
-* **`access_type`**
+* **`display_name`**
 
-  `string` — Access Type
+  `string` — Human-readable name for the role
 
-* **`app_name`**
+* **`id`**
 
-  `string` — Application name used by providers that require it as an authorize query parameter (e.g., Trello's app\_name).
+  `string` — Role ID
 
-* **`authorize_uri`**
+* **`name`**
 
-  `string` — Authorize URI
+  `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
 
-* **`client_id`**
+**Example:**
 
-  `string` — Client ID
+```json
+{
+  "display_name": "Dev Team",
+  "id": "role_79643236410327240",
+  "name": "team_dev"
+}
+```
 
-* **`client_secret`**
+### commonsTimeUnit
 
-  `string` — Client Secret
+- **Type:**`string`
 
-* **`custom_scope_name`**
+**Example:**
 
-  `string` — Custom Scope Name
+### commonsUserProfile
 
-* **`is_cimd`**
+- **Type:**`object`
 
-  `boolean` — Indicates whether this connection was registered using Client ID Metadata Document (CIMD) instead of Dynamic Client Registration.
+* **`custom_attributes`**
 
-* **`optional_scopes`**
+  `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
 
-  `object` — Optional scopes configuration for identity providers that support or require additional scopes to be sent in a custom field during authentication requests.
+* **`email_verified`**
 
-  - **`field_name`**
+  `boolean` — Indicates if the user's email address has been verified. Automatically updated by the system.
 
-    `string` — Name of the field in which scope should be sent in the authentication request. This is required by some identity providers that expect scopes to be sent in a custom field instead of the standard 'scope' parameter.
+* **`external_identities`**
 
-  - **`scopes`**
+  `array` — List of external identity connections associated with the user profile.
 
-    `array` — List of optional scopes that can be requested during authentication
+  **Items:**
 
-    **Items:**
+  - **`connection_id`**
 
-    `string`
+    `string` — Unique identifier for the external identity connection. Immutable and read-only.
 
-* **`pkce_enabled`**
+  - **`connection_provider`**
 
-  `boolean` — PKCE Enabled
+    `string`, possible values: `"OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "PING_IDENTITY", "JUMPCLOUD", "CUSTOM", "GITHUB", "GITLAB", "LINKEDIN", "SALESFORCE", "MICROSOFT", "IDP_SIMULATOR", "SCALEKIT", "ADFS"` — Type of the identity provider.
 
-* **`prompt`**
+  - **`connection_type`**
 
-  `string` — Prompt for the user
+    `string` — Name of the external identity connection.
 
-* **`redirect_uri`**
+  - **`connection_user_id`**
 
-  `string` — Redirect URI
+    `string` — Unique identifier for the user in the external identity provider system. Immutable and read-only.
 
-* **`scopes`**
+  - **`created_time`**
 
-  `array` — OIDC Scopes
+    `string`, format: `date-time` — Timestamp when this external identity connection was first created. Immutable and read-only.
+
+  - **`is_social`**
+
+    `boolean` — Indicates if the identity provider is a social provider (true) or enterprise/custom provider (false). Read-only.
+
+  - **`last_login_time`**
+
+    `string`, format: `date-time` — Timestamp of the user's last successful login via this external identity provider. Automatically updated by the system.
+
+  - **`last_synced_time`**
+
+    `string`, format: `date-time` — Timestamp of the last data synchronization for this external identity from the provider. Automatically updated by the system.
+
+* **`family_name`**
+
+  `string` — The user's family name (last name or surname). This field stores the user's last name and is combined with the given name to create the full display name. The family name is used in formal communications, user listings, and organizational directories throughout the system. Maximum 255 characters allowed.
+
+* **`gender`**
+
+  `string` — The user's gender identity information. This field stores the user's gender identity for personalization, compliance reporting, or organizational analytics purposes. This field supports any string value to accommodate diverse gender identities and should be handled with appropriate privacy considerations according to your organization's policies and applicable regulations.
+
+* **`given_name`**
+
+  `string` — The user's given name (first name). This field stores the user's first name and is used for personalization, display purposes, and when generating the full display name. The given name appears in user interfaces, formal communications, and user listings throughout the system. Maximum 255 characters allowed.
+
+* **`groups`**
+
+  `array` — The list of group names the user belongs to within the organization. This field stores the user's group memberships for role-based access control, team assignments, and organizational structure. Groups are typically used for permission management, collaborative access, and organizational hierarchy. Each group name represents a distinct organizational unit or team that the user is associated with.
 
   **Items:**
 
   `string`
 
-* **`sync_user_profile_on_login`**
+* **`id`**
 
-  `boolean` — Indicates whether user profiles should be synchronized with the identity provider upon each log-in.
+  `string` — Unique system-generated identifier for the user profile. Immutable and read-only.
 
-* **`tenant_id`**
+* **`locale`**
 
-  `string` — Microsoft Entra tenant ID. Required when using a single-tenant or multi-tenant app registered in Microsoft Entra. Leave empty to use the common endpoint.
+  `string` — The user's preferred language and region settings using BCP-47 format codes. This field customizes the user's experience with localized content, date formats, number formatting, and UI language throughout the system. When not specified, the user inherits the organization's default locale settings. Common values include \`en-US\`, \`en-GB\`, \`fr-FR\`, \`de-DE\`, and \`es-ES\`.
 
-* **`token_access_type`**
+* **`metadata`**
 
-  `string` — Token Access Type
+  `object` — Raw attributes received from identity providers during authentication. This field stores the original user profile data as received from external IdP systems (SAML, OIDC, etc.) including provider-specific claims and attributes. These fields preserve the complete set of attributes received from the identity source and are used for mapping, synchronization, and audit purposes. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
 
-* **`token_uri`**
+* **`name`**
 
-  `string` — Token URI
+  `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
 
-* **`use_platform_creds`**
+* **`phone_number`**
 
-  `boolean` — Use Scalekit credentials
+  `string` — The user's phone number in E.164 international format. This field stores the phone number for user contact and identification purposes. The phone number must include the country code and be formatted according to E.164 standards (e.g., \`+1\` for US numbers). This field is optional.
 
-* **`user_info_uri`**
+* **`phone_number_verified`**
 
-  `string` — User Info URI
+  `boolean` — Indicates if the user's phone number has been verified. Automatically updated by the system.
+
+* **`picture`**
+
+  `string` — The URL to the user's profile picture or avatar image. This field stores the location of the user's profile photo that appears in user interfaces, directory listings, and collaborative features throughout the system. The URL should point to a publicly accessible image file. Supported formats typically include JPEG, PNG, and GIF. This image is used for visual identification and personalization across the platform.
+
+* **`preferred_username`**
+
+  `string` — The user's preferred username for display and identification purposes. This field stores a custom username that the user prefers to be known by, which may differ from their email or formal name. This username appears in user interfaces, mentions, informal communications, and collaborative features throughout the system. Maximum 512 characters allowed.
 
 **Example:**
 
 ```json
 {
-  "access_type": "offline",
-  "app_name": "My Trello App",
-  "authorize_uri": "https://youridp.com/service/oauth/authorize",
-  "client_id": "oauth_client_id",
-  "client_secret": "oauth_client_secret",
-  "custom_scope_name": "user_scope",
-  "is_cimd": true,
-  "optional_scopes": {
-    "field_name": "optional_scope or bot_scope",
-    "scopes": [
-      "scope1",
-      "scope2"
-    ]
+  "custom_attributes": {
+    "department": "engineering",
+    "security_clearance": "level2"
   },
-  "pkce_enabled": true,
-  "prompt": "none",
-  "redirect_uri": "https://yourapp.com/service/oauth/redirect",
-  "scopes": [
-    "openid",
-    "profile"
+  "email_verified": true,
+  "external_identities": [
+    {
+      "connection_id": "conn_1234abcd5678efgh",
+      "connection_provider": "GOOGLE",
+      "connection_type": "OAUTH",
+      "connection_user_id": "ext_user_12345",
+      "created_time": "",
+      "is_social": true,
+      "last_login_time": "",
+      "last_synced_time": ""
+    }
   ],
-  "sync_user_profile_on_login": true,
-  "tenant_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-  "token_access_type": "offline",
-  "token_uri": "https://youridp.com/service/oauth/token",
-  "use_platform_creds": true,
-  "user_info_uri": "https://youridp.com/service/oauth/userinfo"
-}
-```
-
-### connectionsOIDCScope
-
-- **Type:**`string`
-
-**Example:**
-
-### connectionsTokenAuthType
-
-- **Type:**`string`
-
-**Example:**
-
-### connectionsOIDCConnectionConfig
-
-- **Type:**`object`
-
-* **`authorize_uri`**
-
-  `string` — Authorize URI
-
-* **`backchannel_logout_redirect_uri`**
-
-  `string` — backchannel logout redirect uri where idp sends logout\_token
-
-* **`client_id`**
-
-  `string` — Client ID
-
-* **`client_secret`**
-
-  `string` — Client Secret
-
-* **`discovery_endpoint`**
-
-  `string` — Discovery Endpoint
-
-* **`idp_logout_required`**
-
-  `boolean` — Enable IDP logout
-
-* **`issuer`**
-
-  `string` — Issuer URL
-
-* **`jit_provisioning_with_sso_enabled`**
-
-  `boolean` — Indicates if Just In Time user provisioning is enabled for the connection
-
-* **`jwks_uri`**
-
-  `string` — JWKS URI
-
-* **`pkce_enabled`**
-
-  `boolean` — PKCE Enabled
-
-* **`post_logout_redirect_uri`**
-
-  `string` — post logout redirect uri
-
-* **`redirect_uri`**
-
-  `string` — Redirect URI
-
-* **`scopes`**
-
-  `array` — OIDC Scopes
-
-  **Items:**
-
-  `string`, possible values: `"openid", "profile", "email", "address", "phone"`
-
-* **`sync_user_profile_on_login`**
-
-  `boolean` — Indicates whether user profiles should be synchronized with the identity provider upon each log-in.
-
-* **`token_auth_type`**
-
-  `string`, possible values: `"URL_PARAMS", "BASIC_AUTH"` — Token Auth Type
-
-* **`token_uri`**
-
-  `string` — Token URI
-
-* **`user_info_uri`**
-
-  `string` — User Info URI
-
-**Example:**
-
-```json
-{
-  "authorize_uri": "https://youridp.com/service/oauth/authorize",
-  "backchannel_logout_redirect_uri": "https://yourapp.com/sso/v1/oidc/conn_1234/backchannel-logout",
-  "client_id": "oauth_client_id",
-  "client_secret": "oauth_client_secret",
-  "discovery_endpoint": "https://youridp.com/service/oauth/.well-known/openid-configuration",
-  "idp_logout_required": true,
-  "issuer": "https://youridp.com/service/oauth",
-  "jit_provisioning_with_sso_enabled": true,
-  "jwks_uri": "https://youridp.com/service/oauth/jwks",
-  "pkce_enabled": true,
-  "post_logout_redirect_uri": "https://yourapp.com/sso/v1/oidc/conn_1234/logout/callback",
-  "redirect_uri": "https://yourapp.com/sso/v1/oidc/conn_1234/callback",
-  "scopes": [
-    "openid",
-    "profile"
+  "family_name": "Doe",
+  "gender": "male",
+  "given_name": "John",
+  "groups": [
+    "admin",
+    "developer"
   ],
-  "sync_user_profile_on_login": true,
-  "token_auth_type": "URL_PARAMS",
-  "token_uri": "https://youridp.com/service/oauth/token",
-  "user_info_uri": "https://youridp.com/service/oauth/userinfo"
+  "id": "usr_profile_1234abcd5678efgh",
+  "locale": "en-US",
+  "metadata": {
+    "department": "engineering",
+    "employee_type": "full-time",
+    "idp_user_id": "12345"
+  },
+  "name": "John Michael Doe",
+  "phone_number": "+14155552671",
+  "phone_number_verified": true,
+  "picture": "https://example.com/avatar.jpg",
+  "preferred_username": "johndoe"
 }
 ```
 
@@ -17203,624 +14420,11 @@ Response message containing a paginated list of API clients for the specified or
 
 **Example:**
 
-### connectionsPasswordlessType
+### connectionsConfigurationType
 
 - **Type:**`string`
 
 **Example:**
-
-### connectionsPasswordLessConfig
-
-- **Type:**`object`
-
-* **`code_challenge_length`**
-
-  `integer`, format: `int64` — Code Challenge Length
-
-* **`code_challenge_type`**
-
-  `string`, possible values: `"NUMERIC", "ALPHANUMERIC"` — Code Challenge Type
-
-* **`enforce_same_browser_origin`**
-
-  `boolean` — Enforce Same Browser Origin
-
-* **`frequency`**
-
-  `integer`, format: `int64` — Link Frequency
-
-* **`regenerate_passwordless_credentials_on_resend`**
-
-  `boolean` — Regenerate the
-
-* **`type`**
-
-  `string`, possible values: `"LINK", "OTP", "LINK_OTP"` — Passwordless Type
-
-* **`validity`**
-
-  `integer`, format: `int64` — Link Validity in Seconds
-
-**Example:**
-
-```json
-{
-  "code_challenge_length": 6,
-  "code_challenge_type": "NUMERIC",
-  "enforce_same_browser_origin": true,
-  "frequency": 1,
-  "regenerate_passwordless_credentials_on_resend": true,
-  "type": "LINK",
-  "validity": 600
-}
-```
-
-### connectionsIDPCertificate
-
-- **Type:**`object`
-
-* **`certificate`**
-
-  `string` — IDP Certificate
-
-* **`create_time`**
-
-  `string`, format: `date-time` — Certificate Creation Time
-
-* **`expiry_time`**
-
-  `string`, format: `date-time` — Certificate Expiry Time
-
-* **`id`**
-
-  `string` — Certificate ID
-
-* **`issuer`**
-
-  `string` — Certificate Issuer
-
-**Example:**
-
-```json
-{
-  "certificate": "",
-  "create_time": "2021-09-01T00:00:00Z",
-  "expiry_time": "2021-09-01T00:00:00Z",
-  "id": "cert_123123123123",
-  "issuer": "https://youridp.com/service/saml"
-}
-```
-
-### connectionsNameIdFormat
-
-- **Type:**`string`
-
-**Example:**
-
-### connectionsRequestBinding
-
-- **Type:**`string`
-
-**Example:**
-
-### enums all
-
-- **Type:**`string`
-
-**Example:**
-
-### connectionsSAMLConnectionConfigResponse
-
-- **Type:**`object`
-
-* **`allow_idp_initiated_login`**
-
-  `boolean` — Allow IDP Initiated Login
-
-* **`assertion_encrypted`**
-
-  `boolean` — Assertion Encrypted
-
-* **`certificate_id`**
-
-  `string` — Certificate ID
-
-* **`default_redirect_uri`**
-
-  `string` — Default Redirect URI
-
-* **`force_authn`**
-
-  `boolean` — Force Authn
-
-* **`idp_certificates`**
-
-  `array` — IDP Certificates
-
-  **Items:**
-
-  - **`certificate`**
-
-    `string` — IDP Certificate
-
-  - **`create_time`**
-
-    `string`, format: `date-time` — Certificate Creation Time
-
-  - **`expiry_time`**
-
-    `string`, format: `date-time` — Certificate Expiry Time
-
-  - **`id`**
-
-    `string` — Certificate ID
-
-  - **`issuer`**
-
-    `string` — Certificate Issuer
-
-* **`idp_entity_id`**
-
-  `string` — IDP Entity ID
-
-* **`idp_metadata_url`**
-
-  `string` — IDP Metadata URL
-
-* **`idp_name_id_format`**
-
-  `string`, possible values: `"UNSPECIFIED", "EMAIL", "TRANSIENT", "PERSISTENT"` — IDP Name ID Format
-
-* **`idp_slo_request_binding`**
-
-  `string`, possible values: `"HTTP_POST", "HTTP_REDIRECT"` — IDP SLO Request Binding
-
-* **`idp_slo_required`**
-
-  `boolean` — Enable IDP logout
-
-* **`idp_slo_url`**
-
-  `string` — IDP SLO URL
-
-* **`idp_sso_request_binding`**
-
-  `string`, possible values: `"HTTP_POST", "HTTP_REDIRECT"` — IDP SSO Request Binding
-
-* **`idp_sso_url`**
-
-  `string` — IDP SSO URL
-
-* **`jit_provisioning_with_sso_enabled`**
-
-  `boolean` — Indicates if Just In Time user provisioning is enabled for the connection
-
-* **`saml_signing_option`**
-
-  `string`, possible values: `"NO_SIGNING", "SAML_ONLY_RESPONSE_SIGNING", "SAML_ONLY_ASSERTION_SIGNING", "SAML_RESPONSE_ASSERTION_SIGNING", "SAML_RESPONSE_OR_ASSERTION_SIGNING"` — SAML Signing Option
-
-* **`sp_assertion_url`**
-
-  `string` — SP Assertion URL
-
-* **`sp_entity_id`**
-
-  `string` — SP Entity ID
-
-* **`sp_metadata_url`**
-
-  `string` — SP Metadata URL
-
-* **`sp_slo_url`**
-
-  `string` — Service Provider SLO url
-
-* **`sync_user_profile_on_login`**
-
-  `boolean` — Indicates whether user profiles should be synchronized with the identity provider upon each log-in.
-
-* **`ui_button_title`**
-
-  `string` — UI Button Title
-
-* **`want_request_signed`**
-
-  `boolean` — Want Request Signed
-
-**Example:**
-
-```json
-{
-  "allow_idp_initiated_login": true,
-  "assertion_encrypted": true,
-  "certificate_id": "cer_35585423166144613",
-  "default_redirect_uri": "https://yourapp.com/service/saml/redirect",
-  "force_authn": true,
-  "idp_certificates": [
-    {
-      "certificate": "",
-      "create_time": "2021-09-01T00:00:00Z",
-      "expiry_time": "2021-09-01T00:00:00Z",
-      "id": "cert_123123123123",
-      "issuer": "https://youridp.com/service/saml"
-    }
-  ],
-  "idp_entity_id": "https://youridp.com/service/saml",
-  "idp_metadata_url": "https://youridp.com/service/saml/metadata",
-  "idp_name_id_format": "EMAIL",
-  "idp_slo_request_binding": "HTTP_POST",
-  "idp_slo_required": true,
-  "idp_slo_url": "https://youridp.com/service/saml/slo",
-  "idp_sso_request_binding": "HTTP_POST",
-  "idp_sso_url": "https://youridp.com/service/saml/sso",
-  "jit_provisioning_with_sso_enabled": true,
-  "saml_signing_option": "SAML_ONLY_RESPONSE_SIGNING",
-  "sp_assertion_url": "https://youridp.com/service/saml/assertion",
-  "sp_entity_id": "https://yourapp.com/service/saml",
-  "sp_metadata_url": "https://youridp.com/service/saml/metadata",
-  "sp_slo_url": "https://yourapp.com/sso/v1/saml/conn_1234/slo/callback",
-  "sync_user_profile_on_login": true,
-  "ui_button_title": "Login with SSO",
-  "want_request_signed": true
-}
-```
-
-### connectionsStaticAuthConfig
-
-- **Type:**`object`
-
-* **`static_config`**
-
-  `object`
-
-**Example:**
-
-```json
-{
-  "static_config": {}
-}
-```
-
-### Attestation preferences for registration
-
-- **Type:**`object`
-
-* **`conveyance_preference`**
-
-  `string`
-
-* **`enterprise_approved_ids`**
-
-  `array`
-
-  **Items:**
-
-  `string`
-
-**Example:**
-
-```json
-{
-  "conveyance_preference": "",
-  "enterprise_approved_ids": [
-    ""
-  ]
-}
-```
-
-### WebAuthConfigurationAuthenticatorSelection
-
-- **Type:**`object`
-
-* **`authenticator_attachment`**
-
-  `string`
-
-* **`user_verification`**
-
-  `string`
-
-**Example:**
-
-```json
-{
-  "authenticator_attachment": "",
-  "user_verification": ""
-}
-```
-
-### WebAuthConfigurationAuthenticators
-
-- **Type:**`object`
-
-* **`desired_authenticator_status`**
-
-  `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate\_status set to true.
-
-  **Items:**
-
-  `string`, default: `"[]"`
-
-* **`undesired_authenticator_status`**
-
-  `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate\_status set to true.
-
-  **Items:**
-
-  `string`, default: `"['ATTESTATION_KEY_COMPROMISE', 'USER_VERIFICATION_BYPASS', 'USER_KEY_REMOTE_COMPROMISE', 'USER_KEY_PHYSICAL_COMPROMISE', 'REVOKED']"`
-
-* **`validate_anchors`**
-
-  `boolean` — when set to true enables the validation of the attestation statement against the trust anchor from the metadata statement.
-
-* **`validate_attestation_type`**
-
-  `boolean` — when set to true enables the validation of the attestation statements type against the known types the authenticator can produce.
-
-* **`validate_entry`**
-
-  `boolean` — requires that the provided metadata has an entry for the given authenticator to be considered valid. By default an AAGUID which has a zero value should fail validation if validate\_entry\_permit\_zero\_aaguid is not provided with the value of true.
-
-* **`validate_entry_permit_zero_aaguid`**
-
-  `boolean` — is an option that permits a zero'd AAGUID from an attestation statement to automatically pass metadata validations. Generally helpful to use with validate\_entry.
-
-* **`validate_status`**
-
-  `boolean` — when set to true enables the validation of the attestation statements AAGUID against the desired and undesired lists
-
-**Example:**
-
-```json
-{
-  "desired_authenticator_status": [
-    "[]"
-  ],
-  "undesired_authenticator_status": [
-    "['ATTESTATION_KEY_COMPROMISE', 'USER_VERIFICATION_BYPASS', 'USER_KEY_REMOTE_COMPROMISE', 'USER_KEY_PHYSICAL_COMPROMISE', 'REVOKED']"
-  ],
-  "validate_anchors": true,
-  "validate_attestation_type": true,
-  "validate_entry": true,
-  "validate_entry_permit_zero_aaguid": true,
-  "validate_status": true
-}
-```
-
-### Rp contains relying party identifiers and origins
-
-- **Type:**`object`
-
-* **`ids`**
-
-  `array`
-
-  **Items:**
-
-  `string`
-
-* **`origins`**
-
-  `array`
-
-  **Items:**
-
-  `string`
-
-**Example:**
-
-```json
-{
-  "ids": [
-    ""
-  ],
-  "origins": [
-    ""
-  ]
-}
-```
-
-### WebAuthConfigurationTimeout
-
-- **Type:**`object`
-
-* **`login`**
-
-  `string`, default: `"\"300s\""` — Login timeout duration
-
-* **`login_uvd`**
-
-  `string`, default: `"\"300s\""` — Login timeout duration when user verification is discouraged
-
-* **`registration`**
-
-  `string`, default: `"\"300s\""` — Registration timeout duration
-
-* **`registration_uvd`**
-
-  `string`, default: `"\"300s\""` — Registration timeout duration when user verification is discouraged
-
-**Example:**
-
-```json
-{
-  "login": "\"300s\"",
-  "login_uvd": "\"300s\"",
-  "registration": "\"300s\"",
-  "registration_uvd": "\"300s\""
-}
-```
-
-### WebAuthConfiguration defines WebAuthn (passkeys) configuration limited to RP and Attestation
-
-- **Type:**`object`
-
-* **`attestation`**
-
-  `object`
-
-  - **`conveyance_preference`**
-
-    `string`
-
-  - **`enterprise_approved_ids`**
-
-    `array`
-
-    **Items:**
-
-    `string`
-
-* **`authenticator_selection`**
-
-  `object`
-
-  - **`authenticator_attachment`**
-
-    `string`
-
-  - **`user_verification`**
-
-    `string`
-
-* **`authenticators`**
-
-  `object`
-
-  - **`desired_authenticator_status`**
-
-    `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate\_status set to true.
-
-    **Items:**
-
-    `string`, default: `"[]"`
-
-  - **`undesired_authenticator_status`**
-
-    `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate\_status set to true.
-
-    **Items:**
-
-    `string`, default: `"['ATTESTATION_KEY_COMPROMISE', 'USER_VERIFICATION_BYPASS', 'USER_KEY_REMOTE_COMPROMISE', 'USER_KEY_PHYSICAL_COMPROMISE', 'REVOKED']"`
-
-  - **`validate_anchors`**
-
-    `boolean` — when set to true enables the validation of the attestation statement against the trust anchor from the metadata statement.
-
-  - **`validate_attestation_type`**
-
-    `boolean` — when set to true enables the validation of the attestation statements type against the known types the authenticator can produce.
-
-  - **`validate_entry`**
-
-    `boolean` — requires that the provided metadata has an entry for the given authenticator to be considered valid. By default an AAGUID which has a zero value should fail validation if validate\_entry\_permit\_zero\_aaguid is not provided with the value of true.
-
-  - **`validate_entry_permit_zero_aaguid`**
-
-    `boolean` — is an option that permits a zero'd AAGUID from an attestation statement to automatically pass metadata validations. Generally helpful to use with validate\_entry.
-
-  - **`validate_status`**
-
-    `boolean` — when set to true enables the validation of the attestation statements AAGUID against the desired and undesired lists
-
-* **`enable_auto_registration`**
-
-  `boolean` — Enable auto registration for WebAuthn
-
-* **`enable_conditional_login`**
-
-  `boolean` — Allow autofill of passkeys in login page
-
-* **`rp`**
-
-  `object`
-
-  - **`ids`**
-
-    `array`
-
-    **Items:**
-
-    `string`
-
-  - **`origins`**
-
-    `array`
-
-    **Items:**
-
-    `string`
-
-* **`show_passkey_button`**
-
-  `boolean` — Show passkey button on login screen
-
-* **`timeout`**
-
-  `object`
-
-  - **`login`**
-
-    `string`, default: `"\"300s\""` — Login timeout duration
-
-  - **`login_uvd`**
-
-    `string`, default: `"\"300s\""` — Login timeout duration when user verification is discouraged
-
-  - **`registration`**
-
-    `string`, default: `"\"300s\""` — Registration timeout duration
-
-  - **`registration_uvd`**
-
-    `string`, default: `"\"300s\""` — Registration timeout duration when user verification is discouraged
-
-**Example:**
-
-```json
-{
-  "attestation": {
-    "conveyance_preference": "",
-    "enterprise_approved_ids": [
-      ""
-    ]
-  },
-  "authenticator_selection": {
-    "authenticator_attachment": "",
-    "user_verification": ""
-  },
-  "authenticators": {
-    "desired_authenticator_status": [
-      "[]"
-    ],
-    "undesired_authenticator_status": [
-      "['ATTESTATION_KEY_COMPROMISE', 'USER_VERIFICATION_BYPASS', 'USER_KEY_REMOTE_COMPROMISE', 'USER_KEY_PHYSICAL_COMPROMISE', 'REVOKED']"
-    ],
-    "validate_anchors": true,
-    "validate_attestation_type": true,
-    "validate_entry": true,
-    "validate_entry_permit_zero_aaguid": true,
-    "validate_status": true
-  },
-  "enable_auto_registration": true,
-  "enable_conditional_login": true,
-  "rp": {
-    "ids": [
-      ""
-    ],
-    "origins": [
-      ""
-    ]
-  },
-  "show_passkey_button": true,
-  "timeout": {
-    "login": "\"300s\"",
-    "login_uvd": "\"300s\"",
-    "registration": "\"300s\"",
-    "registration_uvd": "\"300s\""
-  }
-}
-```
 
 ### connectionsConnection
 
@@ -17912,6 +14516,10 @@ Response message containing a paginated list of API clients for the specified or
 
   `string` — Alternative identifier for this connection, typically used in frontend applications or URLs.
 
+* **`mcp_server_url`**
+
+  `string` — URL of the MCP server for this connection. Agents can point directly at this URL to access only the tools for this connection, without needing to call list\_connections or execute\_tool with a connection\_name. Empty when the MCP virtual servers feature is not enabled for this environment.
+
 * **`oauth_config`**
 
   `object` — Configuration details for OAuth connections. Present only when type is OAUTH.
@@ -17939,6 +14547,26 @@ Response message containing a paginated list of API clients for the specified or
   - **`custom_scope_name`**
 
     `string` — Custom Scope Name
+
+  - **`extensions`**
+
+    `object` — OAuth extension profiles for this connection, such as SMART on FHIR. Carries typed extension configuration plus a generic escape hatch for provider-specific authorize query parameters.
+
+    - **`extra_authorize_params`**
+
+      `object` — Provider-specific query parameters added to the authorization request. Reserved OAuth/OIDC parameters (client\_id, redirect\_uri, scope, state, code\_challenge, aud, and similar) are rejected.
+
+    - **`smart`**
+
+      `object` — SMART on FHIR (SMART App Launch) configuration. Set this to issue a SMART-compliant standalone launch authorization request to a FHIR server.
+
+      - **`aud`**
+
+        `string` — FHIR resource server base URL, sent as the required 'aud' authorization parameter per the SMART App Launch specification. Binds the issued token to the intended FHIR server.
+
+      - **`domain`**
+
+        `string` — FHIR server domain for the SMART on FHIR connection. Stored alongside the audience and editable through the connection update API.
 
   - **`is_cimd`**
 
@@ -18260,7 +14888,7 @@ Response message containing a paginated list of API clients for the specified or
 
 * **`type`**
 
-  `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
+  `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
 
 * **`webauthn_config`**
 
@@ -18410,6 +15038,7 @@ Response message containing a paginated list of API clients for the specified or
   },
   "id": "conn_2123312131125533",
   "key_id": "",
+  "mcp_server_url": "https://acmecorp.scalekit.dev/mcp/v3/connections/gmail_work",
   "oauth_config": {
     "access_type": "offline",
     "app_name": "My Trello App",
@@ -18417,6 +15046,7 @@ Response message containing a paginated list of API clients for the specified or
     "client_id": "oauth_client_id",
     "client_secret": "oauth_client_secret",
     "custom_scope_name": "user_scope",
+    "extensions": null,
     "is_cimd": true,
     "optional_scopes": null,
     "pkce_enabled": true,
@@ -18513,6 +15143,24 @@ Response message containing a paginated list of API clients for the specified or
 }
 ```
 
+### connectionsConnectionProvider
+
+- **Type:**`string`
+
+**Example:**
+
+### connectionsConnectionStatus
+
+- **Type:**`string`
+
+**Example:**
+
+### connectionsConnectionType
+
+- **Type:**`string`
+
+**Example:**
+
 ### connectionsGetConnectionResponse
 
 - **Type:**`object`
@@ -18607,6 +15255,10 @@ Response message containing a paginated list of API clients for the specified or
 
     `string` — Alternative identifier for this connection, typically used in frontend applications or URLs.
 
+  - **`mcp_server_url`**
+
+    `string` — URL of the MCP server for this connection. Agents can point directly at this URL to access only the tools for this connection, without needing to call list\_connections or execute\_tool with a connection\_name. Empty when the MCP virtual servers feature is not enabled for this environment.
+
   - **`oauth_config`**
 
     `object` — Configuration details for OAuth connections. Present only when type is OAUTH.
@@ -18634,6 +15286,26 @@ Response message containing a paginated list of API clients for the specified or
     - **`custom_scope_name`**
 
       `string` — Custom Scope Name
+
+    - **`extensions`**
+
+      `object` — OAuth extension profiles for this connection, such as SMART on FHIR. Carries typed extension configuration plus a generic escape hatch for provider-specific authorize query parameters.
+
+      - **`extra_authorize_params`**
+
+        `object` — Provider-specific query parameters added to the authorization request. Reserved OAuth/OIDC parameters (client\_id, redirect\_uri, scope, state, code\_challenge, aud, and similar) are rejected.
+
+      - **`smart`**
+
+        `object` — SMART on FHIR (SMART App Launch) configuration. Set this to issue a SMART-compliant standalone launch authorization request to a FHIR server.
+
+        - **`aud`**
+
+          `string` — FHIR resource server base URL, sent as the required 'aud' authorization parameter per the SMART App Launch specification. Binds the issued token to the intended FHIR server.
+
+        - **`domain`**
+
+          `string` — FHIR server domain for the SMART on FHIR connection. Stored alongside the audience and editable through the connection update API.
 
     - **`is_cimd`**
 
@@ -18955,7 +15627,7 @@ Response message containing a paginated list of API clients for the specified or
 
   - **`type`**
 
-    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
+    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
 
   - **`webauthn_config`**
 
@@ -19100,6 +15772,7 @@ Response message containing a paginated list of API clients for the specified or
     "google_dwd_config": null,
     "id": "conn_2123312131125533",
     "key_id": "",
+    "mcp_server_url": "https://acmecorp.scalekit.dev/mcp/v3/connections/gmail_work",
     "oauth_config": null,
     "oidc_config": null,
     "organization_id": "org_2123312131125533",
@@ -19113,6 +15786,820 @@ Response message containing a paginated list of API clients for the specified or
     "type": "OIDC",
     "webauthn_config": null
   }
+}
+```
+
+### connectionsGoogleDWDConfig
+
+- **Type:**`object`
+
+* **`scopes`**
+
+  `array` — OAuth 2.0 scopes to request.
+
+  **Items:**
+
+  `string`
+
+* **`service_account_json`**
+
+  `string` — Google Cloud service account JSON key. Write-only: reads return a masked value.
+
+* **`token_uri`**
+
+  `string` — Google token endpoint. Defaults to https\://oauth2.googleapis.com/token.
+
+**Example:**
+
+```json
+{
+  "scopes": [
+    ""
+  ],
+  "service_account_json": "",
+  "token_uri": ""
+}
+```
+
+### connectionsIDPCertificate
+
+- **Type:**`object`
+
+* **`certificate`**
+
+  `string` — IDP Certificate
+
+* **`create_time`**
+
+  `string`, format: `date-time` — Certificate Creation Time
+
+* **`expiry_time`**
+
+  `string`, format: `date-time` — Certificate Expiry Time
+
+* **`id`**
+
+  `string` — Certificate ID
+
+* **`issuer`**
+
+  `string` — Certificate Issuer
+
+**Example:**
+
+```json
+{
+  "certificate": "",
+  "create_time": "2021-09-01T00:00:00Z",
+  "expiry_time": "2021-09-01T00:00:00Z",
+  "id": "cert_123123123123",
+  "issuer": "https://youridp.com/service/saml"
+}
+```
+
+### connectionsListConnection
+
+- **Type:**`object`
+
+* **`domains`**
+
+  `array` — List of domains configured with this connection
+
+  **Items:**
+
+  `string`
+
+* **`enabled`**
+
+  `boolean` — Whether the connection is currently active for organization users
+
+* **`id`**
+
+  `string` — Unique identifier of the connection
+
+* **`key_id`**
+
+  `string` — Alternative identifier for this connection, typically used in frontend applications or URLs
+
+* **`mcp_server_url`**
+
+  `string` — MCP virtual server URL for this connection. Agents can point directly at this URL to access only the tools for this connection, without needing to call list\_connections or execute\_tool with a connection\_name. Empty when the MCP virtual servers feature is not enabled for this environment.
+
+* **`organization_id`**
+
+  `string` — Unique identifier of the organization that owns this connection
+
+* **`organization_name`**
+
+  `string` — Name of the organization of the connection
+
+* **`provider`**
+
+  `string`, possible values: `"OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "PING_IDENTITY", "JUMPCLOUD", "CUSTOM", "GITHUB", "GITLAB", "LINKEDIN", "SALESFORCE", "MICROSOFT", "IDP_SIMULATOR", "SCALEKIT", "ADFS"` — Identity provider type (e.g., OKTA, Google, Azure AD)
+
+* **`provider_key`**
+
+  `string` — Key ID of the identity provider service that handles authentication
+
+* **`status`**
+
+  `string`, possible values: `"DRAFT", "IN_PROGRESS", "COMPLETED"` — Current configuration status of the connection
+
+* **`type`**
+
+  `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authentication protocol used by the connection
+
+**Example:**
+
+```json
+{
+  "domains": [
+    "yourapp.com",
+    "yourworkspace.com"
+  ],
+  "enabled": false,
+  "id": "conn_2123312131125533",
+  "key_id": "conn_2123312131125533",
+  "mcp_server_url": "https://acmecorp.scalekit.dev/mcp/v3/connections/gmail_work",
+  "organization_id": "org_2123312131125533",
+  "organization_name": "Your Organization",
+  "provider": "CUSTOM",
+  "provider_key": "google",
+  "status": "IN_PROGRESS",
+  "type": "OIDC"
+}
+```
+
+### connectionsListConnectionsResponse
+
+- **Type:**`object`
+
+* **`connections`**
+
+  `array` — List of connections matching the request criteria
+
+  **Items:**
+
+  - **`domains`**
+
+    `array` — List of domains configured with this connection
+
+    **Items:**
+
+    `string`
+
+  - **`enabled`**
+
+    `boolean` — Whether the connection is currently active for organization users
+
+  - **`id`**
+
+    `string` — Unique identifier of the connection
+
+  - **`key_id`**
+
+    `string` — Alternative identifier for this connection, typically used in frontend applications or URLs
+
+  - **`mcp_server_url`**
+
+    `string` — MCP virtual server URL for this connection. Agents can point directly at this URL to access only the tools for this connection, without needing to call list\_connections or execute\_tool with a connection\_name. Empty when the MCP virtual servers feature is not enabled for this environment.
+
+  - **`organization_id`**
+
+    `string` — Unique identifier of the organization that owns this connection
+
+  - **`organization_name`**
+
+    `string` — Name of the organization of the connection
+
+  - **`provider`**
+
+    `string`, possible values: `"OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "PING_IDENTITY", "JUMPCLOUD", "CUSTOM", "GITHUB", "GITLAB", "LINKEDIN", "SALESFORCE", "MICROSOFT", "IDP_SIMULATOR", "SCALEKIT", "ADFS"` — Identity provider type (e.g., OKTA, Google, Azure AD)
+
+  - **`provider_key`**
+
+    `string` — Key ID of the identity provider service that handles authentication
+
+  - **`status`**
+
+    `string`, possible values: `"DRAFT", "IN_PROGRESS", "COMPLETED"` — Current configuration status of the connection
+
+  - **`type`**
+
+    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authentication protocol used by the connection
+
+**Example:**
+
+```json
+{
+  "connections": [
+    {
+      "domains": [
+        "yourapp.com",
+        "yourworkspace.com"
+      ],
+      "enabled": false,
+      "id": "conn_2123312131125533",
+      "key_id": "conn_2123312131125533",
+      "mcp_server_url": "https://acmecorp.scalekit.dev/mcp/v3/connections/gmail_work",
+      "organization_id": "org_2123312131125533",
+      "organization_name": "Your Organization",
+      "provider": "CUSTOM",
+      "provider_key": "google",
+      "status": "IN_PROGRESS",
+      "type": "OIDC"
+    }
+  ]
+}
+```
+
+### connectionsNameIdFormat
+
+- **Type:**`string`
+
+**Example:**
+
+### connectionsOAuthConnectionConfig
+
+- **Type:**`object`
+
+* **`access_type`**
+
+  `string` — Access Type
+
+* **`app_name`**
+
+  `string` — Application name used by providers that require it as an authorize query parameter (e.g., Trello's app\_name).
+
+* **`authorize_uri`**
+
+  `string` — Authorize URI
+
+* **`client_id`**
+
+  `string` — Client ID
+
+* **`client_secret`**
+
+  `string` — Client Secret
+
+* **`custom_scope_name`**
+
+  `string` — Custom Scope Name
+
+* **`extensions`**
+
+  `object` — OAuth extension profiles for this connection, such as SMART on FHIR. Carries typed extension configuration plus a generic escape hatch for provider-specific authorize query parameters.
+
+  - **`extra_authorize_params`**
+
+    `object` — Provider-specific query parameters added to the authorization request. Reserved OAuth/OIDC parameters (client\_id, redirect\_uri, scope, state, code\_challenge, aud, and similar) are rejected.
+
+  - **`smart`**
+
+    `object` — SMART on FHIR (SMART App Launch) configuration. Set this to issue a SMART-compliant standalone launch authorization request to a FHIR server.
+
+    - **`aud`**
+
+      `string` — FHIR resource server base URL, sent as the required 'aud' authorization parameter per the SMART App Launch specification. Binds the issued token to the intended FHIR server.
+
+    - **`domain`**
+
+      `string` — FHIR server domain for the SMART on FHIR connection. Stored alongside the audience and editable through the connection update API.
+
+* **`is_cimd`**
+
+  `boolean` — Indicates whether this connection was registered using Client ID Metadata Document (CIMD) instead of Dynamic Client Registration.
+
+* **`optional_scopes`**
+
+  `object` — Optional scopes configuration for identity providers that support or require additional scopes to be sent in a custom field during authentication requests.
+
+  - **`field_name`**
+
+    `string` — Name of the field in which scope should be sent in the authentication request. This is required by some identity providers that expect scopes to be sent in a custom field instead of the standard 'scope' parameter.
+
+  - **`scopes`**
+
+    `array` — List of optional scopes that can be requested during authentication
+
+    **Items:**
+
+    `string`
+
+* **`pkce_enabled`**
+
+  `boolean` — PKCE Enabled
+
+* **`prompt`**
+
+  `string` — Prompt for the user
+
+* **`redirect_uri`**
+
+  `string` — Redirect URI
+
+* **`scopes`**
+
+  `array` — OIDC Scopes
+
+  **Items:**
+
+  `string`
+
+* **`sync_user_profile_on_login`**
+
+  `boolean` — Indicates whether user profiles should be synchronized with the identity provider upon each log-in.
+
+* **`tenant_id`**
+
+  `string` — Microsoft Entra tenant ID. Required when using a single-tenant or multi-tenant app registered in Microsoft Entra. Leave empty to use the common endpoint.
+
+* **`token_access_type`**
+
+  `string` — Token Access Type
+
+* **`token_uri`**
+
+  `string` — Token URI
+
+* **`use_platform_creds`**
+
+  `boolean` — Use Scalekit credentials
+
+* **`user_info_uri`**
+
+  `string` — User Info URI
+
+**Example:**
+
+```json
+{
+  "access_type": "offline",
+  "app_name": "My Trello App",
+  "authorize_uri": "https://youridp.com/service/oauth/authorize",
+  "client_id": "oauth_client_id",
+  "client_secret": "oauth_client_secret",
+  "custom_scope_name": "user_scope",
+  "extensions": {
+    "extra_authorize_params": {
+      "custom_param": "value"
+    },
+    "smart": null
+  },
+  "is_cimd": true,
+  "optional_scopes": {
+    "field_name": "optional_scope or bot_scope",
+    "scopes": [
+      "scope1",
+      "scope2"
+    ]
+  },
+  "pkce_enabled": true,
+  "prompt": "none",
+  "redirect_uri": "https://yourapp.com/service/oauth/redirect",
+  "scopes": [
+    "openid",
+    "profile"
+  ],
+  "sync_user_profile_on_login": true,
+  "tenant_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+  "token_access_type": "offline",
+  "token_uri": "https://youridp.com/service/oauth/token",
+  "use_platform_creds": true,
+  "user_info_uri": "https://youridp.com/service/oauth/userinfo"
+}
+```
+
+### connectionsOIDCConnectionConfig
+
+- **Type:**`object`
+
+* **`authorize_uri`**
+
+  `string` — Authorize URI
+
+* **`backchannel_logout_redirect_uri`**
+
+  `string` — backchannel logout redirect uri where idp sends logout\_token
+
+* **`client_id`**
+
+  `string` — Client ID
+
+* **`client_secret`**
+
+  `string` — Client Secret
+
+* **`discovery_endpoint`**
+
+  `string` — Discovery Endpoint
+
+* **`idp_logout_required`**
+
+  `boolean` — Enable IDP logout
+
+* **`issuer`**
+
+  `string` — Issuer URL
+
+* **`jit_provisioning_with_sso_enabled`**
+
+  `boolean` — Indicates if Just In Time user provisioning is enabled for the connection
+
+* **`jwks_uri`**
+
+  `string` — JWKS URI
+
+* **`pkce_enabled`**
+
+  `boolean` — PKCE Enabled
+
+* **`post_logout_redirect_uri`**
+
+  `string` — post logout redirect uri
+
+* **`redirect_uri`**
+
+  `string` — Redirect URI
+
+* **`scopes`**
+
+  `array` — OIDC Scopes
+
+  **Items:**
+
+  `string`, possible values: `"openid", "profile", "email", "address", "phone"`
+
+* **`sync_user_profile_on_login`**
+
+  `boolean` — Indicates whether user profiles should be synchronized with the identity provider upon each log-in.
+
+* **`token_auth_type`**
+
+  `string`, possible values: `"URL_PARAMS", "BASIC_AUTH"` — Token Auth Type
+
+* **`token_uri`**
+
+  `string` — Token URI
+
+* **`user_info_uri`**
+
+  `string` — User Info URI
+
+**Example:**
+
+```json
+{
+  "authorize_uri": "https://youridp.com/service/oauth/authorize",
+  "backchannel_logout_redirect_uri": "https://yourapp.com/sso/v1/oidc/conn_1234/backchannel-logout",
+  "client_id": "oauth_client_id",
+  "client_secret": "oauth_client_secret",
+  "discovery_endpoint": "https://youridp.com/service/oauth/.well-known/openid-configuration",
+  "idp_logout_required": true,
+  "issuer": "https://youridp.com/service/oauth",
+  "jit_provisioning_with_sso_enabled": true,
+  "jwks_uri": "https://youridp.com/service/oauth/jwks",
+  "pkce_enabled": true,
+  "post_logout_redirect_uri": "https://yourapp.com/sso/v1/oidc/conn_1234/logout/callback",
+  "redirect_uri": "https://yourapp.com/sso/v1/oidc/conn_1234/callback",
+  "scopes": [
+    "openid",
+    "profile"
+  ],
+  "sync_user_profile_on_login": true,
+  "token_auth_type": "URL_PARAMS",
+  "token_uri": "https://youridp.com/service/oauth/token",
+  "user_info_uri": "https://youridp.com/service/oauth/userinfo"
+}
+```
+
+### connectionsOIDCScope
+
+- **Type:**`string`
+
+**Example:**
+
+### connectionsOauthExtensions
+
+- **Type:**`object`
+
+OauthExtensions groups OAuth extension-profile configuration for a connection. Significant profiles (e.g. SMART on FHIR) get a typed sub-message; the long tail of one-off authorize parameters uses extra\_authorize\_params.
+
+- **`extra_authorize_params`**
+
+  `object` — Provider-specific query parameters added to the authorization request. Reserved OAuth/OIDC parameters (client\_id, redirect\_uri, scope, state, code\_challenge, aud, and similar) are rejected.
+
+- **`smart`**
+
+  `object` — SMART on FHIR (SMART App Launch) configuration. Set this to issue a SMART-compliant standalone launch authorization request to a FHIR server.
+
+  - **`aud`**
+
+    `string` — FHIR resource server base URL, sent as the required 'aud' authorization parameter per the SMART App Launch specification. Binds the issued token to the intended FHIR server.
+
+  - **`domain`**
+
+    `string` — FHIR server domain for the SMART on FHIR connection. Stored alongside the audience and editable through the connection update API.
+
+**Example:**
+
+```json
+{
+  "extra_authorize_params": {
+    "custom_param": "value"
+  },
+  "smart": {
+    "aud": "https://fhir.example.com/r4",
+    "domain": "fhir.example.com"
+  }
+}
+```
+
+### connectionsOptionalScopes
+
+- **Type:**`object`
+
+* **`field_name`**
+
+  `string` — Name of the field in which scope should be sent in the authentication request. This is required by some identity providers that expect scopes to be sent in a custom field instead of the standard 'scope' parameter.
+
+* **`scopes`**
+
+  `array` — List of optional scopes that can be requested during authentication
+
+  **Items:**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "field_name": "optional_scope or bot_scope",
+  "scopes": [
+    "scope1",
+    "scope2"
+  ]
+}
+```
+
+### connectionsPasswordLessConfig
+
+- **Type:**`object`
+
+* **`code_challenge_length`**
+
+  `integer`, format: `int64` — Code Challenge Length
+
+* **`code_challenge_type`**
+
+  `string`, possible values: `"NUMERIC", "ALPHANUMERIC"` — Code Challenge Type
+
+* **`enforce_same_browser_origin`**
+
+  `boolean` — Enforce Same Browser Origin
+
+* **`frequency`**
+
+  `integer`, format: `int64` — Link Frequency
+
+* **`regenerate_passwordless_credentials_on_resend`**
+
+  `boolean` — Regenerate the
+
+* **`type`**
+
+  `string`, possible values: `"LINK", "OTP", "LINK_OTP"` — Passwordless Type
+
+* **`validity`**
+
+  `integer`, format: `int64` — Link Validity in Seconds
+
+**Example:**
+
+```json
+{
+  "code_challenge_length": 6,
+  "code_challenge_type": "NUMERIC",
+  "enforce_same_browser_origin": true,
+  "frequency": 1,
+  "regenerate_passwordless_credentials_on_resend": true,
+  "type": "LINK",
+  "validity": 600
+}
+```
+
+### connectionsPasswordlessType
+
+- **Type:**`string`
+
+**Example:**
+
+### connectionsRequestBinding
+
+- **Type:**`string`
+
+**Example:**
+
+### connectionsSAMLConnectionConfigResponse
+
+- **Type:**`object`
+
+* **`allow_idp_initiated_login`**
+
+  `boolean` — Allow IDP Initiated Login
+
+* **`assertion_encrypted`**
+
+  `boolean` — Assertion Encrypted
+
+* **`certificate_id`**
+
+  `string` — Certificate ID
+
+* **`default_redirect_uri`**
+
+  `string` — Default Redirect URI
+
+* **`force_authn`**
+
+  `boolean` — Force Authn
+
+* **`idp_certificates`**
+
+  `array` — IDP Certificates
+
+  **Items:**
+
+  - **`certificate`**
+
+    `string` — IDP Certificate
+
+  - **`create_time`**
+
+    `string`, format: `date-time` — Certificate Creation Time
+
+  - **`expiry_time`**
+
+    `string`, format: `date-time` — Certificate Expiry Time
+
+  - **`id`**
+
+    `string` — Certificate ID
+
+  - **`issuer`**
+
+    `string` — Certificate Issuer
+
+* **`idp_entity_id`**
+
+  `string` — IDP Entity ID
+
+* **`idp_metadata_url`**
+
+  `string` — IDP Metadata URL
+
+* **`idp_name_id_format`**
+
+  `string`, possible values: `"UNSPECIFIED", "EMAIL", "TRANSIENT", "PERSISTENT"` — IDP Name ID Format
+
+* **`idp_slo_request_binding`**
+
+  `string`, possible values: `"HTTP_POST", "HTTP_REDIRECT"` — IDP SLO Request Binding
+
+* **`idp_slo_required`**
+
+  `boolean` — Enable IDP logout
+
+* **`idp_slo_url`**
+
+  `string` — IDP SLO URL
+
+* **`idp_sso_request_binding`**
+
+  `string`, possible values: `"HTTP_POST", "HTTP_REDIRECT"` — IDP SSO Request Binding
+
+* **`idp_sso_url`**
+
+  `string` — IDP SSO URL
+
+* **`jit_provisioning_with_sso_enabled`**
+
+  `boolean` — Indicates if Just In Time user provisioning is enabled for the connection
+
+* **`saml_signing_option`**
+
+  `string`, possible values: `"NO_SIGNING", "SAML_ONLY_RESPONSE_SIGNING", "SAML_ONLY_ASSERTION_SIGNING", "SAML_RESPONSE_ASSERTION_SIGNING", "SAML_RESPONSE_OR_ASSERTION_SIGNING"` — SAML Signing Option
+
+* **`sp_assertion_url`**
+
+  `string` — SP Assertion URL
+
+* **`sp_entity_id`**
+
+  `string` — SP Entity ID
+
+* **`sp_metadata_url`**
+
+  `string` — SP Metadata URL
+
+* **`sp_slo_url`**
+
+  `string` — Service Provider SLO url
+
+* **`sync_user_profile_on_login`**
+
+  `boolean` — Indicates whether user profiles should be synchronized with the identity provider upon each log-in.
+
+* **`ui_button_title`**
+
+  `string` — UI Button Title
+
+* **`want_request_signed`**
+
+  `boolean` — Want Request Signed
+
+**Example:**
+
+```json
+{
+  "allow_idp_initiated_login": true,
+  "assertion_encrypted": true,
+  "certificate_id": "cer_35585423166144613",
+  "default_redirect_uri": "https://yourapp.com/service/saml/redirect",
+  "force_authn": true,
+  "idp_certificates": [
+    {
+      "certificate": "",
+      "create_time": "2021-09-01T00:00:00Z",
+      "expiry_time": "2021-09-01T00:00:00Z",
+      "id": "cert_123123123123",
+      "issuer": "https://youridp.com/service/saml"
+    }
+  ],
+  "idp_entity_id": "https://youridp.com/service/saml",
+  "idp_metadata_url": "https://youridp.com/service/saml/metadata",
+  "idp_name_id_format": "EMAIL",
+  "idp_slo_request_binding": "HTTP_POST",
+  "idp_slo_required": true,
+  "idp_slo_url": "https://youridp.com/service/saml/slo",
+  "idp_sso_request_binding": "HTTP_POST",
+  "idp_sso_url": "https://youridp.com/service/saml/sso",
+  "jit_provisioning_with_sso_enabled": true,
+  "saml_signing_option": "SAML_ONLY_RESPONSE_SIGNING",
+  "sp_assertion_url": "https://youridp.com/service/saml/assertion",
+  "sp_entity_id": "https://yourapp.com/service/saml",
+  "sp_metadata_url": "https://youridp.com/service/saml/metadata",
+  "sp_slo_url": "https://yourapp.com/sso/v1/saml/conn_1234/slo/callback",
+  "sync_user_profile_on_login": true,
+  "ui_button_title": "Login with SSO",
+  "want_request_signed": true
+}
+```
+
+### enums all
+
+- **Type:**`string`
+
+**Example:**
+
+### connectionsSmartConfig
+
+- **Type:**`object`
+
+SmartConfig holds SMART on FHIR (SMART App Launch) parameters.
+
+- **`aud`**
+
+  `string` — FHIR resource server base URL, sent as the required 'aud' authorization parameter per the SMART App Launch specification. Binds the issued token to the intended FHIR server.
+
+- **`domain`**
+
+  `string` — FHIR server domain for the SMART on FHIR connection. Stored alongside the audience and editable through the connection update API.
+
+**Example:**
+
+```json
+{
+  "aud": "https://fhir.example.com/r4",
+  "domain": "fhir.example.com"
+}
+```
+
+### connectionsStaticAuthConfig
+
+- **Type:**`object`
+
+* **`static_config`**
+
+  `object`
+
+**Example:**
+
+```json
+{
+  "static_config": {}
 }
 ```
 
@@ -19134,6 +16621,183 @@ Response message containing a paginated list of API clients for the specified or
 {
   "enabled": true,
   "error_message": "placeholder"
+}
+```
+
+### connectionsTokenAuthType
+
+- **Type:**`string`
+
+**Example:**
+
+### WebAuthConfiguration defines WebAuthn (passkeys) configuration limited to RP and Attestation
+
+- **Type:**`object`
+
+* **`attestation`**
+
+  `object`
+
+  - **`conveyance_preference`**
+
+    `string`
+
+  - **`enterprise_approved_ids`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+* **`authenticator_selection`**
+
+  `object`
+
+  - **`authenticator_attachment`**
+
+    `string`
+
+  - **`user_verification`**
+
+    `string`
+
+* **`authenticators`**
+
+  `object`
+
+  - **`desired_authenticator_status`**
+
+    `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate\_status set to true.
+
+    **Items:**
+
+    `string`, default: `"[]"`
+
+  - **`undesired_authenticator_status`**
+
+    `array` — provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate\_status set to true.
+
+    **Items:**
+
+    `string`, default: `"['ATTESTATION_KEY_COMPROMISE', 'USER_VERIFICATION_BYPASS', 'USER_KEY_REMOTE_COMPROMISE', 'USER_KEY_PHYSICAL_COMPROMISE', 'REVOKED']"`
+
+  - **`validate_anchors`**
+
+    `boolean` — when set to true enables the validation of the attestation statement against the trust anchor from the metadata statement.
+
+  - **`validate_attestation_type`**
+
+    `boolean` — when set to true enables the validation of the attestation statements type against the known types the authenticator can produce.
+
+  - **`validate_entry`**
+
+    `boolean` — requires that the provided metadata has an entry for the given authenticator to be considered valid. By default an AAGUID which has a zero value should fail validation if validate\_entry\_permit\_zero\_aaguid is not provided with the value of true.
+
+  - **`validate_entry_permit_zero_aaguid`**
+
+    `boolean` — is an option that permits a zero'd AAGUID from an attestation statement to automatically pass metadata validations. Generally helpful to use with validate\_entry.
+
+  - **`validate_status`**
+
+    `boolean` — when set to true enables the validation of the attestation statements AAGUID against the desired and undesired lists
+
+* **`enable_auto_registration`**
+
+  `boolean` — Enable auto registration for WebAuthn
+
+* **`enable_conditional_login`**
+
+  `boolean` — Allow autofill of passkeys in login page
+
+* **`rp`**
+
+  `object`
+
+  - **`ids`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+  - **`origins`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+* **`show_passkey_button`**
+
+  `boolean` — Show passkey button on login screen
+
+* **`timeout`**
+
+  `object`
+
+  - **`login`**
+
+    `string`, default: `"\"300s\""` — Login timeout duration
+
+  - **`login_uvd`**
+
+    `string`, default: `"\"300s\""` — Login timeout duration when user verification is discouraged
+
+  - **`registration`**
+
+    `string`, default: `"\"300s\""` — Registration timeout duration
+
+  - **`registration_uvd`**
+
+    `string`, default: `"\"300s\""` — Registration timeout duration when user verification is discouraged
+
+**Example:**
+
+```json
+{
+  "attestation": {
+    "conveyance_preference": "",
+    "enterprise_approved_ids": [
+      ""
+    ]
+  },
+  "authenticator_selection": {
+    "authenticator_attachment": "",
+    "user_verification": ""
+  },
+  "authenticators": {
+    "desired_authenticator_status": [
+      "[]"
+    ],
+    "undesired_authenticator_status": [
+      "['ATTESTATION_KEY_COMPROMISE', 'USER_VERIFICATION_BYPASS', 'USER_KEY_REMOTE_COMPROMISE', 'USER_KEY_PHYSICAL_COMPROMISE', 'REVOKED']"
+    ],
+    "validate_anchors": true,
+    "validate_attestation_type": true,
+    "validate_entry": true,
+    "validate_entry_permit_zero_aaguid": true,
+    "validate_status": true
+  },
+  "enable_auto_registration": true,
+  "enable_conditional_login": true,
+  "rp": {
+    "ids": [
+      ""
+    ],
+    "origins": [
+      ""
+    ]
+  },
+  "show_passkey_button": true,
+  "timeout": {
+    "login": "\"300s\"",
+    "login_uvd": "\"300s\"",
+    "registration": "\"300s\"",
+    "registration_uvd": "\"300s\""
+  }
 }
 ```
 
@@ -19186,153 +16850,6 @@ Response message containing a paginated list of API clients for the specified or
       "map_to": ""
     }
   ]
-}
-```
-
-### directoriesDirectoryProvider
-
-- **Type:**`string`
-
-**Example:**
-
-### directoriesDirectoryType
-
-- **Type:**`string`
-
-**Example:**
-
-### directoriesRoleAssignment
-
-- **Type:**`object`
-
-* **`group_id`**
-
-  `string` — group ID for the role mapping
-
-* **`role_name`**
-
-  `string`
-
-**Example:**
-
-```json
-{
-  "group_id": "dirgroup_121312434123",
-  "role_name": ""
-}
-```
-
-### directoriesRoleAssignments
-
-- **Type:**`object`
-
-* **`assignments`**
-
-  `array`
-
-  **Items:**
-
-  - **`group_id`**
-
-    `string` — group ID for the role mapping
-
-  - **`role_name`**
-
-    `string`
-
-**Example:**
-
-```json
-{
-  "assignments": [
-    {
-      "group_id": "dirgroup_121312434123",
-      "role_name": ""
-    }
-  ]
-}
-```
-
-### directoriesSecretStatus
-
-- **Type:**`string`
-
-**Example:**
-
-### directoriesSecret
-
-- **Type:**`object`
-
-* **`create_time`**
-
-  `string`, format: `date-time` — Creation Time
-
-* **`directory_id`**
-
-  `string` — Directory ID
-
-* **`expire_time`**
-
-  `string`, format: `date-time` — Expiry Time
-
-* **`id`**
-
-  `string`
-
-* **`last_used_time`**
-
-  `string`, format: `date-time` — Last Used Time
-
-* **`secret_suffix`**
-
-  `string` — Secret Suffix
-
-* **`status`**
-
-  `string`, possible values: `"INACTIVE"` — Secret Status
-
-**Example:**
-
-```json
-{
-  "create_time": "2024-10-01T00:00:00Z",
-  "directory_id": "dir_12362474900684814",
-  "expire_time": "2025-10-01T00:00:00Z",
-  "id": "",
-  "last_used_time": "2024-10-01T00:00:00Z",
-  "secret_suffix": "Nzg5",
-  "status": "INACTIVE"
-}
-```
-
-### directoriesStats
-
-- **Type:**`object`
-
-* **`group_updated_at`**
-
-  `string`, format: `date-time` — Max time of Group Updated At for Directory
-
-* **`total_groups`**
-
-  `integer`, format: `int32` — Total Groups in the Directory
-
-* **`total_users`**
-
-  `integer`, format: `int32` — Total Users in the Directory
-
-* **`user_updated_at`**
-
-  `string`, format: `date-time` — Max time of User Updated At for Directory
-
-**Example:**
-
-```json
-{
-  "group_updated_at": "2024-10-01T00:00:00Z",
-  "total_groups": 10,
-  "total_users": 10,
-  "user_updated_at": "2024-10-01T00:00:00Z"
 }
 ```
 
@@ -19529,6 +17046,324 @@ Response message containing a paginated list of API clients for the specified or
 }
 ```
 
+### directoriesDirectoryGroup
+
+- **Type:**`object`
+
+* **`display_name`**
+
+  `string` — Display Name
+
+* **`group_detail`**
+
+  `object` — Complete Group Details Payload
+
+* **`id`**
+
+  `string` — Group ID
+
+* **`total_users`**
+
+  `integer`, format: `int32` — Total Users in the Group
+
+* **`updated_at`**
+
+  `string`, format: `date-time` — Updated At
+
+**Example:**
+
+```json
+{
+  "display_name": "Admins",
+  "group_detail": {},
+  "id": "dirgroup_121312434123312",
+  "total_users": 10,
+  "updated_at": "2024-10-01T00:00:00Z"
+}
+```
+
+### directoriesDirectoryProvider
+
+- **Type:**`string`
+
+**Example:**
+
+### directoriesDirectoryType
+
+- **Type:**`string`
+
+**Example:**
+
+### directoriesDirectoryUser
+
+- **Type:**`object`
+
+* **`email`**
+
+  `string` — Email
+
+* **`emails`**
+
+  `array` — Emails
+
+  **Items:**
+
+  `string`
+
+* **`family_name`**
+
+  `string` — Last Name
+
+* **`given_name`**
+
+  `string` — First Name
+
+* **`groups`**
+
+  `array` — Groups
+
+  **Items:**
+
+  - **`display_name`**
+
+    `string` — Display Name
+
+  - **`group_detail`**
+
+    `object` — Complete Group Details Payload
+
+  - **`id`**
+
+    `string` — Group ID
+
+  - **`total_users`**
+
+    `integer`, format: `int32` — Total Users in the Group
+
+  - **`updated_at`**
+
+    `string`, format: `date-time` — Updated At
+
+* **`id`**
+
+  `string` — User ID
+
+* **`preferred_username`**
+
+  `string` — Preferred Username
+
+* **`updated_at`**
+
+  `string`, format: `date-time` — Updated At
+
+* **`user_detail`**
+
+  `object` — Complete User Details Payload
+
+**Example:**
+
+```json
+{
+  "email": "johndoe",
+  "emails": [
+    ""
+  ],
+  "family_name": "Doe",
+  "given_name": "John",
+  "groups": [
+    {
+      "display_name": "Admins",
+      "group_detail": {},
+      "id": "dirgroup_121312434123312",
+      "total_users": 10,
+      "updated_at": "2024-10-01T00:00:00Z"
+    }
+  ],
+  "id": "diruser_121312434123312",
+  "preferred_username": "johndoe",
+  "updated_at": "2024-10-01T00:00:00Z",
+  "user_detail": {}
+}
+```
+
+### directoriesGetDirectoryResponse
+
+- **Type:**`object`
+
+* **`directory`**
+
+  `object` — Detailed information about the requested directory
+
+  - **`attribute_mappings`**
+
+    `object` — Mappings between directory attributes and Scalekit user and group attributes
+
+    - **`attributes`**
+
+      `array`
+
+      **Items:**
+
+      - **`key`**
+
+        `string`
+
+      - **`map_to`**
+
+        `string`
+
+  - **`directory_endpoint`**
+
+    `string` — The endpoint URL generated by Scalekit for synchronizing users and groups from the Directory Provider
+
+  - **`directory_provider`**
+
+    `string`, possible values: `"OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "JUMPCLOUD", "PING_IDENTITY"` — Identity provider connected to this directory
+
+  - **`directory_type`**
+
+    `string`, possible values: `"SCIM", "LDAP", "POLL"` — Type of the directory, indicating the protocol or standard used for synchronization
+
+  - **`email`**
+
+    `string` — Email Id associated with Directory whose access will be used for polling
+
+  - **`enabled`**
+
+    `boolean` — Indicates whether the directory is currently enabled and actively synchronizing users and groups
+
+  - **`groups_tracked`**
+
+    `string` — It indicates if all groups are tracked or select groups are tracked
+
+  - **`id`**
+
+    `string` — Unique identifier of the directory
+
+  - **`last_synced_at`**
+
+    `string`, format: `date-time` — Timestamp of the last successful synchronization of users and groups from the Directory Provider
+
+  - **`name`**
+
+    `string` — Name of the directory, typically representing the connected Directory provider
+
+  - **`organization_id`**
+
+    `string` — Unique identifier of the organization to which the directory belongs
+
+  - **`role_assignments`**
+
+    `object` — Role assignments associated with the directory, defining group based role assignments
+
+    - **`assignments`**
+
+      `array`
+
+      **Items:**
+
+      - **`group_id`**
+
+        `string` — group ID for the role mapping
+
+      - **`role_name`**
+
+        `string`
+
+  - **`secrets`**
+
+    `array` — List of secrets used for authenticating and synchronizing with the Directory Provider
+
+    **Items:**
+
+    - **`create_time`**
+
+      `string`, format: `date-time` — Creation Time
+
+    - **`directory_id`**
+
+      `string` — Directory ID
+
+    - **`expire_time`**
+
+      `string`, format: `date-time` — Expiry Time
+
+    - **`id`**
+
+      `string`
+
+    - **`last_used_time`**
+
+      `string`, format: `date-time` — Last Used Time
+
+    - **`secret_suffix`**
+
+      `string` — Secret Suffix
+
+    - **`status`**
+
+      `string`, possible values: `"INACTIVE"` — Secret Status
+
+  - **`stats`**
+
+    `object` — Statistics and metrics related to the directory, such as synchronization status and error counts
+
+    - **`group_updated_at`**
+
+      `string`, format: `date-time` — Max time of Group Updated At for Directory
+
+    - **`total_groups`**
+
+      `integer`, format: `int32` — Total Groups in the Directory
+
+    - **`total_users`**
+
+      `integer`, format: `int32` — Total Users in the Directory
+
+    - **`user_updated_at`**
+
+      `string`, format: `date-time` — Max time of User Updated At for Directory
+
+  - **`status`**
+
+    `string` — Directory Status
+
+  - **`total_groups`**
+
+    `integer`, format: `int32` — Total number of groups in the directory
+
+  - **`total_users`**
+
+    `integer`, format: `int32` — Total number of users in the directory
+
+**Example:**
+
+```json
+{
+  "directory": {
+    "attribute_mappings": null,
+    "directory_endpoint": "https://yourapp.scalekit.com/api/v1/directoies/dir_123212312/scim/v2",
+    "directory_provider": "OKTA",
+    "directory_type": "SCIM",
+    "email": "john.doe@scalekit.cloud",
+    "enabled": true,
+    "groups_tracked": "ALL",
+    "id": "dir_121312434123312",
+    "last_synced_at": "2024-10-01T00:00:00Z",
+    "name": "Azure AD",
+    "organization_id": "org_121312434123312",
+    "role_assignments": null,
+    "secrets": [
+      {}
+    ],
+    "stats": null,
+    "status": "IN_PROGRESS",
+    "total_groups": 10,
+    "total_users": 10
+  }
+}
+```
+
 ### directoriesListDirectoriesResponse
 
 - **Type:**`object`
@@ -19711,42 +17546,6 @@ Response message containing a paginated list of API clients for the specified or
 }
 ```
 
-### directoriesDirectoryGroup
-
-- **Type:**`object`
-
-* **`display_name`**
-
-  `string` — Display Name
-
-* **`group_detail`**
-
-  `object` — Complete Group Details Payload
-
-* **`id`**
-
-  `string` — Group ID
-
-* **`total_users`**
-
-  `integer`, format: `int32` — Total Users in the Group
-
-* **`updated_at`**
-
-  `string`, format: `date-time` — Updated At
-
-**Example:**
-
-```json
-{
-  "display_name": "Admins",
-  "group_detail": {},
-  "id": "dirgroup_121312434123312",
-  "total_users": 10,
-  "updated_at": "2024-10-01T00:00:00Z"
-}
-```
-
 ### directoriesListDirectoryGroupsResponse
 
 - **Type:**`object`
@@ -19805,98 +17604,6 @@ Response message containing a paginated list of API clients for the specified or
   "next_page_token": "",
   "prev_page_token": "",
   "total_size": 1
-}
-```
-
-### directoriesDirectoryUser
-
-- **Type:**`object`
-
-* **`email`**
-
-  `string` — Email
-
-* **`emails`**
-
-  `array` — Emails
-
-  **Items:**
-
-  `string`
-
-* **`family_name`**
-
-  `string` — Last Name
-
-* **`given_name`**
-
-  `string` — First Name
-
-* **`groups`**
-
-  `array` — Groups
-
-  **Items:**
-
-  - **`display_name`**
-
-    `string` — Display Name
-
-  - **`group_detail`**
-
-    `object` — Complete Group Details Payload
-
-  - **`id`**
-
-    `string` — Group ID
-
-  - **`total_users`**
-
-    `integer`, format: `int32` — Total Users in the Group
-
-  - **`updated_at`**
-
-    `string`, format: `date-time` — Updated At
-
-* **`id`**
-
-  `string` — User ID
-
-* **`preferred_username`**
-
-  `string` — Preferred Username
-
-* **`updated_at`**
-
-  `string`, format: `date-time` — Updated At
-
-* **`user_detail`**
-
-  `object` — Complete User Details Payload
-
-**Example:**
-
-```json
-{
-  "email": "johndoe",
-  "emails": [
-    ""
-  ],
-  "family_name": "Doe",
-  "given_name": "John",
-  "groups": [
-    {
-      "display_name": "Admins",
-      "group_detail": {},
-      "id": "dirgroup_121312434123312",
-      "total_users": 10,
-      "updated_at": "2024-10-01T00:00:00Z"
-    }
-  ],
-  "id": "diruser_121312434123312",
-  "preferred_username": "johndoe",
-  "updated_at": "2024-10-01T00:00:00Z",
-  "user_detail": {}
 }
 ```
 
@@ -20011,181 +17718,138 @@ Response message containing a paginated list of API clients for the specified or
 }
 ```
 
-### directoriesGetDirectoryResponse
+### directoriesRoleAssignment
 
 - **Type:**`object`
 
-* **`directory`**
+* **`group_id`**
 
-  `object` — Detailed information about the requested directory
+  `string` — group ID for the role mapping
 
-  - **`attribute_mappings`**
+* **`role_name`**
 
-    `object` — Mappings between directory attributes and Scalekit user and group attributes
-
-    - **`attributes`**
-
-      `array`
-
-      **Items:**
-
-      - **`key`**
-
-        `string`
-
-      - **`map_to`**
-
-        `string`
-
-  - **`directory_endpoint`**
-
-    `string` — The endpoint URL generated by Scalekit for synchronizing users and groups from the Directory Provider
-
-  - **`directory_provider`**
-
-    `string`, possible values: `"OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "JUMPCLOUD", "PING_IDENTITY"` — Identity provider connected to this directory
-
-  - **`directory_type`**
-
-    `string`, possible values: `"SCIM", "LDAP", "POLL"` — Type of the directory, indicating the protocol or standard used for synchronization
-
-  - **`email`**
-
-    `string` — Email Id associated with Directory whose access will be used for polling
-
-  - **`enabled`**
-
-    `boolean` — Indicates whether the directory is currently enabled and actively synchronizing users and groups
-
-  - **`groups_tracked`**
-
-    `string` — It indicates if all groups are tracked or select groups are tracked
-
-  - **`id`**
-
-    `string` — Unique identifier of the directory
-
-  - **`last_synced_at`**
-
-    `string`, format: `date-time` — Timestamp of the last successful synchronization of users and groups from the Directory Provider
-
-  - **`name`**
-
-    `string` — Name of the directory, typically representing the connected Directory provider
-
-  - **`organization_id`**
-
-    `string` — Unique identifier of the organization to which the directory belongs
-
-  - **`role_assignments`**
-
-    `object` — Role assignments associated with the directory, defining group based role assignments
-
-    - **`assignments`**
-
-      `array`
-
-      **Items:**
-
-      - **`group_id`**
-
-        `string` — group ID for the role mapping
-
-      - **`role_name`**
-
-        `string`
-
-  - **`secrets`**
-
-    `array` — List of secrets used for authenticating and synchronizing with the Directory Provider
-
-    **Items:**
-
-    - **`create_time`**
-
-      `string`, format: `date-time` — Creation Time
-
-    - **`directory_id`**
-
-      `string` — Directory ID
-
-    - **`expire_time`**
-
-      `string`, format: `date-time` — Expiry Time
-
-    - **`id`**
-
-      `string`
-
-    - **`last_used_time`**
-
-      `string`, format: `date-time` — Last Used Time
-
-    - **`secret_suffix`**
-
-      `string` — Secret Suffix
-
-    - **`status`**
-
-      `string`, possible values: `"INACTIVE"` — Secret Status
-
-  - **`stats`**
-
-    `object` — Statistics and metrics related to the directory, such as synchronization status and error counts
-
-    - **`group_updated_at`**
-
-      `string`, format: `date-time` — Max time of Group Updated At for Directory
-
-    - **`total_groups`**
-
-      `integer`, format: `int32` — Total Groups in the Directory
-
-    - **`total_users`**
-
-      `integer`, format: `int32` — Total Users in the Directory
-
-    - **`user_updated_at`**
-
-      `string`, format: `date-time` — Max time of User Updated At for Directory
-
-  - **`status`**
-
-    `string` — Directory Status
-
-  - **`total_groups`**
-
-    `integer`, format: `int32` — Total number of groups in the directory
-
-  - **`total_users`**
-
-    `integer`, format: `int32` — Total number of users in the directory
+  `string`
 
 **Example:**
 
 ```json
 {
-  "directory": {
-    "attribute_mappings": null,
-    "directory_endpoint": "https://yourapp.scalekit.com/api/v1/directoies/dir_123212312/scim/v2",
-    "directory_provider": "OKTA",
-    "directory_type": "SCIM",
-    "email": "john.doe@scalekit.cloud",
-    "enabled": true,
-    "groups_tracked": "ALL",
-    "id": "dir_121312434123312",
-    "last_synced_at": "2024-10-01T00:00:00Z",
-    "name": "Azure AD",
-    "organization_id": "org_121312434123312",
-    "role_assignments": null,
-    "secrets": [
-      {}
-    ],
-    "stats": null,
-    "status": "IN_PROGRESS",
-    "total_groups": 10,
-    "total_users": 10
-  }
+  "group_id": "dirgroup_121312434123",
+  "role_name": ""
+}
+```
+
+### directoriesRoleAssignments
+
+- **Type:**`object`
+
+* **`assignments`**
+
+  `array`
+
+  **Items:**
+
+  - **`group_id`**
+
+    `string` — group ID for the role mapping
+
+  - **`role_name`**
+
+    `string`
+
+**Example:**
+
+```json
+{
+  "assignments": [
+    {
+      "group_id": "dirgroup_121312434123",
+      "role_name": ""
+    }
+  ]
+}
+```
+
+### directoriesSecret
+
+- **Type:**`object`
+
+* **`create_time`**
+
+  `string`, format: `date-time` — Creation Time
+
+* **`directory_id`**
+
+  `string` — Directory ID
+
+* **`expire_time`**
+
+  `string`, format: `date-time` — Expiry Time
+
+* **`id`**
+
+  `string`
+
+* **`last_used_time`**
+
+  `string`, format: `date-time` — Last Used Time
+
+* **`secret_suffix`**
+
+  `string` — Secret Suffix
+
+* **`status`**
+
+  `string`, possible values: `"INACTIVE"` — Secret Status
+
+**Example:**
+
+```json
+{
+  "create_time": "2024-10-01T00:00:00Z",
+  "directory_id": "dir_12362474900684814",
+  "expire_time": "2025-10-01T00:00:00Z",
+  "id": "",
+  "last_used_time": "2024-10-01T00:00:00Z",
+  "secret_suffix": "Nzg5",
+  "status": "INACTIVE"
+}
+```
+
+### directoriesSecretStatus
+
+- **Type:**`string`
+
+**Example:**
+
+### directoriesStats
+
+- **Type:**`object`
+
+* **`group_updated_at`**
+
+  `string`, format: `date-time` — Max time of Group Updated At for Directory
+
+* **`total_groups`**
+
+  `integer`, format: `int32` — Total Groups in the Directory
+
+* **`total_users`**
+
+  `integer`, format: `int32` — Total Users in the Directory
+
+* **`user_updated_at`**
+
+  `string`, format: `date-time` — Max time of User Updated At for Directory
+
+**Example:**
+
+```json
+{
+  "group_updated_at": "2024-10-01T00:00:00Z",
+  "total_groups": 10,
+  "total_users": 10,
+  "user_updated_at": "2024-10-01T00:00:00Z"
 }
 ```
 
@@ -20207,6 +17871,192 @@ Response message containing a paginated list of API clients for the specified or
 {
   "enabled": true,
   "error_message": "The directory is already enabled"
+}
+```
+
+### domainsCreateDomainResponse
+
+- **Type:**`object`
+
+* **`domain`**
+
+  `object` — The newly created domain object with all configuration details and system-generated identifiers.
+
+  - **`create_time`**
+
+    `string`, format: `date-time` — Timestamp when the domain was first created.
+
+  - **`domain`**
+
+    `string` — The business domain name that was configured for allowed email domain functionality (e.g., company.com, subdomain.company.com).
+
+  - **`domain_type`**
+
+    `object`
+
+  - **`environment_id`**
+
+    `string` — The environment ID where this domain is configured.
+
+  - **`id`**
+
+    `string` — Scalekit-generated unique identifier for this domain record.
+
+  - **`organization_id`**
+
+    `string` — The organization to which the domain belongs.
+
+  - **`update_time`**
+
+    `string`, format: `date-time` — Timestamp when the domain was last updated.
+
+  - **`verification_method`**
+
+    `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — Method that determines how domain ownership is verified. - ADMIN: domain is marked verified without DNS validation, typically by an admin. - DNS: domain must be verified by adding a TXT record to your DNS configuration. - NOT\_APPLICABLE: verification does not apply to this domain type.
+
+  - **`verification_status`**
+
+    `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain. - PENDING: DNS TXT record has not been validated yet. - VERIFIED: domain confirmed via DNS TXT record validation or admin approval. - AUTO\_VERIFIED: domain verified automatically without DNS changes. - FAILED: DNS TXT record was not validated within the verification window.
+
+**Example:**
+
+```json
+{
+  "domain": {
+    "create_time": "2025-09-01T12:14:43.100000Z",
+    "domain": "customerdomain.com",
+    "domain_type": "ORGANIZATION_DOMAIN",
+    "environment_id": "env_58345499215790610",
+    "id": "dom_88351643129225005",
+    "organization_id": "org_81667076086825451",
+    "update_time": "2025-09-01T12:14:43.110455Z",
+    "verification_method": "ADMIN",
+    "verification_status": "AUTO_VERIFIED"
+  }
+}
+```
+
+### domainsDomain
+
+- **Type:**`object`
+
+* **`create_time`**
+
+  `string`, format: `date-time` — Timestamp when the domain was first created.
+
+* **`domain`**
+
+  `string` — The business domain name that was configured for allowed email domain functionality (e.g., company.com, subdomain.company.com).
+
+* **`domain_type`**
+
+  `object`
+
+* **`environment_id`**
+
+  `string` — The environment ID where this domain is configured.
+
+* **`id`**
+
+  `string` — Scalekit-generated unique identifier for this domain record.
+
+* **`organization_id`**
+
+  `string` — The organization to which the domain belongs.
+
+* **`update_time`**
+
+  `string`, format: `date-time` — Timestamp when the domain was last updated.
+
+* **`verification_method`**
+
+  `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — Method that determines how domain ownership is verified. - ADMIN: domain is marked verified without DNS validation, typically by an admin. - DNS: domain must be verified by adding a TXT record to your DNS configuration. - NOT\_APPLICABLE: verification does not apply to this domain type.
+
+* **`verification_status`**
+
+  `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain. - PENDING: DNS TXT record has not been validated yet. - VERIFIED: domain confirmed via DNS TXT record validation or admin approval. - AUTO\_VERIFIED: domain verified automatically without DNS changes. - FAILED: DNS TXT record was not validated within the verification window.
+
+**Example:**
+
+```json
+{
+  "create_time": "2025-09-01T12:14:43.100000Z",
+  "domain": "customerdomain.com",
+  "domain_type": "ORGANIZATION_DOMAIN",
+  "environment_id": "env_58345499215790610",
+  "id": "dom_88351643129225005",
+  "organization_id": "org_81667076086825451",
+  "update_time": "2025-09-01T12:14:43.110455Z",
+  "verification_method": "ADMIN",
+  "verification_status": "AUTO_VERIFIED"
+}
+```
+
+### domainsDomainType
+
+- **Type:**`string`
+
+**Example:**
+
+### domainsGetDomainResponse
+
+- **Type:**`object`
+
+* **`domain`**
+
+  `object` — The requested domain object with complete details including domain type, timestamps and configuration.
+
+  - **`create_time`**
+
+    `string`, format: `date-time` — Timestamp when the domain was first created.
+
+  - **`domain`**
+
+    `string` — The business domain name that was configured for allowed email domain functionality (e.g., company.com, subdomain.company.com).
+
+  - **`domain_type`**
+
+    `object`
+
+  - **`environment_id`**
+
+    `string` — The environment ID where this domain is configured.
+
+  - **`id`**
+
+    `string` — Scalekit-generated unique identifier for this domain record.
+
+  - **`organization_id`**
+
+    `string` — The organization to which the domain belongs.
+
+  - **`update_time`**
+
+    `string`, format: `date-time` — Timestamp when the domain was last updated.
+
+  - **`verification_method`**
+
+    `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — Method that determines how domain ownership is verified. - ADMIN: domain is marked verified without DNS validation, typically by an admin. - DNS: domain must be verified by adding a TXT record to your DNS configuration. - NOT\_APPLICABLE: verification does not apply to this domain type.
+
+  - **`verification_status`**
+
+    `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain. - PENDING: DNS TXT record has not been validated yet. - VERIFIED: domain confirmed via DNS TXT record validation or admin approval. - AUTO\_VERIFIED: domain verified automatically without DNS changes. - FAILED: DNS TXT record was not validated within the verification window.
+
+**Example:**
+
+```json
+{
+  "domain": {
+    "create_time": "2025-09-01T12:14:43.100000Z",
+    "domain": "customerdomain.com",
+    "domain_type": "ORGANIZATION_DOMAIN",
+    "environment_id": "env_58345499215790610",
+    "id": "dom_88351643129225005",
+    "organization_id": "org_81667076086825451",
+    "update_time": "2025-09-01T12:14:43.110455Z",
+    "verification_method": "ADMIN",
+    "verification_status": "AUTO_VERIFIED"
+  }
 }
 ```
 
@@ -20286,207 +18136,605 @@ Response message containing a paginated list of API clients for the specified or
 }
 ```
 
-### domainsDomainType
+### domainsVerificationMethod
 
 - **Type:**`string`
 
 **Example:**
 
-### v1domainsCreateDomain
+### domainsVerificationStatus
+
+- **Type:**`string`
+
+**Example:**
+
+### errdetailsDebugInfo
 
 - **Type:**`object`
 
-* **`domain`**
+Describes additional debugging info.
 
-  `string` — The domain name to be configured. Must be a valid business domain you control. Public and disposable domains (gmail.com, outlook.com, etc.) are automatically blocked for security.
+- **`detail`**
 
-* **`domain_type`**
+  `string` — Additional debugging information provided by the server.
 
-  `string`, possible values: `"ALLOWED_EMAIL_DOMAIN", "ORGANIZATION_DOMAIN"` — The domain type. - ALLOWED\_EMAIL\_DOMAIN: trusted domain used to suggest the organization in the organization switcher during sign-in/sign-up. - ORGANIZATION\_DOMAIN: SSO discovery domain used to route users to the correct SSO provider and enforce SSO.
+- **`stack_entries`**
+
+  `array` — The stack trace entries indicating where the error occurred.
+
+  **Items:**
+
+  `string`
 
 **Example:**
 
 ```json
 {
-  "domain": "customerdomain.com",
-  "domain_type": "ORGANIZATION_DOMAIN"
+  "detail": "",
+  "stack_entries": [
+    ""
+  ]
 }
 ```
 
-### domainsCreateDomainResponse
+### errdetailsErrorInfo
 
 - **Type:**`object`
 
-* **`domain`**
+* **`debug_info`**
 
-  `object` — The newly created domain object with all configuration details and system-generated identifiers.
+  `object` — Describes additional debugging info.
 
-  - **`create_time`**
+  - **`detail`**
 
-    `string`, format: `date-time` — Timestamp when the domain was first created.
+    `string` — Additional debugging information provided by the server.
 
-  - **`domain`**
+  - **`stack_entries`**
 
-    `string` — The business domain name that was configured for allowed email domain functionality (e.g., company.com, subdomain.company.com).
+    `array` — The stack trace entries indicating where the error occurred.
 
-  - **`domain_type`**
+    **Items:**
 
-    `object`
+    `string`
 
-  - **`environment_id`**
+* **`error_code`**
 
-    `string` — The environment ID where this domain is configured.
+  `string`
 
-  - **`id`**
+* **`help_info`**
 
-    `string` — Scalekit-generated unique identifier for this domain record.
+  `object` — HelpInfo provides documentation links attached to an error response. When present in ErrorInfo, clients should surface these links to help developers resolve the error. For example, a missing required field error may include a link to the relevant guide.
 
-  - **`organization_id`**
+  - **`links`**
 
-    `string` — The organization to which the domain belongs.
+    `array` — One or more links relevant to resolving the error.
 
-  - **`update_time`**
+    **Items:**
 
-    `string`, format: `date-time` — Timestamp when the domain was last updated.
+    - **`description`**
 
-  - **`verification_method`**
+      `string` — Human-readable label for the link (e.g. "User verification flow").
 
-    `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — Method that determines how domain ownership is verified. - ADMIN: domain is marked verified without DNS validation, typically by an admin. - DNS: domain must be verified by adding a TXT record to your DNS configuration. - NOT\_APPLICABLE: verification does not apply to this domain type.
+    - **`url`**
 
-  - **`verification_status`**
+      `string` — Absolute URL to the documentation page (e.g. "https\://docs.scalekit.com/...").
 
-    `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain. - PENDING: DNS TXT record has not been validated yet. - VERIFIED: domain confirmed via DNS TXT record validation or admin approval. - AUTO\_VERIFIED: domain verified automatically without DNS changes. - FAILED: DNS TXT record was not validated within the verification window.
+* **`localized_message_info`**
+
+  `object`
+
+  - **`locale`**
+
+    `string`
+
+  - **`message`**
+
+    `string`
+
+* **`request_info`**
+
+  `object` — Contains metadata about the request that clients can attach when filing a bug or providing other forms of feedback.
+
+  - **`request_id`**
+
+    `string` — An opaque string that should only be interpreted by the service generating it. For example, it can be used to identify requests in the service's logs.
+
+  - **`serving_data`**
+
+    `string` — Any data that was used to serve this request. For example, an encrypted stack trace that can be sent back to the service provider for debugging.
+
+* **`resource_info`**
+
+  `object` — Describes the resource that is being accessed.
+
+  - **`description`**
+
+    `string` — Describes what error is encountered when accessing this resource. For example, updating a cloud project may require the \`writer\` permission on the developer console project.
+
+  - **`owner`**
+
+    `string`
+
+  - **`required_permissions`**
+
+    `array` — The required permissions needed to access the resource.
+
+    **Items:**
+
+    `string`
+
+  - **`resource_name`**
+
+    `string`
+
+  - **`user`**
+
+    `string`
+
+* **`tool_error_info`**
+
+  `object`
+
+  - **`execution_id`**
+
+    `string`
+
+  - **`tool_error_code`**
+
+    `string`
+
+  - **`tool_error_message`**
+
+    `string`
+
+* **`validation_error_info`**
+
+  `object` — Describes violations in a client request. This error type focuses on the syntactic aspects of the request.
+
+  - **`field_violations`**
+
+    `array` — Describes all violations in a client request.
+
+    **Items:**
+
+    - **`constraint`**
+
+      `string`
+
+    - **`description`**
+
+      `string` — A description of why the request element is bad.
+
+    - **`field`**
+
+      `string`
 
 **Example:**
 
 ```json
 {
-  "domain": {
-    "create_time": "2025-09-01T12:14:43.100000Z",
-    "domain": "customerdomain.com",
-    "domain_type": "ORGANIZATION_DOMAIN",
-    "environment_id": "env_58345499215790610",
-    "id": "dom_88351643129225005",
-    "organization_id": "org_81667076086825451",
-    "update_time": "2025-09-01T12:14:43.110455Z",
-    "verification_method": "ADMIN",
-    "verification_status": "AUTO_VERIFIED"
+  "debug_info": {
+    "detail": "",
+    "stack_entries": [
+      ""
+    ]
+  },
+  "error_code": "",
+  "help_info": {
+    "links": [
+      {}
+    ]
+  },
+  "localized_message_info": {
+    "locale": "",
+    "message": ""
+  },
+  "request_info": {
+    "request_id": "",
+    "serving_data": ""
+  },
+  "resource_info": {
+    "description": "",
+    "owner": "",
+    "required_permissions": [
+      ""
+    ],
+    "resource_name": "",
+    "user": ""
+  },
+  "tool_error_info": {
+    "execution_id": "",
+    "tool_error_code": "",
+    "tool_error_message": ""
+  },
+  "validation_error_info": {
+    "field_violations": [
+      {}
+    ]
   }
 }
 ```
 
-### domainsGetDomainResponse
+### errdetailsHelpInfo
 
 - **Type:**`object`
 
-* **`domain`**
+HelpInfo provides documentation links attached to an error response. When present in ErrorInfo, clients should surface these links to help developers resolve the error. For example, a missing required field error may include a link to the relevant guide.
 
-  `object` — The requested domain object with complete details including domain type, timestamps and configuration.
+- **`links`**
 
-  - **`create_time`**
+  `array` — One or more links relevant to resolving the error.
 
-    `string`, format: `date-time` — Timestamp when the domain was first created.
+  **Items:**
 
-  - **`domain`**
+  - **`description`**
 
-    `string` — The business domain name that was configured for allowed email domain functionality (e.g., company.com, subdomain.company.com).
+    `string` — Human-readable label for the link (e.g. "User verification flow").
 
-  - **`domain_type`**
+  - **`url`**
 
-    `object`
-
-  - **`environment_id`**
-
-    `string` — The environment ID where this domain is configured.
-
-  - **`id`**
-
-    `string` — Scalekit-generated unique identifier for this domain record.
-
-  - **`organization_id`**
-
-    `string` — The organization to which the domain belongs.
-
-  - **`update_time`**
-
-    `string`, format: `date-time` — Timestamp when the domain was last updated.
-
-  - **`verification_method`**
-
-    `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — Method that determines how domain ownership is verified. - ADMIN: domain is marked verified without DNS validation, typically by an admin. - DNS: domain must be verified by adding a TXT record to your DNS configuration. - NOT\_APPLICABLE: verification does not apply to this domain type.
-
-  - **`verification_status`**
-
-    `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain. - PENDING: DNS TXT record has not been validated yet. - VERIFIED: domain confirmed via DNS TXT record validation or admin approval. - AUTO\_VERIFIED: domain verified automatically without DNS changes. - FAILED: DNS TXT record was not validated within the verification window.
+    `string` — Absolute URL to the documentation page (e.g. "https\://docs.scalekit.com/...").
 
 **Example:**
 
 ```json
 {
-  "domain": {
-    "create_time": "2025-09-01T12:14:43.100000Z",
-    "domain": "customerdomain.com",
-    "domain_type": "ORGANIZATION_DOMAIN",
-    "environment_id": "env_58345499215790610",
-    "id": "dom_88351643129225005",
-    "organization_id": "org_81667076086825451",
-    "update_time": "2025-09-01T12:14:43.110455Z",
-    "verification_method": "ADMIN",
-    "verification_status": "AUTO_VERIFIED"
+  "links": [
+    {
+      "description": "",
+      "url": ""
+    }
+  ]
+}
+```
+
+### errdetailsLocalizedMessageInfo
+
+- **Type:**`object`
+
+* **`locale`**
+
+  `string`
+
+* **`message`**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "locale": "",
+  "message": ""
+}
+```
+
+### errdetailsRequestInfo
+
+- **Type:**`object`
+
+Contains metadata about the request that clients can attach when filing a bug or providing other forms of feedback.
+
+- **`request_id`**
+
+  `string` — An opaque string that should only be interpreted by the service generating it. For example, it can be used to identify requests in the service's logs.
+
+- **`serving_data`**
+
+  `string` — Any data that was used to serve this request. For example, an encrypted stack trace that can be sent back to the service provider for debugging.
+
+**Example:**
+
+```json
+{
+  "request_id": "",
+  "serving_data": ""
+}
+```
+
+### errdetailsResourceInfo
+
+- **Type:**`object`
+
+Describes the resource that is being accessed.
+
+- **`description`**
+
+  `string` — Describes what error is encountered when accessing this resource. For example, updating a cloud project may require the \`writer\` permission on the developer console project.
+
+- **`owner`**
+
+  `string`
+
+- **`required_permissions`**
+
+  `array` — The required permissions needed to access the resource.
+
+  **Items:**
+
+  `string`
+
+- **`resource_name`**
+
+  `string`
+
+- **`user`**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "description": "",
+  "owner": "",
+  "required_permissions": [
+    ""
+  ],
+  "resource_name": "",
+  "user": ""
+}
+```
+
+### errdetailsToolErrorInfo
+
+- **Type:**`object`
+
+* **`execution_id`**
+
+  `string`
+
+* **`tool_error_code`**
+
+  `string`
+
+* **`tool_error_message`**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "execution_id": "",
+  "tool_error_code": "",
+  "tool_error_message": ""
+}
+```
+
+### errdetailsValidationErrorInfo
+
+- **Type:**`object`
+
+Describes violations in a client request. This error type focuses on the syntactic aspects of the request.
+
+- **`field_violations`**
+
+  `array` — Describes all violations in a client request.
+
+  **Items:**
+
+  - **`constraint`**
+
+    `string`
+
+  - **`description`**
+
+    `string` — A description of why the request element is bad.
+
+  - **`field`**
+
+    `string`
+
+**Example:**
+
+```json
+{
+  "field_violations": [
+    {
+      "constraint": "",
+      "description": "",
+      "field": ""
+    }
+  ]
+}
+```
+
+### organizationsCreateOrganizationResponse
+
+- **Type:**`object`
+
+* **`organization`**
+
+  `object` — The newly created organization containing its ID, settings, and metadata
+
+  - **`create_time` (required)**
+
+    `string`, format: `date-time` — Timestamp when the organization was created
+
+  - **`display_name`**
+
+    `string` — Name of the organization. Must be between 1 and 200 characters
+
+  - **`external_id`**
+
+    `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
+
+  - **`id`**
+
+    `string` — Unique scalekit-generated identifier that uniquely references an organization
+
+  - **`logo_url`**
+
+    `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
+
+  - **`metadata`**
+
+    `object` — Key value pairs extension attributes.
+
+  - **`region_code`**
+
+    `string`, possible values: `"US", "EU"` — Geographic region code for the organization. Currently limited to US.
+
+  - **`settings`**
+
+    `object` — Configuration options that control organization-level features and capabilities
+
+    - **`features`**
+
+      `array` — List of feature toggles that control organization capabilities such as SSO authentication and directory synchronization
+
+      **Items:**
+
+      - **`enabled` (required)**
+
+        `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
+
+      - **`name` (required)**
+
+        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
+
+  - **`slug`**
+
+    `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Unique per environment.
+
+  - **`update_time`**
+
+    `string`, format: `date-time` — Timestamp when the organization was last updated
+
+**Example:**
+
+```json
+{
+  "organization": {
+    "create_time": "2025-02-15T06:23:44.560000Z",
+    "display_name": "Megasoft",
+    "external_id": "my_unique_id",
+    "id": "org_59615193906282635",
+    "logo_url": "https://cdn.example.com/acme-logo.png",
+    "metadata": {
+      "additionalProperty": ""
+    },
+    "region_code": "US",
+    "settings": null,
+    "slug": "acme",
+    "update_time": "2025-02-15T06:23:44.560000Z"
   }
 }
 ```
 
-### commonsTimeUnit
-
-- **Type:**`string`
-
-**Example:**
-
-### organizationsSessionPolicyType
-
-- **Type:**`string`
-
-**Example:**
-
-### organizationsOrganizationSessionPolicySettings
+### organizationsGeneratePortalLinkResponse
 
 - **Type:**`object`
 
-* **`absolute_session_timeout`**
+* **`link`**
 
-  `integer`, format: `int32` — The absolute session timeout value. The unit is specified by absolute\_session\_timeout\_unit. Omitted when policy\_source is 'environment'.
+  `object` — Contains the generated admin portal link details. The link URL can be shared with organization administrators to set up: Single Sign-On (SSO) authentication and directory synchronization
 
-* **`absolute_session_timeout_unit`**
+  - **`expire_time`**
 
-  `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for absolute\_session\_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
+    `string`, format: `date-time` — Expiry time of the link. The link is valid for 1 minute.
 
-* **`idle_session_timeout`**
+  - **`id`**
 
-  `integer`, format: `int32` — The idle session timeout value. The unit is specified by idle\_session\_timeout\_unit. Omitted when idle\_session\_timeout\_enabled is false or policy\_source is 'environment'.
+    `string` — Unique Identifier for the link
 
-* **`idle_session_timeout_enabled`**
+  - **`location`**
 
-  `boolean` — Whether idle session timeout is enabled for this organization. Omitted when policy\_source is 'environment'.
-
-* **`idle_session_timeout_unit`**
-
-  `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for idle\_session\_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
-
-* **`policy_source`**
-
-  `string`, possible values: `"APPLICATION", "CUSTOM"` — Policy source. 'APPLICATION' means the organization inherits the application-level session policy. 'CUSTOM' means organization-specific timeout values are active.
+    `string` — Location of the link. This is the URL that can be used to access the Admin portal. The link is valid for 1 minute
 
 **Example:**
 
 ```json
 {
-  "absolute_session_timeout": 360,
-  "absolute_session_timeout_unit": "minutes",
-  "idle_session_timeout": 84,
-  "idle_session_timeout_enabled": true,
-  "idle_session_timeout_unit": "minutes",
-  "policy_source": "CUSTOM"
+  "link": {
+    "expire_time": "2024-02-06T14:48:00Z",
+    "id": "lnk_123123123123123",
+    "location": "https://scalekit.com/portal/lnk_123123123123123"
+  }
+}
+```
+
+### organizationsGetOrganizationResponse
+
+- **Type:**`object`
+
+* **`organization`**
+
+  `object` — The newly created organization
+
+  - **`create_time` (required)**
+
+    `string`, format: `date-time` — Timestamp when the organization was created
+
+  - **`display_name`**
+
+    `string` — Name of the organization. Must be between 1 and 200 characters
+
+  - **`external_id`**
+
+    `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
+
+  - **`id`**
+
+    `string` — Unique scalekit-generated identifier that uniquely references an organization
+
+  - **`logo_url`**
+
+    `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
+
+  - **`metadata`**
+
+    `object` — Key value pairs extension attributes.
+
+  - **`region_code`**
+
+    `string`, possible values: `"US", "EU"` — Geographic region code for the organization. Currently limited to US.
+
+  - **`settings`**
+
+    `object` — Configuration options that control organization-level features and capabilities
+
+    - **`features`**
+
+      `array` — List of feature toggles that control organization capabilities such as SSO authentication and directory synchronization
+
+      **Items:**
+
+      - **`enabled` (required)**
+
+        `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
+
+      - **`name` (required)**
+
+        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
+
+  - **`slug`**
+
+    `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Unique per environment.
+
+  - **`update_time`**
+
+    `string`, format: `date-time` — Timestamp when the organization was last updated
+
+**Example:**
+
+```json
+{
+  "organization": {
+    "create_time": "2025-02-15T06:23:44.560000Z",
+    "display_name": "Megasoft",
+    "external_id": "my_unique_id",
+    "id": "org_59615193906282635",
+    "logo_url": "https://cdn.example.com/acme-logo.png",
+    "metadata": {
+      "additionalProperty": ""
+    },
+    "region_code": "US",
+    "settings": null,
+    "slug": "acme",
+    "update_time": "2025-02-15T06:23:44.560000Z"
+  }
 }
 ```
 
@@ -20537,44 +18785,425 @@ Response message containing a paginated list of API clients for the specified or
 }
 ```
 
-### OrganizationServiceUpdateOrganizationSessionPolicyBody
+### organizationsLink
+
+- **Type:**`object`
+
+* **`expire_time`**
+
+  `string`, format: `date-time` — Expiry time of the link. The link is valid for 1 minute.
+
+* **`id`**
+
+  `string` — Unique Identifier for the link
+
+* **`location`**
+
+  `string` — Location of the link. This is the URL that can be used to access the Admin portal. The link is valid for 1 minute
+
+**Example:**
+
+```json
+{
+  "expire_time": "2024-02-06T14:48:00Z",
+  "id": "lnk_123123123123123",
+  "location": "https://scalekit.com/portal/lnk_123123123123123"
+}
+```
+
+### organizationsListOrganizationsResponse
+
+- **Type:**`object`
+
+* **`next_page_token`**
+
+  `string` — Pagination token for the next page of results. Use this token to fetch the next page.
+
+* **`organizations`**
+
+  `array` — List of organization objects
+
+  **Items:**
+
+  - **`create_time` (required)**
+
+    `string`, format: `date-time` — Timestamp when the organization was created
+
+  - **`display_name`**
+
+    `string` — Name of the organization. Must be between 1 and 200 characters
+
+  - **`external_id`**
+
+    `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
+
+  - **`id`**
+
+    `string` — Unique scalekit-generated identifier that uniquely references an organization
+
+  - **`logo_url`**
+
+    `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
+
+  - **`metadata`**
+
+    `object` — Key value pairs extension attributes.
+
+  - **`region_code`**
+
+    `string`, possible values: `"US", "EU"` — Geographic region code for the organization. Currently limited to US.
+
+  - **`settings`**
+
+    `object` — Configuration options that control organization-level features and capabilities
+
+    - **`features`**
+
+      `array` — List of feature toggles that control organization capabilities such as SSO authentication and directory synchronization
+
+      **Items:**
+
+      - **`enabled` (required)**
+
+        `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
+
+      - **`name` (required)**
+
+        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
+
+  - **`slug`**
+
+    `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Unique per environment.
+
+  - **`update_time`**
+
+    `string`, format: `date-time` — Timestamp when the organization was last updated
+
+* **`prev_page_token`**
+
+  `string` — Pagination token for the previous page of results. Use this token to fetch the previous page.
+
+* **`total_size`**
+
+  `integer`, format: `int64` — Total number of organizations in the environment.
+
+**Example:**
+
+```json
+{
+  "next_page_token": "<next_page_token>",
+  "organizations": [
+    {
+      "create_time": "2025-02-15T06:23:44.560000Z",
+      "display_name": "Megasoft",
+      "external_id": "my_unique_id",
+      "id": "org_59615193906282635",
+      "logo_url": "https://cdn.example.com/acme-logo.png",
+      "metadata": {
+        "additionalProperty": ""
+      },
+      "region_code": "US",
+      "settings": null,
+      "slug": "acme",
+      "update_time": "2025-02-15T06:23:44.560000Z"
+    }
+  ],
+  "prev_page_token": "<prev_page_token>",
+  "total_size": 30
+}
+```
+
+### organizationsOrganization
+
+- **Type:**`object`
+
+* **`create_time` (required)**
+
+  `string`, format: `date-time` — Timestamp when the organization was created
+
+* **`display_name`**
+
+  `string` — Name of the organization. Must be between 1 and 200 characters
+
+* **`external_id`**
+
+  `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
+
+* **`id`**
+
+  `string` — Unique scalekit-generated identifier that uniquely references an organization
+
+* **`logo_url`**
+
+  `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
+
+* **`metadata`**
+
+  `object` — Key value pairs extension attributes.
+
+* **`region_code`**
+
+  `string`, possible values: `"US", "EU"` — Geographic region code for the organization. Currently limited to US.
+
+* **`settings`**
+
+  `object` — Configuration options that control organization-level features and capabilities
+
+  - **`features`**
+
+    `array` — List of feature toggles that control organization capabilities such as SSO authentication and directory synchronization
+
+    **Items:**
+
+    - **`enabled` (required)**
+
+      `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
+
+    - **`name` (required)**
+
+      `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
+
+* **`slug`**
+
+  `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Unique per environment.
+
+* **`update_time`**
+
+  `string`, format: `date-time` — Timestamp when the organization was last updated
+
+**Example:**
+
+```json
+{
+  "create_time": "2025-02-15T06:23:44.560000Z",
+  "display_name": "Megasoft",
+  "external_id": "my_unique_id",
+  "id": "org_59615193906282635",
+  "logo_url": "https://cdn.example.com/acme-logo.png",
+  "metadata": {
+    "additionalProperty": ""
+  },
+  "region_code": "US",
+  "settings": {
+    "features": [
+      {
+        "enabled": true,
+        "name": "sso"
+      },
+      {
+        "enabled": false,
+        "name": "directory_sync"
+      }
+    ]
+  },
+  "slug": "acme",
+  "update_time": "2025-02-15T06:23:44.560000Z"
+}
+```
+
+### organizationsOrganizationSessionPolicySettings
 
 - **Type:**`object`
 
 * **`absolute_session_timeout`**
 
-  `integer`, format: `int32` — The absolute session timeout value. The unit is specified by absolute\_session\_timeout\_unit. Omit when policy\_source is APPLICATION.
+  `integer`, format: `int32` — The absolute session timeout value. The unit is specified by absolute\_session\_timeout\_unit. Omitted when policy\_source is 'environment'.
 
 * **`absolute_session_timeout_unit`**
 
-  `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for absolute\_session\_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES.
+  `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for absolute\_session\_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
 
 * **`idle_session_timeout`**
 
-  `integer`, format: `int32` — The idle session timeout value. The unit is specified by idle\_session\_timeout\_unit. Omit when idle\_session\_timeout\_enabled is false.
+  `integer`, format: `int32` — The idle session timeout value. The unit is specified by idle\_session\_timeout\_unit. Omitted when idle\_session\_timeout\_enabled is false or policy\_source is 'environment'.
 
 * **`idle_session_timeout_enabled`**
 
-  `boolean` — Whether idle session timeout is enabled. Omit when policy\_source is APPLICATION.
+  `boolean` — Whether idle session timeout is enabled for this organization. Omitted when policy\_source is 'environment'.
 
 * **`idle_session_timeout_unit`**
 
-  `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for idle\_session\_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES.
+  `string`, possible values: `"MINUTES", "HOURS", "DAYS"` — Unit for idle\_session\_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'.
 
 * **`policy_source`**
 
-  `string`, possible values: `"APPLICATION", "CUSTOM"` — Policy source. Send 'APPLICATION' to revert to application defaults. Send 'CUSTOM' with timeout values to activate a custom policy.
+  `string`, possible values: `"APPLICATION", "CUSTOM"` — Policy source. 'APPLICATION' means the organization inherits the application-level session policy. 'CUSTOM' means organization-specific timeout values are active.
 
 **Example:**
 
 ```json
 {
   "absolute_session_timeout": 360,
-  "absolute_session_timeout_unit": "MINUTES",
+  "absolute_session_timeout_unit": "minutes",
   "idle_session_timeout": 84,
   "idle_session_timeout_enabled": true,
-  "idle_session_timeout_unit": "MINUTES",
+  "idle_session_timeout_unit": "minutes",
   "policy_source": "CUSTOM"
+}
+```
+
+### Organization Settings
+
+- **Type:**`object`
+
+Configuration options that control organization-level features and capabilities
+
+- **`features`**
+
+  `array` — List of feature toggles that control organization capabilities such as SSO authentication and directory synchronization
+
+  **Items:**
+
+  - **`enabled` (required)**
+
+    `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
+
+  - **`name` (required)**
+
+    `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
+
+**Example:**
+
+```json
+{
+  "features": [
+    {
+      "enabled": true,
+      "name": "sso"
+    },
+    {
+      "enabled": false,
+      "name": "directory_sync"
+    }
+  ]
+}
+```
+
+### Organization Feature Toggle
+
+- **Type:**`object`
+
+Controls the activation state of a specific organization feature
+
+- **`enabled` (required)**
+
+  `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
+
+- **`name` (required)**
+
+  `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
+
+**Example:**
+
+```json
+{
+  "enabled": true,
+  "name": "sso"
+}
+```
+
+### organizationsOrganizationUserManagementSettings
+
+- **Type:**`object`
+
+* **`max_allowed_users`**
+
+  `integer`, format: `int32` — Maximum number of users allowed in the organization. When nil (not set), there feature is not enabled. When explicitly set to zero, it also means no limit. When set to a positive integer, it enforces the maximum user limit.
+
+**Example:**
+
+```json
+{
+  "max_allowed_users": 100
+}
+```
+
+### organizationsSessionPolicyType
+
+- **Type:**`string`
+
+**Example:**
+
+### organizationsUpdateOrganizationResponse
+
+- **Type:**`object`
+
+* **`organization`**
+
+  `object` — Updated organization details
+
+  - **`create_time` (required)**
+
+    `string`, format: `date-time` — Timestamp when the organization was created
+
+  - **`display_name`**
+
+    `string` — Name of the organization. Must be between 1 and 200 characters
+
+  - **`external_id`**
+
+    `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
+
+  - **`id`**
+
+    `string` — Unique scalekit-generated identifier that uniquely references an organization
+
+  - **`logo_url`**
+
+    `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
+
+  - **`metadata`**
+
+    `object` — Key value pairs extension attributes.
+
+  - **`region_code`**
+
+    `string`, possible values: `"US", "EU"` — Geographic region code for the organization. Currently limited to US.
+
+  - **`settings`**
+
+    `object` — Configuration options that control organization-level features and capabilities
+
+    - **`features`**
+
+      `array` — List of feature toggles that control organization capabilities such as SSO authentication and directory synchronization
+
+      **Items:**
+
+      - **`enabled` (required)**
+
+        `boolean` — Whether the feature is enabled (true) or disabled (false) for this organization
+
+      - **`name` (required)**
+
+        `string` — Feature identifier. Supported values include: "sso" (Single Sign-On), "directory\_sync" (Directory Synchronization), "domain\_verification" (Domain Verification), "session\_policy" (Organization-level session policy override)
+
+  - **`slug`**
+
+    `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Unique per environment.
+
+  - **`update_time`**
+
+    `string`, format: `date-time` — Timestamp when the organization was last updated
+
+**Example:**
+
+```json
+{
+  "organization": {
+    "create_time": "2025-02-15T06:23:44.560000Z",
+    "display_name": "Megasoft",
+    "external_id": "my_unique_id",
+    "id": "org_59615193906282635",
+    "logo_url": "https://cdn.example.com/acme-logo.png",
+    "metadata": {
+      "additionalProperty": ""
+    },
+    "region_code": "US",
+    "settings": null,
+    "slug": "acme",
+    "update_time": "2025-02-15T06:23:44.560000Z"
+  }
 }
 ```
 
@@ -20625,44 +19254,6 @@ Response message containing a paginated list of API clients for the specified or
 }
 ```
 
-### organizationsOrganizationUserManagementSettings
-
-- **Type:**`object`
-
-* **`max_allowed_users`**
-
-  `integer`, format: `int32` — Maximum number of users allowed in the organization. When nil (not set), there feature is not enabled. When explicitly set to zero, it also means no limit. When set to a positive integer, it enforces the maximum user limit.
-
-**Example:**
-
-```json
-{
-  "max_allowed_users": 100
-}
-```
-
-### OrganizationServiceUpsertUserManagementSettingsBody
-
-- **Type:**`object`
-
-* **`settings`**
-
-  `object` — The new values for the setting fields to patch.
-
-  - **`max_allowed_users`**
-
-    `integer`, format: `int32` — Maximum number of users allowed in the organization. When nil (not set), there feature is not enabled. When explicitly set to zero, it also means no limit. When set to a positive integer, it enforces the maximum user limit.
-
-**Example:**
-
-```json
-{
-  "settings": {
-    "max_allowed_users": 100
-  }
-}
-```
-
 ### organizationsUpsertUserManagementSettingsResponse
 
 - **Type:**`object`
@@ -20685,27 +19276,2486 @@ Response message containing a paginated list of API clients for the specified or
 }
 ```
 
-### usersListOrganizationUsersResponse
+### passwordlessResendPasswordlessRequest
+
+- **Type:**`object`
+
+* **`auth_request_id`**
+
+  `string` — The authentication request identifier from the original send passwordless email request. Use this to resend the Verification Code (OTP) or Magic Link to the same email address.
+
+**Example:**
+
+```json
+{
+  "auth_request_id": "h5Y8kT5RVwaea5WEgW4n-6C-aO_-fuTUW7Vb9-Rh3AcY9qxZqQ"
+}
+```
+
+### passwordlessSendPasswordlessRequest
+
+- **Type:**`object`
+
+* **`email`**
+
+  `string` — Email address where the passwordless authentication credentials will be sent. Must be a valid email format.
+
+* **`expires_in`**
+
+  `integer`, format: `int64` — Time in seconds until the passwordless authentication expires. If not specified, defaults to 300 seconds (5 minutes)
+
+* **`magiclink_auth_uri`**
+
+  `string` — Your application's callback URL where users will be redirected after clicking the magic link in their email. The link token will be appended as a query parameter as link\_token
+
+* **`state`**
+
+  `string` — Custom state parameter that will be returned unchanged in the verification response. Use this to maintain application state between the authentication request and callback, such as the intended destination after login
+
+* **`template`**
+
+  `string`, possible values: `"SIGNIN", "SIGNUP"` — Specifies the authentication intent for the passwordless request. Use SIGNIN for existing users or SIGNUP for new user registration. This affects the email template and user experience flow.
+
+* **`template_variables`**
+
+  `object` — A set of key-value pairs to personalize the email template. \* You may include up to 30 key-value pairs. \* The following variable names are reserved by the system and cannot be supplied: \`otp\`, \`expiry\_time\_relative\`, \`link\`, \`expire\_time\`, \`expiry\_time\`. \* Every variable referenced in your email template must be included as a key-value pair. Use these variables to insert custom information, such as a team name, URL or the user's employee ID. All variables are interpolated before the email is sent, regardless of the email provider.
+
+**Example:**
+
+```json
+{
+  "email": "john.doe@example.com",
+  "expires_in": 300,
+  "magiclink_auth_uri": "https://yourapp.com/auth/passwordless/callback",
+  "state": "d62ivasry29lso",
+  "template": "SIGNIN",
+  "template_variables": {
+    "custom_variable_key": "custom_variable_value"
+  }
+}
+```
+
+### passwordlessSendPasswordlessResponse
+
+- **Type:**`object`
+
+* **`auth_request_id`**
+
+  `string` — Unique identifier for this passwordless authentication request. Use this ID to resend emails.
+
+* **`expires_at`**
+
+  `string`, format: `int64` — Unix timestamp (seconds since epoch) when the passwordless authentication will expire. After this time, the OTP or magic link will no longer be valid.
+
+* **`expires_in`**
+
+  `integer`, format: `int64` — Number of seconds from now until the passwordless authentication expires. This is a convenience field calculated from the expires\_at timestamp.
+
+* **`passwordless_type`**
+
+  `string`, possible values: `"OTP", "LINK", "LINK_OTP"` — Type of passwordless authentication that was sent via email. OTP sends a numeric code, LINK sends a clickable magic link, and LINK\_OTP provides both options for user convenience.
+
+**Example:**
+
+```json
+{
+  "auth_request_id": "h5Y8kT5RVwaea5WEgW4n-6C-aO_-fuTUW7Vb9-Rh3AcY9qxZqQ",
+  "expires_at": 1748696575,
+  "expires_in": 300,
+  "passwordless_type": "OTP"
+}
+```
+
+### passwordlessTemplateType
+
+- **Type:**`string`
+
+**Example:**
+
+### passwordlessVerifyPasswordLessRequest
+
+- **Type:**`object`
+
+* **`auth_request_id`**
+
+  `string` — The authentication request identifier returned from the send passwordless email endpoint. Required when verifying OTP codes to link the verification with the original request.
+
+* **`code`**
+
+  `string` — The Verification Code (OTP) received via email. This is typically a 6-digit numeric code that users enter manually to verify their identity.
+
+* **`link_token`**
+
+  `string` — The unique token from the magic link URL received via email. Extract this token when users click the magic link and are redirected to your application to later verify the user.
+
+**Example:**
+
+```json
+{
+  "auth_request_id": "h5Y8kT5RVwaea5WEgW4n-6C-aO_-fuTUW7Vb9-Rh3AcY9qxZqQ",
+  "code": "123456",
+  "link_token": "afe9d61c-d80d-4020-a8ee-61765ab71cb3"
+}
+```
+
+### passwordlessVerifyPasswordLessResponse
+
+- **Type:**`object`
+
+* **`email`**
+
+  `string` — Email address of the successfully authenticated user. This confirms which email account was verified through the passwordless flow.
+
+* **`passwordless_type`**
+
+  `string`, possible values: `"OTP", "LINK", "LINK_OTP"` — The type of passwordless authentication that was successfully verified, confirming which method the user completed.
+
+* **`state`**
+
+  `string` — The custom state parameter that was provided in the original authentication request, returned unchanged. Use this to restore your application's context after authentication.
+
+* **`template`**
+
+  `string`, possible values: `"SIGNIN", "SIGNUP"` — Specifies which email template to choose. For User Signin choose SIGNIN and for User Signup use SIGNUP
+
+**Example:**
+
+```json
+{
+  "email": "john.doe@example.com",
+  "passwordless_type": "OTP",
+  "state": "kdt7yiag28t341fr1",
+  "template": "SIGNIN"
+}
+```
+
+### rolesAddPermissionsToRoleResponse
+
+- **Type:**`object`
+
+* **`permissions`**
+
+  `array` — List of all permissions belonging to the role after addition
+
+  **Items:**
+
+  - **`create_time`**
+
+    `string`, format: `date-time`
+
+  - **`description`**
+
+    `string`
+
+  - **`id`**
+
+    `string`
+
+  - **`is_scalekit_permission`**
+
+    `boolean` — Indicates whether this permission is predefined by Scalekit
+
+  - **`name`**
+
+    `string`
+
+  - **`update_time`**
+
+    `string`, format: `date-time`
+
+**Example:**
+
+```json
+{
+  "permissions": [
+    {
+      "create_time": "",
+      "description": "",
+      "id": "",
+      "is_scalekit_permission": true,
+      "name": "",
+      "update_time": ""
+    }
+  ]
+}
+```
+
+### rolesCreateOrganizationRoleResponse
+
+- **Type:**`object`
+
+* **`role`**
+
+  `object`
+
+  - **`default_creator`**
+
+    `boolean` — Indicates if this role is the default creator role for new organizations.
+
+  - **`default_member`**
+
+    `boolean` — Indicates if this role is the default member role for new users.
+
+  - **`dependent_roles_count`**
+
+    `integer`, format: `int32` — Number of roles that extend from this role (dependent roles count). Read-only field.
+
+  - **`description`**
+
+    `string` — Detailed description of the role's purpose and capabilities. Maximum 2000 characters.
+
+  - **`display_name`**
+
+    `string` — Human-readable display name for the role. Used in user interfaces and reports.
+
+  - **`extends`**
+
+    `string` — Name of the base role that this role extends. Enables hierarchical role inheritance.
+
+  - **`id`**
+
+    `string` — Unique system-generated identifier for the role. Immutable once created.
+
+  - **`is_org_role`**
+
+    `boolean` — Indicates if this role is an organization role.
+
+  - **`name`**
+
+    `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.
+
+  - **`permissions`**
+
+    `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
+
+    **Items:**
+
+    - **`create_time`**
+
+      `string`, format: `date-time`
+
+    - **`description`**
+
+      `string`
+
+    - **`id`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`role_name`**
+
+      `string` — Name of the role from which this permission was sourced
+
+    - **`update_time`**
+
+      `string`, format: `date-time`
+
+**Example:**
+
+```json
+{
+  "role": {
+    "default_creator": true,
+    "default_member": true,
+    "dependent_roles_count": 3,
+    "description": "Can create, edit, and publish content but cannot delete or manage users",
+    "display_name": "Content Editor",
+    "extends": "admin_role",
+    "id": "role_1234abcd5678efgh",
+    "is_org_role": true,
+    "name": "content_editor",
+    "permissions": [
+      {
+        "description": "Read Content",
+        "name": "read:content",
+        "role_name": "admin_role"
+      },
+      {
+        "description": "Write Content",
+        "name": "write:content",
+        "role_name": "editor_role"
+      }
+    ]
+  }
+}
+```
+
+### rolesCreatePermissionResponse
+
+- **Type:**`object`
+
+* **`permission`**
+
+  `object`
+
+  - **`create_time`**
+
+    `string`, format: `date-time`
+
+  - **`description`**
+
+    `string`
+
+  - **`id`**
+
+    `string`
+
+  - **`is_scalekit_permission`**
+
+    `boolean` — Indicates whether this permission is predefined by Scalekit
+
+  - **`name`**
+
+    `string`
+
+  - **`update_time`**
+
+    `string`, format: `date-time`
+
+**Example:**
+
+```json
+{
+  "permission": {
+    "create_time": "",
+    "description": "",
+    "id": "",
+    "is_scalekit_permission": true,
+    "name": "",
+    "update_time": ""
+  }
+}
+```
+
+### rolesCreateRoleResponse
+
+- **Type:**`object`
+
+* **`role`**
+
+  `object` — The created role object with system-generated ID and all configuration details.
+
+  - **`default_creator`**
+
+    `boolean` — Indicates if this role is the default creator role for new organizations.
+
+  - **`default_member`**
+
+    `boolean` — Indicates if this role is the default member role for new users.
+
+  - **`dependent_roles_count`**
+
+    `integer`, format: `int32` — Number of roles that extend from this role (dependent roles count). Read-only field.
+
+  - **`description`**
+
+    `string` — Detailed description of the role's purpose and capabilities. Maximum 2000 characters.
+
+  - **`display_name`**
+
+    `string` — Human-readable display name for the role. Used in user interfaces and reports.
+
+  - **`extends`**
+
+    `string` — Name of the base role that this role extends. Enables hierarchical role inheritance.
+
+  - **`id`**
+
+    `string` — Unique system-generated identifier for the role. Immutable once created.
+
+  - **`is_org_role`**
+
+    `boolean` — Indicates if this role is an organization role.
+
+  - **`name`**
+
+    `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.
+
+  - **`permissions`**
+
+    `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
+
+    **Items:**
+
+    - **`create_time`**
+
+      `string`, format: `date-time`
+
+    - **`description`**
+
+      `string`
+
+    - **`id`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`role_name`**
+
+      `string` — Name of the role from which this permission was sourced
+
+    - **`update_time`**
+
+      `string`, format: `date-time`
+
+**Example:**
+
+```json
+{
+  "role": {
+    "description": "Can edit content",
+    "display_name": "Content Editor",
+    "id": "role_1234abcd5678efgh",
+    "name": "content_editor"
+  }
+}
+```
+
+### rolesGetOrganizationRoleResponse
+
+- **Type:**`object`
+
+* **`role`**
+
+  `object`
+
+  - **`default_creator`**
+
+    `boolean` — Indicates if this role is the default creator role for new organizations.
+
+  - **`default_member`**
+
+    `boolean` — Indicates if this role is the default member role for new users.
+
+  - **`dependent_roles_count`**
+
+    `integer`, format: `int32` — Number of roles that extend from this role (dependent roles count). Read-only field.
+
+  - **`description`**
+
+    `string` — Detailed description of the role's purpose and capabilities. Maximum 2000 characters.
+
+  - **`display_name`**
+
+    `string` — Human-readable display name for the role. Used in user interfaces and reports.
+
+  - **`extends`**
+
+    `string` — Name of the base role that this role extends. Enables hierarchical role inheritance.
+
+  - **`id`**
+
+    `string` — Unique system-generated identifier for the role. Immutable once created.
+
+  - **`is_org_role`**
+
+    `boolean` — Indicates if this role is an organization role.
+
+  - **`name`**
+
+    `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.
+
+  - **`permissions`**
+
+    `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
+
+    **Items:**
+
+    - **`create_time`**
+
+      `string`, format: `date-time`
+
+    - **`description`**
+
+      `string`
+
+    - **`id`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`role_name`**
+
+      `string` — Name of the role from which this permission was sourced
+
+    - **`update_time`**
+
+      `string`, format: `date-time`
+
+**Example:**
+
+```json
+{
+  "role": {
+    "default_creator": true,
+    "default_member": true,
+    "dependent_roles_count": 3,
+    "description": "Can create, edit, and publish content but cannot delete or manage users",
+    "display_name": "Content Editor",
+    "extends": "admin_role",
+    "id": "role_1234abcd5678efgh",
+    "is_org_role": true,
+    "name": "content_editor",
+    "permissions": [
+      {
+        "description": "Read Content",
+        "name": "read:content",
+        "role_name": "admin_role"
+      },
+      {
+        "description": "Write Content",
+        "name": "write:content",
+        "role_name": "editor_role"
+      }
+    ]
+  }
+}
+```
+
+### rolesGetPermissionResponse
+
+- **Type:**`object`
+
+* **`permission`**
+
+  `object`
+
+  - **`create_time`**
+
+    `string`, format: `date-time`
+
+  - **`description`**
+
+    `string`
+
+  - **`id`**
+
+    `string`
+
+  - **`is_scalekit_permission`**
+
+    `boolean` — Indicates whether this permission is predefined by Scalekit
+
+  - **`name`**
+
+    `string`
+
+  - **`update_time`**
+
+    `string`, format: `date-time`
+
+**Example:**
+
+```json
+{
+  "permission": {
+    "create_time": "",
+    "description": "",
+    "id": "",
+    "is_scalekit_permission": true,
+    "name": "",
+    "update_time": ""
+  }
+}
+```
+
+### rolesGetRoleResponse
+
+- **Type:**`object`
+
+* **`role`**
+
+  `object` — The complete role object with all metadata, permissions, and inheritance details.
+
+  - **`default_creator`**
+
+    `boolean` — Indicates if this role is the default creator role for new organizations.
+
+  - **`default_member`**
+
+    `boolean` — Indicates if this role is the default member role for new users.
+
+  - **`dependent_roles_count`**
+
+    `integer`, format: `int32` — Number of roles that extend from this role (dependent roles count). Read-only field.
+
+  - **`description`**
+
+    `string` — Detailed description of the role's purpose and capabilities. Maximum 2000 characters.
+
+  - **`display_name`**
+
+    `string` — Human-readable display name for the role. Used in user interfaces and reports.
+
+  - **`extends`**
+
+    `string` — Name of the base role that this role extends. Enables hierarchical role inheritance.
+
+  - **`id`**
+
+    `string` — Unique system-generated identifier for the role. Immutable once created.
+
+  - **`is_org_role`**
+
+    `boolean` — Indicates if this role is an organization role.
+
+  - **`name`**
+
+    `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.
+
+  - **`permissions`**
+
+    `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
+
+    **Items:**
+
+    - **`create_time`**
+
+      `string`, format: `date-time`
+
+    - **`description`**
+
+      `string`
+
+    - **`id`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`role_name`**
+
+      `string` — Name of the role from which this permission was sourced
+
+    - **`update_time`**
+
+      `string`, format: `date-time`
+
+**Example:**
+
+```json
+{
+  "role": {
+    "dependent_roles_count": 2,
+    "display_name": "Content Editor",
+    "id": "role_1234abcd5678efgh",
+    "name": "content_editor",
+    "permissions": [
+      {
+        "name": "read:content"
+      }
+    ]
+  }
+}
+```
+
+### rolesGetRoleUsersCountResponse
+
+- **Type:**`object`
+
+* **`count`**
+
+  `string`, format: `int64` — Number of users associated with the role
+
+**Example:**
+
+```json
+{
+  "count": 10
+}
+```
+
+### rolesListDependentRolesResponse
+
+- **Type:**`object`
+
+* **`roles`**
+
+  `array` — List of dependent roles
+
+  **Items:**
+
+  - **`default_creator`**
+
+    `boolean` — Indicates if this role is the default creator role for new organizations.
+
+  - **`default_member`**
+
+    `boolean` — Indicates if this role is the default member role for new users.
+
+  - **`dependent_roles_count`**
+
+    `integer`, format: `int32` — Number of roles that extend from this role (dependent roles count). Read-only field.
+
+  - **`description`**
+
+    `string` — Detailed description of the role's purpose and capabilities. Maximum 2000 characters.
+
+  - **`display_name`**
+
+    `string` — Human-readable display name for the role. Used in user interfaces and reports.
+
+  - **`extends`**
+
+    `string` — Name of the base role that this role extends. Enables hierarchical role inheritance.
+
+  - **`id`**
+
+    `string` — Unique system-generated identifier for the role. Immutable once created.
+
+  - **`is_org_role`**
+
+    `boolean` — Indicates if this role is an organization role.
+
+  - **`name`**
+
+    `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.
+
+  - **`permissions`**
+
+    `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
+
+    **Items:**
+
+    - **`create_time`**
+
+      `string`, format: `date-time`
+
+    - **`description`**
+
+      `string`
+
+    - **`id`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`role_name`**
+
+      `string` — Name of the role from which this permission was sourced
+
+    - **`update_time`**
+
+      `string`, format: `date-time`
+
+**Example:**
+
+```json
+{
+  "roles": [
+    {
+      "default_creator": true,
+      "default_member": true,
+      "dependent_roles_count": 3,
+      "description": "Can create, edit, and publish content but cannot delete or manage users",
+      "display_name": "Content Editor",
+      "extends": "admin_role",
+      "id": "role_1234abcd5678efgh",
+      "is_org_role": true,
+      "name": "content_editor",
+      "permissions": [
+        {
+          "description": "Read Content",
+          "name": "read:content",
+          "role_name": "admin_role"
+        },
+        {
+          "description": "Write Content",
+          "name": "write:content",
+          "role_name": "editor_role"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### rolesListEffectiveRolePermissionsResponse
+
+- **Type:**`object`
+
+* **`permissions`**
+
+  `array` — List of all effective permissions including those inherited from base roles
+
+  **Items:**
+
+  - **`create_time`**
+
+    `string`, format: `date-time`
+
+  - **`description`**
+
+    `string`
+
+  - **`id`**
+
+    `string`
+
+  - **`is_scalekit_permission`**
+
+    `boolean` — Indicates whether this permission is predefined by Scalekit
+
+  - **`name`**
+
+    `string`
+
+  - **`update_time`**
+
+    `string`, format: `date-time`
+
+**Example:**
+
+```json
+{
+  "permissions": [
+    {
+      "create_time": "",
+      "description": "",
+      "id": "",
+      "is_scalekit_permission": true,
+      "name": "",
+      "update_time": ""
+    }
+  ]
+}
+```
+
+### rolesListOrganizationRolesResponse
+
+- **Type:**`object`
+
+* **`roles`**
+
+  `array` — List of roles objects
+
+  **Items:**
+
+  - **`default_creator`**
+
+    `boolean` — Indicates if this role is the default creator role for new organizations.
+
+  - **`default_member`**
+
+    `boolean` — Indicates if this role is the default member role for new users.
+
+  - **`dependent_roles_count`**
+
+    `integer`, format: `int32` — Number of roles that extend from this role (dependent roles count). Read-only field.
+
+  - **`description`**
+
+    `string` — Detailed description of the role's purpose and capabilities. Maximum 2000 characters.
+
+  - **`display_name`**
+
+    `string` — Human-readable display name for the role. Used in user interfaces and reports.
+
+  - **`extends`**
+
+    `string` — Name of the base role that this role extends. Enables hierarchical role inheritance.
+
+  - **`id`**
+
+    `string` — Unique system-generated identifier for the role. Immutable once created.
+
+  - **`is_org_role`**
+
+    `boolean` — Indicates if this role is an organization role.
+
+  - **`name`**
+
+    `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.
+
+  - **`permissions`**
+
+    `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
+
+    **Items:**
+
+    - **`create_time`**
+
+      `string`, format: `date-time`
+
+    - **`description`**
+
+      `string`
+
+    - **`id`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`role_name`**
+
+      `string` — Name of the role from which this permission was sourced
+
+    - **`update_time`**
+
+      `string`, format: `date-time`
+
+**Example:**
+
+```json
+{
+  "roles": [
+    {
+      "default_creator": true,
+      "default_member": true,
+      "dependent_roles_count": 3,
+      "description": "Can create, edit, and publish content but cannot delete or manage users",
+      "display_name": "Content Editor",
+      "extends": "admin_role",
+      "id": "role_1234abcd5678efgh",
+      "is_org_role": true,
+      "name": "content_editor",
+      "permissions": [
+        {
+          "description": "Read Content",
+          "name": "read:content",
+          "role_name": "admin_role"
+        },
+        {
+          "description": "Write Content",
+          "name": "write:content",
+          "role_name": "editor_role"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### rolesListPermissionsResponse
 
 - **Type:**`object`
 
 * **`next_page_token`**
 
-  `string` — Opaque token for retrieving the next page of results. Empty if there are no more pages.
+  `string` — Token to retrieve next page of results
+
+* **`permissions`**
+
+  `array`
+
+  **Items:**
+
+  - **`create_time`**
+
+    `string`, format: `date-time`
+
+  - **`description`**
+
+    `string`
+
+  - **`id`**
+
+    `string`
+
+  - **`is_scalekit_permission`**
+
+    `boolean` — Indicates whether this permission is predefined by Scalekit
+
+  - **`name`**
+
+    `string`
+
+  - **`update_time`**
+
+    `string`, format: `date-time`
 
 * **`prev_page_token`**
 
-  `string` — Opaque token for retrieving the previous page of results. Empty for the first page.
+  `string` — Token to retrieve previous page of results
 
 * **`total_size`**
 
-  `integer`, format: `int64` — Total number of users matching the request criteria, regardless of pagination.
+  `integer`, format: `int64` — Total number of permissions available
 
-* **`users`**
+**Example:**
 
-  `array` — List of user objects for the current page. May contain fewer entries than requested page\_size.
+```json
+{
+  "next_page_token": "token_def456",
+  "permissions": [
+    {
+      "create_time": "",
+      "description": "",
+      "id": "",
+      "is_scalekit_permission": true,
+      "name": "",
+      "update_time": ""
+    }
+  ],
+  "prev_page_token": "token_def456",
+  "total_size": 150
+}
+```
+
+### rolesListRolePermissionsResponse
+
+- **Type:**`object`
+
+* **`permissions`**
+
+  `array` — List of permissions directly assigned to the role
 
   **Items:**
+
+  - **`create_time`**
+
+    `string`, format: `date-time`
+
+  - **`description`**
+
+    `string`
+
+  - **`id`**
+
+    `string`
+
+  - **`is_scalekit_permission`**
+
+    `boolean` — Indicates whether this permission is predefined by Scalekit
+
+  - **`name`**
+
+    `string`
+
+  - **`update_time`**
+
+    `string`, format: `date-time`
+
+**Example:**
+
+```json
+{
+  "permissions": [
+    {
+      "create_time": "",
+      "description": "",
+      "id": "",
+      "is_scalekit_permission": true,
+      "name": "",
+      "update_time": ""
+    }
+  ]
+}
+```
+
+### rolesListRolesResponse
+
+- **Type:**`object`
+
+* **`roles`**
+
+  `array` — List of all roles in the environment with their metadata and optionally their permissions.
+
+  **Items:**
+
+  - **`default_creator`**
+
+    `boolean` — Indicates if this role is the default creator role for new organizations.
+
+  - **`default_member`**
+
+    `boolean` — Indicates if this role is the default member role for new users.
+
+  - **`dependent_roles_count`**
+
+    `integer`, format: `int32` — Number of roles that extend from this role (dependent roles count). Read-only field.
+
+  - **`description`**
+
+    `string` — Detailed description of the role's purpose and capabilities. Maximum 2000 characters.
+
+  - **`display_name`**
+
+    `string` — Human-readable display name for the role. Used in user interfaces and reports.
+
+  - **`extends`**
+
+    `string` — Name of the base role that this role extends. Enables hierarchical role inheritance.
+
+  - **`id`**
+
+    `string` — Unique system-generated identifier for the role. Immutable once created.
+
+  - **`is_org_role`**
+
+    `boolean` — Indicates if this role is an organization role.
+
+  - **`name`**
+
+    `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.
+
+  - **`permissions`**
+
+    `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
+
+    **Items:**
+
+    - **`create_time`**
+
+      `string`, format: `date-time`
+
+    - **`description`**
+
+      `string`
+
+    - **`id`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`role_name`**
+
+      `string` — Name of the role from which this permission was sourced
+
+    - **`update_time`**
+
+      `string`, format: `date-time`
+
+**Example:**
+
+```json
+{
+  "roles": [
+    {
+      "display_name": "Administrator",
+      "id": "role_1234abcd5678efgh",
+      "name": "admin"
+    },
+    {
+      "display_name": "Viewer",
+      "id": "role_9876zyxw5432vuts",
+      "name": "viewer"
+    }
+  ]
+}
+```
+
+### Permission Entity
+
+- **Type:**`object`
+
+* **`create_time`**
+
+  `string`, format: `date-time`
+
+* **`description`**
+
+  `string`
+
+* **`id`**
+
+  `string`
+
+* **`is_scalekit_permission`**
+
+  `boolean` — Indicates whether this permission is predefined by Scalekit
+
+* **`name`**
+
+  `string`
+
+* **`update_time`**
+
+  `string`, format: `date-time`
+
+**Example:**
+
+```json
+{
+  "create_time": "",
+  "description": "",
+  "id": "",
+  "is_scalekit_permission": true,
+  "name": "",
+  "update_time": ""
+}
+```
+
+### RolePermissions represents a permission with role source information
+
+- **Type:**`object`
+
+* **`create_time`**
+
+  `string`, format: `date-time`
+
+* **`description`**
+
+  `string`
+
+* **`id`**
+
+  `string`
+
+* **`name`**
+
+  `string`
+
+* **`role_name`**
+
+  `string` — Name of the role from which this permission was sourced
+
+* **`update_time`**
+
+  `string`, format: `date-time`
+
+**Example:**
+
+```json
+{
+  "create_time": "",
+  "description": "",
+  "id": "",
+  "name": "",
+  "role_name": "admin_role",
+  "update_time": ""
+}
+```
+
+### rolesUpdateDefaultOrganizationRolesResponse
+
+- **Type:**`object`
+
+* **`default_member`**
+
+  `object` — Updated default member role
+
+  - **`default_creator`**
+
+    `boolean` — Indicates if this role is the default creator role for new organizations.
+
+  - **`default_member`**
+
+    `boolean` — Indicates if this role is the default member role for new users.
+
+  - **`dependent_roles_count`**
+
+    `integer`, format: `int32` — Number of roles that extend from this role (dependent roles count). Read-only field.
+
+  - **`description`**
+
+    `string` — Detailed description of the role's purpose and capabilities. Maximum 2000 characters.
+
+  - **`display_name`**
+
+    `string` — Human-readable display name for the role. Used in user interfaces and reports.
+
+  - **`extends`**
+
+    `string` — Name of the base role that this role extends. Enables hierarchical role inheritance.
+
+  - **`id`**
+
+    `string` — Unique system-generated identifier for the role. Immutable once created.
+
+  - **`is_org_role`**
+
+    `boolean` — Indicates if this role is an organization role.
+
+  - **`name`**
+
+    `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.
+
+  - **`permissions`**
+
+    `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
+
+    **Items:**
+
+    - **`create_time`**
+
+      `string`, format: `date-time`
+
+    - **`description`**
+
+      `string`
+
+    - **`id`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`role_name`**
+
+      `string` — Name of the role from which this permission was sourced
+
+    - **`update_time`**
+
+      `string`, format: `date-time`
+
+**Example:**
+
+```json
+{
+  "default_member": {
+    "description": "Role for regular members",
+    "display_name": "Member Role",
+    "id": "role_0987654321",
+    "name": "member"
+  }
+}
+```
+
+### rolesUpdateDefaultRole
+
+- **Type:**`object`
+
+* **`id`**
+
+  `string`
+
+* **`name`**
+
+  `string` — Unique name of the role
+
+**Example:**
+
+```json
+{
+  "id": "",
+  "name": "creator"
+}
+```
+
+### rolesUpdateDefaultRolesRequest
+
+- **Type:**`object`
+
+* **`default_creator`**
+
+  `object` — Default creator role (deprecated - use default\_creator\_role field instead)
+
+  - **`id`**
+
+    `string`
+
+  - **`name`**
+
+    `string` — Unique name of the role
+
+* **`default_creator_role`**
+
+  `string` — Name of the role to set as the default creator role. This role will be automatically assigned to users who create new resources in the environment. Must be a valid role name that exists in the environment.
+
+* **`default_member`**
+
+  `object` — Default member role (deprecated - use default\_member\_role field instead)
+
+  - **`id`**
+
+    `string`
+
+  - **`name`**
+
+    `string` — Unique name of the role
+
+* **`default_member_role`**
+
+  `string` — Name of the role to set as the default member role. This role will be automatically assigned to new users when they join the environment. Must be a valid role name that exists in the environment.
+
+**Example:**
+
+```json
+{
+  "default_creator": {
+    "description": "Role for creating resources",
+    "display_name": "Creator Role",
+    "id": "role_1234567890",
+    "name": "creator"
+  },
+  "default_creator_role": "creator",
+  "default_member": {
+    "description": "Role for regular members",
+    "display_name": "Member Role",
+    "id": "role_0987654321",
+    "name": "member"
+  },
+  "default_member_role": "member"
+}
+```
+
+### rolesUpdateDefaultRolesResponse
+
+- **Type:**`object`
+
+* **`default_creator`**
+
+  `object` — The role that is now set as the default creator role for the environment. Contains complete role information including permissions and metadata.
+
+  - **`default_creator`**
+
+    `boolean` — Indicates if this role is the default creator role for new organizations.
+
+  - **`default_member`**
+
+    `boolean` — Indicates if this role is the default member role for new users.
+
+  - **`dependent_roles_count`**
+
+    `integer`, format: `int32` — Number of roles that extend from this role (dependent roles count). Read-only field.
+
+  - **`description`**
+
+    `string` — Detailed description of the role's purpose and capabilities. Maximum 2000 characters.
+
+  - **`display_name`**
+
+    `string` — Human-readable display name for the role. Used in user interfaces and reports.
+
+  - **`extends`**
+
+    `string` — Name of the base role that this role extends. Enables hierarchical role inheritance.
+
+  - **`id`**
+
+    `string` — Unique system-generated identifier for the role. Immutable once created.
+
+  - **`is_org_role`**
+
+    `boolean` — Indicates if this role is an organization role.
+
+  - **`name`**
+
+    `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.
+
+  - **`permissions`**
+
+    `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
+
+    **Items:**
+
+    - **`create_time`**
+
+      `string`, format: `date-time`
+
+    - **`description`**
+
+      `string`
+
+    - **`id`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`role_name`**
+
+      `string` — Name of the role from which this permission was sourced
+
+    - **`update_time`**
+
+      `string`, format: `date-time`
+
+* **`default_member`**
+
+  `object` — The role that is now set as the default member role for the environment. Contains complete role information including permissions and metadata.
+
+  - **`default_creator`**
+
+    `boolean` — Indicates if this role is the default creator role for new organizations.
+
+  - **`default_member`**
+
+    `boolean` — Indicates if this role is the default member role for new users.
+
+  - **`dependent_roles_count`**
+
+    `integer`, format: `int32` — Number of roles that extend from this role (dependent roles count). Read-only field.
+
+  - **`description`**
+
+    `string` — Detailed description of the role's purpose and capabilities. Maximum 2000 characters.
+
+  - **`display_name`**
+
+    `string` — Human-readable display name for the role. Used in user interfaces and reports.
+
+  - **`extends`**
+
+    `string` — Name of the base role that this role extends. Enables hierarchical role inheritance.
+
+  - **`id`**
+
+    `string` — Unique system-generated identifier for the role. Immutable once created.
+
+  - **`is_org_role`**
+
+    `boolean` — Indicates if this role is an organization role.
+
+  - **`name`**
+
+    `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.
+
+  - **`permissions`**
+
+    `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
+
+    **Items:**
+
+    - **`create_time`**
+
+      `string`, format: `date-time`
+
+    - **`description`**
+
+      `string`
+
+    - **`id`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`role_name`**
+
+      `string` — Name of the role from which this permission was sourced
+
+    - **`update_time`**
+
+      `string`, format: `date-time`
+
+**Example:**
+
+```json
+{
+  "default_creator": {
+    "description": "Role for creating resources",
+    "display_name": "Creator Role",
+    "id": "role_1234567890",
+    "name": "creator"
+  },
+  "default_member": {
+    "description": "Role for regular members",
+    "display_name": "Member Role",
+    "id": "role_0987654321",
+    "name": "member"
+  }
+}
+```
+
+### rolesUpdateOrganizationRoleResponse
+
+- **Type:**`object`
+
+* **`role`**
+
+  `object`
+
+  - **`default_creator`**
+
+    `boolean` — Indicates if this role is the default creator role for new organizations.
+
+  - **`default_member`**
+
+    `boolean` — Indicates if this role is the default member role for new users.
+
+  - **`dependent_roles_count`**
+
+    `integer`, format: `int32` — Number of roles that extend from this role (dependent roles count). Read-only field.
+
+  - **`description`**
+
+    `string` — Detailed description of the role's purpose and capabilities. Maximum 2000 characters.
+
+  - **`display_name`**
+
+    `string` — Human-readable display name for the role. Used in user interfaces and reports.
+
+  - **`extends`**
+
+    `string` — Name of the base role that this role extends. Enables hierarchical role inheritance.
+
+  - **`id`**
+
+    `string` — Unique system-generated identifier for the role. Immutable once created.
+
+  - **`is_org_role`**
+
+    `boolean` — Indicates if this role is an organization role.
+
+  - **`name`**
+
+    `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.
+
+  - **`permissions`**
+
+    `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
+
+    **Items:**
+
+    - **`create_time`**
+
+      `string`, format: `date-time`
+
+    - **`description`**
+
+      `string`
+
+    - **`id`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`role_name`**
+
+      `string` — Name of the role from which this permission was sourced
+
+    - **`update_time`**
+
+      `string`, format: `date-time`
+
+**Example:**
+
+```json
+{
+  "role": {
+    "default_creator": true,
+    "default_member": true,
+    "dependent_roles_count": 3,
+    "description": "Can create, edit, and publish content but cannot delete or manage users",
+    "display_name": "Content Editor",
+    "extends": "admin_role",
+    "id": "role_1234abcd5678efgh",
+    "is_org_role": true,
+    "name": "content_editor",
+    "permissions": [
+      {
+        "description": "Read Content",
+        "name": "read:content",
+        "role_name": "admin_role"
+      },
+      {
+        "description": "Write Content",
+        "name": "write:content",
+        "role_name": "editor_role"
+      }
+    ]
+  }
+}
+```
+
+### rolesUpdatePermissionResponse
+
+- **Type:**`object`
+
+* **`permission`**
+
+  `object`
+
+  - **`create_time`**
+
+    `string`, format: `date-time`
+
+  - **`description`**
+
+    `string`
+
+  - **`id`**
+
+    `string`
+
+  - **`is_scalekit_permission`**
+
+    `boolean` — Indicates whether this permission is predefined by Scalekit
+
+  - **`name`**
+
+    `string`
+
+  - **`update_time`**
+
+    `string`, format: `date-time`
+
+**Example:**
+
+```json
+{
+  "permission": {
+    "create_time": "",
+    "description": "",
+    "id": "",
+    "is_scalekit_permission": true,
+    "name": "",
+    "update_time": ""
+  }
+}
+```
+
+### rolesUpdateRoleResponse
+
+- **Type:**`object`
+
+* **`role`**
+
+  `object` — The updated role object with all current configuration details.
+
+  - **`default_creator`**
+
+    `boolean` — Indicates if this role is the default creator role for new organizations.
+
+  - **`default_member`**
+
+    `boolean` — Indicates if this role is the default member role for new users.
+
+  - **`dependent_roles_count`**
+
+    `integer`, format: `int32` — Number of roles that extend from this role (dependent roles count). Read-only field.
+
+  - **`description`**
+
+    `string` — Detailed description of the role's purpose and capabilities. Maximum 2000 characters.
+
+  - **`display_name`**
+
+    `string` — Human-readable display name for the role. Used in user interfaces and reports.
+
+  - **`extends`**
+
+    `string` — Name of the base role that this role extends. Enables hierarchical role inheritance.
+
+  - **`id`**
+
+    `string` — Unique system-generated identifier for the role. Immutable once created.
+
+  - **`is_org_role`**
+
+    `boolean` — Indicates if this role is an organization role.
+
+  - **`name`**
+
+    `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.
+
+  - **`permissions`**
+
+    `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
+
+    **Items:**
+
+    - **`create_time`**
+
+      `string`, format: `date-time`
+
+    - **`description`**
+
+      `string`
+
+    - **`id`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+    - **`role_name`**
+
+      `string` — Name of the role from which this permission was sourced
+
+    - **`update_time`**
+
+      `string`, format: `date-time`
+
+**Example:**
+
+```json
+{
+  "role": {
+    "description": "Can edit and approve content",
+    "display_name": "Senior Editor",
+    "id": "role_1234abcd5678efgh",
+    "name": "content_editor"
+  }
+}
+```
+
+### sessionsAuthenticatedClients
+
+- **Type:**`object`
+
+AuthenticatedClients represents an authenticated client in a session along with its organization context.
+
+- **`client_id`**
+
+  `string` — Unique identifier of the authenticated client application.
+
+- **`organization_id`**
+
+  `string` — Active or last active Organization ID associated with the authenticated client.
+
+**Example:**
+
+```json
+{
+  "client_id": "skc_1234567890",
+  "organization_id": "org_1234567890"
+}
+```
+
+### sessionsDeviceDetails
+
+- **Type:**`object`
+
+* **`browser`**
+
+  `string` — Browser name and family extracted from the user agent. Examples: Chrome, Safari, Firefox, Edge, Mobile Safari.
+
+* **`browser_version`**
+
+  `string` — Version of the browser application. Represents the specific release version of the browser being used.
+
+* **`device_type`**
+
+  `string` — Categorized device type classification. Possible values: 'desktop' (traditional computers), 'mobile' (smartphones and small tablets), 'tablet' (large tablets), 'other'. Useful for displaying session information by device category.
+
+* **`ip`**
+
+  `string` — IP address of the device that initiated the session. This is the public-facing IP address used to connect to the application. Useful for security audits and geographic distribution analysis.
+
+* **`location`**
+
+  `object` — Geographic location information derived from IP address geolocation. Includes country, region, city, and coordinates. Note: Based on IP location data and may not represent the user's exact physical location.
+
+  - **`city`**
+
+    `string` — City name where the session originated based on IP geolocation. Approximate location derived from IP address.
+
+  - **`latitude`**
+
+    `string` — Latitude coordinate of the estimated location. Decimal format (e.g., '37.7749'). Note: Represents IP geolocation center and may not be precise.
+
+  - **`longitude`**
+
+    `string` — Longitude coordinate of the estimated location. Decimal format (e.g., '-122.4194'). Note: Represents IP geolocation center and may not be precise.
+
+  - **`region`**
+
+    `string` — Geographic region name derived from IP geolocation. Represents the country-level location (e.g., 'United States', 'France').
+
+  - **`region_subdivision`**
+
+    `string` — Regional subdivision code or name (e.g., state abbreviation for US, province for Canada). Two-letter ISO format when applicable.
+
+* **`os`**
+
+  `string` — Operating system name extracted from the user agent and device headers. Examples: macOS, Windows, Linux, iOS, Android.
+
+* **`os_version`**
+
+  `string` — Version of the operating system. Represents the specific OS release the device is running.
+
+* **`user_agent`**
+
+  `string` — Complete HTTP User-Agent header string from the client request. Contains browser type, version, and operating system information. Used for detailed device fingerprinting and user agent analysis.
+
+**Example:**
+
+```json
+{
+  "browser": "Chrome",
+  "browser_version": "120.0.0.0",
+  "device_type": "desktop",
+  "ip": "192.0.2.1",
+  "location": {
+    "city": "San Francisco",
+    "latitude": "37.7749",
+    "longitude": "-122.4194",
+    "region": "United States",
+    "region_subdivision": "CA"
+  },
+  "os": "macOS",
+  "os_version": "14.2",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+}
+```
+
+### sessionsRevokeAllUserSessionsResponse
+
+- **Type:**`object`
+
+* **`revoked_sessions`**
+
+  `array` — List of all sessions that were revoked, including detailed information for each revoked session with IDs, timestamps, and device details.
+
+  **Items:**
+
+  - **`absolute_expires_at`**
+
+    `string`, format: `date-time` — The absolute expiration timestamp that was configured for this session before revocation. Represents the hard deadline regardless of activity.
+
+  - **`created_at`**
+
+    `string`, format: `date-time` — Timestamp indicating when the session was originally created before revocation.
+
+  - **`expired_at`**
+
+    `string`, format: `date-time` — Timestamp when the session was actually terminated. Set to the revocation time when the session is revoked.
+
+  - **`idle_expires_at`**
+
+    `string`, format: `date-time` — The idle expiration timestamp that was configured for this session before revocation. Represents when the session would have expired due to inactivity.
+
+  - **`last_active_at`**
+
+    `string`, format: `date-time` — Timestamp of the last recorded user activity in this session before revocation. Helps identify inactive sessions that were revoked.
+
+  - **`logout_at`**
+
+    `string`, format: `date-time` — Timestamp when the user explicitly logged out (if applicable). Null if the session was revoked without prior logout.
+
+  - **`session_id`**
+
+    `string` — Unique identifier for the revoked session. System-generated read-only field.
+
+  - **`status`**
+
+    `string` — Status of the session after revocation. Always 'revoked' since only active sessions can be revoked. Sessions that were already expired or logged out are not included in the revocation response.
+
+  - **`updated_at`**
+
+    `string`, format: `date-time` — Timestamp indicating when the session was last modified before revocation.
+
+  - **`user_id`**
+
+    `string` — Unique identifier for the user who owned this session.
+
+* **`total_revoked`**
+
+  `integer`, format: `int64` — Total count of active sessions that were revoked. Useful for confirmation and audit logging.
+
+**Example:**
+
+```json
+{
+  "revoked_sessions": [
+    {
+      "absolute_expires_at": "2025-01-22T10:30:00Z",
+      "created_at": "2025-01-15T10:30:00Z",
+      "expired_at": "2025-01-15T12:00:00Z",
+      "idle_expires_at": "2025-01-15T11:30:00Z",
+      "last_active_at": "2025-01-15T10:55:30Z",
+      "logout_at": "2025-01-15T14:00:00Z",
+      "session_id": "ses_1234567890123456",
+      "status": "revoked",
+      "updated_at": "2025-01-15T10:45:00Z",
+      "user_id": "usr_1234567890123456"
+    }
+  ],
+  "total_revoked": 5
+}
+```
+
+### sessionsRevokeSessionResponse
+
+- **Type:**`object`
+
+* **`revoked_session`**
+
+  `object` — Details of the revoked session including session ID, user ID, creation and revocation timestamps, and final device information.
+
+  - **`absolute_expires_at`**
+
+    `string`, format: `date-time` — The absolute expiration timestamp that was configured for this session before revocation. Represents the hard deadline regardless of activity.
+
+  - **`created_at`**
+
+    `string`, format: `date-time` — Timestamp indicating when the session was originally created before revocation.
+
+  - **`expired_at`**
+
+    `string`, format: `date-time` — Timestamp when the session was actually terminated. Set to the revocation time when the session is revoked.
+
+  - **`idle_expires_at`**
+
+    `string`, format: `date-time` — The idle expiration timestamp that was configured for this session before revocation. Represents when the session would have expired due to inactivity.
+
+  - **`last_active_at`**
+
+    `string`, format: `date-time` — Timestamp of the last recorded user activity in this session before revocation. Helps identify inactive sessions that were revoked.
+
+  - **`logout_at`**
+
+    `string`, format: `date-time` — Timestamp when the user explicitly logged out (if applicable). Null if the session was revoked without prior logout.
+
+  - **`session_id`**
+
+    `string` — Unique identifier for the revoked session. System-generated read-only field.
+
+  - **`status`**
+
+    `string` — Status of the session after revocation. Always 'revoked' since only active sessions can be revoked. Sessions that were already expired or logged out are not included in the revocation response.
+
+  - **`updated_at`**
+
+    `string`, format: `date-time` — Timestamp indicating when the session was last modified before revocation.
+
+  - **`user_id`**
+
+    `string` — Unique identifier for the user who owned this session.
+
+**Example:**
+
+```json
+{
+  "revoked_session": {
+    "absolute_expires_at": "2025-01-22T10:30:00Z",
+    "created_at": "2025-01-15T10:30:00Z",
+    "expired_at": "2025-01-15T12:00:00Z",
+    "idle_expires_at": "2025-01-15T11:30:00Z",
+    "last_active_at": "2025-01-15T10:55:30Z",
+    "logout_at": "2025-01-15T14:00:00Z",
+    "session_id": "ses_1234567890123456",
+    "status": "revoked",
+    "updated_at": "2025-01-15T10:45:00Z",
+    "user_id": "usr_1234567890123456"
+  }
+}
+```
+
+### sessionsRevokedSessionDetails
+
+- **Type:**`object`
+
+* **`absolute_expires_at`**
+
+  `string`, format: `date-time` — The absolute expiration timestamp that was configured for this session before revocation. Represents the hard deadline regardless of activity.
+
+* **`created_at`**
+
+  `string`, format: `date-time` — Timestamp indicating when the session was originally created before revocation.
+
+* **`expired_at`**
+
+  `string`, format: `date-time` — Timestamp when the session was actually terminated. Set to the revocation time when the session is revoked.
+
+* **`idle_expires_at`**
+
+  `string`, format: `date-time` — The idle expiration timestamp that was configured for this session before revocation. Represents when the session would have expired due to inactivity.
+
+* **`last_active_at`**
+
+  `string`, format: `date-time` — Timestamp of the last recorded user activity in this session before revocation. Helps identify inactive sessions that were revoked.
+
+* **`logout_at`**
+
+  `string`, format: `date-time` — Timestamp when the user explicitly logged out (if applicable). Null if the session was revoked without prior logout.
+
+* **`session_id`**
+
+  `string` — Unique identifier for the revoked session. System-generated read-only field.
+
+* **`status`**
+
+  `string` — Status of the session after revocation. Always 'revoked' since only active sessions can be revoked. Sessions that were already expired or logged out are not included in the revocation response.
+
+* **`updated_at`**
+
+  `string`, format: `date-time` — Timestamp indicating when the session was last modified before revocation.
+
+* **`user_id`**
+
+  `string` — Unique identifier for the user who owned this session.
+
+**Example:**
+
+```json
+{
+  "absolute_expires_at": "2025-01-22T10:30:00Z",
+  "created_at": "2025-01-15T10:30:00Z",
+  "expired_at": "2025-01-15T12:00:00Z",
+  "idle_expires_at": "2025-01-15T11:30:00Z",
+  "last_active_at": "2025-01-15T10:55:30Z",
+  "logout_at": "2025-01-15T14:00:00Z",
+  "session_id": "ses_1234567890123456",
+  "status": "revoked",
+  "updated_at": "2025-01-15T10:45:00Z",
+  "user_id": "usr_1234567890123456"
+}
+```
+
+### sessionsSessionDetails
+
+- **Type:**`object`
+
+* **`absolute_expires_at`**
+
+  `string`, format: `date-time` — Hard expiration timestamp for the session regardless of user activity. The session will be forcibly terminated at this time. This represents the maximum session lifetime from creation.
+
+* **`authenticated_clients`**
+
+  `array` — Details of the authenticated clients for this session: client ID and organization context.
+
+  **Items:**
+
+  - **`client_id`**
+
+    `string` — Unique identifier of the authenticated client application.
+
+  - **`organization_id`**
+
+    `string` — Active or last active Organization ID associated with the authenticated client.
+
+* **`authenticated_organizations`**
+
+  `array` — List of organization IDs that have been authenticated for this user within the current session. Contains all organizations where the user has successfully completed SSO or authentication.
+
+  **Items:**
+
+  `string`
+
+* **`created_at`**
+
+  `string`, format: `date-time` — Timestamp indicating when the session was created. This is set once at session creation and remains constant throughout the session lifetime.
+
+* **`device`**
+
+  `object` — Complete device metadata associated with this session including browser, operating system, device type, and geographic location based on IP address.
+
+  - **`browser`**
+
+    `string` — Browser name and family extracted from the user agent. Examples: Chrome, Safari, Firefox, Edge, Mobile Safari.
+
+  - **`browser_version`**
+
+    `string` — Version of the browser application. Represents the specific release version of the browser being used.
+
+  - **`device_type`**
+
+    `string` — Categorized device type classification. Possible values: 'desktop' (traditional computers), 'mobile' (smartphones and small tablets), 'tablet' (large tablets), 'other'. Useful for displaying session information by device category.
+
+  - **`ip`**
+
+    `string` — IP address of the device that initiated the session. This is the public-facing IP address used to connect to the application. Useful for security audits and geographic distribution analysis.
+
+  - **`location`**
+
+    `object` — Geographic location information derived from IP address geolocation. Includes country, region, city, and coordinates. Note: Based on IP location data and may not represent the user's exact physical location.
+
+    - **`city`**
+
+      `string` — City name where the session originated based on IP geolocation. Approximate location derived from IP address.
+
+    - **`latitude`**
+
+      `string` — Latitude coordinate of the estimated location. Decimal format (e.g., '37.7749'). Note: Represents IP geolocation center and may not be precise.
+
+    - **`longitude`**
+
+      `string` — Longitude coordinate of the estimated location. Decimal format (e.g., '-122.4194'). Note: Represents IP geolocation center and may not be precise.
+
+    - **`region`**
+
+      `string` — Geographic region name derived from IP geolocation. Represents the country-level location (e.g., 'United States', 'France').
+
+    - **`region_subdivision`**
+
+      `string` — Regional subdivision code or name (e.g., state abbreviation for US, province for Canada). Two-letter ISO format when applicable.
+
+  - **`os`**
+
+    `string` — Operating system name extracted from the user agent and device headers. Examples: macOS, Windows, Linux, iOS, Android.
+
+  - **`os_version`**
+
+    `string` — Version of the operating system. Represents the specific OS release the device is running.
+
+  - **`user_agent`**
+
+    `string` — Complete HTTP User-Agent header string from the client request. Contains browser type, version, and operating system information. Used for detailed device fingerprinting and user agent analysis.
+
+* **`expired_at`**
+
+  `string`, format: `date-time` — Timestamp when the session was terminated. Null if the session is still active. Set when the session expires due to reaching idle\_expires\_at or absolute\_expires\_at timeout, or when administratively revoked. Not set for user-initiated logout (see logout\_at instead).
+
+* **`idle_expires_at`**
+
+  `string`, format: `date-time` — Projected expiration timestamp if the session remains idle without user activity. This timestamp is recalculated with each user activity. Session will be automatically terminated at this time if no activity occurs.
+
+* **`last_active_at`**
+
+  `string`, format: `date-time` — Timestamp of the most recent user activity detected in this session. Updated on each API request or user interaction. Used to determine if a session has exceeded the idle timeout threshold.
+
+* **`logout_at`**
+
+  `string`, format: `date-time` — Timestamp when the user explicitly logged out from the session. Null if the user has not logged out. When set, indicates the session ended due to explicit user logout rather than timeout.
+
+* **`organization_id`**
+
+  `string` — Organization ID for the user's most recently active organization within this session. This represents the primary organization context for the current session.
+
+* **`session_id`**
+
+  `string` — Unique identifier for the session. System-generated read-only field used to reference this session.
+
+* **`status`**
+
+  `string` — Current operational status of the session. Possible values: 'active' (session is valid and requests are allowed), 'expired' (session terminated due to idle or absolute timeout), 'revoked' (session was administratively revoked), 'logout' (user explicitly logged out). Use this to determine if the session can be used for new requests.
+
+* **`updated_at`**
+
+  `string`, format: `date-time` — Timestamp indicating when the session was last updated. Updated whenever session state changes such as organization context changes or metadata updates.
+
+* **`user_id`**
+
+  `string` — Unique identifier for the user who owns and is authenticated within this session.
+
+**Example:**
+
+```json
+{
+  "absolute_expires_at": "2025-01-22T10:30:00Z",
+  "authenticated_clients": [
+    {
+      "client_id": "skc_1234567890",
+      "organization_id": "org_1234567890"
+    }
+  ],
+  "authenticated_organizations": [
+    "org_123",
+    "org_456"
+  ],
+  "created_at": "2025-01-15T10:30:00Z",
+  "device": {
+    "browser": "Chrome",
+    "browser_version": "120.0.0.0",
+    "device_type": "desktop",
+    "ip": "192.0.2.1",
+    "location": null,
+    "os": "macOS",
+    "os_version": "14.2",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+  },
+  "expired_at": "2025-01-15T12:00:00Z",
+  "idle_expires_at": "2025-01-15T11:30:00Z",
+  "last_active_at": "2025-01-15T10:55:30Z",
+  "logout_at": "2025-01-15T14:00:00Z",
+  "organization_id": "org_1234567890123456",
+  "session_id": "ses_1234567890123456",
+  "status": "active",
+  "updated_at": "2025-01-15T10:45:00Z",
+  "user_id": "usr_1234567890123456"
+}
+```
+
+### sessionsUserSessionDetails
+
+- **Type:**`object`
+
+* **`next_page_token`**
+
+  `string` — Pagination token for retrieving the next page of results. Empty string if there are no more pages (you have reached the final page of results).
+
+* **`prev_page_token`**
+
+  `string` — Pagination token for retrieving the previous page of results. Empty string for the first page. Use this to navigate backward through result pages.
+
+* **`sessions`**
+
+  `array` — Array of session objects for the requested user. May contain fewer entries than the requested page\_size when reaching the final page of results.
+
+  **Items:**
+
+  - **`absolute_expires_at`**
+
+    `string`, format: `date-time` — Hard expiration timestamp for the session regardless of user activity. The session will be forcibly terminated at this time. This represents the maximum session lifetime from creation.
+
+  - **`authenticated_clients`**
+
+    `array` — Details of the authenticated clients for this session: client ID and organization context.
+
+    **Items:**
+
+    - **`client_id`**
+
+      `string` — Unique identifier of the authenticated client application.
+
+    - **`organization_id`**
+
+      `string` — Active or last active Organization ID associated with the authenticated client.
+
+  - **`authenticated_organizations`**
+
+    `array` — List of organization IDs that have been authenticated for this user within the current session. Contains all organizations where the user has successfully completed SSO or authentication.
+
+    **Items:**
+
+    `string`
+
+  - **`created_at`**
+
+    `string`, format: `date-time` — Timestamp indicating when the session was created. This is set once at session creation and remains constant throughout the session lifetime.
+
+  - **`device`**
+
+    `object` — Complete device metadata associated with this session including browser, operating system, device type, and geographic location based on IP address.
+
+    - **`browser`**
+
+      `string` — Browser name and family extracted from the user agent. Examples: Chrome, Safari, Firefox, Edge, Mobile Safari.
+
+    - **`browser_version`**
+
+      `string` — Version of the browser application. Represents the specific release version of the browser being used.
+
+    - **`device_type`**
+
+      `string` — Categorized device type classification. Possible values: 'desktop' (traditional computers), 'mobile' (smartphones and small tablets), 'tablet' (large tablets), 'other'. Useful for displaying session information by device category.
+
+    - **`ip`**
+
+      `string` — IP address of the device that initiated the session. This is the public-facing IP address used to connect to the application. Useful for security audits and geographic distribution analysis.
+
+    - **`location`**
+
+      `object` — Geographic location information derived from IP address geolocation. Includes country, region, city, and coordinates. Note: Based on IP location data and may not represent the user's exact physical location.
+
+      - **`city`**
+
+        `string` — City name where the session originated based on IP geolocation. Approximate location derived from IP address.
+
+      - **`latitude`**
+
+        `string` — Latitude coordinate of the estimated location. Decimal format (e.g., '37.7749'). Note: Represents IP geolocation center and may not be precise.
+
+      - **`longitude`**
+
+        `string` — Longitude coordinate of the estimated location. Decimal format (e.g., '-122.4194'). Note: Represents IP geolocation center and may not be precise.
+
+      - **`region`**
+
+        `string` — Geographic region name derived from IP geolocation. Represents the country-level location (e.g., 'United States', 'France').
+
+      - **`region_subdivision`**
+
+        `string` — Regional subdivision code or name (e.g., state abbreviation for US, province for Canada). Two-letter ISO format when applicable.
+
+    - **`os`**
+
+      `string` — Operating system name extracted from the user agent and device headers. Examples: macOS, Windows, Linux, iOS, Android.
+
+    - **`os_version`**
+
+      `string` — Version of the operating system. Represents the specific OS release the device is running.
+
+    - **`user_agent`**
+
+      `string` — Complete HTTP User-Agent header string from the client request. Contains browser type, version, and operating system information. Used for detailed device fingerprinting and user agent analysis.
+
+  - **`expired_at`**
+
+    `string`, format: `date-time` — Timestamp when the session was terminated. Null if the session is still active. Set when the session expires due to reaching idle\_expires\_at or absolute\_expires\_at timeout, or when administratively revoked. Not set for user-initiated logout (see logout\_at instead).
+
+  - **`idle_expires_at`**
+
+    `string`, format: `date-time` — Projected expiration timestamp if the session remains idle without user activity. This timestamp is recalculated with each user activity. Session will be automatically terminated at this time if no activity occurs.
+
+  - **`last_active_at`**
+
+    `string`, format: `date-time` — Timestamp of the most recent user activity detected in this session. Updated on each API request or user interaction. Used to determine if a session has exceeded the idle timeout threshold.
+
+  - **`logout_at`**
+
+    `string`, format: `date-time` — Timestamp when the user explicitly logged out from the session. Null if the user has not logged out. When set, indicates the session ended due to explicit user logout rather than timeout.
+
+  - **`organization_id`**
+
+    `string` — Organization ID for the user's most recently active organization within this session. This represents the primary organization context for the current session.
+
+  - **`session_id`**
+
+    `string` — Unique identifier for the session. System-generated read-only field used to reference this session.
+
+  - **`status`**
+
+    `string` — Current operational status of the session. Possible values: 'active' (session is valid and requests are allowed), 'expired' (session terminated due to idle or absolute timeout), 'revoked' (session was administratively revoked), 'logout' (user explicitly logged out). Use this to determine if the session can be used for new requests.
+
+  - **`updated_at`**
+
+    `string`, format: `date-time` — Timestamp indicating when the session was last updated. Updated whenever session state changes such as organization context changes or metadata updates.
+
+  - **`user_id`**
+
+    `string` — Unique identifier for the user who owns and is authenticated within this session.
+
+* **`total_size`**
+
+  `integer`, format: `int64` — Total number of sessions matching the applied filter criteria, regardless of pagination. This represents the complete result set size before pagination is applied.
+
+**Example:**
+
+```json
+{
+  "next_page_token": "eyJwYWdlIjogMiwgImxhc3RfaWQiOiAic2VzXzEyMzQ1In0=",
+  "prev_page_token": "eyJwYWdlIjogMCwgImZpcnN0X2lkIjogInNlc183OTAxIn0=",
+  "sessions": [
+    {
+      "absolute_expires_at": "2025-01-22T10:30:00Z",
+      "authenticated_clients": [
+        {}
+      ],
+      "authenticated_organizations": [
+        "org_123",
+        "org_456"
+      ],
+      "created_at": "2025-01-15T10:30:00Z",
+      "device": null,
+      "expired_at": "2025-01-15T12:00:00Z",
+      "idle_expires_at": "2025-01-15T11:30:00Z",
+      "last_active_at": "2025-01-15T10:55:30Z",
+      "logout_at": "2025-01-15T14:00:00Z",
+      "organization_id": "org_1234567890123456",
+      "session_id": "ses_1234567890123456",
+      "status": "active",
+      "updated_at": "2025-01-15T10:45:00Z",
+      "user_id": "usr_1234567890123456"
+    }
+  ],
+  "total_size": 42
+}
+```
+
+### usersCreateMembershipResponse
+
+- **Type:**`object`
+
+* **`user`**
+
+  `object`
 
   - **`create_time`**
 
@@ -20917,106 +21967,22 @@ Response message containing a paginated list of API clients for the specified or
 
 ```json
 {
-  "next_page_token": "eyJwYWdlIjogMiwgImxhc3RfaWQiOiAidXNyXzEyMzQ1In0=",
-  "prev_page_token": "eyJwYWdlIjogMCwgImZpcnN0X2lkIjogInVzcl85ODc2NSJ9",
-  "total_size": 1042,
-  "users": [
-    {
-      "create_time": "",
-      "email": "user@example.com",
-      "external_id": "ext_12345a67b89c",
-      "id": "usr_1234abcd5678efgh",
-      "last_login_time": "",
-      "memberships": [
-        {}
-      ],
-      "metadata": {
-        "department": "engineering",
-        "location": "nyc-office"
-      },
-      "update_time": "",
-      "user_profile": null
-    }
-  ]
-}
-```
-
-### usersCreateUserProfile
-
-- **Type:**`object`
-
-* **`custom_attributes`**
-
-  `object` — Custom attributes for extended user profile data. Keys (3-25 chars), values (1-256 chars).
-
-* **`family_name`**
-
-  `string` — User's family name. Maximum 255 characters.
-
-* **`gender`**
-
-  `string` — User's gender identity.
-
-* **`given_name`**
-
-  `string` — User's given name. Maximum 255 characters.
-
-* **`groups`**
-
-  `array` — List of group names the user belongs to. Each group name must be 1-250 characters
-
-  **Items:**
-
-  `string`
-
-* **`locale`**
-
-  `string` — User's localization preference in BCP-47 format. Defaults to organization settings.
-
-* **`metadata`**
-
-  `object` — System-managed key-value pairs for internal tracking. Keys (3-25 chars), values (1-256 chars).
-
-* **`name`**
-
-  `string` — Full name in display format. Typically combines first\_name and last\_name.
-
-* **`phone_number`**
-
-  `string` — Phone number in E.164 international format. Required for SMS-based authentication.
-
-* **`picture`**
-
-  `string` — URL to the user's profile picture or avatar.
-
-* **`preferred_username`**
-
-  `string` — User's preferred username for display purposes.
-
-**Example:**
-
-```json
-{
-  "custom_attributes": {
-    "department": "engineering",
-    "security_clearance": "level2"
-  },
-  "family_name": "Doe",
-  "gender": "male",
-  "given_name": "John",
-  "groups": [
-    "engineering",
-    "managers"
-  ],
-  "locale": "en-US",
-  "metadata": {
-    "account_status": "active",
-    "signup_source": "mobile_app"
-  },
-  "name": "John Michael Doe",
-  "phone_number": "+14155552671",
-  "picture": "https://example.com/avatar.jpg",
-  "preferred_username": "John Michael Doe"
+  "user": {
+    "create_time": "",
+    "email": "user@example.com",
+    "external_id": "ext_12345a67b89c",
+    "id": "usr_1234abcd5678efgh",
+    "last_login_time": "",
+    "memberships": [
+      {}
+    ],
+    "metadata": {
+      "department": "engineering",
+      "location": "nyc-office"
+    },
+    "update_time": "",
+    "user_profile": null
+  }
 }
 ```
 
@@ -21402,115 +22368,384 @@ Response message containing a paginated list of API clients for the specified or
 }
 ```
 
-### usersPermission
+### usersCreateUserProfile
 
 - **Type:**`object`
 
-* **`description`**
+* **`custom_attributes`**
 
-  `string` — Description of what the permission allows
+  `object` — Custom attributes for extended user profile data. Keys (3-25 chars), values (1-256 chars).
 
-* **`id`**
+* **`family_name`**
 
-  `string` — Unique identifier for the permission
+  `string` — User's family name. Maximum 255 characters.
+
+* **`gender`**
+
+  `string` — User's gender identity.
+
+* **`given_name`**
+
+  `string` — User's given name. Maximum 255 characters.
+
+* **`groups`**
+
+  `array` — List of group names the user belongs to. Each group name must be 1-250 characters
+
+  **Items:**
+
+  `string`
+
+* **`locale`**
+
+  `string` — User's localization preference in BCP-47 format. Defaults to organization settings.
+
+* **`metadata`**
+
+  `object` — System-managed key-value pairs for internal tracking. Keys (3-25 chars), values (1-256 chars).
 
 * **`name`**
 
-  `string` — Unique name identifier for the permission
+  `string` — Full name in display format. Typically combines first\_name and last\_name.
+
+* **`phone_number`**
+
+  `string` — Phone number in E.164 international format. Required for SMS-based authentication.
+
+* **`picture`**
+
+  `string` — URL to the user's profile picture or avatar.
+
+* **`preferred_username`**
+
+  `string` — User's preferred username for display purposes.
 
 **Example:**
 
 ```json
 {
-  "description": "Allows creating new user accounts",
-  "id": "perm_1234abcd5678efgh",
-  "name": "users:create"
+  "custom_attributes": {
+    "department": "engineering",
+    "security_clearance": "level2"
+  },
+  "family_name": "Doe",
+  "gender": "male",
+  "given_name": "John",
+  "groups": [
+    "engineering",
+    "managers"
+  ],
+  "locale": "en-US",
+  "metadata": {
+    "account_status": "active",
+    "signup_source": "mobile_app"
+  },
+  "name": "John Michael Doe",
+  "phone_number": "+14155552671",
+  "picture": "https://example.com/avatar.jpg",
+  "preferred_username": "John Michael Doe"
 }
 ```
 
-### usersListUserPermissionsResponse
+### usersGetUserResponse
 
 - **Type:**`object`
 
-* **`permissions`**
+* **`user`**
 
-  `array` — List of permissions the user has access to
+  `object`
 
-  **Items:**
+  - **`create_time`**
 
-  - **`description`**
+    `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
 
-    `string` — Description of what the permission allows
+  - **`email`**
+
+    `string` — Primary email address for the user. Must be unique across the environment and valid per RFC 5322.
+
+  - **`external_id`**
+
+    `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
 
   - **`id`**
 
-    `string` — Unique identifier for the permission
+    `string` — Unique system-generated identifier for the user. Immutable once created.
 
-  - **`name`**
+  - **`last_login_time`**
 
-    `string` — Unique name identifier for the permission
+    `string`, format: `date-time` — Timestamp of the user's most recent successful authentication. Updated automatically.
+
+  - **`memberships`**
+
+    `array` — List of organization memberships. Automatically populated based on group assignments.
+
+    **Items:**
+
+    - **`accepted_at`**
+
+      `string`, format: `date-time` — Timestamp when the user accepted the invitation.
+
+    - **`created_at`**
+
+      `string`, format: `date-time` — Timestamp when the invitation was created.
+
+    - **`display_name`**
+
+      `string` — Organization display name. This field stores a user-friendly name for the organization that may be different from the formal name, often used for UI display purposes.
+
+    - **`expires_at`**
+
+      `string`, format: `date-time` — Timestamp when the invitation expired.
+
+    - **`inviter_email`**
+
+      `string` — ID of the user who invited this user.
+
+    - **`join_time`**
+
+      `string`, format: `date-time` — Timestamp when the membership was created. Automatically set by the server.
+
+    - **`membership_status`**
+
+      `string`, possible values: `"ACTIVE", "INACTIVE", "PENDING_INVITE", "INVITE_EXPIRED"`
+
+    - **`metadata`**
+
+      `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+    - **`name`**
+
+      `string` — Organization name. This field stores the formal organization name used for identification and display purposes.
+
+    - **`organization_id`**
+
+      `string` — Unique identifier for the organization. Immutable and read-only.
+
+    - **`permissions`**
+
+      `array` — Effective permissions granted to the user within the organization (including inherited permissions from assigned roles). Lists the specific actions and access rights the user can perform.
+
+      **Items:**
+
+      `string`
+
+    - **`provisioning_method`**
+
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+
+    - **`roles`**
+
+      `array`
+
+      **Items:**
+
+      - **`display_name`**
+
+        `string` — Human-readable name for the role
+
+      - **`id`**
+
+        `string` — Role ID
+
+      - **`name`**
+
+        `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
+
+  - **`metadata`**
+
+    `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+  - **`update_time`**
+
+    `string`, format: `date-time` — Timestamp of the last modification to the user account. Automatically updated by the server.
+
+  - **`user_profile`**
+
+    `object` — User's personal information including name, address, and other profile attributes.
+
+    - **`custom_attributes`**
+
+      `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+    - **`email_verified`**
+
+      `boolean` — Indicates if the user's email address has been verified. Automatically updated by the system.
+
+    - **`external_identities`**
+
+      `array` — List of external identity connections associated with the user profile.
+
+      **Items:**
+
+      - **`connection_id`**
+
+        `string` — Unique identifier for the external identity connection. Immutable and read-only.
+
+      - **`connection_provider`**
+
+        `string`, possible values: `"OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "PING_IDENTITY", "JUMPCLOUD", "CUSTOM", "GITHUB", "GITLAB", "LINKEDIN", "SALESFORCE", "MICROSOFT", "IDP_SIMULATOR", "SCALEKIT", "ADFS"` — Type of the identity provider.
+
+      - **`connection_type`**
+
+        `string` — Name of the external identity connection.
+
+      - **`connection_user_id`**
+
+        `string` — Unique identifier for the user in the external identity provider system. Immutable and read-only.
+
+      - **`created_time`**
+
+        `string`, format: `date-time` — Timestamp when this external identity connection was first created. Immutable and read-only.
+
+      - **`is_social`**
+
+        `boolean` — Indicates if the identity provider is a social provider (true) or enterprise/custom provider (false). Read-only.
+
+      - **`last_login_time`**
+
+        `string`, format: `date-time` — Timestamp of the user's last successful login via this external identity provider. Automatically updated by the system.
+
+      - **`last_synced_time`**
+
+        `string`, format: `date-time` — Timestamp of the last data synchronization for this external identity from the provider. Automatically updated by the system.
+
+    - **`family_name`**
+
+      `string` — The user's family name (last name or surname). This field stores the user's last name and is combined with the given name to create the full display name. The family name is used in formal communications, user listings, and organizational directories throughout the system. Maximum 255 characters allowed.
+
+    - **`gender`**
+
+      `string` — The user's gender identity information. This field stores the user's gender identity for personalization, compliance reporting, or organizational analytics purposes. This field supports any string value to accommodate diverse gender identities and should be handled with appropriate privacy considerations according to your organization's policies and applicable regulations.
+
+    - **`given_name`**
+
+      `string` — The user's given name (first name). This field stores the user's first name and is used for personalization, display purposes, and when generating the full display name. The given name appears in user interfaces, formal communications, and user listings throughout the system. Maximum 255 characters allowed.
+
+    - **`groups`**
+
+      `array` — The list of group names the user belongs to within the organization. This field stores the user's group memberships for role-based access control, team assignments, and organizational structure. Groups are typically used for permission management, collaborative access, and organizational hierarchy. Each group name represents a distinct organizational unit or team that the user is associated with.
+
+      **Items:**
+
+      `string`
+
+    - **`id`**
+
+      `string` — Unique system-generated identifier for the user profile. Immutable and read-only.
+
+    - **`locale`**
+
+      `string` — The user's preferred language and region settings using BCP-47 format codes. This field customizes the user's experience with localized content, date formats, number formatting, and UI language throughout the system. When not specified, the user inherits the organization's default locale settings. Common values include \`en-US\`, \`en-GB\`, \`fr-FR\`, \`de-DE\`, and \`es-ES\`.
+
+    - **`metadata`**
+
+      `object` — Raw attributes received from identity providers during authentication. This field stores the original user profile data as received from external IdP systems (SAML, OIDC, etc.) including provider-specific claims and attributes. These fields preserve the complete set of attributes received from the identity source and are used for mapping, synchronization, and audit purposes. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+    - **`name`**
+
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
+
+    - **`phone_number`**
+
+      `string` — The user's phone number in E.164 international format. This field stores the phone number for user contact and identification purposes. The phone number must include the country code and be formatted according to E.164 standards (e.g., \`+1\` for US numbers). This field is optional.
+
+    - **`phone_number_verified`**
+
+      `boolean` — Indicates if the user's phone number has been verified. Automatically updated by the system.
+
+    - **`picture`**
+
+      `string` — The URL to the user's profile picture or avatar image. This field stores the location of the user's profile photo that appears in user interfaces, directory listings, and collaborative features throughout the system. The URL should point to a publicly accessible image file. Supported formats typically include JPEG, PNG, and GIF. This image is used for visual identification and personalization across the platform.
+
+    - **`preferred_username`**
+
+      `string` — The user's preferred username for display and identification purposes. This field stores a custom username that the user prefers to be known by, which may differ from their email or formal name. This username appears in user interfaces, mentions, informal communications, and collaborative features throughout the system. Maximum 512 characters allowed.
 
 **Example:**
 
 ```json
 {
-  "permissions": [
-    {
-      "description": "Allows creating new user accounts",
-      "id": "perm_1234abcd5678efgh",
-      "name": "users:create"
-    }
-  ]
+  "user": {
+    "create_time": "",
+    "email": "user@example.com",
+    "external_id": "ext_12345a67b89c",
+    "id": "usr_1234abcd5678efgh",
+    "last_login_time": "",
+    "memberships": [
+      {}
+    ],
+    "metadata": {
+      "department": "engineering",
+      "location": "nyc-office"
+    },
+    "update_time": "",
+    "user_profile": null
+  }
 }
 ```
 
-### usersListUserRolesResponse
+### usersInvite
 
 - **Type:**`object`
 
-* **`roles`**
+* **`created_at`**
 
-  `array` — List of roles assigned to the user
+  `string`, format: `date-time` — Timestamp when the invite was originally created.
 
-  **Items:**
+* **`expires_at`**
 
-  - **`display_name`**
+  `string`, format: `date-time` — The time at which the invite expires.
 
-    `string` — Human-readable name for the role
+* **`inviter_email`**
 
-  - **`id`**
+  `string` — Identifier of the user or system that initiated the invite.
 
-    `string` — Role ID
+* **`organization_id`**
 
-  - **`name`**
+  `string` — The organization to which the invite belongs.
 
-    `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
+* **`resent_at`**
+
+  `string`, format: `date-time` — Timestamp when the invite was last resent, if applicable.
+
+* **`resent_count`**
+
+  `integer`, format: `int32` — Number of times the invite has been resent.
+
+* **`status`**
+
+  `string` — Current status of the invite (e.g., pending, accepted, expired, revoked).
+
+* **`user_id`**
+
+  `string` — User ID to whom the invite is sent. May be empty if the user has not signed up yet.
 
 **Example:**
 
 ```json
 {
-  "roles": [
-    {
-      "display_name": "Dev Team",
-      "id": "role_79643236410327240",
-      "name": "team_dev"
-    }
-  ]
+  "created_at": "2025-07-10T08:00:00Z",
+  "expires_at": "2025-12-31T23:59:59Z",
+  "inviter_email": "admin@example.com",
+  "organization_id": "org_987654321",
+  "resent_at": "2025-07-15T09:30:00Z",
+  "resent_count": 2,
+  "status": "pending_invite",
+  "user_id": "usr_123456"
 }
 ```
 
-### usersSearchOrganizationUsersResponse
+### usersListOrganizationUsersResponse
 
 - **Type:**`object`
 
 * **`next_page_token`**
 
-  `string` — Token for retrieving the next page of results. Empty if there are no more pages.
+  `string` — Opaque token for retrieving the next page of results. Empty if there are no more pages.
 
 * **`prev_page_token`**
 
-  `string` — Token for retrieving the previous page of results. Empty if this is the first page.
+  `string` — Opaque token for retrieving the previous page of results. Empty for the first page.
 
 * **`total_size`**
 
@@ -21518,7 +22753,7 @@ Response message containing a paginated list of API clients for the specified or
 
 * **`users`**
 
-  `array` — List of matching users.
+  `array` — List of user objects for the current page. May contain fewer entries than requested page\_size.
 
   **Items:**
 
@@ -21756,509 +22991,63 @@ Response message containing a paginated list of API clients for the specified or
 }
 ```
 
-### passwordlessResendPasswordlessRequest
+### usersListUserPermissionsResponse
 
 - **Type:**`object`
-
-* **`auth_request_id`**
-
-  `string` — The authentication request identifier from the original send passwordless email request. Use this to resend the Verification Code (OTP) or Magic Link to the same email address.
-
-**Example:**
-
-```json
-{
-  "auth_request_id": "h5Y8kT5RVwaea5WEgW4n-6C-aO_-fuTUW7Vb9-Rh3AcY9qxZqQ"
-}
-```
-
-### authpasswordlessPasswordlessType
-
-- **Type:**`string`
-
-**Example:**
-
-### passwordlessSendPasswordlessResponse
-
-- **Type:**`object`
-
-* **`auth_request_id`**
-
-  `string` — Unique identifier for this passwordless authentication request. Use this ID to resend emails.
-
-* **`expires_at`**
-
-  `string`, format: `int64` — Unix timestamp (seconds since epoch) when the passwordless authentication will expire. After this time, the OTP or magic link will no longer be valid.
-
-* **`expires_in`**
-
-  `integer`, format: `int64` — Number of seconds from now until the passwordless authentication expires. This is a convenience field calculated from the expires\_at timestamp.
-
-* **`passwordless_type`**
-
-  `string`, possible values: `"OTP", "LINK", "LINK_OTP"` — Type of passwordless authentication that was sent via email. OTP sends a numeric code, LINK sends a clickable magic link, and LINK\_OTP provides both options for user convenience.
-
-**Example:**
-
-```json
-{
-  "auth_request_id": "h5Y8kT5RVwaea5WEgW4n-6C-aO_-fuTUW7Vb9-Rh3AcY9qxZqQ",
-  "expires_at": 1748696575,
-  "expires_in": 300,
-  "passwordless_type": "OTP"
-}
-```
-
-### passwordlessTemplateType
-
-- **Type:**`string`
-
-**Example:**
-
-### passwordlessSendPasswordlessRequest
-
-- **Type:**`object`
-
-* **`email`**
-
-  `string` — Email address where the passwordless authentication credentials will be sent. Must be a valid email format.
-
-* **`expires_in`**
-
-  `integer`, format: `int64` — Time in seconds until the passwordless authentication expires. If not specified, defaults to 300 seconds (5 minutes)
-
-* **`magiclink_auth_uri`**
-
-  `string` — Your application's callback URL where users will be redirected after clicking the magic link in their email. The link token will be appended as a query parameter as link\_token
-
-* **`state`**
-
-  `string` — Custom state parameter that will be returned unchanged in the verification response. Use this to maintain application state between the authentication request and callback, such as the intended destination after login
-
-* **`template`**
-
-  `string`, possible values: `"SIGNIN", "SIGNUP"` — Specifies the authentication intent for the passwordless request. Use SIGNIN for existing users or SIGNUP for new user registration. This affects the email template and user experience flow.
-
-* **`template_variables`**
-
-  `object` — A set of key-value pairs to personalize the email template. \* You may include up to 30 key-value pairs. \* The following variable names are reserved by the system and cannot be supplied: \`otp\`, \`expiry\_time\_relative\`, \`link\`, \`expire\_time\`, \`expiry\_time\`. \* Every variable referenced in your email template must be included as a key-value pair. Use these variables to insert custom information, such as a team name, URL or the user's employee ID. All variables are interpolated before the email is sent, regardless of the email provider.
-
-**Example:**
-
-```json
-{
-  "email": "john.doe@example.com",
-  "expires_in": 300,
-  "magiclink_auth_uri": "https://yourapp.com/auth/passwordless/callback",
-  "state": "d62ivasry29lso",
-  "template": "SIGNIN",
-  "template_variables": {
-    "custom_variable_key": "custom_variable_value"
-  }
-}
-```
-
-### passwordlessVerifyPasswordLessRequest
-
-- **Type:**`object`
-
-* **`auth_request_id`**
-
-  `string` — The authentication request identifier returned from the send passwordless email endpoint. Required when verifying OTP codes to link the verification with the original request.
-
-* **`code`**
-
-  `string` — The Verification Code (OTP) received via email. This is typically a 6-digit numeric code that users enter manually to verify their identity.
-
-* **`link_token`**
-
-  `string` — The unique token from the magic link URL received via email. Extract this token when users click the magic link and are redirected to your application to later verify the user.
-
-**Example:**
-
-```json
-{
-  "auth_request_id": "h5Y8kT5RVwaea5WEgW4n-6C-aO_-fuTUW7Vb9-Rh3AcY9qxZqQ",
-  "code": "123456",
-  "link_token": "afe9d61c-d80d-4020-a8ee-61765ab71cb3"
-}
-```
-
-### passwordlessVerifyPasswordLessResponse
-
-- **Type:**`object`
-
-* **`email`**
-
-  `string` — Email address of the successfully authenticated user. This confirms which email account was verified through the passwordless flow.
-
-* **`passwordless_type`**
-
-  `string`, possible values: `"OTP", "LINK", "LINK_OTP"` — The type of passwordless authentication that was successfully verified, confirming which method the user completed.
-
-* **`state`**
-
-  `string` — The custom state parameter that was provided in the original authentication request, returned unchanged. Use this to restore your application's context after authentication.
-
-* **`template`**
-
-  `string`, possible values: `"SIGNIN", "SIGNUP"` — Specifies which email template to choose. For User Signin choose SIGNIN and for User Signup use SIGNUP
-
-**Example:**
-
-```json
-{
-  "email": "john.doe@example.com",
-  "passwordless_type": "OTP",
-  "state": "kdt7yiag28t341fr1",
-  "template": "SIGNIN"
-}
-```
-
-### Permission Entity
-
-- **Type:**`object`
-
-* **`create_time`**
-
-  `string`, format: `date-time`
-
-* **`description`**
-
-  `string`
-
-* **`id`**
-
-  `string`
-
-* **`is_scalekit_permission`**
-
-  `boolean` — Indicates whether this permission is predefined by Scalekit
-
-* **`name`**
-
-  `string`
-
-* **`update_time`**
-
-  `string`, format: `date-time`
-
-**Example:**
-
-```json
-{
-  "create_time": "",
-  "description": "",
-  "id": "",
-  "is_scalekit_permission": true,
-  "name": "",
-  "update_time": ""
-}
-```
-
-### rolesListPermissionsResponse
-
-- **Type:**`object`
-
-* **`next_page_token`**
-
-  `string` — Token to retrieve next page of results
 
 * **`permissions`**
 
-  `array`
+  `array` — List of permissions the user has access to
 
   **Items:**
 
-  - **`create_time`**
-
-    `string`, format: `date-time`
-
   - **`description`**
 
-    `string`
+    `string` — Description of what the permission allows
 
   - **`id`**
 
-    `string`
-
-  - **`is_scalekit_permission`**
-
-    `boolean` — Indicates whether this permission is predefined by Scalekit
+    `string` — Unique identifier for the permission
 
   - **`name`**
 
-    `string`
-
-  - **`update_time`**
-
-    `string`, format: `date-time`
-
-* **`prev_page_token`**
-
-  `string` — Token to retrieve previous page of results
-
-* **`total_size`**
-
-  `integer`, format: `int64` — Total number of permissions available
+    `string` — Unique name identifier for the permission
 
 **Example:**
 
 ```json
 {
-  "next_page_token": "token_def456",
   "permissions": [
     {
-      "create_time": "",
-      "description": "",
-      "id": "",
-      "is_scalekit_permission": true,
-      "name": "",
-      "update_time": ""
+      "description": "Allows creating new user accounts",
+      "id": "perm_1234abcd5678efgh",
+      "name": "users:create"
     }
-  ],
-  "prev_page_token": "token_def456",
-  "total_size": 150
+  ]
 }
 ```
 
-### v1rolesCreatePermission
-
-- **Type:**`object`
-
-* **`description`**
-
-  `string` — Description of the permission
-
-* **`name`**
-
-  `string` — Unique name/ID of the permission
-
-**Example:**
-
-```json
-{
-  "description": "Allows user to read documents from the system",
-  "name": "read:documents"
-}
-```
-
-### rolesCreatePermissionResponse
-
-- **Type:**`object`
-
-* **`permission`**
-
-  `object`
-
-  - **`create_time`**
-
-    `string`, format: `date-time`
-
-  - **`description`**
-
-    `string`
-
-  - **`id`**
-
-    `string`
-
-  - **`is_scalekit_permission`**
-
-    `boolean` — Indicates whether this permission is predefined by Scalekit
-
-  - **`name`**
-
-    `string`
-
-  - **`update_time`**
-
-    `string`, format: `date-time`
-
-**Example:**
-
-```json
-{
-  "permission": {
-    "create_time": "",
-    "description": "",
-    "id": "",
-    "is_scalekit_permission": true,
-    "name": "",
-    "update_time": ""
-  }
-}
-```
-
-### rolesGetPermissionResponse
-
-- **Type:**`object`
-
-* **`permission`**
-
-  `object`
-
-  - **`create_time`**
-
-    `string`, format: `date-time`
-
-  - **`description`**
-
-    `string`
-
-  - **`id`**
-
-    `string`
-
-  - **`is_scalekit_permission`**
-
-    `boolean` — Indicates whether this permission is predefined by Scalekit
-
-  - **`name`**
-
-    `string`
-
-  - **`update_time`**
-
-    `string`, format: `date-time`
-
-**Example:**
-
-```json
-{
-  "permission": {
-    "create_time": "",
-    "description": "",
-    "id": "",
-    "is_scalekit_permission": true,
-    "name": "",
-    "update_time": ""
-  }
-}
-```
-
-### rolesUpdatePermissionResponse
-
-- **Type:**`object`
-
-* **`permission`**
-
-  `object`
-
-  - **`create_time`**
-
-    `string`, format: `date-time`
-
-  - **`description`**
-
-    `string`
-
-  - **`id`**
-
-    `string`
-
-  - **`is_scalekit_permission`**
-
-    `boolean` — Indicates whether this permission is predefined by Scalekit
-
-  - **`name`**
-
-    `string`
-
-  - **`update_time`**
-
-    `string`, format: `date-time`
-
-**Example:**
-
-```json
-{
-  "permission": {
-    "create_time": "",
-    "description": "",
-    "id": "",
-    "is_scalekit_permission": true,
-    "name": "",
-    "update_time": ""
-  }
-}
-```
-
-### rolesListRolesResponse
+### usersListUserRolesResponse
 
 - **Type:**`object`
 
 * **`roles`**
 
-  `array` — List of all roles in the environment with their metadata and optionally their permissions.
+  `array` — List of roles assigned to the user
 
   **Items:**
 
-  - **`default_creator`**
-
-    `boolean` — Indicates if this role is the default creator role for new organizations.
-
-  - **`default_member`**
-
-    `boolean` — Indicates if this role is the default member role for new users.
-
-  - **`dependent_roles_count`**
-
-    `integer`, format: `int32` — Number of roles that extend from this role (dependent roles count). Read-only field.
-
-  - **`description`**
-
-    `string` — Detailed description of the role's purpose and capabilities. Maximum 2000 characters.
-
   - **`display_name`**
 
-    `string` — Human-readable display name for the role. Used in user interfaces and reports.
-
-  - **`extends`**
-
-    `string` — Name of the base role that this role extends. Enables hierarchical role inheritance.
+    `string` — Human-readable name for the role
 
   - **`id`**
 
-    `string` — Unique system-generated identifier for the role. Immutable once created.
-
-  - **`is_org_role`**
-
-    `boolean` — Indicates if this role is an organization role.
+    `string` — Role ID
 
   - **`name`**
 
-    `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.
-
-  - **`permissions`**
-
-    `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
-
-    **Items:**
-
-    - **`create_time`**
-
-      `string`, format: `date-time`
-
-    - **`description`**
-
-      `string`
-
-    - **`id`**
-
-      `string`
-
-    - **`name`**
-
-      `string`
-
-    - **`role_name`**
-
-      `string` — Name of the role from which this permission was sourced
-
-    - **`update_time`**
-
-      `string`, format: `date-time`
+    `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
 
 **Example:**
 
@@ -22266,1294 +23055,11 @@ Response message containing a paginated list of API clients for the specified or
 {
   "roles": [
     {
-      "display_name": "Administrator",
-      "id": "role_1234abcd5678efgh",
-      "name": "admin"
-    },
-    {
-      "display_name": "Viewer",
-      "id": "role_9876zyxw5432vuts",
-      "name": "viewer"
+      "display_name": "Dev Team",
+      "id": "role_79643236410327240",
+      "name": "team_dev"
     }
   ]
-}
-```
-
-### v1rolesCreateRole
-
-- **Type:**`object`
-
-* **`description`**
-
-  `string` — Detailed description of the role's purpose, capabilities, and intended use cases. Maximum 2000 characters.
-
-* **`display_name`**
-
-  `string` — Human-readable display name for the role. Used in user interfaces, reports, and user-facing communications.
-
-* **`extends`**
-
-  `string` — Name of the base role that this role extends. Enables hierarchical role inheritance where this role inherits all permissions from the base role.
-
-* **`name`**
-
-  `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-64 characters. This name is used in API calls and cannot be changed after creation.
-
-* **`permissions`**
-
-  `array` — List of permission names to assign to this role. Permissions must exist in the current environment. Maximum 100 permissions per role.
-
-  **Items:**
-
-  `string`
-
-**Example:**
-
-```json
-{
-  "description": "Can create, edit, and publish content but cannot delete content or manage user accounts",
-  "display_name": "Content Editor",
-  "extends": "viewer",
-  "name": "content_editor",
-  "permissions": [
-    "read:content",
-    "write:content",
-    "publish:content"
-  ]
-}
-```
-
-### rolesCreateRoleResponse
-
-- **Type:**`object`
-
-* **`role`**
-
-  `object` — The created role object with system-generated ID and all configuration details.
-
-  - **`default_creator`**
-
-    `boolean` — Indicates if this role is the default creator role for new organizations.
-
-  - **`default_member`**
-
-    `boolean` — Indicates if this role is the default member role for new users.
-
-  - **`dependent_roles_count`**
-
-    `integer`, format: `int32` — Number of roles that extend from this role (dependent roles count). Read-only field.
-
-  - **`description`**
-
-    `string` — Detailed description of the role's purpose and capabilities. Maximum 2000 characters.
-
-  - **`display_name`**
-
-    `string` — Human-readable display name for the role. Used in user interfaces and reports.
-
-  - **`extends`**
-
-    `string` — Name of the base role that this role extends. Enables hierarchical role inheritance.
-
-  - **`id`**
-
-    `string` — Unique system-generated identifier for the role. Immutable once created.
-
-  - **`is_org_role`**
-
-    `boolean` — Indicates if this role is an organization role.
-
-  - **`name`**
-
-    `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.
-
-  - **`permissions`**
-
-    `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
-
-    **Items:**
-
-    - **`create_time`**
-
-      `string`, format: `date-time`
-
-    - **`description`**
-
-      `string`
-
-    - **`id`**
-
-      `string`
-
-    - **`name`**
-
-      `string`
-
-    - **`role_name`**
-
-      `string` — Name of the role from which this permission was sourced
-
-    - **`update_time`**
-
-      `string`, format: `date-time`
-
-**Example:**
-
-```json
-{
-  "role": {
-    "description": "Can edit content",
-    "display_name": "Content Editor",
-    "id": "role_1234abcd5678efgh",
-    "name": "content_editor"
-  }
-}
-```
-
-### rolesUpdateDefaultRole
-
-- **Type:**`object`
-
-* **`id`**
-
-  `string`
-
-* **`name`**
-
-  `string` — Unique name of the role
-
-**Example:**
-
-```json
-{
-  "id": "",
-  "name": "creator"
-}
-```
-
-### rolesUpdateDefaultRolesRequest
-
-- **Type:**`object`
-
-* **`default_creator`**
-
-  `object` — Default creator role (deprecated - use default\_creator\_role field instead)
-
-  - **`id`**
-
-    `string`
-
-  - **`name`**
-
-    `string` — Unique name of the role
-
-* **`default_creator_role`**
-
-  `string` — Name of the role to set as the default creator role. This role will be automatically assigned to users who create new resources in the environment. Must be a valid role name that exists in the environment.
-
-* **`default_member`**
-
-  `object` — Default member role (deprecated - use default\_member\_role field instead)
-
-  - **`id`**
-
-    `string`
-
-  - **`name`**
-
-    `string` — Unique name of the role
-
-* **`default_member_role`**
-
-  `string` — Name of the role to set as the default member role. This role will be automatically assigned to new users when they join the environment. Must be a valid role name that exists in the environment.
-
-**Example:**
-
-```json
-{
-  "default_creator": {
-    "description": "Role for creating resources",
-    "display_name": "Creator Role",
-    "id": "role_1234567890",
-    "name": "creator"
-  },
-  "default_creator_role": "creator",
-  "default_member": {
-    "description": "Role for regular members",
-    "display_name": "Member Role",
-    "id": "role_0987654321",
-    "name": "member"
-  },
-  "default_member_role": "member"
-}
-```
-
-### rolesUpdateDefaultRolesResponse
-
-- **Type:**`object`
-
-* **`default_creator`**
-
-  `object` — The role that is now set as the default creator role for the environment. Contains complete role information including permissions and metadata.
-
-  - **`default_creator`**
-
-    `boolean` — Indicates if this role is the default creator role for new organizations.
-
-  - **`default_member`**
-
-    `boolean` — Indicates if this role is the default member role for new users.
-
-  - **`dependent_roles_count`**
-
-    `integer`, format: `int32` — Number of roles that extend from this role (dependent roles count). Read-only field.
-
-  - **`description`**
-
-    `string` — Detailed description of the role's purpose and capabilities. Maximum 2000 characters.
-
-  - **`display_name`**
-
-    `string` — Human-readable display name for the role. Used in user interfaces and reports.
-
-  - **`extends`**
-
-    `string` — Name of the base role that this role extends. Enables hierarchical role inheritance.
-
-  - **`id`**
-
-    `string` — Unique system-generated identifier for the role. Immutable once created.
-
-  - **`is_org_role`**
-
-    `boolean` — Indicates if this role is an organization role.
-
-  - **`name`**
-
-    `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.
-
-  - **`permissions`**
-
-    `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
-
-    **Items:**
-
-    - **`create_time`**
-
-      `string`, format: `date-time`
-
-    - **`description`**
-
-      `string`
-
-    - **`id`**
-
-      `string`
-
-    - **`name`**
-
-      `string`
-
-    - **`role_name`**
-
-      `string` — Name of the role from which this permission was sourced
-
-    - **`update_time`**
-
-      `string`, format: `date-time`
-
-* **`default_member`**
-
-  `object` — The role that is now set as the default member role for the environment. Contains complete role information including permissions and metadata.
-
-  - **`default_creator`**
-
-    `boolean` — Indicates if this role is the default creator role for new organizations.
-
-  - **`default_member`**
-
-    `boolean` — Indicates if this role is the default member role for new users.
-
-  - **`dependent_roles_count`**
-
-    `integer`, format: `int32` — Number of roles that extend from this role (dependent roles count). Read-only field.
-
-  - **`description`**
-
-    `string` — Detailed description of the role's purpose and capabilities. Maximum 2000 characters.
-
-  - **`display_name`**
-
-    `string` — Human-readable display name for the role. Used in user interfaces and reports.
-
-  - **`extends`**
-
-    `string` — Name of the base role that this role extends. Enables hierarchical role inheritance.
-
-  - **`id`**
-
-    `string` — Unique system-generated identifier for the role. Immutable once created.
-
-  - **`is_org_role`**
-
-    `boolean` — Indicates if this role is an organization role.
-
-  - **`name`**
-
-    `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.
-
-  - **`permissions`**
-
-    `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
-
-    **Items:**
-
-    - **`create_time`**
-
-      `string`, format: `date-time`
-
-    - **`description`**
-
-      `string`
-
-    - **`id`**
-
-      `string`
-
-    - **`name`**
-
-      `string`
-
-    - **`role_name`**
-
-      `string` — Name of the role from which this permission was sourced
-
-    - **`update_time`**
-
-      `string`, format: `date-time`
-
-**Example:**
-
-```json
-{
-  "default_creator": {
-    "description": "Role for creating resources",
-    "display_name": "Creator Role",
-    "id": "role_1234567890",
-    "name": "creator"
-  },
-  "default_member": {
-    "description": "Role for regular members",
-    "display_name": "Member Role",
-    "id": "role_0987654321",
-    "name": "member"
-  }
-}
-```
-
-### rolesGetRoleResponse
-
-- **Type:**`object`
-
-* **`role`**
-
-  `object` — The complete role object with all metadata, permissions, and inheritance details.
-
-  - **`default_creator`**
-
-    `boolean` — Indicates if this role is the default creator role for new organizations.
-
-  - **`default_member`**
-
-    `boolean` — Indicates if this role is the default member role for new users.
-
-  - **`dependent_roles_count`**
-
-    `integer`, format: `int32` — Number of roles that extend from this role (dependent roles count). Read-only field.
-
-  - **`description`**
-
-    `string` — Detailed description of the role's purpose and capabilities. Maximum 2000 characters.
-
-  - **`display_name`**
-
-    `string` — Human-readable display name for the role. Used in user interfaces and reports.
-
-  - **`extends`**
-
-    `string` — Name of the base role that this role extends. Enables hierarchical role inheritance.
-
-  - **`id`**
-
-    `string` — Unique system-generated identifier for the role. Immutable once created.
-
-  - **`is_org_role`**
-
-    `boolean` — Indicates if this role is an organization role.
-
-  - **`name`**
-
-    `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.
-
-  - **`permissions`**
-
-    `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
-
-    **Items:**
-
-    - **`create_time`**
-
-      `string`, format: `date-time`
-
-    - **`description`**
-
-      `string`
-
-    - **`id`**
-
-      `string`
-
-    - **`name`**
-
-      `string`
-
-    - **`role_name`**
-
-      `string` — Name of the role from which this permission was sourced
-
-    - **`update_time`**
-
-      `string`, format: `date-time`
-
-**Example:**
-
-```json
-{
-  "role": {
-    "dependent_roles_count": 2,
-    "display_name": "Content Editor",
-    "id": "role_1234abcd5678efgh",
-    "name": "content_editor",
-    "permissions": [
-      {
-        "name": "read:content"
-      }
-    ]
-  }
-}
-```
-
-### rolesUpdateRoleResponse
-
-- **Type:**`object`
-
-* **`role`**
-
-  `object` — The updated role object with all current configuration details.
-
-  - **`default_creator`**
-
-    `boolean` — Indicates if this role is the default creator role for new organizations.
-
-  - **`default_member`**
-
-    `boolean` — Indicates if this role is the default member role for new users.
-
-  - **`dependent_roles_count`**
-
-    `integer`, format: `int32` — Number of roles that extend from this role (dependent roles count). Read-only field.
-
-  - **`description`**
-
-    `string` — Detailed description of the role's purpose and capabilities. Maximum 2000 characters.
-
-  - **`display_name`**
-
-    `string` — Human-readable display name for the role. Used in user interfaces and reports.
-
-  - **`extends`**
-
-    `string` — Name of the base role that this role extends. Enables hierarchical role inheritance.
-
-  - **`id`**
-
-    `string` — Unique system-generated identifier for the role. Immutable once created.
-
-  - **`is_org_role`**
-
-    `boolean` — Indicates if this role is an organization role.
-
-  - **`name`**
-
-    `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.
-
-  - **`permissions`**
-
-    `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
-
-    **Items:**
-
-    - **`create_time`**
-
-      `string`, format: `date-time`
-
-    - **`description`**
-
-      `string`
-
-    - **`id`**
-
-      `string`
-
-    - **`name`**
-
-      `string`
-
-    - **`role_name`**
-
-      `string` — Name of the role from which this permission was sourced
-
-    - **`update_time`**
-
-      `string`, format: `date-time`
-
-**Example:**
-
-```json
-{
-  "role": {
-    "description": "Can edit and approve content",
-    "display_name": "Senior Editor",
-    "id": "role_1234abcd5678efgh",
-    "name": "content_editor"
-  }
-}
-```
-
-### rolesListDependentRolesResponse
-
-- **Type:**`object`
-
-* **`roles`**
-
-  `array` — List of dependent roles
-
-  **Items:**
-
-  - **`default_creator`**
-
-    `boolean` — Indicates if this role is the default creator role for new organizations.
-
-  - **`default_member`**
-
-    `boolean` — Indicates if this role is the default member role for new users.
-
-  - **`dependent_roles_count`**
-
-    `integer`, format: `int32` — Number of roles that extend from this role (dependent roles count). Read-only field.
-
-  - **`description`**
-
-    `string` — Detailed description of the role's purpose and capabilities. Maximum 2000 characters.
-
-  - **`display_name`**
-
-    `string` — Human-readable display name for the role. Used in user interfaces and reports.
-
-  - **`extends`**
-
-    `string` — Name of the base role that this role extends. Enables hierarchical role inheritance.
-
-  - **`id`**
-
-    `string` — Unique system-generated identifier for the role. Immutable once created.
-
-  - **`is_org_role`**
-
-    `boolean` — Indicates if this role is an organization role.
-
-  - **`name`**
-
-    `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.
-
-  - **`permissions`**
-
-    `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
-
-    **Items:**
-
-    - **`create_time`**
-
-      `string`, format: `date-time`
-
-    - **`description`**
-
-      `string`
-
-    - **`id`**
-
-      `string`
-
-    - **`name`**
-
-      `string`
-
-    - **`role_name`**
-
-      `string` — Name of the role from which this permission was sourced
-
-    - **`update_time`**
-
-      `string`, format: `date-time`
-
-**Example:**
-
-```json
-{
-  "roles": [
-    {
-      "default_creator": true,
-      "default_member": true,
-      "dependent_roles_count": 3,
-      "description": "Can create, edit, and publish content but cannot delete or manage users",
-      "display_name": "Content Editor",
-      "extends": "admin_role",
-      "id": "role_1234abcd5678efgh",
-      "is_org_role": true,
-      "name": "content_editor",
-      "permissions": [
-        {
-          "description": "Read Content",
-          "name": "read:content",
-          "role_name": "admin_role"
-        },
-        {
-          "description": "Write Content",
-          "name": "write:content",
-          "role_name": "editor_role"
-        }
-      ]
-    }
-  ]
-}
-```
-
-### rolesListRolePermissionsResponse
-
-- **Type:**`object`
-
-* **`permissions`**
-
-  `array` — List of permissions directly assigned to the role
-
-  **Items:**
-
-  - **`create_time`**
-
-    `string`, format: `date-time`
-
-  - **`description`**
-
-    `string`
-
-  - **`id`**
-
-    `string`
-
-  - **`is_scalekit_permission`**
-
-    `boolean` — Indicates whether this permission is predefined by Scalekit
-
-  - **`name`**
-
-    `string`
-
-  - **`update_time`**
-
-    `string`, format: `date-time`
-
-**Example:**
-
-```json
-{
-  "permissions": [
-    {
-      "create_time": "",
-      "description": "",
-      "id": "",
-      "is_scalekit_permission": true,
-      "name": "",
-      "update_time": ""
-    }
-  ]
-}
-```
-
-### RolesServiceAddPermissionsToRoleBody
-
-- **Type:**`object`
-
-* **`permission_names`**
-
-  `array` — List of permission names to add to the role
-
-  **Items:**
-
-  `string`
-
-**Example:**
-
-```json
-{
-  "permission_names": [
-    ""
-  ]
-}
-```
-
-### rolesAddPermissionsToRoleResponse
-
-- **Type:**`object`
-
-* **`permissions`**
-
-  `array` — List of all permissions belonging to the role after addition
-
-  **Items:**
-
-  - **`create_time`**
-
-    `string`, format: `date-time`
-
-  - **`description`**
-
-    `string`
-
-  - **`id`**
-
-    `string`
-
-  - **`is_scalekit_permission`**
-
-    `boolean` — Indicates whether this permission is predefined by Scalekit
-
-  - **`name`**
-
-    `string`
-
-  - **`update_time`**
-
-    `string`, format: `date-time`
-
-**Example:**
-
-```json
-{
-  "permissions": [
-    {
-      "create_time": "",
-      "description": "",
-      "id": "",
-      "is_scalekit_permission": true,
-      "name": "",
-      "update_time": ""
-    }
-  ]
-}
-```
-
-### rolesListEffectiveRolePermissionsResponse
-
-- **Type:**`object`
-
-* **`permissions`**
-
-  `array` — List of all effective permissions including those inherited from base roles
-
-  **Items:**
-
-  - **`create_time`**
-
-    `string`, format: `date-time`
-
-  - **`description`**
-
-    `string`
-
-  - **`id`**
-
-    `string`
-
-  - **`is_scalekit_permission`**
-
-    `boolean` — Indicates whether this permission is predefined by Scalekit
-
-  - **`name`**
-
-    `string`
-
-  - **`update_time`**
-
-    `string`, format: `date-time`
-
-**Example:**
-
-```json
-{
-  "permissions": [
-    {
-      "create_time": "",
-      "description": "",
-      "id": "",
-      "is_scalekit_permission": true,
-      "name": "",
-      "update_time": ""
-    }
-  ]
-}
-```
-
-### rolesGetRoleUsersCountResponse
-
-- **Type:**`object`
-
-* **`count`**
-
-  `string`, format: `int64` — Number of users associated with the role
-
-**Example:**
-
-```json
-{
-  "count": 10
-}
-```
-
-### sessionsAuthenticatedClients
-
-- **Type:**`object`
-
-AuthenticatedClients represents an authenticated client in a session along with its organization context.
-
-- **`client_id`**
-
-  `string` — Unique identifier of the authenticated client application.
-
-- **`organization_id`**
-
-  `string` — Active or last active Organization ID associated with the authenticated client.
-
-**Example:**
-
-```json
-{
-  "client_id": "skc_1234567890",
-  "organization_id": "org_1234567890"
-}
-```
-
-### v1sessionsLocation
-
-- **Type:**`object`
-
-* **`city`**
-
-  `string` — City name where the session originated based on IP geolocation. Approximate location derived from IP address.
-
-* **`latitude`**
-
-  `string` — Latitude coordinate of the estimated location. Decimal format (e.g., '37.7749'). Note: Represents IP geolocation center and may not be precise.
-
-* **`longitude`**
-
-  `string` — Longitude coordinate of the estimated location. Decimal format (e.g., '-122.4194'). Note: Represents IP geolocation center and may not be precise.
-
-* **`region`**
-
-  `string` — Geographic region name derived from IP geolocation. Represents the country-level location (e.g., 'United States', 'France').
-
-* **`region_subdivision`**
-
-  `string` — Regional subdivision code or name (e.g., state abbreviation for US, province for Canada). Two-letter ISO format when applicable.
-
-**Example:**
-
-```json
-{
-  "city": "San Francisco",
-  "latitude": "37.7749",
-  "longitude": "-122.4194",
-  "region": "United States",
-  "region_subdivision": "CA"
-}
-```
-
-### sessionsDeviceDetails
-
-- **Type:**`object`
-
-* **`browser`**
-
-  `string` — Browser name and family extracted from the user agent. Examples: Chrome, Safari, Firefox, Edge, Mobile Safari.
-
-* **`browser_version`**
-
-  `string` — Version of the browser application. Represents the specific release version of the browser being used.
-
-* **`device_type`**
-
-  `string` — Categorized device type classification. Possible values: 'desktop' (traditional computers), 'mobile' (smartphones and small tablets), 'tablet' (large tablets), 'other'. Useful for displaying session information by device category.
-
-* **`ip`**
-
-  `string` — IP address of the device that initiated the session. This is the public-facing IP address used to connect to the application. Useful for security audits and geographic distribution analysis.
-
-* **`location`**
-
-  `object` — Geographic location information derived from IP address geolocation. Includes country, region, city, and coordinates. Note: Based on IP location data and may not represent the user's exact physical location.
-
-  - **`city`**
-
-    `string` — City name where the session originated based on IP geolocation. Approximate location derived from IP address.
-
-  - **`latitude`**
-
-    `string` — Latitude coordinate of the estimated location. Decimal format (e.g., '37.7749'). Note: Represents IP geolocation center and may not be precise.
-
-  - **`longitude`**
-
-    `string` — Longitude coordinate of the estimated location. Decimal format (e.g., '-122.4194'). Note: Represents IP geolocation center and may not be precise.
-
-  - **`region`**
-
-    `string` — Geographic region name derived from IP geolocation. Represents the country-level location (e.g., 'United States', 'France').
-
-  - **`region_subdivision`**
-
-    `string` — Regional subdivision code or name (e.g., state abbreviation for US, province for Canada). Two-letter ISO format when applicable.
-
-* **`os`**
-
-  `string` — Operating system name extracted from the user agent and device headers. Examples: macOS, Windows, Linux, iOS, Android.
-
-* **`os_version`**
-
-  `string` — Version of the operating system. Represents the specific OS release the device is running.
-
-* **`user_agent`**
-
-  `string` — Complete HTTP User-Agent header string from the client request. Contains browser type, version, and operating system information. Used for detailed device fingerprinting and user agent analysis.
-
-**Example:**
-
-```json
-{
-  "browser": "Chrome",
-  "browser_version": "120.0.0.0",
-  "device_type": "desktop",
-  "ip": "192.0.2.1",
-  "location": {
-    "city": "San Francisco",
-    "latitude": "37.7749",
-    "longitude": "-122.4194",
-    "region": "United States",
-    "region_subdivision": "CA"
-  },
-  "os": "macOS",
-  "os_version": "14.2",
-  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-}
-```
-
-### sessionsSessionDetails
-
-- **Type:**`object`
-
-* **`absolute_expires_at`**
-
-  `string`, format: `date-time` — Hard expiration timestamp for the session regardless of user activity. The session will be forcibly terminated at this time. This represents the maximum session lifetime from creation.
-
-* **`authenticated_clients`**
-
-  `array` — Details of the authenticated clients for this session: client ID and organization context.
-
-  **Items:**
-
-  - **`client_id`**
-
-    `string` — Unique identifier of the authenticated client application.
-
-  - **`organization_id`**
-
-    `string` — Active or last active Organization ID associated with the authenticated client.
-
-* **`authenticated_organizations`**
-
-  `array` — List of organization IDs that have been authenticated for this user within the current session. Contains all organizations where the user has successfully completed SSO or authentication.
-
-  **Items:**
-
-  `string`
-
-* **`created_at`**
-
-  `string`, format: `date-time` — Timestamp indicating when the session was created. This is set once at session creation and remains constant throughout the session lifetime.
-
-* **`device`**
-
-  `object` — Complete device metadata associated with this session including browser, operating system, device type, and geographic location based on IP address.
-
-  - **`browser`**
-
-    `string` — Browser name and family extracted from the user agent. Examples: Chrome, Safari, Firefox, Edge, Mobile Safari.
-
-  - **`browser_version`**
-
-    `string` — Version of the browser application. Represents the specific release version of the browser being used.
-
-  - **`device_type`**
-
-    `string` — Categorized device type classification. Possible values: 'desktop' (traditional computers), 'mobile' (smartphones and small tablets), 'tablet' (large tablets), 'other'. Useful for displaying session information by device category.
-
-  - **`ip`**
-
-    `string` — IP address of the device that initiated the session. This is the public-facing IP address used to connect to the application. Useful for security audits and geographic distribution analysis.
-
-  - **`location`**
-
-    `object` — Geographic location information derived from IP address geolocation. Includes country, region, city, and coordinates. Note: Based on IP location data and may not represent the user's exact physical location.
-
-    - **`city`**
-
-      `string` — City name where the session originated based on IP geolocation. Approximate location derived from IP address.
-
-    - **`latitude`**
-
-      `string` — Latitude coordinate of the estimated location. Decimal format (e.g., '37.7749'). Note: Represents IP geolocation center and may not be precise.
-
-    - **`longitude`**
-
-      `string` — Longitude coordinate of the estimated location. Decimal format (e.g., '-122.4194'). Note: Represents IP geolocation center and may not be precise.
-
-    - **`region`**
-
-      `string` — Geographic region name derived from IP geolocation. Represents the country-level location (e.g., 'United States', 'France').
-
-    - **`region_subdivision`**
-
-      `string` — Regional subdivision code or name (e.g., state abbreviation for US, province for Canada). Two-letter ISO format when applicable.
-
-  - **`os`**
-
-    `string` — Operating system name extracted from the user agent and device headers. Examples: macOS, Windows, Linux, iOS, Android.
-
-  - **`os_version`**
-
-    `string` — Version of the operating system. Represents the specific OS release the device is running.
-
-  - **`user_agent`**
-
-    `string` — Complete HTTP User-Agent header string from the client request. Contains browser type, version, and operating system information. Used for detailed device fingerprinting and user agent analysis.
-
-* **`expired_at`**
-
-  `string`, format: `date-time` — Timestamp when the session was terminated. Null if the session is still active. Set when the session expires due to reaching idle\_expires\_at or absolute\_expires\_at timeout, or when administratively revoked. Not set for user-initiated logout (see logout\_at instead).
-
-* **`idle_expires_at`**
-
-  `string`, format: `date-time` — Projected expiration timestamp if the session remains idle without user activity. This timestamp is recalculated with each user activity. Session will be automatically terminated at this time if no activity occurs.
-
-* **`last_active_at`**
-
-  `string`, format: `date-time` — Timestamp of the most recent user activity detected in this session. Updated on each API request or user interaction. Used to determine if a session has exceeded the idle timeout threshold.
-
-* **`logout_at`**
-
-  `string`, format: `date-time` — Timestamp when the user explicitly logged out from the session. Null if the user has not logged out. When set, indicates the session ended due to explicit user logout rather than timeout.
-
-* **`organization_id`**
-
-  `string` — Organization ID for the user's most recently active organization within this session. This represents the primary organization context for the current session.
-
-* **`session_id`**
-
-  `string` — Unique identifier for the session. System-generated read-only field used to reference this session.
-
-* **`status`**
-
-  `string` — Current operational status of the session. Possible values: 'active' (session is valid and requests are allowed), 'expired' (session terminated due to idle or absolute timeout), 'revoked' (session was administratively revoked), 'logout' (user explicitly logged out). Use this to determine if the session can be used for new requests.
-
-* **`updated_at`**
-
-  `string`, format: `date-time` — Timestamp indicating when the session was last updated. Updated whenever session state changes such as organization context changes or metadata updates.
-
-* **`user_id`**
-
-  `string` — Unique identifier for the user who owns and is authenticated within this session.
-
-**Example:**
-
-```json
-{
-  "absolute_expires_at": "2025-01-22T10:30:00Z",
-  "authenticated_clients": [
-    {
-      "client_id": "skc_1234567890",
-      "organization_id": "org_1234567890"
-    }
-  ],
-  "authenticated_organizations": [
-    "org_123",
-    "org_456"
-  ],
-  "created_at": "2025-01-15T10:30:00Z",
-  "device": {
-    "browser": "Chrome",
-    "browser_version": "120.0.0.0",
-    "device_type": "desktop",
-    "ip": "192.0.2.1",
-    "location": null,
-    "os": "macOS",
-    "os_version": "14.2",
-    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-  },
-  "expired_at": "2025-01-15T12:00:00Z",
-  "idle_expires_at": "2025-01-15T11:30:00Z",
-  "last_active_at": "2025-01-15T10:55:30Z",
-  "logout_at": "2025-01-15T14:00:00Z",
-  "organization_id": "org_1234567890123456",
-  "session_id": "ses_1234567890123456",
-  "status": "active",
-  "updated_at": "2025-01-15T10:45:00Z",
-  "user_id": "usr_1234567890123456"
-}
-```
-
-### sessionsRevokedSessionDetails
-
-- **Type:**`object`
-
-* **`absolute_expires_at`**
-
-  `string`, format: `date-time` — The absolute expiration timestamp that was configured for this session before revocation. Represents the hard deadline regardless of activity.
-
-* **`created_at`**
-
-  `string`, format: `date-time` — Timestamp indicating when the session was originally created before revocation.
-
-* **`expired_at`**
-
-  `string`, format: `date-time` — Timestamp when the session was actually terminated. Set to the revocation time when the session is revoked.
-
-* **`idle_expires_at`**
-
-  `string`, format: `date-time` — The idle expiration timestamp that was configured for this session before revocation. Represents when the session would have expired due to inactivity.
-
-* **`last_active_at`**
-
-  `string`, format: `date-time` — Timestamp of the last recorded user activity in this session before revocation. Helps identify inactive sessions that were revoked.
-
-* **`logout_at`**
-
-  `string`, format: `date-time` — Timestamp when the user explicitly logged out (if applicable). Null if the session was revoked without prior logout.
-
-* **`session_id`**
-
-  `string` — Unique identifier for the revoked session. System-generated read-only field.
-
-* **`status`**
-
-  `string` — Status of the session after revocation. Always 'revoked' since only active sessions can be revoked. Sessions that were already expired or logged out are not included in the revocation response.
-
-* **`updated_at`**
-
-  `string`, format: `date-time` — Timestamp indicating when the session was last modified before revocation.
-
-* **`user_id`**
-
-  `string` — Unique identifier for the user who owned this session.
-
-**Example:**
-
-```json
-{
-  "absolute_expires_at": "2025-01-22T10:30:00Z",
-  "created_at": "2025-01-15T10:30:00Z",
-  "expired_at": "2025-01-15T12:00:00Z",
-  "idle_expires_at": "2025-01-15T11:30:00Z",
-  "last_active_at": "2025-01-15T10:55:30Z",
-  "logout_at": "2025-01-15T14:00:00Z",
-  "session_id": "ses_1234567890123456",
-  "status": "revoked",
-  "updated_at": "2025-01-15T10:45:00Z",
-  "user_id": "usr_1234567890123456"
-}
-```
-
-### sessionsRevokeSessionResponse
-
-- **Type:**`object`
-
-* **`revoked_session`**
-
-  `object` — Details of the revoked session including session ID, user ID, creation and revocation timestamps, and final device information.
-
-  - **`absolute_expires_at`**
-
-    `string`, format: `date-time` — The absolute expiration timestamp that was configured for this session before revocation. Represents the hard deadline regardless of activity.
-
-  - **`created_at`**
-
-    `string`, format: `date-time` — Timestamp indicating when the session was originally created before revocation.
-
-  - **`expired_at`**
-
-    `string`, format: `date-time` — Timestamp when the session was actually terminated. Set to the revocation time when the session is revoked.
-
-  - **`idle_expires_at`**
-
-    `string`, format: `date-time` — The idle expiration timestamp that was configured for this session before revocation. Represents when the session would have expired due to inactivity.
-
-  - **`last_active_at`**
-
-    `string`, format: `date-time` — Timestamp of the last recorded user activity in this session before revocation. Helps identify inactive sessions that were revoked.
-
-  - **`logout_at`**
-
-    `string`, format: `date-time` — Timestamp when the user explicitly logged out (if applicable). Null if the session was revoked without prior logout.
-
-  - **`session_id`**
-
-    `string` — Unique identifier for the revoked session. System-generated read-only field.
-
-  - **`status`**
-
-    `string` — Status of the session after revocation. Always 'revoked' since only active sessions can be revoked. Sessions that were already expired or logged out are not included in the revocation response.
-
-  - **`updated_at`**
-
-    `string`, format: `date-time` — Timestamp indicating when the session was last modified before revocation.
-
-  - **`user_id`**
-
-    `string` — Unique identifier for the user who owned this session.
-
-**Example:**
-
-```json
-{
-  "revoked_session": {
-    "absolute_expires_at": "2025-01-22T10:30:00Z",
-    "created_at": "2025-01-15T10:30:00Z",
-    "expired_at": "2025-01-15T12:00:00Z",
-    "idle_expires_at": "2025-01-15T11:30:00Z",
-    "last_active_at": "2025-01-15T10:55:30Z",
-    "logout_at": "2025-01-15T14:00:00Z",
-    "session_id": "ses_1234567890123456",
-    "status": "revoked",
-    "updated_at": "2025-01-15T10:45:00Z",
-    "user_id": "usr_1234567890123456"
-  }
 }
 ```
 
@@ -23813,7 +23319,599 @@ AuthenticatedClients represents an authenticated client in a session along with 
 }
 ```
 
-### usersGetUserResponse
+### usersPermission
+
+- **Type:**`object`
+
+* **`description`**
+
+  `string` — Description of what the permission allows
+
+* **`id`**
+
+  `string` — Unique identifier for the permission
+
+* **`name`**
+
+  `string` — Unique name identifier for the permission
+
+**Example:**
+
+```json
+{
+  "description": "Allows creating new user accounts",
+  "id": "perm_1234abcd5678efgh",
+  "name": "users:create"
+}
+```
+
+### usersResendInviteResponse
+
+- **Type:**`object`
+
+* **`invite`**
+
+  `object` — Updated invitation object containing the resent invitation details, including new expiration time and incremented resend counter.
+
+  - **`created_at`**
+
+    `string`, format: `date-time` — Timestamp when the invite was originally created.
+
+  - **`expires_at`**
+
+    `string`, format: `date-time` — The time at which the invite expires.
+
+  - **`inviter_email`**
+
+    `string` — Identifier of the user or system that initiated the invite.
+
+  - **`organization_id`**
+
+    `string` — The organization to which the invite belongs.
+
+  - **`resent_at`**
+
+    `string`, format: `date-time` — Timestamp when the invite was last resent, if applicable.
+
+  - **`resent_count`**
+
+    `integer`, format: `int32` — Number of times the invite has been resent.
+
+  - **`status`**
+
+    `string` — Current status of the invite (e.g., pending, accepted, expired, revoked).
+
+  - **`user_id`**
+
+    `string` — User ID to whom the invite is sent. May be empty if the user has not signed up yet.
+
+**Example:**
+
+```json
+{
+  "invite": {
+    "expires_at": "2025-12-31T23:59:59Z",
+    "organization_id": "org_123",
+    "resent_count": 2,
+    "status": "pending_invite",
+    "user_id": "usr_456"
+  }
+}
+```
+
+### usersSearchOrganizationUsersResponse
+
+- **Type:**`object`
+
+* **`next_page_token`**
+
+  `string` — Token for retrieving the next page of results. Empty if there are no more pages.
+
+* **`prev_page_token`**
+
+  `string` — Token for retrieving the previous page of results. Empty if this is the first page.
+
+* **`total_size`**
+
+  `integer`, format: `int64` — Total number of users matching the request criteria, regardless of pagination.
+
+* **`users`**
+
+  `array` — List of matching users.
+
+  **Items:**
+
+  - **`create_time`**
+
+    `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
+
+  - **`email`**
+
+    `string` — Primary email address for the user. Must be unique across the environment and valid per RFC 5322.
+
+  - **`external_id`**
+
+    `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
+
+  - **`id`**
+
+    `string` — Unique system-generated identifier for the user. Immutable once created.
+
+  - **`last_login_time`**
+
+    `string`, format: `date-time` — Timestamp of the user's most recent successful authentication. Updated automatically.
+
+  - **`memberships`**
+
+    `array` — List of organization memberships. Automatically populated based on group assignments.
+
+    **Items:**
+
+    - **`accepted_at`**
+
+      `string`, format: `date-time` — Timestamp when the user accepted the invitation.
+
+    - **`created_at`**
+
+      `string`, format: `date-time` — Timestamp when the invitation was created.
+
+    - **`display_name`**
+
+      `string` — Organization display name. This field stores a user-friendly name for the organization that may be different from the formal name, often used for UI display purposes.
+
+    - **`expires_at`**
+
+      `string`, format: `date-time` — Timestamp when the invitation expired.
+
+    - **`inviter_email`**
+
+      `string` — ID of the user who invited this user.
+
+    - **`join_time`**
+
+      `string`, format: `date-time` — Timestamp when the membership was created. Automatically set by the server.
+
+    - **`membership_status`**
+
+      `string`, possible values: `"ACTIVE", "INACTIVE", "PENDING_INVITE", "INVITE_EXPIRED"`
+
+    - **`metadata`**
+
+      `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+    - **`name`**
+
+      `string` — Organization name. This field stores the formal organization name used for identification and display purposes.
+
+    - **`organization_id`**
+
+      `string` — Unique identifier for the organization. Immutable and read-only.
+
+    - **`permissions`**
+
+      `array` — Effective permissions granted to the user within the organization (including inherited permissions from assigned roles). Lists the specific actions and access rights the user can perform.
+
+      **Items:**
+
+      `string`
+
+    - **`provisioning_method`**
+
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+
+    - **`roles`**
+
+      `array`
+
+      **Items:**
+
+      - **`display_name`**
+
+        `string` — Human-readable name for the role
+
+      - **`id`**
+
+        `string` — Role ID
+
+      - **`name`**
+
+        `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
+
+  - **`metadata`**
+
+    `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+  - **`update_time`**
+
+    `string`, format: `date-time` — Timestamp of the last modification to the user account. Automatically updated by the server.
+
+  - **`user_profile`**
+
+    `object` — User's personal information including name, address, and other profile attributes.
+
+    - **`custom_attributes`**
+
+      `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+    - **`email_verified`**
+
+      `boolean` — Indicates if the user's email address has been verified. Automatically updated by the system.
+
+    - **`external_identities`**
+
+      `array` — List of external identity connections associated with the user profile.
+
+      **Items:**
+
+      - **`connection_id`**
+
+        `string` — Unique identifier for the external identity connection. Immutable and read-only.
+
+      - **`connection_provider`**
+
+        `string`, possible values: `"OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "PING_IDENTITY", "JUMPCLOUD", "CUSTOM", "GITHUB", "GITLAB", "LINKEDIN", "SALESFORCE", "MICROSOFT", "IDP_SIMULATOR", "SCALEKIT", "ADFS"` — Type of the identity provider.
+
+      - **`connection_type`**
+
+        `string` — Name of the external identity connection.
+
+      - **`connection_user_id`**
+
+        `string` — Unique identifier for the user in the external identity provider system. Immutable and read-only.
+
+      - **`created_time`**
+
+        `string`, format: `date-time` — Timestamp when this external identity connection was first created. Immutable and read-only.
+
+      - **`is_social`**
+
+        `boolean` — Indicates if the identity provider is a social provider (true) or enterprise/custom provider (false). Read-only.
+
+      - **`last_login_time`**
+
+        `string`, format: `date-time` — Timestamp of the user's last successful login via this external identity provider. Automatically updated by the system.
+
+      - **`last_synced_time`**
+
+        `string`, format: `date-time` — Timestamp of the last data synchronization for this external identity from the provider. Automatically updated by the system.
+
+    - **`family_name`**
+
+      `string` — The user's family name (last name or surname). This field stores the user's last name and is combined with the given name to create the full display name. The family name is used in formal communications, user listings, and organizational directories throughout the system. Maximum 255 characters allowed.
+
+    - **`gender`**
+
+      `string` — The user's gender identity information. This field stores the user's gender identity for personalization, compliance reporting, or organizational analytics purposes. This field supports any string value to accommodate diverse gender identities and should be handled with appropriate privacy considerations according to your organization's policies and applicable regulations.
+
+    - **`given_name`**
+
+      `string` — The user's given name (first name). This field stores the user's first name and is used for personalization, display purposes, and when generating the full display name. The given name appears in user interfaces, formal communications, and user listings throughout the system. Maximum 255 characters allowed.
+
+    - **`groups`**
+
+      `array` — The list of group names the user belongs to within the organization. This field stores the user's group memberships for role-based access control, team assignments, and organizational structure. Groups are typically used for permission management, collaborative access, and organizational hierarchy. Each group name represents a distinct organizational unit or team that the user is associated with.
+
+      **Items:**
+
+      `string`
+
+    - **`id`**
+
+      `string` — Unique system-generated identifier for the user profile. Immutable and read-only.
+
+    - **`locale`**
+
+      `string` — The user's preferred language and region settings using BCP-47 format codes. This field customizes the user's experience with localized content, date formats, number formatting, and UI language throughout the system. When not specified, the user inherits the organization's default locale settings. Common values include \`en-US\`, \`en-GB\`, \`fr-FR\`, \`de-DE\`, and \`es-ES\`.
+
+    - **`metadata`**
+
+      `object` — Raw attributes received from identity providers during authentication. This field stores the original user profile data as received from external IdP systems (SAML, OIDC, etc.) including provider-specific claims and attributes. These fields preserve the complete set of attributes received from the identity source and are used for mapping, synchronization, and audit purposes. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+    - **`name`**
+
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
+
+    - **`phone_number`**
+
+      `string` — The user's phone number in E.164 international format. This field stores the phone number for user contact and identification purposes. The phone number must include the country code and be formatted according to E.164 standards (e.g., \`+1\` for US numbers). This field is optional.
+
+    - **`phone_number_verified`**
+
+      `boolean` — Indicates if the user's phone number has been verified. Automatically updated by the system.
+
+    - **`picture`**
+
+      `string` — The URL to the user's profile picture or avatar image. This field stores the location of the user's profile photo that appears in user interfaces, directory listings, and collaborative features throughout the system. The URL should point to a publicly accessible image file. Supported formats typically include JPEG, PNG, and GIF. This image is used for visual identification and personalization across the platform.
+
+    - **`preferred_username`**
+
+      `string` — The user's preferred username for display and identification purposes. This field stores a custom username that the user prefers to be known by, which may differ from their email or formal name. This username appears in user interfaces, mentions, informal communications, and collaborative features throughout the system. Maximum 512 characters allowed.
+
+**Example:**
+
+```json
+{
+  "next_page_token": "eyJwYWdlIjogMiwgImxhc3RfaWQiOiAidXNyXzEyMzQ1In0=",
+  "prev_page_token": "eyJwYWdlIjogMCwgImZpcnN0X2lkIjogInVzcl85ODc2NSJ9",
+  "total_size": 1042,
+  "users": [
+    {
+      "create_time": "",
+      "email": "user@example.com",
+      "external_id": "ext_12345a67b89c",
+      "id": "usr_1234abcd5678efgh",
+      "last_login_time": "",
+      "memberships": [
+        {}
+      ],
+      "metadata": {
+        "department": "engineering",
+        "location": "nyc-office"
+      },
+      "update_time": "",
+      "user_profile": null
+    }
+  ]
+}
+```
+
+### usersSearchUsersResponse
+
+- **Type:**`object`
+
+* **`next_page_token`**
+
+  `string` — Token for retrieving the next page of results. Empty if there are no more pages.
+
+* **`prev_page_token`**
+
+  `string` — Token for retrieving the previous page of results. Empty if this is the first page.
+
+* **`total_size`**
+
+  `integer`, format: `int64` — Total number of users matching the request criteria, regardless of pagination.
+
+* **`users`**
+
+  `array` — List of matching users.
+
+  **Items:**
+
+  - **`create_time`**
+
+    `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
+
+  - **`email`**
+
+    `string` — Primary email address for the user. Must be unique across the environment and valid per RFC 5322.
+
+  - **`external_id`**
+
+    `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
+
+  - **`id`**
+
+    `string` — Unique system-generated identifier for the user. Immutable once created.
+
+  - **`last_login_time`**
+
+    `string`, format: `date-time` — Timestamp of the user's most recent successful authentication. Updated automatically.
+
+  - **`memberships`**
+
+    `array` — List of organization memberships. Automatically populated based on group assignments.
+
+    **Items:**
+
+    - **`accepted_at`**
+
+      `string`, format: `date-time` — Timestamp when the user accepted the invitation.
+
+    - **`created_at`**
+
+      `string`, format: `date-time` — Timestamp when the invitation was created.
+
+    - **`display_name`**
+
+      `string` — Organization display name. This field stores a user-friendly name for the organization that may be different from the formal name, often used for UI display purposes.
+
+    - **`expires_at`**
+
+      `string`, format: `date-time` — Timestamp when the invitation expired.
+
+    - **`inviter_email`**
+
+      `string` — ID of the user who invited this user.
+
+    - **`join_time`**
+
+      `string`, format: `date-time` — Timestamp when the membership was created. Automatically set by the server.
+
+    - **`membership_status`**
+
+      `string`, possible values: `"ACTIVE", "INACTIVE", "PENDING_INVITE", "INVITE_EXPIRED"`
+
+    - **`metadata`**
+
+      `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+    - **`name`**
+
+      `string` — Organization name. This field stores the formal organization name used for identification and display purposes.
+
+    - **`organization_id`**
+
+      `string` — Unique identifier for the organization. Immutable and read-only.
+
+    - **`permissions`**
+
+      `array` — Effective permissions granted to the user within the organization (including inherited permissions from assigned roles). Lists the specific actions and access rights the user can perform.
+
+      **Items:**
+
+      `string`
+
+    - **`provisioning_method`**
+
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+
+    - **`roles`**
+
+      `array`
+
+      **Items:**
+
+      - **`display_name`**
+
+        `string` — Human-readable name for the role
+
+      - **`id`**
+
+        `string` — Role ID
+
+      - **`name`**
+
+        `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
+
+  - **`metadata`**
+
+    `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+  - **`update_time`**
+
+    `string`, format: `date-time` — Timestamp of the last modification to the user account. Automatically updated by the server.
+
+  - **`user_profile`**
+
+    `object` — User's personal information including name, address, and other profile attributes.
+
+    - **`custom_attributes`**
+
+      `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+    - **`email_verified`**
+
+      `boolean` — Indicates if the user's email address has been verified. Automatically updated by the system.
+
+    - **`external_identities`**
+
+      `array` — List of external identity connections associated with the user profile.
+
+      **Items:**
+
+      - **`connection_id`**
+
+        `string` — Unique identifier for the external identity connection. Immutable and read-only.
+
+      - **`connection_provider`**
+
+        `string`, possible values: `"OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "PING_IDENTITY", "JUMPCLOUD", "CUSTOM", "GITHUB", "GITLAB", "LINKEDIN", "SALESFORCE", "MICROSOFT", "IDP_SIMULATOR", "SCALEKIT", "ADFS"` — Type of the identity provider.
+
+      - **`connection_type`**
+
+        `string` — Name of the external identity connection.
+
+      - **`connection_user_id`**
+
+        `string` — Unique identifier for the user in the external identity provider system. Immutable and read-only.
+
+      - **`created_time`**
+
+        `string`, format: `date-time` — Timestamp when this external identity connection was first created. Immutable and read-only.
+
+      - **`is_social`**
+
+        `boolean` — Indicates if the identity provider is a social provider (true) or enterprise/custom provider (false). Read-only.
+
+      - **`last_login_time`**
+
+        `string`, format: `date-time` — Timestamp of the user's last successful login via this external identity provider. Automatically updated by the system.
+
+      - **`last_synced_time`**
+
+        `string`, format: `date-time` — Timestamp of the last data synchronization for this external identity from the provider. Automatically updated by the system.
+
+    - **`family_name`**
+
+      `string` — The user's family name (last name or surname). This field stores the user's last name and is combined with the given name to create the full display name. The family name is used in formal communications, user listings, and organizational directories throughout the system. Maximum 255 characters allowed.
+
+    - **`gender`**
+
+      `string` — The user's gender identity information. This field stores the user's gender identity for personalization, compliance reporting, or organizational analytics purposes. This field supports any string value to accommodate diverse gender identities and should be handled with appropriate privacy considerations according to your organization's policies and applicable regulations.
+
+    - **`given_name`**
+
+      `string` — The user's given name (first name). This field stores the user's first name and is used for personalization, display purposes, and when generating the full display name. The given name appears in user interfaces, formal communications, and user listings throughout the system. Maximum 255 characters allowed.
+
+    - **`groups`**
+
+      `array` — The list of group names the user belongs to within the organization. This field stores the user's group memberships for role-based access control, team assignments, and organizational structure. Groups are typically used for permission management, collaborative access, and organizational hierarchy. Each group name represents a distinct organizational unit or team that the user is associated with.
+
+      **Items:**
+
+      `string`
+
+    - **`id`**
+
+      `string` — Unique system-generated identifier for the user profile. Immutable and read-only.
+
+    - **`locale`**
+
+      `string` — The user's preferred language and region settings using BCP-47 format codes. This field customizes the user's experience with localized content, date formats, number formatting, and UI language throughout the system. When not specified, the user inherits the organization's default locale settings. Common values include \`en-US\`, \`en-GB\`, \`fr-FR\`, \`de-DE\`, and \`es-ES\`.
+
+    - **`metadata`**
+
+      `object` — Raw attributes received from identity providers during authentication. This field stores the original user profile data as received from external IdP systems (SAML, OIDC, etc.) including provider-specific claims and attributes. These fields preserve the complete set of attributes received from the identity source and are used for mapping, synchronization, and audit purposes. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+    - **`name`**
+
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
+
+    - **`phone_number`**
+
+      `string` — The user's phone number in E.164 international format. This field stores the phone number for user contact and identification purposes. The phone number must include the country code and be formatted according to E.164 standards (e.g., \`+1\` for US numbers). This field is optional.
+
+    - **`phone_number_verified`**
+
+      `boolean` — Indicates if the user's phone number has been verified. Automatically updated by the system.
+
+    - **`picture`**
+
+      `string` — The URL to the user's profile picture or avatar image. This field stores the location of the user's profile photo that appears in user interfaces, directory listings, and collaborative features throughout the system. The URL should point to a publicly accessible image file. Supported formats typically include JPEG, PNG, and GIF. This image is used for visual identification and personalization across the platform.
+
+    - **`preferred_username`**
+
+      `string` — The user's preferred username for display and identification purposes. This field stores a custom username that the user prefers to be known by, which may differ from their email or formal name. This username appears in user interfaces, mentions, informal communications, and collaborative features throughout the system. Maximum 512 characters allowed.
+
+**Example:**
+
+```json
+{
+  "next_page_token": "eyJwYWdlIjogMiwgImxhc3RfaWQiOiAidXNyXzEyMzQ1In0=",
+  "prev_page_token": "eyJwYWdlIjogMCwgImZpcnN0X2lkIjogInVzcl85ODc2NSJ9",
+  "total_size": 1042,
+  "users": [
+    {
+      "create_time": "",
+      "email": "user@example.com",
+      "external_id": "ext_12345a67b89c",
+      "id": "usr_1234abcd5678efgh",
+      "last_login_time": "",
+      "memberships": [
+        {}
+      ],
+      "metadata": {
+        "department": "engineering",
+        "location": "nyc-office"
+      },
+      "update_time": "",
+      "user_profile": null
+    }
+  ]
+}
+```
+
+### usersUpdateMembershipResponse
 
 - **Type:**`object`
 
@@ -24139,114 +24237,6 @@ AuthenticatedClients represents an authenticated client in a session along with 
 }
 ```
 
-### v1usersUpdateUser
-
-- **Type:**`object`
-
-* **`external_id`**
-
-  `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
-
-* **`metadata`**
-
-  `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
-
-* **`user_profile`**
-
-  `object` — User's personal information including name, address, and other profile attributes.
-
-  - **`custom_attributes`**
-
-    `object` — Updates custom attributes for extended user profile data and application-specific information. Use this field to store business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
-
-  - **`family_name`**
-
-    `string` — Updates the user's family name (last name or surname). Use this field to modify how the user's last name appears throughout the system. Maximum 255 characters allowed.
-
-  - **`first_name`**
-
-    `string` — \[DEPRECATED] Use given\_name instead. User's given name. Maximum 200 characters.
-
-  - **`gender`**
-
-    `string` — Updates the user's gender identity information. Use this field to store the user's gender identity for personalization, compliance, or reporting purposes. This field supports any string value to accommodate diverse gender identities and should be handled with appropriate privacy considerations according to your organization's policies.
-
-  - **`given_name`**
-
-    `string` — Updates the user's given name (first name). Use this field to modify how the user's first name appears in the system and user interfaces. Maximum 255 characters allowed.
-
-  - **`groups`**
-
-    `array` — Updates the list of group names the user belongs to within the organization. Use this field to manage the user's group memberships for role-based access control, team assignments, or organizational structure. Groups are typically used for permission management and collaborative access. Each group name must be unique within the list, 1-250 characters long, with a maximum of 50 groups per user.
-
-    **Items:**
-
-    `string`
-
-  - **`last_name`**
-
-    `string` — \[DEPRECATED] Use family\_name instead. User's family name. Maximum 200 characters.
-
-  - **`locale`**
-
-    `string` — Updates the user's preferred language and region settings using BCP-47 format codes. Use this field to customize the user's experience with localized content, date formats, number formatting, and UI language. When not specified, the user inherits the organization's default locale settings. Common values include \`en-US\`, \`en-GB\`, \`fr-FR\`, \`de-DE\`, and \`es-ES\`.
-
-  - **`metadata`**
-
-    `object` — Updates system-managed key-value pairs for internal tracking and operational data. Use this field to store system-generated metadata like account status, signup source, last activity tracking, or integration-specific identifiers. These fields are typically managed by automated processes rather than direct user input. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
-
-  - **`name`**
-
-    `string` — Updates the user's complete display name. Use this field when you want to set the full name as a single string rather than using separate given and family names. This name appears in user interfaces, reports, and anywhere a formatted display name is needed.
-
-  - **`phone_number`**
-
-    `string` — Updates the user's phone number in E.164 international format. Use this field to enable SMS-based authentication methods, two-factor authentication, or phone-based account recovery. The phone number must include the country code and be formatted according to E.164 standards (e.g., \`+1\` for US numbers). This field is required when enabling SMS authentication features.
-
-  - **`picture`**
-
-    `string` — Updates the URL to the user's profile picture or avatar image. Use this field to set or change the user's profile photo that appears in user interfaces, directory listings, and collaborative features. The URL should point to a publicly accessible image file. Supported formats typically include JPEG, PNG, and GIF. Maximum URL length is 2048 characters.
-
-  - **`preferred_username`**
-
-    `string` — Updates the user's preferred username for display and identification purposes. Use this field to set a custom username that the user prefers to be known by, which may differ from their email or formal name. This username appears in user interfaces, mentions, and informal communications. Maximum 512 characters allowed.
-
-**Example:**
-
-```json
-{
-  "external_id": "ext_12345a67b89c",
-  "metadata": {
-    "department": "engineering",
-    "location": "nyc-office"
-  },
-  "user_profile": {
-    "custom_attributes": {
-      "department": "engineering",
-      "security_clearance": "level2"
-    },
-    "family_name": "Doe",
-    "first_name": "John",
-    "gender": "male",
-    "given_name": "John",
-    "groups": [
-      "engineering",
-      "managers"
-    ],
-    "last_name": "Doe",
-    "locale": "en-US",
-    "metadata": {
-      "account_status": "active",
-      "signup_source": "mobile_app"
-    },
-    "name": "John Doe",
-    "phone_number": "+14155552671",
-    "picture": "https://example.com/avatar.jpg",
-    "preferred_username": "John Michael Doe"
-  }
-}
-```
-
 ### usersUpdateUserResponse
 
 - **Type:**`object`
@@ -24484,512 +24474,863 @@ AuthenticatedClients represents an authenticated client in a session along with 
 }
 ```
 
-### sessionsUserSessionDetails
+### usersUser
 
 - **Type:**`object`
 
-* **`next_page_token`**
+* **`create_time`**
 
-  `string` — Pagination token for retrieving the next page of results. Empty string if there are no more pages (you have reached the final page of results).
+  `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
 
-* **`prev_page_token`**
+* **`email`**
 
-  `string` — Pagination token for retrieving the previous page of results. Empty string for the first page. Use this to navigate backward through result pages.
+  `string` — Primary email address for the user. Must be unique across the environment and valid per RFC 5322.
 
-* **`sessions`**
+* **`external_id`**
 
-  `array` — Array of session objects for the requested user. May contain fewer entries than the requested page\_size when reaching the final page of results.
+  `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
+
+* **`id`**
+
+  `string` — Unique system-generated identifier for the user. Immutable once created.
+
+* **`last_login_time`**
+
+  `string`, format: `date-time` — Timestamp of the user's most recent successful authentication. Updated automatically.
+
+* **`memberships`**
+
+  `array` — List of organization memberships. Automatically populated based on group assignments.
 
   **Items:**
 
-  - **`absolute_expires_at`**
+  - **`accepted_at`**
 
-    `string`, format: `date-time` — Hard expiration timestamp for the session regardless of user activity. The session will be forcibly terminated at this time. This represents the maximum session lifetime from creation.
-
-  - **`authenticated_clients`**
-
-    `array` — Details of the authenticated clients for this session: client ID and organization context.
-
-    **Items:**
-
-    - **`client_id`**
-
-      `string` — Unique identifier of the authenticated client application.
-
-    - **`organization_id`**
-
-      `string` — Active or last active Organization ID associated with the authenticated client.
-
-  - **`authenticated_organizations`**
-
-    `array` — List of organization IDs that have been authenticated for this user within the current session. Contains all organizations where the user has successfully completed SSO or authentication.
-
-    **Items:**
-
-    `string`
+    `string`, format: `date-time` — Timestamp when the user accepted the invitation.
 
   - **`created_at`**
 
-    `string`, format: `date-time` — Timestamp indicating when the session was created. This is set once at session creation and remains constant throughout the session lifetime.
+    `string`, format: `date-time` — Timestamp when the invitation was created.
 
-  - **`device`**
+  - **`display_name`**
 
-    `object` — Complete device metadata associated with this session including browser, operating system, device type, and geographic location based on IP address.
+    `string` — Organization display name. This field stores a user-friendly name for the organization that may be different from the formal name, often used for UI display purposes.
 
-    - **`browser`**
+  - **`expires_at`**
 
-      `string` — Browser name and family extracted from the user agent. Examples: Chrome, Safari, Firefox, Edge, Mobile Safari.
+    `string`, format: `date-time` — Timestamp when the invitation expired.
 
-    - **`browser_version`**
+  - **`inviter_email`**
 
-      `string` — Version of the browser application. Represents the specific release version of the browser being used.
+    `string` — ID of the user who invited this user.
 
-    - **`device_type`**
+  - **`join_time`**
 
-      `string` — Categorized device type classification. Possible values: 'desktop' (traditional computers), 'mobile' (smartphones and small tablets), 'tablet' (large tablets), 'other'. Useful for displaying session information by device category.
+    `string`, format: `date-time` — Timestamp when the membership was created. Automatically set by the server.
 
-    - **`ip`**
+  - **`membership_status`**
 
-      `string` — IP address of the device that initiated the session. This is the public-facing IP address used to connect to the application. Useful for security audits and geographic distribution analysis.
-
-    - **`location`**
-
-      `object` — Geographic location information derived from IP address geolocation. Includes country, region, city, and coordinates. Note: Based on IP location data and may not represent the user's exact physical location.
-
-      - **`city`**
-
-        `string` — City name where the session originated based on IP geolocation. Approximate location derived from IP address.
-
-      - **`latitude`**
-
-        `string` — Latitude coordinate of the estimated location. Decimal format (e.g., '37.7749'). Note: Represents IP geolocation center and may not be precise.
-
-      - **`longitude`**
-
-        `string` — Longitude coordinate of the estimated location. Decimal format (e.g., '-122.4194'). Note: Represents IP geolocation center and may not be precise.
-
-      - **`region`**
-
-        `string` — Geographic region name derived from IP geolocation. Represents the country-level location (e.g., 'United States', 'France').
-
-      - **`region_subdivision`**
-
-        `string` — Regional subdivision code or name (e.g., state abbreviation for US, province for Canada). Two-letter ISO format when applicable.
-
-    - **`os`**
-
-      `string` — Operating system name extracted from the user agent and device headers. Examples: macOS, Windows, Linux, iOS, Android.
-
-    - **`os_version`**
-
-      `string` — Version of the operating system. Represents the specific OS release the device is running.
-
-    - **`user_agent`**
-
-      `string` — Complete HTTP User-Agent header string from the client request. Contains browser type, version, and operating system information. Used for detailed device fingerprinting and user agent analysis.
-
-  - **`expired_at`**
-
-    `string`, format: `date-time` — Timestamp when the session was terminated. Null if the session is still active. Set when the session expires due to reaching idle\_expires\_at or absolute\_expires\_at timeout, or when administratively revoked. Not set for user-initiated logout (see logout\_at instead).
-
-  - **`idle_expires_at`**
-
-    `string`, format: `date-time` — Projected expiration timestamp if the session remains idle without user activity. This timestamp is recalculated with each user activity. Session will be automatically terminated at this time if no activity occurs.
-
-  - **`last_active_at`**
-
-    `string`, format: `date-time` — Timestamp of the most recent user activity detected in this session. Updated on each API request or user interaction. Used to determine if a session has exceeded the idle timeout threshold.
-
-  - **`logout_at`**
-
-    `string`, format: `date-time` — Timestamp when the user explicitly logged out from the session. Null if the user has not logged out. When set, indicates the session ended due to explicit user logout rather than timeout.
-
-  - **`organization_id`**
-
-    `string` — Organization ID for the user's most recently active organization within this session. This represents the primary organization context for the current session.
-
-  - **`session_id`**
-
-    `string` — Unique identifier for the session. System-generated read-only field used to reference this session.
-
-  - **`status`**
-
-    `string` — Current operational status of the session. Possible values: 'active' (session is valid and requests are allowed), 'expired' (session terminated due to idle or absolute timeout), 'revoked' (session was administratively revoked), 'logout' (user explicitly logged out). Use this to determine if the session can be used for new requests.
-
-  - **`updated_at`**
-
-    `string`, format: `date-time` — Timestamp indicating when the session was last updated. Updated whenever session state changes such as organization context changes or metadata updates.
-
-  - **`user_id`**
-
-    `string` — Unique identifier for the user who owns and is authenticated within this session.
-
-* **`total_size`**
-
-  `integer`, format: `int64` — Total number of sessions matching the applied filter criteria, regardless of pagination. This represents the complete result set size before pagination is applied.
-
-**Example:**
-
-```json
-{
-  "next_page_token": "eyJwYWdlIjogMiwgImxhc3RfaWQiOiAic2VzXzEyMzQ1In0=",
-  "prev_page_token": "eyJwYWdlIjogMCwgImZpcnN0X2lkIjogInNlc183OTAxIn0=",
-  "sessions": [
-    {
-      "absolute_expires_at": "2025-01-22T10:30:00Z",
-      "authenticated_clients": [
-        {}
-      ],
-      "authenticated_organizations": [
-        "org_123",
-        "org_456"
-      ],
-      "created_at": "2025-01-15T10:30:00Z",
-      "device": null,
-      "expired_at": "2025-01-15T12:00:00Z",
-      "idle_expires_at": "2025-01-15T11:30:00Z",
-      "last_active_at": "2025-01-15T10:55:30Z",
-      "logout_at": "2025-01-15T14:00:00Z",
-      "organization_id": "org_1234567890123456",
-      "session_id": "ses_1234567890123456",
-      "status": "active",
-      "updated_at": "2025-01-15T10:45:00Z",
-      "user_id": "usr_1234567890123456"
-    }
-  ],
-  "total_size": 42
-}
-```
-
-### sessionsRevokeAllUserSessionsResponse
-
-- **Type:**`object`
-
-* **`revoked_sessions`**
-
-  `array` — List of all sessions that were revoked, including detailed information for each revoked session with IDs, timestamps, and device details.
-
-  **Items:**
-
-  - **`absolute_expires_at`**
-
-    `string`, format: `date-time` — The absolute expiration timestamp that was configured for this session before revocation. Represents the hard deadline regardless of activity.
-
-  - **`created_at`**
-
-    `string`, format: `date-time` — Timestamp indicating when the session was originally created before revocation.
-
-  - **`expired_at`**
-
-    `string`, format: `date-time` — Timestamp when the session was actually terminated. Set to the revocation time when the session is revoked.
-
-  - **`idle_expires_at`**
-
-    `string`, format: `date-time` — The idle expiration timestamp that was configured for this session before revocation. Represents when the session would have expired due to inactivity.
-
-  - **`last_active_at`**
-
-    `string`, format: `date-time` — Timestamp of the last recorded user activity in this session before revocation. Helps identify inactive sessions that were revoked.
-
-  - **`logout_at`**
-
-    `string`, format: `date-time` — Timestamp when the user explicitly logged out (if applicable). Null if the session was revoked without prior logout.
-
-  - **`session_id`**
-
-    `string` — Unique identifier for the revoked session. System-generated read-only field.
-
-  - **`status`**
-
-    `string` — Status of the session after revocation. Always 'revoked' since only active sessions can be revoked. Sessions that were already expired or logged out are not included in the revocation response.
-
-  - **`updated_at`**
-
-    `string`, format: `date-time` — Timestamp indicating when the session was last modified before revocation.
-
-  - **`user_id`**
-
-    `string` — Unique identifier for the user who owned this session.
-
-* **`total_revoked`**
-
-  `integer`, format: `int64` — Total count of active sessions that were revoked. Useful for confirmation and audit logging.
-
-**Example:**
-
-```json
-{
-  "revoked_sessions": [
-    {
-      "absolute_expires_at": "2025-01-22T10:30:00Z",
-      "created_at": "2025-01-15T10:30:00Z",
-      "expired_at": "2025-01-15T12:00:00Z",
-      "idle_expires_at": "2025-01-15T11:30:00Z",
-      "last_active_at": "2025-01-15T10:55:30Z",
-      "logout_at": "2025-01-15T14:00:00Z",
-      "session_id": "ses_1234567890123456",
-      "status": "revoked",
-      "updated_at": "2025-01-15T10:45:00Z",
-      "user_id": "usr_1234567890123456"
-    }
-  ],
-  "total_revoked": 5
-}
-```
-
-### usersSearchUsersResponse
-
-- **Type:**`object`
-
-* **`next_page_token`**
-
-  `string` — Token for retrieving the next page of results. Empty if there are no more pages.
-
-* **`prev_page_token`**
-
-  `string` — Token for retrieving the previous page of results. Empty if this is the first page.
-
-* **`total_size`**
-
-  `integer`, format: `int64` — Total number of users matching the request criteria, regardless of pagination.
-
-* **`users`**
-
-  `array` — List of matching users.
-
-  **Items:**
-
-  - **`create_time`**
-
-    `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
-
-  - **`email`**
-
-    `string` — Primary email address for the user. Must be unique across the environment and valid per RFC 5322.
-
-  - **`external_id`**
-
-    `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
-
-  - **`id`**
-
-    `string` — Unique system-generated identifier for the user. Immutable once created.
-
-  - **`last_login_time`**
-
-    `string`, format: `date-time` — Timestamp of the user's most recent successful authentication. Updated automatically.
-
-  - **`memberships`**
-
-    `array` — List of organization memberships. Automatically populated based on group assignments.
-
-    **Items:**
-
-    - **`accepted_at`**
-
-      `string`, format: `date-time` — Timestamp when the user accepted the invitation.
-
-    - **`created_at`**
-
-      `string`, format: `date-time` — Timestamp when the invitation was created.
-
-    - **`display_name`**
-
-      `string` — Organization display name. This field stores a user-friendly name for the organization that may be different from the formal name, often used for UI display purposes.
-
-    - **`expires_at`**
-
-      `string`, format: `date-time` — Timestamp when the invitation expired.
-
-    - **`inviter_email`**
-
-      `string` — ID of the user who invited this user.
-
-    - **`join_time`**
-
-      `string`, format: `date-time` — Timestamp when the membership was created. Automatically set by the server.
-
-    - **`membership_status`**
-
-      `string`, possible values: `"ACTIVE", "INACTIVE", "PENDING_INVITE", "INVITE_EXPIRED"`
-
-    - **`metadata`**
-
-      `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
-
-    - **`name`**
-
-      `string` — Organization name. This field stores the formal organization name used for identification and display purposes.
-
-    - **`organization_id`**
-
-      `string` — Unique identifier for the organization. Immutable and read-only.
-
-    - **`permissions`**
-
-      `array` — Effective permissions granted to the user within the organization (including inherited permissions from assigned roles). Lists the specific actions and access rights the user can perform.
-
-      **Items:**
-
-      `string`
-
-    - **`provisioning_method`**
-
-      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
-
-    - **`roles`**
-
-      `array`
-
-      **Items:**
-
-      - **`display_name`**
-
-        `string` — Human-readable name for the role
-
-      - **`id`**
-
-        `string` — Role ID
-
-      - **`name`**
-
-        `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
+    `string`, possible values: `"ACTIVE", "INACTIVE", "PENDING_INVITE", "INVITE_EXPIRED"`
 
   - **`metadata`**
 
     `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
 
-  - **`update_time`**
+  - **`name`**
 
-    `string`, format: `date-time` — Timestamp of the last modification to the user account. Automatically updated by the server.
+    `string` — Organization name. This field stores the formal organization name used for identification and display purposes.
 
-  - **`user_profile`**
+  - **`organization_id`**
 
-    `object` — User's personal information including name, address, and other profile attributes.
+    `string` — Unique identifier for the organization. Immutable and read-only.
 
-    - **`custom_attributes`**
+  - **`permissions`**
 
-      `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+    `array` — Effective permissions granted to the user within the organization (including inherited permissions from assigned roles). Lists the specific actions and access rights the user can perform.
 
-    - **`email_verified`**
+    **Items:**
 
-      `boolean` — Indicates if the user's email address has been verified. Automatically updated by the system.
+    `string`
 
-    - **`external_identities`**
+  - **`provisioning_method`**
 
-      `array` — List of external identity connections associated with the user profile.
+    `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
 
-      **Items:**
+  - **`roles`**
 
-      - **`connection_id`**
+    `array`
 
-        `string` — Unique identifier for the external identity connection. Immutable and read-only.
+    **Items:**
 
-      - **`connection_provider`**
+    - **`display_name`**
 
-        `string`, possible values: `"OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "PING_IDENTITY", "JUMPCLOUD", "CUSTOM", "GITHUB", "GITLAB", "LINKEDIN", "SALESFORCE", "MICROSOFT", "IDP_SIMULATOR", "SCALEKIT", "ADFS"` — Type of the identity provider.
-
-      - **`connection_type`**
-
-        `string` — Name of the external identity connection.
-
-      - **`connection_user_id`**
-
-        `string` — Unique identifier for the user in the external identity provider system. Immutable and read-only.
-
-      - **`created_time`**
-
-        `string`, format: `date-time` — Timestamp when this external identity connection was first created. Immutable and read-only.
-
-      - **`is_social`**
-
-        `boolean` — Indicates if the identity provider is a social provider (true) or enterprise/custom provider (false). Read-only.
-
-      - **`last_login_time`**
-
-        `string`, format: `date-time` — Timestamp of the user's last successful login via this external identity provider. Automatically updated by the system.
-
-      - **`last_synced_time`**
-
-        `string`, format: `date-time` — Timestamp of the last data synchronization for this external identity from the provider. Automatically updated by the system.
-
-    - **`family_name`**
-
-      `string` — The user's family name (last name or surname). This field stores the user's last name and is combined with the given name to create the full display name. The family name is used in formal communications, user listings, and organizational directories throughout the system. Maximum 255 characters allowed.
-
-    - **`gender`**
-
-      `string` — The user's gender identity information. This field stores the user's gender identity for personalization, compliance reporting, or organizational analytics purposes. This field supports any string value to accommodate diverse gender identities and should be handled with appropriate privacy considerations according to your organization's policies and applicable regulations.
-
-    - **`given_name`**
-
-      `string` — The user's given name (first name). This field stores the user's first name and is used for personalization, display purposes, and when generating the full display name. The given name appears in user interfaces, formal communications, and user listings throughout the system. Maximum 255 characters allowed.
-
-    - **`groups`**
-
-      `array` — The list of group names the user belongs to within the organization. This field stores the user's group memberships for role-based access control, team assignments, and organizational structure. Groups are typically used for permission management, collaborative access, and organizational hierarchy. Each group name represents a distinct organizational unit or team that the user is associated with.
-
-      **Items:**
-
-      `string`
+      `string` — Human-readable name for the role
 
     - **`id`**
 
-      `string` — Unique system-generated identifier for the user profile. Immutable and read-only.
-
-    - **`locale`**
-
-      `string` — The user's preferred language and region settings using BCP-47 format codes. This field customizes the user's experience with localized content, date formats, number formatting, and UI language throughout the system. When not specified, the user inherits the organization's default locale settings. Common values include \`en-US\`, \`en-GB\`, \`fr-FR\`, \`de-DE\`, and \`es-ES\`.
-
-    - **`metadata`**
-
-      `object` — Raw attributes received from identity providers during authentication. This field stores the original user profile data as received from external IdP systems (SAML, OIDC, etc.) including provider-specific claims and attributes. These fields preserve the complete set of attributes received from the identity source and are used for mapping, synchronization, and audit purposes. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+      `string` — Role ID
 
     - **`name`**
 
-      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
+      `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
 
-    - **`phone_number`**
+* **`metadata`**
 
-      `string` — The user's phone number in E.164 international format. This field stores the phone number for user contact and identification purposes. The phone number must include the country code and be formatted according to E.164 standards (e.g., \`+1\` for US numbers). This field is optional.
+  `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
 
-    - **`phone_number_verified`**
+* **`update_time`**
 
-      `boolean` — Indicates if the user's phone number has been verified. Automatically updated by the system.
+  `string`, format: `date-time` — Timestamp of the last modification to the user account. Automatically updated by the server.
 
-    - **`picture`**
+* **`user_profile`**
 
-      `string` — The URL to the user's profile picture or avatar image. This field stores the location of the user's profile photo that appears in user interfaces, directory listings, and collaborative features throughout the system. The URL should point to a publicly accessible image file. Supported formats typically include JPEG, PNG, and GIF. This image is used for visual identification and personalization across the platform.
+  `object` — User's personal information including name, address, and other profile attributes.
 
-    - **`preferred_username`**
+  - **`custom_attributes`**
 
-      `string` — The user's preferred username for display and identification purposes. This field stores a custom username that the user prefers to be known by, which may differ from their email or formal name. This username appears in user interfaces, mentions, informal communications, and collaborative features throughout the system. Maximum 512 characters allowed.
+    `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+  - **`email_verified`**
+
+    `boolean` — Indicates if the user's email address has been verified. Automatically updated by the system.
+
+  - **`external_identities`**
+
+    `array` — List of external identity connections associated with the user profile.
+
+    **Items:**
+
+    - **`connection_id`**
+
+      `string` — Unique identifier for the external identity connection. Immutable and read-only.
+
+    - **`connection_provider`**
+
+      `string`, possible values: `"OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "PING_IDENTITY", "JUMPCLOUD", "CUSTOM", "GITHUB", "GITLAB", "LINKEDIN", "SALESFORCE", "MICROSOFT", "IDP_SIMULATOR", "SCALEKIT", "ADFS"` — Type of the identity provider.
+
+    - **`connection_type`**
+
+      `string` — Name of the external identity connection.
+
+    - **`connection_user_id`**
+
+      `string` — Unique identifier for the user in the external identity provider system. Immutable and read-only.
+
+    - **`created_time`**
+
+      `string`, format: `date-time` — Timestamp when this external identity connection was first created. Immutable and read-only.
+
+    - **`is_social`**
+
+      `boolean` — Indicates if the identity provider is a social provider (true) or enterprise/custom provider (false). Read-only.
+
+    - **`last_login_time`**
+
+      `string`, format: `date-time` — Timestamp of the user's last successful login via this external identity provider. Automatically updated by the system.
+
+    - **`last_synced_time`**
+
+      `string`, format: `date-time` — Timestamp of the last data synchronization for this external identity from the provider. Automatically updated by the system.
+
+  - **`family_name`**
+
+    `string` — The user's family name (last name or surname). This field stores the user's last name and is combined with the given name to create the full display name. The family name is used in formal communications, user listings, and organizational directories throughout the system. Maximum 255 characters allowed.
+
+  - **`gender`**
+
+    `string` — The user's gender identity information. This field stores the user's gender identity for personalization, compliance reporting, or organizational analytics purposes. This field supports any string value to accommodate diverse gender identities and should be handled with appropriate privacy considerations according to your organization's policies and applicable regulations.
+
+  - **`given_name`**
+
+    `string` — The user's given name (first name). This field stores the user's first name and is used for personalization, display purposes, and when generating the full display name. The given name appears in user interfaces, formal communications, and user listings throughout the system. Maximum 255 characters allowed.
+
+  - **`groups`**
+
+    `array` — The list of group names the user belongs to within the organization. This field stores the user's group memberships for role-based access control, team assignments, and organizational structure. Groups are typically used for permission management, collaborative access, and organizational hierarchy. Each group name represents a distinct organizational unit or team that the user is associated with.
+
+    **Items:**
+
+    `string`
+
+  - **`id`**
+
+    `string` — Unique system-generated identifier for the user profile. Immutable and read-only.
+
+  - **`locale`**
+
+    `string` — The user's preferred language and region settings using BCP-47 format codes. This field customizes the user's experience with localized content, date formats, number formatting, and UI language throughout the system. When not specified, the user inherits the organization's default locale settings. Common values include \`en-US\`, \`en-GB\`, \`fr-FR\`, \`de-DE\`, and \`es-ES\`.
+
+  - **`metadata`**
+
+    `object` — Raw attributes received from identity providers during authentication. This field stores the original user profile data as received from external IdP systems (SAML, OIDC, etc.) including provider-specific claims and attributes. These fields preserve the complete set of attributes received from the identity source and are used for mapping, synchronization, and audit purposes. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+  - **`name`**
+
+    `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
+
+  - **`phone_number`**
+
+    `string` — The user's phone number in E.164 international format. This field stores the phone number for user contact and identification purposes. The phone number must include the country code and be formatted according to E.164 standards (e.g., \`+1\` for US numbers). This field is optional.
+
+  - **`phone_number_verified`**
+
+    `boolean` — Indicates if the user's phone number has been verified. Automatically updated by the system.
+
+  - **`picture`**
+
+    `string` — The URL to the user's profile picture or avatar image. This field stores the location of the user's profile photo that appears in user interfaces, directory listings, and collaborative features throughout the system. The URL should point to a publicly accessible image file. Supported formats typically include JPEG, PNG, and GIF. This image is used for visual identification and personalization across the platform.
+
+  - **`preferred_username`**
+
+    `string` — The user's preferred username for display and identification purposes. This field stores a custom username that the user prefers to be known by, which may differ from their email or formal name. This username appears in user interfaces, mentions, informal communications, and collaborative features throughout the system. Maximum 512 characters allowed.
 
 **Example:**
 
 ```json
 {
-  "next_page_token": "eyJwYWdlIjogMiwgImxhc3RfaWQiOiAidXNyXzEyMzQ1In0=",
-  "prev_page_token": "eyJwYWdlIjogMCwgImZpcnN0X2lkIjogInVzcl85ODc2NSJ9",
-  "total_size": 1042,
-  "users": [
+  "create_time": "",
+  "email": "user@example.com",
+  "external_id": "ext_12345a67b89c",
+  "id": "usr_1234abcd5678efgh",
+  "last_login_time": "",
+  "memberships": [
     {
-      "create_time": "",
-      "email": "user@example.com",
-      "external_id": "ext_12345a67b89c",
-      "id": "usr_1234abcd5678efgh",
-      "last_login_time": "",
-      "memberships": [
-        {}
-      ],
+      "accepted_at": "",
+      "created_at": "",
+      "display_name": "Acme Corporation",
+      "expires_at": "",
+      "inviter_email": "",
+      "join_time": "",
+      "membership_status": null,
       "metadata": {
         "department": "engineering",
         "location": "nyc-office"
       },
-      "update_time": "",
-      "user_profile": null
+      "name": "AcmeCorp",
+      "organization_id": "org_1234abcd5678efgh",
+      "permissions": [
+        "read_projects",
+        "write_tasks",
+        "manage_users"
+      ],
+      "provisioning_method": "",
+      "roles": [
+        {}
+      ]
+    }
+  ],
+  "metadata": {
+    "department": "engineering",
+    "location": "nyc-office"
+  },
+  "update_time": "",
+  "user_profile": {
+    "custom_attributes": {
+      "department": "engineering",
+      "security_clearance": "level2"
+    },
+    "email_verified": true,
+    "external_identities": [
+      {}
+    ],
+    "family_name": "Doe",
+    "gender": "male",
+    "given_name": "John",
+    "groups": [
+      "admin",
+      "developer"
+    ],
+    "id": "usr_profile_1234abcd5678efgh",
+    "locale": "en-US",
+    "metadata": {
+      "department": "engineering",
+      "employee_type": "full-time",
+      "idp_user_id": "12345"
+    },
+    "name": "John Michael Doe",
+    "phone_number": "+14155552671",
+    "phone_number_verified": true,
+    "picture": "https://example.com/avatar.jpg",
+    "preferred_username": "johndoe"
+  }
+}
+```
+
+### v1domainsCreateDomain
+
+- **Type:**`object`
+
+* **`domain`**
+
+  `string` — The domain name to be configured. Must be a valid business domain you control. Public and disposable domains (gmail.com, outlook.com, etc.) are automatically blocked for security.
+
+* **`domain_type`**
+
+  `string`, possible values: `"ALLOWED_EMAIL_DOMAIN", "ORGANIZATION_DOMAIN"` — The domain type. - ALLOWED\_EMAIL\_DOMAIN: trusted domain used to suggest the organization in the organization switcher during sign-in/sign-up. - ORGANIZATION\_DOMAIN: SSO discovery domain used to route users to the correct SSO provider and enforce SSO.
+
+**Example:**
+
+```json
+{
+  "domain": "customerdomain.com",
+  "domain_type": "ORGANIZATION_DOMAIN"
+}
+```
+
+### v1organizationsCreateOrganization
+
+- **Type:**`object`
+
+* **`display_name` (required)**
+
+  `string` — Name of the organization. Must be between 1 and 200 characters.
+
+* **`external_id`**
+
+  `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
+
+* **`logo_url`**
+
+  `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
+
+* **`metadata`**
+
+  `object`
+
+* **`slug`**
+
+  `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Unique per environment.
+
+**Example:**
+
+```json
+{
+  "display_name": "Megasoft Inc",
+  "external_id": "my_unique_id",
+  "logo_url": "https://cdn.example.com/acme-logo.png",
+  "metadata": {
+    "additionalProperty": ""
+  },
+  "slug": "acme"
+}
+```
+
+### v1organizationsUpdateOrganization
+
+- **Type:**`object`
+
+For update messages ensure the indexes are same as the base model itself.
+
+- **`display_name`**
+
+  `string` — Name of the organization to display in the UI. Must be between 1 and 200 characters
+
+- **`external_id`**
+
+  `string` — Your application's unique identifier for this organization, used to link Scalekit with your system
+
+- **`logo_url`**
+
+  `string`, format: `uri` — HTTPS URL of the organization's logo image. Maximum 1024 characters. Must use the https scheme.
+
+- **`metadata`**
+
+  `object` — Custom key-value pairs to store with the organization. Keys must be 3-25 characters, values must be 1-256 characters. Maximum 10 pairs allowed.
+
+- **`slug`**
+
+  `string` — Slug for dynamic redirect URI resolution. A single DNS label (e.g. acme) or hostname (e.g. oauth.pstmn.io). Lowercase alphanumeric, hyphens, and dots. Max 253 chars. Send empty string to clear.
+
+**Example:**
+
+```json
+{
+  "display_name": "Acme Corporation",
+  "external_id": "tenant_12345",
+  "logo_url": "https://cdn.example.com/acme-logo.png",
+  "metadata": {
+    "industry": "technology"
+  },
+  "slug": "acme"
+}
+```
+
+### v1rolesCreateOrganizationRole
+
+- **Type:**`object`
+
+* **`description`**
+
+  `string` — Description of the organization's role
+
+* **`display_name`**
+
+  `string` — Display name of the organization's role
+
+* **`extends`**
+
+  `string` — Base role name for hierarchical roles
+
+* **`name`**
+
+  `string` — Unique name of the organization's role
+
+* **`permissions`**
+
+  `array` — List of permission names to assign to this role. Permissions must exist in the current environment.
+
+  **Items:**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "description": "Organization Viewer Role will be used only for viewing the objects",
+  "display_name": "Organization Viewer Role",
+  "extends": "admin_role",
+  "name": "org_viewer_role",
+  "permissions": [
+    "read:users",
+    "write:documents"
+  ]
+}
+```
+
+### v1rolesCreatePermission
+
+- **Type:**`object`
+
+* **`description`**
+
+  `string` — Description of the permission
+
+* **`name`**
+
+  `string` — Unique name/ID of the permission. Must be 1–64 characters using only letters, numbers, underscores (\_), and colons (:).
+
+**Example:**
+
+```json
+{
+  "description": "Allows user to read documents from the system",
+  "name": "read:documents"
+}
+```
+
+### v1rolesCreateRole
+
+- **Type:**`object`
+
+* **`description`**
+
+  `string` — Detailed description of the role's purpose, capabilities, and intended use cases. Maximum 2000 characters.
+
+* **`display_name`**
+
+  `string` — Human-readable display name for the role. Used in user interfaces, reports, and user-facing communications.
+
+* **`extends`**
+
+  `string` — Name of the base role that this role extends. Enables hierarchical role inheritance where this role inherits all permissions from the base role.
+
+* **`name`**
+
+  `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-64 characters. This name is used in API calls and cannot be changed after creation.
+
+* **`permissions`**
+
+  `array` — List of permission names to assign to this role. Permissions must exist in the current environment. Maximum 100 permissions per role.
+
+  **Items:**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "description": "Can create, edit, and publish content but cannot delete content or manage user accounts",
+  "display_name": "Content Editor",
+  "extends": "viewer",
+  "name": "content_editor",
+  "permissions": [
+    "read:content",
+    "write:content",
+    "publish:content"
+  ]
+}
+```
+
+### v1rolesRole
+
+- **Type:**`object`
+
+* **`default_creator`**
+
+  `boolean` — Indicates if this role is the default creator role for new organizations.
+
+* **`default_member`**
+
+  `boolean` — Indicates if this role is the default member role for new users.
+
+* **`dependent_roles_count`**
+
+  `integer`, format: `int32` — Number of roles that extend from this role (dependent roles count). Read-only field.
+
+* **`description`**
+
+  `string` — Detailed description of the role's purpose and capabilities. Maximum 2000 characters.
+
+* **`display_name`**
+
+  `string` — Human-readable display name for the role. Used in user interfaces and reports.
+
+* **`extends`**
+
+  `string` — Name of the base role that this role extends. Enables hierarchical role inheritance.
+
+* **`id`**
+
+  `string` — Unique system-generated identifier for the role. Immutable once created.
+
+* **`is_org_role`**
+
+  `boolean` — Indicates if this role is an organization role.
+
+* **`name`**
+
+  `string` — Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.
+
+* **`permissions`**
+
+  `array` — List of permissions with role source information. Only included when 'include' parameter is specified in the request.
+
+  **Items:**
+
+  - **`create_time`**
+
+    `string`, format: `date-time`
+
+  - **`description`**
+
+    `string`
+
+  - **`id`**
+
+    `string`
+
+  - **`name`**
+
+    `string`
+
+  - **`role_name`**
+
+    `string` — Name of the role from which this permission was sourced
+
+  - **`update_time`**
+
+    `string`, format: `date-time`
+
+**Example:**
+
+```json
+{
+  "default_creator": true,
+  "default_member": true,
+  "dependent_roles_count": 3,
+  "description": "Can create, edit, and publish content but cannot delete or manage users",
+  "display_name": "Content Editor",
+  "extends": "admin_role",
+  "id": "role_1234abcd5678efgh",
+  "is_org_role": true,
+  "name": "content_editor",
+  "permissions": [
+    {
+      "description": "Read Content",
+      "name": "read:content",
+      "role_name": "admin_role"
+    },
+    {
+      "description": "Write Content",
+      "name": "write:content",
+      "role_name": "editor_role"
     }
   ]
+}
+```
+
+### v1rolesUpdateRole
+
+- **Type:**`object`
+
+* **`description`**
+
+  `string` — Detailed description of the role's purpose, capabilities, and intended use cases. Maximum 2000 characters.
+
+* **`display_name`**
+
+  `string` — Human-readable display name for the role. Used in user interfaces, reports, and user-facing communications.
+
+* **`extends`**
+
+  `string` — Name of the base role that this role extends. Enables hierarchical role inheritance where this role inherits all permissions from the base role.
+
+* **`permissions`**
+
+  `array` — List of permission names to assign to this role. When provided, this replaces all existing role-permission mappings. Permissions must exist in the current environment. Maximum 100 permissions per role.
+
+  **Items:**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "description": "Can create, edit, publish, and approve content. Cannot delete content or manage user accounts.",
+  "display_name": "Senior Content Editor",
+  "extends": "content_editor",
+  "permissions": [
+    "read:content",
+    "write:content",
+    "publish:content",
+    "approve:content"
+  ]
+}
+```
+
+### v1sessionsLocation
+
+- **Type:**`object`
+
+* **`city`**
+
+  `string` — City name where the session originated based on IP geolocation. Approximate location derived from IP address.
+
+* **`latitude`**
+
+  `string` — Latitude coordinate of the estimated location. Decimal format (e.g., '37.7749'). Note: Represents IP geolocation center and may not be precise.
+
+* **`longitude`**
+
+  `string` — Longitude coordinate of the estimated location. Decimal format (e.g., '-122.4194'). Note: Represents IP geolocation center and may not be precise.
+
+* **`region`**
+
+  `string` — Geographic region name derived from IP geolocation. Represents the country-level location (e.g., 'United States', 'France').
+
+* **`region_subdivision`**
+
+  `string` — Regional subdivision code or name (e.g., state abbreviation for US, province for Canada). Two-letter ISO format when applicable.
+
+**Example:**
+
+```json
+{
+  "city": "San Francisco",
+  "latitude": "37.7749",
+  "longitude": "-122.4194",
+  "region": "United States",
+  "region_subdivision": "CA"
+}
+```
+
+### v1usersCreateMembership
+
+- **Type:**`object`
+
+* **`inviter_email`**
+
+  `string` — Email address of the user who invited this member. Must be a valid email address.
+
+* **`metadata`**
+
+  `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+* **`roles`**
+
+  `array` — Role to assign to the user within the organization
+
+  **Items:**
+
+  - **`display_name`**
+
+    `string` — Human-readable name for the role
+
+  - **`id`**
+
+    `string` — Role ID
+
+  - **`name`**
+
+    `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
+
+**Example:**
+
+```json
+{
+  "inviter_email": "john.doe@example.com",
+  "metadata": {
+    "department": "engineering",
+    "location": "nyc-office"
+  },
+  "roles": [
+    {
+      "name": "admin"
+    }
+  ]
+}
+```
+
+### v1usersUpdateMembership
+
+- **Type:**`object`
+
+* **`metadata`**
+
+  `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+* **`roles`**
+
+  `array` — Role to assign to the user within the organization
+
+  **Items:**
+
+  - **`display_name`**
+
+    `string` — Human-readable name for the role
+
+  - **`id`**
+
+    `string` — Role ID
+
+  - **`name`**
+
+    `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
+
+**Example:**
+
+```json
+{
+  "metadata": {
+    "department": "engineering",
+    "location": "nyc-office"
+  },
+  "roles": [
+    {
+      "name": "admin"
+    }
+  ]
+}
+```
+
+### v1usersUpdateUser
+
+- **Type:**`object`
+
+* **`external_id`**
+
+  `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
+
+* **`metadata`**
+
+  `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+* **`user_profile`**
+
+  `object` — User's personal information including name, address, and other profile attributes.
+
+  - **`custom_attributes`**
+
+    `object` — Updates custom attributes for extended user profile data and application-specific information. Use this field to store business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+  - **`family_name`**
+
+    `string` — Updates the user's family name (last name or surname). Use this field to modify how the user's last name appears throughout the system. Maximum 255 characters allowed.
+
+  - **`first_name`**
+
+    `string` — \[DEPRECATED] Use given\_name instead. User's given name. Maximum 200 characters.
+
+  - **`gender`**
+
+    `string` — Updates the user's gender identity information. Use this field to store the user's gender identity for personalization, compliance, or reporting purposes. This field supports any string value to accommodate diverse gender identities and should be handled with appropriate privacy considerations according to your organization's policies.
+
+  - **`given_name`**
+
+    `string` — Updates the user's given name (first name). Use this field to modify how the user's first name appears in the system and user interfaces. Maximum 255 characters allowed.
+
+  - **`groups`**
+
+    `array` — Updates the list of group names the user belongs to within the organization. Use this field to manage the user's group memberships for role-based access control, team assignments, or organizational structure. Groups are typically used for permission management and collaborative access. Each group name must be unique within the list, 1-250 characters long, with a maximum of 50 groups per user.
+
+    **Items:**
+
+    `string`
+
+  - **`last_name`**
+
+    `string` — \[DEPRECATED] Use family\_name instead. User's family name. Maximum 200 characters.
+
+  - **`locale`**
+
+    `string` — Updates the user's preferred language and region settings using BCP-47 format codes. Use this field to customize the user's experience with localized content, date formats, number formatting, and UI language. When not specified, the user inherits the organization's default locale settings. Common values include \`en-US\`, \`en-GB\`, \`fr-FR\`, \`de-DE\`, and \`es-ES\`.
+
+  - **`metadata`**
+
+    `object` — Updates system-managed key-value pairs for internal tracking and operational data. Use this field to store system-generated metadata like account status, signup source, last activity tracking, or integration-specific identifiers. These fields are typically managed by automated processes rather than direct user input. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+  - **`name`**
+
+    `string` — Updates the user's complete display name. Use this field when you want to set the full name as a single string rather than using separate given and family names. This name appears in user interfaces, reports, and anywhere a formatted display name is needed.
+
+  - **`phone_number`**
+
+    `string` — Updates the user's phone number in E.164 international format. Use this field to enable SMS-based authentication methods, two-factor authentication, or phone-based account recovery. The phone number must include the country code and be formatted according to E.164 standards (e.g., \`+1\` for US numbers). This field is required when enabling SMS authentication features.
+
+  - **`picture`**
+
+    `string` — Updates the URL to the user's profile picture or avatar image. Use this field to set or change the user's profile photo that appears in user interfaces, directory listings, and collaborative features. The URL should point to a publicly accessible image file. Supported formats typically include JPEG, PNG, and GIF. Maximum URL length is 2048 characters.
+
+  - **`preferred_username`**
+
+    `string` — Updates the user's preferred username for display and identification purposes. Use this field to set a custom username that the user prefers to be known by, which may differ from their email or formal name. This username appears in user interfaces, mentions, and informal communications. Maximum 512 characters allowed.
+
+**Example:**
+
+```json
+{
+  "external_id": "ext_12345a67b89c",
+  "metadata": {
+    "department": "engineering",
+    "location": "nyc-office"
+  },
+  "user_profile": {
+    "custom_attributes": {
+      "department": "engineering",
+      "security_clearance": "level2"
+    },
+    "family_name": "Doe",
+    "first_name": "John",
+    "gender": "male",
+    "given_name": "John",
+    "groups": [
+      "engineering",
+      "managers"
+    ],
+    "last_name": "Doe",
+    "locale": "en-US",
+    "metadata": {
+      "account_status": "active",
+      "signup_source": "mobile_app"
+    },
+    "name": "John Doe",
+    "phone_number": "+14155552671",
+    "picture": "https://example.com/avatar.jpg",
+    "preferred_username": "John Michael Doe"
+  }
 }
 ```
 
@@ -25025,338 +25366,35 @@ AuthenticatedClients represents an authenticated client in a session along with 
 }
 ```
 
-### WebAuthnCredentialAuthenticator
+### webauthnDeleteCredentialResponse
 
 - **Type:**`object`
 
-* **`aaguid`**
+* **`success`**
 
-  `string` — Authenticator Attestation GUID (AAGUID) identifying the device model
+  `boolean` — Whether the credential was successfully deleted
 
-* **`attachment`**
+* **`unknown_credential_options`**
 
-  `string` — Attachment type: "platform" (built-in) or "cross-platform"
+  `object` — Options for handling unknown credentials in client applications
 
-* **`icon_dark`**
+  - **`credential_id`**
 
-  `string` — Icon URL for dark theme display
+    `string` — The deleted credential ID
 
-* **`icon_light`**
+  - **`rp_id`**
 
-  `string` — Icon URL for light theme display
-
-* **`name`**
-
-  `string` — Human-readable name of the authenticator model
+    `string` — The RP ID for this credential
 
 **Example:**
 
 ```json
 {
-  "aaguid": "",
-  "attachment": "platform",
-  "icon_dark": "",
-  "icon_light": "",
-  "name": "Apple Touch ID"
-}
-```
-
-### WebAuthnCredentialAuthenticatorFlags
-
-- **Type:**`object`
-
-* **`backup_eligible`**
-
-  `boolean` — Whether this credential can be backed up to another device
-
-* **`backup_state`**
-
-  `boolean` — Whether this credential was synced or backed up
-
-* **`user_present`**
-
-  `boolean` — Whether the user was present during authentication
-
-* **`user_verified`**
-
-  `boolean` — Whether the user was verified (e.g., fingerprint, PIN)
-
-**Example:**
-
-```json
-{
-  "backup_eligible": true,
-  "backup_state": true,
-  "user_present": true,
-  "user_verified": true
-}
-```
-
-### WebAuthnCredentialClientInfo
-
-- **Type:**`object`
-
-* **`city`**
-
-  `string` — City name
-
-* **`ip`**
-
-  `string` — IP address from which credential was registered
-
-* **`region`**
-
-  `string` — Geographic region (e.g., "US")
-
-* **`region_subdivision`**
-
-  `string` — Regional subdivision (e.g., "CA")
-
-**Example:**
-
-```json
-{
-  "city": "San Francisco",
-  "ip": "192.0.2.1",
-  "region": "US",
-  "region_subdivision": "CA"
-}
-```
-
-### WebAuthnCredentialUserAgent
-
-- **Type:**`object`
-
-* **`browser`**
-
-  `string` — Browser name (e.g., "Chrome", "Safari")
-
-* **`browser_version`**
-
-  `string` — Browser version number
-
-* **`device_model`**
-
-  `string` — Device model if available
-
-* **`device_type`**
-
-  `string` — Device type: "desktop", "mobile", or "tablet"
-
-* **`os`**
-
-  `string` — Operating system name (e.g., "Windows", "iOS")
-
-* **`os_version`**
-
-  `string` — Operating system version
-
-* **`raw`**
-
-  `string` — Raw user agent string from the browser
-
-* **`url`**
-
-  `string` — Parsed user agent URL reference
-
-**Example:**
-
-```json
-{
-  "browser": "Chrome",
-  "browser_version": "120.0.6099.129",
-  "device_model": "iPhone15,2",
-  "device_type": "mobile",
-  "os": "macOS",
-  "os_version": "14.2",
-  "raw": "",
-  "url": ""
-}
-```
-
-### webauthnWebAuthnCredential
-
-- **Type:**`object`
-
-* **`attestation_type`**
-
-  `string` — Type of attestation: "none", "indirect", or "direct"
-
-* **`authenticator`**
-
-  `object` — Authenticator information including model and name
-
-  - **`aaguid`**
-
-    `string` — Authenticator Attestation GUID (AAGUID) identifying the device model
-
-  - **`attachment`**
-
-    `string` — Attachment type: "platform" (built-in) or "cross-platform"
-
-  - **`icon_dark`**
-
-    `string` — Icon URL for dark theme display
-
-  - **`icon_light`**
-
-    `string` — Icon URL for light theme display
-
-  - **`name`**
-
-    `string` — Human-readable name of the authenticator model
-
-* **`authenticator_flags`**
-
-  `object` — Flags indicating authenticator capabilities
-
-  - **`backup_eligible`**
-
-    `boolean` — Whether this credential can be backed up to another device
-
-  - **`backup_state`**
-
-    `boolean` — Whether this credential was synced or backed up
-
-  - **`user_present`**
-
-    `boolean` — Whether the user was present during authentication
-
-  - **`user_verified`**
-
-    `boolean` — Whether the user was verified (e.g., fingerprint, PIN)
-
-* **`client_info`**
-
-  `object` — Geographic and network information from registration
-
-  - **`city`**
-
-    `string` — City name
-
-  - **`ip`**
-
-    `string` — IP address from which credential was registered
-
-  - **`region`**
-
-    `string` — Geographic region (e.g., "US")
-
-  - **`region_subdivision`**
-
-    `string` — Regional subdivision (e.g., "CA")
-
-* **`created_at`**
-
-  `string`, format: `date-time` — Timestamp when the credential was created
-
-* **`credential_id`**
-
-  `string` — The actual credential ID bytes from the authenticator
-
-* **`display_name`**
-
-  `string` — Optional user-friendly name for this passkey
-
-* **`id`**
-
-  `string` — Credential unique identifier
-
-* **`transports`**
-
-  `array` — Supported transports for this credential
-
-  **Items:**
-
-  `string`
-
-* **`updated_at`**
-
-  `string`, format: `date-time` — Timestamp of last update
-
-* **`user_agent`**
-
-  `object` — Browser and device information from registration
-
-  - **`browser`**
-
-    `string` — Browser name (e.g., "Chrome", "Safari")
-
-  - **`browser_version`**
-
-    `string` — Browser version number
-
-  - **`device_model`**
-
-    `string` — Device model if available
-
-  - **`device_type`**
-
-    `string` — Device type: "desktop", "mobile", or "tablet"
-
-  - **`os`**
-
-    `string` — Operating system name (e.g., "Windows", "iOS")
-
-  - **`os_version`**
-
-    `string` — Operating system version
-
-  - **`raw`**
-
-    `string` — Raw user agent string from the browser
-
-  - **`url`**
-
-    `string` — Parsed user agent URL reference
-
-* **`user_id`**
-
-  `string` — User ID this credential belongs to
-
-**Example:**
-
-```json
-{
-  "attestation_type": "direct",
-  "authenticator": {
-    "aaguid": "",
-    "attachment": "platform",
-    "icon_dark": "",
-    "icon_light": "",
-    "name": "Apple Touch ID"
-  },
-  "authenticator_flags": {
-    "backup_eligible": true,
-    "backup_state": true,
-    "user_present": true,
-    "user_verified": true
-  },
-  "client_info": {
-    "city": "San Francisco",
-    "ip": "192.0.2.1",
-    "region": "US",
-    "region_subdivision": "CA"
-  },
-  "created_at": "2025-02-15T06:23:44.560000Z",
-  "credential_id": "",
-  "display_name": "My Yubikey",
-  "id": "cred_abc123",
-  "transports": [
-    ""
-  ],
-  "updated_at": "2025-02-15T06:23:44.560000Z",
-  "user_agent": {
-    "browser": "Chrome",
-    "browser_version": "120.0.6099.129",
-    "device_model": "iPhone15,2",
-    "device_type": "mobile",
-    "os": "macOS",
-    "os_version": "14.2",
-    "raw": "",
-    "url": ""
-  },
-  "user_id": "user_xyz789"
+  "success": true,
+  "unknown_credential_options": {
+    "credential_id": "cred_abc123",
+    "rp_id": "example.com"
+  }
 }
 ```
 
@@ -25579,54 +25617,6 @@ AuthenticatedClients represents an authenticated client in a session along with 
 }
 ```
 
-### webauthnDeleteCredentialResponse
-
-- **Type:**`object`
-
-* **`success`**
-
-  `boolean` — Whether the credential was successfully deleted
-
-* **`unknown_credential_options`**
-
-  `object` — Options for handling unknown credentials in client applications
-
-  - **`credential_id`**
-
-    `string` — The deleted credential ID
-
-  - **`rp_id`**
-
-    `string` — The RP ID for this credential
-
-**Example:**
-
-```json
-{
-  "success": true,
-  "unknown_credential_options": {
-    "credential_id": "cred_abc123",
-    "rp_id": "example.com"
-  }
-}
-```
-
-### WebAuthnServiceUpdateCredentialBody
-
-- **Type:**`object`
-
-* **`display_name`**
-
-  `string` — Human-friendly name for this credential (1-120 characters)
-
-**Example:**
-
-```json
-{
-  "display_name": "My iPhone 15 Pro"
-}
-```
-
 ### webauthnUpdateCredentialResponse
 
 - **Type:**`object`
@@ -25791,6 +25781,192 @@ AuthenticatedClients represents an authenticated client in a session along with 
     "user_agent": null,
     "user_id": "user_xyz789"
   }
+}
+```
+
+### webauthnWebAuthnCredential
+
+- **Type:**`object`
+
+* **`attestation_type`**
+
+  `string` — Type of attestation: "none", "indirect", or "direct"
+
+* **`authenticator`**
+
+  `object` — Authenticator information including model and name
+
+  - **`aaguid`**
+
+    `string` — Authenticator Attestation GUID (AAGUID) identifying the device model
+
+  - **`attachment`**
+
+    `string` — Attachment type: "platform" (built-in) or "cross-platform"
+
+  - **`icon_dark`**
+
+    `string` — Icon URL for dark theme display
+
+  - **`icon_light`**
+
+    `string` — Icon URL for light theme display
+
+  - **`name`**
+
+    `string` — Human-readable name of the authenticator model
+
+* **`authenticator_flags`**
+
+  `object` — Flags indicating authenticator capabilities
+
+  - **`backup_eligible`**
+
+    `boolean` — Whether this credential can be backed up to another device
+
+  - **`backup_state`**
+
+    `boolean` — Whether this credential was synced or backed up
+
+  - **`user_present`**
+
+    `boolean` — Whether the user was present during authentication
+
+  - **`user_verified`**
+
+    `boolean` — Whether the user was verified (e.g., fingerprint, PIN)
+
+* **`client_info`**
+
+  `object` — Geographic and network information from registration
+
+  - **`city`**
+
+    `string` — City name
+
+  - **`ip`**
+
+    `string` — IP address from which credential was registered
+
+  - **`region`**
+
+    `string` — Geographic region (e.g., "US")
+
+  - **`region_subdivision`**
+
+    `string` — Regional subdivision (e.g., "CA")
+
+* **`created_at`**
+
+  `string`, format: `date-time` — Timestamp when the credential was created
+
+* **`credential_id`**
+
+  `string` — The actual credential ID bytes from the authenticator
+
+* **`display_name`**
+
+  `string` — Optional user-friendly name for this passkey
+
+* **`id`**
+
+  `string` — Credential unique identifier
+
+* **`transports`**
+
+  `array` — Supported transports for this credential
+
+  **Items:**
+
+  `string`
+
+* **`updated_at`**
+
+  `string`, format: `date-time` — Timestamp of last update
+
+* **`user_agent`**
+
+  `object` — Browser and device information from registration
+
+  - **`browser`**
+
+    `string` — Browser name (e.g., "Chrome", "Safari")
+
+  - **`browser_version`**
+
+    `string` — Browser version number
+
+  - **`device_model`**
+
+    `string` — Device model if available
+
+  - **`device_type`**
+
+    `string` — Device type: "desktop", "mobile", or "tablet"
+
+  - **`os`**
+
+    `string` — Operating system name (e.g., "Windows", "iOS")
+
+  - **`os_version`**
+
+    `string` — Operating system version
+
+  - **`raw`**
+
+    `string` — Raw user agent string from the browser
+
+  - **`url`**
+
+    `string` — Parsed user agent URL reference
+
+* **`user_id`**
+
+  `string` — User ID this credential belongs to
+
+**Example:**
+
+```json
+{
+  "attestation_type": "direct",
+  "authenticator": {
+    "aaguid": "",
+    "attachment": "platform",
+    "icon_dark": "",
+    "icon_light": "",
+    "name": "Apple Touch ID"
+  },
+  "authenticator_flags": {
+    "backup_eligible": true,
+    "backup_state": true,
+    "user_present": true,
+    "user_verified": true
+  },
+  "client_info": {
+    "city": "San Francisco",
+    "ip": "192.0.2.1",
+    "region": "US",
+    "region_subdivision": "CA"
+  },
+  "created_at": "2025-02-15T06:23:44.560000Z",
+  "credential_id": "",
+  "display_name": "My Yubikey",
+  "id": "cred_abc123",
+  "transports": [
+    ""
+  ],
+  "updated_at": "2025-02-15T06:23:44.560000Z",
+  "user_agent": {
+    "browser": "Chrome",
+    "browser_version": "120.0.6099.129",
+    "device_model": "iPhone15,2",
+    "device_type": "mobile",
+    "os": "macOS",
+    "os_version": "14.2",
+    "raw": "",
+    "url": ""
+  },
+  "user_id": "user_xyz789"
 }
 ```
 

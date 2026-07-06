@@ -89,7 +89,7 @@ Retrieves a paginated list of connected accounts for third-party integrations. F
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authorization mechanism type.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authorization mechanism type.
 
   - **`connection_id`**
 
@@ -263,6 +263,30 @@ Updates authentication credentials and configuration for an existing connected a
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
 
+    - **`trusted_idp`**
+
+      `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+      - **`access_key_id`**
+
+        `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+      - **`db_user`**
+
+        `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+      - **`expiry`**
+
+        `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+      - **`secret_access_key`**
+
+        `string` — Federated secret access key. Never returned in public API responses.
+
+      - **`session_token`**
+
+        `string` — Federated session token. Never returned in public API responses.
+
 - **`connector`**
 
   `string` — Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.
@@ -382,9 +406,33 @@ Updates authentication credentials and configuration for an existing connected a
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
 
+    - **`trusted_idp`**
+
+      `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+      - **`access_key_id`**
+
+        `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+      - **`db_user`**
+
+        `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+      - **`expiry`**
+
+        `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+      - **`secret_access_key`**
+
+        `string` — Federated secret access key. Never returned in public API responses.
+
+      - **`session_token`**
+
+        `string` — Federated session token. Never returned in public API responses.
+
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -557,6 +605,30 @@ Creates a new connected account with OAuth tokens or API credentials for third-p
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
 
+    - **`trusted_idp`**
+
+      `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+      - **`access_key_id`**
+
+        `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+      - **`db_user`**
+
+        `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+      - **`expiry`**
+
+        `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+      - **`secret_access_key`**
+
+        `string` — Federated secret access key. Never returned in public API responses.
+
+      - **`session_token`**
+
+        `string` — Federated session token. Never returned in public API responses.
+
 - **`connector`**
 
   `string` — Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.
@@ -671,9 +743,33 @@ Creates a new connected account with OAuth tokens or API credentials for third-p
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
 
+    - **`trusted_idp`**
+
+      `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+      - **`access_key_id`**
+
+        `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+      - **`db_user`**
+
+        `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+      - **`expiry`**
+
+        `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+      - **`secret_access_key`**
+
+        `string` — Federated secret access key. Never returned in public API responses.
+
+      - **`session_token`**
+
+        `string` — Federated session token. Never returned in public API responses.
+
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -848,9 +944,33 @@ Retrieves complete authentication details for a connected account including OAut
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
 
+    - **`trusted_idp`**
+
+      `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+      - **`access_key_id`**
+
+        `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+      - **`db_user`**
+
+        `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+      - **`expiry`**
+
+        `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+      - **`secret_access_key`**
+
+        `string` — Federated secret access key. Never returned in public API responses.
+
+      - **`session_token`**
+
+        `string` — Federated session token. Never returned in public API responses.
+
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -1025,9 +1145,33 @@ Returns metadata for a connected account including status, connector type, provi
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
 
+    - **`trusted_idp`**
+
+      `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+      - **`access_key_id`**
+
+        `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+      - **`db_user`**
+
+        `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+      - **`expiry`**
+
+        `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+      - **`secret_access_key`**
+
+        `string` — Federated secret access key. Never returned in public API responses.
+
+      - **`session_token`**
+
+        `string` — Federated session token. Never returned in public API responses.
+
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -1412,7 +1556,7 @@ Search for connected accounts in your environment using a text query that matche
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authorization mechanism type.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authorization mechanism type.
 
   - **`connection_id`**
 
@@ -2022,374 +2166,6 @@ null
 null
 ```
 
-### List MCPs
-
-- **Method:** `GET`
-- **Path:** `/api/v1/mcp`
-- **Tags:** MCP
-
-Returns a list of existing MCPs, optionally filtered by connected\_account\_identifier and link\_token.
-
-#### Responses
-
-##### Status: 200 List of MCPs
-
-###### Content-Type: application/json
-
-- **`mcps`**
-
-  `array` — List of MCPs
-
-  **Items:**
-
-  - **`connected_account_identifier`**
-
-    `string` — Identifier for the connected account
-
-  - **`id`**
-
-    `string` — Unique ID of the tool
-
-  - **`tool_mappings`**
-
-    `array` — Provider name (e.g. GOOGLE)
-
-    **Items:**
-
-    - **`connection_name`**
-
-      `string` — Connection name for the tool
-
-    - **`status`**
-
-      `string` — Authentication status of the tool
-
-    - **`tool_names`**
-
-      `array` — List of tool names
-
-      **Items:**
-
-      `string`
-
-  - **`url`**
-
-    `string` — Unique ID of the tool
-
-**Example:**
-
-```json
-{
-  "mcps": [
-    {
-      "connected_account_identifier": "account_123",
-      "id": "res_123",
-      "tool_mappings": "GOOGLE",
-      "url": "https://example.com/mcp/v1/abc"
-    }
-  ]
-}
-```
-
-##### Status: 400 Invalid request
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-##### Status: 401 Authentication required
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-### Create or retrieve MCP
-
-- **Method:** `POST`
-- **Path:** `/api/v1/mcp`
-- **Tags:** MCP
-
-Creates a new MCP for the configuration. If same configuration exists, it will return the existing MCP.
-
-#### Request Body
-
-##### Content-Type: application/json
-
-- **`connected_account_identifier`**
-
-  `string` — Identifier for the connected account
-
-- **`id`**
-
-  `string` — Unique ID of the tool
-
-- **`tool_mappings`**
-
-  `array` — Provider name (e.g. GOOGLE)
-
-  **Items:**
-
-  - **`connection_name`**
-
-    `string` — Connection name for the tool
-
-  - **`status`**
-
-    `string` — Authentication status of the tool
-
-  - **`tool_names`**
-
-    `array` — List of tool names
-
-    **Items:**
-
-    `string`
-
-- **`url`**
-
-  `string` — Unique ID of the tool
-
-**Example:**
-
-```json
-{
-  "connected_account_identifier": "account_123",
-  "id": "res_123",
-  "tool_mappings": "GOOGLE",
-  "url": "https://example.com/mcp/v1/abc"
-}
-```
-
-#### Responses
-
-##### Status: 200 The created or existing MCP
-
-###### Content-Type: application/json
-
-- **`mcp`**
-
-  `object` — The MCP server details
-
-  - **`connected_account_identifier`**
-
-    `string` — Identifier for the connected account
-
-  - **`id`**
-
-    `string` — Unique ID of the tool
-
-  - **`tool_mappings`**
-
-    `array` — Provider name (e.g. GOOGLE)
-
-    **Items:**
-
-    - **`connection_name`**
-
-      `string` — Connection name for the tool
-
-    - **`status`**
-
-      `string` — Authentication status of the tool
-
-    - **`tool_names`**
-
-      `array` — List of tool names
-
-      **Items:**
-
-      `string`
-
-  - **`url`**
-
-    `string` — Unique ID of the tool
-
-**Example:**
-
-```json
-{
-  "mcp": {
-    "connected_account_identifier": "account_123",
-    "id": "res_123",
-    "tool_mappings": "GOOGLE",
-    "url": "https://example.com/mcp/v1/abc"
-  }
-}
-```
-
-##### Status: 400 Invalid request
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-##### Status: 401 Authentication required
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-### Get MCP by ID
-
-- **Method:** `GET`
-- **Path:** `/api/v1/mcp/{mcp_id}`
-- **Tags:** MCP
-
-Returns the existing MCP with the given ID.
-
-#### Responses
-
-##### Status: 200 The requested MCP
-
-###### Content-Type: application/json
-
-- **`mcp`**
-
-  `object` — The MCP details
-
-  - **`connected_account_identifier`**
-
-    `string` — Identifier for the connected account
-
-  - **`id`**
-
-    `string` — Unique ID of the tool
-
-  - **`tool_mappings`**
-
-    `array` — Provider name (e.g. GOOGLE)
-
-    **Items:**
-
-    - **`connection_name`**
-
-      `string` — Connection name for the tool
-
-    - **`status`**
-
-      `string` — Authentication status of the tool
-
-    - **`tool_names`**
-
-      `array` — List of tool names
-
-      **Items:**
-
-      `string`
-
-  - **`url`**
-
-    `string` — Unique ID of the tool
-
-**Example:**
-
-```json
-{
-  "mcp": {
-    "connected_account_identifier": "account_123",
-    "id": "res_123",
-    "tool_mappings": "GOOGLE",
-    "url": "https://example.com/mcp/v1/abc"
-  }
-}
-```
-
-##### Status: 400 Invalid request
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-##### Status: 401 Authentication required
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-##### Status: 404 Not Found - MCP does not exist
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-### Delete MCP by ID
-
-- **Method:** `DELETE`
-- **Path:** `/api/v1/mcp/{mcp_id}`
-- **Tags:** MCP
-
-Deletes the MCP with the given ID.
-
-#### Responses
-
-##### Status: 200 MCP deleted successfully
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-##### Status: 400 Invalid request
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-##### Status: 401 Authentication required
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-##### Status: 404 Not Found - MCP does not exist
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
 ### List MCP configurations
 
 - **Method:** `GET`
@@ -2412,7 +2188,7 @@ Lists MCP configurations for the current environment with optional filters for i
 
   - **`connection_tool_mappings`**
 
-    `array` — List of connection-to-tool mappings for this MCP config
+    `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
     **Items:**
 
@@ -2452,9 +2228,13 @@ Lists MCP configurations for the current environment with optional filters for i
 
     `string` — Unique ID of the MCP config
 
+  - **`mcp_server_url`**
+
+    `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
   - **`name`**
 
-    `string` — Unique name for the MCP configuration
+    `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
 
 - **`next_page_token`**
 
@@ -2479,6 +2259,7 @@ Lists MCP configurations for the current environment with optional filters for i
       ],
       "description": "Summarizes daily emails and posts to Slack",
       "id": "cfg_85630864460904897",
+      "mcp_server_url": "https://env.scalekit.com/mcp/v3/servers/550e8400-e29b-41d4-a716-446655440000",
       "name": "daily-summarizer"
     }
   ],
@@ -2522,7 +2303,7 @@ Creates a new MCP configuration with a set of connections and tools.
 
 - **`connection_tool_mappings`**
 
-  `array` — List of connection-to-tool mappings for this MCP config
+  `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
   **Items:**
 
@@ -2562,9 +2343,13 @@ Creates a new MCP configuration with a set of connections and tools.
 
   `string` — Unique ID of the MCP config
 
+- **`mcp_server_url`**
+
+  `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
 - **`name`**
 
-  `string` — Unique name for the MCP configuration
+  `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
 
 **Example:**
 
@@ -2584,6 +2369,7 @@ Creates a new MCP configuration with a set of connections and tools.
   ],
   "description": "Summarizes daily emails and posts to Slack",
   "id": "cfg_85630864460904897",
+  "mcp_server_url": "https://env.scalekit.com/mcp/v3/servers/550e8400-e29b-41d4-a716-446655440000",
   "name": "daily-summarizer"
 }
 ```
@@ -2600,7 +2386,7 @@ Creates a new MCP configuration with a set of connections and tools.
 
   - **`connection_tool_mappings`**
 
-    `array` — List of connection-to-tool mappings for this MCP config
+    `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
     **Items:**
 
@@ -2640,9 +2426,13 @@ Creates a new MCP configuration with a set of connections and tools.
 
     `string` — Unique ID of the MCP config
 
+  - **`mcp_server_url`**
+
+    `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
   - **`name`**
 
-    `string` — Unique name for the MCP configuration
+    `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
 
 **Example:**
 
@@ -2654,6 +2444,7 @@ Creates a new MCP configuration with a set of connections and tools.
     ],
     "description": "Summarizes daily emails and posts to Slack",
     "id": "cfg_85630864460904897",
+    "mcp_server_url": "https://env.scalekit.com/mcp/v3/servers/550e8400-e29b-41d4-a716-446655440000",
     "name": "daily-summarizer"
   }
 }
@@ -2699,7 +2490,7 @@ Returns a single MCP configuration for the current environment by ID.
 
   - **`connection_tool_mappings`**
 
-    `array` — List of connection-to-tool mappings for this MCP config
+    `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
     **Items:**
 
@@ -2739,9 +2530,13 @@ Returns a single MCP configuration for the current environment by ID.
 
     `string` — Unique ID of the MCP config
 
+  - **`mcp_server_url`**
+
+    `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
   - **`name`**
 
-    `string` — Unique name for the MCP configuration
+    `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
 
 **Example:**
 
@@ -2753,6 +2548,7 @@ Returns a single MCP configuration for the current environment by ID.
     ],
     "description": "Summarizes daily emails and posts to Slack",
     "id": "cfg_85630864460904897",
+    "mcp_server_url": "https://env.scalekit.com/mcp/v3/servers/550e8400-e29b-41d4-a716-446655440000",
     "name": "daily-summarizer"
   }
 }
@@ -2794,7 +2590,7 @@ null
 - **Path:** `/api/v1/mcp/configs/{config_id}`
 - **Tags:** MCP Configurations
 
-Updates the name, description, and connection-to-tool mappings for an existing MCP configuration.
+Updates the description and connection-to-tool mappings for an existing MCP configuration. The configuration name cannot be changed after creation.
 
 #### Request Body
 
@@ -2802,7 +2598,7 @@ Updates the name, description, and connection-to-tool mappings for an existing M
 
 - **`connection_tool_mappings`**
 
-  `array` — Updated list of connection-to-tool mappings for this MCP config
+  `array` — Updated list of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
   **Items:**
 
@@ -2870,7 +2666,7 @@ Updates the name, description, and connection-to-tool mappings for an existing M
 
   - **`connection_tool_mappings`**
 
-    `array` — List of connection-to-tool mappings for this MCP config
+    `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
     **Items:**
 
@@ -2910,9 +2706,13 @@ Updates the name, description, and connection-to-tool mappings for an existing M
 
     `string` — Unique ID of the MCP config
 
+  - **`mcp_server_url`**
+
+    `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
   - **`name`**
 
-    `string` — Unique name for the MCP configuration
+    `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
 
 **Example:**
 
@@ -2924,6 +2724,7 @@ Updates the name, description, and connection-to-tool mappings for an existing M
     ],
     "description": "Summarizes daily emails and posts to Slack",
     "id": "cfg_85630864460904897",
+    "mcp_server_url": "https://env.scalekit.com/mcp/v3/servers/550e8400-e29b-41d4-a716-446655440000",
     "name": "daily-summarizer"
   }
 }
@@ -3013,7 +2814,7 @@ null
 
 - **Method:** `POST`
 - **Path:** `/api/v1/mcp/configs/{config_id}/connected_accounts`
-- **Tags:** mcp-configs
+- **Tags:** MCP Configurations
 
 Returns the connected account state for each connection in the MCP configuration for the given user identifier. When include\_auth\_link is true, creates connected accounts on the fly if they do not exist and returns a fresh authentication link per connection. When include\_auth\_link is false or omitted, returns the current status of existing connected accounts only — no accounts are created and authentication\_link is always empty. Authentication links are only present when the connection has an associated key; if the connection has no key, authentication\_link is empty regardless of include\_auth\_link.
 
@@ -3115,7 +2916,7 @@ null
 
 - **Method:** `POST`
 - **Path:** `/api/v1/mcp/configs/{mcp_config_id}/tokens`
-- **Tags:** mcp-configs
+- **Tags:** MCP Configurations
 
 Mints a short-lived JWT that represents a user identifier across the connected accounts associated with an MCP configuration. The supplied identifier becomes the token's `sub` claim; the token's `aud` claim is the MCP server URL bound to the configuration. Claims also carry the MCP configuration ID (`mcp_cfg`) and the list of resolved connected-account IDs (`ca_ids`). Use this operation to issue a single credential an MCP server can present on the user's behalf when calling provider tools. The mint fails if any connection mapped to the configuration has no active connected account for the identifier.
 
@@ -3174,745 +2975,6 @@ null
 ```
 
 ##### Status: 404 Not Found - no MCP configuration exists with the supplied ID in the caller's environment
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-### List MCP instances
-
-- **Method:** `GET`
-- **Path:** `/api/v1/mcp/instances`
-- **Tags:** MCP Instances
-
-Lists MCP instances for the current environment with optional filters for instance id, name, configuration, and text search across name or user identifier.
-
-#### Responses
-
-##### Status: 200 Paginated list of MCP instances
-
-###### Content-Type: application/json
-
-- **`instances`**
-
-  `array` — List of MCP instances
-
-  **Items:**
-
-  - **`config`**
-
-    `object` — Configuration backing this instance
-
-    - **`connection_tool_mappings`**
-
-      `array` — List of connection-to-tool mappings for this MCP config
-
-      **Items:**
-
-      - **`connected_account_id`**
-
-        `string` — Connected account backing this connection in the MCP instance context
-
-      - **`connected_account_status`**
-
-        `string` — Authentication status for the connected account
-
-      - **`connection_id`**
-
-        `string` — Unique ID of the connection
-
-      - **`connection_name`**
-
-        `string` — Developer-assigned connection name
-
-      - **`provider`**
-
-        `string` — Provider name for this connection
-
-      - **`tools`**
-
-        `array` — List of tool names linked to this connection (empty = all tools)
-
-        **Items:**
-
-        `string`
-
-    - **`description`**
-
-      `string` — Description of the MCP configuration
-
-    - **`id`**
-
-      `string` — Unique ID of the MCP config
-
-    - **`name`**
-
-      `string` — Unique name for the MCP configuration
-
-  - **`id`**
-
-    `string` — Unique ID of the MCP instance
-
-  - **`last_used_at`**
-
-    `string`, format: `date-time` — Timestamp when the instance was last used
-
-  - **`name`**
-
-    `string` — Display name of the instance
-
-  - **`updated_at`**
-
-    `string`, format: `date-time` — Timestamp when the instance was last updated
-
-  - **`url`**
-
-    `string` — URL to reach the MCP instance
-
-  - **`user_identifier`**
-
-    `string` — Identifier for the user who owns or uses this instance
-
-- **`next_page_token`**
-
-  `string` — Pagination token to fetch the next page
-
-- **`prev_page_token`**
-
-  `string` — Pagination token to fetch the previous page
-
-- **`total_size`**
-
-  `integer`, format: `int64` — Total number of instances matching the filter
-
-**Example:**
-
-```json
-{
-  "instances": [
-    {
-      "config": null,
-      "id": "inst_88630864544790977",
-      "last_used_at": "0001-01-01T00:00:00Z",
-      "name": "daily-digest",
-      "updated_at": "2025-10-07T12:21:00Z",
-      "url": "https://example.com/mcp/v1/abc123",
-      "user_identifier": "akshay.parihar"
-    }
-  ],
-  "next_page_token": "",
-  "prev_page_token": "",
-  "total_size": 1
-}
-```
-
-##### Status: 400 Invalid request
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-##### Status: 401 Authentication required
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-### Get or create an MCP instance
-
-- **Method:** `POST`
-- **Path:** `/api/v1/mcp/instances`
-- **Tags:** MCP Instances
-
-Returns an existing MCP instance for the given configuration, name, and user identifier or creates one if none exists.
-
-#### Request Body
-
-##### Content-Type: application/json
-
-- **`config_name`**
-
-  `string` — Name of the MCP configuration to associate with the instance
-
-- **`name`**
-
-  `string` — Display name for the MCP instance
-
-- **`user_identifier`**
-
-  `string` — Identifier for the end user requesting the instance
-
-**Example:**
-
-```json
-{
-  "config_name": "daily-summarizer",
-  "name": "daily-digest",
-  "user_identifier": "akshay.parihar"
-}
-```
-
-#### Responses
-
-##### Status: 200 The existing or newly created MCP instance
-
-###### Content-Type: application/json
-
-- **`instance`**
-
-  `object` — Details of the MCP instance
-
-  - **`config`**
-
-    `object` — Configuration backing this instance
-
-    - **`connection_tool_mappings`**
-
-      `array` — List of connection-to-tool mappings for this MCP config
-
-      **Items:**
-
-      - **`connected_account_id`**
-
-        `string` — Connected account backing this connection in the MCP instance context
-
-      - **`connected_account_status`**
-
-        `string` — Authentication status for the connected account
-
-      - **`connection_id`**
-
-        `string` — Unique ID of the connection
-
-      - **`connection_name`**
-
-        `string` — Developer-assigned connection name
-
-      - **`provider`**
-
-        `string` — Provider name for this connection
-
-      - **`tools`**
-
-        `array` — List of tool names linked to this connection (empty = all tools)
-
-        **Items:**
-
-        `string`
-
-    - **`description`**
-
-      `string` — Description of the MCP configuration
-
-    - **`id`**
-
-      `string` — Unique ID of the MCP config
-
-    - **`name`**
-
-      `string` — Unique name for the MCP configuration
-
-  - **`id`**
-
-    `string` — Unique ID of the MCP instance
-
-  - **`last_used_at`**
-
-    `string`, format: `date-time` — Timestamp when the instance was last used
-
-  - **`name`**
-
-    `string` — Display name of the instance
-
-  - **`updated_at`**
-
-    `string`, format: `date-time` — Timestamp when the instance was last updated
-
-  - **`url`**
-
-    `string` — URL to reach the MCP instance
-
-  - **`user_identifier`**
-
-    `string` — Identifier for the user who owns or uses this instance
-
-**Example:**
-
-```json
-{
-  "instance": {
-    "config": null,
-    "id": "inst_88630864544790977",
-    "last_used_at": "0001-01-01T00:00:00Z",
-    "name": "daily-digest",
-    "updated_at": "2025-10-07T12:21:00Z",
-    "url": "https://example.com/mcp/v1/abc123",
-    "user_identifier": "akshay.parihar"
-  }
-}
-```
-
-##### Status: 400 Invalid request
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-##### Status: 401 Authentication required
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-### Fetch an MCP instance
-
-- **Method:** `GET`
-- **Path:** `/api/v1/mcp/instances/{instance_id}`
-- **Tags:** MCP Instances
-
-Returns a single MCP instance for the current environment by ID.
-
-#### Responses
-
-##### Status: 200 The requested MCP instance
-
-###### Content-Type: application/json
-
-- **`instance`**
-
-  `object` — The requested MCP instance
-
-  - **`config`**
-
-    `object` — Configuration backing this instance
-
-    - **`connection_tool_mappings`**
-
-      `array` — List of connection-to-tool mappings for this MCP config
-
-      **Items:**
-
-      - **`connected_account_id`**
-
-        `string` — Connected account backing this connection in the MCP instance context
-
-      - **`connected_account_status`**
-
-        `string` — Authentication status for the connected account
-
-      - **`connection_id`**
-
-        `string` — Unique ID of the connection
-
-      - **`connection_name`**
-
-        `string` — Developer-assigned connection name
-
-      - **`provider`**
-
-        `string` — Provider name for this connection
-
-      - **`tools`**
-
-        `array` — List of tool names linked to this connection (empty = all tools)
-
-        **Items:**
-
-        `string`
-
-    - **`description`**
-
-      `string` — Description of the MCP configuration
-
-    - **`id`**
-
-      `string` — Unique ID of the MCP config
-
-    - **`name`**
-
-      `string` — Unique name for the MCP configuration
-
-  - **`id`**
-
-    `string` — Unique ID of the MCP instance
-
-  - **`last_used_at`**
-
-    `string`, format: `date-time` — Timestamp when the instance was last used
-
-  - **`name`**
-
-    `string` — Display name of the instance
-
-  - **`updated_at`**
-
-    `string`, format: `date-time` — Timestamp when the instance was last updated
-
-  - **`url`**
-
-    `string` — URL to reach the MCP instance
-
-  - **`user_identifier`**
-
-    `string` — Identifier for the user who owns or uses this instance
-
-**Example:**
-
-```json
-{
-  "instance": {
-    "config": null,
-    "id": "inst_88630864544790977",
-    "last_used_at": "0001-01-01T00:00:00Z",
-    "name": "daily-digest",
-    "updated_at": "2025-10-07T12:21:00Z",
-    "url": "https://example.com/mcp/v1/abc123",
-    "user_identifier": "akshay.parihar"
-  }
-}
-```
-
-##### Status: 400 Invalid request
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-##### Status: 401 Authentication required
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-##### Status: 404 Not Found - MCP instance does not exist
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-### Delete an MCP instance
-
-- **Method:** `DELETE`
-- **Path:** `/api/v1/mcp/instances/{instance_id}`
-- **Tags:** MCP Instances
-
-Deletes a single MCP instance in the current environment.
-
-#### Responses
-
-##### Status: 200 MCP instance deleted successfully
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-##### Status: 400 Invalid request
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-##### Status: 401 Authentication required
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-##### Status: 404 Not Found - MCP instance does not exist
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-### Update an MCP instance
-
-- **Method:** `PATCH`
-- **Path:** `/api/v1/mcp/instances/{instance_id}`
-- **Tags:** MCP Instances
-
-Updates attributes of an MCP instance. Currently only the config name can be changed, which rebuilds the instance mappings.
-
-#### Request Body
-
-##### Content-Type: application/json
-
-- **`config_name`**
-
-  `string` — New MCP configuration name to attach to the instance
-
-- **`name`**
-
-  `string` — New display name for the MCP instance
-
-**Example:**
-
-```json
-{
-  "config_name": "daily-summarizer",
-  "name": "daily-digest-updated"
-}
-```
-
-#### Responses
-
-##### Status: 200 The updated MCP instance
-
-###### Content-Type: application/json
-
-- **`instance`**
-
-  `object` — Updated MCP instance
-
-  - **`config`**
-
-    `object` — Configuration backing this instance
-
-    - **`connection_tool_mappings`**
-
-      `array` — List of connection-to-tool mappings for this MCP config
-
-      **Items:**
-
-      - **`connected_account_id`**
-
-        `string` — Connected account backing this connection in the MCP instance context
-
-      - **`connected_account_status`**
-
-        `string` — Authentication status for the connected account
-
-      - **`connection_id`**
-
-        `string` — Unique ID of the connection
-
-      - **`connection_name`**
-
-        `string` — Developer-assigned connection name
-
-      - **`provider`**
-
-        `string` — Provider name for this connection
-
-      - **`tools`**
-
-        `array` — List of tool names linked to this connection (empty = all tools)
-
-        **Items:**
-
-        `string`
-
-    - **`description`**
-
-      `string` — Description of the MCP configuration
-
-    - **`id`**
-
-      `string` — Unique ID of the MCP config
-
-    - **`name`**
-
-      `string` — Unique name for the MCP configuration
-
-  - **`id`**
-
-    `string` — Unique ID of the MCP instance
-
-  - **`last_used_at`**
-
-    `string`, format: `date-time` — Timestamp when the instance was last used
-
-  - **`name`**
-
-    `string` — Display name of the instance
-
-  - **`updated_at`**
-
-    `string`, format: `date-time` — Timestamp when the instance was last updated
-
-  - **`url`**
-
-    `string` — URL to reach the MCP instance
-
-  - **`user_identifier`**
-
-    `string` — Identifier for the user who owns or uses this instance
-
-**Example:**
-
-```json
-{
-  "instance": {
-    "config": null,
-    "id": "inst_88630864544790977",
-    "last_used_at": "0001-01-01T00:00:00Z",
-    "name": "daily-digest",
-    "updated_at": "2025-10-07T12:21:00Z",
-    "url": "https://example.com/mcp/v1/abc123",
-    "user_identifier": "akshay.parihar"
-  }
-}
-```
-
-##### Status: 400 Invalid request
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-##### Status: 401 Authentication required
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-##### Status: 404 Not Found - MCP instance does not exist
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-### Fetch connection auth state for an MCP instance
-
-- **Method:** `POST`
-- **Path:** `/api/v1/mcp/instances/{instance_id}:get_auth_state`
-- **Tags:** MCP Instances
-
-Returns the connected account status and fresh authentication links for each connection mapped to the MCP instance.
-
-#### Responses
-
-##### Status: 200 Authentication state for each connection in the MCP instance
-
-###### Content-Type: application/json
-
-- **`connections`**
-
-  `array` — Status of each connection mapped to the instance
-
-  **Items:**
-
-  - **`authentication_link`**
-
-    `string` — Magic link for reconnecting the connected account
-
-  - **`connected_account_id`**
-
-    `string` — Connected account backing the connection
-
-  - **`connected_account_status`**
-
-    `string` — Current authentication status of the connected account
-
-  - **`connection_id`**
-
-    `string` — Underlying connection identifier
-
-  - **`connection_name`**
-
-    `string` — Developer-assigned connection name
-
-  - **`provider`**
-
-    `string` — Provider backing the connection
-
-**Example:**
-
-```json
-{
-  "connections": [
-    {
-      "authentication_link": "",
-      "connected_account_id": "",
-      "connected_account_status": "",
-      "connection_id": "",
-      "connection_name": "",
-      "provider": ""
-    }
-  ]
-}
-```
-
-##### Status: 400 Invalid request
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-##### Status: 401 Authentication required
-
-###### Content-Type: application/json
-
-**Example:**
-
-```json
-null
-```
-
-##### Status: 404 Not Found - MCP instance does not exist
 
 ###### Content-Type: application/json
 
@@ -3982,275 +3044,107 @@ Triggered when OAuth authentication succeeds
 
 ## Schemas
 
-### Type of authentication mechanism used for the connected account
-
-- **Type:**`string`
-
-* OAUTH: OAuth 2.0 authorization with access and refresh tokens
-* API\_KEY: Static API key authentication
-* BASIC\_AUTH: HTTP Basic Authentication (username/password)
-* BEARER\_TOKEN: Bearer token authentication
-* CUSTOM: Custom authentication mechanism
-* BASIC: Basic authentication (alias)
-* OAUTH\_M2M: OAuth 2.0 client credentials (machine-to-machine)
-* TRELLO\_OAUTH1: Trello token-based OAuth1-style browser authorization
-* GOOGLE\_DWD: Google Domain-Wide Delegation
-
-**Example:**
-
-### Status of a connected account indicating its current state
-
-- **Type:**`string`
-
-* ACTIVE: Account is connected and credentials are valid
-* EXPIRED: Access token has expired and needs refresh
-* PENDING\_AUTH: Account awaiting user authorization (re-auth initiated)
-* PENDING\_VERIFICATION: OAuth complete; awaiting user identity verification before activation
-* DISCONNECTED: Account has been manually disconnected
-
-**Example:**
-
-### Connected account summary for list operations - excludes sensitive authorization details
+### McpServiceCreateMcpSessionTokenBody
 
 - **Type:**`object`
 
-* **`authorization_type`**
+* **`identifier` (required)**
 
-  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authorization mechanism type.
+  `string` — Upstream-provider identifier (typically the user's email or provider user-id) shared by the connected accounts the token represents. A single identifier can map to one connected account per connection in the MCP configuration.
 
-* **`connection_id`**
+* **`expiry`**
 
-  `string` — Parent connection configuration reference.
-
-* **`connector`**
-
-  `string` — Connector identifier.
-
-* **`id`**
-
-  `string` — Unique connected account identifier.
-
-* **`identifier`**
-
-  `string` — The unique identifier for this account in the third-party service.
-
-* **`last_used_at`**
-
-  `string`, format: `date-time` — Last usage timestamp.
-
-* **`provider`**
-
-  `string` — OAuth provider name (e.g., 'google', 'microsoft').
-
-* **`status`**
-
-  `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — Current connection status.
-
-* **`token_expires_at`**
-
-  `string`, format: `date-time` — Token expiration timestamp.
-
-* **`updated_at`**
-
-  `string`, format: `date-time` — Last modification timestamp.
+  `string` — Optional token lifetime. Must be between 60s and 24h. Defaults to 1h when omitted.
 
 **Example:**
 
 ```json
 {
-  "authorization_type": "OAUTH",
-  "connection_id": "conn_24834495392086178",
-  "connector": "notion",
-  "id": "ca_24834495392086178",
-  "identifier": "user@example.com",
-  "last_used_at": "2024-03-20T14:30:00Z",
-  "provider": "google",
-  "status": "ACTIVE",
-  "token_expires_at": "2024-12-31T23:59:59Z",
-  "updated_at": "2024-03-20T15:04:05Z"
+  "expiry": "3600s",
+  "identifier": "alice@acme.com"
 }
 ```
 
-### connected\_accountsListConnectedAccountsResponse
+### McpServiceListMcpConnectedAccountsBody
 
 - **Type:**`object`
 
-* **`connected_accounts`**
+* **`identifier` (required)**
 
-  `array` — List of connected accounts matching the filter criteria. Excludes sensitive authorization details for security.
+  `string` — Identifier for the end user whose connected accounts to retrieve
+
+* **`include_auth_link`**
+
+  `boolean` — When true, generates a fresh authentication link for each connection and creates connected accounts if they do not exist. When false or omitted, returns existing connected account status without creating accounts or generating links.
+
+**Example:**
+
+```json
+{
+  "identifier": "john.doe@example.com",
+  "include_auth_link": true
+}
+```
+
+### McpServiceUpdateMcpConfigBody
+
+- **Type:**`object`
+
+* **`connection_tool_mappings`**
+
+  `array` — Updated list of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
   **Items:**
 
-  - **`authorization_type`**
+  - **`connected_account_id`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authorization mechanism type.
+    `string` — Connected account backing this connection in the MCP instance context
+
+  - **`connected_account_status`**
+
+    `string` — Authentication status for the connected account
 
   - **`connection_id`**
 
-    `string` — Parent connection configuration reference.
+    `string` — Unique ID of the connection
 
-  - **`connector`**
+  - **`connection_name`**
 
-    `string` — Connector identifier.
-
-  - **`id`**
-
-    `string` — Unique connected account identifier.
-
-  - **`identifier`**
-
-    `string` — The unique identifier for this account in the third-party service.
-
-  - **`last_used_at`**
-
-    `string`, format: `date-time` — Last usage timestamp.
+    `string` — Developer-assigned connection name
 
   - **`provider`**
 
-    `string` — OAuth provider name (e.g., 'google', 'microsoft').
+    `string` — Provider name for this connection
 
-  - **`status`**
+  - **`tools`**
 
-    `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — Current connection status.
+    `array` — List of tool names linked to this connection (empty = all tools)
 
-  - **`token_expires_at`**
+    **Items:**
 
-    `string`, format: `date-time` — Token expiration timestamp.
+    `string`
 
-  - **`updated_at`**
+* **`description`**
 
-    `string`, format: `date-time` — Last modification timestamp.
-
-* **`next_page_token`**
-
-  `string` — Pagination token for retrieving the next page. Empty if this is the last page. Pass this value to page\_token in the next request.
-
-* **`prev_page_token`**
-
-  `string` — Pagination token for retrieving the previous page. Empty if this is the first page. Pass this value to page\_token to go back.
-
-* **`total_size`**
-
-  `integer`, format: `int64` — Total count of connected accounts matching the filter criteria across all pages. Use for calculating pagination.
+  `string` — Updated description for the MCP configuration
 
 **Example:**
 
 ```json
 {
-  "connected_accounts": [
+  "connection_tool_mappings": [
     {
-      "authorization_type": null,
-      "connection_id": "conn_24834495392086178",
-      "connector": "notion",
-      "id": "ca_24834495392086178",
-      "identifier": "user@example.com",
-      "last_used_at": "2024-03-20T14:30:00Z",
-      "provider": "google",
-      "status": null,
-      "token_expires_at": "2024-12-31T23:59:59Z",
-      "updated_at": "2024-03-20T15:04:05Z"
+      "connected_account_id": "",
+      "connected_account_status": "",
+      "connection_id": "",
+      "connection_name": "",
+      "provider": "",
+      "tools": [
+        ""
+      ]
     }
   ],
-  "next_page_token": "eyJvZmZzZXQiOjIwfQ==",
-  "prev_page_token": "eyJvZmZzZXQiOjB9",
-  "total_size": 100
-}
-```
-
-### connected\_accountsGoogleDWDAuth
-
-- **Type:**`object`
-
-Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connections. Send only subject in requests; access\_token, scopes, and token\_expires\_at are response-only.
-
-- **`access_token`**
-
-  `string` — OAuth access token acquired via the jwt-bearer grant. Present in responses only.
-
-- **`scopes`**
-
-  `array` — OAuth scopes granted to this token. Present in responses only.
-
-  **Items:**
-
-  `string`
-
-- **`subject`**
-
-  `string` — Email address of the Google Workspace user to impersonate via Domain-Wide Delegation.
-
-- **`token_expires_at`**
-
-  `string`, format: `date-time` — When the access token expires. Present in responses only.
-
-**Example:**
-
-```json
-{
-  "access_token": "ya29.a0AfH6SMBx...",
-  "scopes": [
-    "openid",
-    "https://www.googleapis.com/auth/userinfo.email"
-  ],
-  "subject": "user@example.com",
-  "token_expires_at": ""
-}
-```
-
-### OAuth 2.0 access and refresh tokens with scopes
-
-- **Type:**`object`
-
-* **`access_token`**
-
-  `string` — OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
-
-* **`domain`**
-
-  `string` — Associated domain for workspace or organization-scoped OAuth connections (e.g., Google Workspace domain).
-
-* **`refresh_token`**
-
-  `string` — OAuth refresh token for obtaining new access tokens. Long-lived and used to maintain persistent authorization.
-
-* **`scopes`**
-
-  `array` — List of granted OAuth scopes defining the permissions and access levels for this connection.
-
-  **Items:**
-
-  `string`
-
-**Example:**
-
-```json
-{
-  "access_token": "ya29.a0AfH6SMBx...",
-  "domain": "example.com",
-  "refresh_token": "1//0gHJxZ-Lb2...",
-  "scopes": [
-    "https://www.googleapis.com/auth/drive.readonly",
-    "https://www.googleapis.com/auth/userinfo.email"
-  ]
-}
-```
-
-### Static authentication credentials for API keys, bearer tokens, or basic auth
-
-- **Type:**`object`
-
-* **`details`**
-
-  `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
-
-**Example:**
-
-```json
-{
-  "details": {
-    "api_key": "sk_live_...",
-    "api_secret": "..."
-  }
+  "description": "Updated daily summarizer config"
 }
 ```
 
@@ -4314,6 +3208,30 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 
     `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
 
+* **`trusted_idp`**
+
+  `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+  - **`access_key_id`**
+
+    `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+  - **`db_user`**
+
+    `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+  - **`expiry`**
+
+    `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+  - **`secret_access_key`**
+
+    `string` — Federated secret access key. Never returned in public API responses.
+
+  - **`session_token`**
+
+    `string` — Federated session token. Never returned in public API responses.
+
 **Example:**
 
 ```json
@@ -4341,214 +3259,14 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
       "api_key": "sk_live_...",
       "api_secret": "..."
     }
-  }
-}
-```
-
-### Payload for updating an existing connected account - all fields optional
-
-- **Type:**`object`
-
-* **`api_config`**
-
-  `object` — Updated JSON configuration for API-specific settings. Merges with existing configuration - only provided fields are modified.
-
-* **`authorization_details`**
-
-  `object` — Updated authentication credentials. Provide new OAuth tokens (e.g., after refresh) or updated static auth details. Only included fields will be modified.
-
-  - **`google_dwd`**
-
-    `object` — Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connections. Send only subject in requests; access\_token, scopes, and token\_expires\_at are response-only.
-
-    - **`access_token`**
-
-      `string` — OAuth access token acquired via the jwt-bearer grant. Present in responses only.
-
-    - **`scopes`**
-
-      `array` — OAuth scopes granted to this token. Present in responses only.
-
-      **Items:**
-
-      `string`
-
-    - **`subject`**
-
-      `string` — Email address of the Google Workspace user to impersonate via Domain-Wide Delegation.
-
-    - **`token_expires_at`**
-
-      `string`, format: `date-time` — When the access token expires. Present in responses only.
-
-  - **`oauth_token`**
-
-    `object`
-
-    - **`access_token`**
-
-      `string` — OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
-
-    - **`domain`**
-
-      `string` — Associated domain for workspace or organization-scoped OAuth connections (e.g., Google Workspace domain).
-
-    - **`refresh_token`**
-
-      `string` — OAuth refresh token for obtaining new access tokens. Long-lived and used to maintain persistent authorization.
-
-    - **`scopes`**
-
-      `array` — List of granted OAuth scopes defining the permissions and access levels for this connection.
-
-      **Items:**
-
-      `string`
-
-  - **`static_auth`**
-
-    `object`
-
-    - **`details`**
-
-      `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
-
-**Example:**
-
-```json
-{
-  "api_config": {
-    "rate_limit": 2000,
-    "timeout": 60
   },
-  "authorization_details": {
-    "oauth_token": {
-      "access_token": "ya29.new_token...",
-      "refresh_token": "1//0g...",
-      "scopes": [
-        "email",
-        "profile",
-        "calendar"
-      ]
-    }
+  "trusted_idp": {
+    "access_key_id": "ASIA...",
+    "db_user": "analytics_reader",
+    "expiry": "",
+    "secret_access_key": "",
+    "session_token": ""
   }
-}
-```
-
-### connected\_accountsUpdateConnectedAccountRequest
-
-- **Type:**`object`
-
-* **`connected_account`**
-
-  `object` — Details of the connected account to update
-
-  - **`api_config`**
-
-    `object` — Updated JSON configuration for API-specific settings. Merges with existing configuration - only provided fields are modified.
-
-  - **`authorization_details`**
-
-    `object` — Updated authentication credentials. Provide new OAuth tokens (e.g., after refresh) or updated static auth details. Only included fields will be modified.
-
-    - **`google_dwd`**
-
-      `object` — Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connections. Send only subject in requests; access\_token, scopes, and token\_expires\_at are response-only.
-
-      - **`access_token`**
-
-        `string` — OAuth access token acquired via the jwt-bearer grant. Present in responses only.
-
-      - **`scopes`**
-
-        `array` — OAuth scopes granted to this token. Present in responses only.
-
-        **Items:**
-
-        `string`
-
-      - **`subject`**
-
-        `string` — Email address of the Google Workspace user to impersonate via Domain-Wide Delegation.
-
-      - **`token_expires_at`**
-
-        `string`, format: `date-time` — When the access token expires. Present in responses only.
-
-    - **`oauth_token`**
-
-      `object`
-
-      - **`access_token`**
-
-        `string` — OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
-
-      - **`domain`**
-
-        `string` — Associated domain for workspace or organization-scoped OAuth connections (e.g., Google Workspace domain).
-
-      - **`refresh_token`**
-
-        `string` — OAuth refresh token for obtaining new access tokens. Long-lived and used to maintain persistent authorization.
-
-      - **`scopes`**
-
-        `array` — List of granted OAuth scopes defining the permissions and access levels for this connection.
-
-        **Items:**
-
-        `string`
-
-    - **`static_auth`**
-
-      `object`
-
-      - **`details`**
-
-        `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
-
-* **`connector`**
-
-  `string` — Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.
-
-* **`id`**
-
-  `string` — Unique identifier for the connected account to update
-
-* **`identifier`**
-
-  `string` — The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).
-
-* **`organization_id`**
-
-  `string` — Organization ID for the connector
-
-* **`user_id`**
-
-  `string` — User ID for the connector
-
-**Example:**
-
-```json
-{
-  "connected_account": {
-    "authorization_details": {
-      "oauth_token": {
-        "access_token": "...",
-        "refresh_token": "...",
-        "scopes": [
-          "read",
-          "write"
-        ]
-      }
-    },
-    "authorization_type": "OAUTH2"
-  },
-  "connector": "notion",
-  "id": "ca_123",
-  "identifier": "user@example.com",
-  "organization_id": "org_121312434123312",
-  "user_id": "user_121312434123312"
 }
 ```
 
@@ -4620,9 +3338,33 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 
       `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
 
+  - **`trusted_idp`**
+
+    `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+    - **`access_key_id`**
+
+      `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+    - **`db_user`**
+
+      `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+    - **`expiry`**
+
+      `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+    - **`secret_access_key`**
+
+      `string` — Federated secret access key. Never returned in public API responses.
+
+    - **`session_token`**
+
+      `string` — Federated session token. Never returned in public API responses.
+
 * **`authorization_type`**
 
-  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
 * **`connection_id`**
 
@@ -4672,7 +3414,8 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
   "authorization_details": {
     "google_dwd": null,
     "oauth_token": null,
-    "static_auth": null
+    "static_auth": null,
+    "trusted_idp": null
   },
   "authorization_type": "OAUTH",
   "connection_id": "conn_24834495392086178",
@@ -4687,232 +3430,96 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 }
 ```
 
-### connected\_accountsUpdateConnectedAccountResponse
+### Connected account summary for list operations - excludes sensitive authorization details
 
 - **Type:**`object`
 
-* **`connected_account`**
+* **`authorization_type`**
 
-  `object` — The updated connected account with refreshed credentials, new token expiry, and modified configuration settings.
+  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authorization mechanism type.
 
-  - **`api_config`**
+* **`connection_id`**
 
-    `object` — Optional JSON configuration for connector-specific API settings such as rate limits, custom endpoints, or feature flags.
+  `string` — Parent connection configuration reference.
 
-  - **`authorization_details`**
+* **`connector`**
 
-    `object` — Sensitive authentication credentials including access tokens, refresh tokens, and scopes. Contains either OAuth tokens or static auth details.
+  `string` — Connector identifier.
 
-    - **`google_dwd`**
+* **`id`**
 
-      `object` — Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connections. Send only subject in requests; access\_token, scopes, and token\_expires\_at are response-only.
+  `string` — Unique connected account identifier.
 
-      - **`access_token`**
+* **`identifier`**
 
-        `string` — OAuth access token acquired via the jwt-bearer grant. Present in responses only.
+  `string` — The unique identifier for this account in the third-party service.
 
-      - **`scopes`**
+* **`last_used_at`**
 
-        `array` — OAuth scopes granted to this token. Present in responses only.
+  `string`, format: `date-time` — Last usage timestamp.
 
-        **Items:**
+* **`provider`**
 
-        `string`
+  `string` — OAuth provider name (e.g., 'google', 'microsoft').
 
-      - **`subject`**
+* **`status`**
 
-        `string` — Email address of the Google Workspace user to impersonate via Domain-Wide Delegation.
+  `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — Current connection status.
 
-      - **`token_expires_at`**
+* **`token_expires_at`**
 
-        `string`, format: `date-time` — When the access token expires. Present in responses only.
+  `string`, format: `date-time` — Token expiration timestamp.
 
-    - **`oauth_token`**
+* **`updated_at`**
 
-      `object`
-
-      - **`access_token`**
-
-        `string` — OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
-
-      - **`domain`**
-
-        `string` — Associated domain for workspace or organization-scoped OAuth connections (e.g., Google Workspace domain).
-
-      - **`refresh_token`**
-
-        `string` — OAuth refresh token for obtaining new access tokens. Long-lived and used to maintain persistent authorization.
-
-      - **`scopes`**
-
-        `array` — List of granted OAuth scopes defining the permissions and access levels for this connection.
-
-        **Items:**
-
-        `string`
-
-    - **`static_auth`**
-
-      `object`
-
-      - **`details`**
-
-        `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
-
-  - **`authorization_type`**
-
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
-
-  - **`connection_id`**
-
-    `string` — Reference to the parent connection configuration. Links this account to a specific connector setup in your environment.
-
-  - **`connector`**
-
-    `string` — Connector identifier (e.g., 'notion', 'slack', 'salesforce'). Indicates which third-party application this account connects to.
-
-  - **`id`**
-
-    `string` — Unique Scalekit-generated identifier for this connected account. Always prefixed with 'ca\_'.
-
-  - **`identifier`**
-
-    `string` — The unique identifier for this account in the third-party service. Typically an email address, user ID, or workspace identifier.
-
-  - **`last_used_at`**
-
-    `string`, format: `date-time` — Timestamp when this connected account was last used to make an API call. Useful for tracking active connections.
-
-  - **`provider`**
-
-    `string` — OAuth provider name (e.g., 'google', 'microsoft', 'github'). Identifies which authentication service manages this connection.
-
-  - **`status`**
-
-    `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — Current status of the connected account. Indicates if the account is active, expired, pending authorization, or pending user identity verification.
-
-  - **`token_expires_at`**
-
-    `string`, format: `date-time` — Expiration timestamp for the access token. After this time, the token must be refreshed or re-authorized.
-
-  - **`updated_at`**
-
-    `string`, format: `date-time` — Timestamp when this connected account was last modified. Updated whenever credentials or configuration changes.
+  `string`, format: `date-time` — Last modification timestamp.
 
 **Example:**
 
 ```json
 {
-  "connected_account": {
-    "api_config": {
-      "base_url": "https://api.custom-domain.com",
-      "rate_limit": 1000,
-      "timeout": 30
-    },
-    "authorization_details": null,
-    "authorization_type": null,
-    "connection_id": "conn_24834495392086178",
-    "connector": "notion",
-    "id": "ca_24834495392086178",
-    "identifier": "user@example.com",
-    "last_used_at": "2024-03-20T14:30:00Z",
-    "provider": "google",
-    "status": null,
-    "token_expires_at": "2024-12-31T23:59:59Z",
-    "updated_at": "2024-03-20T15:04:05Z"
-  }
+  "authorization_type": "OAUTH",
+  "connection_id": "conn_24834495392086178",
+  "connector": "notion",
+  "id": "ca_24834495392086178",
+  "identifier": "user@example.com",
+  "last_used_at": "2024-03-20T14:30:00Z",
+  "provider": "google",
+  "status": "ACTIVE",
+  "token_expires_at": "2024-12-31T23:59:59Z",
+  "updated_at": "2024-03-20T15:04:05Z"
 }
 ```
 
-### Payload for creating a new connected account - authorization details are optional
+### Status of a connected account indicating its current state
 
-- **Type:**`object`
+- **Type:**`string`
 
-* **`api_config`**
-
-  `object` — Optional JSON configuration for connector-specific API settings such as rate limits, custom API endpoints, timeouts, or feature flags.
-
-* **`authorization_details`**
-
-  `object` — Optional authentication credentials for the connected account. Include OAuth tokens (access\_token, refresh\_token, scopes) or static auth details (API keys, bearer tokens). Can be provided later via update.
-
-  - **`google_dwd`**
-
-    `object` — Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connections. Send only subject in requests; access\_token, scopes, and token\_expires\_at are response-only.
-
-    - **`access_token`**
-
-      `string` — OAuth access token acquired via the jwt-bearer grant. Present in responses only.
-
-    - **`scopes`**
-
-      `array` — OAuth scopes granted to this token. Present in responses only.
-
-      **Items:**
-
-      `string`
-
-    - **`subject`**
-
-      `string` — Email address of the Google Workspace user to impersonate via Domain-Wide Delegation.
-
-    - **`token_expires_at`**
-
-      `string`, format: `date-time` — When the access token expires. Present in responses only.
-
-  - **`oauth_token`**
-
-    `object`
-
-    - **`access_token`**
-
-      `string` — OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
-
-    - **`domain`**
-
-      `string` — Associated domain for workspace or organization-scoped OAuth connections (e.g., Google Workspace domain).
-
-    - **`refresh_token`**
-
-      `string` — OAuth refresh token for obtaining new access tokens. Long-lived and used to maintain persistent authorization.
-
-    - **`scopes`**
-
-      `array` — List of granted OAuth scopes defining the permissions and access levels for this connection.
-
-      **Items:**
-
-      `string`
-
-  - **`static_auth`**
-
-    `object`
-
-    - **`details`**
-
-      `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
+* ACTIVE: Account is connected and credentials are valid
+* EXPIRED: Access token has expired and needs refresh
+* PENDING\_AUTH: Account awaiting user authorization (re-auth initiated)
+* PENDING\_VERIFICATION: OAuth complete; awaiting user identity verification before activation
+* DISCONNECTED: Account has been manually disconnected
 
 **Example:**
 
-```json
-{
-  "api_config": {
-    "base_url": "https://api.custom-domain.com",
-    "rate_limit": 1000,
-    "timeout": 30
-  },
-  "authorization_details": {
-    "oauth_token": {
-      "access_token": "ya29.a0...",
-      "refresh_token": "1//0g...",
-      "scopes": [
-        "email",
-        "profile"
-      ]
-    }
-  }
-}
-```
+### Type of authentication mechanism used for the connected account
+
+- **Type:**`string`
+
+* OAUTH: OAuth 2.0 authorization with access and refresh tokens
+* API\_KEY: Static API key authentication
+* BASIC\_AUTH: HTTP Basic Authentication (username/password)
+* BEARER\_TOKEN: Bearer token authentication
+* CUSTOM: Custom authentication mechanism
+* BASIC: Basic authentication (alias)
+* OAUTH\_M2M: OAuth 2.0 client credentials (machine-to-machine)
+* TRELLO\_OAUTH1: Trello token-based OAuth1-style browser authorization
+* GOOGLE\_DWD: Google Domain-Wide Delegation
+* TRUSTED\_IDP: Trusted Identity Provider federation (e.g. AWS STS AssumeRoleWithWebIdentity)
+* SMART\_FHIR: SMART on FHIR (SMART App Launch) — OAuth 2.0 authorization for FHIR servers
+
+**Example:**
 
 ### connected\_accountsCreateConnectedAccountRequest
 
@@ -4985,6 +3592,30 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
       - **`details`**
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
+
+    - **`trusted_idp`**
+
+      `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+      - **`access_key_id`**
+
+        `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+      - **`db_user`**
+
+        `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+      - **`expiry`**
+
+        `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+      - **`secret_access_key`**
+
+        `string` — Federated secret access key. Never returned in public API responses.
+
+      - **`session_token`**
+
+        `string` — Federated session token. Never returned in public API responses.
 
 * **`connector`**
 
@@ -5098,9 +3729,33 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
 
+    - **`trusted_idp`**
+
+      `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+      - **`access_key_id`**
+
+        `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+      - **`db_user`**
+
+        `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+      - **`expiry`**
+
+        `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+      - **`secret_access_key`**
+
+        `string` — Federated secret access key. Never returned in public API responses.
+
+      - **`session_token`**
+
+        `string` — Federated session token. Never returned in public API responses.
+
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -5160,6 +3815,42 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
     "token_expires_at": "2024-12-31T23:59:59Z",
     "updated_at": "2024-03-20T15:04:05Z"
   }
+}
+```
+
+### connected\_accountsDeleteConnectedAccountRequest
+
+- **Type:**`object`
+
+* **`connector`**
+
+  `string` — Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.
+
+* **`id`**
+
+  `string` — Unique identifier for the connected account to delete
+
+* **`identifier`**
+
+  `string` — The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).
+
+* **`organization_id`**
+
+  `string` — Organization ID for the connector
+
+* **`user_id`**
+
+  `string` — User ID for the connector
+
+**Example:**
+
+```json
+{
+  "connector": "notion",
+  "id": "ca_123",
+  "identifier": "user@example.com",
+  "organization_id": "org_121312434123312",
+  "user_id": "user_121312434123312"
 }
 ```
 
@@ -5235,9 +3926,33 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
 
+    - **`trusted_idp`**
+
+      `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+      - **`access_key_id`**
+
+        `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+      - **`db_user`**
+
+        `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+      - **`expiry`**
+
+        `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+      - **`secret_access_key`**
+
+        `string` — Federated secret access key. Never returned in public API responses.
+
+      - **`session_token`**
+
+        `string` — Federated session token. Never returned in public API responses.
+
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -5367,76 +4082,167 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 }
 ```
 
-### connected\_accountsVerifyConnectedAccountUserRequest
+### connected\_accountsGoogleDWDAuth
 
 - **Type:**`object`
 
-* **`auth_request_id` (required)**
+Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connections. Send only subject in requests; access\_token, scopes, and token\_expires\_at are response-only.
 
-  `string` — Auth request ID as base64url-encoded opaque token from the user verify redirect URL query params
+- **`access_token`**
 
-* **`identifier` (required)**
+  `string` — OAuth access token acquired via the jwt-bearer grant. Present in responses only.
 
-  `string` — Current logged in user's connected account identifier
+- **`scopes`**
+
+  `array` — OAuth scopes granted to this token. Present in responses only.
+
+  **Items:**
+
+  `string`
+
+- **`subject`**
+
+  `string` — Email address of the Google Workspace user to impersonate via Domain-Wide Delegation.
+
+- **`token_expires_at`**
+
+  `string`, format: `date-time` — When the access token expires. Present in responses only.
 
 **Example:**
 
 ```json
 {
-  "auth_request_id": "QVNDSUFyY2hhYml0dGVyXzE2ODQ5NzIwNzI0NTY=",
-  "identifier": "user@example.com"
+  "access_token": "ya29.a0AfH6SMBx...",
+  "scopes": [
+    "openid",
+    "https://www.googleapis.com/auth/userinfo.email"
+  ],
+  "subject": "user@example.com",
+  "token_expires_at": ""
 }
 ```
 
-### connected\_accountsVerifyConnectedAccountUserResponse
+### connected\_accountsListConnectedAccountsResponse
 
 - **Type:**`object`
 
-* **`post_user_verify_redirect_url`**
+* **`connected_accounts`**
 
-  `string` — URL to redirect the user to after successful verification
+  `array` — List of connected accounts matching the filter criteria. Excludes sensitive authorization details for security.
+
+  **Items:**
+
+  - **`authorization_type`**
+
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authorization mechanism type.
+
+  - **`connection_id`**
+
+    `string` — Parent connection configuration reference.
+
+  - **`connector`**
+
+    `string` — Connector identifier.
+
+  - **`id`**
+
+    `string` — Unique connected account identifier.
+
+  - **`identifier`**
+
+    `string` — The unique identifier for this account in the third-party service.
+
+  - **`last_used_at`**
+
+    `string`, format: `date-time` — Last usage timestamp.
+
+  - **`provider`**
+
+    `string` — OAuth provider name (e.g., 'google', 'microsoft').
+
+  - **`status`**
+
+    `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — Current connection status.
+
+  - **`token_expires_at`**
+
+    `string`, format: `date-time` — Token expiration timestamp.
+
+  - **`updated_at`**
+
+    `string`, format: `date-time` — Last modification timestamp.
+
+* **`next_page_token`**
+
+  `string` — Pagination token for retrieving the next page. Empty if this is the last page. Pass this value to page\_token in the next request.
+
+* **`prev_page_token`**
+
+  `string` — Pagination token for retrieving the previous page. Empty if this is the first page. Pass this value to page\_token to go back.
+
+* **`total_size`**
+
+  `integer`, format: `int64` — Total count of connected accounts matching the filter criteria across all pages. Use for calculating pagination.
 
 **Example:**
 
 ```json
 {
-  "post_user_verify_redirect_url": "https://env1.example.com/connect/success"
+  "connected_accounts": [
+    {
+      "authorization_type": null,
+      "connection_id": "conn_24834495392086178",
+      "connector": "notion",
+      "id": "ca_24834495392086178",
+      "identifier": "user@example.com",
+      "last_used_at": "2024-03-20T14:30:00Z",
+      "provider": "google",
+      "status": null,
+      "token_expires_at": "2024-12-31T23:59:59Z",
+      "updated_at": "2024-03-20T15:04:05Z"
+    }
+  ],
+  "next_page_token": "eyJvZmZzZXQiOjIwfQ==",
+  "prev_page_token": "eyJvZmZzZXQiOjB9",
+  "total_size": 100
 }
 ```
 
-### connected\_accountsDeleteConnectedAccountRequest
+### OAuth 2.0 access and refresh tokens with scopes
 
 - **Type:**`object`
 
-* **`connector`**
+* **`access_token`**
 
-  `string` — Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.
+  `string` — OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
 
-* **`id`**
+* **`domain`**
 
-  `string` — Unique identifier for the connected account to delete
+  `string` — Associated domain for workspace or organization-scoped OAuth connections (e.g., Google Workspace domain).
 
-* **`identifier`**
+* **`refresh_token`**
 
-  `string` — The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).
+  `string` — OAuth refresh token for obtaining new access tokens. Long-lived and used to maintain persistent authorization.
 
-* **`organization_id`**
+* **`scopes`**
 
-  `string` — Organization ID for the connector
+  `array` — List of granted OAuth scopes defining the permissions and access levels for this connection.
 
-* **`user_id`**
+  **Items:**
 
-  `string` — User ID for the connector
+  `string`
 
 **Example:**
 
 ```json
 {
-  "connector": "notion",
-  "id": "ca_123",
-  "identifier": "user@example.com",
-  "organization_id": "org_121312434123312",
-  "user_id": "user_121312434123312"
+  "access_token": "ya29.a0AfH6SMBx...",
+  "domain": "example.com",
+  "refresh_token": "1//0gHJxZ-Lb2...",
+  "scopes": [
+    "https://www.googleapis.com/auth/drive.readonly",
+    "https://www.googleapis.com/auth/userinfo.email"
+  ]
 }
 ```
 
@@ -5452,7 +4258,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authorization mechanism type.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authorization mechanism type.
 
   - **`connection_id`**
 
@@ -5526,307 +4332,955 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 }
 ```
 
-### v1providersCreateCustomProvider
+### Static authentication credentials for API keys, bearer tokens, or basic auth
 
 - **Type:**`object`
 
-* **`auth_patterns`**
+* **`details`**
 
-  `array` — Authentication patterns for the connected app provider
-
-  **Items:**
-
-* **`description`**
-
-  `string` — Description of the connected app provider
-
-* **`display_name`**
-
-  `string` — Display name for the connected app provider
-
-* **`icon_src`**
-
-  `string` — URL for the provider icon. Should be an SVG image sized 800x800 pixels for best rendering experience.
-
-* **`metadata`**
-
-  `object` — Custom key-value metadata for this provider. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
-
-* **`proxy_enabled`**
-
-  `boolean` — This flag indicates whether proxying is turned on for the connected app provider. When enabled, requests are routed through the provider proxy instead of being sent directly.
-
-* **`proxy_url`**
-
-  `string` — Proxy URL for the connected app provider. Must start with https\://
+  `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
 
 **Example:**
 
 ```json
 {
-  "auth_patterns": [
-    {}
-  ],
-  "description": "Connect to Google Workspace for email and calendar integration",
-  "display_name": "Google Workspace",
-  "icon_src": "https://example.com/images/my-connector.svg",
-  "metadata": {
-    "api_version": "v2",
-    "region": "us-east-1"
-  },
-  "proxy_enabled": true,
-  "proxy_url": "https://mcp.example.com/mcp"
-}
-```
-
-### Provider represents a connected app provider
-
-- **Type:**`object`
-
-* **`auth_patterns`**
-
-  `array`
-
-  **Items:**
-
-* **`categories`**
-
-  `array`
-
-  **Items:**
-
-  `string`
-
-* **`coming_soon`**
-
-  `boolean`
-
-* **`description`**
-
-  `string`
-
-* **`display_name`**
-
-  `string`
-
-* **`display_priority`**
-
-  `integer`, format: `int32`
-
-* **`icon_src`**
-
-  `string`
-
-* **`id`**
-
-  `string`
-
-* **`identifier`**
-
-  `string`
-
-* **`is_custom`**
-
-  `boolean` — Indicates whether the provider is environment-scoped (custom provider)
-
-* **`is_custom_mcp`**
-
-  `boolean` — Indicates whether this is an environment-scoped MCP-based custom provider
-
-* **`metadata`**
-
-  `object` — Custom key-value metadata stored for this provider. Returned for all providers; defaults to {} when no metadata has been set.
-
-* **`proxy_enabled`**
-
-  `boolean`
-
-* **`proxy_url`**
-
-  `string`
-
-**Example:**
-
-```json
-{
-  "auth_patterns": [
-    {}
-  ],
-  "categories": [
-    ""
-  ],
-  "coming_soon": true,
-  "description": "",
-  "display_name": "",
-  "display_priority": 1,
-  "icon_src": "",
-  "id": "",
-  "identifier": "",
-  "is_custom": false,
-  "is_custom_mcp": false,
-  "metadata": {
-    "api_version": "v2",
-    "region": "us-east-1"
-  },
-  "proxy_enabled": true,
-  "proxy_url": ""
-}
-```
-
-### providersCreateProviderResponse
-
-- **Type:**`object`
-
-* **`provider`**
-
-  `object`
-
-  - **`auth_patterns`**
-
-    `array`
-
-    **Items:**
-
-  - **`categories`**
-
-    `array`
-
-    **Items:**
-
-    `string`
-
-  - **`coming_soon`**
-
-    `boolean`
-
-  - **`description`**
-
-    `string`
-
-  - **`display_name`**
-
-    `string`
-
-  - **`display_priority`**
-
-    `integer`, format: `int32`
-
-  - **`icon_src`**
-
-    `string`
-
-  - **`id`**
-
-    `string`
-
-  - **`identifier`**
-
-    `string`
-
-  - **`is_custom`**
-
-    `boolean` — Indicates whether the provider is environment-scoped (custom provider)
-
-  - **`is_custom_mcp`**
-
-    `boolean` — Indicates whether this is an environment-scoped MCP-based custom provider
-
-  - **`metadata`**
-
-    `object` — Custom key-value metadata stored for this provider. Returned for all providers; defaults to {} when no metadata has been set.
-
-  - **`proxy_enabled`**
-
-    `boolean`
-
-  - **`proxy_url`**
-
-    `string`
-
-**Example:**
-
-```json
-{
-  "provider": {
-    "auth_patterns": [
-      {}
-    ],
-    "categories": [
-      ""
-    ],
-    "coming_soon": true,
-    "description": "",
-    "display_name": "",
-    "display_priority": 1,
-    "icon_src": "",
-    "id": "",
-    "identifier": "",
-    "is_custom": false,
-    "is_custom_mcp": false,
-    "metadata": {
-      "api_version": "v2",
-      "region": "us-east-1"
-    },
-    "proxy_enabled": true,
-    "proxy_url": ""
+  "details": {
+    "api_key": "sk_live_...",
+    "api_secret": "..."
   }
 }
 ```
 
-### v1providersUpdateCustomProvider
+### connected\_accountsTrustedIDPAuth
 
 - **Type:**`object`
 
-* **`auth_patterns`**
+Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
 
-  `array` — Authentication patterns for the connected app provider
+- **`access_key_id`**
 
-  **Items:**
+  `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
 
-* **`description`**
+- **`db_user`**
 
-  `string` — Description of the connected app provider
+  `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
 
-* **`display_name`**
+- **`expiry`**
 
-  `string` — Display name for the connected app provider
+  `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
 
-* **`icon_src`**
+- **`secret_access_key`**
 
-  `string` — URL for the provider icon. Should be an SVG image sized 800x800 pixels for best rendering experience.
+  `string` — Federated secret access key. Never returned in public API responses.
 
-* **`metadata`**
+- **`session_token`**
 
-  `object` — Custom key-value metadata for this provider. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
-
-* **`proxy_enabled`**
-
-  `boolean` — This flag indicates whether proxying is turned on for the connected app provider. When enabled, requests are routed through the provider proxy instead of being sent directly.
-
-* **`proxy_url`**
-
-  `string` — Proxy URL for the connected app provider. Must start with https\://
+  `string` — Federated session token. Never returned in public API responses.
 
 **Example:**
 
 ```json
 {
-  "auth_patterns": [
-    {}
-  ],
-  "description": "Connect to Google Workspace for email and calendar integration",
-  "display_name": "Google Workspace",
-  "icon_src": "https://example.com/images/my-connector.svg",
-  "metadata": {
-    "api_version": "v2",
-    "region": "us-east-1"
-  },
-  "proxy_enabled": true,
-  "proxy_url": "https://mcp.example.com/mcp"
+  "access_key_id": "ASIA...",
+  "db_user": "analytics_reader",
+  "expiry": "",
+  "secret_access_key": "",
+  "session_token": ""
 }
 ```
 
-### providersUpdateProviderResponse
+### connected\_accountsUpdateConnectedAccountRequest
+
+- **Type:**`object`
+
+* **`connected_account`**
+
+  `object` — Details of the connected account to update
+
+  - **`api_config`**
+
+    `object` — Updated JSON configuration for API-specific settings. Merges with existing configuration - only provided fields are modified.
+
+  - **`authorization_details`**
+
+    `object` — Updated authentication credentials. Provide new OAuth tokens (e.g., after refresh) or updated static auth details. Only included fields will be modified.
+
+    - **`google_dwd`**
+
+      `object` — Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connections. Send only subject in requests; access\_token, scopes, and token\_expires\_at are response-only.
+
+      - **`access_token`**
+
+        `string` — OAuth access token acquired via the jwt-bearer grant. Present in responses only.
+
+      - **`scopes`**
+
+        `array` — OAuth scopes granted to this token. Present in responses only.
+
+        **Items:**
+
+        `string`
+
+      - **`subject`**
+
+        `string` — Email address of the Google Workspace user to impersonate via Domain-Wide Delegation.
+
+      - **`token_expires_at`**
+
+        `string`, format: `date-time` — When the access token expires. Present in responses only.
+
+    - **`oauth_token`**
+
+      `object`
+
+      - **`access_token`**
+
+        `string` — OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
+
+      - **`domain`**
+
+        `string` — Associated domain for workspace or organization-scoped OAuth connections (e.g., Google Workspace domain).
+
+      - **`refresh_token`**
+
+        `string` — OAuth refresh token for obtaining new access tokens. Long-lived and used to maintain persistent authorization.
+
+      - **`scopes`**
+
+        `array` — List of granted OAuth scopes defining the permissions and access levels for this connection.
+
+        **Items:**
+
+        `string`
+
+    - **`static_auth`**
+
+      `object`
+
+      - **`details`**
+
+        `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
+
+    - **`trusted_idp`**
+
+      `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+      - **`access_key_id`**
+
+        `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+      - **`db_user`**
+
+        `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+      - **`expiry`**
+
+        `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+      - **`secret_access_key`**
+
+        `string` — Federated secret access key. Never returned in public API responses.
+
+      - **`session_token`**
+
+        `string` — Federated session token. Never returned in public API responses.
+
+* **`connector`**
+
+  `string` — Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.
+
+* **`id`**
+
+  `string` — Unique identifier for the connected account to update
+
+* **`identifier`**
+
+  `string` — The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).
+
+* **`organization_id`**
+
+  `string` — Organization ID for the connector
+
+* **`user_id`**
+
+  `string` — User ID for the connector
+
+**Example:**
+
+```json
+{
+  "connected_account": {
+    "authorization_details": {
+      "oauth_token": {
+        "access_token": "...",
+        "refresh_token": "...",
+        "scopes": [
+          "read",
+          "write"
+        ]
+      }
+    },
+    "authorization_type": "OAUTH2"
+  },
+  "connector": "notion",
+  "id": "ca_123",
+  "identifier": "user@example.com",
+  "organization_id": "org_121312434123312",
+  "user_id": "user_121312434123312"
+}
+```
+
+### connected\_accountsUpdateConnectedAccountResponse
+
+- **Type:**`object`
+
+* **`connected_account`**
+
+  `object` — The updated connected account with refreshed credentials, new token expiry, and modified configuration settings.
+
+  - **`api_config`**
+
+    `object` — Optional JSON configuration for connector-specific API settings such as rate limits, custom endpoints, or feature flags.
+
+  - **`authorization_details`**
+
+    `object` — Sensitive authentication credentials including access tokens, refresh tokens, and scopes. Contains either OAuth tokens or static auth details.
+
+    - **`google_dwd`**
+
+      `object` — Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connections. Send only subject in requests; access\_token, scopes, and token\_expires\_at are response-only.
+
+      - **`access_token`**
+
+        `string` — OAuth access token acquired via the jwt-bearer grant. Present in responses only.
+
+      - **`scopes`**
+
+        `array` — OAuth scopes granted to this token. Present in responses only.
+
+        **Items:**
+
+        `string`
+
+      - **`subject`**
+
+        `string` — Email address of the Google Workspace user to impersonate via Domain-Wide Delegation.
+
+      - **`token_expires_at`**
+
+        `string`, format: `date-time` — When the access token expires. Present in responses only.
+
+    - **`oauth_token`**
+
+      `object`
+
+      - **`access_token`**
+
+        `string` — OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
+
+      - **`domain`**
+
+        `string` — Associated domain for workspace or organization-scoped OAuth connections (e.g., Google Workspace domain).
+
+      - **`refresh_token`**
+
+        `string` — OAuth refresh token for obtaining new access tokens. Long-lived and used to maintain persistent authorization.
+
+      - **`scopes`**
+
+        `array` — List of granted OAuth scopes defining the permissions and access levels for this connection.
+
+        **Items:**
+
+        `string`
+
+    - **`static_auth`**
+
+      `object`
+
+      - **`details`**
+
+        `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
+
+    - **`trusted_idp`**
+
+      `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+      - **`access_key_id`**
+
+        `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+      - **`db_user`**
+
+        `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+      - **`expiry`**
+
+        `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+      - **`secret_access_key`**
+
+        `string` — Federated secret access key. Never returned in public API responses.
+
+      - **`session_token`**
+
+        `string` — Federated session token. Never returned in public API responses.
+
+  - **`authorization_type`**
+
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+
+  - **`connection_id`**
+
+    `string` — Reference to the parent connection configuration. Links this account to a specific connector setup in your environment.
+
+  - **`connector`**
+
+    `string` — Connector identifier (e.g., 'notion', 'slack', 'salesforce'). Indicates which third-party application this account connects to.
+
+  - **`id`**
+
+    `string` — Unique Scalekit-generated identifier for this connected account. Always prefixed with 'ca\_'.
+
+  - **`identifier`**
+
+    `string` — The unique identifier for this account in the third-party service. Typically an email address, user ID, or workspace identifier.
+
+  - **`last_used_at`**
+
+    `string`, format: `date-time` — Timestamp when this connected account was last used to make an API call. Useful for tracking active connections.
+
+  - **`provider`**
+
+    `string` — OAuth provider name (e.g., 'google', 'microsoft', 'github'). Identifies which authentication service manages this connection.
+
+  - **`status`**
+
+    `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — Current status of the connected account. Indicates if the account is active, expired, pending authorization, or pending user identity verification.
+
+  - **`token_expires_at`**
+
+    `string`, format: `date-time` — Expiration timestamp for the access token. After this time, the token must be refreshed or re-authorized.
+
+  - **`updated_at`**
+
+    `string`, format: `date-time` — Timestamp when this connected account was last modified. Updated whenever credentials or configuration changes.
+
+**Example:**
+
+```json
+{
+  "connected_account": {
+    "api_config": {
+      "base_url": "https://api.custom-domain.com",
+      "rate_limit": 1000,
+      "timeout": 30
+    },
+    "authorization_details": null,
+    "authorization_type": null,
+    "connection_id": "conn_24834495392086178",
+    "connector": "notion",
+    "id": "ca_24834495392086178",
+    "identifier": "user@example.com",
+    "last_used_at": "2024-03-20T14:30:00Z",
+    "provider": "google",
+    "status": null,
+    "token_expires_at": "2024-12-31T23:59:59Z",
+    "updated_at": "2024-03-20T15:04:05Z"
+  }
+}
+```
+
+### connected\_accountsVerifyConnectedAccountUserRequest
+
+- **Type:**`object`
+
+* **`auth_request_id` (required)**
+
+  `string` — Auth request ID as base64url-encoded opaque token from the user verify redirect URL query params
+
+* **`identifier` (required)**
+
+  `string` — Current logged in user's connected account identifier
+
+**Example:**
+
+```json
+{
+  "auth_request_id": "QVNDSUFyY2hhYml0dGVyXzE2ODQ5NzIwNzI0NTY=",
+  "identifier": "user@example.com"
+}
+```
+
+### connected\_accountsVerifyConnectedAccountUserResponse
+
+- **Type:**`object`
+
+* **`post_user_verify_redirect_url`**
+
+  `string` — URL to redirect the user to after successful verification
+
+**Example:**
+
+```json
+{
+  "post_user_verify_redirect_url": "https://env1.example.com/connect/success"
+}
+```
+
+### mcpCreateMcpConfigResponse
+
+- **Type:**`object`
+
+* **`config`**
+
+  `object` — The created MCP configuration
+
+  - **`connection_tool_mappings`**
+
+    `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
+
+    **Items:**
+
+    - **`connected_account_id`**
+
+      `string` — Connected account backing this connection in the MCP instance context
+
+    - **`connected_account_status`**
+
+      `string` — Authentication status for the connected account
+
+    - **`connection_id`**
+
+      `string` — Unique ID of the connection
+
+    - **`connection_name`**
+
+      `string` — Developer-assigned connection name
+
+    - **`provider`**
+
+      `string` — Provider name for this connection
+
+    - **`tools`**
+
+      `array` — List of tool names linked to this connection (empty = all tools)
+
+      **Items:**
+
+      `string`
+
+  - **`description`**
+
+    `string` — Description of the MCP configuration
+
+  - **`id`**
+
+    `string` — Unique ID of the MCP config
+
+  - **`mcp_server_url`**
+
+    `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
+  - **`name`**
+
+    `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
+
+**Example:**
+
+```json
+{
+  "config": {
+    "connection_tool_mappings": [
+      {}
+    ],
+    "description": "Summarizes daily emails and posts to Slack",
+    "id": "cfg_85630864460904897",
+    "mcp_server_url": "https://env.scalekit.com/mcp/v3/servers/550e8400-e29b-41d4-a716-446655440000",
+    "name": "daily-summarizer"
+  }
+}
+```
+
+### mcpCreateMcpSessionTokenResponse
+
+- **Type:**`object`
+
+* **`expires_at`**
+
+  `string`, format: `date-time` — Absolute time at which the token expires. Equals issued\_at + expiry.
+
+* **`token`**
+
+  `string` — Signed JWT (RS256) whose \`sub\` claim is the supplied identifier and whose \`aud\` claim is the MCP server URL bound to the configuration. Payload also carries the MCP configuration ID (\`mcp\_cfg\`) and the resolved connected-account IDs (\`ca\_ids\`). Signed with the calling environment's active JWT signing key.
+
+**Example:**
+
+```json
+{
+  "expires_at": "",
+  "token": "eyJhbGciOiJSUzI1NiIsImtpZCI6InNua18xMjMifQ.eyJhdWQiOlsiYWxpY2VAYWNtZS5jb20iXSwidG9rZW5fdHlwZSI6Im1jcF9zZXNzaW9uIn0.signature"
+}
+```
+
+### mcpGetMcpConfigResponse
+
+- **Type:**`object`
+
+* **`config`**
+
+  `object` — The requested MCP configuration
+
+  - **`connection_tool_mappings`**
+
+    `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
+
+    **Items:**
+
+    - **`connected_account_id`**
+
+      `string` — Connected account backing this connection in the MCP instance context
+
+    - **`connected_account_status`**
+
+      `string` — Authentication status for the connected account
+
+    - **`connection_id`**
+
+      `string` — Unique ID of the connection
+
+    - **`connection_name`**
+
+      `string` — Developer-assigned connection name
+
+    - **`provider`**
+
+      `string` — Provider name for this connection
+
+    - **`tools`**
+
+      `array` — List of tool names linked to this connection (empty = all tools)
+
+      **Items:**
+
+      `string`
+
+  - **`description`**
+
+    `string` — Description of the MCP configuration
+
+  - **`id`**
+
+    `string` — Unique ID of the MCP config
+
+  - **`mcp_server_url`**
+
+    `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
+  - **`name`**
+
+    `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
+
+**Example:**
+
+```json
+{
+  "config": {
+    "connection_tool_mappings": [
+      {}
+    ],
+    "description": "Summarizes daily emails and posts to Slack",
+    "id": "cfg_85630864460904897",
+    "mcp_server_url": "https://env.scalekit.com/mcp/v3/servers/550e8400-e29b-41d4-a716-446655440000",
+    "name": "daily-summarizer"
+  }
+}
+```
+
+### mcpListMcpConfigsResponse
+
+- **Type:**`object`
+
+* **`configs`**
+
+  `array` — List of MCP configurations
+
+  **Items:**
+
+  - **`connection_tool_mappings`**
+
+    `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
+
+    **Items:**
+
+    - **`connected_account_id`**
+
+      `string` — Connected account backing this connection in the MCP instance context
+
+    - **`connected_account_status`**
+
+      `string` — Authentication status for the connected account
+
+    - **`connection_id`**
+
+      `string` — Unique ID of the connection
+
+    - **`connection_name`**
+
+      `string` — Developer-assigned connection name
+
+    - **`provider`**
+
+      `string` — Provider name for this connection
+
+    - **`tools`**
+
+      `array` — List of tool names linked to this connection (empty = all tools)
+
+      **Items:**
+
+      `string`
+
+  - **`description`**
+
+    `string` — Description of the MCP configuration
+
+  - **`id`**
+
+    `string` — Unique ID of the MCP config
+
+  - **`mcp_server_url`**
+
+    `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
+  - **`name`**
+
+    `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
+
+* **`next_page_token`**
+
+  `string` — Pagination token to fetch the next page
+
+* **`prev_page_token`**
+
+  `string` — Pagination token to fetch the previous page
+
+* **`total_size`**
+
+  `integer`, format: `int64` — Total number of configs matching the filter
+
+**Example:**
+
+```json
+{
+  "configs": [
+    {
+      "connection_tool_mappings": [
+        {}
+      ],
+      "description": "Summarizes daily emails and posts to Slack",
+      "id": "cfg_85630864460904897",
+      "mcp_server_url": "https://env.scalekit.com/mcp/v3/servers/550e8400-e29b-41d4-a716-446655440000",
+      "name": "daily-summarizer"
+    }
+  ],
+  "next_page_token": "",
+  "prev_page_token": "",
+  "total_size": 1
+}
+```
+
+### mcpListMcpConnectedAccountsResponse
+
+- **Type:**`object`
+
+* **`connected_accounts`**
+
+  `array` — Connected account state for each connection in the configuration
+
+  **Items:**
+
+  - **`authentication_link`**
+
+    `string` — Fresh authentication link for the connected account. Empty when include\_auth\_link is false or when the connection has no associated key.
+
+  - **`connected_account_id`**
+
+    `string` — ID of the connected account for this user and connection
+
+  - **`connected_account_status`**
+
+    `string` — Authentication status of the connected account
+
+  - **`connection_id`**
+
+    `string` — ID of the connection
+
+  - **`connection_name`**
+
+    `string` — Name of the connection
+
+  - **`provider`**
+
+    `string` — Provider identifier for the connection
+
+**Example:**
+
+```json
+{
+  "connected_accounts": [
+    {
+      "authentication_link": "",
+      "connected_account_id": "",
+      "connected_account_status": "",
+      "connection_id": "",
+      "connection_name": "",
+      "provider": ""
+    }
+  ]
+}
+```
+
+### mcpMcpConfig
+
+- **Type:**`object`
+
+* **`connection_tool_mappings`**
+
+  `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
+
+  **Items:**
+
+  - **`connected_account_id`**
+
+    `string` — Connected account backing this connection in the MCP instance context
+
+  - **`connected_account_status`**
+
+    `string` — Authentication status for the connected account
+
+  - **`connection_id`**
+
+    `string` — Unique ID of the connection
+
+  - **`connection_name`**
+
+    `string` — Developer-assigned connection name
+
+  - **`provider`**
+
+    `string` — Provider name for this connection
+
+  - **`tools`**
+
+    `array` — List of tool names linked to this connection (empty = all tools)
+
+    **Items:**
+
+    `string`
+
+* **`description`**
+
+  `string` — Description of the MCP configuration
+
+* **`id`**
+
+  `string` — Unique ID of the MCP config
+
+* **`mcp_server_url`**
+
+  `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
+* **`name`**
+
+  `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
+
+**Example:**
+
+```json
+{
+  "connection_tool_mappings": [
+    {
+      "connected_account_id": "",
+      "connected_account_status": "",
+      "connection_id": "",
+      "connection_name": "",
+      "provider": "",
+      "tools": [
+        ""
+      ]
+    }
+  ],
+  "description": "Summarizes daily emails and posts to Slack",
+  "id": "cfg_85630864460904897",
+  "mcp_server_url": "https://env.scalekit.com/mcp/v3/servers/550e8400-e29b-41d4-a716-446655440000",
+  "name": "daily-summarizer"
+}
+```
+
+### mcpMcpConfigConnectionToolMapping
+
+- **Type:**`object`
+
+* **`connected_account_id`**
+
+  `string` — Connected account backing this connection in the MCP instance context
+
+* **`connected_account_status`**
+
+  `string` — Authentication status for the connected account
+
+* **`connection_id`**
+
+  `string` — Unique ID of the connection
+
+* **`connection_name`**
+
+  `string` — Developer-assigned connection name
+
+* **`provider`**
+
+  `string` — Provider name for this connection
+
+* **`tools`**
+
+  `array` — List of tool names linked to this connection (empty = all tools)
+
+  **Items:**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "connected_account_id": "",
+  "connected_account_status": "",
+  "connection_id": "",
+  "connection_name": "",
+  "provider": "",
+  "tools": [
+    ""
+  ]
+}
+```
+
+### mcpMcpConnectionAuthState
+
+- **Type:**`object`
+
+* **`authentication_link`**
+
+  `string` — Fresh authentication link for the connected account. Empty when include\_auth\_link is false or when the connection has no associated key.
+
+* **`connected_account_id`**
+
+  `string` — ID of the connected account for this user and connection
+
+* **`connected_account_status`**
+
+  `string` — Authentication status of the connected account
+
+* **`connection_id`**
+
+  `string` — ID of the connection
+
+* **`connection_name`**
+
+  `string` — Name of the connection
+
+* **`provider`**
+
+  `string` — Provider identifier for the connection
+
+**Example:**
+
+```json
+{
+  "authentication_link": "",
+  "connected_account_id": "",
+  "connected_account_status": "",
+  "connection_id": "",
+  "connection_name": "",
+  "provider": ""
+}
+```
+
+### mcpUpdateMcpConfigResponse
+
+- **Type:**`object`
+
+* **`config`**
+
+  `object` — The updated MCP configuration
+
+  - **`connection_tool_mappings`**
+
+    `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
+
+    **Items:**
+
+    - **`connected_account_id`**
+
+      `string` — Connected account backing this connection in the MCP instance context
+
+    - **`connected_account_status`**
+
+      `string` — Authentication status for the connected account
+
+    - **`connection_id`**
+
+      `string` — Unique ID of the connection
+
+    - **`connection_name`**
+
+      `string` — Developer-assigned connection name
+
+    - **`provider`**
+
+      `string` — Provider name for this connection
+
+    - **`tools`**
+
+      `array` — List of tool names linked to this connection (empty = all tools)
+
+      **Items:**
+
+      `string`
+
+  - **`description`**
+
+    `string` — Description of the MCP configuration
+
+  - **`id`**
+
+    `string` — Unique ID of the MCP config
+
+  - **`mcp_server_url`**
+
+    `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
+  - **`name`**
+
+    `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
+
+**Example:**
+
+```json
+{
+  "config": {
+    "connection_tool_mappings": [
+      {}
+    ],
+    "description": "Summarizes daily emails and posts to Slack",
+    "id": "cfg_85630864460904897",
+    "mcp_server_url": "https://env.scalekit.com/mcp/v3/servers/550e8400-e29b-41d4-a716-446655440000",
+    "name": "daily-summarizer"
+  }
+}
+```
+
+### providersCreateProviderResponse
 
 - **Type:**`object`
 
@@ -5936,6 +5390,200 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 {}
 ```
 
+### Provider represents a connected app provider
+
+- **Type:**`object`
+
+* **`auth_patterns`**
+
+  `array`
+
+  **Items:**
+
+* **`categories`**
+
+  `array`
+
+  **Items:**
+
+  `string`
+
+* **`coming_soon`**
+
+  `boolean`
+
+* **`description`**
+
+  `string`
+
+* **`display_name`**
+
+  `string`
+
+* **`display_priority`**
+
+  `integer`, format: `int32`
+
+* **`icon_src`**
+
+  `string`
+
+* **`id`**
+
+  `string`
+
+* **`identifier`**
+
+  `string`
+
+* **`is_custom`**
+
+  `boolean` — Indicates whether the provider is environment-scoped (custom provider)
+
+* **`is_custom_mcp`**
+
+  `boolean` — Indicates whether this is an environment-scoped MCP-based custom provider
+
+* **`metadata`**
+
+  `object` — Custom key-value metadata stored for this provider. Returned for all providers; defaults to {} when no metadata has been set.
+
+* **`proxy_enabled`**
+
+  `boolean`
+
+* **`proxy_url`**
+
+  `string`
+
+**Example:**
+
+```json
+{
+  "auth_patterns": [
+    {}
+  ],
+  "categories": [
+    ""
+  ],
+  "coming_soon": true,
+  "description": "",
+  "display_name": "",
+  "display_priority": 1,
+  "icon_src": "",
+  "id": "",
+  "identifier": "",
+  "is_custom": false,
+  "is_custom_mcp": false,
+  "metadata": {
+    "api_version": "v2",
+    "region": "us-east-1"
+  },
+  "proxy_enabled": true,
+  "proxy_url": ""
+}
+```
+
+### providersUpdateProviderResponse
+
+- **Type:**`object`
+
+* **`provider`**
+
+  `object`
+
+  - **`auth_patterns`**
+
+    `array`
+
+    **Items:**
+
+  - **`categories`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+  - **`coming_soon`**
+
+    `boolean`
+
+  - **`description`**
+
+    `string`
+
+  - **`display_name`**
+
+    `string`
+
+  - **`display_priority`**
+
+    `integer`, format: `int32`
+
+  - **`icon_src`**
+
+    `string`
+
+  - **`id`**
+
+    `string`
+
+  - **`identifier`**
+
+    `string`
+
+  - **`is_custom`**
+
+    `boolean` — Indicates whether the provider is environment-scoped (custom provider)
+
+  - **`is_custom_mcp`**
+
+    `boolean` — Indicates whether this is an environment-scoped MCP-based custom provider
+
+  - **`metadata`**
+
+    `object` — Custom key-value metadata stored for this provider. Returned for all providers; defaults to {} when no metadata has been set.
+
+  - **`proxy_enabled`**
+
+    `boolean`
+
+  - **`proxy_url`**
+
+    `string`
+
+**Example:**
+
+```json
+{
+  "provider": {
+    "auth_patterns": [
+      {}
+    ],
+    "categories": [
+      ""
+    ],
+    "coming_soon": true,
+    "description": "",
+    "display_name": "",
+    "display_priority": 1,
+    "icon_src": "",
+    "id": "",
+    "identifier": "",
+    "is_custom": false,
+    "is_custom_mcp": false,
+    "metadata": {
+      "api_version": "v2",
+      "region": "us-east-1"
+    },
+    "proxy_enabled": true,
+    "proxy_url": ""
+  }
+}
+```
+
 ### toolsExecuteToolRequest
 
 - **Type:**`object`
@@ -6016,1534 +5664,337 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 }
 ```
 
-### mcpToolMapping
+### Payload for creating a new connected account - authorization details are optional
 
 - **Type:**`object`
 
-* **`connection_name`**
+* **`api_config`**
 
-  `string` — Connection name for the tool
+  `object` — Optional JSON configuration for connector-specific API settings such as rate limits, custom API endpoints, timeouts, or feature flags.
 
-* **`status`**
+* **`authorization_details`**
 
-  `string` — Authentication status of the tool
+  `object` — Optional authentication credentials for the connected account. Include OAuth tokens (access\_token, refresh\_token, scopes) or static auth details (API keys, bearer tokens). Can be provided later via update.
 
-* **`tool_names`**
+  - **`google_dwd`**
 
-  `array` — List of tool names
+    `object` — Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connections. Send only subject in requests; access\_token, scopes, and token\_expires\_at are response-only.
 
-  **Items:**
+    - **`access_token`**
 
-  `string`
+      `string` — OAuth access token acquired via the jwt-bearer grant. Present in responses only.
 
-**Example:**
+    - **`scopes`**
 
-```json
-{
-  "connection_name": "MY-GMAIL",
-  "status": "ACTIVE",
-  "tool_names": [
-    "GMAIL_FETCH_MAILS",
-    "LIST_DRAFTS"
-  ]
-}
-```
-
-### mcpMcp
-
-- **Type:**`object`
-
-* **`connected_account_identifier`**
-
-  `string` — Identifier for the connected account
-
-* **`id`**
-
-  `string` — Unique ID of the tool
-
-* **`tool_mappings`**
-
-  `array` — Provider name (e.g. GOOGLE)
-
-  **Items:**
-
-  - **`connection_name`**
-
-    `string` — Connection name for the tool
-
-  - **`status`**
-
-    `string` — Authentication status of the tool
-
-  - **`tool_names`**
-
-    `array` — List of tool names
-
-    **Items:**
-
-    `string`
-
-* **`url`**
-
-  `string` — Unique ID of the tool
-
-**Example:**
-
-```json
-{
-  "connected_account_identifier": "account_123",
-  "id": "res_123",
-  "tool_mappings": "GOOGLE",
-  "url": "https://example.com/mcp/v1/abc"
-}
-```
-
-### mcpListMcpResponse
-
-- **Type:**`object`
-
-* **`mcps`**
-
-  `array` — List of MCPs
-
-  **Items:**
-
-  - **`connected_account_identifier`**
-
-    `string` — Identifier for the connected account
-
-  - **`id`**
-
-    `string` — Unique ID of the tool
-
-  - **`tool_mappings`**
-
-    `array` — Provider name (e.g. GOOGLE)
-
-    **Items:**
-
-    - **`connection_name`**
-
-      `string` — Connection name for the tool
-
-    - **`status`**
-
-      `string` — Authentication status of the tool
-
-    - **`tool_names`**
-
-      `array` — List of tool names
+      `array` — OAuth scopes granted to this token. Present in responses only.
 
       **Items:**
 
       `string`
 
-  - **`url`**
+    - **`subject`**
 
-    `string` — Unique ID of the tool
+      `string` — Email address of the Google Workspace user to impersonate via Domain-Wide Delegation.
 
-**Example:**
+    - **`token_expires_at`**
 
-```json
-{
-  "mcps": [
-    {
-      "connected_account_identifier": "account_123",
-      "id": "res_123",
-      "tool_mappings": "GOOGLE",
-      "url": "https://example.com/mcp/v1/abc"
-    }
-  ]
-}
-```
+      `string`, format: `date-time` — When the access token expires. Present in responses only.
 
-### mcpCreateMcpResponse
+  - **`oauth_token`**
 
-- **Type:**`object`
+    `object`
 
-* **`mcp`**
+    - **`access_token`**
 
-  `object` — The MCP server details
+      `string` — OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
 
-  - **`connected_account_identifier`**
+    - **`domain`**
 
-    `string` — Identifier for the connected account
+      `string` — Associated domain for workspace or organization-scoped OAuth connections (e.g., Google Workspace domain).
 
-  - **`id`**
+    - **`refresh_token`**
 
-    `string` — Unique ID of the tool
+      `string` — OAuth refresh token for obtaining new access tokens. Long-lived and used to maintain persistent authorization.
 
-  - **`tool_mappings`**
+    - **`scopes`**
 
-    `array` — Provider name (e.g. GOOGLE)
-
-    **Items:**
-
-    - **`connection_name`**
-
-      `string` — Connection name for the tool
-
-    - **`status`**
-
-      `string` — Authentication status of the tool
-
-    - **`tool_names`**
-
-      `array` — List of tool names
+      `array` — List of granted OAuth scopes defining the permissions and access levels for this connection.
 
       **Items:**
 
       `string`
 
-  - **`url`**
+  - **`static_auth`**
 
-    `string` — Unique ID of the tool
+    `object`
 
-**Example:**
+    - **`details`**
 
-```json
-{
-  "mcp": {
-    "connected_account_identifier": "account_123",
-    "id": "res_123",
-    "tool_mappings": "GOOGLE",
-    "url": "https://example.com/mcp/v1/abc"
-  }
-}
-```
+      `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
 
-### mcpGetMcpResponse
+  - **`trusted_idp`**
 
-- **Type:**`object`
+    `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
 
-* **`mcp`**
+    - **`access_key_id`**
 
-  `object` — The MCP details
+      `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
 
-  - **`connected_account_identifier`**
+    - **`db_user`**
 
-    `string` — Identifier for the connected account
+      `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
 
-  - **`id`**
+    - **`expiry`**
 
-    `string` — Unique ID of the tool
+      `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
 
-  - **`tool_mappings`**
+    - **`secret_access_key`**
 
-    `array` — Provider name (e.g. GOOGLE)
+      `string` — Federated secret access key. Never returned in public API responses.
 
-    **Items:**
+    - **`session_token`**
 
-    - **`connection_name`**
-
-      `string` — Connection name for the tool
-
-    - **`status`**
-
-      `string` — Authentication status of the tool
-
-    - **`tool_names`**
-
-      `array` — List of tool names
-
-      **Items:**
-
-      `string`
-
-  - **`url`**
-
-    `string` — Unique ID of the tool
+      `string` — Federated session token. Never returned in public API responses.
 
 **Example:**
 
 ```json
 {
-  "mcp": {
-    "connected_account_identifier": "account_123",
-    "id": "res_123",
-    "tool_mappings": "GOOGLE",
-    "url": "https://example.com/mcp/v1/abc"
-  }
-}
-```
-
-### mcpMcpConfigConnectionToolMapping
-
-- **Type:**`object`
-
-* **`connected_account_id`**
-
-  `string` — Connected account backing this connection in the MCP instance context
-
-* **`connected_account_status`**
-
-  `string` — Authentication status for the connected account
-
-* **`connection_id`**
-
-  `string` — Unique ID of the connection
-
-* **`connection_name`**
-
-  `string` — Developer-assigned connection name
-
-* **`provider`**
-
-  `string` — Provider name for this connection
-
-* **`tools`**
-
-  `array` — List of tool names linked to this connection (empty = all tools)
-
-  **Items:**
-
-  `string`
-
-**Example:**
-
-```json
-{
-  "connected_account_id": "",
-  "connected_account_status": "",
-  "connection_id": "",
-  "connection_name": "",
-  "provider": "",
-  "tools": [
-    ""
-  ]
-}
-```
-
-### mcpMcpConfig
-
-- **Type:**`object`
-
-* **`connection_tool_mappings`**
-
-  `array` — List of connection-to-tool mappings for this MCP config
-
-  **Items:**
-
-  - **`connected_account_id`**
-
-    `string` — Connected account backing this connection in the MCP instance context
-
-  - **`connected_account_status`**
-
-    `string` — Authentication status for the connected account
-
-  - **`connection_id`**
-
-    `string` — Unique ID of the connection
-
-  - **`connection_name`**
-
-    `string` — Developer-assigned connection name
-
-  - **`provider`**
-
-    `string` — Provider name for this connection
-
-  - **`tools`**
-
-    `array` — List of tool names linked to this connection (empty = all tools)
-
-    **Items:**
-
-    `string`
-
-* **`description`**
-
-  `string` — Description of the MCP configuration
-
-* **`id`**
-
-  `string` — Unique ID of the MCP config
-
-* **`name`**
-
-  `string` — Unique name for the MCP configuration
-
-**Example:**
-
-```json
-{
-  "connection_tool_mappings": [
-    {
-      "connected_account_id": "",
-      "connected_account_status": "",
-      "connection_id": "",
-      "connection_name": "",
-      "provider": "",
-      "tools": [
-        ""
-      ]
-    }
-  ],
-  "description": "Summarizes daily emails and posts to Slack",
-  "id": "cfg_85630864460904897",
-  "name": "daily-summarizer"
-}
-```
-
-### mcpListMcpConfigsResponse
-
-- **Type:**`object`
-
-* **`configs`**
-
-  `array` — List of MCP configurations
-
-  **Items:**
-
-  - **`connection_tool_mappings`**
-
-    `array` — List of connection-to-tool mappings for this MCP config
-
-    **Items:**
-
-    - **`connected_account_id`**
-
-      `string` — Connected account backing this connection in the MCP instance context
-
-    - **`connected_account_status`**
-
-      `string` — Authentication status for the connected account
-
-    - **`connection_id`**
-
-      `string` — Unique ID of the connection
-
-    - **`connection_name`**
-
-      `string` — Developer-assigned connection name
-
-    - **`provider`**
-
-      `string` — Provider name for this connection
-
-    - **`tools`**
-
-      `array` — List of tool names linked to this connection (empty = all tools)
-
-      **Items:**
-
-      `string`
-
-  - **`description`**
-
-    `string` — Description of the MCP configuration
-
-  - **`id`**
-
-    `string` — Unique ID of the MCP config
-
-  - **`name`**
-
-    `string` — Unique name for the MCP configuration
-
-* **`next_page_token`**
-
-  `string` — Pagination token to fetch the next page
-
-* **`prev_page_token`**
-
-  `string` — Pagination token to fetch the previous page
-
-* **`total_size`**
-
-  `integer`, format: `int64` — Total number of configs matching the filter
-
-**Example:**
-
-```json
-{
-  "configs": [
-    {
-      "connection_tool_mappings": [
-        {}
-      ],
-      "description": "Summarizes daily emails and posts to Slack",
-      "id": "cfg_85630864460904897",
-      "name": "daily-summarizer"
-    }
-  ],
-  "next_page_token": "",
-  "prev_page_token": "",
-  "total_size": 1
-}
-```
-
-### mcpCreateMcpConfigResponse
-
-- **Type:**`object`
-
-* **`config`**
-
-  `object` — The created MCP configuration
-
-  - **`connection_tool_mappings`**
-
-    `array` — List of connection-to-tool mappings for this MCP config
-
-    **Items:**
-
-    - **`connected_account_id`**
-
-      `string` — Connected account backing this connection in the MCP instance context
-
-    - **`connected_account_status`**
-
-      `string` — Authentication status for the connected account
-
-    - **`connection_id`**
-
-      `string` — Unique ID of the connection
-
-    - **`connection_name`**
-
-      `string` — Developer-assigned connection name
-
-    - **`provider`**
-
-      `string` — Provider name for this connection
-
-    - **`tools`**
-
-      `array` — List of tool names linked to this connection (empty = all tools)
-
-      **Items:**
-
-      `string`
-
-  - **`description`**
-
-    `string` — Description of the MCP configuration
-
-  - **`id`**
-
-    `string` — Unique ID of the MCP config
-
-  - **`name`**
-
-    `string` — Unique name for the MCP configuration
-
-**Example:**
-
-```json
-{
-  "config": {
-    "connection_tool_mappings": [
-      {}
-    ],
-    "description": "Summarizes daily emails and posts to Slack",
-    "id": "cfg_85630864460904897",
-    "name": "daily-summarizer"
-  }
-}
-```
-
-### mcpGetMcpConfigResponse
-
-- **Type:**`object`
-
-* **`config`**
-
-  `object` — The requested MCP configuration
-
-  - **`connection_tool_mappings`**
-
-    `array` — List of connection-to-tool mappings for this MCP config
-
-    **Items:**
-
-    - **`connected_account_id`**
-
-      `string` — Connected account backing this connection in the MCP instance context
-
-    - **`connected_account_status`**
-
-      `string` — Authentication status for the connected account
-
-    - **`connection_id`**
-
-      `string` — Unique ID of the connection
-
-    - **`connection_name`**
-
-      `string` — Developer-assigned connection name
-
-    - **`provider`**
-
-      `string` — Provider name for this connection
-
-    - **`tools`**
-
-      `array` — List of tool names linked to this connection (empty = all tools)
-
-      **Items:**
-
-      `string`
-
-  - **`description`**
-
-    `string` — Description of the MCP configuration
-
-  - **`id`**
-
-    `string` — Unique ID of the MCP config
-
-  - **`name`**
-
-    `string` — Unique name for the MCP configuration
-
-**Example:**
-
-```json
-{
-  "config": {
-    "connection_tool_mappings": [
-      {}
-    ],
-    "description": "Summarizes daily emails and posts to Slack",
-    "id": "cfg_85630864460904897",
-    "name": "daily-summarizer"
-  }
-}
-```
-
-### McpServiceUpdateMcpConfigBody
-
-- **Type:**`object`
-
-* **`connection_tool_mappings`**
-
-  `array` — Updated list of connection-to-tool mappings for this MCP config
-
-  **Items:**
-
-  - **`connected_account_id`**
-
-    `string` — Connected account backing this connection in the MCP instance context
-
-  - **`connected_account_status`**
-
-    `string` — Authentication status for the connected account
-
-  - **`connection_id`**
-
-    `string` — Unique ID of the connection
-
-  - **`connection_name`**
-
-    `string` — Developer-assigned connection name
-
-  - **`provider`**
-
-    `string` — Provider name for this connection
-
-  - **`tools`**
-
-    `array` — List of tool names linked to this connection (empty = all tools)
-
-    **Items:**
-
-    `string`
-
-* **`description`**
-
-  `string` — Updated description for the MCP configuration
-
-**Example:**
-
-```json
-{
-  "connection_tool_mappings": [
-    {
-      "connected_account_id": "",
-      "connected_account_status": "",
-      "connection_id": "",
-      "connection_name": "",
-      "provider": "",
-      "tools": [
-        ""
-      ]
-    }
-  ],
-  "description": "Updated daily summarizer config"
-}
-```
-
-### mcpUpdateMcpConfigResponse
-
-- **Type:**`object`
-
-* **`config`**
-
-  `object` — The updated MCP configuration
-
-  - **`connection_tool_mappings`**
-
-    `array` — List of connection-to-tool mappings for this MCP config
-
-    **Items:**
-
-    - **`connected_account_id`**
-
-      `string` — Connected account backing this connection in the MCP instance context
-
-    - **`connected_account_status`**
-
-      `string` — Authentication status for the connected account
-
-    - **`connection_id`**
-
-      `string` — Unique ID of the connection
-
-    - **`connection_name`**
-
-      `string` — Developer-assigned connection name
-
-    - **`provider`**
-
-      `string` — Provider name for this connection
-
-    - **`tools`**
-
-      `array` — List of tool names linked to this connection (empty = all tools)
-
-      **Items:**
-
-      `string`
-
-  - **`description`**
-
-    `string` — Description of the MCP configuration
-
-  - **`id`**
-
-    `string` — Unique ID of the MCP config
-
-  - **`name`**
-
-    `string` — Unique name for the MCP configuration
-
-**Example:**
-
-```json
-{
-  "config": {
-    "connection_tool_mappings": [
-      {}
-    ],
-    "description": "Summarizes daily emails and posts to Slack",
-    "id": "cfg_85630864460904897",
-    "name": "daily-summarizer"
-  }
-}
-```
-
-### McpServiceListMcpConnectedAccountsBody
-
-- **Type:**`object`
-
-* **`identifier` (required)**
-
-  `string` — Identifier for the end user whose connected accounts to retrieve
-
-* **`include_auth_link`**
-
-  `boolean` — When true, generates a fresh authentication link for each connection and creates connected accounts if they do not exist. When false or omitted, returns existing connected account status without creating accounts or generating links.
-
-**Example:**
-
-```json
-{
-  "identifier": "john.doe@example.com",
-  "include_auth_link": true
-}
-```
-
-### mcpMcpConnectionAuthState
-
-- **Type:**`object`
-
-* **`authentication_link`**
-
-  `string` — Fresh authentication link for the connected account. Empty when include\_auth\_link is false or when the connection has no associated key.
-
-* **`connected_account_id`**
-
-  `string` — ID of the connected account for this user and connection
-
-* **`connected_account_status`**
-
-  `string` — Authentication status of the connected account
-
-* **`connection_id`**
-
-  `string` — ID of the connection
-
-* **`connection_name`**
-
-  `string` — Name of the connection
-
-* **`provider`**
-
-  `string` — Provider identifier for the connection
-
-**Example:**
-
-```json
-{
-  "authentication_link": "",
-  "connected_account_id": "",
-  "connected_account_status": "",
-  "connection_id": "",
-  "connection_name": "",
-  "provider": ""
-}
-```
-
-### mcpListMcpConnectedAccountsResponse
-
-- **Type:**`object`
-
-* **`connected_accounts`**
-
-  `array` — Connected account state for each connection in the configuration
-
-  **Items:**
-
-  - **`authentication_link`**
-
-    `string` — Fresh authentication link for the connected account. Empty when include\_auth\_link is false or when the connection has no associated key.
-
-  - **`connected_account_id`**
-
-    `string` — ID of the connected account for this user and connection
-
-  - **`connected_account_status`**
-
-    `string` — Authentication status of the connected account
-
-  - **`connection_id`**
-
-    `string` — ID of the connection
-
-  - **`connection_name`**
-
-    `string` — Name of the connection
-
-  - **`provider`**
-
-    `string` — Provider identifier for the connection
-
-**Example:**
-
-```json
-{
-  "connected_accounts": [
-    {
-      "authentication_link": "",
-      "connected_account_id": "",
-      "connected_account_status": "",
-      "connection_id": "",
-      "connection_name": "",
-      "provider": ""
-    }
-  ]
-}
-```
-
-### McpServiceCreateMcpSessionTokenBody
-
-- **Type:**`object`
-
-* **`identifier` (required)**
-
-  `string` — Upstream-provider identifier (typically the user's email or provider user-id) shared by the connected accounts the token represents. A single identifier can map to one connected account per connection in the MCP configuration.
-
-* **`expiry`**
-
-  `string` — Optional token lifetime. Must be between 60s and 24h. Defaults to 1h when omitted.
-
-**Example:**
-
-```json
-{
-  "expiry": "3600s",
-  "identifier": "alice@acme.com"
-}
-```
-
-### mcpCreateMcpSessionTokenResponse
-
-- **Type:**`object`
-
-* **`expires_at`**
-
-  `string`, format: `date-time` — Absolute time at which the token expires. Equals issued\_at + expiry.
-
-* **`token`**
-
-  `string` — Signed JWT (RS256) whose \`sub\` claim is the supplied identifier and whose \`aud\` claim is the MCP server URL bound to the configuration. Payload also carries the MCP configuration ID (\`mcp\_cfg\`) and the resolved connected-account IDs (\`ca\_ids\`). Signed with the calling environment's active JWT signing key.
-
-**Example:**
-
-```json
-{
-  "expires_at": "",
-  "token": "eyJhbGciOiJSUzI1NiIsImtpZCI6InNua18xMjMifQ.eyJhdWQiOlsiYWxpY2VAYWNtZS5jb20iXSwidG9rZW5fdHlwZSI6Im1jcF9zZXNzaW9uIn0.signature"
-}
-```
-
-### mcpMcpInstance
-
-- **Type:**`object`
-
-* **`config`**
-
-  `object` — Configuration backing this instance
-
-  - **`connection_tool_mappings`**
-
-    `array` — List of connection-to-tool mappings for this MCP config
-
-    **Items:**
-
-    - **`connected_account_id`**
-
-      `string` — Connected account backing this connection in the MCP instance context
-
-    - **`connected_account_status`**
-
-      `string` — Authentication status for the connected account
-
-    - **`connection_id`**
-
-      `string` — Unique ID of the connection
-
-    - **`connection_name`**
-
-      `string` — Developer-assigned connection name
-
-    - **`provider`**
-
-      `string` — Provider name for this connection
-
-    - **`tools`**
-
-      `array` — List of tool names linked to this connection (empty = all tools)
-
-      **Items:**
-
-      `string`
-
-  - **`description`**
-
-    `string` — Description of the MCP configuration
-
-  - **`id`**
-
-    `string` — Unique ID of the MCP config
-
-  - **`name`**
-
-    `string` — Unique name for the MCP configuration
-
-* **`id`**
-
-  `string` — Unique ID of the MCP instance
-
-* **`last_used_at`**
-
-  `string`, format: `date-time` — Timestamp when the instance was last used
-
-* **`name`**
-
-  `string` — Display name of the instance
-
-* **`updated_at`**
-
-  `string`, format: `date-time` — Timestamp when the instance was last updated
-
-* **`url`**
-
-  `string` — URL to reach the MCP instance
-
-* **`user_identifier`**
-
-  `string` — Identifier for the user who owns or uses this instance
-
-**Example:**
-
-```json
-{
-  "config": {
-    "connection_tool_mappings": [
-      {}
-    ],
-    "description": "Summarizes daily emails and posts to Slack",
-    "id": "cfg_85630864460904897",
-    "name": "daily-summarizer"
+  "api_config": {
+    "base_url": "https://api.custom-domain.com",
+    "rate_limit": 1000,
+    "timeout": 30
   },
-  "id": "inst_88630864544790977",
-  "last_used_at": "0001-01-01T00:00:00Z",
-  "name": "daily-digest",
-  "updated_at": "2025-10-07T12:21:00Z",
-  "url": "https://example.com/mcp/v1/abc123",
-  "user_identifier": "akshay.parihar"
+  "authorization_details": {
+    "oauth_token": {
+      "access_token": "ya29.a0...",
+      "refresh_token": "1//0g...",
+      "scopes": [
+        "email",
+        "profile"
+      ]
+    }
+  }
 }
 ```
 
-### mcpListMcpInstancesResponse
+### Payload for updating an existing connected account - all fields optional
 
 - **Type:**`object`
 
-* **`instances`**
+* **`api_config`**
 
-  `array` — List of MCP instances
+  `object` — Updated JSON configuration for API-specific settings. Merges with existing configuration - only provided fields are modified.
 
-  **Items:**
+* **`authorization_details`**
 
-  - **`config`**
+  `object` — Updated authentication credentials. Provide new OAuth tokens (e.g., after refresh) or updated static auth details. Only included fields will be modified.
 
-    `object` — Configuration backing this instance
+  - **`google_dwd`**
 
-    - **`connection_tool_mappings`**
+    `object` — Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connections. Send only subject in requests; access\_token, scopes, and token\_expires\_at are response-only.
 
-      `array` — List of connection-to-tool mappings for this MCP config
+    - **`access_token`**
+
+      `string` — OAuth access token acquired via the jwt-bearer grant. Present in responses only.
+
+    - **`scopes`**
+
+      `array` — OAuth scopes granted to this token. Present in responses only.
 
       **Items:**
 
-      - **`connected_account_id`**
+      `string`
 
-        `string` — Connected account backing this connection in the MCP instance context
+    - **`subject`**
 
-      - **`connected_account_status`**
+      `string` — Email address of the Google Workspace user to impersonate via Domain-Wide Delegation.
 
-        `string` — Authentication status for the connected account
+    - **`token_expires_at`**
 
-      - **`connection_id`**
+      `string`, format: `date-time` — When the access token expires. Present in responses only.
 
-        `string` — Unique ID of the connection
+  - **`oauth_token`**
 
-      - **`connection_name`**
+    `object`
 
-        `string` — Developer-assigned connection name
+    - **`access_token`**
 
-      - **`provider`**
+      `string` — OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.
 
-        `string` — Provider name for this connection
+    - **`domain`**
 
-      - **`tools`**
+      `string` — Associated domain for workspace or organization-scoped OAuth connections (e.g., Google Workspace domain).
 
-        `array` — List of tool names linked to this connection (empty = all tools)
+    - **`refresh_token`**
 
-        **Items:**
+      `string` — OAuth refresh token for obtaining new access tokens. Long-lived and used to maintain persistent authorization.
 
-        `string`
+    - **`scopes`**
 
-    - **`description`**
+      `array` — List of granted OAuth scopes defining the permissions and access levels for this connection.
 
-      `string` — Description of the MCP configuration
+      **Items:**
 
-    - **`id`**
+      `string`
 
-      `string` — Unique ID of the MCP config
+  - **`static_auth`**
 
-    - **`name`**
+    `object`
 
-      `string` — Unique name for the MCP configuration
+    - **`details`**
 
-  - **`id`**
+      `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
 
-    `string` — Unique ID of the MCP instance
+  - **`trusted_idp`**
 
-  - **`last_used_at`**
+    `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
 
-    `string`, format: `date-time` — Timestamp when the instance was last used
+    - **`access_key_id`**
 
-  - **`name`**
+      `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
 
-    `string` — Display name of the instance
+    - **`db_user`**
 
-  - **`updated_at`**
+      `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
 
-    `string`, format: `date-time` — Timestamp when the instance was last updated
+    - **`expiry`**
 
-  - **`url`**
+      `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
 
-    `string` — URL to reach the MCP instance
+    - **`secret_access_key`**
 
-  - **`user_identifier`**
+      `string` — Federated secret access key. Never returned in public API responses.
 
-    `string` — Identifier for the user who owns or uses this instance
+    - **`session_token`**
 
-* **`next_page_token`**
-
-  `string` — Pagination token to fetch the next page
-
-* **`prev_page_token`**
-
-  `string` — Pagination token to fetch the previous page
-
-* **`total_size`**
-
-  `integer`, format: `int64` — Total number of instances matching the filter
+      `string` — Federated session token. Never returned in public API responses.
 
 **Example:**
 
 ```json
 {
-  "instances": [
-    {
-      "config": null,
-      "id": "inst_88630864544790977",
-      "last_used_at": "0001-01-01T00:00:00Z",
-      "name": "daily-digest",
-      "updated_at": "2025-10-07T12:21:00Z",
-      "url": "https://example.com/mcp/v1/abc123",
-      "user_identifier": "akshay.parihar"
+  "api_config": {
+    "rate_limit": 2000,
+    "timeout": 60
+  },
+  "authorization_details": {
+    "oauth_token": {
+      "access_token": "ya29.new_token...",
+      "refresh_token": "1//0g...",
+      "scopes": [
+        "email",
+        "profile",
+        "calendar"
+      ]
     }
+  }
+}
+```
+
+### v1providersCreateCustomProvider
+
+- **Type:**`object`
+
+* **`auth_patterns`**
+
+  `array` — Authentication patterns for the connected app provider
+
+  **Items:**
+
+* **`description`**
+
+  `string` — Description of the connected app provider
+
+* **`display_name`**
+
+  `string` — Display name for the connected app provider
+
+* **`icon_src`**
+
+  `string` — URL for the provider icon. Should be an SVG image sized 800x800 pixels for best rendering experience.
+
+* **`metadata`**
+
+  `object` — Custom key-value metadata for this provider. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+* **`proxy_enabled`**
+
+  `boolean` — This flag indicates whether proxying is turned on for the connected app provider. When enabled, requests are routed through the provider proxy instead of being sent directly.
+
+* **`proxy_url`**
+
+  `string` — Proxy URL for the connected app provider. Must start with https\://
+
+**Example:**
+
+```json
+{
+  "auth_patterns": [
+    {}
   ],
-  "next_page_token": "",
-  "prev_page_token": "",
-  "total_size": 1
+  "description": "Connect to Google Workspace for email and calendar integration",
+  "display_name": "Google Workspace",
+  "icon_src": "https://example.com/images/my-connector.svg",
+  "metadata": {
+    "api_version": "v2",
+    "region": "us-east-1"
+  },
+  "proxy_enabled": true,
+  "proxy_url": "https://mcp.example.com/mcp"
 }
 ```
 
-### mcpEnsureMcpInstanceRequest
+### v1providersUpdateCustomProvider
 
 - **Type:**`object`
 
-* **`config_name`**
+* **`auth_patterns`**
 
-  `string` — Name of the MCP configuration to associate with the instance
-
-* **`name`**
-
-  `string` — Display name for the MCP instance
-
-* **`user_identifier`**
-
-  `string` — Identifier for the end user requesting the instance
-
-**Example:**
-
-```json
-{
-  "config_name": "daily-summarizer",
-  "name": "daily-digest",
-  "user_identifier": "akshay.parihar"
-}
-```
-
-### mcpEnsureMcpInstanceResponse
-
-- **Type:**`object`
-
-* **`instance`**
-
-  `object` — Details of the MCP instance
-
-  - **`config`**
-
-    `object` — Configuration backing this instance
-
-    - **`connection_tool_mappings`**
-
-      `array` — List of connection-to-tool mappings for this MCP config
-
-      **Items:**
-
-      - **`connected_account_id`**
-
-        `string` — Connected account backing this connection in the MCP instance context
-
-      - **`connected_account_status`**
-
-        `string` — Authentication status for the connected account
-
-      - **`connection_id`**
-
-        `string` — Unique ID of the connection
-
-      - **`connection_name`**
-
-        `string` — Developer-assigned connection name
-
-      - **`provider`**
-
-        `string` — Provider name for this connection
-
-      - **`tools`**
-
-        `array` — List of tool names linked to this connection (empty = all tools)
-
-        **Items:**
-
-        `string`
-
-    - **`description`**
-
-      `string` — Description of the MCP configuration
-
-    - **`id`**
-
-      `string` — Unique ID of the MCP config
-
-    - **`name`**
-
-      `string` — Unique name for the MCP configuration
-
-  - **`id`**
-
-    `string` — Unique ID of the MCP instance
-
-  - **`last_used_at`**
-
-    `string`, format: `date-time` — Timestamp when the instance was last used
-
-  - **`name`**
-
-    `string` — Display name of the instance
-
-  - **`updated_at`**
-
-    `string`, format: `date-time` — Timestamp when the instance was last updated
-
-  - **`url`**
-
-    `string` — URL to reach the MCP instance
-
-  - **`user_identifier`**
-
-    `string` — Identifier for the user who owns or uses this instance
-
-**Example:**
-
-```json
-{
-  "instance": {
-    "config": null,
-    "id": "inst_88630864544790977",
-    "last_used_at": "0001-01-01T00:00:00Z",
-    "name": "daily-digest",
-    "updated_at": "2025-10-07T12:21:00Z",
-    "url": "https://example.com/mcp/v1/abc123",
-    "user_identifier": "akshay.parihar"
-  }
-}
-```
-
-### mcpGetMcpInstanceResponse
-
-- **Type:**`object`
-
-* **`instance`**
-
-  `object` — The requested MCP instance
-
-  - **`config`**
-
-    `object` — Configuration backing this instance
-
-    - **`connection_tool_mappings`**
-
-      `array` — List of connection-to-tool mappings for this MCP config
-
-      **Items:**
-
-      - **`connected_account_id`**
-
-        `string` — Connected account backing this connection in the MCP instance context
-
-      - **`connected_account_status`**
-
-        `string` — Authentication status for the connected account
-
-      - **`connection_id`**
-
-        `string` — Unique ID of the connection
-
-      - **`connection_name`**
-
-        `string` — Developer-assigned connection name
-
-      - **`provider`**
-
-        `string` — Provider name for this connection
-
-      - **`tools`**
-
-        `array` — List of tool names linked to this connection (empty = all tools)
-
-        **Items:**
-
-        `string`
-
-    - **`description`**
-
-      `string` — Description of the MCP configuration
-
-    - **`id`**
-
-      `string` — Unique ID of the MCP config
-
-    - **`name`**
-
-      `string` — Unique name for the MCP configuration
-
-  - **`id`**
-
-    `string` — Unique ID of the MCP instance
-
-  - **`last_used_at`**
-
-    `string`, format: `date-time` — Timestamp when the instance was last used
-
-  - **`name`**
-
-    `string` — Display name of the instance
-
-  - **`updated_at`**
-
-    `string`, format: `date-time` — Timestamp when the instance was last updated
-
-  - **`url`**
-
-    `string` — URL to reach the MCP instance
-
-  - **`user_identifier`**
-
-    `string` — Identifier for the user who owns or uses this instance
-
-**Example:**
-
-```json
-{
-  "instance": {
-    "config": null,
-    "id": "inst_88630864544790977",
-    "last_used_at": "0001-01-01T00:00:00Z",
-    "name": "daily-digest",
-    "updated_at": "2025-10-07T12:21:00Z",
-    "url": "https://example.com/mcp/v1/abc123",
-    "user_identifier": "akshay.parihar"
-  }
-}
-```
-
-### McpServiceUpdateMcpInstanceBody
-
-- **Type:**`object`
-
-* **`config_name`**
-
-  `string` — New MCP configuration name to attach to the instance
-
-* **`name`**
-
-  `string` — New display name for the MCP instance
-
-**Example:**
-
-```json
-{
-  "config_name": "daily-summarizer",
-  "name": "daily-digest-updated"
-}
-```
-
-### mcpUpdateMcpInstanceResponse
-
-- **Type:**`object`
-
-* **`instance`**
-
-  `object` — Updated MCP instance
-
-  - **`config`**
-
-    `object` — Configuration backing this instance
-
-    - **`connection_tool_mappings`**
-
-      `array` — List of connection-to-tool mappings for this MCP config
-
-      **Items:**
-
-      - **`connected_account_id`**
-
-        `string` — Connected account backing this connection in the MCP instance context
-
-      - **`connected_account_status`**
-
-        `string` — Authentication status for the connected account
-
-      - **`connection_id`**
-
-        `string` — Unique ID of the connection
-
-      - **`connection_name`**
-
-        `string` — Developer-assigned connection name
-
-      - **`provider`**
-
-        `string` — Provider name for this connection
-
-      - **`tools`**
-
-        `array` — List of tool names linked to this connection (empty = all tools)
-
-        **Items:**
-
-        `string`
-
-    - **`description`**
-
-      `string` — Description of the MCP configuration
-
-    - **`id`**
-
-      `string` — Unique ID of the MCP config
-
-    - **`name`**
-
-      `string` — Unique name for the MCP configuration
-
-  - **`id`**
-
-    `string` — Unique ID of the MCP instance
-
-  - **`last_used_at`**
-
-    `string`, format: `date-time` — Timestamp when the instance was last used
-
-  - **`name`**
-
-    `string` — Display name of the instance
-
-  - **`updated_at`**
-
-    `string`, format: `date-time` — Timestamp when the instance was last updated
-
-  - **`url`**
-
-    `string` — URL to reach the MCP instance
-
-  - **`user_identifier`**
-
-    `string` — Identifier for the user who owns or uses this instance
-
-**Example:**
-
-```json
-{
-  "instance": {
-    "config": null,
-    "id": "inst_88630864544790977",
-    "last_used_at": "0001-01-01T00:00:00Z",
-    "name": "daily-digest",
-    "updated_at": "2025-10-07T12:21:00Z",
-    "url": "https://example.com/mcp/v1/abc123",
-    "user_identifier": "akshay.parihar"
-  }
-}
-```
-
-### mcpMcpInstanceConnectionAuthState
-
-- **Type:**`object`
-
-* **`authentication_link`**
-
-  `string` — Magic link for reconnecting the connected account
-
-* **`connected_account_id`**
-
-  `string` — Connected account backing the connection
-
-* **`connected_account_status`**
-
-  `string` — Current authentication status of the connected account
-
-* **`connection_id`**
-
-  `string` — Underlying connection identifier
-
-* **`connection_name`**
-
-  `string` — Developer-assigned connection name
-
-* **`provider`**
-
-  `string` — Provider backing the connection
-
-**Example:**
-
-```json
-{
-  "authentication_link": "",
-  "connected_account_id": "",
-  "connected_account_status": "",
-  "connection_id": "",
-  "connection_name": "",
-  "provider": ""
-}
-```
-
-### mcpGetMcpInstanceAuthStateResponse
-
-- **Type:**`object`
-
-* **`connections`**
-
-  `array` — Status of each connection mapped to the instance
+  `array` — Authentication patterns for the connected app provider
 
   **Items:**
 
-  - **`authentication_link`**
+* **`description`**
 
-    `string` — Magic link for reconnecting the connected account
+  `string` — Description of the connected app provider
 
-  - **`connected_account_id`**
+* **`display_name`**
 
-    `string` — Connected account backing the connection
+  `string` — Display name for the connected app provider
 
-  - **`connected_account_status`**
+* **`icon_src`**
 
-    `string` — Current authentication status of the connected account
+  `string` — URL for the provider icon. Should be an SVG image sized 800x800 pixels for best rendering experience.
 
-  - **`connection_id`**
+* **`metadata`**
 
-    `string` — Underlying connection identifier
+  `object` — Custom key-value metadata for this provider. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
 
-  - **`connection_name`**
+* **`proxy_enabled`**
 
-    `string` — Developer-assigned connection name
+  `boolean` — This flag indicates whether proxying is turned on for the connected app provider. When enabled, requests are routed through the provider proxy instead of being sent directly.
 
-  - **`provider`**
+* **`proxy_url`**
 
-    `string` — Provider backing the connection
+  `string` — Proxy URL for the connected app provider. Must start with https\://
 
 **Example:**
 
 ```json
 {
-  "connections": [
-    {
-      "authentication_link": "",
-      "connected_account_id": "",
-      "connected_account_status": "",
-      "connection_id": "",
-      "connection_name": "",
-      "provider": ""
-    }
-  ]
+  "auth_patterns": [
+    {}
+  ],
+  "description": "Connect to Google Workspace for email and calendar integration",
+  "display_name": "Google Workspace",
+  "icon_src": "https://example.com/images/my-connector.svg",
+  "metadata": {
+    "api_version": "v2",
+    "region": "us-east-1"
+  },
+  "proxy_enabled": true,
+  "proxy_url": "https://mcp.example.com/mcp"
 }
 ```
 
