@@ -1,1 +1,1 @@
-const res = await scalekit.permission.getPermission("read:users");
+const res = await scalekit.permission.getPermission('read:users')

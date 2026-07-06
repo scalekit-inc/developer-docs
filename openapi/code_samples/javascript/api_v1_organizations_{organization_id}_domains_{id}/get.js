@@ -1,5 +1,5 @@
 // Fetch details of a specific domain
-const response = await scalekit.domain.getDomain(organizationId, domainId);
+const response = await scalekit.domain.getDomain(organizationId, domainId)
 
 // Domain object properties:
 // - id: Domain identifier

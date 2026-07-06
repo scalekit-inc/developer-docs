@@ -1,1 +1,1 @@
-await scalekit.connection.deleteConnection(organizationId, connectionId);
+await scalekit.connection.deleteConnection(organizationId, connectionId)

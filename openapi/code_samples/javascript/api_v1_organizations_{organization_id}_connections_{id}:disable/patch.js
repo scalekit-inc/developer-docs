@@ -1,1 +1,1 @@
-await scalekit.connection.disableConnection(organizationId, connectionId);
+await scalekit.connection.disableConnection(organizationId, connectionId)

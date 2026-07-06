@@ -1,1 +1,1 @@
-await scalekit.user.deleteUser("usr_123");
+await scalekit.user.deleteUser('usr_123')

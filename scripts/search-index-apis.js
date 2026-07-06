@@ -18,9 +18,13 @@ function loadSwaggerSpec() {
 // Generate URL fragment for API endpoint
 function generateUrlFragment(path, method, tags) {
   // Scalar slugifies tag names: lowercase, spaces/special chars become hyphens
-  const tag = tags && tags[0]
-    ? tags[0].toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
-    : 'api'
+  const tag =
+    tags && tags[0]
+      ? tags[0]
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '')
+      : 'api'
   // Scalar uses UPPERCASE HTTP methods in anchor IDs
   const upperMethod = method.toUpperCase()
   // Do NOT encode path parameters – Scalar keeps the curly braces intact in the anchor id

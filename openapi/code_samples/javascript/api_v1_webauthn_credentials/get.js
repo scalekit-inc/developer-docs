@@ -1,1 +1,1 @@
-const res = await scalekit.webauthn.listCredentials("user_123");
+const res = await scalekit.webauthn.listCredentials('user_123')

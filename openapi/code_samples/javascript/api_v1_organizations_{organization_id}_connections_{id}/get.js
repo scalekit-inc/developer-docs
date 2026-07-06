@@ -1,4 +1,1 @@
-const connection = await scalekit.connection.getConnection(
-  organizationId,
-  connectionId
-);
+const connection = await scalekit.connection.getConnection(organizationId, connectionId)

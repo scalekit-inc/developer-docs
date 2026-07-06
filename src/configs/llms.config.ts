@@ -202,12 +202,14 @@ Start with the Quickstart Collection, then follow the developer's question to th
     {
       label: 'AgentKit API reference markdown',
       url: '/agentkit/apis.md',
-      description: 'LLM-friendly Markdown for AgentKit APIs — connected accounts, tool execution, webhooks',
+      description:
+        'LLM-friendly Markdown for AgentKit APIs — connected accounts, tool execution, webhooks',
     },
     {
       label: 'SaaSKit API reference markdown',
       url: '/saaskit/apis.md',
-      description: 'LLM-friendly Markdown for SaaSKit APIs — SSO, SCIM, directories, sessions, roles, users',
+      description:
+        'LLM-friendly Markdown for SaaSKit APIs — SSO, SCIM, directories, sessions, roles, users',
     },
     {
       label: 'OpenAPI Specification (all endpoints)',

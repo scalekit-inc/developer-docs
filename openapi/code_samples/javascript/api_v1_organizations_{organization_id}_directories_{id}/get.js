@@ -1,4 +1,1 @@
-const { directory } = await scalekit.directory.getDirectory(
-  organizationId,
-  directoryId
-);
+const { directory } = await scalekit.directory.getDirectory(organizationId, directoryId)

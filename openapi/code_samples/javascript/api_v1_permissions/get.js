@@ -1,1 +1,1 @@
-const res = await scalekit.permission.listPermissions();
+const res = await scalekit.permission.listPermissions()

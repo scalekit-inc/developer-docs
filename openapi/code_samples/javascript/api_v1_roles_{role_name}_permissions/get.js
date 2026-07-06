@@ -1,1 +1,1 @@
-const res = await scalekit.permission.listRolePermissions("admin");
+const res = await scalekit.permission.listRolePermissions('admin')

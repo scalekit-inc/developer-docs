@@ -1,1 +1,1 @@
-await scalekit.permission.deletePermission("read:users");
+await scalekit.permission.deletePermission('read:users')

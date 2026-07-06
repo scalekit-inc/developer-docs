@@ -1,1 +1,1 @@
-const res = await scalekit.role.listOrganizationRoles("org_123");
+const res = await scalekit.role.listOrganizationRoles('org_123')

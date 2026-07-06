@@ -1,1 +1,1 @@
-const res = await scalekit.role.listRoles();
+const res = await scalekit.role.listRoles()

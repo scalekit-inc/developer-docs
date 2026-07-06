@@ -1,1 +1,1 @@
-const res = await scalekit.role.getRoleUsersCount("admin");
+const res = await scalekit.role.getRoleUsersCount('admin')

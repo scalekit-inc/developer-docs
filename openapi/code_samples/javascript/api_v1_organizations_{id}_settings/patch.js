@@ -9,6 +9,6 @@ const settings = {
       enabled: true,
     },
   ],
-};
+}
 
-await scalekit.organization.updateOrganizationSettings('<organization_id>', settings);
+await scalekit.organization.updateOrganizationSettings('<organization_id>', settings)

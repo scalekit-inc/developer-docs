@@ -1,1 +1,1 @@
-const res = await scalekit.session.getSession("ses_123456789");
+const res = await scalekit.session.getSession('ses_123456789')

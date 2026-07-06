@@ -1,1 +1,1 @@
-await scalekit.connection.enableConnection(organizationId, connectionId);
+await scalekit.connection.enableConnection(organizationId, connectionId)

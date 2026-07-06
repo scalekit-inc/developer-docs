@@ -1,1 +1,1 @@
-const res = await scalekit.role.listDependentRoles("admin");
+const res = await scalekit.role.listDependentRoles('admin')

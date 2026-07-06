@@ -1,5 +1,5 @@
 // Basic delete
-await scalekit.role.deleteRole("admin");
+await scalekit.role.deleteRole('admin')
 
 // With reassignment
-await scalekit.role.deleteRole("admin", "member");
+await scalekit.role.deleteRole('admin', 'member')

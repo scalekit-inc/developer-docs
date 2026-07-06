@@ -1,1 +1,1 @@
-await scalekit.directory.listDirectories('<organization_id>');
+await scalekit.directory.listDirectories('<organization_id>')

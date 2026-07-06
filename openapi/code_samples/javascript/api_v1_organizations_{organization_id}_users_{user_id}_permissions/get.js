@@ -1,1 +1,1 @@
-const { permissions } = await scalekit.user.listUserPermissions("org_123", "usr_123");
+const { permissions } = await scalekit.user.listUserPermissions('org_123', 'usr_123')
