@@ -7,8 +7,23 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
+  githubpat: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/github.png',
+    authType: 'Bearer Token',
+    categories: ['Developer Tools', 'Collaboration'],
+  },
+  googlebusinessprofile: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/google.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Marketing', 'Analytics'],
+  },
+  upstreammcp: {
+    iconUrl: 'https://framerusercontent.com/images/Pl7PUhW6GIt6eumE6hy3eKACaA.png',
+    authType: 'Bearer Token',
+    categories: ['Automation', 'Productivity'],
+  },
   affindamcp: {
-    iconUrl: '',
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/affinda.svg',
     authType: 'OAuth2.1/DCR',
     categories: ['AI', 'Files & Documents'],
   },
@@ -87,6 +102,11 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'OAuth2.1/DCR',
     categories: ['Design', 'Search'],
   },
+  excalidrawmcp: {
+    iconUrl: 'https://docs.excalidraw.com/img/logo.svg',
+    authType: 'Bearer Token',
+    categories: ['Design', 'Collaboration', 'Productivity'],
+  },
   onepagemcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/onepage.svg',
     authType: 'OAuth2.1/DCR',
@@ -119,7 +139,7 @@ export const catalog: Record<string, ProviderMeta> = {
   },
   biomnimcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/biomni.svg',
-    authType: 'OAuth 2.1',
+    authType: 'OAuth2.1/DCR',
     categories: ['Analytics', 'Search'],
   },
   vibeprospectingmcp: {
