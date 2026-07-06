@@ -1384,4 +1384,9 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'SMART On FHIR',
     categories: ['Healthcare'],
   },
+  advancedmd: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/advancedmd.png',
+    authType: 'SMART On FHIR',
+    categories: ['Healthcare'],
+  },
 }
