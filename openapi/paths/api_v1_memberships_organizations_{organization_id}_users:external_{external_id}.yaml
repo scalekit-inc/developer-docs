@@ -1,0 +1,123 @@
+post:
+  description: >-
+    Adds an existing user to an organization using your application's external
+    identifier for the user. Use this endpoint when you store users in Scalekit
+    using your own system's identifiers and need to manage their organization
+    memberships without storing Scalekit's internal user ID.
+  tags:
+    - Users
+  summary: Add existing user to organization by external ID
+  operationId: UserService_CreateMembership2
+  parameters:
+    - schema:
+        type: string
+      description: >-
+        Unique identifier of the target organization. Must start with 'org_' and
+        be 1-32 characters long.
+      name: organization_id
+      in: path
+      required: true
+    - schema:
+        type: string
+      description: >-
+        External system identifier from connected directories. Must be unique
+        across the system
+      name: external_id
+      in: path
+      required: true
+    - schema:
+        type: boolean
+      description: If true, sends an activation email to the user. Defaults to true.
+      name: send_invitation_email
+      in: query
+  responses:
+    '201':
+      description: >-
+        User successfully added to the organization. Returns details of the
+        updated membership details
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/usersCreateMembershipResponse.yaml
+  requestBody:
+    content:
+      application/json:
+        schema:
+          description: Membership details to create. Required fields must be provided.
+          required:
+            - membership
+          $ref: ../components/schemas/v1usersCreateMembership.yaml
+    required: true
+delete:
+  description: >-
+    Removes a user from an organization using your application's external
+    identifier for the user. Use this endpoint to revoke organization access
+    without needing to store Scalekit's internal user ID.
+  tags:
+    - Users
+  summary: Delete organization membership by external ID
+  operationId: UserService_DeleteMembership2
+  parameters:
+    - schema:
+        type: string
+      description: >-
+        Unique organization identifier. Must start with 'org_' and be 1-32
+        characters long
+      name: organization_id
+      in: path
+      required: true
+    - schema:
+        type: string
+      description: >-
+        External system identifier from connected directories. Must match
+        existing records
+      name: external_id
+      in: path
+      required: true
+  responses:
+    '200':
+      description: User successfully marked for deletion. No content returned
+      content:
+        application/json:
+          schema: {}
+patch:
+  description: >-
+    Updates a user's membership details within an organization using your
+    application's external identifier for the user. Use this endpoint to update
+    roles and membership metadata without needing to store Scalekit's internal
+    user ID.
+  tags:
+    - Users
+  summary: Update organization membership by external ID
+  operationId: UserService_UpdateMembership2
+  parameters:
+    - schema:
+        type: string
+      description: >-
+        Unique identifier of the organization containing the membership. Must
+        start with 'org_' and be 1-32 characters long.
+      name: organization_id
+      in: path
+      required: true
+    - schema:
+        type: string
+      description: Your application's unique identifier for this user.
+      name: external_id
+      in: path
+      required: true
+  responses:
+    '200':
+      description: Membership updated successfully. Returns the updated user object.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/usersUpdateMembershipResponse.yaml
+  requestBody:
+    content:
+      application/json:
+        schema:
+          description: Membership fields to update. Only specified fields will be modified.
+          $ref: ../components/schemas/v1usersUpdateMembership.yaml
+          examples:
+            - role: admin
+    required: true

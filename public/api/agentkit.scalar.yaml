@@ -960,6 +960,80 @@ paths:
           content:
             application/json:
               schema: {}
+  /api/v1/mcp/configs/{config_id}/connected_accounts:
+    post:
+      description: Returns the connected account state for each connection in the MCP configuration for the given user identifier. When include_auth_link is true, creates connected accounts on the fly if they do not exist and returns a fresh authentication link per connection. When include_auth_link is false or omitted, returns the current status of existing connected accounts only — no accounts are created and authentication_link is always empty. Authentication links are only present when the connection has an associated key; if the connection has no key, authentication_link is empty regardless of include_auth_link.
+      tags:
+        - mcp-configs
+      summary: List connected accounts for an MCP configuration
+      operationId: McpService_ListMcpConnectedAccounts
+      parameters:
+        - schema:
+            type: string
+          description: ID of the MCP configuration
+          name: config_id
+          in: path
+          required: true
+      responses:
+        '200':
+          description: Connected account state returned for each connection in the configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mcpListMcpConnectedAccountsResponse'
+        '400':
+          description: Bad request - config_id or identifier is missing or invalid
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not found - no MCP configuration exists with the given config_id
+          content:
+            application/json:
+              schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/McpServiceListMcpConnectedAccountsBody'
+        required: true
+  /api/v1/mcp/configs/{mcp_config_id}/tokens:
+    post:
+      description: Mints a short-lived JWT that represents a user identifier across the connected accounts associated with an MCP configuration. The supplied identifier becomes the token's `sub` claim; the token's `aud` claim is the MCP server URL bound to the configuration. Claims also carry the MCP configuration ID (`mcp_cfg`) and the list of resolved connected-account IDs (`ca_ids`). Use this operation to issue a single credential an MCP server can present on the user's behalf when calling provider tools. The mint fails if any connection mapped to the configuration has no active connected account for the identifier.
+      tags:
+        - mcp-configs
+      summary: Create an MCP session token
+      operationId: McpService_CreateMcpSessionToken
+      parameters:
+        - schema:
+            type: string
+          description: Unique ID of the MCP configuration whose connections back the token. The configuration must exist in the caller's environment.
+          name: mcp_config_id
+          in: path
+          required: true
+      responses:
+        '200':
+          description: Token created successfully; returns the signed JWT and its absolute expiry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mcpCreateMcpSessionTokenResponse'
+        '400':
+          description: Invalid request - mcp_config_id or identifier is missing or malformed, expiry is outside the 60s-24h window, the MCP configuration has no connections, or a connection has no active connected account for the supplied identifier
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not Found - no MCP configuration exists with the supplied ID in the caller's environment
+          content:
+            application/json:
+              schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/McpServiceCreateMcpSessionTokenBody'
+        required: true
   /api/v1/mcp/instances:
     get:
       description: Lists MCP instances for the current environment with optional filters for instance id, name, configuration, and text search across name or user identifier.
@@ -2329,6 +2403,80 @@ components:
         config:
           description: The updated MCP configuration
           $ref: '#/components/schemas/mcpMcpConfig'
+    McpServiceListMcpConnectedAccountsBody:
+      type: object
+      required:
+        - identifier
+      properties:
+        identifier:
+          description: Identifier for the end user whose connected accounts to retrieve
+          type: string
+          examples:
+            - john.doe@example.com
+        include_auth_link:
+          description: When true, generates a fresh authentication link for each connection and creates connected accounts if they do not exist. When false or omitted, returns existing connected account status without creating accounts or generating links.
+          type: boolean
+    mcpMcpConnectionAuthState:
+      type: object
+      properties:
+        authentication_link:
+          description: Fresh authentication link for the connected account. Empty when include_auth_link is false or when the connection has no associated key.
+          type: string
+        connected_account_id:
+          description: ID of the connected account for this user and connection
+          type: string
+        connected_account_status:
+          description: Authentication status of the connected account
+          type: string
+        connection_id:
+          description: ID of the connection
+          type: string
+        connection_name:
+          description: Name of the connection
+          type: string
+        provider:
+          description: Provider identifier for the connection
+          type: string
+    mcpListMcpConnectedAccountsResponse:
+      type: object
+      properties:
+        connected_accounts:
+          description: Connected account state for each connection in the configuration
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/mcpMcpConnectionAuthState'
+    McpServiceCreateMcpSessionTokenBody:
+      type: object
+      required:
+        - identifier
+      properties:
+        expiry:
+          description: Optional token lifetime. Must be between 60s and 24h. Defaults to 1h when omitted.
+          type: string
+          examples:
+            - 3600s
+        identifier:
+          description: Upstream-provider identifier (typically the user's email or provider user-id) shared by the connected accounts the token represents. A single identifier can map to one connected account per connection in the MCP configuration.
+          type: string
+          maxLength: 255
+          minLength: 1
+          examples:
+            - alice@acme.com
+    mcpCreateMcpSessionTokenResponse:
+      type: object
+      properties:
+        expires_at:
+          description: Absolute time at which the token expires. Equals issued_at + expiry.
+          type: string
+          format: date-time
+          readOnly: true
+        token:
+          description: Signed JWT (RS256) whose `sub` claim is the supplied identifier and whose `aud` claim is the MCP server URL bound to the configuration. Payload also carries the MCP configuration ID (`mcp_cfg`) and the resolved connected-account IDs (`ca_ids`). Signed with the calling environment's active JWT signing key.
+          type: string
+          readOnly: true
+          examples:
+            - eyJhbGciOiJSUzI1NiIsImtpZCI6InNua18xMjMifQ.eyJhdWQiOlsiYWxpY2VAYWNtZS5jb20iXSwidG9rZW5fdHlwZSI6Im1jcF9zZXNzaW9uIn0.signature
     mcpMcpInstance:
       type: object
       properties:

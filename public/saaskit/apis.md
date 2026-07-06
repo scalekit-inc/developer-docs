@@ -1485,6 +1485,609 @@ Updates a user's membership details within an organization by user ID or externa
 }
 ```
 
+### Add existing user to organization by external ID
+
+- **Method:** `POST`
+- **Path:** `/api/v1/memberships/organizations/{organization_id}/users:external/{external_id}`
+- **Tags:** Users
+
+Adds an existing user to an organization using your application's external identifier for the user. Use this endpoint when you store users in Scalekit using your own system's identifiers and need to manage their organization memberships without storing Scalekit's internal user ID.
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`inviter_email`**
+
+  `string` — Email address of the user who invited this member. Must be a valid email address.
+
+- **`metadata`**
+
+  `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+- **`roles`**
+
+  `array` — Role to assign to the user within the organization
+
+  **Items:**
+
+  - **`display_name`**
+
+    `string` — Human-readable name for the role
+
+  - **`id`**
+
+    `string` — Role ID
+
+  - **`name`**
+
+    `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
+
+**Example:**
+
+```json
+{
+  "inviter_email": "john.doe@example.com",
+  "metadata": {
+    "department": "engineering",
+    "location": "nyc-office"
+  },
+  "roles": [
+    {
+      "name": "admin"
+    }
+  ]
+}
+```
+
+#### Responses
+
+##### Status: 201 User successfully added to the organization. Returns details of the updated membership details
+
+###### Content-Type: application/json
+
+- **`user`**
+
+  `object`
+
+  - **`create_time`**
+
+    `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
+
+  - **`email`**
+
+    `string` — Primary email address for the user. Must be unique across the environment and valid per RFC 5322.
+
+  - **`external_id`**
+
+    `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
+
+  - **`id`**
+
+    `string` — Unique system-generated identifier for the user. Immutable once created.
+
+  - **`last_login_time`**
+
+    `string`, format: `date-time` — Timestamp of the user's most recent successful authentication. Updated automatically.
+
+  - **`memberships`**
+
+    `array` — List of organization memberships. Automatically populated based on group assignments.
+
+    **Items:**
+
+    - **`accepted_at`**
+
+      `string`, format: `date-time` — Timestamp when the user accepted the invitation.
+
+    - **`created_at`**
+
+      `string`, format: `date-time` — Timestamp when the invitation was created.
+
+    - **`display_name`**
+
+      `string` — Organization display name. This field stores a user-friendly name for the organization that may be different from the formal name, often used for UI display purposes.
+
+    - **`expires_at`**
+
+      `string`, format: `date-time` — Timestamp when the invitation expired.
+
+    - **`inviter_email`**
+
+      `string` — ID of the user who invited this user.
+
+    - **`join_time`**
+
+      `string`, format: `date-time` — Timestamp when the membership was created. Automatically set by the server.
+
+    - **`membership_status`**
+
+      `string`, possible values: `"ACTIVE", "INACTIVE", "PENDING_INVITE", "INVITE_EXPIRED"`
+
+    - **`metadata`**
+
+      `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+    - **`name`**
+
+      `string` — Organization name. This field stores the formal organization name used for identification and display purposes.
+
+    - **`organization_id`**
+
+      `string` — Unique identifier for the organization. Immutable and read-only.
+
+    - **`permissions`**
+
+      `array` — Effective permissions granted to the user within the organization (including inherited permissions from assigned roles). Lists the specific actions and access rights the user can perform.
+
+      **Items:**
+
+      `string`
+
+    - **`provisioning_method`**
+
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+
+    - **`roles`**
+
+      `array`
+
+      **Items:**
+
+      - **`display_name`**
+
+        `string` — Human-readable name for the role
+
+      - **`id`**
+
+        `string` — Role ID
+
+      - **`name`**
+
+        `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
+
+  - **`metadata`**
+
+    `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+  - **`update_time`**
+
+    `string`, format: `date-time` — Timestamp of the last modification to the user account. Automatically updated by the server.
+
+  - **`user_profile`**
+
+    `object` — User's personal information including name, address, and other profile attributes.
+
+    - **`custom_attributes`**
+
+      `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+    - **`email_verified`**
+
+      `boolean` — Indicates if the user's email address has been verified. Automatically updated by the system.
+
+    - **`external_identities`**
+
+      `array` — List of external identity connections associated with the user profile.
+
+      **Items:**
+
+      - **`connection_id`**
+
+        `string` — Unique identifier for the external identity connection. Immutable and read-only.
+
+      - **`connection_provider`**
+
+        `string`, possible values: `"OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "PING_IDENTITY", "JUMPCLOUD", "CUSTOM", "GITHUB", "GITLAB", "LINKEDIN", "SALESFORCE", "MICROSOFT", "IDP_SIMULATOR", "SCALEKIT", "ADFS"` — Type of the identity provider.
+
+      - **`connection_type`**
+
+        `string` — Name of the external identity connection.
+
+      - **`connection_user_id`**
+
+        `string` — Unique identifier for the user in the external identity provider system. Immutable and read-only.
+
+      - **`created_time`**
+
+        `string`, format: `date-time` — Timestamp when this external identity connection was first created. Immutable and read-only.
+
+      - **`is_social`**
+
+        `boolean` — Indicates if the identity provider is a social provider (true) or enterprise/custom provider (false). Read-only.
+
+      - **`last_login_time`**
+
+        `string`, format: `date-time` — Timestamp of the user's last successful login via this external identity provider. Automatically updated by the system.
+
+      - **`last_synced_time`**
+
+        `string`, format: `date-time` — Timestamp of the last data synchronization for this external identity from the provider. Automatically updated by the system.
+
+    - **`family_name`**
+
+      `string` — The user's family name (last name or surname). This field stores the user's last name and is combined with the given name to create the full display name. The family name is used in formal communications, user listings, and organizational directories throughout the system. Maximum 255 characters allowed.
+
+    - **`gender`**
+
+      `string` — The user's gender identity information. This field stores the user's gender identity for personalization, compliance reporting, or organizational analytics purposes. This field supports any string value to accommodate diverse gender identities and should be handled with appropriate privacy considerations according to your organization's policies and applicable regulations.
+
+    - **`given_name`**
+
+      `string` — The user's given name (first name). This field stores the user's first name and is used for personalization, display purposes, and when generating the full display name. The given name appears in user interfaces, formal communications, and user listings throughout the system. Maximum 255 characters allowed.
+
+    - **`groups`**
+
+      `array` — The list of group names the user belongs to within the organization. This field stores the user's group memberships for role-based access control, team assignments, and organizational structure. Groups are typically used for permission management, collaborative access, and organizational hierarchy. Each group name represents a distinct organizational unit or team that the user is associated with.
+
+      **Items:**
+
+      `string`
+
+    - **`id`**
+
+      `string` — Unique system-generated identifier for the user profile. Immutable and read-only.
+
+    - **`locale`**
+
+      `string` — The user's preferred language and region settings using BCP-47 format codes. This field customizes the user's experience with localized content, date formats, number formatting, and UI language throughout the system. When not specified, the user inherits the organization's default locale settings. Common values include \`en-US\`, \`en-GB\`, \`fr-FR\`, \`de-DE\`, and \`es-ES\`.
+
+    - **`metadata`**
+
+      `object` — Raw attributes received from identity providers during authentication. This field stores the original user profile data as received from external IdP systems (SAML, OIDC, etc.) including provider-specific claims and attributes. These fields preserve the complete set of attributes received from the identity source and are used for mapping, synchronization, and audit purposes. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+    - **`name`**
+
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
+
+    - **`phone_number`**
+
+      `string` — The user's phone number in E.164 international format. This field stores the phone number for user contact and identification purposes. The phone number must include the country code and be formatted according to E.164 standards (e.g., \`+1\` for US numbers). This field is optional.
+
+    - **`phone_number_verified`**
+
+      `boolean` — Indicates if the user's phone number has been verified. Automatically updated by the system.
+
+    - **`picture`**
+
+      `string` — The URL to the user's profile picture or avatar image. This field stores the location of the user's profile photo that appears in user interfaces, directory listings, and collaborative features throughout the system. The URL should point to a publicly accessible image file. Supported formats typically include JPEG, PNG, and GIF. This image is used for visual identification and personalization across the platform.
+
+    - **`preferred_username`**
+
+      `string` — The user's preferred username for display and identification purposes. This field stores a custom username that the user prefers to be known by, which may differ from their email or formal name. This username appears in user interfaces, mentions, informal communications, and collaborative features throughout the system. Maximum 512 characters allowed.
+
+**Example:**
+
+```json
+{
+  "user": {
+    "create_time": "",
+    "email": "user@example.com",
+    "external_id": "ext_12345a67b89c",
+    "id": "usr_1234abcd5678efgh",
+    "last_login_time": "",
+    "memberships": [
+      {}
+    ],
+    "metadata": {
+      "department": "engineering",
+      "location": "nyc-office"
+    },
+    "update_time": "",
+    "user_profile": null
+  }
+}
+```
+
+### Delete organization membership by external ID
+
+- **Method:** `DELETE`
+- **Path:** `/api/v1/memberships/organizations/{organization_id}/users:external/{external_id}`
+- **Tags:** Users
+
+Removes a user from an organization using your application's external identifier for the user. Use this endpoint to revoke organization access without needing to store Scalekit's internal user ID.
+
+#### Responses
+
+##### Status: 200 User successfully marked for deletion. No content returned
+
+###### Content-Type: application/json
+
+**Example:**
+
+```json
+null
+```
+
+### Update organization membership by external ID
+
+- **Method:** `PATCH`
+- **Path:** `/api/v1/memberships/organizations/{organization_id}/users:external/{external_id}`
+- **Tags:** Users
+
+Updates a user's membership details within an organization using your application's external identifier for the user. Use this endpoint to update roles and membership metadata without needing to store Scalekit's internal user ID.
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`metadata`**
+
+  `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+- **`roles`**
+
+  `array` — Role to assign to the user within the organization
+
+  **Items:**
+
+  - **`display_name`**
+
+    `string` — Human-readable name for the role
+
+  - **`id`**
+
+    `string` — Role ID
+
+  - **`name`**
+
+    `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
+
+**Example:**
+
+```json
+{
+  "metadata": {
+    "department": "engineering",
+    "location": "nyc-office"
+  },
+  "roles": [
+    {
+      "name": "admin"
+    }
+  ]
+}
+```
+
+#### Responses
+
+##### Status: 200 Membership updated successfully. Returns the updated user object.
+
+###### Content-Type: application/json
+
+- **`user`**
+
+  `object`
+
+  - **`create_time`**
+
+    `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
+
+  - **`email`**
+
+    `string` — Primary email address for the user. Must be unique across the environment and valid per RFC 5322.
+
+  - **`external_id`**
+
+    `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
+
+  - **`id`**
+
+    `string` — Unique system-generated identifier for the user. Immutable once created.
+
+  - **`last_login_time`**
+
+    `string`, format: `date-time` — Timestamp of the user's most recent successful authentication. Updated automatically.
+
+  - **`memberships`**
+
+    `array` — List of organization memberships. Automatically populated based on group assignments.
+
+    **Items:**
+
+    - **`accepted_at`**
+
+      `string`, format: `date-time` — Timestamp when the user accepted the invitation.
+
+    - **`created_at`**
+
+      `string`, format: `date-time` — Timestamp when the invitation was created.
+
+    - **`display_name`**
+
+      `string` — Organization display name. This field stores a user-friendly name for the organization that may be different from the formal name, often used for UI display purposes.
+
+    - **`expires_at`**
+
+      `string`, format: `date-time` — Timestamp when the invitation expired.
+
+    - **`inviter_email`**
+
+      `string` — ID of the user who invited this user.
+
+    - **`join_time`**
+
+      `string`, format: `date-time` — Timestamp when the membership was created. Automatically set by the server.
+
+    - **`membership_status`**
+
+      `string`, possible values: `"ACTIVE", "INACTIVE", "PENDING_INVITE", "INVITE_EXPIRED"`
+
+    - **`metadata`**
+
+      `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+    - **`name`**
+
+      `string` — Organization name. This field stores the formal organization name used for identification and display purposes.
+
+    - **`organization_id`**
+
+      `string` — Unique identifier for the organization. Immutable and read-only.
+
+    - **`permissions`**
+
+      `array` — Effective permissions granted to the user within the organization (including inherited permissions from assigned roles). Lists the specific actions and access rights the user can perform.
+
+      **Items:**
+
+      `string`
+
+    - **`provisioning_method`**
+
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+
+    - **`roles`**
+
+      `array`
+
+      **Items:**
+
+      - **`display_name`**
+
+        `string` — Human-readable name for the role
+
+      - **`id`**
+
+        `string` — Role ID
+
+      - **`name`**
+
+        `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
+
+  - **`metadata`**
+
+    `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+  - **`update_time`**
+
+    `string`, format: `date-time` — Timestamp of the last modification to the user account. Automatically updated by the server.
+
+  - **`user_profile`**
+
+    `object` — User's personal information including name, address, and other profile attributes.
+
+    - **`custom_attributes`**
+
+      `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+    - **`email_verified`**
+
+      `boolean` — Indicates if the user's email address has been verified. Automatically updated by the system.
+
+    - **`external_identities`**
+
+      `array` — List of external identity connections associated with the user profile.
+
+      **Items:**
+
+      - **`connection_id`**
+
+        `string` — Unique identifier for the external identity connection. Immutable and read-only.
+
+      - **`connection_provider`**
+
+        `string`, possible values: `"OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "PING_IDENTITY", "JUMPCLOUD", "CUSTOM", "GITHUB", "GITLAB", "LINKEDIN", "SALESFORCE", "MICROSOFT", "IDP_SIMULATOR", "SCALEKIT", "ADFS"` — Type of the identity provider.
+
+      - **`connection_type`**
+
+        `string` — Name of the external identity connection.
+
+      - **`connection_user_id`**
+
+        `string` — Unique identifier for the user in the external identity provider system. Immutable and read-only.
+
+      - **`created_time`**
+
+        `string`, format: `date-time` — Timestamp when this external identity connection was first created. Immutable and read-only.
+
+      - **`is_social`**
+
+        `boolean` — Indicates if the identity provider is a social provider (true) or enterprise/custom provider (false). Read-only.
+
+      - **`last_login_time`**
+
+        `string`, format: `date-time` — Timestamp of the user's last successful login via this external identity provider. Automatically updated by the system.
+
+      - **`last_synced_time`**
+
+        `string`, format: `date-time` — Timestamp of the last data synchronization for this external identity from the provider. Automatically updated by the system.
+
+    - **`family_name`**
+
+      `string` — The user's family name (last name or surname). This field stores the user's last name and is combined with the given name to create the full display name. The family name is used in formal communications, user listings, and organizational directories throughout the system. Maximum 255 characters allowed.
+
+    - **`gender`**
+
+      `string` — The user's gender identity information. This field stores the user's gender identity for personalization, compliance reporting, or organizational analytics purposes. This field supports any string value to accommodate diverse gender identities and should be handled with appropriate privacy considerations according to your organization's policies and applicable regulations.
+
+    - **`given_name`**
+
+      `string` — The user's given name (first name). This field stores the user's first name and is used for personalization, display purposes, and when generating the full display name. The given name appears in user interfaces, formal communications, and user listings throughout the system. Maximum 255 characters allowed.
+
+    - **`groups`**
+
+      `array` — The list of group names the user belongs to within the organization. This field stores the user's group memberships for role-based access control, team assignments, and organizational structure. Groups are typically used for permission management, collaborative access, and organizational hierarchy. Each group name represents a distinct organizational unit or team that the user is associated with.
+
+      **Items:**
+
+      `string`
+
+    - **`id`**
+
+      `string` — Unique system-generated identifier for the user profile. Immutable and read-only.
+
+    - **`locale`**
+
+      `string` — The user's preferred language and region settings using BCP-47 format codes. This field customizes the user's experience with localized content, date formats, number formatting, and UI language throughout the system. When not specified, the user inherits the organization's default locale settings. Common values include \`en-US\`, \`en-GB\`, \`fr-FR\`, \`de-DE\`, and \`es-ES\`.
+
+    - **`metadata`**
+
+      `object` — Raw attributes received from identity providers during authentication. This field stores the original user profile data as received from external IdP systems (SAML, OIDC, etc.) including provider-specific claims and attributes. These fields preserve the complete set of attributes received from the identity source and are used for mapping, synchronization, and audit purposes. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+    - **`name`**
+
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
+
+    - **`phone_number`**
+
+      `string` — The user's phone number in E.164 international format. This field stores the phone number for user contact and identification purposes. The phone number must include the country code and be formatted according to E.164 standards (e.g., \`+1\` for US numbers). This field is optional.
+
+    - **`phone_number_verified`**
+
+      `boolean` — Indicates if the user's phone number has been verified. Automatically updated by the system.
+
+    - **`picture`**
+
+      `string` — The URL to the user's profile picture or avatar image. This field stores the location of the user's profile photo that appears in user interfaces, directory listings, and collaborative features throughout the system. The URL should point to a publicly accessible image file. Supported formats typically include JPEG, PNG, and GIF. This image is used for visual identification and personalization across the platform.
+
+    - **`preferred_username`**
+
+      `string` — The user's preferred username for display and identification purposes. This field stores a custom username that the user prefers to be known by, which may differ from their email or formal name. This username appears in user interfaces, mentions, informal communications, and collaborative features throughout the system. Maximum 512 characters allowed.
+
+**Example:**
+
+```json
+{
+  "user": {
+    "create_time": "",
+    "email": "user@example.com",
+    "external_id": "ext_12345a67b89c",
+    "id": "usr_1234abcd5678efgh",
+    "last_login_time": "",
+    "memberships": [
+      {}
+    ],
+    "metadata": {
+      "department": "engineering",
+      "location": "nyc-office"
+    },
+    "update_time": "",
+    "user_profile": null
+  }
+}
+```
+
 ### List organizations
 
 - **Method:** `GET`
@@ -9660,6 +10263,628 @@ null
 - **Tags:** Users
 
 Modifies user account information including profile details, metadata, and external ID. Use this endpoint to update a user's personal information, contact details, or custom metadata. You can update the user's profile, phone number, and metadata fields. Note that fields like user ID, email address, environment ID, and creation time cannot be modified.
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`external_id`**
+
+  `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
+
+- **`metadata`**
+
+  `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+- **`user_profile`**
+
+  `object` — User's personal information including name, address, and other profile attributes.
+
+  - **`custom_attributes`**
+
+    `object` — Updates custom attributes for extended user profile data and application-specific information. Use this field to store business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+  - **`family_name`**
+
+    `string` — Updates the user's family name (last name or surname). Use this field to modify how the user's last name appears throughout the system. Maximum 255 characters allowed.
+
+  - **`first_name`**
+
+    `string` — \[DEPRECATED] Use given\_name instead. User's given name. Maximum 200 characters.
+
+  - **`gender`**
+
+    `string` — Updates the user's gender identity information. Use this field to store the user's gender identity for personalization, compliance, or reporting purposes. This field supports any string value to accommodate diverse gender identities and should be handled with appropriate privacy considerations according to your organization's policies.
+
+  - **`given_name`**
+
+    `string` — Updates the user's given name (first name). Use this field to modify how the user's first name appears in the system and user interfaces. Maximum 255 characters allowed.
+
+  - **`groups`**
+
+    `array` — Updates the list of group names the user belongs to within the organization. Use this field to manage the user's group memberships for role-based access control, team assignments, or organizational structure. Groups are typically used for permission management and collaborative access. Each group name must be unique within the list, 1-250 characters long, with a maximum of 50 groups per user.
+
+    **Items:**
+
+    `string`
+
+  - **`last_name`**
+
+    `string` — \[DEPRECATED] Use family\_name instead. User's family name. Maximum 200 characters.
+
+  - **`locale`**
+
+    `string` — Updates the user's preferred language and region settings using BCP-47 format codes. Use this field to customize the user's experience with localized content, date formats, number formatting, and UI language. When not specified, the user inherits the organization's default locale settings. Common values include \`en-US\`, \`en-GB\`, \`fr-FR\`, \`de-DE\`, and \`es-ES\`.
+
+  - **`metadata`**
+
+    `object` — Updates system-managed key-value pairs for internal tracking and operational data. Use this field to store system-generated metadata like account status, signup source, last activity tracking, or integration-specific identifiers. These fields are typically managed by automated processes rather than direct user input. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+  - **`name`**
+
+    `string` — Updates the user's complete display name. Use this field when you want to set the full name as a single string rather than using separate given and family names. This name appears in user interfaces, reports, and anywhere a formatted display name is needed.
+
+  - **`phone_number`**
+
+    `string` — Updates the user's phone number in E.164 international format. Use this field to enable SMS-based authentication methods, two-factor authentication, or phone-based account recovery. The phone number must include the country code and be formatted according to E.164 standards (e.g., \`+1\` for US numbers). This field is required when enabling SMS authentication features.
+
+  - **`picture`**
+
+    `string` — Updates the URL to the user's profile picture or avatar image. Use this field to set or change the user's profile photo that appears in user interfaces, directory listings, and collaborative features. The URL should point to a publicly accessible image file. Supported formats typically include JPEG, PNG, and GIF. Maximum URL length is 2048 characters.
+
+  - **`preferred_username`**
+
+    `string` — Updates the user's preferred username for display and identification purposes. Use this field to set a custom username that the user prefers to be known by, which may differ from their email or formal name. This username appears in user interfaces, mentions, and informal communications. Maximum 512 characters allowed.
+
+**Example:**
+
+```json
+{
+  "external_id": "ext_12345a67b89c",
+  "metadata": {
+    "department": "engineering",
+    "location": "nyc-office"
+  },
+  "user_profile": {
+    "custom_attributes": {
+      "department": "engineering",
+      "security_clearance": "level2"
+    },
+    "family_name": "Doe",
+    "first_name": "John",
+    "gender": "male",
+    "given_name": "John",
+    "groups": [
+      "engineering",
+      "managers"
+    ],
+    "last_name": "Doe",
+    "locale": "en-US",
+    "metadata": {
+      "account_status": "active",
+      "signup_source": "mobile_app"
+    },
+    "name": "John Doe",
+    "phone_number": "+14155552671",
+    "picture": "https://example.com/avatar.jpg",
+    "preferred_username": "John Michael Doe"
+  }
+}
+```
+
+#### Responses
+
+##### Status: 200 User updated successfully. Returns the modified user object with updated timestamps.
+
+###### Content-Type: application/json
+
+- **`user`**
+
+  `object`
+
+  - **`create_time`**
+
+    `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
+
+  - **`email`**
+
+    `string` — Primary email address for the user. Must be unique across the environment and valid per RFC 5322.
+
+  - **`external_id`**
+
+    `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
+
+  - **`id`**
+
+    `string` — Unique system-generated identifier for the user. Immutable once created.
+
+  - **`last_login_time`**
+
+    `string`, format: `date-time` — Timestamp of the user's most recent successful authentication. Updated automatically.
+
+  - **`memberships`**
+
+    `array` — List of organization memberships. Automatically populated based on group assignments.
+
+    **Items:**
+
+    - **`accepted_at`**
+
+      `string`, format: `date-time` — Timestamp when the user accepted the invitation.
+
+    - **`created_at`**
+
+      `string`, format: `date-time` — Timestamp when the invitation was created.
+
+    - **`display_name`**
+
+      `string` — Organization display name. This field stores a user-friendly name for the organization that may be different from the formal name, often used for UI display purposes.
+
+    - **`expires_at`**
+
+      `string`, format: `date-time` — Timestamp when the invitation expired.
+
+    - **`inviter_email`**
+
+      `string` — ID of the user who invited this user.
+
+    - **`join_time`**
+
+      `string`, format: `date-time` — Timestamp when the membership was created. Automatically set by the server.
+
+    - **`membership_status`**
+
+      `string`, possible values: `"ACTIVE", "INACTIVE", "PENDING_INVITE", "INVITE_EXPIRED"`
+
+    - **`metadata`**
+
+      `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+    - **`name`**
+
+      `string` — Organization name. This field stores the formal organization name used for identification and display purposes.
+
+    - **`organization_id`**
+
+      `string` — Unique identifier for the organization. Immutable and read-only.
+
+    - **`permissions`**
+
+      `array` — Effective permissions granted to the user within the organization (including inherited permissions from assigned roles). Lists the specific actions and access rights the user can perform.
+
+      **Items:**
+
+      `string`
+
+    - **`provisioning_method`**
+
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+
+    - **`roles`**
+
+      `array`
+
+      **Items:**
+
+      - **`display_name`**
+
+        `string` — Human-readable name for the role
+
+      - **`id`**
+
+        `string` — Role ID
+
+      - **`name`**
+
+        `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
+
+  - **`metadata`**
+
+    `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+  - **`update_time`**
+
+    `string`, format: `date-time` — Timestamp of the last modification to the user account. Automatically updated by the server.
+
+  - **`user_profile`**
+
+    `object` — User's personal information including name, address, and other profile attributes.
+
+    - **`custom_attributes`**
+
+      `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+    - **`email_verified`**
+
+      `boolean` — Indicates if the user's email address has been verified. Automatically updated by the system.
+
+    - **`external_identities`**
+
+      `array` — List of external identity connections associated with the user profile.
+
+      **Items:**
+
+      - **`connection_id`**
+
+        `string` — Unique identifier for the external identity connection. Immutable and read-only.
+
+      - **`connection_provider`**
+
+        `string`, possible values: `"OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "PING_IDENTITY", "JUMPCLOUD", "CUSTOM", "GITHUB", "GITLAB", "LINKEDIN", "SALESFORCE", "MICROSOFT", "IDP_SIMULATOR", "SCALEKIT", "ADFS"` — Type of the identity provider.
+
+      - **`connection_type`**
+
+        `string` — Name of the external identity connection.
+
+      - **`connection_user_id`**
+
+        `string` — Unique identifier for the user in the external identity provider system. Immutable and read-only.
+
+      - **`created_time`**
+
+        `string`, format: `date-time` — Timestamp when this external identity connection was first created. Immutable and read-only.
+
+      - **`is_social`**
+
+        `boolean` — Indicates if the identity provider is a social provider (true) or enterprise/custom provider (false). Read-only.
+
+      - **`last_login_time`**
+
+        `string`, format: `date-time` — Timestamp of the user's last successful login via this external identity provider. Automatically updated by the system.
+
+      - **`last_synced_time`**
+
+        `string`, format: `date-time` — Timestamp of the last data synchronization for this external identity from the provider. Automatically updated by the system.
+
+    - **`family_name`**
+
+      `string` — The user's family name (last name or surname). This field stores the user's last name and is combined with the given name to create the full display name. The family name is used in formal communications, user listings, and organizational directories throughout the system. Maximum 255 characters allowed.
+
+    - **`gender`**
+
+      `string` — The user's gender identity information. This field stores the user's gender identity for personalization, compliance reporting, or organizational analytics purposes. This field supports any string value to accommodate diverse gender identities and should be handled with appropriate privacy considerations according to your organization's policies and applicable regulations.
+
+    - **`given_name`**
+
+      `string` — The user's given name (first name). This field stores the user's first name and is used for personalization, display purposes, and when generating the full display name. The given name appears in user interfaces, formal communications, and user listings throughout the system. Maximum 255 characters allowed.
+
+    - **`groups`**
+
+      `array` — The list of group names the user belongs to within the organization. This field stores the user's group memberships for role-based access control, team assignments, and organizational structure. Groups are typically used for permission management, collaborative access, and organizational hierarchy. Each group name represents a distinct organizational unit or team that the user is associated with.
+
+      **Items:**
+
+      `string`
+
+    - **`id`**
+
+      `string` — Unique system-generated identifier for the user profile. Immutable and read-only.
+
+    - **`locale`**
+
+      `string` — The user's preferred language and region settings using BCP-47 format codes. This field customizes the user's experience with localized content, date formats, number formatting, and UI language throughout the system. When not specified, the user inherits the organization's default locale settings. Common values include \`en-US\`, \`en-GB\`, \`fr-FR\`, \`de-DE\`, and \`es-ES\`.
+
+    - **`metadata`**
+
+      `object` — Raw attributes received from identity providers during authentication. This field stores the original user profile data as received from external IdP systems (SAML, OIDC, etc.) including provider-specific claims and attributes. These fields preserve the complete set of attributes received from the identity source and are used for mapping, synchronization, and audit purposes. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+    - **`name`**
+
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
+
+    - **`phone_number`**
+
+      `string` — The user's phone number in E.164 international format. This field stores the phone number for user contact and identification purposes. The phone number must include the country code and be formatted according to E.164 standards (e.g., \`+1\` for US numbers). This field is optional.
+
+    - **`phone_number_verified`**
+
+      `boolean` — Indicates if the user's phone number has been verified. Automatically updated by the system.
+
+    - **`picture`**
+
+      `string` — The URL to the user's profile picture or avatar image. This field stores the location of the user's profile photo that appears in user interfaces, directory listings, and collaborative features throughout the system. The URL should point to a publicly accessible image file. Supported formats typically include JPEG, PNG, and GIF. This image is used for visual identification and personalization across the platform.
+
+    - **`preferred_username`**
+
+      `string` — The user's preferred username for display and identification purposes. This field stores a custom username that the user prefers to be known by, which may differ from their email or formal name. This username appears in user interfaces, mentions, informal communications, and collaborative features throughout the system. Maximum 512 characters allowed.
+
+**Example:**
+
+```json
+{
+  "user": {
+    "create_time": "",
+    "email": "user@example.com",
+    "external_id": "ext_12345a67b89c",
+    "id": "usr_1234abcd5678efgh",
+    "last_login_time": "",
+    "memberships": [
+      {}
+    ],
+    "metadata": {
+      "department": "engineering",
+      "location": "nyc-office"
+    },
+    "update_time": "",
+    "user_profile": null
+  }
+}
+```
+
+### Get user by external ID
+
+- **Method:** `GET`
+- **Path:** `/api/v1/users:external/{external_id}`
+- **Tags:** Users
+
+Retrieves all details for a user by your application's external identifier. Use this endpoint when you store users in Scalekit using your own system's identifiers and need to retrieve the Scalekit user record. The response includes organization memberships and user metadata.
+
+#### Responses
+
+##### Status: 200 User details retrieved successfully. Returns full user object with system-generated fields and timestamps.
+
+###### Content-Type: application/json
+
+- **`user`**
+
+  `object`
+
+  - **`create_time`**
+
+    `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
+
+  - **`email`**
+
+    `string` — Primary email address for the user. Must be unique across the environment and valid per RFC 5322.
+
+  - **`external_id`**
+
+    `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
+
+  - **`id`**
+
+    `string` — Unique system-generated identifier for the user. Immutable once created.
+
+  - **`last_login_time`**
+
+    `string`, format: `date-time` — Timestamp of the user's most recent successful authentication. Updated automatically.
+
+  - **`memberships`**
+
+    `array` — List of organization memberships. Automatically populated based on group assignments.
+
+    **Items:**
+
+    - **`accepted_at`**
+
+      `string`, format: `date-time` — Timestamp when the user accepted the invitation.
+
+    - **`created_at`**
+
+      `string`, format: `date-time` — Timestamp when the invitation was created.
+
+    - **`display_name`**
+
+      `string` — Organization display name. This field stores a user-friendly name for the organization that may be different from the formal name, often used for UI display purposes.
+
+    - **`expires_at`**
+
+      `string`, format: `date-time` — Timestamp when the invitation expired.
+
+    - **`inviter_email`**
+
+      `string` — ID of the user who invited this user.
+
+    - **`join_time`**
+
+      `string`, format: `date-time` — Timestamp when the membership was created. Automatically set by the server.
+
+    - **`membership_status`**
+
+      `string`, possible values: `"ACTIVE", "INACTIVE", "PENDING_INVITE", "INVITE_EXPIRED"`
+
+    - **`metadata`**
+
+      `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+    - **`name`**
+
+      `string` — Organization name. This field stores the formal organization name used for identification and display purposes.
+
+    - **`organization_id`**
+
+      `string` — Unique identifier for the organization. Immutable and read-only.
+
+    - **`permissions`**
+
+      `array` — Effective permissions granted to the user within the organization (including inherited permissions from assigned roles). Lists the specific actions and access rights the user can perform.
+
+      **Items:**
+
+      `string`
+
+    - **`provisioning_method`**
+
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+
+    - **`roles`**
+
+      `array`
+
+      **Items:**
+
+      - **`display_name`**
+
+        `string` — Human-readable name for the role
+
+      - **`id`**
+
+        `string` — Role ID
+
+      - **`name`**
+
+        `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
+
+  - **`metadata`**
+
+    `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+  - **`update_time`**
+
+    `string`, format: `date-time` — Timestamp of the last modification to the user account. Automatically updated by the server.
+
+  - **`user_profile`**
+
+    `object` — User's personal information including name, address, and other profile attributes.
+
+    - **`custom_attributes`**
+
+      `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+    - **`email_verified`**
+
+      `boolean` — Indicates if the user's email address has been verified. Automatically updated by the system.
+
+    - **`external_identities`**
+
+      `array` — List of external identity connections associated with the user profile.
+
+      **Items:**
+
+      - **`connection_id`**
+
+        `string` — Unique identifier for the external identity connection. Immutable and read-only.
+
+      - **`connection_provider`**
+
+        `string`, possible values: `"OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "PING_IDENTITY", "JUMPCLOUD", "CUSTOM", "GITHUB", "GITLAB", "LINKEDIN", "SALESFORCE", "MICROSOFT", "IDP_SIMULATOR", "SCALEKIT", "ADFS"` — Type of the identity provider.
+
+      - **`connection_type`**
+
+        `string` — Name of the external identity connection.
+
+      - **`connection_user_id`**
+
+        `string` — Unique identifier for the user in the external identity provider system. Immutable and read-only.
+
+      - **`created_time`**
+
+        `string`, format: `date-time` — Timestamp when this external identity connection was first created. Immutable and read-only.
+
+      - **`is_social`**
+
+        `boolean` — Indicates if the identity provider is a social provider (true) or enterprise/custom provider (false). Read-only.
+
+      - **`last_login_time`**
+
+        `string`, format: `date-time` — Timestamp of the user's last successful login via this external identity provider. Automatically updated by the system.
+
+      - **`last_synced_time`**
+
+        `string`, format: `date-time` — Timestamp of the last data synchronization for this external identity from the provider. Automatically updated by the system.
+
+    - **`family_name`**
+
+      `string` — The user's family name (last name or surname). This field stores the user's last name and is combined with the given name to create the full display name. The family name is used in formal communications, user listings, and organizational directories throughout the system. Maximum 255 characters allowed.
+
+    - **`gender`**
+
+      `string` — The user's gender identity information. This field stores the user's gender identity for personalization, compliance reporting, or organizational analytics purposes. This field supports any string value to accommodate diverse gender identities and should be handled with appropriate privacy considerations according to your organization's policies and applicable regulations.
+
+    - **`given_name`**
+
+      `string` — The user's given name (first name). This field stores the user's first name and is used for personalization, display purposes, and when generating the full display name. The given name appears in user interfaces, formal communications, and user listings throughout the system. Maximum 255 characters allowed.
+
+    - **`groups`**
+
+      `array` — The list of group names the user belongs to within the organization. This field stores the user's group memberships for role-based access control, team assignments, and organizational structure. Groups are typically used for permission management, collaborative access, and organizational hierarchy. Each group name represents a distinct organizational unit or team that the user is associated with.
+
+      **Items:**
+
+      `string`
+
+    - **`id`**
+
+      `string` — Unique system-generated identifier for the user profile. Immutable and read-only.
+
+    - **`locale`**
+
+      `string` — The user's preferred language and region settings using BCP-47 format codes. This field customizes the user's experience with localized content, date formats, number formatting, and UI language throughout the system. When not specified, the user inherits the organization's default locale settings. Common values include \`en-US\`, \`en-GB\`, \`fr-FR\`, \`de-DE\`, and \`es-ES\`.
+
+    - **`metadata`**
+
+      `object` — Raw attributes received from identity providers during authentication. This field stores the original user profile data as received from external IdP systems (SAML, OIDC, etc.) including provider-specific claims and attributes. These fields preserve the complete set of attributes received from the identity source and are used for mapping, synchronization, and audit purposes. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+    - **`name`**
+
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
+
+    - **`phone_number`**
+
+      `string` — The user's phone number in E.164 international format. This field stores the phone number for user contact and identification purposes. The phone number must include the country code and be formatted according to E.164 standards (e.g., \`+1\` for US numbers). This field is optional.
+
+    - **`phone_number_verified`**
+
+      `boolean` — Indicates if the user's phone number has been verified. Automatically updated by the system.
+
+    - **`picture`**
+
+      `string` — The URL to the user's profile picture or avatar image. This field stores the location of the user's profile photo that appears in user interfaces, directory listings, and collaborative features throughout the system. The URL should point to a publicly accessible image file. Supported formats typically include JPEG, PNG, and GIF. This image is used for visual identification and personalization across the platform.
+
+    - **`preferred_username`**
+
+      `string` — The user's preferred username for display and identification purposes. This field stores a custom username that the user prefers to be known by, which may differ from their email or formal name. This username appears in user interfaces, mentions, informal communications, and collaborative features throughout the system. Maximum 512 characters allowed.
+
+**Example:**
+
+```json
+{
+  "user": {
+    "create_time": "",
+    "email": "user@example.com",
+    "external_id": "ext_12345a67b89c",
+    "id": "usr_1234abcd5678efgh",
+    "last_login_time": "",
+    "memberships": [
+      {}
+    ],
+    "metadata": {
+      "department": "engineering",
+      "location": "nyc-office"
+    },
+    "update_time": "",
+    "user_profile": null
+  }
+}
+```
+
+### Delete user by external ID
+
+- **Method:** `DELETE`
+- **Path:** `/api/v1/users:external/{external_id}`
+- **Tags:** Users
+
+Permanently removes a user identified by your application's external identifier. This action deletes the user's profile, memberships, and all related data across all organizations. This operation cannot be undone.
+
+#### Responses
+
+##### Status: 200 User successfully deleted. No content returned
+
+###### Content-Type: application/json
+
+**Example:**
+
+```json
+null
+```
+
+### Update user by external ID
+
+- **Method:** `PATCH`
+- **Path:** `/api/v1/users:external/{external_id}`
+- **Tags:** Users
+
+Modifies user account information for a user identified by your application's external identifier. Use this endpoint to keep user profile data in sync from your system without needing to store Scalekit's internal user ID. You can update the user's profile, phone number, and metadata fields.
 
 #### Request Body
 

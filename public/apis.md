@@ -204,7 +204,7 @@ Retrieves a paginated list of connected accounts for third-party integrations. F
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authorization mechanism type.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authorization mechanism type.
 
   - **`connection_id`**
 
@@ -378,6 +378,30 @@ Updates authentication credentials and configuration for an existing connected a
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
 
+    - **`trusted_idp`**
+
+      `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+      - **`access_key_id`**
+
+        `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+      - **`db_user`**
+
+        `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+      - **`expiry`**
+
+        `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+      - **`secret_access_key`**
+
+        `string` — Federated secret access key. Never returned in public API responses.
+
+      - **`session_token`**
+
+        `string` — Federated session token. Never returned in public API responses.
+
 - **`connector`**
 
   `string` — Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.
@@ -497,9 +521,33 @@ Updates authentication credentials and configuration for an existing connected a
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
 
+    - **`trusted_idp`**
+
+      `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+      - **`access_key_id`**
+
+        `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+      - **`db_user`**
+
+        `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+      - **`expiry`**
+
+        `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+      - **`secret_access_key`**
+
+        `string` — Federated secret access key. Never returned in public API responses.
+
+      - **`session_token`**
+
+        `string` — Federated session token. Never returned in public API responses.
+
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -672,6 +720,30 @@ Creates a new connected account with OAuth tokens or API credentials for third-p
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
 
+    - **`trusted_idp`**
+
+      `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+      - **`access_key_id`**
+
+        `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+      - **`db_user`**
+
+        `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+      - **`expiry`**
+
+        `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+      - **`secret_access_key`**
+
+        `string` — Federated secret access key. Never returned in public API responses.
+
+      - **`session_token`**
+
+        `string` — Federated session token. Never returned in public API responses.
+
 - **`connector`**
 
   `string` — Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.
@@ -786,9 +858,33 @@ Creates a new connected account with OAuth tokens or API credentials for third-p
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
 
+    - **`trusted_idp`**
+
+      `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+      - **`access_key_id`**
+
+        `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+      - **`db_user`**
+
+        `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+      - **`expiry`**
+
+        `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+      - **`secret_access_key`**
+
+        `string` — Federated secret access key. Never returned in public API responses.
+
+      - **`session_token`**
+
+        `string` — Federated session token. Never returned in public API responses.
+
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -963,9 +1059,33 @@ Retrieves complete authentication details for a connected account including OAut
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
 
+    - **`trusted_idp`**
+
+      `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+      - **`access_key_id`**
+
+        `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+      - **`db_user`**
+
+        `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+      - **`expiry`**
+
+        `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+      - **`secret_access_key`**
+
+        `string` — Federated secret access key. Never returned in public API responses.
+
+      - **`session_token`**
+
+        `string` — Federated session token. Never returned in public API responses.
+
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -1140,9 +1260,33 @@ Returns metadata for a connected account including status, connector type, provi
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
 
+    - **`trusted_idp`**
+
+      `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+      - **`access_key_id`**
+
+        `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+      - **`db_user`**
+
+        `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+      - **`expiry`**
+
+        `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+      - **`secret_access_key`**
+
+        `string` — Federated secret access key. Never returned in public API responses.
+
+      - **`session_token`**
+
+        `string` — Federated session token. Never returned in public API responses.
+
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -1527,7 +1671,7 @@ Search for connected accounts in your environment using a text query that matche
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authorization mechanism type.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authorization mechanism type.
 
   - **`connection_id`**
 
@@ -1661,6 +1805,10 @@ Retrieves a list of connections in the environment
 
     `string` — Alternative identifier for this connection, typically used in frontend applications or URLs
 
+  - **`mcp_server_url`**
+
+    `string` — MCP virtual server URL for this connection. Agents can point directly at this URL to access only the tools for this connection, without needing to call list\_connections or execute\_tool with a connection\_name. Empty when the MCP virtual servers feature is not enabled for this environment.
+
   - **`organization_id`**
 
     `string` — Unique identifier of the organization that owns this connection
@@ -1683,7 +1831,7 @@ Retrieves a list of connections in the environment
 
   - **`type`**
 
-    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authentication protocol used by the connection
+    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authentication protocol used by the connection
 
 **Example:**
 
@@ -1698,6 +1846,7 @@ Retrieves a list of connections in the environment
       "enabled": false,
       "id": "conn_2123312131125533",
       "key_id": "conn_2123312131125533",
+      "mcp_server_url": "https://acmecorp.scalekit.dev/mcp/v3/connections/gmail_work",
       "organization_id": "org_2123312131125533",
       "organization_name": "Your Organization",
       "provider": "CUSTOM",
@@ -2859,7 +3008,7 @@ Returns a list of existing MCPs, optionally filtered by connected\_account\_iden
 
   - **`id`**
 
-    `string` — Unique ID of the tool
+    `string` — Unique ID of the MCP resource
 
   - **`tool_mappings`**
 
@@ -2885,7 +3034,7 @@ Returns a list of existing MCPs, optionally filtered by connected\_account\_iden
 
   - **`url`**
 
-    `string` — Unique ID of the tool
+    `string` — URL endpoint for the MCP resource
 
 **Example:**
 
@@ -2940,7 +3089,7 @@ Creates a new MCP for the configuration. If same configuration exists, it will r
 
 - **`id`**
 
-  `string` — Unique ID of the tool
+  `string` — Unique ID of the MCP resource
 
 - **`tool_mappings`**
 
@@ -2966,7 +3115,7 @@ Creates a new MCP for the configuration. If same configuration exists, it will r
 
 - **`url`**
 
-  `string` — Unique ID of the tool
+  `string` — URL endpoint for the MCP resource
 
 **Example:**
 
@@ -2995,7 +3144,7 @@ Creates a new MCP for the configuration. If same configuration exists, it will r
 
   - **`id`**
 
-    `string` — Unique ID of the tool
+    `string` — Unique ID of the MCP resource
 
   - **`tool_mappings`**
 
@@ -3021,7 +3170,7 @@ Creates a new MCP for the configuration. If same configuration exists, it will r
 
   - **`url`**
 
-    `string` — Unique ID of the tool
+    `string` — URL endpoint for the MCP resource
 
 **Example:**
 
@@ -3078,7 +3227,7 @@ Lists MCP configurations for the current environment with optional filters for i
 
   - **`connection_tool_mappings`**
 
-    `array` — List of connection-to-tool mappings for this MCP config
+    `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
     **Items:**
 
@@ -3118,9 +3267,13 @@ Lists MCP configurations for the current environment with optional filters for i
 
     `string` — Unique ID of the MCP config
 
+  - **`mcp_server_url`**
+
+    `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
   - **`name`**
 
-    `string` — Unique name for the MCP configuration
+    `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
 
 - **`next_page_token`**
 
@@ -3145,6 +3298,7 @@ Lists MCP configurations for the current environment with optional filters for i
       ],
       "description": "Summarizes daily emails and posts to Slack",
       "id": "cfg_85630864460904897",
+      "mcp_server_url": "https://env.scalekit.com/mcp/v3/servers/550e8400-e29b-41d4-a716-446655440000",
       "name": "daily-summarizer"
     }
   ],
@@ -3188,7 +3342,7 @@ Creates a new MCP configuration with a set of connections and tools.
 
 - **`connection_tool_mappings`**
 
-  `array` — List of connection-to-tool mappings for this MCP config
+  `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
   **Items:**
 
@@ -3228,9 +3382,13 @@ Creates a new MCP configuration with a set of connections and tools.
 
   `string` — Unique ID of the MCP config
 
+- **`mcp_server_url`**
+
+  `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
 - **`name`**
 
-  `string` — Unique name for the MCP configuration
+  `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
 
 **Example:**
 
@@ -3250,6 +3408,7 @@ Creates a new MCP configuration with a set of connections and tools.
   ],
   "description": "Summarizes daily emails and posts to Slack",
   "id": "cfg_85630864460904897",
+  "mcp_server_url": "https://env.scalekit.com/mcp/v3/servers/550e8400-e29b-41d4-a716-446655440000",
   "name": "daily-summarizer"
 }
 ```
@@ -3266,7 +3425,7 @@ Creates a new MCP configuration with a set of connections and tools.
 
   - **`connection_tool_mappings`**
 
-    `array` — List of connection-to-tool mappings for this MCP config
+    `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
     **Items:**
 
@@ -3306,9 +3465,13 @@ Creates a new MCP configuration with a set of connections and tools.
 
     `string` — Unique ID of the MCP config
 
+  - **`mcp_server_url`**
+
+    `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
   - **`name`**
 
-    `string` — Unique name for the MCP configuration
+    `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
 
 **Example:**
 
@@ -3320,6 +3483,7 @@ Creates a new MCP configuration with a set of connections and tools.
     ],
     "description": "Summarizes daily emails and posts to Slack",
     "id": "cfg_85630864460904897",
+    "mcp_server_url": "https://env.scalekit.com/mcp/v3/servers/550e8400-e29b-41d4-a716-446655440000",
     "name": "daily-summarizer"
   }
 }
@@ -3365,7 +3529,7 @@ Returns a single MCP configuration for the current environment by ID.
 
   - **`connection_tool_mappings`**
 
-    `array` — List of connection-to-tool mappings for this MCP config
+    `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
     **Items:**
 
@@ -3405,9 +3569,13 @@ Returns a single MCP configuration for the current environment by ID.
 
     `string` — Unique ID of the MCP config
 
+  - **`mcp_server_url`**
+
+    `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
   - **`name`**
 
-    `string` — Unique name for the MCP configuration
+    `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
 
 **Example:**
 
@@ -3419,6 +3587,7 @@ Returns a single MCP configuration for the current environment by ID.
     ],
     "description": "Summarizes daily emails and posts to Slack",
     "id": "cfg_85630864460904897",
+    "mcp_server_url": "https://env.scalekit.com/mcp/v3/servers/550e8400-e29b-41d4-a716-446655440000",
     "name": "daily-summarizer"
   }
 }
@@ -3460,7 +3629,7 @@ null
 - **Path:** `/api/v1/mcp/configs/{config_id}`
 - **Tags:** MCP Configurations
 
-Updates the name, description, and connection-to-tool mappings for an existing MCP configuration.
+Updates the description and connection-to-tool mappings for an existing MCP configuration. The configuration name cannot be changed after creation.
 
 #### Request Body
 
@@ -3468,7 +3637,7 @@ Updates the name, description, and connection-to-tool mappings for an existing M
 
 - **`connection_tool_mappings`**
 
-  `array` — Updated list of connection-to-tool mappings for this MCP config
+  `array` — Updated list of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
   **Items:**
 
@@ -3536,7 +3705,7 @@ Updates the name, description, and connection-to-tool mappings for an existing M
 
   - **`connection_tool_mappings`**
 
-    `array` — List of connection-to-tool mappings for this MCP config
+    `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
     **Items:**
 
@@ -3576,9 +3745,13 @@ Updates the name, description, and connection-to-tool mappings for an existing M
 
     `string` — Unique ID of the MCP config
 
+  - **`mcp_server_url`**
+
+    `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
   - **`name`**
 
-    `string` — Unique name for the MCP configuration
+    `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
 
 **Example:**
 
@@ -3590,6 +3763,7 @@ Updates the name, description, and connection-to-tool mappings for an existing M
     ],
     "description": "Summarizes daily emails and posts to Slack",
     "id": "cfg_85630864460904897",
+    "mcp_server_url": "https://env.scalekit.com/mcp/v3/servers/550e8400-e29b-41d4-a716-446655440000",
     "name": "daily-summarizer"
   }
 }
@@ -3675,6 +3849,180 @@ null
 null
 ```
 
+### List connected accounts for an MCP configuration
+
+- **Method:** `POST`
+- **Path:** `/api/v1/mcp/configs/{config_id}/connected_accounts`
+- **Tags:** mcp-configs
+
+Returns the connected account state for each connection in the MCP configuration for the given user identifier. When include\_auth\_link is true, creates connected accounts on the fly if they do not exist and returns a fresh authentication link per connection. When include\_auth\_link is false or omitted, returns the current status of existing connected accounts only — no accounts are created and authentication\_link is always empty. Authentication links are only present when the connection has an associated key; if the connection has no key, authentication\_link is empty regardless of include\_auth\_link.
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`identifier` (required)**
+
+  `string` — Identifier for the end user whose connected accounts to retrieve
+
+- **`include_auth_link`**
+
+  `boolean` — When true, generates a fresh authentication link for each connection and creates connected accounts if they do not exist. When false or omitted, returns existing connected account status without creating accounts or generating links.
+
+**Example:**
+
+```json
+{
+  "identifier": "john.doe@example.com",
+  "include_auth_link": true
+}
+```
+
+#### Responses
+
+##### Status: 200 Connected account state returned for each connection in the configuration
+
+###### Content-Type: application/json
+
+- **`connected_accounts`**
+
+  `array` — Connected account state for each connection in the configuration
+
+  **Items:**
+
+  - **`authentication_link`**
+
+    `string` — Fresh authentication link for the connected account. Empty when include\_auth\_link is false or when the connection has no associated key.
+
+  - **`connected_account_id`**
+
+    `string` — ID of the connected account for this user and connection
+
+  - **`connected_account_status`**
+
+    `string` — Authentication status of the connected account
+
+  - **`connection_id`**
+
+    `string` — ID of the connection
+
+  - **`connection_name`**
+
+    `string` — Name of the connection
+
+  - **`provider`**
+
+    `string` — Provider identifier for the connection
+
+**Example:**
+
+```json
+{
+  "connected_accounts": [
+    {
+      "authentication_link": "",
+      "connected_account_id": "",
+      "connected_account_status": "",
+      "connection_id": "",
+      "connection_name": "",
+      "provider": ""
+    }
+  ]
+}
+```
+
+##### Status: 400 Bad request - config\_id or identifier is missing or invalid
+
+###### Content-Type: application/json
+
+**Example:**
+
+```json
+null
+```
+
+##### Status: 404 Not found - no MCP configuration exists with the given config\_id
+
+###### Content-Type: application/json
+
+**Example:**
+
+```json
+null
+```
+
+### Create an MCP session token
+
+- **Method:** `POST`
+- **Path:** `/api/v1/mcp/configs/{mcp_config_id}/tokens`
+- **Tags:** mcp-configs
+
+Mints a short-lived JWT that represents a user identifier across the connected accounts associated with an MCP configuration. The supplied identifier becomes the token's `sub` claim; the token's `aud` claim is the MCP server URL bound to the configuration. Claims also carry the MCP configuration ID (`mcp_cfg`) and the list of resolved connected-account IDs (`ca_ids`). Use this operation to issue a single credential an MCP server can present on the user's behalf when calling provider tools. The mint fails if any connection mapped to the configuration has no active connected account for the identifier.
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`identifier` (required)**
+
+  `string` — Upstream-provider identifier (typically the user's email or provider user-id) shared by the connected accounts the token represents. A single identifier can map to one connected account per connection in the MCP configuration.
+
+- **`expiry`**
+
+  `string` — Optional token lifetime. Must be between 60s and 24h. Defaults to 1h when omitted.
+
+**Example:**
+
+```json
+{
+  "expiry": "3600s",
+  "identifier": "alice@acme.com"
+}
+```
+
+#### Responses
+
+##### Status: 200 Token created successfully; returns the signed JWT and its absolute expiry
+
+###### Content-Type: application/json
+
+- **`expires_at`**
+
+  `string`, format: `date-time` — Absolute time at which the token expires. Equals issued\_at + expiry.
+
+- **`token`**
+
+  `string` — Signed JWT (RS256) whose \`sub\` claim is the supplied identifier and whose \`aud\` claim is the MCP server URL bound to the configuration. Payload also carries the MCP configuration ID (\`mcp\_cfg\`) and the resolved connected-account IDs (\`ca\_ids\`). Signed with the calling environment's active JWT signing key.
+
+**Example:**
+
+```json
+{
+  "expires_at": "",
+  "token": "eyJhbGciOiJSUzI1NiIsImtpZCI6InNua18xMjMifQ.eyJhdWQiOlsiYWxpY2VAYWNtZS5jb20iXSwidG9rZW5fdHlwZSI6Im1jcF9zZXNzaW9uIn0.signature"
+}
+```
+
+##### Status: 400 Invalid request - mcp\_config\_id or identifier is missing or malformed, expiry is outside the 60s-24h window, the MCP configuration has no connections, or a connection has no active connected account for the supplied identifier
+
+###### Content-Type: application/json
+
+**Example:**
+
+```json
+null
+```
+
+##### Status: 404 Not Found - no MCP configuration exists with the supplied ID in the caller's environment
+
+###### Content-Type: application/json
+
+**Example:**
+
+```json
+null
+```
+
 ### List MCP instances
 
 - **Method:** `GET`
@@ -3701,7 +4049,7 @@ Lists MCP instances for the current environment with optional filters for instan
 
     - **`connection_tool_mappings`**
 
-      `array` — List of connection-to-tool mappings for this MCP config
+      `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
       **Items:**
 
@@ -3741,9 +4089,13 @@ Lists MCP instances for the current environment with optional filters for instan
 
       `string` — Unique ID of the MCP config
 
+    - **`mcp_server_url`**
+
+      `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
     - **`name`**
 
-      `string` — Unique name for the MCP configuration
+      `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
 
   - **`id`**
 
@@ -3793,7 +4145,7 @@ Lists MCP instances for the current environment with optional filters for instan
       "name": "daily-digest",
       "updated_at": "2025-10-07T12:21:00Z",
       "url": "https://example.com/mcp/v1/abc123",
-      "user_identifier": "akshay.parihar"
+      "user_identifier": "john.doe@example.com"
     }
   ],
   "next_page_token": "",
@@ -3852,7 +4204,7 @@ Returns an existing MCP instance for the given configuration, name, and user ide
 {
   "config_name": "daily-summarizer",
   "name": "daily-digest",
-  "user_identifier": "akshay.parihar"
+  "user_identifier": "john.doe@example.com"
 }
 ```
 
@@ -3872,7 +4224,7 @@ Returns an existing MCP instance for the given configuration, name, and user ide
 
     - **`connection_tool_mappings`**
 
-      `array` — List of connection-to-tool mappings for this MCP config
+      `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
       **Items:**
 
@@ -3912,9 +4264,13 @@ Returns an existing MCP instance for the given configuration, name, and user ide
 
       `string` — Unique ID of the MCP config
 
+    - **`mcp_server_url`**
+
+      `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
     - **`name`**
 
-      `string` — Unique name for the MCP configuration
+      `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
 
   - **`id`**
 
@@ -3951,7 +4307,7 @@ Returns an existing MCP instance for the given configuration, name, and user ide
     "name": "daily-digest",
     "updated_at": "2025-10-07T12:21:00Z",
     "url": "https://example.com/mcp/v1/abc123",
-    "user_identifier": "akshay.parihar"
+    "user_identifier": "john.doe@example.com"
   }
 }
 ```
@@ -4000,7 +4356,7 @@ Returns a single MCP instance for the current environment by ID.
 
     - **`connection_tool_mappings`**
 
-      `array` — List of connection-to-tool mappings for this MCP config
+      `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
       **Items:**
 
@@ -4040,9 +4396,13 @@ Returns a single MCP instance for the current environment by ID.
 
       `string` — Unique ID of the MCP config
 
+    - **`mcp_server_url`**
+
+      `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
     - **`name`**
 
-      `string` — Unique name for the MCP configuration
+      `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
 
   - **`id`**
 
@@ -4079,7 +4439,7 @@ Returns a single MCP instance for the current environment by ID.
     "name": "daily-digest",
     "updated_at": "2025-10-07T12:21:00Z",
     "url": "https://example.com/mcp/v1/abc123",
-    "user_identifier": "akshay.parihar"
+    "user_identifier": "john.doe@example.com"
   }
 }
 ```
@@ -4170,7 +4530,7 @@ null
 - **Path:** `/api/v1/mcp/instances/{instance_id}`
 - **Tags:** MCP Instances
 
-Updates attributes of an MCP instance. Currently only the config name can be changed, which rebuilds the instance mappings.
+Updates attributes of an MCP instance. Changing the display name only renames the instance; changing the config name rebuilds the instance mappings from the new configuration.
 
 #### Request Body
 
@@ -4209,7 +4569,7 @@ Updates attributes of an MCP instance. Currently only the config name can be cha
 
     - **`connection_tool_mappings`**
 
-      `array` — List of connection-to-tool mappings for this MCP config
+      `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
       **Items:**
 
@@ -4249,9 +4609,13 @@ Updates attributes of an MCP instance. Currently only the config name can be cha
 
       `string` — Unique ID of the MCP config
 
+    - **`mcp_server_url`**
+
+      `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
     - **`name`**
 
-      `string` — Unique name for the MCP configuration
+      `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
 
   - **`id`**
 
@@ -4288,7 +4652,7 @@ Updates attributes of an MCP instance. Currently only the config name can be cha
     "name": "daily-digest",
     "updated_at": "2025-10-07T12:21:00Z",
     "url": "https://example.com/mcp/v1/abc123",
-    "user_identifier": "akshay.parihar"
+    "user_identifier": "john.doe@example.com"
   }
 }
 ```
@@ -4438,7 +4802,7 @@ Returns the existing MCP with the given ID.
 
   - **`id`**
 
-    `string` — Unique ID of the tool
+    `string` — Unique ID of the MCP resource
 
   - **`tool_mappings`**
 
@@ -4464,7 +4828,7 @@ Returns the existing MCP with the given ID.
 
   - **`url`**
 
-    `string` — Unique ID of the tool
+    `string` — URL endpoint for the MCP resource
 
 **Example:**
 
@@ -4859,7 +5223,7 @@ Adds an existing user to an organization and assigns them specific roles and per
 - **Path:** `/api/v1/memberships/organizations/{organization_id}/users/{id}`
 - **Tags:** Users
 
-Removes a user from an organization by user ID or external ID. If the user has no memberships left and cascade is true, the user is also deleted. This action is irreversible and may also remove related group memberships.
+Removes a user from an organization by user ID. This action is irreversible and may also remove related group memberships.
 
 #### Responses
 
@@ -4879,7 +5243,610 @@ null
 - **Path:** `/api/v1/memberships/organizations/{organization_id}/users/{id}`
 - **Tags:** Users
 
-Updates a user's membership details within an organization by user ID or external ID. You can update roles and membership metadata.
+Updates a user's membership details within an organization by user ID. You can update roles and membership metadata.
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`metadata`**
+
+  `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+- **`roles`**
+
+  `array` — Role to assign to the user within the organization
+
+  **Items:**
+
+  - **`display_name`**
+
+    `string` — Human-readable name for the role
+
+  - **`id`**
+
+    `string` — Role ID
+
+  - **`name`**
+
+    `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
+
+**Example:**
+
+```json
+{
+  "metadata": {
+    "department": "engineering",
+    "location": "nyc-office"
+  },
+  "roles": [
+    {
+      "name": "admin"
+    }
+  ]
+}
+```
+
+#### Responses
+
+##### Status: 200 Membership updated successfully. Returns the updated user object.
+
+###### Content-Type: application/json
+
+- **`user`**
+
+  `object`
+
+  - **`create_time`**
+
+    `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
+
+  - **`email`**
+
+    `string` — Primary email address for the user. Must be unique across the environment and valid per RFC 5322.
+
+  - **`external_id`**
+
+    `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
+
+  - **`id`**
+
+    `string` — Unique system-generated identifier for the user. Immutable once created.
+
+  - **`last_login_time`**
+
+    `string`, format: `date-time` — Timestamp of the user's most recent successful authentication. Updated automatically.
+
+  - **`memberships`**
+
+    `array` — List of organization memberships. Automatically populated based on group assignments.
+
+    **Items:**
+
+    - **`accepted_at`**
+
+      `string`, format: `date-time` — Timestamp when the user accepted the invitation.
+
+    - **`created_at`**
+
+      `string`, format: `date-time` — Timestamp when the invitation was created.
+
+    - **`display_name`**
+
+      `string` — Organization display name. This field stores a user-friendly name for the organization that may be different from the formal name, often used for UI display purposes.
+
+    - **`expires_at`**
+
+      `string`, format: `date-time` — Timestamp when the invitation expired.
+
+    - **`inviter_email`**
+
+      `string` — ID of the user who invited this user.
+
+    - **`join_time`**
+
+      `string`, format: `date-time` — Timestamp when the membership was created. Automatically set by the server.
+
+    - **`membership_status`**
+
+      `string`, possible values: `"ACTIVE", "INACTIVE", "PENDING_INVITE", "INVITE_EXPIRED"`
+
+    - **`metadata`**
+
+      `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+    - **`name`**
+
+      `string` — Organization name. This field stores the formal organization name used for identification and display purposes.
+
+    - **`organization_id`**
+
+      `string` — Unique identifier for the organization. Immutable and read-only.
+
+    - **`permissions`**
+
+      `array` — Effective permissions granted to the user within the organization (including inherited permissions from assigned roles). Lists the specific actions and access rights the user can perform.
+
+      **Items:**
+
+      `string`
+
+    - **`provisioning_method`**
+
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+
+    - **`roles`**
+
+      `array`
+
+      **Items:**
+
+      - **`display_name`**
+
+        `string` — Human-readable name for the role
+
+      - **`id`**
+
+        `string` — Role ID
+
+      - **`name`**
+
+        `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
+
+  - **`metadata`**
+
+    `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+  - **`update_time`**
+
+    `string`, format: `date-time` — Timestamp of the last modification to the user account. Automatically updated by the server.
+
+  - **`user_profile`**
+
+    `object` — User's personal information including name, address, and other profile attributes.
+
+    - **`custom_attributes`**
+
+      `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+    - **`email_verified`**
+
+      `boolean` — Indicates if the user's email address has been verified. Automatically updated by the system.
+
+    - **`external_identities`**
+
+      `array` — List of external identity connections associated with the user profile.
+
+      **Items:**
+
+      - **`connection_id`**
+
+        `string` — Unique identifier for the external identity connection. Immutable and read-only.
+
+      - **`connection_provider`**
+
+        `string`, possible values: `"OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "PING_IDENTITY", "JUMPCLOUD", "CUSTOM", "GITHUB", "GITLAB", "LINKEDIN", "SALESFORCE", "MICROSOFT", "IDP_SIMULATOR", "SCALEKIT", "ADFS"` — Type of the identity provider.
+
+      - **`connection_type`**
+
+        `string` — Name of the external identity connection.
+
+      - **`connection_user_id`**
+
+        `string` — Unique identifier for the user in the external identity provider system. Immutable and read-only.
+
+      - **`created_time`**
+
+        `string`, format: `date-time` — Timestamp when this external identity connection was first created. Immutable and read-only.
+
+      - **`is_social`**
+
+        `boolean` — Indicates if the identity provider is a social provider (true) or enterprise/custom provider (false). Read-only.
+
+      - **`last_login_time`**
+
+        `string`, format: `date-time` — Timestamp of the user's last successful login via this external identity provider. Automatically updated by the system.
+
+      - **`last_synced_time`**
+
+        `string`, format: `date-time` — Timestamp of the last data synchronization for this external identity from the provider. Automatically updated by the system.
+
+    - **`family_name`**
+
+      `string` — The user's family name (last name or surname). This field stores the user's last name and is combined with the given name to create the full display name. The family name is used in formal communications, user listings, and organizational directories throughout the system. Maximum 255 characters allowed.
+
+    - **`gender`**
+
+      `string` — The user's gender identity information. This field stores the user's gender identity for personalization, compliance reporting, or organizational analytics purposes. This field supports any string value to accommodate diverse gender identities and should be handled with appropriate privacy considerations according to your organization's policies and applicable regulations.
+
+    - **`given_name`**
+
+      `string` — The user's given name (first name). This field stores the user's first name and is used for personalization, display purposes, and when generating the full display name. The given name appears in user interfaces, formal communications, and user listings throughout the system. Maximum 255 characters allowed.
+
+    - **`groups`**
+
+      `array` — The list of group names the user belongs to within the organization. This field stores the user's group memberships for role-based access control, team assignments, and organizational structure. Groups are typically used for permission management, collaborative access, and organizational hierarchy. Each group name represents a distinct organizational unit or team that the user is associated with.
+
+      **Items:**
+
+      `string`
+
+    - **`id`**
+
+      `string` — Unique system-generated identifier for the user profile. Immutable and read-only.
+
+    - **`locale`**
+
+      `string` — The user's preferred language and region settings using BCP-47 format codes. This field customizes the user's experience with localized content, date formats, number formatting, and UI language throughout the system. When not specified, the user inherits the organization's default locale settings. Common values include \`en-US\`, \`en-GB\`, \`fr-FR\`, \`de-DE\`, and \`es-ES\`.
+
+    - **`metadata`**
+
+      `object` — Raw attributes received from identity providers during authentication. This field stores the original user profile data as received from external IdP systems (SAML, OIDC, etc.) including provider-specific claims and attributes. These fields preserve the complete set of attributes received from the identity source and are used for mapping, synchronization, and audit purposes. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+    - **`name`**
+
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
+
+    - **`phone_number`**
+
+      `string` — The user's phone number in E.164 international format. This field stores the phone number for user contact and identification purposes. The phone number must include the country code and be formatted according to E.164 standards (e.g., \`+1\` for US numbers). This field is optional.
+
+    - **`phone_number_verified`**
+
+      `boolean` — Indicates if the user's phone number has been verified. Automatically updated by the system.
+
+    - **`picture`**
+
+      `string` — The URL to the user's profile picture or avatar image. This field stores the location of the user's profile photo that appears in user interfaces, directory listings, and collaborative features throughout the system. The URL should point to a publicly accessible image file. Supported formats typically include JPEG, PNG, and GIF. This image is used for visual identification and personalization across the platform.
+
+    - **`preferred_username`**
+
+      `string` — The user's preferred username for display and identification purposes. This field stores a custom username that the user prefers to be known by, which may differ from their email or formal name. This username appears in user interfaces, mentions, informal communications, and collaborative features throughout the system. Maximum 512 characters allowed.
+
+**Example:**
+
+```json
+{
+  "user": {
+    "create_time": "",
+    "email": "user@example.com",
+    "external_id": "ext_12345a67b89c",
+    "id": "usr_1234abcd5678efgh",
+    "last_login_time": "",
+    "memberships": [
+      {}
+    ],
+    "metadata": {
+      "department": "engineering",
+      "location": "nyc-office"
+    },
+    "update_time": "",
+    "user_profile": null
+  }
+}
+```
+
+### Add existing user to organization by external ID
+
+- **Method:** `POST`
+- **Path:** `/api/v1/memberships/organizations/{organization_id}/users:external/{external_id}`
+- **Tags:** Users
+
+Adds an existing user to an organization using your application's external identifier for the user. Use this endpoint when you store users in Scalekit using your own system's identifiers and need to manage their organization memberships without storing Scalekit's internal user ID.
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`inviter_email`**
+
+  `string` — Email address of the user who invited this member. Must be a valid email address.
+
+- **`metadata`**
+
+  `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+- **`roles`**
+
+  `array` — Role to assign to the user within the organization
+
+  **Items:**
+
+  - **`display_name`**
+
+    `string` — Human-readable name for the role
+
+  - **`id`**
+
+    `string` — Role ID
+
+  - **`name`**
+
+    `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
+
+**Example:**
+
+```json
+{
+  "inviter_email": "john.doe@example.com",
+  "metadata": {
+    "department": "engineering",
+    "location": "nyc-office"
+  },
+  "roles": [
+    {
+      "name": "admin"
+    }
+  ]
+}
+```
+
+#### Responses
+
+##### Status: 201 User successfully added to the organization. Returns details of the updated membership details
+
+###### Content-Type: application/json
+
+- **`user`**
+
+  `object`
+
+  - **`create_time`**
+
+    `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
+
+  - **`email`**
+
+    `string` — Primary email address for the user. Must be unique across the environment and valid per RFC 5322.
+
+  - **`external_id`**
+
+    `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
+
+  - **`id`**
+
+    `string` — Unique system-generated identifier for the user. Immutable once created.
+
+  - **`last_login_time`**
+
+    `string`, format: `date-time` — Timestamp of the user's most recent successful authentication. Updated automatically.
+
+  - **`memberships`**
+
+    `array` — List of organization memberships. Automatically populated based on group assignments.
+
+    **Items:**
+
+    - **`accepted_at`**
+
+      `string`, format: `date-time` — Timestamp when the user accepted the invitation.
+
+    - **`created_at`**
+
+      `string`, format: `date-time` — Timestamp when the invitation was created.
+
+    - **`display_name`**
+
+      `string` — Organization display name. This field stores a user-friendly name for the organization that may be different from the formal name, often used for UI display purposes.
+
+    - **`expires_at`**
+
+      `string`, format: `date-time` — Timestamp when the invitation expired.
+
+    - **`inviter_email`**
+
+      `string` — ID of the user who invited this user.
+
+    - **`join_time`**
+
+      `string`, format: `date-time` — Timestamp when the membership was created. Automatically set by the server.
+
+    - **`membership_status`**
+
+      `string`, possible values: `"ACTIVE", "INACTIVE", "PENDING_INVITE", "INVITE_EXPIRED"`
+
+    - **`metadata`**
+
+      `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+    - **`name`**
+
+      `string` — Organization name. This field stores the formal organization name used for identification and display purposes.
+
+    - **`organization_id`**
+
+      `string` — Unique identifier for the organization. Immutable and read-only.
+
+    - **`permissions`**
+
+      `array` — Effective permissions granted to the user within the organization (including inherited permissions from assigned roles). Lists the specific actions and access rights the user can perform.
+
+      **Items:**
+
+      `string`
+
+    - **`provisioning_method`**
+
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+
+    - **`roles`**
+
+      `array`
+
+      **Items:**
+
+      - **`display_name`**
+
+        `string` — Human-readable name for the role
+
+      - **`id`**
+
+        `string` — Role ID
+
+      - **`name`**
+
+        `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
+
+  - **`metadata`**
+
+    `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+  - **`update_time`**
+
+    `string`, format: `date-time` — Timestamp of the last modification to the user account. Automatically updated by the server.
+
+  - **`user_profile`**
+
+    `object` — User's personal information including name, address, and other profile attributes.
+
+    - **`custom_attributes`**
+
+      `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+    - **`email_verified`**
+
+      `boolean` — Indicates if the user's email address has been verified. Automatically updated by the system.
+
+    - **`external_identities`**
+
+      `array` — List of external identity connections associated with the user profile.
+
+      **Items:**
+
+      - **`connection_id`**
+
+        `string` — Unique identifier for the external identity connection. Immutable and read-only.
+
+      - **`connection_provider`**
+
+        `string`, possible values: `"OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "PING_IDENTITY", "JUMPCLOUD", "CUSTOM", "GITHUB", "GITLAB", "LINKEDIN", "SALESFORCE", "MICROSOFT", "IDP_SIMULATOR", "SCALEKIT", "ADFS"` — Type of the identity provider.
+
+      - **`connection_type`**
+
+        `string` — Name of the external identity connection.
+
+      - **`connection_user_id`**
+
+        `string` — Unique identifier for the user in the external identity provider system. Immutable and read-only.
+
+      - **`created_time`**
+
+        `string`, format: `date-time` — Timestamp when this external identity connection was first created. Immutable and read-only.
+
+      - **`is_social`**
+
+        `boolean` — Indicates if the identity provider is a social provider (true) or enterprise/custom provider (false). Read-only.
+
+      - **`last_login_time`**
+
+        `string`, format: `date-time` — Timestamp of the user's last successful login via this external identity provider. Automatically updated by the system.
+
+      - **`last_synced_time`**
+
+        `string`, format: `date-time` — Timestamp of the last data synchronization for this external identity from the provider. Automatically updated by the system.
+
+    - **`family_name`**
+
+      `string` — The user's family name (last name or surname). This field stores the user's last name and is combined with the given name to create the full display name. The family name is used in formal communications, user listings, and organizational directories throughout the system. Maximum 255 characters allowed.
+
+    - **`gender`**
+
+      `string` — The user's gender identity information. This field stores the user's gender identity for personalization, compliance reporting, or organizational analytics purposes. This field supports any string value to accommodate diverse gender identities and should be handled with appropriate privacy considerations according to your organization's policies and applicable regulations.
+
+    - **`given_name`**
+
+      `string` — The user's given name (first name). This field stores the user's first name and is used for personalization, display purposes, and when generating the full display name. The given name appears in user interfaces, formal communications, and user listings throughout the system. Maximum 255 characters allowed.
+
+    - **`groups`**
+
+      `array` — The list of group names the user belongs to within the organization. This field stores the user's group memberships for role-based access control, team assignments, and organizational structure. Groups are typically used for permission management, collaborative access, and organizational hierarchy. Each group name represents a distinct organizational unit or team that the user is associated with.
+
+      **Items:**
+
+      `string`
+
+    - **`id`**
+
+      `string` — Unique system-generated identifier for the user profile. Immutable and read-only.
+
+    - **`locale`**
+
+      `string` — The user's preferred language and region settings using BCP-47 format codes. This field customizes the user's experience with localized content, date formats, number formatting, and UI language throughout the system. When not specified, the user inherits the organization's default locale settings. Common values include \`en-US\`, \`en-GB\`, \`fr-FR\`, \`de-DE\`, and \`es-ES\`.
+
+    - **`metadata`**
+
+      `object` — Raw attributes received from identity providers during authentication. This field stores the original user profile data as received from external IdP systems (SAML, OIDC, etc.) including provider-specific claims and attributes. These fields preserve the complete set of attributes received from the identity source and are used for mapping, synchronization, and audit purposes. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+    - **`name`**
+
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
+
+    - **`phone_number`**
+
+      `string` — The user's phone number in E.164 international format. This field stores the phone number for user contact and identification purposes. The phone number must include the country code and be formatted according to E.164 standards (e.g., \`+1\` for US numbers). This field is optional.
+
+    - **`phone_number_verified`**
+
+      `boolean` — Indicates if the user's phone number has been verified. Automatically updated by the system.
+
+    - **`picture`**
+
+      `string` — The URL to the user's profile picture or avatar image. This field stores the location of the user's profile photo that appears in user interfaces, directory listings, and collaborative features throughout the system. The URL should point to a publicly accessible image file. Supported formats typically include JPEG, PNG, and GIF. This image is used for visual identification and personalization across the platform.
+
+    - **`preferred_username`**
+
+      `string` — The user's preferred username for display and identification purposes. This field stores a custom username that the user prefers to be known by, which may differ from their email or formal name. This username appears in user interfaces, mentions, informal communications, and collaborative features throughout the system. Maximum 512 characters allowed.
+
+**Example:**
+
+```json
+{
+  "user": {
+    "create_time": "",
+    "email": "user@example.com",
+    "external_id": "ext_12345a67b89c",
+    "id": "usr_1234abcd5678efgh",
+    "last_login_time": "",
+    "memberships": [
+      {}
+    ],
+    "metadata": {
+      "department": "engineering",
+      "location": "nyc-office"
+    },
+    "update_time": "",
+    "user_profile": null
+  }
+}
+```
+
+### Delete organization membership by external ID
+
+- **Method:** `DELETE`
+- **Path:** `/api/v1/memberships/organizations/{organization_id}/users:external/{external_id}`
+- **Tags:** Users
+
+Removes a user from an organization using your application's external identifier for the user. Use this endpoint to revoke organization access without needing to store Scalekit's internal user ID.
+
+#### Responses
+
+##### Status: 200 User successfully marked for deletion. No content returned
+
+###### Content-Type: application/json
+
+**Example:**
+
+```json
+null
+```
+
+### Update organization membership by external ID
+
+- **Method:** `PATCH`
+- **Path:** `/api/v1/memberships/organizations/{organization_id}/users:external/{external_id}`
+- **Tags:** Users
+
+Updates a user's membership details within an organization using your application's external identifier for the user. Use this endpoint to update roles and membership metadata without needing to store Scalekit's internal user ID.
 
 #### Request Body
 
@@ -7630,6 +8597,10 @@ Retrieves the complete configuration and status details for a specific connectio
 
     `string` — Alternative identifier for this connection, typically used in frontend applications or URLs.
 
+  - **`mcp_server_url`**
+
+    `string` — URL of the MCP server for this connection. Agents can point directly at this URL to access only the tools for this connection, without needing to call list\_connections or execute\_tool with a connection\_name. Empty when the MCP virtual servers feature is not enabled for this environment.
+
   - **`oauth_config`**
 
     `object` — Configuration details for OAuth connections. Present only when type is OAUTH.
@@ -7657,6 +8628,26 @@ Retrieves the complete configuration and status details for a specific connectio
     - **`custom_scope_name`**
 
       `string` — Custom Scope Name
+
+    - **`extensions`**
+
+      `object` — OAuth extension profiles for this connection, such as SMART on FHIR. Carries typed extension configuration plus a generic escape hatch for provider-specific authorize query parameters.
+
+      - **`extra_authorize_params`**
+
+        `object` — Provider-specific query parameters added to the authorization request. Reserved OAuth/OIDC parameters (client\_id, redirect\_uri, scope, state, code\_challenge, aud, and similar) are rejected.
+
+      - **`smart`**
+
+        `object` — SMART on FHIR (SMART App Launch) configuration. Set this to issue a SMART-compliant standalone launch authorization request to a FHIR server.
+
+        - **`aud`**
+
+          `string` — FHIR resource server base URL, sent as the required 'aud' authorization parameter per the SMART App Launch specification. Binds the issued token to the intended FHIR server.
+
+        - **`domain`**
+
+          `string` — FHIR server domain for the SMART on FHIR connection. Stored alongside the audience and editable through the connection update API.
 
     - **`is_cimd`**
 
@@ -7978,7 +8969,7 @@ Retrieves the complete configuration and status details for a specific connectio
 
   - **`type`**
 
-    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
+    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
 
   - **`webauthn_config`**
 
@@ -8123,6 +9114,7 @@ Retrieves the complete configuration and status details for a specific connectio
     "google_dwd_config": null,
     "id": "conn_2123312131125533",
     "key_id": "",
+    "mcp_server_url": "https://acmecorp.scalekit.dev/mcp/v3/connections/gmail_work",
     "oauth_config": null,
     "oidc_config": null,
     "organization_id": "org_2123312131125533",
@@ -10997,7 +11989,7 @@ Creates a new permission that represents a specific action users can perform wit
 
 - **`name`**
 
-  `string` — Unique name/ID of the permission
+  `string` — Unique name/ID of the permission. Must be 1–64 characters using only letters, numbers, underscores (\_), and colons (:).
 
 **Example:**
 
@@ -11132,7 +12124,7 @@ Modifies an existing permission's attributes including description and metadata.
 
 - **`name`**
 
-  `string` — Unique name/ID of the permission
+  `string` — Unique name/ID of the permission. Must be 1–64 characters using only letters, numbers, underscores (\_), and colons (:).
 
 **Example:**
 
@@ -13069,7 +14061,7 @@ Retrieves a paginated list of all users across your entire environment. Use this
 - **Path:** `/api/v1/users/{id}`
 - **Tags:** Users
 
-Retrieves all details for a user by system-generated user ID or external ID. The response includes organization memberships and user metadata.
+Retrieves all details for a user by system-generated user ID. The response includes organization memberships and user metadata.
 
 #### Responses
 
@@ -13955,6 +14947,628 @@ Immediately invalidates all active sessions for a specific user across all devic
     }
   ],
   "total_revoked": 5
+}
+```
+
+### Get user by external ID
+
+- **Method:** `GET`
+- **Path:** `/api/v1/users:external/{external_id}`
+- **Tags:** Users
+
+Retrieves all details for a user by your application's external identifier. Use this endpoint when you store users in Scalekit using your own system's identifiers and need to retrieve the Scalekit user record. The response includes organization memberships and user metadata.
+
+#### Responses
+
+##### Status: 200 User details retrieved successfully. Returns full user object with system-generated fields and timestamps.
+
+###### Content-Type: application/json
+
+- **`user`**
+
+  `object`
+
+  - **`create_time`**
+
+    `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
+
+  - **`email`**
+
+    `string` — Primary email address for the user. Must be unique across the environment and valid per RFC 5322.
+
+  - **`external_id`**
+
+    `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
+
+  - **`id`**
+
+    `string` — Unique system-generated identifier for the user. Immutable once created.
+
+  - **`last_login_time`**
+
+    `string`, format: `date-time` — Timestamp of the user's most recent successful authentication. Updated automatically.
+
+  - **`memberships`**
+
+    `array` — List of organization memberships. Automatically populated based on group assignments.
+
+    **Items:**
+
+    - **`accepted_at`**
+
+      `string`, format: `date-time` — Timestamp when the user accepted the invitation.
+
+    - **`created_at`**
+
+      `string`, format: `date-time` — Timestamp when the invitation was created.
+
+    - **`display_name`**
+
+      `string` — Organization display name. This field stores a user-friendly name for the organization that may be different from the formal name, often used for UI display purposes.
+
+    - **`expires_at`**
+
+      `string`, format: `date-time` — Timestamp when the invitation expired.
+
+    - **`inviter_email`**
+
+      `string` — ID of the user who invited this user.
+
+    - **`join_time`**
+
+      `string`, format: `date-time` — Timestamp when the membership was created. Automatically set by the server.
+
+    - **`membership_status`**
+
+      `string`, possible values: `"ACTIVE", "INACTIVE", "PENDING_INVITE", "INVITE_EXPIRED"`
+
+    - **`metadata`**
+
+      `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+    - **`name`**
+
+      `string` — Organization name. This field stores the formal organization name used for identification and display purposes.
+
+    - **`organization_id`**
+
+      `string` — Unique identifier for the organization. Immutable and read-only.
+
+    - **`permissions`**
+
+      `array` — Effective permissions granted to the user within the organization (including inherited permissions from assigned roles). Lists the specific actions and access rights the user can perform.
+
+      **Items:**
+
+      `string`
+
+    - **`provisioning_method`**
+
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+
+    - **`roles`**
+
+      `array`
+
+      **Items:**
+
+      - **`display_name`**
+
+        `string` — Human-readable name for the role
+
+      - **`id`**
+
+        `string` — Role ID
+
+      - **`name`**
+
+        `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
+
+  - **`metadata`**
+
+    `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+  - **`update_time`**
+
+    `string`, format: `date-time` — Timestamp of the last modification to the user account. Automatically updated by the server.
+
+  - **`user_profile`**
+
+    `object` — User's personal information including name, address, and other profile attributes.
+
+    - **`custom_attributes`**
+
+      `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+    - **`email_verified`**
+
+      `boolean` — Indicates if the user's email address has been verified. Automatically updated by the system.
+
+    - **`external_identities`**
+
+      `array` — List of external identity connections associated with the user profile.
+
+      **Items:**
+
+      - **`connection_id`**
+
+        `string` — Unique identifier for the external identity connection. Immutable and read-only.
+
+      - **`connection_provider`**
+
+        `string`, possible values: `"OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "PING_IDENTITY", "JUMPCLOUD", "CUSTOM", "GITHUB", "GITLAB", "LINKEDIN", "SALESFORCE", "MICROSOFT", "IDP_SIMULATOR", "SCALEKIT", "ADFS"` — Type of the identity provider.
+
+      - **`connection_type`**
+
+        `string` — Name of the external identity connection.
+
+      - **`connection_user_id`**
+
+        `string` — Unique identifier for the user in the external identity provider system. Immutable and read-only.
+
+      - **`created_time`**
+
+        `string`, format: `date-time` — Timestamp when this external identity connection was first created. Immutable and read-only.
+
+      - **`is_social`**
+
+        `boolean` — Indicates if the identity provider is a social provider (true) or enterprise/custom provider (false). Read-only.
+
+      - **`last_login_time`**
+
+        `string`, format: `date-time` — Timestamp of the user's last successful login via this external identity provider. Automatically updated by the system.
+
+      - **`last_synced_time`**
+
+        `string`, format: `date-time` — Timestamp of the last data synchronization for this external identity from the provider. Automatically updated by the system.
+
+    - **`family_name`**
+
+      `string` — The user's family name (last name or surname). This field stores the user's last name and is combined with the given name to create the full display name. The family name is used in formal communications, user listings, and organizational directories throughout the system. Maximum 255 characters allowed.
+
+    - **`gender`**
+
+      `string` — The user's gender identity information. This field stores the user's gender identity for personalization, compliance reporting, or organizational analytics purposes. This field supports any string value to accommodate diverse gender identities and should be handled with appropriate privacy considerations according to your organization's policies and applicable regulations.
+
+    - **`given_name`**
+
+      `string` — The user's given name (first name). This field stores the user's first name and is used for personalization, display purposes, and when generating the full display name. The given name appears in user interfaces, formal communications, and user listings throughout the system. Maximum 255 characters allowed.
+
+    - **`groups`**
+
+      `array` — The list of group names the user belongs to within the organization. This field stores the user's group memberships for role-based access control, team assignments, and organizational structure. Groups are typically used for permission management, collaborative access, and organizational hierarchy. Each group name represents a distinct organizational unit or team that the user is associated with.
+
+      **Items:**
+
+      `string`
+
+    - **`id`**
+
+      `string` — Unique system-generated identifier for the user profile. Immutable and read-only.
+
+    - **`locale`**
+
+      `string` — The user's preferred language and region settings using BCP-47 format codes. This field customizes the user's experience with localized content, date formats, number formatting, and UI language throughout the system. When not specified, the user inherits the organization's default locale settings. Common values include \`en-US\`, \`en-GB\`, \`fr-FR\`, \`de-DE\`, and \`es-ES\`.
+
+    - **`metadata`**
+
+      `object` — Raw attributes received from identity providers during authentication. This field stores the original user profile data as received from external IdP systems (SAML, OIDC, etc.) including provider-specific claims and attributes. These fields preserve the complete set of attributes received from the identity source and are used for mapping, synchronization, and audit purposes. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+    - **`name`**
+
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
+
+    - **`phone_number`**
+
+      `string` — The user's phone number in E.164 international format. This field stores the phone number for user contact and identification purposes. The phone number must include the country code and be formatted according to E.164 standards (e.g., \`+1\` for US numbers). This field is optional.
+
+    - **`phone_number_verified`**
+
+      `boolean` — Indicates if the user's phone number has been verified. Automatically updated by the system.
+
+    - **`picture`**
+
+      `string` — The URL to the user's profile picture or avatar image. This field stores the location of the user's profile photo that appears in user interfaces, directory listings, and collaborative features throughout the system. The URL should point to a publicly accessible image file. Supported formats typically include JPEG, PNG, and GIF. This image is used for visual identification and personalization across the platform.
+
+    - **`preferred_username`**
+
+      `string` — The user's preferred username for display and identification purposes. This field stores a custom username that the user prefers to be known by, which may differ from their email or formal name. This username appears in user interfaces, mentions, informal communications, and collaborative features throughout the system. Maximum 512 characters allowed.
+
+**Example:**
+
+```json
+{
+  "user": {
+    "create_time": "",
+    "email": "user@example.com",
+    "external_id": "ext_12345a67b89c",
+    "id": "usr_1234abcd5678efgh",
+    "last_login_time": "",
+    "memberships": [
+      {}
+    ],
+    "metadata": {
+      "department": "engineering",
+      "location": "nyc-office"
+    },
+    "update_time": "",
+    "user_profile": null
+  }
+}
+```
+
+### Delete user by external ID
+
+- **Method:** `DELETE`
+- **Path:** `/api/v1/users:external/{external_id}`
+- **Tags:** Users
+
+Permanently removes a user identified by your application's external identifier. This action deletes the user's profile, memberships, and all related data across all organizations. This operation cannot be undone.
+
+#### Responses
+
+##### Status: 200 User successfully deleted. No content returned
+
+###### Content-Type: application/json
+
+**Example:**
+
+```json
+null
+```
+
+### Update user by external ID
+
+- **Method:** `PATCH`
+- **Path:** `/api/v1/users:external/{external_id}`
+- **Tags:** Users
+
+Modifies user account information for a user identified by your application's external identifier. Use this endpoint to keep user profile data in sync from your system without needing to store Scalekit's internal user ID. You can update the user's profile, phone number, and metadata fields.
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`external_id`**
+
+  `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
+
+- **`metadata`**
+
+  `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+- **`user_profile`**
+
+  `object` — User's personal information including name, address, and other profile attributes.
+
+  - **`custom_attributes`**
+
+    `object` — Updates custom attributes for extended user profile data and application-specific information. Use this field to store business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+  - **`family_name`**
+
+    `string` — Updates the user's family name (last name or surname). Use this field to modify how the user's last name appears throughout the system. Maximum 255 characters allowed.
+
+  - **`first_name`**
+
+    `string` — \[DEPRECATED] Use given\_name instead. User's given name. Maximum 200 characters.
+
+  - **`gender`**
+
+    `string` — Updates the user's gender identity information. Use this field to store the user's gender identity for personalization, compliance, or reporting purposes. This field supports any string value to accommodate diverse gender identities and should be handled with appropriate privacy considerations according to your organization's policies.
+
+  - **`given_name`**
+
+    `string` — Updates the user's given name (first name). Use this field to modify how the user's first name appears in the system and user interfaces. Maximum 255 characters allowed.
+
+  - **`groups`**
+
+    `array` — Updates the list of group names the user belongs to within the organization. Use this field to manage the user's group memberships for role-based access control, team assignments, or organizational structure. Groups are typically used for permission management and collaborative access. Each group name must be unique within the list, 1-250 characters long, with a maximum of 50 groups per user.
+
+    **Items:**
+
+    `string`
+
+  - **`last_name`**
+
+    `string` — \[DEPRECATED] Use family\_name instead. User's family name. Maximum 200 characters.
+
+  - **`locale`**
+
+    `string` — Updates the user's preferred language and region settings using BCP-47 format codes. Use this field to customize the user's experience with localized content, date formats, number formatting, and UI language. When not specified, the user inherits the organization's default locale settings. Common values include \`en-US\`, \`en-GB\`, \`fr-FR\`, \`de-DE\`, and \`es-ES\`.
+
+  - **`metadata`**
+
+    `object` — Updates system-managed key-value pairs for internal tracking and operational data. Use this field to store system-generated metadata like account status, signup source, last activity tracking, or integration-specific identifiers. These fields are typically managed by automated processes rather than direct user input. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+  - **`name`**
+
+    `string` — Updates the user's complete display name. Use this field when you want to set the full name as a single string rather than using separate given and family names. This name appears in user interfaces, reports, and anywhere a formatted display name is needed.
+
+  - **`phone_number`**
+
+    `string` — Updates the user's phone number in E.164 international format. Use this field to enable SMS-based authentication methods, two-factor authentication, or phone-based account recovery. The phone number must include the country code and be formatted according to E.164 standards (e.g., \`+1\` for US numbers). This field is required when enabling SMS authentication features.
+
+  - **`picture`**
+
+    `string` — Updates the URL to the user's profile picture or avatar image. Use this field to set or change the user's profile photo that appears in user interfaces, directory listings, and collaborative features. The URL should point to a publicly accessible image file. Supported formats typically include JPEG, PNG, and GIF. Maximum URL length is 2048 characters.
+
+  - **`preferred_username`**
+
+    `string` — Updates the user's preferred username for display and identification purposes. Use this field to set a custom username that the user prefers to be known by, which may differ from their email or formal name. This username appears in user interfaces, mentions, and informal communications. Maximum 512 characters allowed.
+
+**Example:**
+
+```json
+{
+  "external_id": "ext_12345a67b89c",
+  "metadata": {
+    "department": "engineering",
+    "location": "nyc-office"
+  },
+  "user_profile": {
+    "custom_attributes": {
+      "department": "engineering",
+      "security_clearance": "level2"
+    },
+    "family_name": "Doe",
+    "first_name": "John",
+    "gender": "male",
+    "given_name": "John",
+    "groups": [
+      "engineering",
+      "managers"
+    ],
+    "last_name": "Doe",
+    "locale": "en-US",
+    "metadata": {
+      "account_status": "active",
+      "signup_source": "mobile_app"
+    },
+    "name": "John Doe",
+    "phone_number": "+14155552671",
+    "picture": "https://example.com/avatar.jpg",
+    "preferred_username": "John Michael Doe"
+  }
+}
+```
+
+#### Responses
+
+##### Status: 200 User updated successfully. Returns the modified user object with updated timestamps.
+
+###### Content-Type: application/json
+
+- **`user`**
+
+  `object`
+
+  - **`create_time`**
+
+    `string`, format: `date-time` — Timestamp when the user account was initially created. Automatically set by the server.
+
+  - **`email`**
+
+    `string` — Primary email address for the user. Must be unique across the environment and valid per RFC 5322.
+
+  - **`external_id`**
+
+    `string` — Your application's unique identifier for this organization, used to link Scalekit with your system.
+
+  - **`id`**
+
+    `string` — Unique system-generated identifier for the user. Immutable once created.
+
+  - **`last_login_time`**
+
+    `string`, format: `date-time` — Timestamp of the user's most recent successful authentication. Updated automatically.
+
+  - **`memberships`**
+
+    `array` — List of organization memberships. Automatically populated based on group assignments.
+
+    **Items:**
+
+    - **`accepted_at`**
+
+      `string`, format: `date-time` — Timestamp when the user accepted the invitation.
+
+    - **`created_at`**
+
+      `string`, format: `date-time` — Timestamp when the invitation was created.
+
+    - **`display_name`**
+
+      `string` — Organization display name. This field stores a user-friendly name for the organization that may be different from the formal name, often used for UI display purposes.
+
+    - **`expires_at`**
+
+      `string`, format: `date-time` — Timestamp when the invitation expired.
+
+    - **`inviter_email`**
+
+      `string` — ID of the user who invited this user.
+
+    - **`join_time`**
+
+      `string`, format: `date-time` — Timestamp when the membership was created. Automatically set by the server.
+
+    - **`membership_status`**
+
+      `string`, possible values: `"ACTIVE", "INACTIVE", "PENDING_INVITE", "INVITE_EXPIRED"`
+
+    - **`metadata`**
+
+      `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+    - **`name`**
+
+      `string` — Organization name. This field stores the formal organization name used for identification and display purposes.
+
+    - **`organization_id`**
+
+      `string` — Unique identifier for the organization. Immutable and read-only.
+
+    - **`permissions`**
+
+      `array` — Effective permissions granted to the user within the organization (including inherited permissions from assigned roles). Lists the specific actions and access rights the user can perform.
+
+      **Items:**
+
+      `string`
+
+    - **`provisioning_method`**
+
+      `string` — How the user was provisioned. Possible values: - \`jit\_using\_sso\` (Just-in-time provisioning during SSO login) - \`allowed\_email\_domain\` (User joined via allowed email domain matching) - \`org\_creator\` (User created the organization) - \`direct\_provision\` (User was directly provisioned via API or SCIM) - \`invitation\` (User was invited and accepted an invitation)
+
+    - **`roles`**
+
+      `array`
+
+      **Items:**
+
+      - **`display_name`**
+
+        `string` — Human-readable name for the role
+
+      - **`id`**
+
+        `string` — Role ID
+
+      - **`name`**
+
+        `string` — Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.
+
+  - **`metadata`**
+
+    `object` — Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).
+
+  - **`update_time`**
+
+    `string`, format: `date-time` — Timestamp of the last modification to the user account. Automatically updated by the server.
+
+  - **`user_profile`**
+
+    `object` — User's personal information including name, address, and other profile attributes.
+
+    - **`custom_attributes`**
+
+      `object` — Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+    - **`email_verified`**
+
+      `boolean` — Indicates if the user's email address has been verified. Automatically updated by the system.
+
+    - **`external_identities`**
+
+      `array` — List of external identity connections associated with the user profile.
+
+      **Items:**
+
+      - **`connection_id`**
+
+        `string` — Unique identifier for the external identity connection. Immutable and read-only.
+
+      - **`connection_provider`**
+
+        `string`, possible values: `"OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "PING_IDENTITY", "JUMPCLOUD", "CUSTOM", "GITHUB", "GITLAB", "LINKEDIN", "SALESFORCE", "MICROSOFT", "IDP_SIMULATOR", "SCALEKIT", "ADFS"` — Type of the identity provider.
+
+      - **`connection_type`**
+
+        `string` — Name of the external identity connection.
+
+      - **`connection_user_id`**
+
+        `string` — Unique identifier for the user in the external identity provider system. Immutable and read-only.
+
+      - **`created_time`**
+
+        `string`, format: `date-time` — Timestamp when this external identity connection was first created. Immutable and read-only.
+
+      - **`is_social`**
+
+        `boolean` — Indicates if the identity provider is a social provider (true) or enterprise/custom provider (false). Read-only.
+
+      - **`last_login_time`**
+
+        `string`, format: `date-time` — Timestamp of the user's last successful login via this external identity provider. Automatically updated by the system.
+
+      - **`last_synced_time`**
+
+        `string`, format: `date-time` — Timestamp of the last data synchronization for this external identity from the provider. Automatically updated by the system.
+
+    - **`family_name`**
+
+      `string` — The user's family name (last name or surname). This field stores the user's last name and is combined with the given name to create the full display name. The family name is used in formal communications, user listings, and organizational directories throughout the system. Maximum 255 characters allowed.
+
+    - **`gender`**
+
+      `string` — The user's gender identity information. This field stores the user's gender identity for personalization, compliance reporting, or organizational analytics purposes. This field supports any string value to accommodate diverse gender identities and should be handled with appropriate privacy considerations according to your organization's policies and applicable regulations.
+
+    - **`given_name`**
+
+      `string` — The user's given name (first name). This field stores the user's first name and is used for personalization, display purposes, and when generating the full display name. The given name appears in user interfaces, formal communications, and user listings throughout the system. Maximum 255 characters allowed.
+
+    - **`groups`**
+
+      `array` — The list of group names the user belongs to within the organization. This field stores the user's group memberships for role-based access control, team assignments, and organizational structure. Groups are typically used for permission management, collaborative access, and organizational hierarchy. Each group name represents a distinct organizational unit or team that the user is associated with.
+
+      **Items:**
+
+      `string`
+
+    - **`id`**
+
+      `string` — Unique system-generated identifier for the user profile. Immutable and read-only.
+
+    - **`locale`**
+
+      `string` — The user's preferred language and region settings using BCP-47 format codes. This field customizes the user's experience with localized content, date formats, number formatting, and UI language throughout the system. When not specified, the user inherits the organization's default locale settings. Common values include \`en-US\`, \`en-GB\`, \`fr-FR\`, \`de-DE\`, and \`es-ES\`.
+
+    - **`metadata`**
+
+      `object` — Raw attributes received from identity providers during authentication. This field stores the original user profile data as received from external IdP systems (SAML, OIDC, etc.) including provider-specific claims and attributes. These fields preserve the complete set of attributes received from the identity source and are used for mapping, synchronization, and audit purposes. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.
+
+    - **`name`**
+
+      `string` — The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given\_name and family\_name fields.
+
+    - **`phone_number`**
+
+      `string` — The user's phone number in E.164 international format. This field stores the phone number for user contact and identification purposes. The phone number must include the country code and be formatted according to E.164 standards (e.g., \`+1\` for US numbers). This field is optional.
+
+    - **`phone_number_verified`**
+
+      `boolean` — Indicates if the user's phone number has been verified. Automatically updated by the system.
+
+    - **`picture`**
+
+      `string` — The URL to the user's profile picture or avatar image. This field stores the location of the user's profile photo that appears in user interfaces, directory listings, and collaborative features throughout the system. The URL should point to a publicly accessible image file. Supported formats typically include JPEG, PNG, and GIF. This image is used for visual identification and personalization across the platform.
+
+    - **`preferred_username`**
+
+      `string` — The user's preferred username for display and identification purposes. This field stores a custom username that the user prefers to be known by, which may differ from their email or formal name. This username appears in user interfaces, mentions, informal communications, and collaborative features throughout the system. Maximum 512 characters allowed.
+
+**Example:**
+
+```json
+{
+  "user": {
+    "create_time": "",
+    "email": "user@example.com",
+    "external_id": "ext_12345a67b89c",
+    "id": "usr_1234abcd5678efgh",
+    "last_login_time": "",
+    "memberships": [
+      {}
+    ],
+    "metadata": {
+      "department": "engineering",
+      "location": "nyc-office"
+    },
+    "update_time": "",
+    "user_profile": null
+  }
 }
 ```
 
@@ -14956,13 +16570,55 @@ A documentation or reference link.
 }
 ```
 
+### McpServiceCreateMcpSessionTokenBody
+
+- **Type:**`object`
+
+* **`identifier` (required)**
+
+  `string` — Upstream-provider identifier (typically the user's email or provider user-id) shared by the connected accounts the token represents. A single identifier can map to one connected account per connection in the MCP configuration.
+
+* **`expiry`**
+
+  `string` — Optional token lifetime. Must be between 60s and 24h. Defaults to 1h when omitted.
+
+**Example:**
+
+```json
+{
+  "expiry": "3600s",
+  "identifier": "alice@acme.com"
+}
+```
+
+### McpServiceListMcpConnectedAccountsBody
+
+- **Type:**`object`
+
+* **`identifier` (required)**
+
+  `string` — Identifier for the end user whose connected accounts to retrieve
+
+* **`include_auth_link`**
+
+  `boolean` — When true, generates a fresh authentication link for each connection and creates connected accounts if they do not exist. When false or omitted, returns existing connected account status without creating accounts or generating links.
+
+**Example:**
+
+```json
+{
+  "identifier": "john.doe@example.com",
+  "include_auth_link": true
+}
+```
+
 ### McpServiceUpdateMcpConfigBody
 
 - **Type:**`object`
 
 * **`connection_tool_mappings`**
 
-  `array` — Updated list of connection-to-tool mappings for this MCP config
+  `array` — Updated list of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
   **Items:**
 
@@ -17035,6 +18691,30 @@ Response message containing a paginated list of API clients for the specified or
 
     `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
 
+* **`trusted_idp`**
+
+  `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+  - **`access_key_id`**
+
+    `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+  - **`db_user`**
+
+    `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+  - **`expiry`**
+
+    `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+  - **`secret_access_key`**
+
+    `string` — Federated secret access key. Never returned in public API responses.
+
+  - **`session_token`**
+
+    `string` — Federated session token. Never returned in public API responses.
+
 **Example:**
 
 ```json
@@ -17062,6 +18742,13 @@ Response message containing a paginated list of API clients for the specified or
       "api_key": "sk_live_...",
       "api_secret": "..."
     }
+  },
+  "trusted_idp": {
+    "access_key_id": "ASIA...",
+    "db_user": "analytics_reader",
+    "expiry": "",
+    "secret_access_key": "",
+    "session_token": ""
   }
 }
 ```
@@ -17134,9 +18821,33 @@ Response message containing a paginated list of API clients for the specified or
 
       `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
 
+  - **`trusted_idp`**
+
+    `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+    - **`access_key_id`**
+
+      `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+    - **`db_user`**
+
+      `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+    - **`expiry`**
+
+      `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+    - **`secret_access_key`**
+
+      `string` — Federated secret access key. Never returned in public API responses.
+
+    - **`session_token`**
+
+      `string` — Federated session token. Never returned in public API responses.
+
 * **`authorization_type`**
 
-  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
 * **`connection_id`**
 
@@ -17186,7 +18897,8 @@ Response message containing a paginated list of API clients for the specified or
   "authorization_details": {
     "google_dwd": null,
     "oauth_token": null,
-    "static_auth": null
+    "static_auth": null,
+    "trusted_idp": null
   },
   "authorization_type": "OAUTH",
   "connection_id": "conn_24834495392086178",
@@ -17207,7 +18919,7 @@ Response message containing a paginated list of API clients for the specified or
 
 * **`authorization_type`**
 
-  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authorization mechanism type.
+  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authorization mechanism type.
 
 * **`connection_id`**
 
@@ -17287,6 +18999,8 @@ Response message containing a paginated list of API clients for the specified or
 * OAUTH\_M2M: OAuth 2.0 client credentials (machine-to-machine)
 * TRELLO\_OAUTH1: Trello token-based OAuth1-style browser authorization
 * GOOGLE\_DWD: Google Domain-Wide Delegation
+* TRUSTED\_IDP: Trusted Identity Provider federation (e.g. AWS STS AssumeRoleWithWebIdentity)
+* SMART\_FHIR: SMART on FHIR (SMART App Launch) — OAuth 2.0 authorization for FHIR servers
 
 **Example:**
 
@@ -17361,6 +19075,30 @@ Response message containing a paginated list of API clients for the specified or
       - **`details`**
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
+
+    - **`trusted_idp`**
+
+      `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+      - **`access_key_id`**
+
+        `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+      - **`db_user`**
+
+        `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+      - **`expiry`**
+
+        `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+      - **`secret_access_key`**
+
+        `string` — Federated secret access key. Never returned in public API responses.
+
+      - **`session_token`**
+
+        `string` — Federated session token. Never returned in public API responses.
 
 * **`connector`**
 
@@ -17474,9 +19212,33 @@ Response message containing a paginated list of API clients for the specified or
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
 
+    - **`trusted_idp`**
+
+      `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+      - **`access_key_id`**
+
+        `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+      - **`db_user`**
+
+        `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+      - **`expiry`**
+
+        `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+      - **`secret_access_key`**
+
+        `string` — Federated secret access key. Never returned in public API responses.
+
+      - **`session_token`**
+
+        `string` — Federated session token. Never returned in public API responses.
+
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -17657,9 +19419,33 @@ Response message containing a paginated list of API clients for the specified or
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
 
+    - **`trusted_idp`**
+
+      `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+      - **`access_key_id`**
+
+        `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+      - **`db_user`**
+
+        `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+      - **`expiry`**
+
+        `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+      - **`secret_access_key`**
+
+        `string` — Federated secret access key. Never returned in public API responses.
+
+      - **`session_token`**
+
+        `string` — Federated session token. Never returned in public API responses.
+
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -17841,7 +19627,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authorization mechanism type.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authorization mechanism type.
 
   - **`connection_id`**
 
@@ -17965,7 +19751,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authorization mechanism type.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authorization mechanism type.
 
   - **`connection_id`**
 
@@ -18058,6 +19844,44 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 }
 ```
 
+### connected\_accountsTrustedIDPAuth
+
+- **Type:**`object`
+
+Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+- **`access_key_id`**
+
+  `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+- **`db_user`**
+
+  `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+- **`expiry`**
+
+  `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+- **`secret_access_key`**
+
+  `string` — Federated secret access key. Never returned in public API responses.
+
+- **`session_token`**
+
+  `string` — Federated session token. Never returned in public API responses.
+
+**Example:**
+
+```json
+{
+  "access_key_id": "ASIA...",
+  "db_user": "analytics_reader",
+  "expiry": "",
+  "secret_access_key": "",
+  "session_token": ""
+}
+```
+
 ### connected\_accountsUpdateConnectedAccountRequest
 
 - **Type:**`object`
@@ -18129,6 +19953,30 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
       - **`details`**
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
+
+    - **`trusted_idp`**
+
+      `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+      - **`access_key_id`**
+
+        `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+      - **`db_user`**
+
+        `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+      - **`expiry`**
+
+        `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+      - **`secret_access_key`**
+
+        `string` — Federated secret access key. Never returned in public API responses.
+
+      - **`session_token`**
+
+        `string` — Federated session token. Never returned in public API responses.
 
 * **`connector`**
 
@@ -18247,9 +20095,33 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 
         `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
 
+    - **`trusted_idp`**
+
+      `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+      - **`access_key_id`**
+
+        `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+      - **`db_user`**
+
+        `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+      - **`expiry`**
+
+        `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+      - **`secret_access_key`**
+
+        `string` — Federated secret access key. Never returned in public API responses.
+
+      - **`session_token`**
+
+        `string` — Federated session token. Never returned in public API responses.
+
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -18451,6 +20323,10 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 
   `string` — Alternative identifier for this connection, typically used in frontend applications or URLs.
 
+* **`mcp_server_url`**
+
+  `string` — URL of the MCP server for this connection. Agents can point directly at this URL to access only the tools for this connection, without needing to call list\_connections or execute\_tool with a connection\_name. Empty when the MCP virtual servers feature is not enabled for this environment.
+
 * **`oauth_config`**
 
   `object` — Configuration details for OAuth connections. Present only when type is OAUTH.
@@ -18478,6 +20354,26 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
   - **`custom_scope_name`**
 
     `string` — Custom Scope Name
+
+  - **`extensions`**
+
+    `object` — OAuth extension profiles for this connection, such as SMART on FHIR. Carries typed extension configuration plus a generic escape hatch for provider-specific authorize query parameters.
+
+    - **`extra_authorize_params`**
+
+      `object` — Provider-specific query parameters added to the authorization request. Reserved OAuth/OIDC parameters (client\_id, redirect\_uri, scope, state, code\_challenge, aud, and similar) are rejected.
+
+    - **`smart`**
+
+      `object` — SMART on FHIR (SMART App Launch) configuration. Set this to issue a SMART-compliant standalone launch authorization request to a FHIR server.
+
+      - **`aud`**
+
+        `string` — FHIR resource server base URL, sent as the required 'aud' authorization parameter per the SMART App Launch specification. Binds the issued token to the intended FHIR server.
+
+      - **`domain`**
+
+        `string` — FHIR server domain for the SMART on FHIR connection. Stored alongside the audience and editable through the connection update API.
 
   - **`is_cimd`**
 
@@ -18799,7 +20695,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 
 * **`type`**
 
-  `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
+  `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
 
 * **`webauthn_config`**
 
@@ -18949,6 +20845,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
   },
   "id": "conn_2123312131125533",
   "key_id": "",
+  "mcp_server_url": "https://acmecorp.scalekit.dev/mcp/v3/connections/gmail_work",
   "oauth_config": {
     "access_type": "offline",
     "app_name": "My Trello App",
@@ -18956,6 +20853,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
     "client_id": "oauth_client_id",
     "client_secret": "oauth_client_secret",
     "custom_scope_name": "user_scope",
+    "extensions": null,
     "is_cimd": true,
     "optional_scopes": null,
     "pkce_enabled": true,
@@ -19164,6 +21062,10 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 
     `string` — Alternative identifier for this connection, typically used in frontend applications or URLs.
 
+  - **`mcp_server_url`**
+
+    `string` — URL of the MCP server for this connection. Agents can point directly at this URL to access only the tools for this connection, without needing to call list\_connections or execute\_tool with a connection\_name. Empty when the MCP virtual servers feature is not enabled for this environment.
+
   - **`oauth_config`**
 
     `object` — Configuration details for OAuth connections. Present only when type is OAUTH.
@@ -19191,6 +21093,26 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
     - **`custom_scope_name`**
 
       `string` — Custom Scope Name
+
+    - **`extensions`**
+
+      `object` — OAuth extension profiles for this connection, such as SMART on FHIR. Carries typed extension configuration plus a generic escape hatch for provider-specific authorize query parameters.
+
+      - **`extra_authorize_params`**
+
+        `object` — Provider-specific query parameters added to the authorization request. Reserved OAuth/OIDC parameters (client\_id, redirect\_uri, scope, state, code\_challenge, aud, and similar) are rejected.
+
+      - **`smart`**
+
+        `object` — SMART on FHIR (SMART App Launch) configuration. Set this to issue a SMART-compliant standalone launch authorization request to a FHIR server.
+
+        - **`aud`**
+
+          `string` — FHIR resource server base URL, sent as the required 'aud' authorization parameter per the SMART App Launch specification. Binds the issued token to the intended FHIR server.
+
+        - **`domain`**
+
+          `string` — FHIR server domain for the SMART on FHIR connection. Stored alongside the audience and editable through the connection update API.
 
     - **`is_cimd`**
 
@@ -19512,7 +21434,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 
   - **`type`**
 
-    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
+    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
 
   - **`webauthn_config`**
 
@@ -19657,6 +21579,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
     "google_dwd_config": null,
     "id": "conn_2123312131125533",
     "key_id": "",
+    "mcp_server_url": "https://acmecorp.scalekit.dev/mcp/v3/connections/gmail_work",
     "oauth_config": null,
     "oidc_config": null,
     "organization_id": "org_2123312131125533",
@@ -19765,6 +21688,10 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 
   `string` — Alternative identifier for this connection, typically used in frontend applications or URLs
 
+* **`mcp_server_url`**
+
+  `string` — MCP virtual server URL for this connection. Agents can point directly at this URL to access only the tools for this connection, without needing to call list\_connections or execute\_tool with a connection\_name. Empty when the MCP virtual servers feature is not enabled for this environment.
+
 * **`organization_id`**
 
   `string` — Unique identifier of the organization that owns this connection
@@ -19787,7 +21714,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 
 * **`type`**
 
-  `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authentication protocol used by the connection
+  `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authentication protocol used by the connection
 
 **Example:**
 
@@ -19800,6 +21727,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
   "enabled": false,
   "id": "conn_2123312131125533",
   "key_id": "conn_2123312131125533",
+  "mcp_server_url": "https://acmecorp.scalekit.dev/mcp/v3/connections/gmail_work",
   "organization_id": "org_2123312131125533",
   "organization_name": "Your Organization",
   "provider": "CUSTOM",
@@ -19839,6 +21767,10 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 
     `string` — Alternative identifier for this connection, typically used in frontend applications or URLs
 
+  - **`mcp_server_url`**
+
+    `string` — MCP virtual server URL for this connection. Agents can point directly at this URL to access only the tools for this connection, without needing to call list\_connections or execute\_tool with a connection\_name. Empty when the MCP virtual servers feature is not enabled for this environment.
+
   - **`organization_id`**
 
     `string` — Unique identifier of the organization that owns this connection
@@ -19861,7 +21793,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 
   - **`type`**
 
-    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD"` — Authentication protocol used by the connection
+    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authentication protocol used by the connection
 
 **Example:**
 
@@ -19876,6 +21808,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
       "enabled": false,
       "id": "conn_2123312131125533",
       "key_id": "conn_2123312131125533",
+      "mcp_server_url": "https://acmecorp.scalekit.dev/mcp/v3/connections/gmail_work",
       "organization_id": "org_2123312131125533",
       "organization_name": "Your Organization",
       "provider": "CUSTOM",
@@ -19920,6 +21853,26 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 * **`custom_scope_name`**
 
   `string` — Custom Scope Name
+
+* **`extensions`**
+
+  `object` — OAuth extension profiles for this connection, such as SMART on FHIR. Carries typed extension configuration plus a generic escape hatch for provider-specific authorize query parameters.
+
+  - **`extra_authorize_params`**
+
+    `object` — Provider-specific query parameters added to the authorization request. Reserved OAuth/OIDC parameters (client\_id, redirect\_uri, scope, state, code\_challenge, aud, and similar) are rejected.
+
+  - **`smart`**
+
+    `object` — SMART on FHIR (SMART App Launch) configuration. Set this to issue a SMART-compliant standalone launch authorization request to a FHIR server.
+
+    - **`aud`**
+
+      `string` — FHIR resource server base URL, sent as the required 'aud' authorization parameter per the SMART App Launch specification. Binds the issued token to the intended FHIR server.
+
+    - **`domain`**
+
+      `string` — FHIR server domain for the SMART on FHIR connection. Stored alongside the audience and editable through the connection update API.
 
 * **`is_cimd`**
 
@@ -19995,6 +21948,12 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
   "client_id": "oauth_client_id",
   "client_secret": "oauth_client_secret",
   "custom_scope_name": "user_scope",
+  "extensions": {
+    "extra_authorize_params": {
+      "custom_param": "value"
+    },
+    "smart": null
+  },
   "is_cimd": true,
   "optional_scopes": {
     "field_name": "optional_scope or bot_scope",
@@ -20127,6 +22086,42 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 - **Type:**`string`
 
 **Example:**
+
+### connectionsOauthExtensions
+
+- **Type:**`object`
+
+OauthExtensions groups OAuth extension-profile configuration for a connection. Significant profiles (e.g. SMART on FHIR) get a typed sub-message; the long tail of one-off authorize parameters uses extra\_authorize\_params.
+
+- **`extra_authorize_params`**
+
+  `object` — Provider-specific query parameters added to the authorization request. Reserved OAuth/OIDC parameters (client\_id, redirect\_uri, scope, state, code\_challenge, aud, and similar) are rejected.
+
+- **`smart`**
+
+  `object` — SMART on FHIR (SMART App Launch) configuration. Set this to issue a SMART-compliant standalone launch authorization request to a FHIR server.
+
+  - **`aud`**
+
+    `string` — FHIR resource server base URL, sent as the required 'aud' authorization parameter per the SMART App Launch specification. Binds the issued token to the intended FHIR server.
+
+  - **`domain`**
+
+    `string` — FHIR server domain for the SMART on FHIR connection. Stored alongside the audience and editable through the connection update API.
+
+**Example:**
+
+```json
+{
+  "extra_authorize_params": {
+    "custom_param": "value"
+  },
+  "smart": {
+    "aud": "https://fhir.example.com/r4",
+    "domain": "fhir.example.com"
+  }
+}
+```
 
 ### connectionsOptionalScopes
 
@@ -20375,6 +22370,29 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 - **Type:**`string`
 
 **Example:**
+
+### connectionsSmartConfig
+
+- **Type:**`object`
+
+SmartConfig holds SMART on FHIR (SMART App Launch) parameters.
+
+- **`aud`**
+
+  `string` — FHIR resource server base URL, sent as the required 'aud' authorization parameter per the SMART App Launch specification. Binds the issued token to the intended FHIR server.
+
+- **`domain`**
+
+  `string` — FHIR server domain for the SMART on FHIR connection. Stored alongside the audience and editable through the connection update API.
+
+**Example:**
+
+```json
+{
+  "aud": "https://fhir.example.com/r4",
+  "domain": "fhir.example.com"
+}
+```
 
 ### connectionsStaticAuthConfig
 
@@ -22339,7 +24357,7 @@ Describes violations in a client request. This error type focuses on the syntact
 
   - **`connection_tool_mappings`**
 
-    `array` — List of connection-to-tool mappings for this MCP config
+    `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
     **Items:**
 
@@ -22379,9 +24397,13 @@ Describes violations in a client request. This error type focuses on the syntact
 
     `string` — Unique ID of the MCP config
 
+  - **`mcp_server_url`**
+
+    `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
   - **`name`**
 
-    `string` — Unique name for the MCP configuration
+    `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
 
 **Example:**
 
@@ -22393,6 +24415,7 @@ Describes violations in a client request. This error type focuses on the syntact
     ],
     "description": "Summarizes daily emails and posts to Slack",
     "id": "cfg_85630864460904897",
+    "mcp_server_url": "https://env.scalekit.com/mcp/v3/servers/550e8400-e29b-41d4-a716-446655440000",
     "name": "daily-summarizer"
   }
 }
@@ -22412,7 +24435,7 @@ Describes violations in a client request. This error type focuses on the syntact
 
   - **`id`**
 
-    `string` — Unique ID of the tool
+    `string` — Unique ID of the MCP resource
 
   - **`tool_mappings`**
 
@@ -22438,7 +24461,7 @@ Describes violations in a client request. This error type focuses on the syntact
 
   - **`url`**
 
-    `string` — Unique ID of the tool
+    `string` — URL endpoint for the MCP resource
 
 **Example:**
 
@@ -22450,6 +24473,27 @@ Describes violations in a client request. This error type focuses on the syntact
     "tool_mappings": "GOOGLE",
     "url": "https://example.com/mcp/v1/abc"
   }
+}
+```
+
+### mcpCreateMcpSessionTokenResponse
+
+- **Type:**`object`
+
+* **`expires_at`**
+
+  `string`, format: `date-time` — Absolute time at which the token expires. Equals issued\_at + expiry.
+
+* **`token`**
+
+  `string` — Signed JWT (RS256) whose \`sub\` claim is the supplied identifier and whose \`aud\` claim is the MCP server URL bound to the configuration. Payload also carries the MCP configuration ID (\`mcp\_cfg\`) and the resolved connected-account IDs (\`ca\_ids\`). Signed with the calling environment's active JWT signing key.
+
+**Example:**
+
+```json
+{
+  "expires_at": "",
+  "token": "eyJhbGciOiJSUzI1NiIsImtpZCI6InNua18xMjMifQ.eyJhdWQiOlsiYWxpY2VAYWNtZS5jb20iXSwidG9rZW5fdHlwZSI6Im1jcF9zZXNzaW9uIn0.signature"
 }
 ```
 
@@ -22505,7 +24549,7 @@ Describes violations in a client request. This error type focuses on the syntact
 {
   "config_name": "daily-summarizer",
   "name": "daily-digest",
-  "user_identifier": "akshay.parihar"
+  "user_identifier": "john.doe@example.com"
 }
 ```
 
@@ -22523,7 +24567,7 @@ Describes violations in a client request. This error type focuses on the syntact
 
     - **`connection_tool_mappings`**
 
-      `array` — List of connection-to-tool mappings for this MCP config
+      `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
       **Items:**
 
@@ -22563,9 +24607,13 @@ Describes violations in a client request. This error type focuses on the syntact
 
       `string` — Unique ID of the MCP config
 
+    - **`mcp_server_url`**
+
+      `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
     - **`name`**
 
-      `string` — Unique name for the MCP configuration
+      `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
 
   - **`id`**
 
@@ -22602,7 +24650,7 @@ Describes violations in a client request. This error type focuses on the syntact
     "name": "daily-digest",
     "updated_at": "2025-10-07T12:21:00Z",
     "url": "https://example.com/mcp/v1/abc123",
-    "user_identifier": "akshay.parihar"
+    "user_identifier": "john.doe@example.com"
   }
 }
 ```
@@ -22617,7 +24665,7 @@ Describes violations in a client request. This error type focuses on the syntact
 
   - **`connection_tool_mappings`**
 
-    `array` — List of connection-to-tool mappings for this MCP config
+    `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
     **Items:**
 
@@ -22657,9 +24705,13 @@ Describes violations in a client request. This error type focuses on the syntact
 
     `string` — Unique ID of the MCP config
 
+  - **`mcp_server_url`**
+
+    `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
   - **`name`**
 
-    `string` — Unique name for the MCP configuration
+    `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
 
 **Example:**
 
@@ -22671,6 +24723,7 @@ Describes violations in a client request. This error type focuses on the syntact
     ],
     "description": "Summarizes daily emails and posts to Slack",
     "id": "cfg_85630864460904897",
+    "mcp_server_url": "https://env.scalekit.com/mcp/v3/servers/550e8400-e29b-41d4-a716-446655440000",
     "name": "daily-summarizer"
   }
 }
@@ -22741,7 +24794,7 @@ Describes violations in a client request. This error type focuses on the syntact
 
     - **`connection_tool_mappings`**
 
-      `array` — List of connection-to-tool mappings for this MCP config
+      `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
       **Items:**
 
@@ -22781,9 +24834,13 @@ Describes violations in a client request. This error type focuses on the syntact
 
       `string` — Unique ID of the MCP config
 
+    - **`mcp_server_url`**
+
+      `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
     - **`name`**
 
-      `string` — Unique name for the MCP configuration
+      `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
 
   - **`id`**
 
@@ -22820,7 +24877,7 @@ Describes violations in a client request. This error type focuses on the syntact
     "name": "daily-digest",
     "updated_at": "2025-10-07T12:21:00Z",
     "url": "https://example.com/mcp/v1/abc123",
-    "user_identifier": "akshay.parihar"
+    "user_identifier": "john.doe@example.com"
   }
 }
 ```
@@ -22839,7 +24896,7 @@ Describes violations in a client request. This error type focuses on the syntact
 
   - **`id`**
 
-    `string` — Unique ID of the tool
+    `string` — Unique ID of the MCP resource
 
   - **`tool_mappings`**
 
@@ -22865,7 +24922,7 @@ Describes violations in a client request. This error type focuses on the syntact
 
   - **`url`**
 
-    `string` — Unique ID of the tool
+    `string` — URL endpoint for the MCP resource
 
 **Example:**
 
@@ -22888,9 +24945,13 @@ Describes violations in a client request. This error type focuses on the syntact
 
   `string` — Filter by MCP configuration id
 
+* **`mcp_server_url`**
+
+  `string` — Filter configs by MCP server URL. The UUID is extracted from the last path segment of the URL and used to find the matching configuration.
+
 * **`name`**
 
-  `string` — Case-insensitive prefix search on configuration name (minimum 3 characters)
+  `string` — Case-insensitive exact match on configuration name. Allowed characters: letters (a–z, A–Z), digits (0–9), hyphens (-), and underscores (\_). Maximum 100 characters.
 
 * **`provider`**
 
@@ -22901,6 +24962,7 @@ Describes violations in a client request. This error type focuses on the syntact
 ```json
 {
   "id": "",
+  "mcp_server_url": "",
   "name": "",
   "provider": ""
 }
@@ -22918,7 +24980,7 @@ Describes violations in a client request. This error type focuses on the syntact
 
   - **`connection_tool_mappings`**
 
-    `array` — List of connection-to-tool mappings for this MCP config
+    `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
     **Items:**
 
@@ -22958,9 +25020,13 @@ Describes violations in a client request. This error type focuses on the syntact
 
     `string` — Unique ID of the MCP config
 
+  - **`mcp_server_url`**
+
+    `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
   - **`name`**
 
-    `string` — Unique name for the MCP configuration
+    `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
 
 * **`next_page_token`**
 
@@ -22985,12 +25051,64 @@ Describes violations in a client request. This error type focuses on the syntact
       ],
       "description": "Summarizes daily emails and posts to Slack",
       "id": "cfg_85630864460904897",
+      "mcp_server_url": "https://env.scalekit.com/mcp/v3/servers/550e8400-e29b-41d4-a716-446655440000",
       "name": "daily-summarizer"
     }
   ],
   "next_page_token": "",
   "prev_page_token": "",
   "total_size": 1
+}
+```
+
+### mcpListMcpConnectedAccountsResponse
+
+- **Type:**`object`
+
+* **`connected_accounts`**
+
+  `array` — Connected account state for each connection in the configuration
+
+  **Items:**
+
+  - **`authentication_link`**
+
+    `string` — Fresh authentication link for the connected account. Empty when include\_auth\_link is false or when the connection has no associated key.
+
+  - **`connected_account_id`**
+
+    `string` — ID of the connected account for this user and connection
+
+  - **`connected_account_status`**
+
+    `string` — Authentication status of the connected account
+
+  - **`connection_id`**
+
+    `string` — ID of the connection
+
+  - **`connection_name`**
+
+    `string` — Name of the connection
+
+  - **`provider`**
+
+    `string` — Provider identifier for the connection
+
+**Example:**
+
+```json
+{
+  "connected_accounts": [
+    {
+      "authentication_link": "",
+      "connected_account_id": "",
+      "connected_account_status": "",
+      "connection_id": "",
+      "connection_name": "",
+      "provider": ""
+    }
+  ]
 }
 ```
 
@@ -23041,7 +25159,7 @@ Describes violations in a client request. This error type focuses on the syntact
 
     - **`connection_tool_mappings`**
 
-      `array` — List of connection-to-tool mappings for this MCP config
+      `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
       **Items:**
 
@@ -23081,9 +25199,13 @@ Describes violations in a client request. This error type focuses on the syntact
 
       `string` — Unique ID of the MCP config
 
+    - **`mcp_server_url`**
+
+      `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
     - **`name`**
 
-      `string` — Unique name for the MCP configuration
+      `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
 
   - **`id`**
 
@@ -23133,7 +25255,7 @@ Describes violations in a client request. This error type focuses on the syntact
       "name": "daily-digest",
       "updated_at": "2025-10-07T12:21:00Z",
       "url": "https://example.com/mcp/v1/abc123",
-      "user_identifier": "akshay.parihar"
+      "user_identifier": "john.doe@example.com"
     }
   ],
   "next_page_token": "",
@@ -23179,7 +25301,7 @@ Describes violations in a client request. This error type focuses on the syntact
 
   - **`id`**
 
-    `string` — Unique ID of the tool
+    `string` — Unique ID of the MCP resource
 
   - **`tool_mappings`**
 
@@ -23205,7 +25327,7 @@ Describes violations in a client request. This error type focuses on the syntact
 
   - **`url`**
 
-    `string` — Unique ID of the tool
+    `string` — URL endpoint for the MCP resource
 
 **Example:**
 
@@ -23232,7 +25354,7 @@ Describes violations in a client request. This error type focuses on the syntact
 
 * **`id`**
 
-  `string` — Unique ID of the tool
+  `string` — Unique ID of the MCP resource
 
 * **`tool_mappings`**
 
@@ -23258,7 +25380,7 @@ Describes violations in a client request. This error type focuses on the syntact
 
 * **`url`**
 
-  `string` — Unique ID of the tool
+  `string` — URL endpoint for the MCP resource
 
 **Example:**
 
@@ -23277,7 +25399,7 @@ Describes violations in a client request. This error type focuses on the syntact
 
 * **`connection_tool_mappings`**
 
-  `array` — List of connection-to-tool mappings for this MCP config
+  `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
   **Items:**
 
@@ -23317,9 +25439,13 @@ Describes violations in a client request. This error type focuses on the syntact
 
   `string` — Unique ID of the MCP config
 
+* **`mcp_server_url`**
+
+  `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
 * **`name`**
 
-  `string` — Unique name for the MCP configuration
+  `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
 
 **Example:**
 
@@ -23339,6 +25465,7 @@ Describes violations in a client request. This error type focuses on the syntact
   ],
   "description": "Summarizes daily emails and posts to Slack",
   "id": "cfg_85630864460904897",
+  "mcp_server_url": "https://env.scalekit.com/mcp/v3/servers/550e8400-e29b-41d4-a716-446655440000",
   "name": "daily-summarizer"
 }
 ```
@@ -23390,6 +25517,47 @@ Describes violations in a client request. This error type focuses on the syntact
 }
 ```
 
+### mcpMcpConnectionAuthState
+
+- **Type:**`object`
+
+* **`authentication_link`**
+
+  `string` — Fresh authentication link for the connected account. Empty when include\_auth\_link is false or when the connection has no associated key.
+
+* **`connected_account_id`**
+
+  `string` — ID of the connected account for this user and connection
+
+* **`connected_account_status`**
+
+  `string` — Authentication status of the connected account
+
+* **`connection_id`**
+
+  `string` — ID of the connection
+
+* **`connection_name`**
+
+  `string` — Name of the connection
+
+* **`provider`**
+
+  `string` — Provider identifier for the connection
+
+**Example:**
+
+```json
+{
+  "authentication_link": "",
+  "connected_account_id": "",
+  "connected_account_status": "",
+  "connection_id": "",
+  "connection_name": "",
+  "provider": ""
+}
+```
+
 ### mcpMcpInstance
 
 - **Type:**`object`
@@ -23400,7 +25568,7 @@ Describes violations in a client request. This error type focuses on the syntact
 
   - **`connection_tool_mappings`**
 
-    `array` — List of connection-to-tool mappings for this MCP config
+    `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
     **Items:**
 
@@ -23440,9 +25608,13 @@ Describes violations in a client request. This error type focuses on the syntact
 
     `string` — Unique ID of the MCP config
 
+  - **`mcp_server_url`**
+
+    `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
   - **`name`**
 
-    `string` — Unique name for the MCP configuration
+    `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
 
 * **`id`**
 
@@ -23478,6 +25650,7 @@ Describes violations in a client request. This error type focuses on the syntact
     ],
     "description": "Summarizes daily emails and posts to Slack",
     "id": "cfg_85630864460904897",
+    "mcp_server_url": "https://env.scalekit.com/mcp/v3/servers/550e8400-e29b-41d4-a716-446655440000",
     "name": "daily-summarizer"
   },
   "id": "inst_88630864544790977",
@@ -23485,7 +25658,7 @@ Describes violations in a client request. This error type focuses on the syntact
   "name": "daily-digest",
   "updated_at": "2025-10-07T12:21:00Z",
   "url": "https://example.com/mcp/v1/abc123",
-  "user_identifier": "akshay.parihar"
+  "user_identifier": "john.doe@example.com"
 }
 ```
 
@@ -23573,7 +25746,7 @@ Describes violations in a client request. This error type focuses on the syntact
 
   - **`connection_tool_mappings`**
 
-    `array` — List of connection-to-tool mappings for this MCP config
+    `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
     **Items:**
 
@@ -23613,9 +25786,13 @@ Describes violations in a client request. This error type focuses on the syntact
 
     `string` — Unique ID of the MCP config
 
+  - **`mcp_server_url`**
+
+    `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
   - **`name`**
 
-    `string` — Unique name for the MCP configuration
+    `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
 
 **Example:**
 
@@ -23627,6 +25804,7 @@ Describes violations in a client request. This error type focuses on the syntact
     ],
     "description": "Summarizes daily emails and posts to Slack",
     "id": "cfg_85630864460904897",
+    "mcp_server_url": "https://env.scalekit.com/mcp/v3/servers/550e8400-e29b-41d4-a716-446655440000",
     "name": "daily-summarizer"
   }
 }
@@ -23646,7 +25824,7 @@ Describes violations in a client request. This error type focuses on the syntact
 
     - **`connection_tool_mappings`**
 
-      `array` — List of connection-to-tool mappings for this MCP config
+      `array` — List of connection-to-tool mappings for this MCP config. Maximum 25 entries.
 
       **Items:**
 
@@ -23686,9 +25864,13 @@ Describes violations in a client request. This error type focuses on the syntact
 
       `string` — Unique ID of the MCP config
 
+    - **`mcp_server_url`**
+
+      `string` — URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.
+
     - **`name`**
 
-      `string` — Unique name for the MCP configuration
+      `string` — Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (\_).
 
   - **`id`**
 
@@ -23725,7 +25907,7 @@ Describes violations in a client request. This error type focuses on the syntact
     "name": "daily-digest",
     "updated_at": "2025-10-07T12:21:00Z",
     "url": "https://example.com/mcp/v1/abc123",
-    "user_identifier": "akshay.parihar"
+    "user_identifier": "john.doe@example.com"
   }
 }
 ```
@@ -30455,6 +32637,30 @@ AuthenticatedClients represents an authenticated client in a session along with 
 
       `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
 
+  - **`trusted_idp`**
+
+    `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+    - **`access_key_id`**
+
+      `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+    - **`db_user`**
+
+      `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+    - **`expiry`**
+
+      `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+    - **`secret_access_key`**
+
+      `string` — Federated secret access key. Never returned in public API responses.
+
+    - **`session_token`**
+
+      `string` — Federated session token. Never returned in public API responses.
+
 **Example:**
 
 ```json
@@ -30544,6 +32750,30 @@ AuthenticatedClients represents an authenticated client in a session along with 
     - **`details`**
 
       `object` — Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).
+
+  - **`trusted_idp`**
+
+    `object` — Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g. AWS Redshift). Send only db\_user in requests; cached temporary credentials are managed server-side and returned only on output paths. secret\_access\_key and session\_token are never exposed in public API responses.
+
+    - **`access_key_id`**
+
+      `string` — Federated access key ID issued by the trusted identity provider. Present in responses only.
+
+    - **`db_user`**
+
+      `string` — Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).
+
+    - **`expiry`**
+
+      `string`, format: `date-time` — When the federated credentials expire. Present in responses only.
+
+    - **`secret_access_key`**
+
+      `string` — Federated secret access key. Never returned in public API responses.
+
+    - **`session_token`**
+
+      `string` — Federated session token. Never returned in public API responses.
 
 **Example:**
 
@@ -30825,7 +33055,7 @@ For update messages ensure the indexes are same as the base model itself.
 
 * **`name`**
 
-  `string` — Unique name/ID of the permission
+  `string` — Unique name/ID of the permission. Must be 1–64 characters using only letters, numbers, underscores (\_), and colons (:).
 
 **Example:**
 

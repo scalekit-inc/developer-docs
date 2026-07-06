@@ -92,6 +92,19 @@
             "description": "Text search query to filter connected accounts by name, identifier, or other searchable fields. Case-insensitive.",
             "name": "query",
             "in": "query"
+          },
+          {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "style": "form",
+            "explode": true,
+            "description": "Filter by one or more connection names (exact match). Returns connected accounts belonging to any of the specified connections. Max 20 names per request. Cannot be combined with the `connector` field.",
+            "name": "connection_names",
+            "in": "query"
           }
         ],
         "responses": {
@@ -1116,7 +1129,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Case-insensitive prefix search on configuration name (minimum 3 characters)",
+            "description": "Case-insensitive exact match on configuration name. Allowed characters: letters (a–z, A–Z), digits (0–9), hyphens (-), and underscores (_). Maximum 100 characters.",
             "name": "filter.name",
             "in": "query"
           },
@@ -1126,6 +1139,14 @@
             },
             "description": "Filter configs that include this provider",
             "name": "filter.provider",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter configs by MCP server URL. The UUID is extracted from the last path segment of the URL and used to find the matching configuration.",
+            "name": "filter.mcp_server_url",
             "in": "query"
           },
           {
@@ -1284,7 +1305,7 @@
         }
       },
       "put": {
-        "description": "Updates the name, description, and connection-to-tool mappings for an existing MCP configuration.",
+        "description": "Updates the description and connection-to-tool mappings for an existing MCP configuration. The configuration name cannot be changed after creation.",
         "tags": ["MCP Configurations"],
         "summary": "Update an existing MCP configuration",
         "operationId": "McpService_UpdateMcpConfig",
@@ -1395,6 +1416,120 @@
               }
             }
           }
+        }
+      }
+    },
+    "/api/v1/mcp/configs/{config_id}/connected_accounts": {
+      "post": {
+        "description": "Returns the connected account state for each connection in the MCP configuration for the given user identifier. When include_auth_link is true, creates connected accounts on the fly if they do not exist and returns a fresh authentication link per connection. When include_auth_link is false or omitted, returns the current status of existing connected accounts only — no accounts are created and authentication_link is always empty. Authentication links are only present when the connection has an associated key; if the connection has no key, authentication_link is empty regardless of include_auth_link.",
+        "tags": ["mcp-configs"],
+        "summary": "List connected accounts for an MCP configuration",
+        "operationId": "McpService_ListMcpConnectedAccounts",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the MCP configuration",
+            "name": "config_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Connected account state returned for each connection in the configuration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcpListMcpConnectedAccountsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - config_id or identifier is missing or invalid",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not found - no MCP configuration exists with the given config_id",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/McpServiceListMcpConnectedAccountsBody"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/mcp/configs/{mcp_config_id}/tokens": {
+      "post": {
+        "description": "Mints a short-lived JWT that represents a user identifier across the connected accounts associated with an MCP configuration. The supplied identifier becomes the token's `sub` claim; the token's `aud` claim is the MCP server URL bound to the configuration. Claims also carry the MCP configuration ID (`mcp_cfg`) and the list of resolved connected-account IDs (`ca_ids`). Use this operation to issue a single credential an MCP server can present on the user's behalf when calling provider tools. The mint fails if any connection mapped to the configuration has no active connected account for the identifier.",
+        "tags": ["mcp-configs"],
+        "summary": "Create an MCP session token",
+        "operationId": "McpService_CreateMcpSessionToken",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique ID of the MCP configuration whose connections back the token. The configuration must exist in the caller's environment.",
+            "name": "mcp_config_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Token created successfully; returns the signed JWT and its absolute expiry",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcpCreateMcpSessionTokenResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request - mcp_config_id or identifier is missing or malformed, expiry is outside the 60s-24h window, the MCP configuration has no connections, or a connection has no active connected account for the supplied identifier",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - no MCP configuration exists with the supplied ID in the caller's environment",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/McpServiceCreateMcpSessionTokenBody"
+              }
+            }
+          },
+          "required": true
         }
       }
     },
@@ -1643,7 +1778,7 @@
         }
       },
       "patch": {
-        "description": "Updates attributes of an MCP instance. Currently only the config name can be changed, which rebuilds the instance mappings.",
+        "description": "Updates attributes of an MCP instance. Changing the display name only renames the instance; changing the config name rebuilds the instance mappings from the new configuration.",
         "tags": ["MCP Instances"],
         "summary": "Update an MCP instance",
         "operationId": "McpService_UpdateMcpInstance",
@@ -1902,14 +2037,6 @@
           },
           {
             "schema": {
-              "type": "string"
-            },
-            "description": "External system identifier from connected directories. Must be unique across the system",
-            "name": "external_id",
-            "in": "query"
-          },
-          {
-            "schema": {
               "type": "boolean"
             },
             "description": "If true, sends an activation email to the user. Defaults to true.",
@@ -1928,6 +2055,18 @@
               }
             }
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Membership details to create. Required fields must be provided.",
+                "required": ["membership"],
+                "$ref": "#/components/schemas/v1usersCreateMembership"
+              }
+            }
+          },
+          "required": true
         },
         "x-codeSamples": [
           {
@@ -1950,22 +2089,10 @@
             "lang": "java",
             "source": "import com.scalekit.ScalekitClient;\nimport com.scalekit.api.UserClient;\nimport com.scalekit.grpc.scalekit.v1.users.*;\nScalekitClient scalekitClient = new ScalekitClient(\n    System.getenv(\"SCALEKIT_ENV_URL\"),\n    System.getenv(\"SCALEKIT_CLIENT_ID\"),\n    System.getenv(\"SCALEKIT_CLIENT_SECRET\")\n);\nUserClient users = scalekitClient.users();\nCreateMembershipRequest membershipReq = CreateMemb\n  ershipRequest.newBuilder()\n        .setMembership(\n          CreateMembership.newBuilder()\n                .addRoles(Role.newBuilder(\n                  ).setName(\"admin\").build())\n                .putMetadata(\"department\", \"engineering\")\n                .putMetadata(\"location\", \"nyc-office\")\n                .build())\n        .build();\nCreateMembershipResponse res = users.\n  createMembership(\"org_123\", \"usr_123\", \n    membershipReq);"
           }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "description": "Membership details to create. Required fields must be provided.",
-                "required": ["membership"],
-                "$ref": "#/components/schemas/v1usersCreateMembership"
-              }
-            }
-          },
-          "required": true
-        }
+        ]
       },
       "delete": {
-        "description": "Removes a user from an organization by user ID or external ID. If the user has no memberships left and cascade is true, the user is also deleted. This action is irreversible and may also remove related group memberships.",
+        "description": "Removes a user from an organization by user ID. This action is irreversible and may also remove related group memberships.",
         "tags": ["Users"],
         "summary": "Delete organization membership for user",
         "operationId": "UserService_DeleteMembership",
@@ -1987,14 +2114,6 @@
             "name": "id",
             "in": "path",
             "required": true
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "description": "External system identifier from connected directories. Must match existing records",
-            "name": "external_id",
-            "in": "query"
           }
         ],
         "responses": {
@@ -2016,7 +2135,7 @@
         ]
       },
       "patch": {
-        "description": "Updates a user's membership details within an organization by user ID or external ID. You can update roles and membership metadata.",
+        "description": "Updates a user's membership details within an organization by user ID. You can update roles and membership metadata.",
         "tags": ["Users"],
         "summary": "Update organization membership for user",
         "operationId": "UserService_UpdateMembership",
@@ -2038,6 +2157,147 @@
             "name": "id",
             "in": "path",
             "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Membership updated successfully. Returns the updated user object.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/usersUpdateMembershipResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Membership fields to update. Only specified fields will be modified.",
+                "$ref": "#/components/schemas/v1usersUpdateMembership",
+                "examples": [
+                  {
+                    "role": "admin"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/memberships/organizations/{organization_id}/users:external/{external_id}": {
+      "post": {
+        "description": "Adds an existing user to an organization using your application's external identifier for the user. Use this endpoint when you store users in Scalekit using your own system's identifiers and need to manage their organization memberships without storing Scalekit's internal user ID.",
+        "tags": ["Users"],
+        "summary": "Add existing user to organization by external ID",
+        "operationId": "UserService_CreateMembership2",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique identifier of the target organization. Must start with 'org_' and be 1-32 characters long.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "External system identifier from connected directories. Must be unique across the system",
+            "name": "external_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "If true, sends an activation email to the user. Defaults to true.",
+            "name": "send_invitation_email",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User successfully added to the organization. Returns details of the updated membership details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/usersCreateMembershipResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Membership details to create. Required fields must be provided.",
+                "required": ["membership"],
+                "$ref": "#/components/schemas/v1usersCreateMembership"
+              }
+            }
+          },
+          "required": true
+        }
+      },
+      "delete": {
+        "description": "Removes a user from an organization using your application's external identifier for the user. Use this endpoint to revoke organization access without needing to store Scalekit's internal user ID.",
+        "tags": ["Users"],
+        "summary": "Delete organization membership by external ID",
+        "operationId": "UserService_DeleteMembership2",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique organization identifier. Must start with 'org_' and be 1-32 characters long",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "External system identifier from connected directories. Must match existing records",
+            "name": "external_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User successfully marked for deletion. No content returned",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "description": "Updates a user's membership details within an organization using your application's external identifier for the user. Use this endpoint to update roles and membership metadata without needing to store Scalekit's internal user ID.",
+        "tags": ["Users"],
+        "summary": "Update organization membership by external ID",
+        "operationId": "UserService_UpdateMembership2",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique identifier of the organization containing the membership. Must start with 'org_' and be 1-32 characters long.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
           },
           {
             "schema": {
@@ -2045,7 +2305,8 @@
             },
             "description": "Your application's unique identifier for this user.",
             "name": "external_id",
-            "in": "query"
+            "in": "path",
+            "required": true
           }
         ],
         "responses": {
@@ -2176,6 +2437,18 @@
             "name": ""
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Required parameters for creating a new organization",
+                "$ref": "#/components/schemas/v1organizationsCreateOrganization"
+              }
+            }
+          },
+          "description": "Organization details",
+          "required": true
+        },
         "x-codeSamples": [
           {
             "label": "Node.js SDK",
@@ -2197,19 +2470,7 @@
             "lang": "java",
             "source": "CreateOrganization createOrganization = CreateOrganization.newBuilder()\n  .setDisplayName(\"Test Org\")\n  .build();\n\nOrganization createdOrganization = scalekitClient.organizations().create(createOrganization);"
           }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "description": "Required parameters for creating a new organization",
-                "$ref": "#/components/schemas/v1organizationsCreateOrganization"
-              }
-            }
-          },
-          "description": "Organization details",
-          "required": true
-        }
+        ]
       }
     },
     "/api/v1/organizations/{id}": {
@@ -2341,6 +2602,17 @@
             }
           }
         },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Organization Parameters to be updated",
+                "$ref": "#/components/schemas/v1organizationsUpdateOrganization"
+              }
+            }
+          },
+          "required": true
+        },
         "x-codeSamples": [
           {
             "label": "Node.js SDK",
@@ -2362,18 +2634,7 @@
             "lang": "java",
             "source": "UpdateOrganization updateOrganization = UpdateOrganization.newBuilder()\n  .setDisplayName(\"Updated Organization Name\")\n  .build();\n\nOrganization updatedOrganizationById = scalekitClient.organizations().updateById(organizationId, updateOrganization);"
           }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "description": "Organization Parameters to be updated",
-                "$ref": "#/components/schemas/v1organizationsUpdateOrganization"
-              }
-            }
-          },
-          "required": true
-        }
+        ]
       }
     },
     "/api/v1/organizations/{id}/portal_links": {
@@ -2488,28 +2749,6 @@
             }
           }
         },
-        "x-codeSamples": [
-          {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "const settings = {\n  features: [\n    {\n      name: 'sso',\n      enabled: true,\n    },\n    {\n      name: 'dir_sync',\n      enabled: true,\n    },\n  ],\n}\n\nawait scalekit.organization.updateOrganizationSettings('<organization_id>', settings)"
-          },
-          {
-            "label": "Python SDK",
-            "lang": "python",
-            "source": "settings = [\n        {\n            \"name\": \"sso\",\n            \"enabled\": True\n        },\n        {\n            \"name\": \"dir_sync\",\n            \"enabled\": True\n        }\n    ]\n\nscalekit_client.organization.update_organization_settings(\n  organization_id='<organization_id>', settings=settings\n)"
-          },
-          {
-            "label": "Go SDK",
-            "lang": "go",
-            "source": "settings := OrganizationSettings{\n\n\t\tFeatures: []Feature{\n\n\t\t\t{\n\n\t\t\t\tName:    \"sso\",\n\n\t\t\t\tEnabled: true,\n\n\t\t\t},\n\n\t\t\t{\n\n\t\t\t\tName:    \"dir_sync\",\n\n\t\t\t\tEnabled: true,\n\n\t\t\t},\n\n\t\t},\n\n\t}\n\n\norganization,err := scalekitClient.Organization().UpdateOrganizationSettings(ctx, organizationId, settings)"
-          },
-          {
-            "label": "Java SDK",
-            "lang": "java",
-            "source": "OrganizationSettingsFeature featureSSO = OrganizationSettingsFeature.newBuilder()\n                .setName(\"sso\")\n                .setEnabled(true)\n                .build();\n\nOrganizationSettingsFeature featureDirectorySync = OrganizationSettingsFeature.newBuilder()\n                .setName(\"dir_sync\")\n                .setEnabled(true)\n                .build();\n\nupdatedOrganization = scalekitClient.organizations()\n                .updateOrganizationSettings(organization.getId(), List.of(featureSSO,\nfeatureDirectorySync));"
-          }
-        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2534,7 +2773,29 @@
             }
           },
           "required": true
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const settings = {\n  features: [\n    {\n      name: 'sso',\n      enabled: true,\n    },\n    {\n      name: 'dir_sync',\n      enabled: true,\n    },\n  ],\n}\n\nawait scalekit.organization.updateOrganizationSettings('<organization_id>', settings)"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "settings = [\n        {\n            \"name\": \"sso\",\n            \"enabled\": True\n        },\n        {\n            \"name\": \"dir_sync\",\n            \"enabled\": True\n        }\n    ]\n\nscalekit_client.organization.update_organization_settings(\n  organization_id='<organization_id>', settings=settings\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "settings := OrganizationSettings{\n\n\t\tFeatures: []Feature{\n\n\t\t\t{\n\n\t\t\t\tName:    \"sso\",\n\n\t\t\t\tEnabled: true,\n\n\t\t\t},\n\n\t\t\t{\n\n\t\t\t\tName:    \"dir_sync\",\n\n\t\t\t\tEnabled: true,\n\n\t\t\t},\n\n\t\t},\n\n\t}\n\n\norganization,err := scalekitClient.Organization().UpdateOrganizationSettings(ctx, organizationId, settings)"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "OrganizationSettingsFeature featureSSO = OrganizationSettingsFeature.newBuilder()\n                .setName(\"sso\")\n                .setEnabled(true)\n                .build();\n\nOrganizationSettingsFeature featureDirectorySync = OrganizationSettingsFeature.newBuilder()\n                .setName(\"dir_sync\")\n                .setEnabled(true)\n                .build();\n\nupdatedOrganization = scalekitClient.organizations()\n                .updateOrganizationSettings(organization.getId(), List.of(featureSSO,\nfeatureDirectorySync));"
+          }
+        ]
       }
     },
     "/api/v1/organizations/{org_id}/roles": {
@@ -2625,6 +2886,17 @@
             }
           }
         },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Organization role details",
+                "$ref": "#/components/schemas/v1rolesCreateOrganizationRole"
+              }
+            }
+          },
+          "required": true
+        },
         "x-codeSamples": [
           {
             "label": "Node.js SDK",
@@ -2646,18 +2918,7 @@
             "lang": "java",
             "source": "CreateOrganizationRoleResponse res = scalekitClient.roles().createOrganizationRole(\n    \"org_123\",\n    CreateOrganizationRoleRequest.newBuilder()\n        .setOrgId(\"org_123\")\n        .setRole(\n            CreateOrganizationRole.newBuilder()\n                .setName(\"org_admin\")\n                .setDisplayName(\"Org Admin\")\n                .setDescription(\"Organization-scoped role\")\n                .setExtends(\"base_role_name\")          // optional\n                .addPermissions(\"perm.read\")           // optional\n                .addPermissions(\"perm.write\")          // optional\n                .build()\n        )\n        .build()\n);"
           }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "description": "Organization role details",
-                "$ref": "#/components/schemas/v1rolesCreateOrganizationRole"
-              }
-            }
-          },
-          "required": true
-        }
+        ]
       }
     },
     "/api/v1/organizations/{org_id}/roles/{role_name}": {
@@ -2766,6 +3027,17 @@
             }
           }
         },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Organization role details",
+                "$ref": "#/components/schemas/v1rolesUpdateRole"
+              }
+            }
+          },
+          "required": true
+        },
         "x-codeSamples": [
           {
             "label": "Node.js SDK",
@@ -2787,18 +3059,7 @@
             "lang": "java",
             "source": "UpdateOrganizationRoleResponse res = scalekitClient.roles().updateOrganizationRole(\n    \"org_123\",\n    \"org_admin\",\n    UpdateOrganizationRoleRequest.newBuilder()\n        .setRole(\n            UpdateRole.newBuilder()\n                .setDisplayName(\"Org Admin (Updated)\")\n                .setDescription(\"Updated org role description\")\n                .build()\n        )\n        .build()\n);"
           }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "description": "Organization role details",
-                "$ref": "#/components/schemas/v1rolesUpdateRole"
-              }
-            }
-          },
-          "required": true
-        }
+        ]
       },
       "delete": {
         "description": "Permanently removes a role from the organization and optionally reassigns users who had that role to a different role. Use this endpoint when you need to clean up unused roles or restructure your organization's access control system. If users are assigned to the role being deleted, you can provide a reassign_role_name to move those users to a different role before deletion. This action cannot be undone, so ensure no critical users depend on the role before deletion.",
@@ -2896,6 +3157,16 @@
             }
           }
         },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RolesServiceUpdateDefaultOrganizationRolesBody"
+              }
+            }
+          },
+          "required": true
+        },
         "x-codeSamples": [
           {
             "label": "Node.js SDK",
@@ -2917,17 +3188,7 @@
             "lang": "java",
             "source": "UpdateDefaultOrganizationRolesResponse res = scalekitClient.roles().updateDefaultOrganizationRoles(\n    \"org_123\",\n    UpdateDefaultOrganizationRolesRequest.newBuilder()\n        .setDefaultMemberRole(\"org_member\")\n        .build()\n);"
           }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RolesServiceUpdateDefaultOrganizationRolesBody"
-              }
-            }
-          },
-          "required": true
-        }
+        ]
       }
     },
     "/api/v1/organizations/{organization_id}/clients": {
@@ -3012,13 +3273,6 @@
             }
           }
         },
-        "x-codeSamples": [
-          {
-            "label": "Python SDK",
-            "lang": "python",
-            "source": "from scalekit.v1.clients.clients_pb2 import OrganizationClient\n\nm2m_client = OrganizationClient(\n    name=\"GitHub Actions Deployment Service\",\n    description=\"Service account for GitHub Actions to deploy applications\nto production\",\n    custom_claims=[\n        {\"key\": \"github_repository\", \"value\": \"acmecorp/inventory-service\"},\n        {\"key\": \"environment\", \"value\": \"production_us\"}\n    ],\n    scopes=[\"deploy:applications\", \"read:deployments\"],\n    audience=[\"deployment-api.acmecorp.com\"],\n    expiry=3600\n)\n\nresponse = scalekit_client.m2m_client.create_organization_client(\n    organization_id=\"SCALEKIT_ORGANIZATION_ID\",\n    m2m_client=m2m_client\n)"
-          }
-        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3029,7 +3283,14 @@
             }
           },
           "required": true
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "from scalekit.v1.clients.clients_pb2 import OrganizationClient\n\nm2m_client = OrganizationClient(\n    name=\"GitHub Actions Deployment Service\",\n    description=\"Service account for GitHub Actions to deploy applications\nto production\",\n    custom_claims=[\n        {\"key\": \"github_repository\", \"value\": \"acmecorp/inventory-service\"},\n        {\"key\": \"environment\", \"value\": \"production_us\"}\n    ],\n    scopes=[\"deploy:applications\", \"read:deployments\"],\n    audience=[\"deployment-api.acmecorp.com\"],\n    expiry=3600\n)\n\nresponse = scalekit_client.m2m_client.create_organization_client(\n    organization_id=\"SCALEKIT_ORGANIZATION_ID\",\n    m2m_client=m2m_client\n)"
+          }
+        ]
       }
     },
     "/api/v1/organizations/{organization_id}/clients/{client_id}": {
@@ -3158,13 +3419,6 @@
             }
           }
         },
-        "x-codeSamples": [
-          {
-            "label": "Python SDK",
-            "lang": "python",
-            "source": "from scalekit.v1.clients.clients_pb2 import OrganizationClient\n\norg_id = '<SCALEKIT_ORGANIZATION_ID>'\nclient_id = os.environ['M2M_CLIENT_ID']\n\nupdate_m2m_client = OrganizationClient(\n    description=\"Service account for GitHub Actions to deploy applications\nto production_eu\",\n    custom_claims=[\n        {\"key\": \"github_repository\", \"value\": \"acmecorp/inventory\"},\n        {\"key\": \"environment\", \"value\": \"production_eu\"}\n    ]\n)\n\nresponse = scalekit_client.m2m_client.update_organization_client(\n    organization_id=org_id,\n    client_id=client_id,\n    m2m_client=update_m2m_client\n)"
-          }
-        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3175,7 +3429,14 @@
             }
           },
           "required": true
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "from scalekit.v1.clients.clients_pb2 import OrganizationClient\n\norg_id = '<SCALEKIT_ORGANIZATION_ID>'\nclient_id = os.environ['M2M_CLIENT_ID']\n\nupdate_m2m_client = OrganizationClient(\n    description=\"Service account for GitHub Actions to deploy applications\nto production_eu\",\n    custom_claims=[\n        {\"key\": \"github_repository\", \"value\": \"acmecorp/inventory\"},\n        {\"key\": \"environment\", \"value\": \"production_eu\"}\n    ]\n)\n\nresponse = scalekit_client.m2m_client.update_organization_client(\n    organization_id=org_id,\n    client_id=client_id,\n    m2m_client=update_m2m_client\n)"
+          }
+        ]
       }
     },
     "/api/v1/organizations/{organization_id}/clients/{client_id}/secrets": {
@@ -4094,6 +4355,17 @@
             }
           }
         },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Domain configuration including the domain name and type.",
+                "$ref": "#/components/schemas/v1domainsCreateDomain"
+              }
+            }
+          },
+          "required": true
+        },
         "x-codeSamples": [
           {
             "label": "Node.js SDK",
@@ -4115,18 +4387,7 @@
             "lang": "java",
             "source": "CreateDomainRequest request = CreateDomainRequest.newBuilder()\n\t.setOrganizationId(organization.getId())\n\t.setDomain(CreateDomain.newBuilder()\n\t\t.setDomain(\"example.com\")\n\t\t.setDomainType(\"ORGANIZATION_DOMAIN\")\n\t\t.build())\n\t.build();\n\t\nDomain domain = scalekitClient.domains().createDomain(request);"
           }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "description": "Domain configuration including the domain name and type.",
-                "$ref": "#/components/schemas/v1domainsCreateDomain"
-              }
-            }
-          },
-          "required": true
-        }
+        ]
       }
     },
     "/api/v1/organizations/{organization_id}/domains/{id}": {
@@ -4480,6 +4741,16 @@
             }
           }
         },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/usersCreateUser"
+              }
+            }
+          },
+          "required": true
+        },
         "x-codeSamples": [
           {
             "label": "Node.js SDK",
@@ -4501,17 +4772,7 @@
             "lang": "java",
             "source": "CreateUser createUser = CreateUser.newBuilder()\n        .setEmail(\"user@example.com\")\n        .setExternalId(\"ext_12345a67b89c\")\n        .putMetadata(\"department\", \"engineering\")\n        .putMetadata(\"location\", \"nyc-office\")\n        .setUserProfile(\n          CreateUserProfile.newBuilder()\n                .setFirstName(\"John\")\n                .setLastName(\"Doe\")\n                .build())\n        .build();\nCreateUserAndMembershipRequest cuReq = CreateUserA\n  ndMembershipRequest.newBuilder()\n        .setUser(createUser)\n        .build();\nCreateUserAndMembershipResponse cuResp = users.\n  createUserAndMembership(\"org_123\", cuReq);\nSystem.out.println(cuResp.getUser().getId());"
           }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/usersCreateUser"
-              }
-            }
-          },
-          "required": true
-        }
+        ]
       }
     },
     "/api/v1/organizations/{organization_id}/users/{user_id}/permissions": {
@@ -4788,6 +5049,16 @@
             }
           }
         },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/passwordlessResendPasswordlessRequest"
+              }
+            }
+          },
+          "required": true
+        },
         "x-codeSamples": [
           {
             "label": "Node.js SDK",
@@ -4809,17 +5080,7 @@
             "lang": "java",
             "source": "SendPasswordlessResponse resendResponse = passwordlessClient.resendPasswordlessEmail(authRequestId);"
           }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/passwordlessResendPasswordlessRequest"
-              }
-            }
-          },
-          "required": true
-        }
+        ]
       }
     },
     "/api/v1/passwordless/email/send": {
@@ -4839,6 +5100,16 @@
               }
             }
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/passwordlessSendPasswordlessRequest"
+              }
+            }
+          },
+          "required": true
         },
         "x-codeSamples": [
           {
@@ -4861,17 +5132,7 @@
             "lang": "java",
             "source": "TemplateType templateType = TemplateType.SIGNIN;\nMap<String, String> templateVariables = new HashMap<>();\ntemplateVariables.put(\"employeeID\", \"EMP523\");\ntemplateVariables.put(\"teamName\", \"Alpha Team\");\ntemplateVariables.put(\"supportEmail\", \"support@yourcompany.com\");\n\nSendPasswordlessOptions options = new SendPasswordlessOptions();\noptions.setTemplate(templateType);\noptions.setExpiresIn(100);\noptions.setMagiclinkAuthUri(\"https://www.example.com\");\noptions.setTemplateVariables(templateVariables);\n\nSendPasswordlessResponse response = passwordlessClient.sendPasswordlessEmail(\n    \"john.doe@example.com\",\n    options\n);\n\nString authRequestId = response.getAuthRequestId();"
           }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/passwordlessSendPasswordlessRequest"
-              }
-            }
-          },
-          "required": true
-        }
+        ]
       }
     },
     "/api/v1/passwordless/email/verify": {
@@ -4891,6 +5152,16 @@
               }
             }
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/passwordlessVerifyPasswordLessRequest"
+              }
+            }
+          },
+          "required": true
         },
         "x-codeSamples": [
           {
@@ -4913,17 +5184,7 @@
             "lang": "java",
             "source": "// Verify with OTP code\nVerifyPasswordlessOptions verifyOptions = new VerifyPasswordlessOptions();\nverifyOptions.setCode(\"123456\"); // OTP code\nverifyOptions.setAuthRequestId(authRequestId);\n\nVerifyPasswordLessResponse verifyResponse = passwordlessClient.verifyPasswordlessEmail(verifyOptions);\n\n// User verified successfully\nString userEmail = verifyResponse.getEmail();\n\n// Verify with magic link token\nVerifyPasswordlessOptions verifyOptions = new VerifyPasswordlessOptions();\nverifyOptions.setLinkToken(linkToken); // Magic link token\n\nVerifyPasswordLessResponse verifyResponse = passwordlessClient.verifyPasswordlessEmail(verifyOptions);\n\n// User verified successfully\nString userEmail = verifyResponse.getEmail();"
           }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/passwordlessVerifyPasswordLessRequest"
-              }
-            }
-          },
-          "required": true
-        }
+        ]
       }
     },
     "/api/v1/permissions": {
@@ -5012,6 +5273,16 @@
             }
           }
         },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/v1rolesCreatePermission"
+              }
+            }
+          },
+          "required": true
+        },
         "x-codeSamples": [
           {
             "label": "Node.js SDK",
@@ -5033,17 +5304,7 @@
             "lang": "java",
             "source": "CreatePermissionResponse res = scalekitClient.permissions().createPermission(\n    CreatePermissionRequest.newBuilder()\n        .setPermission(\n            CreatePermission.newBuilder()\n                .setName(\"read:users\")\n                .setDescription(\"Allows reading users\")\n                .build()\n        )\n        .build()\n);"
           }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/v1rolesCreatePermission"
-              }
-            }
-          },
-          "required": true
-        }
+        ]
       }
     },
     "/api/v1/permissions/{permission_name}": {
@@ -5126,6 +5387,16 @@
             }
           }
         },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/v1rolesCreatePermission"
+              }
+            }
+          },
+          "required": true
+        },
         "x-codeSamples": [
           {
             "label": "Node.js SDK",
@@ -5147,17 +5418,7 @@
             "lang": "java",
             "source": "UpdatePermissionResponse res = scalekitClient.permissions().updatePermission(\n    \"read:users\",\n    UpdatePermissionRequest.newBuilder()\n        .setPermission(\n            CreatePermission.newBuilder()\n                .setName(\"read:users\")\n                .setDescription(\"Allows reading user resources\")\n                .build()\n        )\n        .build()\n);"
           }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/v1rolesCreatePermission"
-              }
-            }
-          },
-          "required": true
-        }
+        ]
       },
       "delete": {
         "description": "Permanently removes a permission from the environment using its unique name identifier. Use this endpoint when you need to clean up unused permissions or remove access controls that are no longer relevant. The permission is identified by its name in the path parameter following the format 'action:resource'. This operation cannot be undone, so ensure no active roles depend on the permission before deletion. If the permission is currently assigned to any roles, you may need to remove those assignments first or update the roles to use alternative permissions. Returns no content on successful deletion.",
@@ -5277,6 +5538,25 @@
             }
           }
         },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Role configuration details including name, display name, description, permissions, and inheritance settings.",
+                "$ref": "#/components/schemas/v1rolesCreateRole",
+                "examples": [
+                  {
+                    "description": "Can edit content",
+                    "display_name": "Content Editor",
+                    "name": "content_editor",
+                    "permissions": ["read:content", "write:content"]
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
         "x-codeSamples": [
           {
             "label": "Node.js SDK",
@@ -5298,26 +5578,7 @@
             "lang": "java",
             "source": "CreateRoleResponse res = scalekitClient.roles().createRole(\n    CreateRoleRequest.newBuilder()\n        .setRole(\n            CreateRole.newBuilder()\n                .setName(\"admin\")\n                .setDisplayName(\"Admin\")\n                .setDescription(\"Environment-level role\")\n                // .setExtends(\"base_role\")         // optional\n                // .addPermissions(\"read:users\")    // optional\n                .build()\n        )\n        .build()\n);"
           }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "description": "Role configuration details including name, display name, description, permissions, and inheritance settings.",
-                "$ref": "#/components/schemas/v1rolesCreateRole",
-                "examples": [
-                  {
-                    "description": "Can edit content",
-                    "display_name": "Content Editor",
-                    "name": "content_editor",
-                    "permissions": ["read:content", "write:content"]
-                  }
-                ]
-              }
-            }
-          },
-          "required": true
-        }
+        ]
       }
     },
     "/api/v1/roles/default": {
@@ -5438,6 +5699,23 @@
             }
           }
         },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Role fields to update. Only specified fields will be modified.",
+                "$ref": "#/components/schemas/v1rolesUpdateRole",
+                "examples": [
+                  {
+                    "description": "Can edit and approve content",
+                    "display_name": "Senior Editor"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
         "x-codeSamples": [
           {
             "label": "Node.js SDK",
@@ -5459,24 +5737,7 @@
             "lang": "java",
             "source": "UpdateRoleResponse res = scalekitClient.roles().updateRole(\n    \"admin\",\n    UpdateRoleRequest.newBuilder()\n        .setRole(\n            UpdateRole.newBuilder()\n                .setDisplayName(\"Admin (Updated)\")\n                .setDescription(\"Updated description\")\n                .build()\n        )\n        .build()\n);"
           }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "description": "Role fields to update. Only specified fields will be modified.",
-                "$ref": "#/components/schemas/v1rolesUpdateRole",
-                "examples": [
-                  {
-                    "description": "Can edit and approve content",
-                    "display_name": "Senior Editor"
-                  }
-                ]
-              }
-            }
-          },
-          "required": true
-        }
+        ]
       },
       "delete": {
         "description": "Permanently removes a role from the environment and reassigns users who had that role to a different role. Use this endpoint when you need to clean up unused roles or restructure your access control system. The role cannot be deleted if it has dependent roles (roles that extend it) unless you specify a replacement role. If users are assigned to the role being deleted, you must provide a reassign_role_name to move those users to a different role before deletion can proceed. This action cannot be undone, so ensure no critical users depend on the role before deletion.",
@@ -5677,6 +5938,16 @@
             }
           }
         },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RolesServiceAddPermissionsToRoleBody"
+              }
+            }
+          },
+          "required": true
+        },
         "x-codeSamples": [
           {
             "label": "Node.js SDK",
@@ -5698,17 +5969,7 @@
             "lang": "java",
             "source": "AddPermissionsToRoleResponse res = scalekitClient.permissions().addPermissionsToRole(\n    \"role_admin\",\n    AddPermissionsToRoleRequest.newBuilder()\n        .addPermissionNames(\"perm.read\")\n        .addPermissionNames(\"perm.write\")\n        .build()\n);"
           }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RolesServiceAddPermissionsToRoleBody"
-              }
-            }
-          },
-          "required": true
-        }
+        ]
       }
     },
     "/api/v1/roles/{role_name}/permissions/{permission_name}": {
@@ -5873,6 +6134,16 @@
             }
           }
         },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/rolesUpdateDefaultRolesRequest"
+              }
+            }
+          },
+          "required": true
+        },
         "x-codeSamples": [
           {
             "label": "Node.js SDK",
@@ -5894,17 +6165,7 @@
             "lang": "java",
             "source": "UpdateDefaultRolesResponse res = scalekitClient.roles().updateDefaultRoles(\n    UpdateDefaultRolesRequest.newBuilder()\n        .setDefaultMemberRole(\"member\")\n        .build()\n);"
           }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/rolesUpdateDefaultRolesRequest"
-              }
-            }
-          },
-          "required": true
-        }
+        ]
       }
     },
     "/api/v1/sessions/{session_id}": {
@@ -6076,7 +6337,7 @@
     },
     "/api/v1/users/{id}": {
       "get": {
-        "description": "Retrieves all details for a user by system-generated user ID or external ID. The response includes organization memberships and user metadata.",
+        "description": "Retrieves all details for a user by system-generated user ID. The response includes organization memberships and user metadata.",
         "tags": ["Users"],
         "summary": "Get user",
         "operationId": "UserService_GetUser",
@@ -6089,14 +6350,6 @@
             "name": "id",
             "in": "path",
             "required": true
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "description": "Your application's unique identifier for this organization, used to link Scalekit with your system.",
-            "name": "external_id",
-            "in": "query"
           }
         ],
         "responses": {
@@ -6148,14 +6401,6 @@
             "name": "id",
             "in": "path",
             "required": true
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "description": "External system identifier from connected directories. Must match existing records",
-            "name": "external_id",
-            "in": "query"
           }
         ],
         "responses": {
@@ -6205,14 +6450,6 @@
             "name": "id",
             "in": "path",
             "required": true
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "description": "Your application's unique identifier for this organization, used to link Scalekit with your system.",
-            "name": "external_id",
-            "in": "query"
           }
         ],
         "responses": {
@@ -6226,6 +6463,23 @@
               }
             }
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "User fields to update. Only specified fields will be modified. Required fields must be provided if being changed.",
+                "$ref": "#/components/schemas/v1usersUpdateUser",
+                "examples": [
+                  {
+                    "firstName": "John",
+                    "lastName": "Doe"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
         },
         "x-codeSamples": [
           {
@@ -6248,24 +6502,7 @@
             "lang": "java",
             "source": "UpdateUser upd = UpdateUser.newBuilder()\n        .setUserProfile(\n          UpdateUserProfile.newBuilder()\n                .setFirstName(\"John\")\n                .setLastName(\"Smith\")\n                .build())\n        .putMetadata(\"department\", \"sales\")\n        .build();\nUpdateUserRequest updReq = UpdateUserRequest.\n  newBuilder().setUser(upd).build();\nusers.updateUser(\"usr_123\", updReq);"
           }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "description": "User fields to update. Only specified fields will be modified. Required fields must be provided if being changed.",
-                "$ref": "#/components/schemas/v1usersUpdateUser",
-                "examples": [
-                  {
-                    "firstName": "John",
-                    "lastName": "Doe"
-                  }
-                ]
-              }
-            }
-          },
-          "required": true
-        }
+        ]
       }
     },
     "/api/v1/users/{user_id}/sessions": {
@@ -6420,6 +6657,110 @@
             "source": "RevokeAllUserSessionsResponse res = scalekitClient.sessions().revokeAllUserSessions(\"user_123\");"
           }
         ]
+      }
+    },
+    "/api/v1/users:external/{external_id}": {
+      "get": {
+        "description": "Retrieves all details for a user by your application's external identifier. Use this endpoint when you store users in Scalekit using your own system's identifiers and need to retrieve the Scalekit user record. The response includes organization memberships and user metadata.",
+        "tags": ["Users"],
+        "summary": "Get user by external ID",
+        "operationId": "UserService_GetUser2",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Your application's unique identifier for this user, used to link Scalekit with your system.",
+            "name": "external_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User details retrieved successfully. Returns full user object with system-generated fields and timestamps.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/usersGetUserResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Permanently removes a user identified by your application's external identifier. This action deletes the user's profile, memberships, and all related data across all organizations. This operation cannot be undone.",
+        "tags": ["Users"],
+        "summary": "Delete user by external ID",
+        "operationId": "UserService_DeleteUser2",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "External system identifier from connected directories. Must match existing records",
+            "name": "external_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User successfully deleted. No content returned",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "description": "Modifies user account information for a user identified by your application's external identifier. Use this endpoint to keep user profile data in sync from your system without needing to store Scalekit's internal user ID. You can update the user's profile, phone number, and metadata fields.",
+        "tags": ["Users"],
+        "summary": "Update user by external ID",
+        "operationId": "UserService_UpdateUser2",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Your application's unique identifier for this user, used to link Scalekit with your system.",
+            "name": "external_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User updated successfully. Returns the modified user object with updated timestamps.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/usersUpdateUserResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "User fields to update. Only specified fields will be modified. Required fields must be provided if being changed.",
+                "$ref": "#/components/schemas/v1usersUpdateUser",
+                "examples": [
+                  {
+                    "firstName": "John",
+                    "lastName": "Doe"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        }
       }
     },
     "/api/v1/users:search": {
@@ -6614,6 +6955,16 @@
             }
           }
         },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebAuthnServiceUpdateCredentialBody"
+              }
+            }
+          },
+          "required": true
+        },
         "x-codeSamples": [
           {
             "label": "Node.js SDK",
@@ -6635,21 +6986,31 @@
             "lang": "java",
             "source": "UpdateCredentialResponse res = scalekitClient.webauthn()\n    .updateCredential(\"wac_123\", \"Work Laptop Passkey\");"
           }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/WebAuthnServiceUpdateCredentialBody"
-              }
-            }
-          },
-          "required": true
-        }
+        ]
       }
     }
   },
   "tags": [
+    {
+      "name": "MCP",
+      "description": "Manage MCP servers and their configurations for AI agents. MCP (Model Context Protocol) allows agents to securely access tools and data through authenticated connections."
+    },
+    {
+      "name": "MCP Configurations",
+      "description": "Create and manage reusable MCP configurations. A configuration defines which connections and tools are available to an MCP server instance."
+    },
+    {
+      "name": "MCP Instances",
+      "description": "Create, manage, and interact with live MCP server instances. An instance is a running MCP server tied to a specific configuration and user."
+    },
+    {
+      "name": "Connectors",
+      "description": "Manage connectors (also called providers) that your agents can use to authenticate with third-party services. This includes both built-in connectors and environment-scoped custom connectors."
+    },
+    {
+      "name": "Tool Calling",
+      "description": "Execute tools on behalf of a connected account. This is the primary public surface for running actions like sending emails, creating calendar events, or managing resources in external services."
+    },
     {
       "name": "ToolService",
       "x-scalar-ignore": true
@@ -6681,11 +7042,44 @@
           }
         }
       },
+      "McpServiceCreateMcpSessionTokenBody": {
+        "type": "object",
+        "required": ["identifier"],
+        "properties": {
+          "expiry": {
+            "description": "Optional token lifetime. Must be between 60s and 24h. Defaults to 1h when omitted.",
+            "type": "string",
+            "examples": ["3600s"]
+          },
+          "identifier": {
+            "description": "Upstream-provider identifier (typically the user's email or provider user-id) shared by the connected accounts the token represents. A single identifier can map to one connected account per connection in the MCP configuration.",
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "examples": ["alice@acme.com"]
+          }
+        }
+      },
+      "McpServiceListMcpConnectedAccountsBody": {
+        "type": "object",
+        "required": ["identifier"],
+        "properties": {
+          "identifier": {
+            "description": "Identifier for the end user whose connected accounts to retrieve",
+            "type": "string",
+            "examples": ["john.doe@example.com"]
+          },
+          "include_auth_link": {
+            "description": "When true, generates a fresh authentication link for each connection and creates connected accounts if they do not exist. When false or omitted, returns existing connected account status without creating accounts or generating links.",
+            "type": "boolean"
+          }
+        }
+      },
       "McpServiceUpdateMcpConfigBody": {
         "type": "object",
         "properties": {
           "connection_tool_mappings": {
-            "description": "Updated list of connection-to-tool mappings for this MCP config",
+            "description": "Updated list of connection-to-tool mappings for this MCP config. Maximum 25 entries.",
             "type": "array",
             "items": {
               "type": "object",
@@ -7673,6 +8067,10 @@
           "static_auth": {
             "title": "Static authentication credentials",
             "$ref": "#/components/schemas/connected_accountsStaticAuth"
+          },
+          "trusted_idp": {
+            "title": "Trusted IDP federated credentials (e.g. AWS STS temporary credentials)",
+            "$ref": "#/components/schemas/connected_accountsTrustedIDPAuth"
           }
         }
       },
@@ -7811,7 +8209,7 @@
         "enum": ["ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"]
       },
       "connected_accountsConnectorType": {
-        "description": "- OAUTH: OAuth 2.0 authorization with access and refresh tokens\n - API_KEY: Static API key authentication\n - BASIC_AUTH: HTTP Basic Authentication (username/password)\n - BEARER_TOKEN: Bearer token authentication\n - CUSTOM: Custom authentication mechanism\n - BASIC: Basic authentication (alias)\n - OAUTH_M2M: OAuth 2.0 client credentials (machine-to-machine)\n - TRELLO_OAUTH1: Trello token-based OAuth1-style browser authorization\n - GOOGLE_DWD: Google Domain-Wide Delegation",
+        "description": "- OAUTH: OAuth 2.0 authorization with access and refresh tokens\n - API_KEY: Static API key authentication\n - BASIC_AUTH: HTTP Basic Authentication (username/password)\n - BEARER_TOKEN: Bearer token authentication\n - CUSTOM: Custom authentication mechanism\n - BASIC: Basic authentication (alias)\n - OAUTH_M2M: OAuth 2.0 client credentials (machine-to-machine)\n - TRELLO_OAUTH1: Trello token-based OAuth1-style browser authorization\n - GOOGLE_DWD: Google Domain-Wide Delegation\n - TRUSTED_IDP: Trusted Identity Provider federation (e.g. AWS STS AssumeRoleWithWebIdentity)\n - SMART_FHIR: SMART on FHIR (SMART App Launch) — OAuth 2.0 authorization\nfor FHIR servers",
         "type": "string",
         "title": "Type of authentication mechanism used for the connected account",
         "enum": [
@@ -7823,7 +8221,9 @@
           "BASIC",
           "OAUTH_M2M",
           "TRELLO_OAUTH1",
-          "GOOGLE_DWD"
+          "GOOGLE_DWD",
+          "TRUSTED_IDP",
+          "SMART_FHIR"
         ]
       },
       "connected_accountsCreateConnectedAccountRequest": {
@@ -8114,6 +8514,39 @@
           }
         }
       },
+      "connected_accountsTrustedIDPAuth": {
+        "description": "Trusted IDP federated authentication — used for TRUSTED_IDP connections (e.g. AWS Redshift).\nSend only db_user in requests; cached temporary credentials are managed server-side and\nreturned only on output paths. secret_access_key and session_token are never exposed in\npublic API responses.",
+        "type": "object",
+        "properties": {
+          "access_key_id": {
+            "description": "Federated access key ID issued by the trusted identity provider. Present in responses only.",
+            "type": "string",
+            "readOnly": true,
+            "examples": ["ASIA..."]
+          },
+          "db_user": {
+            "description": "Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).",
+            "type": "string",
+            "examples": ["analytics_reader"]
+          },
+          "expiry": {
+            "description": "When the federated credentials expire. Present in responses only.",
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "secret_access_key": {
+            "description": "Federated secret access key. Never returned in public API responses.",
+            "type": "string",
+            "readOnly": true
+          },
+          "session_token": {
+            "description": "Federated session token. Never returned in public API responses.",
+            "type": "string",
+            "readOnly": true
+          }
+        }
+      },
       "connected_accountsUpdateConnectedAccountRequest": {
         "type": "object",
         "properties": {
@@ -8256,6 +8689,12 @@
             "description": "Alternative identifier for this connection, typically used in frontend applications or URLs.",
             "type": "string"
           },
+          "mcp_server_url": {
+            "description": "URL of the MCP server for this connection. Agents can point directly at this URL to access only the tools for this connection, without needing to call list_connections or execute_tool with a connection_name. Empty when the MCP virtual servers feature is not enabled for this environment.",
+            "type": "string",
+            "readOnly": true,
+            "examples": ["https://acmecorp.scalekit.dev/mcp/v3/connections/gmail_work"]
+          },
           "oauth_config": {
             "description": "Configuration details for OAuth connections. Present only when type is OAUTH.",
             "$ref": "#/components/schemas/connectionsOAuthConnectionConfig"
@@ -8352,7 +8791,9 @@
           "WEBAUTHN",
           "OAUTH_M2M",
           "TRELLO_OAUTH1",
-          "GOOGLE_DWD"
+          "GOOGLE_DWD",
+          "TRUSTED_IDP",
+          "SMART_FHIR"
         ]
       },
       "connectionsGetConnectionResponse": {
@@ -8441,6 +8882,12 @@
             "type": "string",
             "examples": ["conn_2123312131125533"]
           },
+          "mcp_server_url": {
+            "description": "MCP virtual server URL for this connection. Agents can point directly at this URL to access only the tools for this connection, without needing to call list_connections or execute_tool with a connection_name. Empty when the MCP virtual servers feature is not enabled for this environment.",
+            "type": "string",
+            "readOnly": true,
+            "examples": ["https://acmecorp.scalekit.dev/mcp/v3/connections/gmail_work"]
+          },
           "organization_id": {
             "description": "Unique identifier of the organization that owns this connection",
             "type": "string",
@@ -8523,6 +8970,10 @@
             "description": "Custom Scope Name",
             "type": "string",
             "examples": ["user_scope"]
+          },
+          "extensions": {
+            "description": "OAuth extension profiles for this connection, such as SMART on FHIR. Carries typed extension configuration plus a generic escape hatch for provider-specific authorize query parameters.",
+            "$ref": "#/components/schemas/connectionsOauthExtensions"
           },
           "is_cimd": {
             "description": "Indicates whether this connection was registered using Client ID Metadata Document (CIMD) instead of Dynamic Client Registration.",
@@ -8687,6 +9138,28 @@
       "connectionsOIDCScope": {
         "type": "string",
         "enum": ["openid", "profile", "email", "address", "phone"]
+      },
+      "connectionsOauthExtensions": {
+        "description": "OauthExtensions groups OAuth extension-profile configuration for a connection.\nSignificant profiles (e.g. SMART on FHIR) get a typed sub-message; the long tail\nof one-off authorize parameters uses extra_authorize_params.",
+        "type": "object",
+        "properties": {
+          "extra_authorize_params": {
+            "description": "Provider-specific query parameters added to the authorization request. Reserved OAuth/OIDC parameters (client_id, redirect_uri, scope, state, code_challenge, aud, and similar) are rejected.",
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "examples": [
+              {
+                "custom_param": "value"
+              }
+            ]
+          },
+          "smart": {
+            "description": "SMART on FHIR (SMART App Launch) configuration. Set this to issue a SMART-compliant standalone launch authorization request to a FHIR server.",
+            "$ref": "#/components/schemas/connectionsSmartConfig"
+          }
+        }
       },
       "connectionsOptionalScopes": {
         "type": "object",
@@ -8891,6 +9364,22 @@
           "SAML_RESPONSE_ASSERTION_SIGNING",
           "SAML_RESPONSE_OR_ASSERTION_SIGNING"
         ]
+      },
+      "connectionsSmartConfig": {
+        "description": "SmartConfig holds SMART on FHIR (SMART App Launch) parameters.",
+        "type": "object",
+        "properties": {
+          "aud": {
+            "description": "FHIR resource server base URL, sent as the required 'aud' authorization parameter per the SMART App Launch specification. Binds the issued token to the intended FHIR server.",
+            "type": "string",
+            "examples": ["https://fhir.example.com/r4"]
+          },
+          "domain": {
+            "description": "FHIR server domain for the SMART on FHIR connection. Stored alongside the audience and editable through the connection update API.",
+            "type": "string",
+            "examples": ["fhir.example.com"]
+          }
+        }
       },
       "connectionsStaticAuthConfig": {
         "type": "object",
@@ -9621,6 +10110,25 @@
           }
         }
       },
+      "mcpCreateMcpSessionTokenResponse": {
+        "type": "object",
+        "properties": {
+          "expires_at": {
+            "description": "Absolute time at which the token expires. Equals issued_at + expiry.",
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "token": {
+            "description": "Signed JWT (RS256) whose `sub` claim is the supplied identifier and whose `aud` claim is the MCP server URL bound to the configuration. Payload also carries the MCP configuration ID (`mcp_cfg`) and the resolved connected-account IDs (`ca_ids`). Signed with the calling environment's active JWT signing key.",
+            "type": "string",
+            "readOnly": true,
+            "examples": [
+              "eyJhbGciOiJSUzI1NiIsImtpZCI6InNua18xMjMifQ.eyJhdWQiOlsiYWxpY2VAYWNtZS5jb20iXSwidG9rZW5fdHlwZSI6Im1jcF9zZXNzaW9uIn0.signature"
+            ]
+          }
+        }
+      },
       "mcpDeleteMcpConfigResponse": {
         "type": "object"
       },
@@ -9646,7 +10154,7 @@
           "user_identifier": {
             "description": "Identifier for the end user requesting the instance",
             "type": "string",
-            "examples": ["akshay.parihar"]
+            "examples": ["john.doe@example.com"]
           }
         }
       },
@@ -9706,9 +10214,14 @@
             "description": "Filter by MCP configuration id",
             "type": "string"
           },
-          "name": {
-            "description": "Case-insensitive prefix search on configuration name (minimum 3 characters)",
+          "mcp_server_url": {
+            "description": "Filter configs by MCP server URL. The UUID is extracted from the last path segment of the URL and used to find the matching configuration.",
             "type": "string"
+          },
+          "name": {
+            "description": "Case-insensitive exact match on configuration name. Allowed characters: letters (a–z, A–Z), digits (0–9), hyphens (-), and underscores (_). Maximum 100 characters.",
+            "type": "string",
+            "maxLength": 100
           },
           "provider": {
             "description": "Filter configs that include this provider",
@@ -9739,6 +10252,19 @@
             "description": "Total number of configs matching the filter",
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "mcpListMcpConnectedAccountsResponse": {
+        "type": "object",
+        "properties": {
+          "connected_accounts": {
+            "description": "Connected account state for each connection in the configuration",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "$ref": "#/components/schemas/mcpMcpConnectionAuthState"
+            }
           }
         }
       },
@@ -9824,7 +10350,7 @@
             "examples": ["account_123"]
           },
           "id": {
-            "description": "Unique ID of the tool",
+            "description": "Unique ID of the MCP resource",
             "type": "string",
             "readOnly": true,
             "examples": ["res_123"]
@@ -9839,7 +10365,7 @@
             "examples": ["GOOGLE"]
           },
           "url": {
-            "description": "Unique ID of the tool",
+            "description": "URL endpoint for the MCP resource",
             "type": "string",
             "readOnly": true,
             "examples": ["https://example.com/mcp/v1/abc"]
@@ -9850,7 +10376,7 @@
         "type": "object",
         "properties": {
           "connection_tool_mappings": {
-            "description": "List of connection-to-tool mappings for this MCP config",
+            "description": "List of connection-to-tool mappings for this MCP config. Maximum 25 entries.",
             "type": "array",
             "items": {
               "type": "object",
@@ -9868,9 +10394,19 @@
             "readOnly": true,
             "examples": ["cfg_85630864460904897"]
           },
-          "name": {
-            "description": "Unique name for the MCP configuration",
+          "mcp_server_url": {
+            "description": "URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.",
             "type": "string",
+            "readOnly": true,
+            "examples": [
+              "https://env.scalekit.com/mcp/v3/servers/550e8400-e29b-41d4-a716-446655440000"
+            ]
+          },
+          "name": {
+            "description": "Unique name for the MCP configuration. Must be 1–100 characters. Allowed characters: lowercase letters (a–z), digits (0–9), hyphens (-), and underscores (_).",
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
             "examples": ["daily-summarizer"]
           }
         }
@@ -9880,11 +10416,13 @@
         "properties": {
           "connected_account_id": {
             "description": "Connected account backing this connection in the MCP instance context",
-            "type": "string"
+            "type": "string",
+            "readOnly": true
           },
           "connected_account_status": {
             "description": "Authentication status for the connected account",
-            "type": "string"
+            "type": "string",
+            "readOnly": true
           },
           "connection_id": {
             "description": "Unique ID of the connection",
@@ -9906,6 +10444,35 @@
             "items": {
               "type": "string"
             }
+          }
+        }
+      },
+      "mcpMcpConnectionAuthState": {
+        "type": "object",
+        "properties": {
+          "authentication_link": {
+            "description": "Fresh authentication link for the connected account. Empty when include_auth_link is false or when the connection has no associated key.",
+            "type": "string"
+          },
+          "connected_account_id": {
+            "description": "ID of the connected account for this user and connection",
+            "type": "string"
+          },
+          "connected_account_status": {
+            "description": "Authentication status of the connected account",
+            "type": "string"
+          },
+          "connection_id": {
+            "description": "ID of the connection",
+            "type": "string"
+          },
+          "connection_name": {
+            "description": "Name of the connection",
+            "type": "string"
+          },
+          "provider": {
+            "description": "Provider identifier for the connection",
+            "type": "string"
           }
         }
       },
@@ -9947,7 +10514,7 @@
           "user_identifier": {
             "description": "Identifier for the user who owns or uses this instance",
             "type": "string",
-            "examples": ["akshay.parihar"]
+            "examples": ["john.doe@example.com"]
           }
         }
       },
@@ -12141,7 +12708,7 @@
             "examples": ["Allows user to read documents from the system"]
           },
           "name": {
-            "description": "Unique name/ID of the permission",
+            "description": "Unique name/ID of the permission. Must be 1–64 characters using only letters, numbers, underscores (_), and colons (:).",
             "type": "string",
             "examples": ["read:documents"]
           }
@@ -12727,6 +13294,19 @@
     }
   },
   "x-scalar-active-environment": "staging",
+  "x-scalekit-docs-operation-rank": {
+    "default": 0,
+    "path-segments": [
+      {
+        "match": ":external",
+        "rank": 1
+      },
+      {
+        "match": ":search",
+        "rank": 2
+      }
+    ]
+  },
   "security": [
     {
       "oauth2": []

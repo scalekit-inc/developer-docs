@@ -3009,6 +3009,180 @@ null
 null
 ```
 
+### List connected accounts for an MCP configuration
+
+- **Method:** `POST`
+- **Path:** `/api/v1/mcp/configs/{config_id}/connected_accounts`
+- **Tags:** mcp-configs
+
+Returns the connected account state for each connection in the MCP configuration for the given user identifier. When include\_auth\_link is true, creates connected accounts on the fly if they do not exist and returns a fresh authentication link per connection. When include\_auth\_link is false or omitted, returns the current status of existing connected accounts only — no accounts are created and authentication\_link is always empty. Authentication links are only present when the connection has an associated key; if the connection has no key, authentication\_link is empty regardless of include\_auth\_link.
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`identifier` (required)**
+
+  `string` — Identifier for the end user whose connected accounts to retrieve
+
+- **`include_auth_link`**
+
+  `boolean` — When true, generates a fresh authentication link for each connection and creates connected accounts if they do not exist. When false or omitted, returns existing connected account status without creating accounts or generating links.
+
+**Example:**
+
+```json
+{
+  "identifier": "john.doe@example.com",
+  "include_auth_link": true
+}
+```
+
+#### Responses
+
+##### Status: 200 Connected account state returned for each connection in the configuration
+
+###### Content-Type: application/json
+
+- **`connected_accounts`**
+
+  `array` — Connected account state for each connection in the configuration
+
+  **Items:**
+
+  - **`authentication_link`**
+
+    `string` — Fresh authentication link for the connected account. Empty when include\_auth\_link is false or when the connection has no associated key.
+
+  - **`connected_account_id`**
+
+    `string` — ID of the connected account for this user and connection
+
+  - **`connected_account_status`**
+
+    `string` — Authentication status of the connected account
+
+  - **`connection_id`**
+
+    `string` — ID of the connection
+
+  - **`connection_name`**
+
+    `string` — Name of the connection
+
+  - **`provider`**
+
+    `string` — Provider identifier for the connection
+
+**Example:**
+
+```json
+{
+  "connected_accounts": [
+    {
+      "authentication_link": "",
+      "connected_account_id": "",
+      "connected_account_status": "",
+      "connection_id": "",
+      "connection_name": "",
+      "provider": ""
+    }
+  ]
+}
+```
+
+##### Status: 400 Bad request - config\_id or identifier is missing or invalid
+
+###### Content-Type: application/json
+
+**Example:**
+
+```json
+null
+```
+
+##### Status: 404 Not found - no MCP configuration exists with the given config\_id
+
+###### Content-Type: application/json
+
+**Example:**
+
+```json
+null
+```
+
+### Create an MCP session token
+
+- **Method:** `POST`
+- **Path:** `/api/v1/mcp/configs/{mcp_config_id}/tokens`
+- **Tags:** mcp-configs
+
+Mints a short-lived JWT that represents a user identifier across the connected accounts associated with an MCP configuration. The supplied identifier becomes the token's `sub` claim; the token's `aud` claim is the MCP server URL bound to the configuration. Claims also carry the MCP configuration ID (`mcp_cfg`) and the list of resolved connected-account IDs (`ca_ids`). Use this operation to issue a single credential an MCP server can present on the user's behalf when calling provider tools. The mint fails if any connection mapped to the configuration has no active connected account for the identifier.
+
+#### Request Body
+
+##### Content-Type: application/json
+
+- **`identifier` (required)**
+
+  `string` — Upstream-provider identifier (typically the user's email or provider user-id) shared by the connected accounts the token represents. A single identifier can map to one connected account per connection in the MCP configuration.
+
+- **`expiry`**
+
+  `string` — Optional token lifetime. Must be between 60s and 24h. Defaults to 1h when omitted.
+
+**Example:**
+
+```json
+{
+  "expiry": "3600s",
+  "identifier": "alice@acme.com"
+}
+```
+
+#### Responses
+
+##### Status: 200 Token created successfully; returns the signed JWT and its absolute expiry
+
+###### Content-Type: application/json
+
+- **`expires_at`**
+
+  `string`, format: `date-time` — Absolute time at which the token expires. Equals issued\_at + expiry.
+
+- **`token`**
+
+  `string` — Signed JWT (RS256) whose \`sub\` claim is the supplied identifier and whose \`aud\` claim is the MCP server URL bound to the configuration. Payload also carries the MCP configuration ID (\`mcp\_cfg\`) and the resolved connected-account IDs (\`ca\_ids\`). Signed with the calling environment's active JWT signing key.
+
+**Example:**
+
+```json
+{
+  "expires_at": "",
+  "token": "eyJhbGciOiJSUzI1NiIsImtpZCI6InNua18xMjMifQ.eyJhdWQiOlsiYWxpY2VAYWNtZS5jb20iXSwidG9rZW5fdHlwZSI6Im1jcF9zZXNzaW9uIn0.signature"
+}
+```
+
+##### Status: 400 Invalid request - mcp\_config\_id or identifier is missing or malformed, expiry is outside the 60s-24h window, the MCP configuration has no connections, or a connection has no active connected account for the supplied identifier
+
+###### Content-Type: application/json
+
+**Example:**
+
+```json
+null
+```
+
+##### Status: 404 Not Found - no MCP configuration exists with the supplied ID in the caller's environment
+
+###### Content-Type: application/json
+
+**Example:**
+
+```json
+null
+```
+
 ### List MCP instances
 
 - **Method:** `GET`
@@ -6566,6 +6740,161 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
     "id": "cfg_85630864460904897",
     "name": "daily-summarizer"
   }
+}
+```
+
+### McpServiceListMcpConnectedAccountsBody
+
+- **Type:**`object`
+
+* **`identifier` (required)**
+
+  `string` — Identifier for the end user whose connected accounts to retrieve
+
+* **`include_auth_link`**
+
+  `boolean` — When true, generates a fresh authentication link for each connection and creates connected accounts if they do not exist. When false or omitted, returns existing connected account status without creating accounts or generating links.
+
+**Example:**
+
+```json
+{
+  "identifier": "john.doe@example.com",
+  "include_auth_link": true
+}
+```
+
+### mcpMcpConnectionAuthState
+
+- **Type:**`object`
+
+* **`authentication_link`**
+
+  `string` — Fresh authentication link for the connected account. Empty when include\_auth\_link is false or when the connection has no associated key.
+
+* **`connected_account_id`**
+
+  `string` — ID of the connected account for this user and connection
+
+* **`connected_account_status`**
+
+  `string` — Authentication status of the connected account
+
+* **`connection_id`**
+
+  `string` — ID of the connection
+
+* **`connection_name`**
+
+  `string` — Name of the connection
+
+* **`provider`**
+
+  `string` — Provider identifier for the connection
+
+**Example:**
+
+```json
+{
+  "authentication_link": "",
+  "connected_account_id": "",
+  "connected_account_status": "",
+  "connection_id": "",
+  "connection_name": "",
+  "provider": ""
+}
+```
+
+### mcpListMcpConnectedAccountsResponse
+
+- **Type:**`object`
+
+* **`connected_accounts`**
+
+  `array` — Connected account state for each connection in the configuration
+
+  **Items:**
+
+  - **`authentication_link`**
+
+    `string` — Fresh authentication link for the connected account. Empty when include\_auth\_link is false or when the connection has no associated key.
+
+  - **`connected_account_id`**
+
+    `string` — ID of the connected account for this user and connection
+
+  - **`connected_account_status`**
+
+    `string` — Authentication status of the connected account
+
+  - **`connection_id`**
+
+    `string` — ID of the connection
+
+  - **`connection_name`**
+
+    `string` — Name of the connection
+
+  - **`provider`**
+
+    `string` — Provider identifier for the connection
+
+**Example:**
+
+```json
+{
+  "connected_accounts": [
+    {
+      "authentication_link": "",
+      "connected_account_id": "",
+      "connected_account_status": "",
+      "connection_id": "",
+      "connection_name": "",
+      "provider": ""
+    }
+  ]
+}
+```
+
+### McpServiceCreateMcpSessionTokenBody
+
+- **Type:**`object`
+
+* **`identifier` (required)**
+
+  `string` — Upstream-provider identifier (typically the user's email or provider user-id) shared by the connected accounts the token represents. A single identifier can map to one connected account per connection in the MCP configuration.
+
+* **`expiry`**
+
+  `string` — Optional token lifetime. Must be between 60s and 24h. Defaults to 1h when omitted.
+
+**Example:**
+
+```json
+{
+  "expiry": "3600s",
+  "identifier": "alice@acme.com"
+}
+```
+
+### mcpCreateMcpSessionTokenResponse
+
+- **Type:**`object`
+
+* **`expires_at`**
+
+  `string`, format: `date-time` — Absolute time at which the token expires. Equals issued\_at + expiry.
+
+* **`token`**
+
+  `string` — Signed JWT (RS256) whose \`sub\` claim is the supplied identifier and whose \`aud\` claim is the MCP server URL bound to the configuration. Payload also carries the MCP configuration ID (\`mcp\_cfg\`) and the resolved connected-account IDs (\`ca\_ids\`). Signed with the calling environment's active JWT signing key.
+
+**Example:**
+
+```json
+{
+  "expires_at": "",
+  "token": "eyJhbGciOiJSUzI1NiIsImtpZCI6InNua18xMjMifQ.eyJhdWQiOlsiYWxpY2VAYWNtZS5jb20iXSwidG9rZW5fdHlwZSI6Im1jcF9zZXNzaW9uIn0.signature"
 }
 ```
 

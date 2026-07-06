@@ -1,0 +1,47 @@
+post:
+  description: >-
+    Returns the connected account state for each connection in the MCP
+    configuration for the given user identifier. When include_auth_link is true,
+    creates connected accounts on the fly if they do not exist and returns a
+    fresh authentication link per connection. When include_auth_link is false or
+    omitted, returns the current status of existing connected accounts only — no
+    accounts are created and authentication_link is always empty. Authentication
+    links are only present when the connection has an associated key; if the
+    connection has no key, authentication_link is empty regardless of
+    include_auth_link.
+  tags:
+    - mcp-configs
+  summary: List connected accounts for an MCP configuration
+  operationId: McpService_ListMcpConnectedAccounts
+  parameters:
+    - schema:
+        type: string
+      description: ID of the MCP configuration
+      name: config_id
+      in: path
+      required: true
+  responses:
+    '200':
+      description: >-
+        Connected account state returned for each connection in the
+        configuration
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/mcpListMcpConnectedAccountsResponse.yaml
+    '400':
+      description: Bad request - config_id or identifier is missing or invalid
+      content:
+        application/json:
+          schema: {}
+    '404':
+      description: Not found - no MCP configuration exists with the given config_id
+      content:
+        application/json:
+          schema: {}
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/McpServiceListMcpConnectedAccountsBody.yaml
+    required: true
