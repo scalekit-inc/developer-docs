@@ -47,8 +47,9 @@ OpenAPI → search-index-apis.js ──▶ records[] ──▶ ApiSearchIndex.as
 ### A. Adding / changing endpoints
 
 1. Update `public/api/scalekit.scalar.json` (or replace it from your OpenAPI generator).
-2. (Optional) Run `pnpm run reorder-swagger` to keep sections ordered (see `scripts/reorder-swagger.js`).
-3. Restart `pnpm dev` or run `pnpm build` so `ApiSearchIndex` picks up changes.
+2. Run `pnpm run inject-code-samples` — re-applies developer-docs-owned code samples from `openapi/code_samples/` on top of the freshly copied spec (both `.json` and `.yaml`). This is required now that AgentKit/SaaSKit code samples live in this repo, not the backend: a fresh copy from backend has no guarantee of carrying the samples this repo already owns, and once the backend's own `x-codeSamples` injection is removed entirely, a fresh copy will have none at all. Developer-docs samples always take priority per language; any language with no file here falls back to whatever the copied spec provided.
+3. (Optional) Run `pnpm run reorder-swagger` to keep sections ordered (see `scripts/reorder-swagger.js`).
+4. Restart `pnpm dev` or run `pnpm build` so `ApiSearchIndex` picks up changes.
 
 ### B. Running `generate-search-index` manually
 
