@@ -1,0 +1,84 @@
+---
+title: 'SMART App on FHIR connector'
+tableOfContents: true
+description: 'SMART App on FHIR is a healthcare interoperability provider that enables secure access to electronic health records and clinical data using the SMART on...'
+sidebar:
+  label: 'SMART App on FHIR'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/customsmartfhir.png
+connectorAuthType: SMART On FHIR
+connectorCategories: [Healthcare]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/customsmartfhir'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupCustomsmartfhirSection } from '@components/templates'
+import { SectionAfterSetupCustomsmartfhirCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your SMART App on FHIR credentials with Scalekit so it can authenticate requests on your behalf. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupCustomsmartfhirSection />
+
+   </details>
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Create allergy intolerance, appointment, condition** — Create a new FHIR AllergyIntolerance resource recording a patient's allergy or intolerance to a substance
+- **Delete allergy intolerance, appointment, condition** — Delete a FHIR AllergyIntolerance resource by its logical ID
+- **Read allergy intolerance, appointment, condition** — Retrieve a single FHIR AllergyIntolerance resource by its logical ID
+- **Search allergy intolerance, appointment, condition** — Search for FHIR AllergyIntolerance resources using parameters like patient, clinical status, type, category, and criticality
+- **Update allergy intolerance, appointment, condition** — Update an existing FHIR AllergyIntolerance resource by its ID
+- **Everything patient** — Invoke the $everything operation on a Patient to retrieve all clinical resources associated with that patient in a single Bundle response
+
+## Common workflows
+
+<SectionAfterSetupCustomsmartfhirCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />
