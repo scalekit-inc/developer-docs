@@ -133,9 +133,20 @@ function applyProduct(root, overlay) {
     }
   }
 
-  // 4. Replace top-level tags with the curated list, when the overlay declares one
+  // 4. Replace top-level tags with the curated list, or prune empty ones
   if (overlay.tags) {
     root.tags = overlay.tags
+  } else if (root.tags) {
+    // Remove tags that have no surviving operations (e.g. PREVIEW-only RPCs)
+    const usedTags = new Set()
+    for (const pathItem of Object.values(root.paths || {})) {
+      for (const method of HTTP_METHODS) {
+        const operation = pathItem[method]
+        if (!operation) continue
+        for (const tag of operation.tags || []) usedTags.add(tag)
+      }
+    }
+    root.tags = root.tags.filter((t) => usedTags.has(t.name))
   }
 
   // 5. Merge info, per-operation extensions, and schema extensions
