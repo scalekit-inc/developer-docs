@@ -1379,4 +1379,9 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'OAuth 2.0',
     categories: ['Communication'],
   },
+  customsmartfhir: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/customsmartfhir.png',
+    authType: 'SMART On FHIR',
+    categories: ['Healthcare'],
+  },
 }
