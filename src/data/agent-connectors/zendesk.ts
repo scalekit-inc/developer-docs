@@ -2,6 +2,11 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'zendesk_business_hours_schedules_list',
+    description: `List all business hours schedules defined in Zendesk. Each schedule includes the configured shift windows (days and hours) your support team operates. Use this to retrieve 24/7 coverage windows and shift data without requiring a Zendesk WFM (Tymeshift) subscription.`,
+    params: [],
+  },
+  {
     name: 'zendesk_groups_list',
     description: `List all groups in Zendesk. Groups are used to organize agents and route tickets.`,
     params: [
@@ -708,6 +713,66 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'zendesk_omnichannel_agent_statuses_list',
+    description: `Get the current Talk availability status for a specific agent. Returns agent state (online, away, offline, transfers_only), call status (on_call, wrap_up), and channel (client or phone). Useful for monitoring individual agent occupancy.`,
+    params: [
+      {
+        name: 'agent_id',
+        type: 'number',
+        required: true,
+        description: `The ID of the agent whose availability to retrieve`,
+      },
+    ],
+  },
+  {
+    name: 'zendesk_omnichannel_agents_list',
+    description: `List the current availability status for all agents across all channels (voice, chat, email, messaging). Returns each agent's channel capacity, remaining capacity, and current status. Supports filtering by group, skill, channel status (e.g. voice:online), and remaining capacity.`,
+    params: [
+      {
+        name: 'filter_agent_id',
+        type: 'string',
+        required: false,
+        description: `Comma-separated agent IDs to filter by`,
+      },
+      {
+        name: 'filter_agent_status_name',
+        type: 'string',
+        required: false,
+        description: `Filter agents by their unified status name (e.g. Online, Offline, Away)`,
+      },
+      {
+        name: 'filter_channel_status',
+        type: 'string',
+        required: false,
+        description: `Filter agents by their status on a specific channel. Format: channel:status (e.g. voice:online, messaging:away)`,
+      },
+      {
+        name: 'filter_group_id',
+        type: 'string',
+        required: false,
+        description: `Comma-separated group IDs to filter agents by`,
+      },
+      {
+        name: 'page_after',
+        type: 'string',
+        required: false,
+        description: `Cursor for fetching the next page of results`,
+      },
+      {
+        name: 'page_size',
+        type: 'number',
+        required: false,
+        description: `Maximum number of agents to return per page`,
+      },
+      {
+        name: 'select_channel',
+        type: 'string',
+        required: false,
+        description: `Limit availability data to a single channel (e.g. voice, messaging, email)`,
+      },
+    ],
+  },
+  {
     name: 'zendesk_organization_get',
     description: `Retrieve details of a specific Zendesk organization by ID. Returns organization name, domain names, tags, notes, shared ticket settings, and custom fields.`,
     params: [
@@ -884,6 +949,109 @@ export const tools: Tool[] = [
         description: `Version of the tool schema`,
       },
       { name: 'tool_version', type: 'string', required: false, description: `Version of the tool` },
+    ],
+  },
+  {
+    name: 'zendesk_talk_account_overview',
+    description: `Get a high-level overview of Talk voice call activity for the current day. Returns total inbound calls, total outbound calls, and other account-wide call metrics. Data covers midnight to now in your account's timezone. Filter by phone number IDs to scope to specific lines.`,
+    params: [
+      {
+        name: 'phone_number_ids',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of phone number IDs to filter results by (up to 100 IDs)`,
+      },
+    ],
+  },
+  {
+    name: 'zendesk_talk_agents_activity',
+    description: `Get current-day Talk voice call activity broken down per agent. Returns calls accepted, calls missed, calls denied, talk time, and other live metrics for each agent. Data reflects the current day from midnight in your account timezone. Filter by group to narrow results.`,
+    params: [
+      {
+        name: 'group_ids',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of group IDs to filter agents by (up to 100 IDs)`,
+      },
+    ],
+  },
+  {
+    name: 'zendesk_talk_agents_overview',
+    description: `Get aggregated Talk performance metrics for all agents for the current day. Returns per-agent counts of accepted, missed, and declined calls, average handle time, and talk time. Data covers midnight to now in the account timezone. Use this to assess agent-level call performance without requiring Talk Professional/Enterprise.`,
+    params: [],
+  },
+  {
+    name: 'zendesk_talk_call_legs_list',
+    description: `List individual call legs from Zendesk Talk. Each call can have multiple legs (e.g., the customer leg and the agent leg). Returns leg status (accepted, missed, declined), duration, agent, and timestamps.`,
+    params: [
+      {
+        name: 'start_time',
+        type: 'number',
+        required: true,
+        description: `Unix timestamp (seconds since epoch) to start the incremental query from. Required by Zendesk — the incremental legs endpoint will reject requests without this field.`,
+      },
+      {
+        name: 'agent_id',
+        type: 'number',
+        required: false,
+        description: `Filter call legs by a specific agent ID`,
+      },
+      {
+        name: 'end_time',
+        type: 'number',
+        required: false,
+        description: `Unix timestamp (seconds since epoch) to end the incremental query at.`,
+      },
+      { name: 'page', type: 'number', required: false, description: `Page number for pagination` },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `Number of call legs to return per page (max 100)`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Filter by leg status: accepted, missed, or declined`,
+      },
+    ],
+  },
+  {
+    name: 'zendesk_talk_calls_list',
+    description: `List voice calls from Zendesk Talk. Returns inbound and outbound call records with details such as duration, status, agent, phone number, and timestamps. Use filters to narrow by direction, date range, or agent.`,
+    params: [
+      {
+        name: 'agent_id',
+        type: 'number',
+        required: false,
+        description: `Filter calls by a specific agent ID`,
+      },
+      {
+        name: 'direction',
+        type: 'string',
+        required: false,
+        description: `Filter by call direction: inbound or outbound`,
+      },
+      {
+        name: 'end_time',
+        type: 'string',
+        required: false,
+        description: `Filter calls that ended before this ISO 8601 timestamp`,
+      },
+      { name: 'page', type: 'number', required: false, description: `Page number for pagination` },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `Number of calls to return per page (max 100)`,
+      },
+      {
+        name: 'start_time',
+        type: 'string',
+        required: false,
+        description: `Filter calls that started after this ISO 8601 timestamp`,
+      },
     ],
   },
   {

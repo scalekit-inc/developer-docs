@@ -1,0 +1,3058 @@
+import type { Tool } from '../../types/agent-connectors'
+
+export const tools: Tool[] = [
+  {
+    name: 'statuspage_component_create',
+    description: `Create a new component (a service or part of your infrastructure) on a Statuspage page, with a display name, status, description, and optional group assignment.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Display name for the component, e.g. 'API' or 'Website'.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page to create the component on`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `More detailed description for the component.`,
+      },
+      {
+        name: 'group_id',
+        type: 'string',
+        required: false,
+        description: `Identifier of the component group to add this component to.`,
+      },
+      {
+        name: 'only_show_if_degraded',
+        type: 'boolean',
+        required: false,
+        description: `Whether to only show this component if it is degraded. Requires a special feature flag to be enabled on your account.`,
+      },
+      {
+        name: 'showcase',
+        type: 'boolean',
+        required: false,
+        description: `Whether this component should be showcased on the status page.`,
+      },
+      {
+        name: 'start_date',
+        type: 'string',
+        required: false,
+        description: `The date this component started being used, in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Status of the component. Valid values: operational, under_maintenance, degraded_performance, partial_outage, major_outage.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_component_delete',
+    description: `Permanently delete a component from a Statuspage status page.`,
+    params: [
+      {
+        name: 'component_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the component to delete`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the component belongs to`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_component_get',
+    description: `Retrieve details of a single component on a Statuspage page by its component ID, including name, status, description, group, and display settings.`,
+    params: [
+      {
+        name: 'component_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the component to retrieve`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the component belongs to`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_component_group_create',
+    description: `Create a new component group on a Statuspage status page. A component group organizes multiple components together under a single collapsible heading on the status page. Requires a name and a list of component IDs to include in the group.`,
+    params: [
+      {
+        name: 'components',
+        type: 'array',
+        required: true,
+        description: `Array of component IDs to include in this group.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Name of the component group as it will appear on the status page.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page to create the component group on.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Description of the component group, shown to visitors of the status page.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_component_group_delete',
+    description: `Permanently delete a component group from a Statuspage status page.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the component group to delete`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the component group belongs to`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_component_group_get',
+    description: `Retrieve details of a single component group on a Statuspage status page by its ID, including its name and the components it contains.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the component group to retrieve`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the component group belongs to`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_component_group_update',
+    description: `Update an existing component group on a Statuspage status page. You can update the name, description, and the set of components included in the group.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the component group to update.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the component group belongs to.`,
+      },
+      {
+        name: 'components',
+        type: 'array',
+        required: false,
+        description: `Updated array of component IDs to include in this group. Replaces the existing set of components.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Updated description of the component group, shown to visitors of the status page.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Updated name of the component group.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_component_group_uptime_get',
+    description: `Get uptime data for a component group that has uptime showcase enabled for at least one component. Returns aggregate uptime data over a date range (maximum six calendar months) along with related events unless skipped.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the component group to retrieve uptime data for.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the component group belongs to.`,
+      },
+      {
+        name: 'end',
+        type: 'string',
+        required: false,
+        description: `The end date for uptime calculation, e.g. '2024-06-30', '2024-06', or '2024'. Defaults to today in the page's time zone. Maximum supported range is six calendar months, earliest supported date is 1970-01-01.`,
+      },
+      {
+        name: 'skip_related_events',
+        type: 'boolean',
+        required: false,
+        description: `If true, skips supplying the related events data along with the component group uptime data.`,
+      },
+      {
+        name: 'start',
+        type: 'string',
+        required: false,
+        description: `The start date for uptime calculation, e.g. '2024-01-01', '2024-01', or '2024'. Defaults to the date of the earliest component start_date in the group, or 90 days ago, whichever is more recent. Maximum supported range is six calendar months, earliest supported date is 1970-01-01.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_component_groups_list',
+    description: `Retrieve a list of component groups on a Statuspage status page, with optional pagination.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page whose component groups should be listed`,
+      },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `The page offset of component groups to fetch. The first page is 0, the second is 1, etc.`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `The number of results to return per page. Maximum and default of 100.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_component_page_access_groups_add',
+    description: `Grant a list of page access groups access to a specific component on a Statuspage status page.`,
+    params: [
+      {
+        name: 'component_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the component to grant page access groups access to.`,
+      },
+      {
+        name: 'page_access_group_ids',
+        type: 'array',
+        required: true,
+        description: `List of page access group IDs to grant access to this component.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page that owns the component.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_component_page_access_groups_remove',
+    description: `Revoke all page access groups' access from a specific component on a Statuspage status page.`,
+    params: [
+      {
+        name: 'component_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the component to remove page access groups from.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page that owns the component.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_component_page_access_users_add',
+    description: `Grant a list of page access users direct access to a specific component on a Statuspage status page.`,
+    params: [
+      {
+        name: 'component_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the component to grant page access users access to.`,
+      },
+      {
+        name: 'page_access_user_ids',
+        type: 'array',
+        required: true,
+        description: `List of page access user IDs to grant access to this component.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page that owns the component.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_component_page_access_users_remove',
+    description: `Revoke all page access users' direct access from a specific component on a Statuspage status page.`,
+    params: [
+      {
+        name: 'component_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the component to remove page access users from.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page that owns the component.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_component_update',
+    description: `Update a component on a Statuspage page, such as its name, status, description, or group assignment. If group_id is set to null, the component is removed from its group.`,
+    params: [
+      {
+        name: 'component_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the component to update`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the component belongs to`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `More detailed description for the component.`,
+      },
+      {
+        name: 'group_id',
+        type: 'string',
+        required: false,
+        description: `Identifier of the component group to assign this component to. Set to an empty string or null to remove the component from its group.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Display name for the component.`,
+      },
+      {
+        name: 'only_show_if_degraded',
+        type: 'boolean',
+        required: false,
+        description: `Whether to only show this component if it is degraded. Requires a special feature flag to be enabled on your account.`,
+      },
+      {
+        name: 'showcase',
+        type: 'boolean',
+        required: false,
+        description: `Whether this component should be showcased on the status page.`,
+      },
+      {
+        name: 'start_date',
+        type: 'string',
+        required: false,
+        description: `The date this component started being used, in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Status of the component. Valid values: operational, under_maintenance, degraded_performance, partial_outage, major_outage.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_component_uptime_get',
+    description: `Get uptime data for a component that has uptime showcase enabled. Returns uptime data over a date range (maximum six calendar months) along with related events unless skipped.`,
+    params: [
+      {
+        name: 'component_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the component to retrieve uptime data for.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the component belongs to.`,
+      },
+      {
+        name: 'end',
+        type: 'string',
+        required: false,
+        description: `The end date for uptime calculation, e.g. '2024-06-30', '2024-06', or '2024'. Defaults to today in the page's time zone. Maximum supported range is six calendar months, earliest supported date is 1970-01-01.`,
+      },
+      {
+        name: 'skip_related_events',
+        type: 'boolean',
+        required: false,
+        description: `If true, skips supplying the related events data along with the component uptime data.`,
+      },
+      {
+        name: 'start',
+        type: 'string',
+        required: false,
+        description: `The start date for uptime calculation, e.g. '2024-01-01', '2024-01', or '2024'. Defaults to the component's start_date field or 90 days ago, whichever is more recent. Maximum supported range is six calendar months, earliest supported date is 1970-01-01.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_components_list',
+    description: `Retrieve the list of components (services/parts of your infrastructure) configured on a Statuspage page, including their name, status, group, and description. Supports pagination.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page whose components should be listed`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page offset to fetch, for paginating through results. Starts at 1.`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return per page. Maximum and default limit is 100.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_incident_create',
+    description: `Create a new incident or scheduled maintenance on a Statuspage page. Supports realtime incidents (investigating/identified/monitoring/resolved) and scheduled maintenances (scheduled/in_progress/verifying/completed), with optional affected components, notification control, and auto-transition settings.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Incident name. Maximum length of 255 characters.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page to create the incident on`,
+      },
+      {
+        name: 'auto_transition_deliver_notifications_at_end',
+        type: 'boolean',
+        required: false,
+        description: `Whether to send a notification when the scheduled maintenance automatically transitions to completed.`,
+      },
+      {
+        name: 'auto_transition_deliver_notifications_at_start',
+        type: 'boolean',
+        required: false,
+        description: `Whether to send a notification when the scheduled maintenance automatically transitions to started.`,
+      },
+      {
+        name: 'auto_transition_to_maintenance_state',
+        type: 'boolean',
+        required: false,
+        description: `Whether to change affected components' status to under_maintenance once the scheduled maintenance is in progress.`,
+      },
+      {
+        name: 'auto_transition_to_operational_state',
+        type: 'boolean',
+        required: false,
+        description: `Whether to change affected components' status to operational once the scheduled maintenance completes.`,
+      },
+      {
+        name: 'auto_tweet_at_beginning',
+        type: 'boolean',
+        required: false,
+        description: `Whether to tweet automatically when the scheduled maintenance starts.`,
+      },
+      {
+        name: 'auto_tweet_on_completion',
+        type: 'boolean',
+        required: false,
+        description: `Whether to tweet automatically when the scheduled maintenance completes.`,
+      },
+      {
+        name: 'auto_tweet_on_creation',
+        type: 'boolean',
+        required: false,
+        description: `Whether to tweet automatically when the scheduled maintenance is created.`,
+      },
+      {
+        name: 'auto_tweet_one_hour_before',
+        type: 'boolean',
+        required: false,
+        description: `Whether to tweet automatically one hour before the scheduled maintenance starts.`,
+      },
+      {
+        name: 'backfill_date',
+        type: 'string',
+        required: false,
+        description: `Timestamp for when the incident was backfilled, in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'backfilled',
+        type: 'boolean',
+        required: false,
+        description: `Whether the incident is backfilled (recorded after the fact). If true, components cannot be specified.`,
+      },
+      {
+        name: 'body',
+        type: 'string',
+        required: false,
+        description: `The initial message, created as the first incident update. Maximum length of 25000 characters.`,
+      },
+      {
+        name: 'component_ids',
+        type: 'array',
+        required: false,
+        description: `List of component IDs affected by this incident. Example: ["kctbh9vrtdwd", "lcy4z7wq3fjr"].`,
+      },
+      {
+        name: 'components',
+        type: 'object',
+        required: false,
+        description: `Map of component_id to new status to apply to affected components. Example: {"kctbh9vrtdwd": "degraded_performance"}. Valid statuses: operational, under_maintenance, degraded_performance, partial_outage, major_outage.`,
+      },
+      {
+        name: 'deliver_notifications',
+        type: 'boolean',
+        required: false,
+        description: `Whether to deliver notifications to subscribers. If false, the incident is created without notifying customers. Defaults to true.`,
+      },
+      {
+        name: 'impact_override',
+        type: 'string',
+        required: false,
+        description: `Value to override the calculated impact value. Valid values: none, maintenance, minor, major, critical.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Arbitrary JSON object attached to the incident. All top-level values in the object must also be objects, e.g. {"jira": {"issue_id": "ABC-123"}}.`,
+      },
+      {
+        name: 'reminder_intervals',
+        type: 'string',
+        required: false,
+        description: `Custom reminder intervals for unresolved/open incidents (not applicable to scheduled maintenance). A serialized array of strictly increasing integers 1-24 (e.g. "[1, 5, 7, 10]"), a single integer as a string for equal intervals (e.g. "4"), or "[]" to disable reminders.`,
+      },
+      {
+        name: 'scheduled_auto_completed',
+        type: 'boolean',
+        required: false,
+        description: `Whether the incident is scheduled to automatically transition to completed at its scheduled end time.`,
+      },
+      {
+        name: 'scheduled_auto_in_progress',
+        type: 'boolean',
+        required: false,
+        description: `Whether the incident is scheduled to automatically transition to in_progress at its scheduled start time.`,
+      },
+      {
+        name: 'scheduled_for',
+        type: 'string',
+        required: false,
+        description: `The ISO 8601 timestamp the scheduled incident is scheduled to start.`,
+      },
+      {
+        name: 'scheduled_remind_prior',
+        type: 'boolean',
+        required: false,
+        description: `Whether to remind subscribers prior to the scheduled incident starting.`,
+      },
+      {
+        name: 'scheduled_until',
+        type: 'string',
+        required: false,
+        description: `The ISO 8601 timestamp the scheduled incident is scheduled to end.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `The incident status. For realtime incidents, valid values are investigating, identified, monitoring, and resolved. For scheduled incidents, valid values are scheduled, in_progress, verifying, and completed.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_incident_delete',
+    description: `Permanently delete an incident from a Statuspage status page. This action cannot be undone.`,
+    params: [
+      {
+        name: 'incident_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the incident to delete`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page that owns the incident`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_incident_get',
+    description: `Retrieve details of a single incident on a Statuspage page by its incident ID, including status, impact, affected components, incident updates, and postmortem information.`,
+    params: [
+      {
+        name: 'incident_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the incident to retrieve`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the incident belongs to`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_incident_postmortem_create',
+    description: `Create (or replace) the draft postmortem body for a Statuspage incident.`,
+    params: [
+      {
+        name: 'body_draft',
+        type: 'string',
+        required: true,
+        description: `Body of Postmortem to create.`,
+      },
+      {
+        name: 'incident_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the incident to create a postmortem for`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page that owns the incident`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_incident_postmortem_delete',
+    description: `Permanently delete the postmortem report associated with a Statuspage incident. Per the Statuspage API spec, this returns HTTP 204 No Content on success.`,
+    params: [
+      {
+        name: 'incident_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the incident whose postmortem should be deleted.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page that owns the incident.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_incident_postmortem_get',
+    description: `Retrieve the postmortem for a Statuspage incident, including its draft/published body content and publish status.`,
+    params: [
+      {
+        name: 'incident_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the incident whose postmortem should be retrieved`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page that owns the incident`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_incident_postmortem_publish',
+    description: `Publish the postmortem report for a Statuspage incident, making it visible on the public status page. Optionally notify e-mail subscribers, notify Twitter followers, and include a custom tweet. Per the Statuspage API spec, this returns HTTP 200 on success.`,
+    params: [
+      {
+        name: 'incident_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the incident whose postmortem should be published.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page that owns the incident.`,
+      },
+      {
+        name: 'custom_tweet',
+        type: 'string',
+        required: false,
+        description: `Custom postmortem tweet text to publish when notify_twitter is true. If omitted, a default tweet is used.`,
+      },
+      {
+        name: 'notify_subscribers',
+        type: 'boolean',
+        required: false,
+        description: `Whether to notify e-mail subscribers that the postmortem has been published. Defaults to the page's configured behavior if omitted.`,
+      },
+      {
+        name: 'notify_twitter',
+        type: 'boolean',
+        required: false,
+        description: `Whether to notify Twitter followers that the postmortem has been published. Defaults to the page's configured behavior if omitted.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_incident_postmortem_revert',
+    description: `Revert a published postmortem report for a Statuspage incident back to draft, unpublishing it from the public status page. Per the Statuspage API spec, this returns HTTP 200 on success.`,
+    params: [
+      {
+        name: 'incident_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the incident whose postmortem should be reverted to draft.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page that owns the incident.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_incident_subscriber_create',
+    description: `Create a new subscriber (email or SMS) for notifications about a specific Statuspage incident. Provide either an email address, or a phone_country and phone_number pair for SMS. Per the Statuspage API spec, this returns HTTP 201 on success.`,
+    params: [
+      {
+        name: 'incident_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the incident to subscribe to.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page that owns the incident.`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `The email address to use for creating an email subscriber. Required if phone_number is not provided.`,
+      },
+      {
+        name: 'phone_country',
+        type: 'string',
+        required: false,
+        description: `The two-character country code (e.g. 'US') for the phone number location, used when creating an SMS subscriber.`,
+      },
+      {
+        name: 'phone_number',
+        type: 'string',
+        required: false,
+        description: `The phone number (as dialed from phone_country) to use for creating an SMS subscriber. Required if email is not provided.`,
+      },
+      {
+        name: 'skip_confirmation_notification',
+        type: 'boolean',
+        required: false,
+        description: `If true, the subscriber does not receive any notifications when their subscription changes; email subscribers are automatically opted in. Only available on paid pages and has no effect for trial customers.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_incident_subscriber_get',
+    description: `Retrieve details of a single subscriber to a specific Statuspage incident by subscriber ID.`,
+    params: [
+      {
+        name: 'incident_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the incident that the subscriber is subscribed to.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page that owns the incident.`,
+      },
+      {
+        name: 'subscriber_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the incident subscriber to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_incident_subscriber_resend_confirmation',
+    description: `Resend the confirmation notification (email or SMS) to a pending subscriber of a specific Statuspage incident. Per the Statuspage API spec, this returns HTTP 201 on success.`,
+    params: [
+      {
+        name: 'incident_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the incident the subscriber is subscribed to.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page that owns the incident.`,
+      },
+      {
+        name: 'subscriber_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the incident subscriber to resend a confirmation notification to.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_incident_subscriber_unsubscribe',
+    description: `Unsubscribe a subscriber from notifications about a specific Statuspage incident. Per the Statuspage API spec, this returns HTTP 200 on success.`,
+    params: [
+      {
+        name: 'incident_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the incident the subscriber is subscribed to.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page that owns the incident.`,
+      },
+      {
+        name: 'subscriber_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the incident subscriber to unsubscribe.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_incident_subscribers_list',
+    description: `Get a list of subscribers who are subscribed to a specific Statuspage incident. Supports pagination via page and per_page query parameters.`,
+    params: [
+      {
+        name: 'incident_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the incident whose subscribers should be listed.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page that owns the incident.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `The page number of results to fetch, starting at 1. Used for pagination.`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `The number of results to return per page.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_incident_update',
+    description: `Update an existing incident or scheduled maintenance on a Statuspage page, such as changing its status, posting a new update body, adjusting affected components, or modifying scheduling/notification settings.`,
+    params: [
+      {
+        name: 'incident_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the incident to update`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the incident belongs to`,
+      },
+      {
+        name: 'auto_transition_deliver_notifications_at_end',
+        type: 'boolean',
+        required: false,
+        description: `Whether to send a notification when the scheduled maintenance automatically transitions to completed.`,
+      },
+      {
+        name: 'auto_transition_deliver_notifications_at_start',
+        type: 'boolean',
+        required: false,
+        description: `Whether to send a notification when the scheduled maintenance automatically transitions to started.`,
+      },
+      {
+        name: 'auto_transition_to_maintenance_state',
+        type: 'boolean',
+        required: false,
+        description: `Whether to change affected components' status to under_maintenance once the scheduled maintenance is in progress.`,
+      },
+      {
+        name: 'auto_transition_to_operational_state',
+        type: 'boolean',
+        required: false,
+        description: `Whether to change affected components' status to operational once the scheduled maintenance completes.`,
+      },
+      {
+        name: 'auto_tweet_at_beginning',
+        type: 'boolean',
+        required: false,
+        description: `Whether to tweet automatically when the scheduled maintenance starts.`,
+      },
+      {
+        name: 'auto_tweet_on_completion',
+        type: 'boolean',
+        required: false,
+        description: `Whether to tweet automatically when the scheduled maintenance completes.`,
+      },
+      {
+        name: 'auto_tweet_on_creation',
+        type: 'boolean',
+        required: false,
+        description: `Whether to tweet automatically when the scheduled maintenance is created.`,
+      },
+      {
+        name: 'auto_tweet_one_hour_before',
+        type: 'boolean',
+        required: false,
+        description: `Whether to tweet automatically one hour before the scheduled maintenance starts.`,
+      },
+      {
+        name: 'backfill_date',
+        type: 'string',
+        required: false,
+        description: `Timestamp for when the incident was backfilled, in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'backfilled',
+        type: 'boolean',
+        required: false,
+        description: `Whether the incident is backfilled (recorded after the fact). If true, components cannot be specified.`,
+      },
+      {
+        name: 'body',
+        type: 'string',
+        required: false,
+        description: `The initial message, created as the first incident update. Maximum length of 25000 characters.`,
+      },
+      {
+        name: 'component_ids',
+        type: 'array',
+        required: false,
+        description: `List of component IDs affected by this incident. Example: ["kctbh9vrtdwd", "lcy4z7wq3fjr"].`,
+      },
+      {
+        name: 'components',
+        type: 'object',
+        required: false,
+        description: `Map of component_id to new status to apply to affected components. Example: {"kctbh9vrtdwd": "degraded_performance"}. Valid statuses: operational, under_maintenance, degraded_performance, partial_outage, major_outage.`,
+      },
+      {
+        name: 'deliver_notifications',
+        type: 'boolean',
+        required: false,
+        description: `Whether to deliver notifications to subscribers. If false, the incident is created without notifying customers. Defaults to true.`,
+      },
+      {
+        name: 'impact_override',
+        type: 'string',
+        required: false,
+        description: `Value to override the calculated impact value. Valid values: none, maintenance, minor, major, critical.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Arbitrary JSON object attached to the incident. All top-level values in the object must also be objects, e.g. {"jira": {"issue_id": "ABC-123"}}.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Incident name. Maximum length of 255 characters.`,
+      },
+      {
+        name: 'reminder_intervals',
+        type: 'string',
+        required: false,
+        description: `Custom reminder intervals for unresolved/open incidents (not applicable to scheduled maintenance). A serialized array of strictly increasing integers 1-24 (e.g. "[1, 5, 7, 10]"), a single integer as a string for equal intervals (e.g. "4"), or "[]" to disable reminders.`,
+      },
+      {
+        name: 'scheduled_auto_completed',
+        type: 'boolean',
+        required: false,
+        description: `Whether the incident is scheduled to automatically transition to completed at its scheduled end time.`,
+      },
+      {
+        name: 'scheduled_auto_in_progress',
+        type: 'boolean',
+        required: false,
+        description: `Whether the incident is scheduled to automatically transition to in_progress at its scheduled start time.`,
+      },
+      {
+        name: 'scheduled_auto_transition',
+        type: 'boolean',
+        required: false,
+        description: `Same as scheduled_auto_in_progress. Controls whether the incident is scheduled to automatically change to in_progress.`,
+      },
+      {
+        name: 'scheduled_for',
+        type: 'string',
+        required: false,
+        description: `The ISO 8601 timestamp the scheduled incident is scheduled to start.`,
+      },
+      {
+        name: 'scheduled_remind_prior',
+        type: 'boolean',
+        required: false,
+        description: `Whether to remind subscribers prior to the scheduled incident starting.`,
+      },
+      {
+        name: 'scheduled_until',
+        type: 'string',
+        required: false,
+        description: `The ISO 8601 timestamp the scheduled incident is scheduled to end.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `The incident status. For realtime incidents, valid values are investigating, identified, monitoring, and resolved. For scheduled incidents, valid values are scheduled, in_progress, verifying, and completed.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_incident_update_edit',
+    description: `Update a previous incident update on a Statuspage status page, editing its body text, display timestamp, or the Twitter/notification delivery flags.`,
+    params: [
+      {
+        name: 'incident_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the incident that owns the incident update`,
+      },
+      {
+        name: 'incident_update_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the incident update to edit`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page that owns the incident`,
+      },
+      { name: 'body', type: 'string', required: false, description: `Incident update body.` },
+      {
+        name: 'deliver_notifications',
+        type: 'boolean',
+        required: false,
+        description: `Controls whether to delivery notifications.`,
+      },
+      {
+        name: 'display_at',
+        type: 'string',
+        required: false,
+        description: `Timestamp when incident update is happened.`,
+      },
+      {
+        name: 'wants_twitter_update',
+        type: 'boolean',
+        required: false,
+        description: `Controls whether to create twitter update.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_incidents_list',
+    description: `Retrieve the list of incidents (including scheduled maintenances) for a Statuspage page. Supports free-text search across name, status, postmortem body, and incident updates, plus pagination.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page whose incidents should be listed`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `The maximum number of rows to return per page. The default and maximum limit is 100.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page offset to fetch, for paginating through results. Starts at 1.`,
+      },
+      {
+        name: 'q',
+        type: 'string',
+        required: false,
+        description: `Search for this text query string in the incidents' name, status, postmortem_body, and incident_updates fields.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_incidents_list_active_maintenance',
+    description: `Retrieve the list of active (in-progress) scheduled maintenances for a Statuspage status page, with optional pagination controls.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page whose active maintenances should be listed`,
+      },
+      { name: 'page', type: 'number', required: false, description: `Page offset to fetch.` },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `Number of results to return per page.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_incidents_list_scheduled',
+    description: `Get a list of scheduled maintenance incidents for a Statuspage status page. Supports pagination via page and per_page query parameters.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page whose scheduled incidents should be listed.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `The page number of results to fetch, starting at 1. Used for pagination.`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `The number of results to return per page. Defaults to 100.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_incidents_list_unresolved',
+    description: `Retrieve the list of unresolved incidents (incidents that have not yet reached the resolved or completed state) for a Statuspage page. Supports pagination.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page whose unresolved incidents should be listed`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page offset to fetch, for paginating through results. Defaults to 1.`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return per page. Defaults to 100.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_incidents_list_upcoming',
+    description: `Get a list of upcoming (future scheduled maintenance) incidents for a Statuspage status page. Supports pagination via page and per_page query parameters.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page whose upcoming incidents should be listed.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `The page number of results to fetch, starting at 1. Used for pagination.`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `The number of results to return per page. Defaults to 100.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_metric_data_add',
+    description: `Add a single data point to a metric on a Statuspage status page. Requires a unix timestamp and a numeric value to store against the metric.`,
+    params: [
+      {
+        name: 'metric_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the metric to add data to.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the metric belongs to.`,
+      },
+      {
+        name: 'timestamp',
+        type: 'integer',
+        required: true,
+        description: `Unix timestamp (seconds since epoch) to store the data point against.`,
+      },
+      {
+        name: 'value',
+        type: 'number',
+        required: true,
+        description: `Numeric value of the data point to record.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_metric_data_reset',
+    description: `Reset (permanently delete) all historical data points for a metric on a Statuspage page, while keeping the metric configuration itself intact.`,
+    params: [
+      {
+        name: 'metric_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the metric whose data should be reset`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page that owns the metric`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_metric_delete',
+    description: `Delete a metric from a Statuspage metric provider. This permanently removes the metric configuration and its associated data from the given page.`,
+    params: [
+      {
+        name: 'metric_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the metric to delete`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page that owns the metric`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_metric_get',
+    description: `Retrieve details of a single metric on a Statuspage status page by its metric ID, including its display name, data source, and configuration.`,
+    params: [
+      {
+        name: 'metric_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the metric to retrieve`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the metric belongs to`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_metric_provider_create',
+    description: `Create a new metric provider on a Statuspage status page to connect an external monitoring service (Pingdom, NewRelic, Librato, Datadog, or Self) and display its metrics. Required fields vary by provider type: Librato requires email and api_token; Datadog requires api_key, api_token, and metric_base_uri; NewRelic requires api_key and metric_base_uri; Pingdom requires api_token and application_key.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page to create the metric provider on.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: true,
+        description: `The type of metrics provider to create. One of Pingdom, NewRelic, Librato, Datadog, or Self.`,
+      },
+      {
+        name: 'api_key',
+        type: 'string',
+        required: false,
+        description: `API key credential. Required by the Datadog and NewRelic type metrics providers.`,
+      },
+      {
+        name: 'api_token',
+        type: 'string',
+        required: false,
+        description: `API token credential. Required by the Librato, Datadog, and Pingdom type metrics providers.`,
+      },
+      {
+        name: 'application_key',
+        type: 'string',
+        required: false,
+        description: `Application key credential. Required by the Pingdom-type metrics provider.`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Account email address. Required by the Librato metrics provider.`,
+      },
+      {
+        name: 'metric_base_uri',
+        type: 'string',
+        required: false,
+        description: `Base URI for the metrics provider's API. Required by the Datadog and NewRelic type metrics providers.`,
+      },
+      {
+        name: 'password',
+        type: 'string',
+        required: false,
+        description: `Account password for the metrics provider, if required by that provider type.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_metric_provider_delete',
+    description: `Delete a metric provider from a Statuspage page. This permanently removes the provider integration and all metrics associated with it.`,
+    params: [
+      {
+        name: 'metrics_provider_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the metric provider to delete`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page that owns the metric provider`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_metric_provider_get',
+    description: `Get details of a specific metric provider configured on a Statuspage status page, including its type, base URI, and revalidation timestamps.`,
+    params: [
+      {
+        name: 'metrics_provider_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the metric provider to retrieve.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the metric provider belongs to.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_metric_provider_metric_create',
+    description: `Create a new metric for a metric provider on a Statuspage page. Use this to add a custom or provider-pulled metric (e.g. from Pingdom, NewRelic, Librato, Datadog) that will render as a graph on the status page.`,
+    params: [
+      {
+        name: 'metrics_provider_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the metric provider under which to create the metric`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Name of the metric to display on the graph`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page that owns the metric provider`,
+      },
+      {
+        name: 'application_id',
+        type: 'string',
+        required: false,
+        description: `The identifier for the New Relic application. Required only when the metric provider type is NewRelic`,
+      },
+      {
+        name: 'decimal_places',
+        type: 'integer',
+        required: false,
+        description: `How many decimal places to render on the graph`,
+      },
+      {
+        name: 'display',
+        type: 'boolean',
+        required: false,
+        description: `Whether the metric should be displayed on the status page`,
+      },
+      {
+        name: 'metric_identifier',
+        type: 'string',
+        required: false,
+        description: `The identifier used to look up the metric data from the provider (provider-specific, e.g. a Pingdom check ID or NewRelic metric name)`,
+      },
+      {
+        name: 'suffix',
+        type: 'string',
+        required: false,
+        description: `Suffix to describe the units on the graph, e.g. ms, %, req/s`,
+      },
+      {
+        name: 'tooltip_description',
+        type: 'string',
+        required: false,
+        description: `Description text shown in the graph tooltip`,
+      },
+      {
+        name: 'transform',
+        type: 'string',
+        required: false,
+        description: `The transform to apply to the metric before pulling it into Statuspage. One of: average, count, max, min, or sum`,
+      },
+      {
+        name: 'y_axis_hidden',
+        type: 'boolean',
+        required: false,
+        description: `Whether the values on the y axis should be hidden when rendering the graph`,
+      },
+      {
+        name: 'y_axis_max',
+        type: 'integer',
+        required: false,
+        description: `The upper bound of the y axis on the graph`,
+      },
+      {
+        name: 'y_axis_min',
+        type: 'integer',
+        required: false,
+        description: `The lower bound of the y axis on the graph`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_metric_provider_metrics_list',
+    description: `List the metrics associated with a specific metric provider on a Statuspage status page, with optional pagination controls.`,
+    params: [
+      {
+        name: 'metrics_provider_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the metric provider whose metrics should be listed`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page that owns the metric provider`,
+      },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page offset to fetch. Beginning February 28, 2023, this endpoint will return paginated data even if this query parameter is not provided.`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `Number of results to return per page. Beginning February 28, 2023, a default and maximum limit of 100 will be imposed.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_metric_provider_update',
+    description: `Update an existing metric provider (e.g. Pingdom, NewRelic, Librato, Datadog) on a Statuspage page. Only the provider type and metric base URI can be updated.`,
+    params: [
+      {
+        name: 'metrics_provider_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the metric provider to update`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page that owns the metric provider`,
+      },
+      {
+        name: 'metric_base_uri',
+        type: 'string',
+        required: false,
+        description: `The base URI used to query metric data from the provider, if applicable`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `The type of the metrics provider integration, e.g. Pingdom, NewRelic, Librato, Datadog, Statuspage, Custom, Self`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_metric_providers_list',
+    description: `Get a list of all metric providers configured on a Statuspage status page. Metric providers connect external monitoring services (e.g. Pingdom, NewRelic, Librato, Datadog) to display performance metrics on the status page.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page to list metric providers for.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_metric_update',
+    description: `Update an existing metric on a Statuspage status page. You can update the display name and the metric identifier used to look up data from the provider.`,
+    params: [
+      {
+        name: 'metric_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the metric to update.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the metric belongs to.`,
+      },
+      {
+        name: 'metric_identifier',
+        type: 'string',
+        required: false,
+        description: `Updated metric display identifier used to look up the metric data from the provider.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Updated display name of the metric.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_metrics_data_add_batch',
+    description: `Add data points to one or more metrics on a Statuspage status page in a single request. Provide a data object keyed by metric ID, where each value is an array of {timestamp, value} data points. The submission is queued and processed asynchronously by Statuspage.`,
+    params: [
+      {
+        name: 'data',
+        type: 'object',
+        required: true,
+        description: `Object mapping metric IDs to arrays of data points, each with a unix timestamp and numeric value. Example: {"vq23nrtrsy1j": [{"timestamp": 1783078513, "value": 123.456}]}`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the metrics belong to.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_metrics_list',
+    description: `Retrieve a list of metrics configured on a Statuspage status page, with optional pagination.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page whose metrics should be listed`,
+      },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `The page offset of metrics to fetch. The first page is 0, the second is 1, etc.`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `The number of results to return per page. Maximum and default of 100.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_access_group_component_remove',
+    description: `Remove a single component from a page access group on a Statuspage status page, identified by page ID, page access group ID, and component ID.`,
+    params: [
+      {
+        name: 'component_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the component to remove from the page access group.`,
+      },
+      {
+        name: 'page_access_group_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the page access group to remove the component from.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page that owns the page access group.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_access_group_components_add',
+    description: `Add one or more components to a page access group's visibility on a Statuspage status page. Existing components already assigned to the group remain, and the provided component IDs are added alongside them.`,
+    params: [
+      {
+        name: 'component_ids',
+        type: 'array',
+        required: true,
+        description: `List of component IDs to add to this page access group's visibility.`,
+      },
+      {
+        name: 'page_access_group_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the page access group to add components to.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the access group belongs to.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_access_group_components_delete',
+    description: `Delete a specified list of components from a page access group on a Statuspage status page. Only the listed component IDs are removed; any other components already assigned to the group are left unchanged.`,
+    params: [
+      {
+        name: 'component_ids',
+        type: 'array',
+        required: true,
+        description: `The list of component IDs to remove from the page access group.`,
+      },
+      {
+        name: 'page_access_group_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the page access group to remove components from.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page that owns the page access group.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_access_group_components_list',
+    description: `Retrieve the list of components a page access group has visibility into on a Statuspage status page.`,
+    params: [
+      {
+        name: 'page_access_group_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the page access group to list components for.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the access group belongs to.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_access_group_components_replace',
+    description: `Replace the full set of components assigned to a page access group on a Statuspage status page. This overwrites the existing component list for the group with the provided list of component IDs.`,
+    params: [
+      {
+        name: 'component_ids',
+        type: 'array',
+        required: true,
+        description: `The full list of component IDs to set on the page access group. This replaces any previously assigned components.`,
+      },
+      {
+        name: 'page_access_group_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the page access group whose components should be replaced.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page that owns the page access group.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_access_group_create',
+    description: `Create a new page access group on a Statuspage status page. Page access groups bundle components, metrics, and page access users together, letting you build audience-specific status pages.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page to create the access group on.`,
+      },
+      {
+        name: 'component_ids',
+        type: 'array',
+        required: false,
+        description: `List of component IDs this page access group should have visibility into.`,
+      },
+      {
+        name: 'external_identifier',
+        type: 'string',
+        required: false,
+        description: `Associates the group with an external group, such as an SSO/IdP group identifier.`,
+      },
+      {
+        name: 'metric_ids',
+        type: 'array',
+        required: false,
+        description: `List of metric IDs this page access group should have visibility into.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Name for this page access group.`,
+      },
+      {
+        name: 'page_access_user_ids',
+        type: 'array',
+        required: false,
+        description: `List of page access user IDs to add to this group.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_access_group_delete',
+    description: `Permanently remove a page access group from a Statuspage status page. This deletes the group itself; it does not delete the underlying components, metrics, or page access users.`,
+    params: [
+      {
+        name: 'page_access_group_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the page access group to remove.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the access group belongs to.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_access_group_get',
+    description: `Retrieve details of a single page access group on a Statuspage status page, including its name, associated components, metrics, and page access users.`,
+    params: [
+      {
+        name: 'page_access_group_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the page access group to retrieve.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the access group belongs to.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_access_group_update',
+    description: `Update a page access group on a Statuspage status page, including its name, external identifier, and the components, metrics, and page access users it grants visibility into.`,
+    params: [
+      {
+        name: 'page_access_group_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the page access group to update.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the access group belongs to.`,
+      },
+      {
+        name: 'component_ids',
+        type: 'array',
+        required: false,
+        description: `List of component IDs this page access group should have visibility into. Replaces the existing set.`,
+      },
+      {
+        name: 'external_identifier',
+        type: 'string',
+        required: false,
+        description: `Associates the group with an external group, such as an SSO/IdP group identifier.`,
+      },
+      {
+        name: 'metric_ids',
+        type: 'array',
+        required: false,
+        description: `List of metric IDs this page access group should have visibility into. Replaces the existing set.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Name for this page access group.`,
+      },
+      {
+        name: 'page_access_user_ids',
+        type: 'array',
+        required: false,
+        description: `List of page access user IDs in this group. Replaces the existing set.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_access_groups_list',
+    description: `Retrieve a paginated list of page access groups configured for a Statuspage status page. Page access groups bundle components, metrics, and page access users together for audience-specific status pages.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page to list page access groups for.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page offset to fetch. As of February 28, 2023, this endpoint returns paginated data even if this parameter is not provided.`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return per page. As of February 28, 2023, a default and maximum limit of 100 is imposed.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_access_user_component_remove',
+    description: `Remove a single component from a page access user's allowed components on a Statuspage status page.`,
+    params: [
+      {
+        name: 'component_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the component to remove access to`,
+      },
+      {
+        name: 'page_access_user_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the page access user to remove the component from`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the access user belongs to`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_access_user_components_add',
+    description: `Grant a page access user access to additional components on a Statuspage status page, without affecting components they already have access to.`,
+    params: [
+      {
+        name: 'component_ids',
+        type: 'array',
+        required: true,
+        description: `List of component codes to grant access to, in addition to existing access`,
+      },
+      {
+        name: 'page_access_user_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the page access user to grant component access to`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the access user belongs to`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_access_user_components_list',
+    description: `Retrieve the list of components that a page access user has access to on a Statuspage status page.`,
+    params: [
+      {
+        name: 'page_access_user_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the page access user to fetch components for`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the access user belongs to`,
+      },
+      { name: 'page', type: 'integer', required: false, description: `Page offset to fetch` },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return per page`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_access_user_components_remove',
+    description: `Remove a page access user's access to a specific set of components on a Statuspage status page. Components not listed remain accessible.`,
+    params: [
+      {
+        name: 'component_ids',
+        type: 'array',
+        required: true,
+        description: `List of component codes to revoke access to`,
+      },
+      {
+        name: 'page_access_user_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the page access user to remove component access from`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the access user belongs to`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_access_user_components_replace',
+    description: `Replace the full set of components a page access user has access to on a Statuspage status page. Any components not included in the list will be removed from the user's access.`,
+    params: [
+      {
+        name: 'component_ids',
+        type: 'array',
+        required: true,
+        description: `List of component codes the user should have exclusive access to`,
+      },
+      {
+        name: 'page_access_user_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the page access user whose component access will be replaced`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the access user belongs to`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_access_user_create',
+    description: `Add a page access user to a Statuspage status page, optionally granting access to specific page access groups and subscribing them to components.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page to add the access user to`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Email address of the page access user`,
+      },
+      {
+        name: 'external_login',
+        type: 'string',
+        required: false,
+        description: `IDP login user id for the page access user`,
+      },
+      {
+        name: 'page_access_group_ids',
+        type: 'array',
+        required: false,
+        description: `List of page access group ids to associate with this user`,
+      },
+      {
+        name: 'subscribe_to_components',
+        type: 'boolean',
+        required: false,
+        description: `Whether to subscribe this user to component notifications`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_access_user_delete',
+    description: `Permanently delete a page access user from a Statuspage status page. This removes the user's access entirely.`,
+    params: [
+      {
+        name: 'page_access_user_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the page access user to delete`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the access user belongs to`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_access_user_get',
+    description: `Retrieve details of a specific page access user on a Statuspage page, including their email, external login, and associated page access group IDs.`,
+    params: [
+      {
+        name: 'page_access_user_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the page access user to retrieve`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page that the page access user belongs to`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_access_user_metric_delete',
+    description: `Remove a single metric from a page access user's visibility on a Statuspage status page.`,
+    params: [
+      {
+        name: 'metric_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the metric to remove from this page access user's visibility.`,
+      },
+      {
+        name: 'page_access_user_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the page access user whose metric will be removed.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the access user belongs to.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_access_user_metrics_add',
+    description: `Grant a page access user access to additional metrics on a Statuspage status page, without affecting metrics they already have access to.`,
+    params: [
+      {
+        name: 'metric_ids',
+        type: 'array',
+        required: true,
+        description: `List of metric ids to grant access to, in addition to existing access`,
+      },
+      {
+        name: 'page_access_user_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the page access user to grant metric access to`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the access user belongs to`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_access_user_metrics_delete',
+    description: `Remove one or more metrics from a page access user's visibility on a Statuspage status page. Only the specified metric IDs are removed; other assigned metrics remain unaffected.`,
+    params: [
+      {
+        name: 'metric_ids',
+        type: 'array',
+        required: true,
+        description: `List of metric IDs to remove from this page access user's visibility.`,
+      },
+      {
+        name: 'page_access_user_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the page access user whose metrics will be removed.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the access user belongs to.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_access_user_metrics_list',
+    description: `Retrieve the list of metrics that a page access user has access to on a Statuspage status page.`,
+    params: [
+      {
+        name: 'page_access_user_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the page access user to fetch metrics for`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the access user belongs to`,
+      },
+      { name: 'page', type: 'integer', required: false, description: `Page offset to fetch` },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return per page`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_access_user_metrics_replace',
+    description: `Replace the full set of metrics visible to a page access user on a Statuspage status page. This overwrites any previously assigned metrics with the provided list of metric IDs.`,
+    params: [
+      {
+        name: 'metric_ids',
+        type: 'array',
+        required: true,
+        description: `The full list of metric IDs this page access user should have access to. Replaces any existing metric assignments.`,
+      },
+      {
+        name: 'page_access_user_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the page access user whose metrics will be replaced.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the access user belongs to.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_access_user_update',
+    description: `Update an existing page access user on a Statuspage status page, including their external login, email, or page access group memberships.`,
+    params: [
+      {
+        name: 'page_access_user_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the page access user to update`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the access user belongs to`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Email address of the page access user`,
+      },
+      {
+        name: 'external_login',
+        type: 'string',
+        required: false,
+        description: `IDP login user id for the page access user`,
+      },
+      {
+        name: 'page_access_group_ids',
+        type: 'array',
+        required: false,
+        description: `List of page access group ids to associate with this user`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_access_users_list',
+    description: `Retrieve a paginated list of page access users for a Statuspage page. Page access users are subscribers who can log in to view private components or restricted pages.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page to list page access users for`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Email address to search for among page access users`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page offset to fetch for pagination`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return per page. As of February 28, 2023, the API imposes a default and maximum of 100`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_get',
+    description: `Retrieve details of a Statuspage status page by its page ID, including name, domain, subdomain, URL, branding, and subscriber notification settings.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page to retrieve`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_page_update',
+    description: `Update settings for a Statuspage status page, including name, domain, subdomain, URL, branding template, CSS theme colors, subscriber notification options, and time zone.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page to update`,
+      },
+      {
+        name: 'allow_email_subscribers',
+        type: 'boolean',
+        required: false,
+        description: `Whether your users can choose to receive notifications via email.`,
+      },
+      {
+        name: 'allow_incident_subscribers',
+        type: 'boolean',
+        required: false,
+        description: `Whether your users can subscribe to notifications for a single incident.`,
+      },
+      {
+        name: 'allow_page_subscribers',
+        type: 'boolean',
+        required: false,
+        description: `Whether your users can subscribe to all notifications on the page.`,
+      },
+      {
+        name: 'allow_rss_atom_feeds',
+        type: 'boolean',
+        required: false,
+        description: `Whether your users can access incident feeds via RSS/Atom. Not functional on Audience-Specific pages.`,
+      },
+      {
+        name: 'allow_sms_subscribers',
+        type: 'boolean',
+        required: false,
+        description: `Whether your users can choose to receive notifications via SMS.`,
+      },
+      {
+        name: 'allow_webhook_subscribers',
+        type: 'boolean',
+        required: false,
+        description: `Whether your users can choose to receive notifications via webhooks.`,
+      },
+      {
+        name: 'branding',
+        type: 'string',
+        required: false,
+        description: `The main template your statuspage will use. Valid values are basic and premium.`,
+      },
+      {
+        name: 'css_blues',
+        type: 'string',
+        required: false,
+        description: `CSS color used for informational elements.`,
+      },
+      {
+        name: 'css_body_background_color',
+        type: 'string',
+        required: false,
+        description: `CSS color for the page body background, e.g. a hex value like #fff.`,
+      },
+      {
+        name: 'css_border_color',
+        type: 'string',
+        required: false,
+        description: `CSS color used for borders throughout the page.`,
+      },
+      {
+        name: 'css_font_color',
+        type: 'string',
+        required: false,
+        description: `CSS color for the primary font color, e.g. a hex value like #333.`,
+      },
+      {
+        name: 'css_graph_color',
+        type: 'string',
+        required: false,
+        description: `CSS color used for uptime graphs.`,
+      },
+      {
+        name: 'css_greens',
+        type: 'string',
+        required: false,
+        description: `CSS color used to represent operational/healthy status.`,
+      },
+      {
+        name: 'css_light_font_color',
+        type: 'string',
+        required: false,
+        description: `CSS color for the light/secondary font color.`,
+      },
+      {
+        name: 'css_link_color',
+        type: 'string',
+        required: false,
+        description: `CSS color used for hyperlinks on the page.`,
+      },
+      {
+        name: 'css_no_data',
+        type: 'string',
+        required: false,
+        description: `CSS color used when there is no uptime data available.`,
+      },
+      {
+        name: 'css_oranges',
+        type: 'string',
+        required: false,
+        description: `CSS color used to represent partial outage status.`,
+      },
+      {
+        name: 'css_reds',
+        type: 'string',
+        required: false,
+        description: `CSS color used to represent major outage status.`,
+      },
+      {
+        name: 'css_yellows',
+        type: 'string',
+        required: false,
+        description: `CSS color used to represent degraded performance status.`,
+      },
+      {
+        name: 'domain',
+        type: 'string',
+        required: false,
+        description: `CNAME alias for your status page`,
+      },
+      {
+        name: 'hidden_from_search',
+        type: 'boolean',
+        required: false,
+        description: `Whether your page should hide itself from search engines.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Name of your page to be displayed`,
+      },
+      {
+        name: 'notifications_email_footer',
+        type: 'string',
+        required: false,
+        description: `Customize the footer appearing on your notification emails. Accepts Markdown for formatting.`,
+      },
+      {
+        name: 'notifications_from_email',
+        type: 'string',
+        required: false,
+        description: `Customize the email address your page notifications come from.`,
+      },
+      {
+        name: 'subdomain',
+        type: 'string',
+        required: false,
+        description: `Subdomain at which to access your status page`,
+      },
+      {
+        name: 'time_zone',
+        type: 'string',
+        required: false,
+        description: `Timezone configured for your page.`,
+      },
+      {
+        name: 'url',
+        type: 'string',
+        required: false,
+        description: `Website of your page. Clicking on your statuspage image will link here.`,
+      },
+      {
+        name: 'viewers_must_be_team_members',
+        type: 'boolean',
+        required: false,
+        description: `Whether only team members can view the page.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_status_embed_config_get',
+    description: `Retrieve the status embed config settings for a Statuspage status page, including the iframe position and its background/text colors for incident and maintenance states.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page whose status embed config should be retrieved`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_status_embed_config_update',
+    description: `Update the status embed config settings for a Statuspage status page, including the iframe corner position and background/text colors for incident and maintenance states.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page whose status embed config should be updated`,
+      },
+      {
+        name: 'incident_background_color',
+        type: 'string',
+        required: false,
+        description: `Color of status embed iframe background when displaying incident`,
+      },
+      {
+        name: 'incident_text_color',
+        type: 'string',
+        required: false,
+        description: `Color of status embed iframe text when displaying incident`,
+      },
+      {
+        name: 'maintenance_background_color',
+        type: 'string',
+        required: false,
+        description: `Color of status embed iframe background when displaying maintenance`,
+      },
+      {
+        name: 'maintenance_text_color',
+        type: 'string',
+        required: false,
+        description: `Color of status embed iframe text when displaying maintenance`,
+      },
+      {
+        name: 'position',
+        type: 'string',
+        required: false,
+        description: `Corner where status embed iframe will appear on page`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_subscriber_create',
+    description: `Create a new subscriber on a Statuspage status page. Supports email, SMS, and webhook subscriber types (not applicable for Slack subscribers, which cannot be created via API). Provide 'email' for email or webhook contact, 'endpoint' for webhook URL, or 'phone_country' + 'phone_number' for SMS. Optionally scope the subscription to specific components and/or a page access user.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page to add the subscriber to`,
+      },
+      {
+        name: 'component_ids',
+        type: 'array',
+        required: false,
+        description: `A list of component IDs the subscriber should receive updates for. Must contain at least one element if provided; each component must belong to the page indicated by page_id. Omit to subscribe to all components.`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `The email address for creating an Email subscriber, or the contact email for a Webhook subscriber. Required for email-type subscribers.`,
+      },
+      {
+        name: 'endpoint',
+        type: 'string',
+        required: false,
+        description: `The endpoint URI for creating a Webhook subscriber. Required when creating a webhook-type subscriber.`,
+      },
+      {
+        name: 'page_access_user',
+        type: 'string',
+        required: false,
+        description: `The code of the page access user to which the subscriber belongs, scoping the subscription to that user's permitted components.`,
+      },
+      {
+        name: 'phone_country',
+        type: 'string',
+        required: false,
+        description: `The two-character country code where the phone number is located, used when creating an SMS subscriber (e.g. 'US'). Required together with phone_number for SMS subscribers.`,
+      },
+      {
+        name: 'phone_number',
+        type: 'string',
+        required: false,
+        description: `The phone number (as you would dial from phone_country) to use for the new SMS subscriber. Required together with phone_country for SMS subscribers.`,
+      },
+      {
+        name: 'skip_confirmation_notification',
+        type: 'boolean',
+        required: false,
+        description: `If true, the subscriber does not receive any notification when their subscription changes; email subscribers are automatically opted in. Only available for paid pages, and has no effect for trial customers.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_subscriber_get',
+    description: `Retrieve details of a single subscriber on a Statuspage status page by its subscriber ID, including contact information, type, and state.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the subscriber belongs to`,
+      },
+      {
+        name: 'subscriber_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the subscriber to retrieve`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_subscriber_resend_confirmation',
+    description: `Resend the confirmation email or notification to a single unconfirmed subscriber on a Statuspage status page.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the subscriber belongs to`,
+      },
+      {
+        name: 'subscriber_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the subscriber to resend the confirmation to`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_subscriber_unsubscribe',
+    description: `Unsubscribe a single subscriber from a Statuspage status page by page ID and subscriber ID.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the subscriber belongs to`,
+      },
+      {
+        name: 'subscriber_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the subscriber to unsubscribe`,
+      },
+      {
+        name: 'skip_unsubscription_notification',
+        type: 'boolean',
+        required: false,
+        description: `If true, the subscriber does not receive any notifications when they are unsubscribed`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_subscriber_update',
+    description: `Update a subscriber's component subscriptions on a Statuspage status page. Replaces the list of component IDs the subscriber receives updates for. Omit component_ids to subscribe the subscriber to all components on the page.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the subscriber belongs to`,
+      },
+      {
+        name: 'subscriber_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the subscriber to update`,
+      },
+      {
+        name: 'component_ids',
+        type: 'array',
+        required: false,
+        description: `A list of component IDs the subscriber should receive updates for. Must contain at least one element if provided; each component must belong to the page indicated by page_id. Omit this parameter to subscribe the subscriber to all components on the page.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_subscribers_count_get',
+    description: `Retrieve a count of subscribers on a Statuspage status page, optionally filtered by subscriber type and state.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page to count subscribers for`,
+      },
+      {
+        name: 'state',
+        type: 'string',
+        required: false,
+        description: `If present, only count subscribers in this state. Specify "all" to count subscribers in any state.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `If present, only count subscribers of this type`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_subscribers_histogram_by_state_get',
+    description: `Retrieve a histogram of subscribers on a Statuspage status page, broken down by subscriber type and then by state (active, unconfirmed, quarantined).`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page to retrieve the subscriber histogram for`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_subscribers_list',
+    description: `Retrieve a list of subscribers for a Statuspage status page, with optional filtering by contact search text, subscriber type, and state, plus pagination and sorting controls.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page whose subscribers should be listed`,
+      },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `The maximum number of subscribers to return. If a search query (q) is specified, the default and maximum limit is 100.`,
+      },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `The zero-based page offset of subscribers to fetch. The first page is 0, the second is 1, etc.`,
+      },
+      {
+        name: 'q',
+        type: 'string',
+        required: false,
+        description: `Search text to match against subscriber contact information (email, endpoint, or phone number). Not supported for Slack subscribers.`,
+      },
+      {
+        name: 'sort_direction',
+        type: 'string',
+        required: false,
+        description: `The sort direction of the listing: asc or desc.`,
+      },
+      {
+        name: 'sort_field',
+        type: 'string',
+        required: false,
+        description: `The field to sort by: 'primary' for the identifying field, 'created_at' for creation timestamp, 'quarantined_at' for quarantine timestamp, or 'relevance' (only valid with a search query).`,
+      },
+      {
+        name: 'state',
+        type: 'string',
+        required: false,
+        description: `Filter to only return subscribers in this state. Use 'all' to return subscribers in any state. Defaults to active.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `Filter to only return subscribers of this type. One of email, sms, webhook, slack, teams, integration_partner.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_subscribers_list_unsubscribed',
+    description: `Retrieve a paginated list of unsubscribed subscribers for a Statuspage status page.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page to list unsubscribed subscribers for`,
+      },
+      { name: 'page', type: 'number', required: false, description: `Page offset to fetch` },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `Number of results to return per page`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_subscribers_reactivate_bulk',
+    description: `Reactivate a list of quarantined subscribers on a Statuspage status page, optionally filtered by subscriber type, or reactivate all quarantined subscribers.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the subscribers belong to`,
+      },
+      {
+        name: 'subscribers',
+        type: 'array',
+        required: true,
+        description: `List of quarantined subscriber codes to reactivate, or a single-element array containing "all" to reactivate all quarantined subscribers`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `If present, only reactivate subscribers of this type`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_subscribers_resend_confirmation_bulk',
+    description: `Resend confirmation notifications to a list of unconfirmed subscribers on a Statuspage status page, or to all unconfirmed email subscribers.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the subscribers belong to`,
+      },
+      {
+        name: 'subscribers',
+        type: 'array',
+        required: true,
+        description: `List of subscriber codes to resend confirmations for, or a single-element array containing "all" to resend to all unconfirmed email subscribers`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_subscribers_unsubscribe_bulk',
+    description: `Unsubscribe a list of subscribers from a Statuspage status page, optionally filtered by subscriber type and state, or unsubscribe all subscribers (if fewer than 100).`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page the subscribers belong to`,
+      },
+      {
+        name: 'subscribers',
+        type: 'array',
+        required: true,
+        description: `List of subscriber codes to unsubscribe (limited to 100), or a single-element array containing "all" to unsubscribe all subscribers if the total is under 100`,
+      },
+      {
+        name: 'skip_unsubscription_notification',
+        type: 'boolean',
+        required: false,
+        description: `If true, the subscribers do not receive any notifications when they are unsubscribed`,
+      },
+      {
+        name: 'state',
+        type: 'string',
+        required: false,
+        description: `If present, only unsubscribe subscribers in this state. Specify "all" to unsubscribe subscribers in any state.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `If present, only unsubscribe subscribers of this type`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_template_create',
+    description: `Create a new incident template on a Statuspage status page. Templates pre-fill the name, title, body, status, notification, and affected component settings when creating an incident or maintenance.`,
+    params: [
+      {
+        name: 'body',
+        type: 'string',
+        required: true,
+        description: `The initial message, created as the first incident or maintenance update.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Name of the template, as shown in the list on the "Templates" tab of the "Incidents" page`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page on which to create the template`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `Title to be applied to the incident or maintenance when selecting this template`,
+      },
+      {
+        name: 'component_ids',
+        type: 'array',
+        required: false,
+        description: `List of component_ids affected by this incident`,
+      },
+      {
+        name: 'group_id',
+        type: 'string',
+        required: false,
+        description: `Identifier of Template Group this template belongs to`,
+      },
+      {
+        name: 'should_send_notifications',
+        type: 'boolean',
+        required: false,
+        description: `Whether the "deliver notifications" checkbox should be selected when selecting this template`,
+      },
+      {
+        name: 'should_tweet',
+        type: 'boolean',
+        required: false,
+        description: `Whether the "tweet update" checkbox should be selected when selecting this template`,
+      },
+      {
+        name: 'update_status',
+        type: 'string',
+        required: false,
+        description: `The status the incident or maintenance should transition to when selecting this template`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_templates_list',
+    description: `Retrieve the list of incident templates configured on a Statuspage status page, with optional pagination controls.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage page whose templates should be listed`,
+      },
+      { name: 'page', type: 'number', required: false, description: `Page offset to fetch.` },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `Number of results to return per page.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_user_create',
+    description: `Create a new team member (user) in a Statuspage organization, granting them access to manage the organization's status pages.`,
+    params: [
+      {
+        name: 'email',
+        type: 'string',
+        required: true,
+        description: `Email address for the new team member. This is the address they will use to sign in.`,
+      },
+      {
+        name: 'organization_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage organization to add the user to`,
+      },
+      {
+        name: 'first_name',
+        type: 'string',
+        required: false,
+        description: `First name of the new team member.`,
+      },
+      {
+        name: 'last_name',
+        type: 'string',
+        required: false,
+        description: `Last name of the new team member.`,
+      },
+      {
+        name: 'password',
+        type: 'string',
+        required: false,
+        description: `Password the new team member will use to access the site. If omitted, Statuspage will prompt the user to set one via an invitation email.`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_user_delete',
+    description: `Delete a user from a Statuspage organization. This permanently removes the user's access to the organization and its pages.`,
+    params: [
+      {
+        name: 'organization_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage organization that the user belongs to`,
+      },
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the user to delete`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_user_permissions_get',
+    description: `Retrieve a Statuspage organization user's permissions, including the per-page roles (page configuration, incident manager, maintenance manager) they have been granted where Role Based Access Control is enabled.`,
+    params: [
+      {
+        name: 'organization_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage organization that the user belongs to`,
+      },
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the user whose permissions should be retrieved`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_user_permissions_update',
+    description: `Update a Statuspage organization user's role permissions. Provide a mapping of page IDs to the desired roles (page_configuration, incident_manager, maintenance_manager) for pages that have Role Based Access Control; pages should map to an empty object otherwise. Any page omitted from the payload will have its access revoked for this user.`,
+    params: [
+      {
+        name: 'organization_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage organization that the user belongs to`,
+      },
+      {
+        name: 'pages',
+        type: 'object',
+        required: true,
+        description: `Mapping of page IDs to role objects. Each key is a page_id; each value is an object with optional boolean fields page_configuration, incident_manager, maintenance_manager (only applicable for pages with Role Based Access Control; use an empty object {} for pages without RBAC). Pages omitted from this object will have the user's access to them revoked. Example: {"p216nvklg7p5": {"page_configuration": false, "incident_manager": true, "maintenance_manager": true}}`,
+      },
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the user whose permissions should be updated`,
+      },
+    ],
+  },
+  {
+    name: 'statuspage_users_list',
+    description: `Retrieve a list of team members (users) belonging to a Statuspage organization, with optional pagination.`,
+    params: [
+      {
+        name: 'organization_id',
+        type: 'string',
+        required: true,
+        description: `The identifier of the Statuspage organization whose users should be listed`,
+      },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `The page offset of users to fetch. The first page is 0, the second is 1, etc.`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `The number of results to return per page. Maximum and default of 100.`,
+      },
+    ],
+  },
+]
