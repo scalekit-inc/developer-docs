@@ -1,10 +1,46 @@
-// Set to true temporarily to test analytics on localhost or Netlify preview environments.
-// Must be false before merging to main.
-const ENABLE_NON_PROD_ANALYTICS = false
+/*
+ * PostHog staging project initialization (non-production).
+ *
+ * IMPORTANT: This is OFF BY DEFAULT because PostHog bills for events
+ * sent to the staging project from localhost and preview environments.
+ *
+ * How to toggle analytics on for localhost or Netlify previews (whenever you need it):
+ *
+ *   Quick toggle (easiest):
+ *     Add ?beacon=staging   or   ?enableBeaconStaging   to the URL, then reload.
+ *
+ *   Persistent for your current browser session:
+ *     In DevTools console:
+ *       localStorage.setItem('enableBeaconStaging', 'true'); location.reload();
+ *
+ *   Turn back off:
+ *     Remove the query param, or run:
+ *       localStorage.removeItem('enableBeaconStaging'); location.reload();
+ *
+ * Never leave this enabled in code that gets merged to main.
+ */
 
 const isLocalhost =
   window.location.host.includes('127.0.0.1') || window.location.host.includes('localhost')
 const isNetlify = window.location.host.includes('netlify.app')
+
+const isNonProdHost = isLocalhost || isNetlify
+
+/**
+ * Runtime "escape hatch" to turn on the staging analytics project.
+ * Designed for on-demand debugging without code changes or risk of shipping "on".
+ */
+const hasStagingToggle = () => {
+  const search = new URLSearchParams(window.location.search)
+  return (
+    search.has('enableBeaconStaging') ||
+    search.get('beacon') === 'staging' ||
+    search.has('debugAnalytics') ||
+    localStorage.getItem('enableBeaconStaging') === 'true'
+  )
+}
+
+const ENABLE_NON_PROD_ANALYTICS = isNonProdHost && hasStagingToggle()
 
 const SESSION_STORAGE_KEY = 'sk_auth_session'
 const SESSION_POLL_INTERVAL_MS = 1000
@@ -60,21 +96,17 @@ const INTERNAL_USER_EMAIL_PATTERNS = [
   /@scalekit\.cloud$/i,
 ]
 
-const isInternalUser = (function () {
-  var cache = new Map()
+const internalUserCache = new Map()
 
-  return function (email) {
-    if (!email) return false
-    if (cache.has(email)) {
-      return cache.get(email)
-    }
-    var result = INTERNAL_USER_EMAIL_PATTERNS.some(function (pattern) {
-      return pattern.test(email)
-    })
-    cache.set(email, result)
-    return result
+function isInternalUser(email) {
+  if (!email) return false
+  if (internalUserCache.has(email)) {
+    return internalUserCache.get(email)
   }
-})()
+  const result = INTERNAL_USER_EMAIL_PATTERNS.some((pattern) => pattern.test(email))
+  internalUserCache.set(email, result)
+  return result
+}
 
 const readSession = () => {
   try {
@@ -142,7 +174,7 @@ const watchForSession = () => {
   poll()
 }
 
-if (!isLocalhost && !isNetlify) {
+if (!isNonProdHost) {
   !(function (t, e) {
     var o, n, p, r
     e.__SV ||
@@ -196,7 +228,7 @@ if (!isLocalhost && !isNetlify) {
   watchForSession()
 }
 
-if (ENABLE_NON_PROD_ANALYTICS && (isNetlify || isLocalhost)) {
+if (ENABLE_NON_PROD_ANALYTICS) {
   !(function (t, e) {
     var o, n, p, r
     e.__SV ||
@@ -245,7 +277,10 @@ if (ENABLE_NON_PROD_ANALYTICS && (isNetlify || isLocalhost)) {
     defaults: '2025-05-24',
     person_profiles: 'identified_only',
   })
-  console.log('PostHog initialized - Staging')
+  console.log(
+    '%c[PostHog] Staging project initialized (non-prod). Disable with: localStorage.removeItem("enableBeaconStaging") + reload',
+    'color:#f59e0b',
+  )
   watchForSession()
 }
 
