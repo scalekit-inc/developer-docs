@@ -55,45 +55,7 @@ You **don't** need this if:
 
 Treat the Scalekit **organization ID** as the single billing reference for the tenant. Scalekit authenticates the user and org, your app owns the mapping and local subscription cache, and Chargebee owns catalog, checkout, and billing state.
 
-```d2 pad=28 layout=dagre
-direction: right
-
-user: "User in\norganization" {
-  style.font-size: 16
-  shape: person
-}
-scalekit: "Scalekit" {
-  style.font-size: 16
-}
-app: "Your app" {
-  style.font-size: 16
-}
-chargebee: "Chargebee" {
-  style.font-size: 16
-}
-db: "Local DB\n(org + subscription)" {
-  style.font-size: 16
-}
-
-user -> scalekit: "login" {
-  style.font-size: 14
-}
-scalekit -> app: "access token\nwith oid" {
-  style.font-size: 14
-}
-scalekit -> app: "organization.created\nwebhook" {
-  style.font-size: 14
-}
-app -> chargebee: "create customer\n+ hosted checkout" {
-  style.font-size: 14
-}
-chargebee -> app: "checkout success\n+ subscription webhooks" {
-  style.font-size: 14
-}
-app -> db: "org mapping\n+ subscription cache" {
-  style.font-size: 14
-}
-```
+![Architecture: User logs in via Scalekit, app provisions Chargebee customers and hosted checkout, Chargebee returns checkout success and subscription webhooks, app stores org mapping and subscription cache in local DB](@/assets/docs/cookbooks/sync-b2b-billing-with-chargebee/architecture.png)
 
 The integration has four seams:
 
