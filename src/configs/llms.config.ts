@@ -4,7 +4,7 @@ import { AGENT_PLUGIN_DETAILS_MD } from './agent-instructions'
 export const llmsConfig: LlmsTxtConfig = {
   projectName: 'Scalekit',
   description:
-    'Scalekit is a developer platform for enterprise authentication, providing SaaSKit (FSA, SSO, SCIM), AgentKit (OAuth for AI agents, tool calling, connectors), MCP Authentication, and API authentication solutions for B2B and AI applications. The authstack plugin is available for AI coding agents and provides up-to-date implementation guidance — see install details below.',
+    'Scalekit is a developer platform for enterprise authentication, providing SaaSKit (FSA, SSO, SCIM), AgentKit (OAuth for AI agents, tool calling, connectors), MCP Authentication, and API authentication solutions for B2B and AI applications. An official Auth Stack plugin is available for AI coding agents with up-to-date API references and code snippets — see install details below.',
 
   details:
     AGENT_PLUGIN_DETAILS_MD +
@@ -195,14 +195,36 @@ Start with the Quickstart Collection, then follow the developer's question to th
   // Add external resources not included in main documentation
   optionalLinks: [
     {
-      label: 'API reference markdown',
+      label: 'API reference markdown (all endpoints)',
       url: '/apis.md',
-      description: 'LLM-friendly Markdown generated from the Scalekit OpenAPI specification',
+      description: 'LLM-friendly Markdown generated from the full Scalekit OpenAPI specification',
     },
     {
-      label: 'OpenAPI Specification',
-      url: '/api/scalekit.scalar.yaml',
-      description: 'OpenAPI Specification for Scalekit REST API (YAML)',
+      label: 'AgentKit API reference markdown',
+      url: '/agentkit/apis.md',
+      description:
+        'LLM-friendly Markdown for AgentKit APIs — connected accounts, tool execution, webhooks',
+    },
+    {
+      label: 'SaaSKit API reference markdown',
+      url: '/saaskit/apis.md',
+      description:
+        'LLM-friendly Markdown for SaaSKit APIs — SSO, SCIM, directories, sessions, roles, users',
+    },
+    {
+      label: 'OpenAPI Specification (all endpoints)',
+      url: '/api/scalekit.scalar.json',
+      description: 'OpenAPI Specification for Scalekit REST API',
+    },
+    {
+      label: 'AgentKit OpenAPI Specification',
+      url: '/api/agentkit.scalar.json',
+      description: 'OpenAPI Specification for AgentKit REST API',
+    },
+    {
+      label: 'SaaSKit OpenAPI Specification',
+      url: '/api/saaskit.scalar.json',
+      description: 'OpenAPI Specification for SaaSKit REST API',
     },
     {
       label: 'Postman Collection',

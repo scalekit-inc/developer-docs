@@ -2,6 +2,66 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'gmail_batch_delete_messages',
+    description: `Permanently delete up to 1000 Gmail messages in a single batch request. This bypasses Trash entirely — the messages are immediately and permanently removed and CANNOT be recovered. Use gmail_trash_message or gmail_batch_modify_messages (with TRASH label) instead if the deletion should be reversible. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'message_ids',
+        type: 'array',
+        required: true,
+        description: `List of Gmail message IDs to permanently delete, up to 1000 per request. Obtain these from a list or search messages operation. Example: ["17a1b2c3d4e5f6g7", "17a1b2c3d4e5f6g8"]. WARNING: this permanently deletes the messages; they cannot be recovered.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'gmail_batch_modify_messages',
+    description: `Add or remove labels on up to 1000 Gmail messages in a single batch request. Use label IDs such as 'INBOX', 'UNREAD', 'STARRED', 'IMPORTANT', 'TRASH', 'SPAM', or custom label IDs. At least one of add_label_ids or remove_label_ids should be provided. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'message_ids',
+        type: 'array',
+        required: true,
+        description: `List of Gmail message IDs to modify labels on, up to 1000 per request. Obtain these from a list or search messages operation. Example: ["17a1b2c3d4e5f6g7", "17a1b2c3d4e5f6g8"].`,
+      },
+      {
+        name: 'add_label_ids',
+        type: 'array',
+        required: false,
+        description: `List of label IDs to add to each message. Use system labels such as 'INBOX', 'UNREAD', 'STARRED', 'IMPORTANT', or custom label IDs retrieved from the Labels API. Example: ["STARRED", "INBOX"].`,
+      },
+      {
+        name: 'remove_label_ids',
+        type: 'array',
+        required: false,
+        description: `List of label IDs to remove from each message. Use system labels such as 'UNREAD', 'STARRED', 'INBOX', or custom label IDs. Example: ["UNREAD"].`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
     name: 'gmail_create_draft',
     description: `Create a new draft email in Gmail for the authenticated user. Constructs a MIME message and saves it as a draft. Supports plain text and HTML content types, CC, BCC, and threading. Uses OAuth credentials.`,
     params: [
@@ -170,6 +230,138 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gmail_create_label',
+    description: `Create a new user label in the authenticated Gmail account. Labels can be applied to messages for organization and are visible in the Gmail label list and message list based on the visibility settings. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The display name of the new label. Must be unique within the account. Example: 'Follow Up'.`,
+      },
+      {
+        name: 'label_list_visibility',
+        type: 'string',
+        required: false,
+        description: `Controls whether the label is shown in the Gmail label list. Use 'labelShow' to always show, 'labelShowIfUnread' to show only when it has unread messages, or 'labelHide' to hide it. Defaults to 'labelShow'.`,
+      },
+      {
+        name: 'message_list_visibility',
+        type: 'string',
+        required: false,
+        description: `Controls whether the label is shown in the message list. Use 'show' to display it or 'hide' to conceal it. Defaults to 'show'.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'gmail_delete_draft',
+    description: `Permanently delete a Gmail draft. This is a permanent removal and does not send the draft or move it to Trash for recovery. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'draft_id',
+        type: 'string',
+        required: true,
+        description: `The Gmail draft ID to permanently delete. Obtain this from a list drafts operation. Example: 'r-1234567890123456789'.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'gmail_delete_filter',
+    description: `Permanently delete an email filter from the authenticated Gmail account. This does not affect messages already processed by the filter. Use the List Email Filters tool to find the filter ID. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'filter_id',
+        type: 'string',
+        required: true,
+        description: `The Gmail filter ID to permanently delete. Obtain this from the List Email Filters tool. Example: 'ANe1BmiXxxxxxx'.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'gmail_delete_label',
+    description: `Permanently delete a user label from the authenticated Gmail account. This removes the label from all messages it was applied to and cannot be undone. Use the List Labels tool to find the label ID. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'label_id',
+        type: 'string',
+        required: true,
+        description: `The Gmail label ID to permanently delete. Use a custom label ID obtained from the List Labels tool. Example: 'Label_123'.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'gmail_delete_message',
+    description: `Permanently delete a single Gmail message. This bypasses Trash entirely — the message is immediately and permanently removed and CANNOT be recovered. Use gmail_trash_message instead if the deletion should be reversible. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The Gmail message ID to permanently delete. Obtain this from a list or search messages operation. Example: '17a1b2c3d4e5f6g7'. WARNING: this permanently deletes the message; it cannot be recovered.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
     name: 'gmail_fetch_mails',
     description: `Fetch emails from a connected Gmail account using search filters. Requires a valid Gmail OAuth2 connection.`,
     params: [
@@ -296,6 +488,84 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gmail_get_draft',
+    description: `Retrieve a specific Gmail draft by draft ID. Optionally control the format of the returned message content. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'draft_id',
+        type: 'string',
+        required: true,
+        description: `The Gmail draft ID to retrieve. Obtain this from a list drafts operation. Example: 'r-1234567890123456789'.`,
+      },
+      {
+        name: 'format',
+        type: 'string',
+        required: false,
+        description: `The format of the returned draft message. 'full' returns the parsed email with headers and body. 'minimal' returns only IDs and labels. 'raw' returns the full RFC 2822 message as a base64url string. 'metadata' returns headers only.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'gmail_get_filter',
+    description: `Get details for a specific email filter in the authenticated Gmail account, including its criteria and actions. Use the List Email Filters tool to find valid filter IDs. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'filter_id',
+        type: 'string',
+        required: true,
+        description: `The Gmail filter ID to retrieve. Obtain this from the List Email Filters tool. Example: 'ANe1BmiXxxxxxx'.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'gmail_get_label',
+    description: `Get details for a specific Gmail label, including its name, type, and visibility settings. Use the List Labels tool to find valid label IDs. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'label_id',
+        type: 'string',
+        required: true,
+        description: `The Gmail label ID to retrieve. Use system labels such as 'INBOX', 'STARRED', 'IMPORTANT', or a custom label ID obtained from the List Labels tool. Example: 'Label_123'.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
     name: 'gmail_get_message_by_id',
     description: `Retrieve a specific Gmail message using its message ID. Optionally control the format of the returned data.`,
     params: [
@@ -311,6 +581,24 @@ export const tools: Tool[] = [
         required: false,
         description: `Format of the returned message.`,
       },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'gmail_get_profile',
+    description: `Get the Gmail profile for the authenticated user, including their email address, total message count, thread count, and current history ID. Uses OAuth credentials.`,
+    params: [
       {
         name: 'schema_version',
         type: 'string',
@@ -447,6 +735,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gmail_list_labels',
+    description: `List all labels (system and user-created) in the authenticated Gmail account. Returns label IDs, names, and visibility settings that can be used with message and filter operations. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
     name: 'gmail_list_threads',
     description: `List threads in a connected Gmail account using optional search and label filters. Requires a valid Gmail OAuth2 connection with read access.`,
     params: [
@@ -531,6 +837,72 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gmail_reply_to_thread',
+    description: `Send a reply within an existing Gmail thread. Constructs a MIME message, optionally sets In-Reply-To and References headers to properly thread the reply against the original message, and sends it as part of the given thread. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'body',
+        type: 'string',
+        required: true,
+        description: `The body content of the reply. Provide plain text or HTML depending on the content_type field. Example: 'Thanks for the update, sounds good.'`,
+      },
+      {
+        name: 'thread_id',
+        type: 'string',
+        required: true,
+        description: `The Gmail thread ID to reply within. Obtain this from a list or search messages/threads operation. Example: '17a1b2c3d4e5f6g7'.`,
+      },
+      {
+        name: 'to',
+        type: 'string',
+        required: true,
+        description: `The recipient email address(es) for the reply. Provide a single address or comma-separated list. Example: 'recipient@example.com' or 'a@example.com,b@example.com'.`,
+      },
+      {
+        name: 'bcc',
+        type: 'string',
+        required: false,
+        description: `BCC recipients for the reply. Provide a comma-separated list of email addresses, e.g., bcc1@example.com,bcc2@example.com. Optional.`,
+      },
+      {
+        name: 'cc',
+        type: 'string',
+        required: false,
+        description: `CC recipients for the reply. Provide a comma-separated list of email addresses, e.g., cc1@example.com,cc2@example.com. Optional.`,
+      },
+      {
+        name: 'content_type',
+        type: 'string',
+        required: false,
+        description: `The MIME content type for the reply body. Use 'text/plain' for plain text or 'text/html' for HTML content. Defaults to 'text/plain'.`,
+      },
+      {
+        name: 'in_reply_to_message_id',
+        type: 'string',
+        required: false,
+        description: `The RFC822 Message-ID header value of the message being replied to. Used to set the In-Reply-To and References headers so mail clients thread the reply correctly. Example: '<abc123@mail.gmail.com>'.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: false,
+        description: `The subject line of the reply. If omitted, defaults to 'Re:'. It's recommended to pass the original subject prefixed with 'Re: ', e.g., 'Re: Meeting Follow-up'.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
     name: 'gmail_search_people',
     description: `Search people or contacts in the connected Google account using a query. Requires a valid Google OAuth2 connection with People API scopes.`,
     params: [
@@ -573,6 +945,108 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gmail_send_draft',
+    description: `Send an existing draft email from the authenticated Gmail account. The draft is removed from Drafts and delivered as a sent message. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'draft_id',
+        type: 'string',
+        required: true,
+        description: `The Gmail draft ID to send. Obtain this from a list drafts or create draft operation. Example: 'r-1234567890123456789'.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'gmail_send_message',
+    description: `Send an email message immediately from the authenticated Gmail account. Constructs a MIME message and sends it via the Gmail API. Supports plain text and HTML content types, CC, BCC, and attaching the message to an existing thread. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'body',
+        type: 'string',
+        required: true,
+        description: `The body content of the email. Provide plain text or HTML depending on the content_type field. Example: 'Hello, this is my message.'`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: true,
+        description: `The subject line of the email. Example: 'Meeting Follow-up'.`,
+      },
+      {
+        name: 'to',
+        type: 'string',
+        required: true,
+        description: `The recipient email address(es) for the message. Provide a single address or comma-separated list. Example: 'recipient@example.com' or 'a@example.com,b@example.com'.`,
+      },
+      {
+        name: 'bcc',
+        type: 'string',
+        required: false,
+        description: `BCC recipients for the email. Provide a comma-separated list of email addresses, e.g., bcc1@example.com,bcc2@example.com. Optional.`,
+      },
+      {
+        name: 'cc',
+        type: 'string',
+        required: false,
+        description: `CC recipients for the email. Provide a comma-separated list of email addresses, e.g., cc1@example.com,cc2@example.com. Optional.`,
+      },
+      {
+        name: 'content_type',
+        type: 'string',
+        required: false,
+        description: `The MIME content type for the email body. Use 'text/plain' for plain text or 'text/html' for HTML content. Defaults to 'text/plain'.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'thread_id',
+        type: 'string',
+        required: false,
+        description: `The Gmail thread ID to associate this sent message with an existing conversation. If provided, the message is added to that thread. Example: '17a1b2c3d4e5f6g7'.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'gmail_stop_mailbox_watch',
+    description: `Stop receiving push notifications for the current Gmail mailbox by canceling any active watch registered via gmail_watch_mailbox. This operation is idempotent — calling it when no watch is active is a no-op. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
     name: 'gmail_trash_message',
     description: `Move a Gmail message to the Trash. The message is not permanently deleted and can be recovered from Trash within 30 days. This operation is idempotent — trashing an already-trashed message is a no-op. Uses OAuth credentials.`,
     params: [
@@ -581,6 +1055,138 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The Gmail message ID to move to Trash. Obtain this from a list or search messages operation. Example: '17a1b2c3d4e5f6g7'.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'gmail_untrash_message',
+    description: `Remove a Gmail message from Trash and restore it to its previous location. This operation is idempotent — untrashing a message that is not in Trash is a no-op. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The Gmail message ID to remove from Trash. Obtain this from a list or search messages operation. Example: '17a1b2c3d4e5f6g7'.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'gmail_update_draft',
+    description: `Replace the content of an existing Gmail draft. Constructs a new MIME message and overwrites the draft identified by draft_id. Supports plain text and HTML content types, CC, BCC, and threading. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'body',
+        type: 'string',
+        required: true,
+        description: `The body content of the draft email. Provide plain text or HTML depending on the content_type field. Example: 'Hello, this is my updated draft message.'`,
+      },
+      {
+        name: 'draft_id',
+        type: 'string',
+        required: true,
+        description: `The Gmail draft ID to update. Obtain this from a list drafts or create draft operation. Example: 'r-1234567890123456789'.`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: true,
+        description: `The subject line of the draft email. Example: 'Meeting Follow-up (updated)'.`,
+      },
+      {
+        name: 'to',
+        type: 'string',
+        required: true,
+        description: `The recipient email address(es) for the draft. Provide a single address or comma-separated list. Example: 'recipient@example.com' or 'a@example.com,b@example.com'.`,
+      },
+      {
+        name: 'bcc',
+        type: 'string',
+        required: false,
+        description: `BCC recipients for the draft email. Provide a comma-separated list of email addresses, e.g., bcc1@example.com,bcc2@example.com. Optional.`,
+      },
+      {
+        name: 'cc',
+        type: 'string',
+        required: false,
+        description: `CC recipients for the draft email. Provide a comma-separated list of email addresses, e.g., cc1@example.com,cc2@example.com. Optional.`,
+      },
+      {
+        name: 'content_type',
+        type: 'string',
+        required: false,
+        description: `The MIME content type for the email body. Use 'text/plain' for plain text or 'text/html' for HTML content. Defaults to 'text/plain'.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'thread_id',
+        type: 'string',
+        required: false,
+        description: `The Gmail thread ID to associate this draft with an existing conversation. If provided, the draft will be part of that thread. Example: '17a1b2c3d4e5f6g7'.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'gmail_update_label',
+    description: `Update an existing user label in the authenticated Gmail account. Change the label name or its visibility in the label list and message list. Use the List Labels tool to find the label ID. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'label_id',
+        type: 'string',
+        required: true,
+        description: `The Gmail label ID to update. Use a custom label ID obtained from the List Labels tool. Example: 'Label_123'.`,
+      },
+      {
+        name: 'label_list_visibility',
+        type: 'string',
+        required: false,
+        description: `Controls whether the label is shown in the Gmail label list. Use 'labelShow' to always show, 'labelShowIfUnread' to show only when it has unread messages, or 'labelHide' to hide it.`,
+      },
+      {
+        name: 'message_list_visibility',
+        type: 'string',
+        required: false,
+        description: `Controls whether the label is shown in the message list. Use 'show' to display it or 'hide' to conceal it.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `The new display name for the label. Must be unique within the account. Example: 'Follow Up - Urgent'.`,
       },
       {
         name: 'schema_version',
@@ -701,6 +1307,42 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Start time for the vacation auto-reply as epoch milliseconds in string format (e.g., '1753401600000'). Auto-reply activates from this time.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'gmail_watch_mailbox',
+    description: `Set up push notifications for changes to a Gmail mailbox by registering a Google Cloud Pub/Sub topic. Gmail publishes a notification to the topic whenever the mailbox's history changes. Each call replaces any existing watch and the watch expires after 7 days, so it must be renewed periodically. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'topic_name',
+        type: 'string',
+        required: true,
+        description: `The full Cloud Pub/Sub topic name to publish mailbox change notifications to. Must be in the format 'projects/{project}/topics/{topic}'. Example: 'projects/myproject/topics/mytopic'.`,
+      },
+      {
+        name: 'label_filter_behavior',
+        type: 'string',
+        required: false,
+        description: `Whether label_ids should be used to INCLUDE (restrict notifications to only these labels) or EXCLUDE (notify on all labels except these) label changes. Only used when label_ids is provided. Defaults to INCLUDE.`,
+      },
+      {
+        name: 'label_ids',
+        type: 'array',
+        required: false,
+        description: `List of label IDs to restrict notifications to (or exclude from, depending on label_filter_behavior). Example: ["INBOX"]. If omitted, all mailbox changes trigger notifications.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
       },
       {
         name: 'tool_version',

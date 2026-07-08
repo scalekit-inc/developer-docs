@@ -1,0 +1,1 @@
+ListPermissionsResponse res = scalekitClient.permissions().listPermissions();

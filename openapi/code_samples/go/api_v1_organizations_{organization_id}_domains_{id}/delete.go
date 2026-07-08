@@ -1,0 +1,1 @@
+err = scalekitClient.Domain().DeleteDomain(ctx, "dom_123", "org_123")

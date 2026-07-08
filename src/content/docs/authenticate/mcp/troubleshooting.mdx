@@ -8,6 +8,12 @@ tableOfContents:
   maxHeadingLevel: 2
 prev: false
 next: false
+head:
+  - tag: script
+    attrs:
+      type: application/ld+json
+    content: |-
+      {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the difference between DCR and CIMD?","acceptedAnswer":{"@type":"Answer","text":"<p>MCP clients identify themselves to Scalekit's authorization server using one of two mechanisms:</p><ul><li><strong>Dynamic Client Registration (DCR)</strong>: The client registers itself with Scalekit and receives a client_id in the m2m_xxx format. See <a href=\"https://datatracker.ietf.org/doc/html/rfc7591\">RFC 7591</a>.</li><li><strong>Client ID Metadata Document (CIMD)</strong>: The client presents a URL that hosts its client metadata document, and Scalekit fetches that URL to identify the client.</li></ul><p>The invalid_client_metadata_url error belongs to the CIMD path: Scalekit couldn't resolve or validate the metadata URL the client sent. A client that completes DCR correctly doesn't trigger this error. Follow the resolution steps in the section above.</p>"}},{"@type":"Question","name":"How do I view authentication logs to debug a failed connection?","acceptedAnswer":{"@type":"Answer","text":"<p>Open <strong>Dashboard > Authentication > Logs</strong> to inspect the authorization and token requests for your environment. Each entry shows the OAuth client, the requested scopes, and the outcome of each step in the flow.</p><p>When you debug a failed connection, change the log filter to show all events rather than successful events only. Failed authorization and token requests appear only when you include error events, so a success-only view can hide the request you need to diagnose.</p>"}}]}
 browseCentral:
   label: "Troubleshooting MCP auth"
   category:
@@ -19,13 +25,14 @@ browseCentral:
 
 import { Aside } from '@astrojs/starlight/components';
 
-This guide helps you diagnose and resolve common issues when integrating Scalekit as an authentication server for your MCP servers. When you add authentication to MCP servers, you may encounter configuration problems, network issues, or client-specific limitations. This reference covers the most common scenarios and provides step-by-step solutions.
+Use this guide when you use Scalekit as the authentication server for your MCP servers and a client fails to connect, a request stalls, or the authentication handshake breaks. Start with the category that matches your symptom, then open the matching scenario.
 
-Use this guide to troubleshoot setup problems, resolve CORS and network issues, understand client-specific behavior, and implement best practices for your authentication setup.
+Most issues fall into configuration and setup, CORS and network access, or client-specific behavior. Each scenario explains the cause and the fix.
 
-## Configuration & Setup Issues
+## Configuration and setup
 
-### My POST to `/auth-requests/` returns a 404 or "invalid ID" error
+<details>
+<summary>`/auth-requests/` returns a 404 or "invalid ID" error</summary>
 
 You may be passing the MCP server's resource ID instead of the connection ID in the URL path.
 
@@ -42,11 +49,12 @@ The correct endpoint uses `connection_id`:
 /api/v1/connections/<connection_id>/auth-requests/<login_request_id>/user
 ```
 
-To find your `connection_id`: open **Dashboard > MCP Servers > [your server] > Advanced Configurations > Connection ID**.
+To find your `connection_id`, open **Dashboard > MCP Servers > [your server] > Advanced Configurations > Connection ID**.
 
----
+</details>
 
-### I'm getting an access token but no refresh token
+<details>
+<summary>Access token issued but no refresh token</summary>
 
 Add the `offline_access` scope to your authorization request. Without it, Scalekit does not issue a refresh token alongside the access token.
 
@@ -56,11 +64,12 @@ Include it with your other scopes:
 openid profile email offline_access
 ```
 
-Once added, subsequent logins will return both an access token and a refresh token.
+After you add it, subsequent logins return both an access token and a refresh token.
 
----
+</details>
 
-### A client gets an `invalid_client_metadata_url` error when it connects
+<details>
+<summary>Client fails with an `invalid_client_metadata_url` error</summary>
 
 This error means Scalekit rejected the OAuth client that tried to connect, because the client sent a `client_id` that Scalekit never issued or a client metadata URL it can't resolve. The connection often succeeds for some users and fails for others on the same MCP server, which points to client-side configuration rather than a problem with your Scalekit setup.
 
@@ -94,20 +103,22 @@ To resolve it:
 Because this error originates from the client's registration data, it reproduces per user. When one user fails while others succeed against the same MCP server, inspect that user's client configuration first.
 </Aside>
 
----
+</details>
 
-### What is the difference between DCR and CIMD?
+<details>
+<summary>What is the difference between DCR and CIMD?</summary>
 
 MCP clients identify themselves to Scalekit's authorization server using one of two mechanisms:
 
 - **Dynamic Client Registration (DCR)**: The client registers itself with Scalekit and receives a `client_id` in the `m2m_xxx` format. See [RFC 7591](https://datatracker.ietf.org/doc/html/rfc7591).
 - **Client ID Metadata Document (CIMD)**: The client presents a URL that hosts its client metadata document, and Scalekit fetches that URL to identify the client.
 
-The `invalid_client_metadata_url` error belongs to the CIMD path: Scalekit couldn't resolve or validate the metadata URL the client sent. A client that completes DCR correctly doesn't trigger this error. Follow the resolution steps in the section above.
+The `invalid_client_metadata_url` error belongs to the CIMD path: Scalekit couldn't resolve or validate the metadata URL the client sent. A client that completes DCR correctly doesn't trigger this error. Follow the resolution steps in the previous scenario.
 
----
+</details>
 
-### How do I view authentication logs to debug a failed connection?
+<details>
+<summary>View authentication logs to debug a failed connection</summary>
 
 Open **Dashboard > Authentication > Logs** to inspect the authorization and token requests for your environment. Each entry shows the OAuth client, the requested scopes, and the outcome of each step in the flow.
 
@@ -117,16 +128,17 @@ When you debug a failed connection, change the log filter to show all events rat
 Connection logs for individual MCP clients aren't yet available for self-serve viewing. When the authentication logs don't explain a failure, contact Scalekit support with the failing `client_id` and the approximate time of the attempt.
 </Aside>
 
----
+</details>
 
-### My MCP server is not connecting to the MCP Inspector
+<details>
+<summary>MCP server does not connect to the MCP Inspector</summary>
 
-When your MCP server fails to connect to the MCP Inspector, this typically indicates a problem with the authentication handshake or metadata configuration. Follow these diagnosis steps to identify the issue.
+A failed connection to the MCP Inspector usually points to a problem with the authentication handshake or metadata configuration. Work through these checks.
 
 **Verify the MCP server is responding correctly:**
 
 1. Open your browser's developer tools (Network tab)
-2. Navigate to your MCP server URL (e.g., `http://localhost:3002/`)
+2. Navigate to your MCP server URL (for example, `http://localhost:3002/`)
 3. Confirm the response returns a `401` status code
 4. Check the response headers for `www-authenticate` containing `resource_metadata="<metadata-url>"`
 
@@ -137,16 +149,19 @@ When your MCP server fails to connect to the MCP Inspector, this typically indic
 3. Confirm the JSON structure matches what you see in your Scalekit dashboard
 
 <Aside type="note">
-If all checks pass but the connection still fails, check the CORS & Network Issues section below.
+If all checks pass but the connection still fails, see the CORS and network access scenarios below.
 </Aside>
 
-### I'm getting a redirect_uri mismatch error during authorization
+</details>
 
-This error typically occurs when your MCP client has cached an old MCP server domain after you've changed it. The client continues sending requests to the old URL, which doesn't match your current Scalekit configuration.
+<details>
+<summary>`redirect_uri` mismatch during authorization</summary>
 
-**Clear cached authentication by client type:**
+This error typically occurs when your MCP client has cached an old MCP server domain after you changed it. The client keeps sending requests to the old URL, which no longer matches your Scalekit configuration.
 
-**MCP-Remote:**
+Clear cached authentication by client type.
+
+**mcp-remote:**
 
 1. Delete the cached configuration folder: `~/.mcp-auth/mcp-remote-<version>`
 2. Reconnect to your MCP server
@@ -164,63 +179,67 @@ This error typically occurs when your MCP client has cached an old MCP server do
 Claude Desktop does not currently support clearing cached authentication data. As a workaround, use a different domain or subdomain for your MCP server, or contact Claude support for assistance.
 </Aside>
 
-### GitHub Copilot CLI: stale cached credentials after environment switch
+</details>
+
+<details>
+<summary>GitHub Copilot CLI: stale cached credentials after an environment switch</summary>
 
 GitHub Copilot CLI caches OAuth client credentials locally. If you switch your Scalekit environment (for example, from US to EU), the cached `client_id` no longer matches the new environment and login fails with `unable to retrieve client by id`.
-
-**Resolution:**
 
 1. Locate and delete the cached OAuth config files:
    ```sh
    rm -rf ~/.copilot/mcp-oauth-config
    ```
-2. Reconnect your MCP server in GitHub Copilot CLI — it will register a fresh client against the correct environment.
+2. Reconnect your MCP server in GitHub Copilot CLI. It registers a fresh client against the correct environment.
 
 <Aside type="note">
-If you cannot find the files using the path above, also check `~/.config/github-copilot/` for any cached MCP auth files.
+If you cannot find the files using the path above, also check `~/.config/github-copilot/` for cached MCP auth files.
 </Aside>
 
----
+</details>
 
-## CORS & Network Issues
+## CORS and network access
 
-### I see CORS errors in the network logs when using MCP Inspector
+<details>
+<summary>CORS errors in the network logs when using MCP Inspector</summary>
 
-CORS errors occur when your MCP client cannot make cross-origin requests to your Scalekit environment during the authentication handshake. This prevents the authentication flow from completing successfully.
-
-**Resolution:**
+CORS errors occur when your MCP client cannot make cross-origin requests to your Scalekit environment during the authentication handshake, which prevents the flow from completing.
 
 1. Navigate to **Dashboard > Authentication > Redirect URLs > Allowed Callback URLs**
 2. Add your MCP Inspector URL to the allowed list: `http://localhost:6274/`
 3. Retry the connection
 
-<Aside type="tip" title="Development vs Production URLs">
-Ensure you add callback URLs for both your development (`http://localhost:6274/`) and production environments to avoid CORS errors in either environment.
+<Aside type="tip" title="Development vs production URLs">
+Add callback URLs for both your development (`http://localhost:6274/`) and production environments to avoid CORS errors in either environment.
 </Aside>
 
-### Calls from the MCP client are not reaching my MCP server
+</details>
 
-If requests from your MCP client silently fail to reach your server, a proxy or firewall may be blocking them. This often happens in corporate environments or when using CDN services.
+<details>
+<summary>MCP client requests never reach the server</summary>
 
-**Troubleshooting steps:**
+If requests from your MCP client silently fail to reach your server, a proxy or firewall may be blocking them. This often happens in corporate environments or when you use CDN services.
 
-1. Check if you're using a proxy (e.g., Cloudflare, AWS WAF, corporate proxy)
+1. Check whether you're using a proxy (for example, Cloudflare, AWS WAF, or a corporate proxy)
 2. Configure your proxy to allow or exempt requests from your MCP client to your server domain
 3. Review proxy logs to confirm whether requests are being blocked
-4. Test direct connectivity from your client machine to your MCP server (without proxy, if possible)
+4. Test direct connectivity from your client machine to your MCP server, without the proxy if possible
 
 <Aside type="note">
-Some corporate proxies require explicit whitelisting of authentication endpoints. Contact your network administrator if you suspect this is the case.
+Some corporate proxies require explicit allowlisting of authentication endpoints. Contact your network administrator if you suspect this is the case.
 </Aside>
 
-### Cloudflare bot protection is blocking MCP client requests
+</details>
 
-If your MCP server is behind Cloudflare and AI agents (such as Claude Desktop, Cursor, or other MCP clients) cannot reach it, Cloudflare's **Bot Fight Mode**, **Super Bot Fight Mode**, or **AI Crawl Control** settings may be classifying agent traffic as bot traffic and blocking it at the edge.
+<details>
+<summary>Cloudflare bot protection is blocking MCP client requests</summary>
+
+If your MCP server is behind Cloudflare and AI agents (such as Claude Desktop, Cursor, or other MCP clients) cannot reach it, Cloudflare's **Bot Fight Mode**, **Super Bot Fight Mode**, or **AI Crawl Control** settings may classify agent traffic as bot traffic and block it at the edge.
 
 **Symptoms:**
 
 - MCP client connections fail silently or return `403 Forbidden`
-- Authentication handshake never completes
+- The authentication handshake never completes
 - Browser access to the MCP server works, but programmatic access from AI agents does not
 - Cloudflare serves a JavaScript challenge or Turnstile page instead of your MCP response
 
@@ -229,9 +248,9 @@ If your MCP server is behind Cloudflare and AI agents (such as Claude Desktop, C
 1. Open the [Cloudflare dashboard](https://dash.cloudflare.com/) for your domain
 2. Navigate to **Security > Events**
 3. Filter for your MCP server path and look for blocked or challenged requests
-4. Note the **rule name** — it tells you which Cloudflare feature caused the block (Bot Fight Mode, Super Bot Fight Mode, AI Crawl Control, or a managed rule)
+4. Note the **rule name**. It tells you which Cloudflare feature caused the block (Bot Fight Mode, Super Bot Fight Mode, AI Crawl Control, or a managed rule)
 
-**Resolution for Cloudflare Free plan (Bot Fight Mode):**
+**Resolution for the Cloudflare Free plan (Bot Fight Mode):**
 
 On the Free plan, Bot Fight Mode runs before the WAF Ruleset Engine, so custom WAF skip rules have no effect on it. Your options are:
 
@@ -245,7 +264,7 @@ On the Free plan, Bot Fight Mode runs before the WAF Ruleset Engine, so custom W
 On paid plans, you can create a WAF custom rule that skips bot protection only for MCP traffic while keeping the rest of your domain protected:
 
 1. Navigate to **Security > WAF > Custom rules > Create rule**
-2. Set the expression to match your MCP server path: `starts_with(http.request.uri.path, "/mcp")` — adjust the path to match your MCP server's base path
+2. Set the expression to match your MCP server path: `starts_with(http.request.uri.path, "/mcp")`. Adjust the path to match your MCP server's base path
 3. Set the action to **Skip**, then select **Super Bot Fight Mode**
 4. Move this rule to the top of your custom rules list so it evaluates first
 5. Save and deploy, then retry the MCP client connection
@@ -253,45 +272,48 @@ On paid plans, you can create a WAF custom rule that skips bot protection only f
 Alternatively, navigate to **AI Crawl Control** in your bot settings and set Claude-related bots (`ClaudeBot`, `Claude-User`) to **Allow**.
 
 <Aside type="tip">
-The WAF skip rule approach is recommended for paid plans because it disables bot checks only for MCP server traffic while keeping your other endpoints protected.
+The WAF skip rule is recommended for paid plans because it disables bot checks only for MCP server traffic while keeping your other endpoints protected.
 </Aside>
 
 <Aside type="note">
 Some MCP client SDKs send empty or missing `User-Agent` headers, which can trigger separate WAF rules unrelated to bot protection. If the Security Events log shows a user-agent-based block rather than a bot rule, check your MCP client's request headers.
 </Aside>
 
----
+</details>
 
-## Client-Specific Issues
+## Client-specific issues
 
-### Claude Desktop ignores custom ports when connecting to MCP servers
+<details>
+<summary>Claude Desktop ignores custom ports when connecting to MCP servers</summary>
 
-Claude Desktop currently only supports standard HTTPS traffic on port `443`. If your MCP server runs on a custom port (e.g., `https://mymcp.internal:8443/`), Claude Desktop will still attempt to connect to port `443`, causing the connection to fail.
+Claude Desktop currently supports only standard HTTPS traffic on port `443`. If your MCP server runs on a custom port (for example, `https://mymcp.internal:8443/`), Claude Desktop still attempts to connect to port `443`, so the connection fails.
 
-**Workaround options:**
-
-1. Expose your MCP server on port `443` (requires a proxy or load balancer)
-2. Use a reverse proxy that listens on `443` and forwards requests to your custom port
+- Expose your MCP server on port `443` (requires a proxy or load balancer)
+- Use a reverse proxy that listens on `443` and forwards requests to your custom port
 
 <Aside type="note">
 Future versions of Claude Desktop may add custom port support. Check the Claude Desktop release notes for updates.
 </Aside>
 
-### Multiple authentication tabs open when using both MCP-Remote and Claude Desktop
+</details>
 
-Recent versions of Claude Desktop have introduced Connectors functionality, eliminating the need to run MCP-Remote separately. Claude Desktop includes a **Custom Connector** feature that allows you to configure MCP servers directly without additional tools.
+<details>
+<summary>Multiple authentication tabs open when using both mcp-remote and Claude Desktop</summary>
 
-**Recommendation:**
+Recent versions of Claude Desktop include Connectors, which removes the need to run mcp-remote separately. The **Custom Connector** feature lets you configure MCP servers directly without additional tools.
 
 - Use Claude Desktop's built-in Custom Connector feature for MCP server management
-- Disable or stop MCP-Remote if you're only using Claude Desktop
-- If you have a specific use case requiring both, contact Claude's official support
+- Disable or stop mcp-remote if you're only using Claude Desktop
+- If you have a specific use case that requires both, contact Claude's official support
 
 <Aside type="tip">
-To avoid duplicate authentication flows, ensure you're using only one MCP client at a time.
+To avoid duplicate authentication flows, use only one MCP client at a time.
 </Aside>
 
-### OAuth popup closes immediately or shows "window closed too soon"
+</details>
+
+<details>
+<summary>OAuth popup closes immediately or shows "window closed too soon"</summary>
 
 MCP clients that use a popup-based OAuth flow (such as Amazon Q) may report that the popup closed too soon or that authentication failed, even though the OAuth flow completed successfully in the popup window.
 
@@ -318,19 +340,20 @@ Cross-Origin-Opener-Policy: unsafe-none
 You can scope this change to only the endpoints involved in the OAuth flow rather than your entire application. After the change, retry the MCP client connection.
 
 <Aside type="note" title="This is an application-side fix">
-This header is set by your application or its hosting platform, not by Scalekit. Common sources include framework defaults (for example, Next.js, Rails), CDN or reverse proxy settings, and security middleware.
+This header is set by your application or its hosting platform, not by Scalekit. Common sources include framework defaults (for example, Next.js or Rails), CDN or reverse proxy settings, and security middleware.
 </Aside>
 
-### My browser is not getting invoked during authentication
+</details>
 
-Some MCP clients require permission to open your default browser during the authentication flow. If your browser doesn't launch, the authentication handshake may timeout, preventing successful authentication.
+<details>
+<summary>The browser does not open during authentication</summary>
 
-**Resolution by operating system:**
+Some MCP clients require permission to open your default browser during the authentication flow. If your browser doesn't launch, the authentication handshake may time out.
 
 **macOS:**
 
 1. Open **System Preferences > Security & Privacy > App Management**
-2. Ensure the MCP client has permission to open applications
+2. Confirm the MCP client has permission to open applications
 3. Restart your MCP client
 
 **Windows:**
@@ -341,15 +364,15 @@ Some MCP clients require permission to open your default browser during the auth
 
 **Linux:**
 
-1. Ensure `xdg-open` or your default browser opener is installed: `which xdg-open`
+1. Confirm `xdg-open` or your default browser opener is installed: `which xdg-open`
 2. Verify the command is accessible from your terminal
 3. Restart your MCP client
 
 <Aside type="note">
-After updating permissions, always restart your MCP client to ensure the changes take effect.
+After you update permissions, restart your MCP client so the changes take effect.
 </Aside>
 
----
+</details>
 
 ## Best practices
 
@@ -360,10 +383,21 @@ Follow these best practices to avoid common issues and maintain a robust MCP aut
    - Development: `https://mcp-dev.yourdomain.com/`
    - Production: `https://mcp.yourdomain.com/`
 3. **Update your MCP client configuration** to point to the correct Scalekit environment for each deployment
-4. **Test authentication independently** in each environment before deploying to production
+4. **Test authentication independently** in each environment before you deploy to production
 5. **Monitor authentication logs** in **Dashboard > Authentication > Logs** to identify and resolve issues quickly
 6. **Keep callback URLs updated** whenever you change domains or ports
 
 <Aside type="tip" title="Environment management">
-Maintain separate environment variables for your MCP server configuration (e.g., `SCALEKIT_ENVIRONMENT_URL`, `MCP_SERVER_URL`) to easily switch between development and production environments.
+Maintain separate environment variables for your MCP server configuration (for example, `SCALEKIT_ENVIRONMENT_URL` and `MCP_SERVER_URL`) to switch between development and production environments.
 </Aside>
+
+## Get help
+
+If none of the scenarios resolve the issue, open **Dashboard > Authentication > Logs** and review the authorization and token requests for the failing attempt.
+
+When you contact [support](mailto:support@scalekit.com), include:
+
+- The failing `client_id` and the MCP server `resource_id`
+- The MCP client and transport (for example, a Claude Desktop custom connector or `mcp-remote`)
+- The full error text and the approximate timestamp of the attempt
+- The steps that reproduce the failure

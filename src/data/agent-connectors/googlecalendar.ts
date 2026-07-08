@@ -2,6 +2,43 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'googlecalendar_create_calendar',
+    description: `Create a new secondary calendar in a connected Google Calendar account. Requires a valid Google Calendar OAuth2 connection.`,
+    params: [
+      { name: 'summary', type: 'string', required: true, description: `Title of the calendar` },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Optional description of the calendar`,
+      },
+      {
+        name: 'location',
+        type: 'string',
+        required: false,
+        description: `Geographic location of the calendar as free-form text`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'timezone',
+        type: 'string',
+        required: false,
+        description: `Timezone of the calendar (IANA time zone identifier)`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
     name: 'googlecalendar_create_event',
     description: `Create a new event in a connected Google Calendar account. Supports meeting links, recurrence, attendees, and more.`,
     params: [
@@ -118,6 +155,55 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googlecalendar_delete_acl_rule',
+    description: `Permanently revoke a user's, group's, domain's, or the public's access to a calendar in a connected Google Calendar account by deleting an access control rule. This action cannot be undone. Requires a valid Google Calendar OAuth2 connection.`,
+    params: [
+      {
+        name: 'calendar_id',
+        type: 'string',
+        required: true,
+        description: `Calendar ID the ACL rule belongs to`,
+      },
+      {
+        name: 'rule_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the ACL rule to delete`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googlecalendar_delete_calendar',
+    description: `Permanently delete a secondary calendar from a connected Google Calendar account. This action cannot be undone. Requires a valid Google Calendar OAuth2 connection.`,
+    params: [
+      { name: 'calendar_id', type: 'string', required: true, description: `Calendar ID to delete` },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
     name: 'googlecalendar_delete_event',
     description: `Delete an event from a connected Google Calendar account. Requires the calendar ID and event ID.`,
     params: [
@@ -132,6 +218,30 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The ID of the calendar from which the event should be deleted`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googlecalendar_get_calendar',
+    description: `Retrieve metadata for a calendar in a connected Google Calendar account, including its summary, description, and timezone. Requires a valid Google Calendar OAuth2 connection.`,
+    params: [
+      {
+        name: 'calendar_id',
+        type: 'string',
+        required: true,
+        description: `Calendar ID to retrieve`,
       },
       {
         name: 'schema_version',
@@ -215,6 +325,85 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googlecalendar_insert_acl_rule',
+    description: `Grant a user, group, domain, or the public access to a calendar in a connected Google Calendar account by inserting a new access control rule. Requires a valid Google Calendar OAuth2 connection.`,
+    params: [
+      {
+        name: 'calendar_id',
+        type: 'string',
+        required: true,
+        description: `Calendar ID to grant access to`,
+      },
+      { name: 'role', type: 'string', required: true, description: `Access role to grant` },
+      {
+        name: 'scope_type',
+        type: 'string',
+        required: true,
+        description: `Type of scope for this ACL rule`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'scope_value',
+        type: 'string',
+        required: false,
+        description: `Email address or domain the scope applies to`,
+      },
+      {
+        name: 'send_notifications',
+        type: 'boolean',
+        required: false,
+        description: `Whether to send notification emails about the sharing change`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googlecalendar_list_acl_rules',
+    description: `List the access control rules for a calendar in a connected Google Calendar account, showing who has access and their permission level. Requires a valid Google Calendar OAuth2 connection.`,
+    params: [
+      {
+        name: 'calendar_id',
+        type: 'string',
+        required: true,
+        description: `Calendar ID to list ACL rules for`,
+      },
+      {
+        name: 'max_results',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of ACL rules to fetch`,
+      },
+      {
+        name: 'page_token',
+        type: 'string',
+        required: false,
+        description: `Page token for pagination`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
     name: 'googlecalendar_list_calendars',
     description: `List all accessible Google Calendar calendars for the authenticated user. Supports filters and pagination.`,
     params: [
@@ -259,6 +448,60 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Token to get updates since the last sync`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googlecalendar_list_event_instances',
+    description: `List the individual instances of a recurring event in a connected Google Calendar account. Requires a valid Google Calendar OAuth2 connection.`,
+    params: [
+      {
+        name: 'calendar_id',
+        type: 'string',
+        required: true,
+        description: `Calendar ID containing the recurring event`,
+      },
+      {
+        name: 'event_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the recurring calendar event`,
+      },
+      {
+        name: 'max_results',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of instances to fetch`,
+      },
+      {
+        name: 'page_token',
+        type: 'string',
+        required: false,
+        description: `Page token for pagination`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'time_max',
+        type: 'string',
+        required: false,
+        description: `Upper bound for an instance's start time (RFC3339 timestamp)`,
+      },
+      {
+        name: 'time_min',
+        type: 'string',
+        required: false,
+        description: `Lower bound for an instance's start time (RFC3339 timestamp)`,
       },
       {
         name: 'tool_version',
@@ -320,6 +563,225 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Lower bound for event start time (RFC3339 timestamp)`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googlecalendar_move_event',
+    description: `Move an existing event from one calendar to another in a connected Google Calendar account. Requires a valid Google Calendar OAuth2 connection.`,
+    params: [
+      {
+        name: 'calendar_id',
+        type: 'string',
+        required: true,
+        description: `Calendar ID that currently contains the event`,
+      },
+      {
+        name: 'destination_calendar_id',
+        type: 'string',
+        required: true,
+        description: `Calendar ID to move the event to`,
+      },
+      {
+        name: 'event_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the calendar event to move`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'send_updates',
+        type: 'string',
+        required: false,
+        description: `Whether to send notifications about the event move`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googlecalendar_query_freebusy',
+    description: `Query free/busy information for one or more calendars in a connected Google Calendar account. Returns busy time ranges for each requested calendar within the given time window. Requires a valid Google Calendar OAuth2 connection.`,
+    params: [
+      {
+        name: 'calendar_ids',
+        type: 'array',
+        required: true,
+        description: `Calendar IDs to query free/busy information for`,
+      },
+      {
+        name: 'time_max',
+        type: 'string',
+        required: true,
+        description: `Upper bound for the free/busy query (RFC3339 timestamp)`,
+      },
+      {
+        name: 'time_min',
+        type: 'string',
+        required: true,
+        description: `Lower bound for the free/busy query (RFC3339 timestamp)`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'timezone',
+        type: 'string',
+        required: false,
+        description: `Timezone for the query (IANA time zone identifier)`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googlecalendar_quick_add_event',
+    description: `Create an event in a connected Google Calendar account by parsing a natural-language description of the event, e.g., 'Dinner with Alice on Friday at 7pm'. Requires a valid Google Calendar OAuth2 connection.`,
+    params: [
+      {
+        name: 'calendar_id',
+        type: 'string',
+        required: true,
+        description: `Calendar ID to add the event to`,
+      },
+      {
+        name: 'text',
+        type: 'string',
+        required: true,
+        description: `Natural-language text describing the event`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'send_updates',
+        type: 'string',
+        required: false,
+        description: `Whether to send notifications about the event creation`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googlecalendar_search_events',
+    description: `Search events in a connected Google Calendar account with free-text query and time-range filtering. Requires a valid Google Calendar OAuth2 connection.`,
+    params: [
+      {
+        name: 'calendar_id',
+        type: 'string',
+        required: true,
+        description: `Calendar ID to search events in`,
+      },
+      {
+        name: 'max_results',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of events to fetch`,
+      },
+      {
+        name: 'order_by',
+        type: 'string',
+        required: false,
+        description: `Order of events in the result`,
+      },
+      {
+        name: 'page_token',
+        type: 'string',
+        required: false,
+        description: `Page token for pagination`,
+      },
+      { name: 'query', type: 'string', required: false, description: `Free text search query` },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'single_events',
+        type: 'boolean',
+        required: false,
+        description: `Expand recurring events into single events`,
+      },
+      {
+        name: 'time_max',
+        type: 'string',
+        required: false,
+        description: `Upper bound for event start time (RFC3339 timestamp)`,
+      },
+      {
+        name: 'time_min',
+        type: 'string',
+        required: false,
+        description: `Lower bound for event start time (RFC3339 timestamp)`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googlecalendar_update_calendar',
+    description: `Update metadata for an existing calendar in a connected Google Calendar account. Only provided fields will be updated. Requires a valid Google Calendar OAuth2 connection.`,
+    params: [
+      { name: 'calendar_id', type: 'string', required: true, description: `Calendar ID to update` },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Optional description of the calendar`,
+      },
+      {
+        name: 'location',
+        type: 'string',
+        required: false,
+        description: `Geographic location of the calendar as free-form text`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      { name: 'summary', type: 'string', required: false, description: `Title of the calendar` },
+      {
+        name: 'timezone',
+        type: 'string',
+        required: false,
+        description: `Timezone of the calendar (IANA time zone identifier)`,
       },
       {
         name: 'tool_version',

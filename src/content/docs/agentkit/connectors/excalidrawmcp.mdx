@@ -1,0 +1,72 @@
+---
+title: 'Excalidraw MCP connector'
+tableOfContents: true
+description: 'Excalidraw+ is a collaborative whiteboard and diagramming platform. The Excalidraw MCP server lets AI agents manage scenes, collections, workspaces...'
+sidebar:
+  label: 'Excalidraw MCP'
+overviewTitle: 'Quickstart'
+connectorIcon: https://docs.excalidraw.com/img/logo.svg
+connectorAuthType: Bearer Token
+connectorCategories: [Design, Collaboration, Productivity]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/excalidrawmcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { QuickstartGenericApikeySection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Make your first call
+
+   <QuickstartGenericApikeySection connector="excalidrawmcp" toolName="excalidrawmcp_get_workspace" providerName="Excalidraw MCP" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Update workspace user, workspace, scene** — Modify workspace-level properties for a specific user such as their name, picture, or role
+- **Screenshot take** — Render a scene, or a specific frame, as a PNG image so you can visually inspect the current Excalidraw content
+- **Search scene content** — Search a scene's shapes and text without loading the full scene content
+- **User remove workspace** — Remove a user from the workspace
+- **Read excalidraw format** — Returns the Excalidraw element format reference with agent-facing rules for constructing valid diagram payloads
+- **List workspace users, scenes, logs** — Retrieve a paginated list of all members in the current workspace
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

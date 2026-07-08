@@ -1,0 +1,71 @@
+---
+title: 'Flux MCP connector'
+tableOfContents: true
+description: 'Flux by Black Forest Labs provides state-of-the-art AI image generation via the FLUX.1 family of models. Generate high-quality images from text prompts...'
+sidebar:
+  label: 'Flux MCP'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/flux.svg
+connectorAuthType: OAuth 2.1/DCR
+connectorCategories: [AI]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/fluxmcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="fluxmcp" toolName="fluxmcp_get_credits" providerName="Flux MCP" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Vto records** — Virtual try-on: dress `person` in `garment`
+- **Url request upload, refresh image** — Issue a signed PUT URL for a direct image upload to BFL's Storage bucket
+- **Get result, history, credits** — DO NOT CALL FROM THE LLM
+- **Variations generate** — Generate N more images "in the same direction" as a previously completed generation
+- **Image generate** — Submit one or more FLUX.2 image generations
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

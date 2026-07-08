@@ -1,0 +1,1 @@
+GetPermissionResponse res = scalekitClient.permissions().getPermission("read:users");

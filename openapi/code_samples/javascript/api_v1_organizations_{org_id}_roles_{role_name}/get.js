@@ -1,0 +1,1 @@
+const res = await scalekit.role.getOrganizationRole('org_123', 'org_admin')

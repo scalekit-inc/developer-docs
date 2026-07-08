@@ -1,0 +1,81 @@
+include:
+  tags:
+    - Connected Accounts
+    - Connectors
+    - Tool Calling
+    - MCP Configurations
+  webhooks:
+    - connected_account.
+info:
+  title: AgentKit APIs
+  description: |
+    # Overview
+
+    The AgentKit API gives your AI agents authenticated access to third-party apps — sending emails, reading calendars, creating tickets, querying databases, and more. Your agent calls a tool; Scalekit handles the OAuth flow, token storage, and API call.
+
+    **Base URLs:**
+
+    ```
+    https://{your-subdomain}.scalekit.dev (Development)
+    https://{your-subdomain}.scalekit.com (Production)
+    ```
+
+    ## Quickstart
+
+    ### 1. Get an access token
+
+    Use your API credentials from the [Scalekit Dashboard](https://app.scalekit.com) → **Developers → Settings → API Credentials**.
+
+    ```sh
+    curl -X POST https://<SCALEKIT_ENVIRONMENT_URL>/oauth/token \
+      -H 'Content-Type: application/x-www-form-urlencoded' \
+      -d 'client_id={client_id}' \
+      -d 'client_secret={client_secret}' \
+      -d 'grant_type=client_credentials'
+    ```
+
+    ### 2. List connected accounts
+
+    ```sh
+    curl https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/connected_accounts \
+      -H 'Authorization: Bearer {access_token}'
+    ```
+
+    ### 3. Execute a tool on behalf of a user
+
+    ```sh
+    curl -X POST https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/execute_tool \
+      -H 'Authorization: Bearer {access_token}' \
+      -H 'Content-Type: application/json' \
+      -d '{
+        "connected_account_id": "{connected_account_id}",
+        "tool_name": "gmail_fetch_emails",
+        "tool_input": { "max_results": 5 }
+      }'
+    ```
+
+    ## SDKs
+
+    ```sh
+    npm install @scalekit-sdk/node    # Node.js
+    pip install scalekit-sdk-python    # Python
+    ```
+
+    For the full product guide, see the [AgentKit documentation](https://docs.scalekit.com/agentkit/quickstart/).
+
+    ---
+
+    Looking for SSO, SCIM, directory sync, or user management APIs? See the [SaaSKit API reference](https://docs.scalekit.com/saaskit/apis/). For the complete endpoint list across both products, see [All APIs](https://docs.scalekit.com/apis/).
+tags:
+  - name: Connected Accounts
+    description: Manage connected accounts for third-party integrations and OAuth connections. Connected accounts represent authenticated access to external services like Google, Notion, Slack, and other applications.
+  - name: Connectors
+    description: Manage built-in and custom connectors (providers) that agents can use to authenticate against third-party services.
+  - name: Tool Calling
+    description: Execute tools on behalf of users via their connected accounts. Supports both named/pre-defined tools and custom API proxy calls.
+  - name: MCP Configurations
+    description: Create and manage reusable MCP configurations.
+root:
+  externalDocs:
+    description: AgentKit Docs
+    url: https://docs.scalekit.com/agentkit/quickstart/

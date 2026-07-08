@@ -1,0 +1,1 @@
+await scalekit.directory.enableDirectory('<organization_id>', '<directory_id>')

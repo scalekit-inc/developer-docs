@@ -1,0 +1,1 @@
+List<Domain> domains = scalekitClient.domains().listDomainsByOrganizationId("org_id", "ORGANIZATION_DOMAIN");

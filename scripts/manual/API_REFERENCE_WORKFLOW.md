@@ -47,8 +47,9 @@ OpenAPI → search-index-apis.js ──▶ records[] ──▶ ApiSearchIndex.as
 ### A. Adding / changing endpoints
 
 1. Update `public/api/scalekit.scalar.json` (or replace it from your OpenAPI generator).
-2. (Optional) Run `pnpm run reorder-swagger` to keep sections ordered (see `scripts/reorder-swagger.js`).
-3. Restart `pnpm dev` or run `pnpm build` so `ApiSearchIndex` picks up changes.
+2. Run `pnpm run inject-code-samples` — re-applies developer-docs-owned code samples from `openapi/code_samples/` on top of the freshly copied spec (both `.json` and `.yaml`). This is required now that AgentKit/SaaSKit code samples live in this repo, not the backend: a fresh copy from backend has no guarantee of carrying the samples this repo already owns, and once the backend's own `x-codeSamples` injection is removed entirely, a fresh copy will have none at all. Developer-docs samples always take priority per language; any language with no file here falls back to whatever the copied spec provided.
+3. (Optional) Run `pnpm run reorder-swagger` to keep sections ordered (see `scripts/reorder-swagger.js`).
+4. Restart `pnpm dev` or run `pnpm build` so `ApiSearchIndex` picks up changes.
 
 ### B. Running `generate-search-index` manually
 
@@ -102,6 +103,26 @@ If Scalar changes its anchor scheme:
 **DocSearch** indexes content from the live site; it does not read the OpenAPI file directly. The hidden block on `/apis` exists so each operation has **discoverable text and a stable URL** in the HTML Algolia indexes.
 
 Headings and links in `ApiSearchIndex.astro` are aligned with Scalar’s `#tag/…` fragments so results scroll the viewer to the right operation after navigation.
+
+---
+
+## 7. AgentKit/SaaSKit split (SK-399)
+
+`/agentkit/apis/` and `/saaskit/apis/` are **not** derived from `public/api/scalekit.scalar.json` — each has its own self-owned root: `openapi/agentkit.yaml` / `openapi/saaskit.yaml`, `$ref`-ing into the shared `openapi/paths/`, `openapi/components/`, and `openapi/webhooks/` trees. They're rebuilt on every `pnpm run build` (via `pnpm run bundle:apis`) and validated immediately after by `scripts/validate-api-split.js`, which fails the build if an operation ends up in neither split or in both.
+
+### Adding a custom extension (`x-internal`, `x-badges`, a new tag, etc.)
+
+- **Per-operation** (hide an endpoint, add a badge, mark preview status): edit the operation directly in its file under `openapi/paths/{path}.yaml` — add the key at the same level as `summary`/`tags`/`responses`. No injection script, no pipeline — it's a plain file.
+- **Product-wide** (a new tag, `info` description, `x-scalar-sdk-installation`): edit `openapi/agentkit.yaml` or `openapi/saaskit.yaml`'s own `info`/`tags` block directly. These are hand-authored per product and don't inherit from the backend spec.
+- After either: `pnpm run bundle:apis`, then `pnpm run build` (or just `build`, which runs both) to confirm `validate-api-split.js` still passes.
+
+### Adding a code sample
+
+Add the file under `openapi/code_samples/{lang}/{path-slug}/{method}.{ext}` (slug = the path with `/` replaced by `_`, params and colons kept literal — e.g. `/api/v1/mcp/{mcp_id}` → `api_v1_mcp_{mcp_id}`), then `$ref` it from the operation's `x-codeSamples` in the matching `openapi/paths/*.yaml` file. AgentKit currently only carries Node.js + Python samples; SaaSKit follows the 90%-rule four languages.
+
+### Keeping the combined `/apis/` page in sync
+
+The combined page still runs on a manually-copied `public/api/scalekit.scalar.json` from the backend repo (see section 3.A). Run `pnpm run inject-code-samples` right after that copy — it backfills code samples from `openapi/code_samples/` onto the copied spec (developer-docs samples take priority per language). It does **not** currently backfill other extensions like `x-badges`/`x-internal` — those still need to come from the backend spec until that gap is closed too.
 
 ---
 
