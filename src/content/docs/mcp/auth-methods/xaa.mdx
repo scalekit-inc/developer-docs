@@ -1,0 +1,116 @@
+---
+title: Secure MCP with Cross-App Access (XAA)
+description: "Use your customer's enterprise IdP to broker short-lived, scoped access to your MCP server, with no long-lived keys and no code changes required."
+tags: [mcp-auth, xaa, cross-app-access, id-jag, enterprise, oauth2]
+tableOfContents:
+  maxHeadingLevel: 3
+sidebar:
+  label: Cross-App Access (XAA)
+  order: 4
+prev:
+  label: Bring your own auth
+  link: /mcp/auth-methods/custom-auth
+seeAlso:
+  label: Related guides
+  expanded: false
+  items:
+    - title: Secure MCP with Enterprise SSO
+      icon: shield
+      url: /mcp/auth-methods/enterprise
+    - title: Managing MCP clients
+      icon: setting
+      url: /authenticate/mcp/managing-mcp-clients
+---
+import { Aside } from '@astrojs/starlight/components'
+
+Cross-App Access (XAA) lets your customer's enterprise identity provider (IdP), such as Okta, act as the trust broker for your MCP server. Instead of storing long-lived API keys or requiring individual OAuth consent flows, an AI agent presents a signed identity assertion from the enterprise IdP. Scalekit exchanges that assertion for a short-lived, scoped access token, which the agent uses to call your MCP server.
+
+The enterprise admin authorizes the connector once. All users in the relevant IdP groups inherit access automatically, and every token request is logged through the IdP's existing audit trail.
+
+<Aside type="note" title="Enterprise plan">
+XAA is available on the Enterprise plan. To enable it for your workspace, email [support@scalekit.com](mailto:support@scalekit.com).
+</Aside>
+
+## How Cross-App Access works
+
+```d2 pad=36
+title: "MCP Cross-App Access - ID-JAG token exchange" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+AI Agent / MCP Client
+"Enterprise IdP\n(e.g. Okta)"
+Scalekit Auth Server
+MCP Server
+
+AI Agent / MCP Client -> "Enterprise IdP\n(e.g. Okta)": Request identity assertion (ID-JAG) {
+  style.stroke: "#E85D00"
+  style.stroke-width: 2
+  style.stroke-dash: 3
+}
+
+"Enterprise IdP\n(e.g. Okta)" -> AI Agent / MCP Client: Return signed ID-JAG JWT {
+  style.stroke: "#E85D00"
+  style.stroke-width: 2
+  style.stroke-dash: 3
+}
+
+AI Agent / MCP Client -> Scalekit Auth Server: Exchange at /oauth/token\n(grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer) {
+  style.stroke: "#E85D00"
+  style.stroke-width: 2
+  style.stroke-dash: 3
+}
+
+Scalekit Auth Server -> AI Agent / MCP Client: Return short-lived scoped access token {
+  style.stroke: "#E85D00"
+  style.stroke-width: 2
+  style.stroke-dash: 3
+}
+
+AI Agent / MCP Client -> MCP Server: Call with Bearer token {
+  style.stroke: "#E85D00"
+  style.stroke-width: 2
+  style.stroke-dash: 3
+}
+
+MCP Server -> AI Agent / MCP Client: Respond to tool call {
+  style.stroke: "#E85D00"
+  style.stroke-width: 2
+  style.stroke-dash: 3
+}
+```
+
+1. The AI agent requests an **identity assertion (ID-JAG)** from the enterprise IdP. The IdP can be any provider that supports XAA - Okta, Microsoft Entra, or others.
+2. The IdP returns a **signed ID-JAG JWT** containing standard claims: issuer (`iss`), subject (`sub`), audience (`aud`), and expiry (`exp`).
+3. The agent exchanges the ID-JAG at Scalekit's `/oauth/token` endpoint using the JWT Bearer grant (`grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer`).
+4. Scalekit validates the JWT's signature, issuer trust, and audience, then enforces the configured scopes and returns a **short-lived access token**.
+5. The agent calls your **MCP server** with the Bearer token. Your server validates it exactly as it does today, with no code changes required.
+
+## Enable Cross-App Access
+
+1. Open the **[Scalekit Dashboard](https://app.scalekit.com)**.
+2. Navigate to **Auth for SaaS > MCP Servers**.
+3. Select your MCP server.
+4. Toggle on **Enable Cross-App Access (XAA)**.
+
+<Aside type="tip" title="No code changes needed">
+The XAA flow is handled entirely by Scalekit's authorization server. Your MCP server validates Bearer tokens exactly as it does today, so enabling XAA requires only a single dashboard toggle.
+</Aside>
+
+## Supported MCP clients
+
+XAA works with all three registration types that Scalekit supports:
+
+- **DCR clients** (Dynamic Client Registration) - Public clients such as Claude Desktop, Cursor, and VS Code that auto-register are fully supported. No additional configuration is needed.
+- **CIMD clients** (Client ID Metadata Document) - Clients that use a metadata URL as their identifier are also supported with XAA automatically.
+- **Pre-registered confidential clients** - If your MCP client requires a fixed `client_id` and `client_secret`, [pre-register the client in the Scalekit dashboard](/authenticate/mcp/managing-mcp-clients/) and provide your customer with the client id and secret for them to configure in their MCP clients.
+
+## When to use XAA
+
+- **No secret sprawl** - agents never store persistent API keys; tokens are short-lived and scoped to specific operations.
+- **Central IdP governance** - the enterprise IdP is the single control plane for all agent access, with a unified audit trail.
+- **One-time admin setup** - an admin authorizes the connector once; all users in the mapped groups inherit access without individual consent flows.
