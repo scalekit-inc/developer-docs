@@ -7,8 +7,178 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
+  edenmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/eden.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['AI', 'Marketing', 'Media'],
+  },
+  planningcentermcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/planningcenter.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Productivity', 'Calendar', 'CRM & Sales'],
+  },
+  whopmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/whop.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Developer Tools', 'Productivity'],
+  },
+  agencyanalyticsmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/agencyanalytics.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Analytics', 'Marketing', 'Monitoring'],
+  },
+  igptmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/igpt.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['AI', 'Productivity'],
+  },
+  happyscribemcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/happyscribe.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Transcription', 'AI'],
+  },
+  statuspage: {
+    iconUrl: 'https://dac-static.atlassian.com/_static/Statuspage-blue.svg',
+    authType: 'API Key',
+    categories: ['Monitoring', 'Communication'],
+  },
+  greptilmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/greptile.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Developer Tools', 'Search', 'AI'],
+  },
+  gorgiasmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/gorgias.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Customer Support', 'Communication'],
+  },
+  globalpingmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/globalping.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Monitoring', 'Developer Tools'],
+  },
+  fluxmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/flux.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['AI'],
+  },
+  financialdatasetsmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/financialdatasets.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Accounting & Finance', 'Analytics'],
+  },
+  expomcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/expo.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Developer Tools'],
+  },
+  deelmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/deel.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Accounting & Finance', 'Productivity'],
+  },
+  claapmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/claap.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Collaboration', 'Communication', 'Productivity', 'Media'],
+  },
+  appsignalmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/appsignal.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Monitoring', 'Developer Tools'],
+  },
+  anakinmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/anakin.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['AI', 'Automation', 'Productivity'],
+  },
+  airparsermcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/airparser.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Files & Documents', 'AI', 'Automation'],
+  },
+  advancedmd: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/advancedmd.png',
+    authType: 'SMART On FHIR',
+    categories: ['Healthcare'],
+  },
+  airbytemcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/airbyte.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Automation', 'Developer Tools', 'Analytics'],
+  },
+  klingmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/kling.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['AI', 'Media', 'Design'],
+  },
+  pixelbinmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/pixelbin.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Media', 'Developer Tools'],
+  },
+  muxmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/mux.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Media', 'Developer Tools'],
+  },
+  catchrmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/catchr.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Analytics', 'Automation'],
+  },
+  tactiqmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/tactiq.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Transcription', 'Productivity', 'AI'],
+  },
+  customsmartfhir: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/customsmartfhir.png',
+    authType: 'SMART On FHIR',
+    categories: ['Healthcare'],
+  },
+  semaphorecimcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/semaphoreci.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Developer Tools'],
+  },
+  runwaremcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/runware.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['AI', 'Media'],
+  },
+  testidinomcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/testdino.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Developer Tools', 'Analytics', 'Monitoring'],
+  },
+  axiommcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/axiom.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Analytics', 'Developer Tools', 'Monitoring'],
+  },
+  pipedrivemcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/pipedrive.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['CRM & Sales'],
+  },
+  githubpat: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/github.png',
+    authType: 'Bearer Token',
+    categories: ['Developer Tools', 'Collaboration'],
+  },
+  googlebusinessprofile: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/google.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Marketing', 'Analytics'],
+  },
+  upstreammcp: {
+    iconUrl: 'https://framerusercontent.com/images/Pl7PUhW6GIt6eumE6hy3eKACaA.png',
+    authType: 'Bearer Token',
+    categories: ['Automation', 'Productivity'],
+  },
   affindamcp: {
-    iconUrl: '',
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/affinda.svg',
     authType: 'OAuth2.1/DCR',
     categories: ['AI', 'Files & Documents'],
   },
@@ -87,6 +257,11 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'OAuth2.1/DCR',
     categories: ['Design', 'Search'],
   },
+  excalidrawmcp: {
+    iconUrl: 'https://docs.excalidraw.com/img/logo.svg',
+    authType: 'Bearer Token',
+    categories: ['Design', 'Collaboration', 'Productivity'],
+  },
   onepagemcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/onepage.svg',
     authType: 'OAuth2.1/DCR',
@@ -119,7 +294,7 @@ export const catalog: Record<string, ProviderMeta> = {
   },
   biomnimcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/biomni.svg',
-    authType: 'OAuth 2.1',
+    authType: 'OAuth2.1/DCR',
     categories: ['Analytics', 'Search'],
   },
   vibeprospectingmcp: {
@@ -1378,15 +1553,5 @@ export const catalog: Record<string, ProviderMeta> = {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/gmail.svg',
     authType: 'OAuth 2.0',
     categories: ['Communication'],
-  },
-  customsmartfhir: {
-    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/customsmartfhir.png',
-    authType: 'SMART On FHIR',
-    categories: ['Healthcare'],
-  },
-  advancedmd: {
-    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/advancedmd.png',
-    authType: 'SMART On FHIR',
-    categories: ['Healthcare'],
   },
 }
