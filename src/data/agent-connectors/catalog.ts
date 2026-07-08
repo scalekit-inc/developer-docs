@@ -1579,4 +1579,9 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'OAuth 2.1',
     categories: ['Files & Documents', 'Productivity'],
   },
+  harvestmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/harvestapp.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Productivity', 'Project Management'],
+  },
 }
