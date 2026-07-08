@@ -53,21 +53,56 @@ You **don't** need this if:
 
 ## How the integration fits together
 
-Treat the Scalekit **organization ID** as the single billing reference for the tenant. The integration has four seams:
+Treat the Scalekit **organization ID** as the single billing reference for the tenant. Scalekit authenticates the user and org, your app owns the mapping and local subscription cache, and Chargebee owns catalog, checkout, and billing state.
+
+```d2 pad=28 layout=dagre
+direction: right
+
+user: "User in\norganization" {
+  style.font-size: 16
+  shape: person
+}
+scalekit: "Scalekit" {
+  style.font-size: 16
+}
+app: "Your app" {
+  style.font-size: 16
+}
+chargebee: "Chargebee" {
+  style.font-size: 16
+}
+db: "Local DB\n(org + subscription)" {
+  style.font-size: 16
+}
+
+user -> scalekit: "login" {
+  style.font-size: 14
+}
+scalekit -> app: "access token\nwith oid" {
+  style.font-size: 14
+}
+scalekit -> app: "organization.created\nwebhook" {
+  style.font-size: 14
+}
+app -> chargebee: "create customer\n+ hosted checkout" {
+  style.font-size: 14
+}
+chargebee -> app: "checkout success\n+ subscription webhooks" {
+  style.font-size: 14
+}
+app -> db: "org mapping\n+ subscription cache" {
+  style.font-size: 14
+}
+```
+
+The integration has four seams:
 
 1. **Provision on org create** — Scalekit `organization.created` webhook → create a Chargebee customer and store the mapping locally.
 2. **Authorize every billing call** — session `oid` must match the billing `referenceId` before any Chargebee API call.
 3. **Future subscription before checkout** — create a local row with `status: future`, stamp `pendingSubscriptionId` on Chargebee customer metadata, then redirect to hosted checkout.
 4. **Reconcile from Chargebee** — subscription webhooks (and an eager sync on checkout redirect) update the local row to `active`, `in_trial`, or cancelled.
 
-```text
-Scalekit organization.created → local organization + Chargebee customer
-User login (Scalekit) → session with oid claim
-POST /api/subscription/create → future row + hosted checkout URL
-Chargebee checkout success → /api/subscription/success (eager sync)
-Chargebee webhooks → sync subscription + items to your database
-GET /api/subscription/list → billing UI / feature gates
-```
+Screenshots below are from the [reference demo](https://github.com/scalekit-developers/saas-auth-chargebee-example) so you can match each milestone to the product UI.
 
 ## Before you start
 
@@ -289,6 +324,10 @@ Return `2xx` after accepting the event. Scalekit retries on non-2xx responses. T
 
 **After this step:** create an organization in Scalekit → local `organization` row and a Chargebee customer with matching `organizationId` metadata appear.
 
+In the reference app dashboard, steps 1–3 show **Done** and the org is linked to a Chargebee customer before you open billing:
+
+![Dashboard after sign-in: organization linked to Chargebee customer, subscribe step current](@/assets/docs/cookbooks/sync-b2b-billing-with-chargebee/02-dashboard-org-linked.png)
+
 ## Step 6: Read the organization ID from the session
 
 Billing routes need org context from the access token. Validate the token on every request and require the `oid` claim. Do not call `/userinfo` for billing context.
@@ -411,6 +450,14 @@ The `future` row gives your app a stable ID to reconcile against before Chargebe
 
 **After this step:** `POST /api/subscription/create` returns `{ mode: 'hosted', url }`; completing checkout in the sandbox creates or updates the Chargebee subscription.
 
+In the demo, the billing page lists plans scoped to the session org. **Subscribe** calls your create route, then redirects to Chargebee hosted pages:
+
+![Billing page: Growth plan with Subscribe, integration journey on subscribe step](@/assets/docs/cookbooks/sync-b2b-billing-with-chargebee/03-billing-choose-plan.png)
+
+![Chargebee hosted cart: Growth Plan monthly with 14-day free trial](@/assets/docs/cookbooks/sync-b2b-billing-with-chargebee/04-chargebee-cart.png)
+
+![Chargebee hosted checkout: account details, payment method, and order summary](@/assets/docs/cookbooks/sync-b2b-billing-with-chargebee/05-chargebee-checkout.png)
+
 ## Step 9: Configure Chargebee webhooks
 
 In the Chargebee dashboard, create a webhook endpoint that points to:
@@ -479,6 +526,10 @@ export async function POST(req: NextRequest) {
 ```
 
 **After this step:** cancel or change a plan in Chargebee → local subscription status updates without a page refresh loop.
+
+After a successful checkout (and webhook or eager sync), the billing UI shows the live plan status — for example **In Trial** — and the journey marks subscribe and webhook sync as **Done**:
+
+![Billing after checkout: In Trial subscription and integration journey complete through webhook sync](@/assets/docs/cookbooks/sync-b2b-billing-with-chargebee/06-billing-subscription-active.png)
 
 ## Step 10: Eager-sync on checkout redirect
 
