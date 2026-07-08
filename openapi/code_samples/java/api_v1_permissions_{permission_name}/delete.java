@@ -1,0 +1,1 @@
+scalekitClient.permissions().deletePermission("read:users");

@@ -1,0 +1,1 @@
+res = scalekit_client.permissions.list_permissions()

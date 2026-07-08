@@ -1,0 +1,1 @@
+directories,err := scalekitClient.Directory().ListDirectories(ctx, organizationId)

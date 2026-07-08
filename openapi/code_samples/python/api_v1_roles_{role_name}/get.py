@@ -1,0 +1,1 @@
+res = scalekit_client.roles.get_role(role_name="admin")

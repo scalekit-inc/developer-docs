@@ -746,6 +746,7 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
       '/agentkit/connections': 'agentkit-quickstart',
       '/agentkit/connected-accounts': 'agentkit-connectors',
       '/agentkit/sdks': 'agentkit-sdks',
+      '/agentkit/apis': 'agentkit-api-reference',
       '/agentkit/tools/agent-tools-quickstart': 'agentkit-quickstart',
       '/agentkit/openclaw': 'agentkit-quickstart',
       '/agentkit/frameworks': 'agentkit-quickstart',

@@ -1,0 +1,72 @@
+---
+title: 'Statuspage connector'
+tableOfContents: true
+description: 'Connect to Statuspage. Manage status pages, incidents, components, component groups, subscribers, metrics, and page access permissions.'
+sidebar:
+  label: 'Statuspage'
+overviewTitle: 'Quickstart'
+connectorIcon: https://dac-static.atlassian.com/_static/Statuspage-blue.svg
+connectorAuthType: API Key
+connectorCategories: [Monitoring, Communication]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/statuspage'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { QuickstartGenericApikeySection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Make your first call
+
+   <QuickstartGenericApikeySection connector="statuspage" toolName="statuspage_component_groups_list" providerName="Statuspage" toolInputNode="{ page_id: 'YOUR_PAGE_ID' }" toolInputPython='{"page_id":"YOUR_PAGE_ID"}' />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **List users, templates, subscribers** — Retrieve a list of team members (users) belonging to a Statuspage organization, with optional pagination
+- **Update user permissions, subscriber, status embed config** — Update a Statuspage organization user's role permissions
+- **Get user permissions, subscribers histogram by state, subscribers count** — Retrieve a Statuspage organization user's permissions, including the per-page roles (page configuration, incident manager, maintenance manager) they have been granted where Role Based Access Control is enabled
+- **Delete user, page access user metrics, page access user metric** — Delete a user from a Statuspage organization
+- **Create user, template, subscriber** — Create a new team member (user) in a Statuspage organization, granting them access to manage the organization's status pages
+- **Bulk subscribers unsubscribe, subscribers resend confirmation, subscribers reactivate** — Unsubscribe a list of subscribers from a Statuspage status page, optionally filtered by subscriber type and state, or unsubscribe all subscribers (if fewer than 100)
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

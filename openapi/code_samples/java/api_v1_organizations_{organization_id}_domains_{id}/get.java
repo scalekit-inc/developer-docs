@@ -1,0 +1,1 @@
+Domain domain = scalekitClient.domains().getDomainById("org_123", "dom_123");

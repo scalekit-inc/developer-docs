@@ -1,0 +1,1 @@
+all, err := scalekitClient.User().ListUsers(ctx, &scalekit.ListUsersOptions{PageSize: 100})

@@ -1,0 +1,1 @@
+domain, err := scalekitClient.Domain().GetDomain(ctx, "dom_123", "org_123")

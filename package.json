@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "netlify dev:exec pnpm run start",
     "start": "cross-env NETLIFY_DEV=1 astro dev",
-    "build": "node scripts/generate-agent-tools-index.js && pnpm format:check && astro build && node scripts/generate-llms-index.js",
+    "build": "node scripts/generate-agent-tools-index.js && pnpm run bundle:apis && node scripts/validate-api-split.js && pnpm format:check && astro build && node scripts/generate-llms-index.js",
+    "validate-api-split": "node scripts/validate-api-split.js",
     "agent-markdown:audit": "node scripts/agent-markdown-audit.js",
     "agent-markdown:audit:strict": "node scripts/agent-markdown-audit.js --strict",
     "preview": "astro preview",
@@ -17,6 +18,7 @@
     "format:check": "prettier --check '**/*.{md,mdx,js,ts,astro,css,vue}'",
     "format": "prettier --write '**/*.{md,mdx,js,ts,astro,css,vue}'",
     "reorder-swagger": "node scripts/reorder-swagger.js public/api/scalekit.scalar.json",
+    "bundle:apis": "redocly bundle agentkit saaskit all --remove-unused-components && redocly bundle agentkit --remove-unused-components --ext json && redocly bundle saaskit --remove-unused-components --ext json && redocly bundle all --remove-unused-components --ext json",
     "sync-agent-connectors": "node scripts/sync-agent-connectors.js"
   },
   "dependencies": {
@@ -69,6 +71,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
     "@astrojs/markdown-remark": "^7.2.0",
+    "@redocly/cli": "^2.31.2",
     "@scalar/openapi-to-markdown": "^0.5.6",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
@@ -84,7 +87,8 @@
     "remark-stringify": "^11.0.0",
     "simple-git-hooks": "^2.13.1",
     "typescript": "^6.0.3",
-    "unified": "^11.0.5"
+    "unified": "^11.0.5",
+    "yaml": "^2.8.3"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

@@ -1,0 +1,1 @@
+SendPasswordlessResponse resendResponse = passwordlessClient.resendPasswordlessEmail(authRequestId);

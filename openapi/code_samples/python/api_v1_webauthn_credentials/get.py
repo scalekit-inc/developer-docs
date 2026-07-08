@@ -1,0 +1,1 @@
+res = scalekit_client.webauthn.list_credentials(user_id="user_123")

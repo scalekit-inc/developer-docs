@@ -1,0 +1,1 @@
+res = scalekit_client.roles.get_role_users_count(role_name="admin")

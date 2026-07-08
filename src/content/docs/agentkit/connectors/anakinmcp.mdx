@@ -1,0 +1,72 @@
+---
+title: 'Anakin MCP connector'
+tableOfContents: true
+description: 'Anakin is an AI platform and marketplace that lets you build, deploy, and access a wide range of AI tools and automated workflows. This MCP connector...'
+sidebar:
+  label: 'Anakin MCP'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/anakin.svg
+connectorAuthType: OAuth2.1/DCR
+connectorCategories: [AI, Automation, Productivity]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/anakinmcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="anakinmcp" toolName="anakinmcp_agentic_search" providerName="Anakin MCP" toolInputNode="{ prompt: 'YOUR_PROMPT' }" toolInputPython='{"prompt":"YOUR_PROMPT"}' />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Read wire** — Run a Wire READ action — one whose type is "read" (it EXTRACTS data and does not change state on the target site): search listings, fetch a category's products, get a product's price/specs/reviews, read a profile, pull dashboard metrics
+- **Identities wire** — List your saved Wire identities and their credentials
+- **Discover wire** — Find Wire actions for a task from a natural-language intent
+- **Catalog wire** — Browse the Wire catalog
+- **Search agentic** — Run an AI web search and return result URLs, titles, and snippets
+- **Scrape records** — Fetch a single URL and return clean markdown by default
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

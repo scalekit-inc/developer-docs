@@ -2,6 +2,348 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'confluence_access_by_email_check',
+    description: `Check site access for a list of emails. Returns the subset of emails from the input list that do NOT currently have access to the Confluence site. Requires permission to access the Confluence site.`,
+    params: [
+      {
+        name: 'emails',
+        type: 'array',
+        required: true,
+        description: `JSON array of email addresses to check for site access`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_access_by_email_invite',
+    description: `Invite a list of emails to the Confluence site. Invalid emails are ignored and no action is taken for emails that already have access. This API is asynchronous and may take some time to complete. Requires permission to access the Confluence site.`,
+    params: [
+      {
+        name: 'emails',
+        type: 'array',
+        required: true,
+        description: `JSON array of email addresses to invite to the site`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_attachment_comments_get',
+    description: `Retrieve footer comments for a specific Confluence attachment. Returns paginated comment results including author, content, creation time, and reply counts. Supports cursor-based pagination and optional body format, and can retrieve comments for a specific attachment version.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the attachment for which comments should be returned`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `The content format type to be returned in the body field of the response`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response as _links.next`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of comments to return per page (default 25, max 250)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort order for comments (e.g. created-date, -created-date, modified-date, -modified-date)`,
+      },
+      {
+        name: 'version',
+        type: 'integer',
+        required: false,
+        description: `Version number of the attachment to retrieve comments for. If not provided, retrieves comments for the latest version.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_attachment_delete',
+    description: `Delete a Confluence attachment by its ID. By default moves the attachment to the trash; set purge=true to permanently delete a trashed attachment without recovery. This action requires permission to delete attachments in the space, and space admin permission to purge.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the attachment to delete`,
+      },
+      {
+        name: 'purge',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to permanently delete a trashed attachment, bypassing recovery`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_attachment_get',
+    description: `Retrieve a specific Confluence attachment by its ID. Returns metadata including filename, media type, file size, download URL, and optionally labels, content properties, operations, versions, and collaborators. Use the Get Attachments tool if you don't know the attachment ID.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the attachment to retrieve`,
+      },
+      {
+        name: 'include_collaborators',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include collaborators on the attachment`,
+      },
+      {
+        name: 'include_labels',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include labels associated with this attachment`,
+      },
+      {
+        name: 'include_operations',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include operations associated with this attachment`,
+      },
+      {
+        name: 'include_properties',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include content properties associated with this attachment`,
+      },
+      {
+        name: 'include_version',
+        type: 'boolean',
+        required: false,
+        description: `Set to false to exclude the current version details from the response`,
+      },
+      {
+        name: 'include_versions',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include all versions associated with this attachment`,
+      },
+      {
+        name: 'version',
+        type: 'integer',
+        required: false,
+        description: `Specific version number of the attachment to retrieve (defaults to latest)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_attachment_labels_get',
+    description: `Retrieve all labels attached to a specific Confluence attachment. Labels can be filtered by prefix (e.g. global, my, team, system). Returns a paginated list of label names and prefixes. Only labels the caller has permission to view are returned.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the attachment whose labels to retrieve`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response as _links.next`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of labels to return per page (default 25, max 250)`,
+      },
+      {
+        name: 'prefix',
+        type: 'string',
+        required: false,
+        description: `Filter labels by prefix (e.g. my, team, global, system)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort order for labels (e.g. created-date, -created-date, id, -id, name, -name)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_attachment_thumbnail_get',
+    description: `Download an attachment's thumbnail image by attachment ID. Redirects to a URL that serves the thumbnail's binary data. Optionally control the thumbnail dimensions or retrieve a previous version. Requires permission to view the attachment's container.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the attachment whose thumbnail is to be returned`,
+      },
+      {
+        name: 'height',
+        type: 'integer',
+        required: false,
+        description: `Allows you to define the thumbnail height`,
+      },
+      {
+        name: 'version',
+        type: 'integer',
+        required: false,
+        description: `Allows you to retrieve a previously published version. Specify the previous version's number to retrieve its details`,
+      },
+      {
+        name: 'width',
+        type: 'integer',
+        required: false,
+        description: `Allows you to define the thumbnail width`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_attachment_version_get',
+    description: `Retrieve the version details for a specific version of a Confluence attachment. Returns metadata about that version, including author and modification date. Use the Get Attachment Versions tool to list available version numbers first.`,
+    params: [
+      {
+        name: 'attachment_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the attachment for which version details should be returned`,
+      },
+      {
+        name: 'version_number',
+        type: 'integer',
+        required: true,
+        description: `The version number of the attachment to be returned`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_attachment_versions_get',
+    description: `Retrieve the version history of a specific Confluence attachment. Returns a paginated list of versions including version numbers, authors, and modification dates. Use the Get Attachment Version Details tool to fetch full details for a single version.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the attachment whose versions to retrieve`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response as _links.next`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of versions to return per page (default 25, max 250)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort order for versions (e.g. modified-date, -modified-date)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_attachments_list',
+    description: `List all attachments across the Confluence instance. Returns a paginated collection of attachments with metadata including filename, media type, file size, and download URL. Supports filtering by status, media type, or filename and cursor-based pagination.`,
+    params: [
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response as _links.next`,
+      },
+      {
+        name: 'filename',
+        type: 'string',
+        required: false,
+        description: `Filter attachments by exact filename`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of attachments to return per page (default 50, max 250)`,
+      },
+      {
+        name: 'media_type',
+        type: 'string',
+        required: false,
+        description: `Filter attachments by MIME media type (e.g. image/png, application/pdf)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort order for attachments (e.g. created-date, -created-date, modified-date, -modified-date)`,
+      },
+      {
+        name: 'status',
+        type: 'array',
+        required: false,
+        description: `Filter attachments by status (current, archived, trashed). By default current and archived are returned.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_blogpost_attachments_get',
+    description: `Retrieve all attachments on a Confluence blog post. Returns a paginated list of attachments with metadata including filename, media type, file size, and download URL. Supports filtering by status, media type, or filename and cursor-based pagination.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the blog post for which attachments should be returned`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response as _links.next`,
+      },
+      {
+        name: 'filename',
+        type: 'string',
+        required: false,
+        description: `Filter attachments by exact filename`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of attachments to return per page (default 50, max 250)`,
+      },
+      {
+        name: 'media_type',
+        type: 'string',
+        required: false,
+        description: `Filter attachments by MIME media type (e.g. image/png, application/pdf)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort order for attachments (e.g. created-date, -created-date, modified-date, -modified-date)`,
+      },
+      {
+        name: 'status',
+        type: 'array',
+        required: false,
+        description: `Filter attachments by status (current, archived, trashed). By default current and archived are returned.`,
+      },
+    ],
+  },
+  {
     name: 'confluence_blogpost_create',
     description: `Create a new blog post in a Confluence space. Requires a target space ID and a title. Optionally set the status (published or draft) and provide body content in storage or atlas_doc_format representation. Set the private query parameter to restrict visibility.`,
     params: [
@@ -39,6 +381,109 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'confluence_blogpost_custom_content_list',
+    description: `Returns all custom content of a given type within a specific Confluence blog post. Custom content is app-defined content stored under a container such as a blog post. Results are paginated via cursor; use the type parameter to filter to a specific custom content type.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the blog post for which custom content should be returned`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: true,
+        description: `The type of custom content being requested`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `The content format to return in the body field of the response (e.g. raw, storage, atlas_doc_format)`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in previous response as _links.next`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of custom content items to return per page (default 25, max 250)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Used to sort the result by a particular field (e.g. id, -id, created-date, -created-date, modified-date, -modified-date, title, -title)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_blogpost_delete',
+    description: `Delete a Confluence blog post by its ID. By default deletes non-draft blog posts, moving them to the trash where they can be restored later. Set draft=true to delete a draft blog post instead (discarded drafts are permanently deleted, not trashed). Set purge=true to permanently delete a trashed blog post without recovery.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the blog post to delete`,
+      },
+      {
+        name: 'draft',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to delete a blog post that is a draft`,
+      },
+      {
+        name: 'purge',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to permanently delete a trashed blog post, bypassing recovery`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_blogpost_footer_comments_get',
+    description: `Retrieve the root footer comments of a specific Confluence blog post. Returns paginated comment results including author, content, and status. Supports sorting and cursor-based pagination.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The numeric ID of the blog post whose footer comments to retrieve`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `Format of the comment body to include in the response`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for fetching the next page of results`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of comments to return per page`,
+      },
+      { name: 'sort', type: 'string', required: false, description: `Sort order for the comments` },
+      {
+        name: 'status',
+        type: 'array',
+        required: false,
+        description: `Filter footer comments by status. Accepts an array of values: current, deleted, trashed, historical, draft.`,
+      },
+    ],
+  },
+  {
     name: 'confluence_blogpost_get',
     description: `Retrieve a specific Confluence blog post by its ID. Returns the blog post content, metadata, author, space, status, and version history. Optionally include body content in a specified format, fetch a draft version, or a historical version.`,
     params: [
@@ -71,6 +516,121 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Version number of the blog post to retrieve`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_blogpost_inline_comments_get',
+    description: `Retrieve the root inline comments of a specific Confluence blog post. Returns paginated comment results including author, content, and status. Supports filtering by status and resolution status, sorting, and cursor-based pagination.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The numeric ID of the blog post whose inline comments to retrieve`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `Format of the comment body to include in the response`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for fetching the next page of results`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of inline comments to return per page`,
+      },
+      {
+        name: 'resolution_status',
+        type: 'array',
+        required: false,
+        description: `Filter inline comments by resolution status. Accepts an array of values: resolved, open, dangling, reopened.`,
+      },
+      { name: 'sort', type: 'string', required: false, description: `Sort order for the comments` },
+      {
+        name: 'status',
+        type: 'array',
+        required: false,
+        description: `Filter inline comments by status. Accepts an array of values: current, deleted, trashed, historical, draft.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_blogpost_labels_get',
+    description: `Retrieve all labels attached to a Confluence blog post. Labels can be filtered by prefix (e.g. global, my, team, system). Returns a paginated list of label names and prefixes. Only labels the requesting user has permission to view are returned.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the blog post for which labels should be returned`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in previous response as _links.next`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of labels to return per page (default 25, max 250)`,
+      },
+      {
+        name: 'prefix',
+        type: 'string',
+        required: false,
+        description: `Filter the results to labels based on their prefix (e.g. my, team, global, system)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Used to sort the result by a particular field (e.g. created-date, -created-date, id, -id, name, -name)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_blogpost_like_count_get',
+    description: `Retrieve the total count of likes on a specific Confluence blog post.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the blog post for which like count should be returned`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_blogpost_like_users_get',
+    description: `Retrieve the account IDs of users who liked a specific Confluence blog post. Results are paginated via cursor.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the blog post for which account IDs of likes should be returned`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in previous response as _links.next`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of account IDs to return per page (default 25, max 250)`,
       },
     ],
   },
@@ -124,6 +684,873 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'confluence_blogpost_update',
+    description: `Update an existing Confluence blog post. Requires the blog post ID, current status, title, and the next version number (must be exactly current version + 1). Optionally update the body content or add a version message. Retrieve the current version number with the Get Blog Post tool before calling this.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the blog post to update`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: true,
+        description: `Status of the blog post after the update (e.g. current, draft)`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `Updated title of the blog post`,
+      },
+      {
+        name: 'version_number',
+        type: 'integer',
+        required: true,
+        description: `The new version number for this update. Must be exactly the current version number plus 1.`,
+      },
+      {
+        name: 'body_representation',
+        type: 'string',
+        required: false,
+        description: `Format for the updated body content (e.g. storage, atlas_doc_format). Must be set together with body_value.`,
+      },
+      {
+        name: 'body_value',
+        type: 'string',
+        required: false,
+        description: `The updated body content in the format specified by body_representation. Must be set together with body_representation.`,
+      },
+      {
+        name: 'version_message',
+        type: 'string',
+        required: false,
+        description: `Optional message describing what changed in this version`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_blogpost_version_get',
+    description: `Retrieve the details of a specific historical version of a Confluence blog post, identified by blog post ID and version number.`,
+    params: [
+      {
+        name: 'blogpost_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the blog post for which version details should be returned`,
+      },
+      {
+        name: 'version_number',
+        type: 'integer',
+        required: true,
+        description: `The version number of the blog post to be returned`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_blogpost_versions_list',
+    description: `Retrieve the version history of a specific Confluence blog post. Returns a paginated list of versions with metadata such as author and modification date. Use cursor-based pagination for blog posts with many versions.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the blog post to be queried for its versions`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `The content format to return in the body field of each version (e.g. storage, atlas_doc_format)`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in previous response as _links.next`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of versions to return per page (default 25, max 250)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Used to sort the result by a particular field (e.g. modified-date, -modified-date)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_custom_content_attachments_get',
+    description: `Retrieve the attachments of a specific Confluence custom content item. Supports filtering by status, media type, or filename, and cursor-based pagination for items with many attachments.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the custom content for which attachments should be returned`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response as _links.next`,
+      },
+      {
+        name: 'filename',
+        type: 'string',
+        required: false,
+        description: `Filter attachments by their filename (only one filename may be specified)`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of attachments to return per page (default 50, max 250)`,
+      },
+      {
+        name: 'media_type',
+        type: 'string',
+        required: false,
+        description: `Filter attachments by media type (only one media type may be specified)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort order for attachments (e.g. created-date, -created-date, modified-date, -modified-date)`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Filter attachments by status (comma-separated list). By default current and archived are used.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_custom_content_children_get',
+    description: `Retrieve all child custom content for a given custom content ID. Results are paginated via cursor. Only custom content the user has permission to view is returned.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the parent custom content. If you don't know the custom content ID, use List Custom Content and filter the results`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response as _links.next`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of pages per result to return (default 25, max 250)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Used to sort the result by a particular field (e.g. created-date, -created-date, id, -id, modified-date, -modified-date)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_custom_content_comments_get',
+    description: `Retrieve the footer comments of a specific Confluence custom content item. Supports body format selection and cursor-based pagination for items with many comments.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the custom content for which comments should be returned`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `The content format to return in the body field of each comment (e.g. storage, atlas_doc_format)`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response as _links.next`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of comments to return per page (default 25, max 250)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort order for comments (e.g. created-date, -created-date, modified-date, -modified-date)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_custom_content_create',
+    description: `Create a new Confluence custom content item under a space, page, blog post, or other custom content. Exactly one of space_id, page_id, blog_post_id, or custom_content_id must be provided as the container. Requires a type and title; optionally set the initial status and body content.`,
+    params: [
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `Title of the new custom content`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: true,
+        description: `The app-defined type of custom content to create`,
+      },
+      {
+        name: 'blog_post_id',
+        type: 'string',
+        required: false,
+        description: `The ID of the blog post to create the custom content under. Provide exactly one of space_id, page_id, blog_post_id, or custom_content_id.`,
+      },
+      {
+        name: 'body_representation',
+        type: 'string',
+        required: false,
+        description: `The markup format for the custom content body (e.g. storage, atlas_doc_format). Must be set together with body_value.`,
+      },
+      {
+        name: 'body_value',
+        type: 'string',
+        required: false,
+        description: `The raw content of the custom content body in the format specified by body_representation. Must be set together with body_representation.`,
+      },
+      {
+        name: 'custom_content_id',
+        type: 'string',
+        required: false,
+        description: `The ID of another custom content item to nest this custom content under. Provide exactly one of space_id, page_id, blog_post_id, or custom_content_id.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: false,
+        description: `The ID of the page to create the custom content under. Provide exactly one of space_id, page_id, blog_post_id, or custom_content_id.`,
+      },
+      {
+        name: 'space_id',
+        type: 'string',
+        required: false,
+        description: `The ID of the space to create the custom content under. Provide exactly one of space_id, page_id, blog_post_id, or custom_content_id.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Initial status of the custom content (e.g. current, draft)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_custom_content_delete',
+    description: `Delete a Confluence custom content item by its ID. By default moves the custom content to the trash; set purge=true to permanently delete a trashed item without recovery. This action is irreversible when purge is enabled.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the custom content to be deleted`,
+      },
+      {
+        name: 'purge',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to permanently delete an already-trashed custom content item, bypassing recovery`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_custom_content_get',
+    description: `Retrieve a specific piece of Confluence custom content by its ID. Optionally include labels, content properties, operations, version history, the current version, or collaborators in the response.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the custom content to be returned`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `The content format to return in the body field of the response (e.g. raw, storage, atlas_doc_format, view, export_view, anonymous_export_view)`,
+      },
+      {
+        name: 'include_collaborators',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include collaborators on the custom content`,
+      },
+      {
+        name: 'include_labels',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include labels associated with this custom content in the response`,
+      },
+      {
+        name: 'include_operations',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include operations associated with this custom content in the response`,
+      },
+      {
+        name: 'include_properties',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include content properties associated with this custom content in the response`,
+      },
+      {
+        name: 'include_version',
+        type: 'boolean',
+        required: false,
+        description: `Includes the current version associated with this custom content in the response. Defaults to true.`,
+      },
+      {
+        name: 'include_versions',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include versions associated with this custom content in the response`,
+      },
+      {
+        name: 'version',
+        type: 'integer',
+        required: false,
+        description: `Allows you to retrieve a previously published version. Specify the previous version's number to retrieve its details.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_custom_content_labels_get',
+    description: `Retrieve all labels attached to a Confluence custom content item. Labels can be filtered by prefix (e.g. global, my, team, system). Returns a paginated list of label names and prefixes; only labels the user can view are returned.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the custom content for which labels should be returned`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response as _links.next`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of labels to return per page (default 25, max 250)`,
+      },
+      {
+        name: 'prefix',
+        type: 'string',
+        required: false,
+        description: `Filter labels by prefix (e.g. my, team, global, system)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort order for labels (e.g. created-date, -created-date, id, -id, name, -name)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_custom_content_list',
+    description: `Returns all Confluence custom content for a given type, optionally filtered by custom content IDs or space IDs. Custom content is app-defined content that can live under a page, blog post, space, or other custom content. Results are paginated via cursor.`,
+    params: [
+      {
+        name: 'type',
+        type: 'string',
+        required: true,
+        description: `The type of custom content being requested`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `The content format to return in the body field of the response (e.g. raw, storage, atlas_doc_format)`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in previous response as _links.next`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: false,
+        description: `Filter the results based on custom content IDs (comma-separated string, up to 250 IDs)`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of custom content items to return per page (default 25, max 250)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Used to sort the result by a particular field (e.g. id, -id, created-date, -created-date, modified-date, -modified-date, title, -title)`,
+      },
+      {
+        name: 'space_id',
+        type: 'string',
+        required: false,
+        description: `Filter the results based on space IDs (comma-separated string, up to 100 IDs)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_custom_content_update',
+    description: `Update an existing Confluence custom content item by ID. Requires the current status, title, type, and the next version number (must be exactly current version + 1). At most one of space_id, page_id, blog_post_id, or custom_content_id may be set; if space_id is specified it must match the space used when the custom content was created, since moving custom content between spaces is not supported. Retrieve the current version number with the Get Custom Content tool before calling this.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the custom content to be updated`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: true,
+        description: `Status of the custom content after the update (e.g. current, draft)`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `Updated title of the custom content`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: true,
+        description: `The app-defined type of the custom content`,
+      },
+      {
+        name: 'version_number',
+        type: 'integer',
+        required: true,
+        description: `The new version number for this update. Must be exactly the current version number plus 1.`,
+      },
+      {
+        name: 'blog_post_id',
+        type: 'string',
+        required: false,
+        description: `The ID of the blog post this custom content belongs to`,
+      },
+      {
+        name: 'body_representation',
+        type: 'string',
+        required: false,
+        description: `Format for the updated body content (e.g. storage, atlas_doc_format). Must be set together with body_value.`,
+      },
+      {
+        name: 'body_value',
+        type: 'string',
+        required: false,
+        description: `The updated body content in the format specified by body_representation. Must be set together with body_representation.`,
+      },
+      {
+        name: 'custom_content_id',
+        type: 'string',
+        required: false,
+        description: `The ID of a parent custom content item this custom content belongs to`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: false,
+        description: `The ID of the page this custom content belongs to`,
+      },
+      {
+        name: 'space_id',
+        type: 'string',
+        required: false,
+        description: `The ID of the space this custom content belongs to. If specified, must match the space used when the custom content was created.`,
+      },
+      {
+        name: 'version_message',
+        type: 'string',
+        required: false,
+        description: `Optional message describing what changed in this version`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_custom_content_version_get',
+    description: `Retrieve version details for a specific version number of Confluence custom content.`,
+    params: [
+      {
+        name: 'custom_content_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the custom content for which version details should be returned`,
+      },
+      {
+        name: 'version_number',
+        type: 'string',
+        required: true,
+        description: `The version number of the custom content to be returned`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_custom_content_versions_list',
+    description: `Retrieve the versions of specific Confluence custom content. Supports filtering the returned body format and cursor-based pagination.`,
+    params: [
+      {
+        name: 'custom_content_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the custom content to be queried for its versions`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `The content format to be returned in the body field of the response (raw, storage, atlas_doc_format)`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response as _links.next`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of versions per result to return (default 25, max 250)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort order for versions (modified-date or -modified-date)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_database_ancestors_get',
+    description: `Retrieve all ancestors of a Confluence database in the content tree, in top-to-bottom order (the highest ancestor is first in the response). If more results exist, call again using the ID of the first ancestor returned.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `The ID of the database` },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of items to return (default 25, max 250)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_database_create',
+    description: `Create a new Confluence smart-linked database (Database content type) in a specified space. Requires a space ID. Optionally set a title and a parent content ID. Set private=true to restrict visibility to the creator.`,
+    params: [
+      {
+        name: 'space_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the space in which to create the database`,
+      },
+      {
+        name: 'parent_id',
+        type: 'string',
+        required: false,
+        description: `The parent content ID of the database`,
+      },
+      {
+        name: 'private',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to create the database as private, visible only to the creator`,
+      },
+      { name: 'title', type: 'string', required: false, description: `Title of the database` },
+    ],
+  },
+  {
+    name: 'confluence_database_delete',
+    description: `Delete a Confluence database by its ID. Deleting a database moves it to the trash, where it can be restored later. Requires permission to view the database and its corresponding space, and permission to delete databases in the space.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the database to be deleted`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_database_descendants_get',
+    description: `Retrieve descendants in the content tree for a Confluence database, in top-to-bottom order (the highest descendant is first in the response). Supports a depth parameter to limit how many levels of descendants are returned, and cursor-based pagination for additional results.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `The ID of the database` },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Opaque cursor for pagination, returned in the Link response header of a previous call`,
+      },
+      {
+        name: 'depth',
+        type: 'integer',
+        required: false,
+        description: `Maximum depth of descendants to return (default 2, max 10)`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of items to return per result (default 25, max 250)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_database_direct_children_get',
+    description: `Retrieve the direct children of a Confluence database in the content tree (database, embed, folder, page, or whiteboard types). Returns minimal information about each child; use cursor-based pagination via the returned Link header to fetch more results.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `The ID of the parent database` },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Opaque cursor for pagination, returned in the Link response header of a previous call`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of items to return per result (default 25, max 250)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Field and direction to sort the results by. Valid values: created-date, -created-date, id, -id, modified-date, -modified-date, child-position, -child-position, title, -title`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_database_get',
+    description: `Retrieve a specific Confluence database (a Confluence Whiteboard-style structured database object) by its ID. Returns core database metadata and optionally its collaborators, direct children, operations, and content properties. Requires permission to view the database and its corresponding space.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the database to be returned`,
+      },
+      {
+        name: 'include_collaborators',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include collaborators on the database in the response`,
+      },
+      {
+        name: 'include_direct_children',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include direct children of the database, as defined in the ChildrenResponse object`,
+      },
+      {
+        name: 'include_operations',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include operations associated with this database. Results are limited to 50 and sorted in default order`,
+      },
+      {
+        name: 'include_properties',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include content properties associated with this database. Results are limited to 50 and sorted in default order`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_folder_ancestors_get',
+    description: `Retrieve all ancestors of a Confluence folder in top-to-bottom order (the highest ancestor first). Returns minimal information about each ancestor.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `The ID of the folder` },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of items per result to return (default 25, max 250)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_folder_create',
+    description: `Create a new folder in a Confluence space. Requires a space ID. Optionally set a title and a parent folder ID to nest the folder under another folder. Requires permission to view the corresponding space and permission to create a folder in the space.`,
+    params: [
+      {
+        name: 'space_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the space in which to create the folder`,
+      },
+      {
+        name: 'parent_id',
+        type: 'string',
+        required: false,
+        description: `ID of the parent folder under which this folder will be created`,
+      },
+      { name: 'title', type: 'string', required: false, description: `Title of the new folder` },
+    ],
+  },
+  {
+    name: 'confluence_folder_delete',
+    description: `Delete a Confluence folder by its ID. Deleting a folder moves it to the trash, where it can be restored later.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the folder to be deleted`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_folder_descendants_get',
+    description: `Retrieve descendants of a Confluence folder in the content tree, in top-to-bottom order. Returns database, embed, folder, page, and whiteboard content types. Control how deep to traverse with the depth parameter, and paginate with cursor.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `The ID of the folder` },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response`,
+      },
+      {
+        name: 'depth',
+        type: 'integer',
+        required: false,
+        description: `Maximum depth of descendants to return (default 2, min 1, max 10)`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of items per result to return (default 25, max 250)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_folder_direct_children_get',
+    description: `Retrieve the direct children of a Confluence folder in the content tree. Returns minimal information about each child (database, embed, folder, page, or whiteboard). Use cursor-based pagination for folders with many children.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `The ID of the parent folder` },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response as _links.next`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of items per result to return (default 25, max 250)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort order for children (e.g. created-date, -created-date, id, -id, modified-date, -modified-date, child-position, -child-position, title, -title)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_folder_get',
+    description: `Retrieve a specific Confluence folder by its ID. Returns core folder metadata and optionally its collaborators, direct children, operations, and content properties. Requires permission to view the folder and its corresponding space.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the folder to be returned`,
+      },
+      {
+        name: 'include_collaborators',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include collaborators on the folder in the response`,
+      },
+      {
+        name: 'include_direct_children',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include direct children of the folder, as defined in the ChildrenResponse object`,
+      },
+      {
+        name: 'include_operations',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include operations associated with this folder. Results are limited to 50 and sorted in default order`,
+      },
+      {
+        name: 'include_properties',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include content properties associated with this folder. Results are limited to 50 and sorted in default order`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_footer_comment_children_get',
+    description: `Retrieve the child (reply) footer comments of a specific Confluence footer comment. Returns paginated comment results. Supports sorting and cursor-based pagination.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the parent footer comment whose children to retrieve`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `Format of the comment body to include in the response`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for fetching the next page of results`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of footer comments to return per page`,
+      },
+      { name: 'sort', type: 'string', required: false, description: `Sort order for the comments` },
+    ],
+  },
+  {
     name: 'confluence_footer_comment_create',
     description: `Create a footer comment on a Confluence page, blog post, or as a reply to an existing comment. Requires body content with a representation format and exactly one parent target: pageId, blogPostId, or parentCommentId. Use pageId to comment on a page, blogPostId to comment on a blog post, and parentCommentId to reply to an existing comment.`,
     params: [
@@ -160,6 +1587,187 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'confluence_footer_comment_delete',
+    description: `Permanently delete a Confluence footer comment by its ID. This action cannot be reverted.`,
+    params: [
+      {
+        name: 'comment_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the footer comment to delete`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_footer_comment_get',
+    description: `Retrieve a single Confluence footer comment by its ID. Returns the comment body, author, version, and status. Optionally set body_format to control the markup format returned, and specify version to retrieve a previously published version. Additional flags expose properties, operations, likes, and version history.`,
+    params: [
+      {
+        name: 'comment_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the footer comment to retrieve`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `Format for the returned comment body`,
+      },
+      {
+        name: 'include_likes',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include likes associated with this footer comment`,
+      },
+      {
+        name: 'include_operations',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include operations associated with this footer comment`,
+      },
+      {
+        name: 'include_properties',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include content properties associated with this footer comment`,
+      },
+      {
+        name: 'include_version',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include the current version information in the response (included by default)`,
+      },
+      {
+        name: 'include_versions',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include version history associated with this footer comment`,
+      },
+      {
+        name: 'version',
+        type: 'integer',
+        required: false,
+        description: `Specific version number of the comment to retrieve (defaults to latest)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_footer_comment_like_count_get',
+    description: `Retrieve the total count of likes on a specific Confluence footer comment.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the footer comment for which like count should be returned`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_footer_comment_like_users_get',
+    description: `Retrieve the account IDs of users who liked a specific Confluence footer comment. Returns a paginated list of account IDs. Use the Get Footer Comments tool to find valid footer comment IDs.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the footer comment for which like count should be returned`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for fetching the next page of results`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of account IDs per result to return`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_footer_comment_update',
+    description: `Update an existing Confluence footer comment, typically to change its body text. Requires the new version number (current version + 1) and the new body content with representation format.`,
+    params: [
+      {
+        name: 'body_representation',
+        type: 'string',
+        required: true,
+        description: `Storage format of the updated comment body content`,
+      },
+      {
+        name: 'body_value',
+        type: 'string',
+        required: true,
+        description: `The updated content of the comment`,
+      },
+      {
+        name: 'comment_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the footer comment to update`,
+      },
+      {
+        name: 'version_number',
+        type: 'integer',
+        required: true,
+        description: `The new version number for the comment. Must be the current version number plus one.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_footer_comment_version_get',
+    description: `Retrieve the version details for a specific version of a Confluence footer comment. Returns metadata about that version, including author and modification date. Use the List Footer Comment Versions tool to list available version numbers first.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the footer comment for which version details should be returned`,
+      },
+      {
+        name: 'version_number',
+        type: 'integer',
+        required: true,
+        description: `The version number of the footer comment to be returned`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_footer_comment_versions_list',
+    description: `Retrieve the version history of a specific Confluence footer comment. Returns a paginated list of versions with metadata such as author and modification date. Supports optional body format, cursor-based pagination, and sort order.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the footer comment for which versions should be returned`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `The content format type to be returned in the body field of the response`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for fetching the next page of results`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of versions per result to return`,
+      },
+      { name: 'sort', type: 'string', required: false, description: `Sort order for the versions` },
+    ],
+  },
+  {
     name: 'confluence_footer_comments_get',
     description: `Retrieve footer comments (inline comments at the bottom) for a specific Confluence page. Returns paginated comment results including author, content, creation time, and reply counts. Supports cursor-based pagination and optional body format.`,
     params: [
@@ -188,6 +1796,507 @@ export const tools: Tool[] = [
         description: `Maximum number of comments to return per page`,
       },
       { name: 'sort', type: 'string', required: false, description: `Sort order for the comments` },
+    ],
+  },
+  {
+    name: 'confluence_footer_comments_list',
+    description: `Retrieve all footer comments across the Confluence instance, not scoped to a single page or blog post. Returns paginated comment results. Supports sorting and cursor-based pagination.`,
+    params: [
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `Format of the comment body to include in the response`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for fetching the next page of results`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of footer comments to return per page`,
+      },
+      { name: 'sort', type: 'string', required: false, description: `Sort order for the comments` },
+    ],
+  },
+  {
+    name: 'confluence_inline_comment_children_get',
+    description: `Retrieve the child (reply) inline comments of a specific Confluence inline comment. Returns a paginated list of replies. Supports optional body format, sort order, and cursor-based pagination.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the parent comment for which inline comment children should be returned`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `The content format type to be returned in the body field of the response`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for fetching the next page of results`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of child comments per result to return`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort order for the child comments`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_inline_comment_create',
+    description: `Create an inline comment on a Confluence page or blog post, or as a reply to an existing inline comment. Requires body content with a representation format and exactly one parent target: page_id, blogpost_id, or parent_comment_id. For top-level comments (page_id or blogpost_id), inline_comment_text_selection is required to specify the text to highlight.`,
+    params: [
+      {
+        name: 'body_representation',
+        type: 'string',
+        required: true,
+        description: `Storage format of the comment body content`,
+      },
+      {
+        name: 'body_value',
+        type: 'string',
+        required: true,
+        description: `The content of the comment`,
+      },
+      {
+        name: 'blogpost_id',
+        type: 'string',
+        required: false,
+        description: `ID of the blog post to attach this inline comment to`,
+      },
+      {
+        name: 'inline_comment_text_selection',
+        type: 'string',
+        required: false,
+        description: `The text on the page/blog post to highlight for this inline comment. Required for top-level inline comments (page_id or blogpost_id); not applicable for replies.`,
+      },
+      {
+        name: 'inline_comment_text_selection_match_count',
+        type: 'integer',
+        required: false,
+        description: `The number of matches for the selected text on the page. Should be strictly greater than inline_comment_text_selection_match_index.`,
+      },
+      {
+        name: 'inline_comment_text_selection_match_index',
+        type: 'integer',
+        required: false,
+        description: `The zero-based match index of the selected text occurrence to highlight. For example, to highlight the second occurrence of 3 matches, pass 1 for this field and 3 for inline_comment_text_selection_match_count.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: false,
+        description: `ID of the page to attach this inline comment to`,
+      },
+      {
+        name: 'parent_comment_id',
+        type: 'string',
+        required: false,
+        description: `ID of the parent inline comment to reply to`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_inline_comment_delete',
+    description: `Permanently delete a Confluence inline comment by its ID. This action cannot be reverted.`,
+    params: [
+      {
+        name: 'comment_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the comment to be deleted`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_inline_comment_get',
+    description: `Retrieve a single Confluence inline comment by its ID. Returns the comment body, resolved state, and highlighted text metadata. Optionally include content properties, operations, likes, and version information.`,
+    params: [
+      {
+        name: 'comment_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the comment to be retrieved`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `The content format type to be returned in the body field of the response`,
+      },
+      {
+        name: 'include_likes',
+        type: 'boolean',
+        required: false,
+        description: `Includes likes associated with this inline comment in the response`,
+      },
+      {
+        name: 'include_operations',
+        type: 'boolean',
+        required: false,
+        description: `Includes operations associated with this inline comment in the response`,
+      },
+      {
+        name: 'include_properties',
+        type: 'boolean',
+        required: false,
+        description: `Includes content properties associated with this inline comment in the response`,
+      },
+      {
+        name: 'include_version',
+        type: 'boolean',
+        required: false,
+        description: `Includes the current version associated with this inline comment in the response. By default this is included.`,
+      },
+      {
+        name: 'include_versions',
+        type: 'boolean',
+        required: false,
+        description: `Includes versions associated with this inline comment in the response`,
+      },
+      {
+        name: 'version',
+        type: 'integer',
+        required: false,
+        description: `Allows you to retrieve a previously published version. Specify the previous version's number to retrieve its details.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_inline_comment_like_count_get',
+    description: `Retrieve the number of likes for a specific Confluence inline comment.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the inline comment for which like count should be returned`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_inline_comment_like_users_get',
+    description: `Retrieve the account IDs of users who liked a specific Confluence inline comment. Results are paginated via cursor.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the inline comment for which account IDs of likes should be returned`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response as _links.next`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of account IDs to return per page (default 25, max 250)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_inline_comment_update',
+    description: `Update an existing Confluence inline comment. Use this to change the body text and/or resolve or reopen the comment. Requires the new version number (one higher than the comment's current version).`,
+    params: [
+      {
+        name: 'comment_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the comment to be updated`,
+      },
+      {
+        name: 'version_number',
+        type: 'integer',
+        required: true,
+        description: `Number of the new version. Should be 1 higher than the current version of the comment.`,
+      },
+      {
+        name: 'body_representation',
+        type: 'string',
+        required: false,
+        description: `Storage format of the comment body content. Must be set together with body_value.`,
+      },
+      {
+        name: 'body_value',
+        type: 'string',
+        required: false,
+        description: `The new content of the comment. Must be set together with body_representation.`,
+      },
+      {
+        name: 'resolved',
+        type: 'boolean',
+        required: false,
+        description: `Resolved state of the comment. Set to true to resolve the comment, set to false to reopen it. A dangling comment cannot be updated.`,
+      },
+      {
+        name: 'version_message',
+        type: 'string',
+        required: false,
+        description: `Optional message to store for the new version`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_inline_comment_version_get',
+    description: `Retrieve the version details for a specific version of a Confluence inline comment. Returns metadata about that version, including author and modification date. Use the Get Inline Comment Versions tool to list available version numbers first.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the inline comment for which version details should be returned`,
+      },
+      {
+        name: 'version_number',
+        type: 'integer',
+        required: true,
+        description: `The version number of the inline comment to be returned`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_inline_comment_versions_get',
+    description: `Retrieve the version history of a specific Confluence inline comment. Returns a paginated list of versions including version numbers, authors, and modification dates. Use the Get Inline Comment Version tool to fetch full details for a single version.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the inline comment for which versions should be returned`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `The content format types to be returned in the body field of the response (e.g. storage, atlas_doc_format)`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response as _links.next`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of versions to return per page (default 25, max 250)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Used to sort the result by a particular field (e.g. modified-date, -modified-date)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_inline_comments_list',
+    description: `Retrieve all inline comments across Confluence. Returns a paginated list of inline comments including author, content, and highlighted text metadata. Supports optional body format, sort order, and cursor-based pagination.`,
+    params: [
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `The content format type to be returned in the body field of the response`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for fetching the next page of results`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of inline comments per result to return`,
+      },
+      { name: 'sort', type: 'string', required: false, description: `Sort order for the comments` },
+    ],
+  },
+  {
+    name: 'confluence_label_attachments_get',
+    description: `Retrieve the attachments associated with a specific Confluence label. Returns a paginated list of attachments; use cursor-based pagination for labels with many attachments.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the label for which attachments should be returned`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response as _links.next`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of attachments to return per page (default 25, max 250)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort order for attachments (e.g. created-date, -created-date, modified-date, -modified-date)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_label_blog_posts_get',
+    description: `Retrieve the blog posts associated with a specific Confluence label. Supports filtering by space IDs, body format selection, and cursor-based pagination for labels with many blog posts.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the label for which blog posts should be returned`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `The content format to return in the body field of each blog post (e.g. storage, atlas_doc_format)`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response as _links.next`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of blog posts to return per page (default 25, max 250)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort order for blog posts (e.g. id, -id, created-date, -created-date, modified-date, -modified-date)`,
+      },
+      {
+        name: 'space_id',
+        type: 'string',
+        required: false,
+        description: `Filter results by one or more space IDs, specified as a comma-separated list (max 100)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_label_pages_get',
+    description: `Retrieve the pages associated with a specific Confluence label. Supports filtering by space IDs, body format selection, and cursor-based pagination for labels with many pages.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the label for which pages should be returned`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `The content format to return in the body field of each page (e.g. storage, atlas_doc_format)`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response as _links.next`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of pages to return per page (default 25, max 250)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort order for pages (e.g. id, -id, created-date, -created-date, modified-date, -modified-date, title, -title)`,
+      },
+      {
+        name: 'space_id',
+        type: 'string',
+        required: false,
+        description: `Filter results by one or more space IDs, specified as a comma-separated list (max 100)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_labels_list',
+    description: `List all labels across the Confluence site. Supports filtering by label ID or prefix, and cursor-based pagination. Only labels that the user has permission to view are returned.`,
+    params: [
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response as _links.next`,
+      },
+      {
+        name: 'label_id',
+        type: 'string',
+        required: false,
+        description: `Filter by one or more label IDs, specified as a comma-separated list`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of labels to return per page (default 25, max 250)`,
+      },
+      {
+        name: 'prefix',
+        type: 'string',
+        required: false,
+        description: `Filter by one or more label prefixes, specified as a comma-separated list`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort order for labels (e.g. created-date, -created-date, id, -id, name, -name)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_page_ancestors_get',
+    description: `Retrieve all ancestors of a Confluence page in top-to-bottom order (the highest ancestor first). Returns minimal information about each ancestor; use the Get Page tool for full details.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `The ID of the page` },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of pages per result to return (default 25, max 250). If more results exist, call this endpoint with the highest ancestor's ID`,
+      },
     ],
   },
   {
@@ -312,6 +2421,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'confluence_page_custom_content_get',
+    description: `Retrieve all custom content of a given type within a specific Confluence page. The type parameter is required and identifies which kind of custom content to return. Supports body format selection and cursor-based pagination.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the page for which custom content should be returned`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: true,
+        description: `The type of custom content being requested (e.g. a registered app's custom content type identifier)`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `The content format to return in the body field of each custom content item (e.g. raw, storage, atlas_doc_format)`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response as _links.next`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of custom content items to return per page (default 25, max 250)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort order for custom content (e.g. id, -id, created-date, -created-date, modified-date, -modified-date, title, -title)`,
+      },
+    ],
+  },
+  {
     name: 'confluence_page_delete',
     description: `Delete a Confluence page by its ID. By default moves the page to the trash; set purge=true to permanently delete without recovery. Set draft=true to delete a draft version instead of the published page. This action is irreversible when purge is enabled.`,
     params: [
@@ -327,6 +2478,56 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `Set to true to permanently delete the page, bypassing the trash`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_page_descendants_get',
+    description: `Retrieve descendants of a Confluence page in the content tree, in top-to-bottom order (database, embed, folder, page, or whiteboard). Control how deep to traverse with the depth parameter, and paginate with cursor.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `The ID of the page` },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response as the cursor to fetch the next set of results`,
+      },
+      {
+        name: 'depth',
+        type: 'integer',
+        required: false,
+        description: `Maximum depth of descendants to return (default 2, min 1, max 10)`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of items per result to return (default 25, max 250)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_page_direct_children_get',
+    description: `Retrieve the direct children of a Confluence page in the content tree (database, embed, folder, page, or whiteboard). Returns minimal information about each child; use a related get-by-id endpoint for full details. Results are paginated via cursor.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `The ID of the parent page` },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response as _links.next`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of items per result to return (default 25, max 250)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Used to sort the result by a particular field (e.g. created-date, -created-date, id, -id, modified-date, -modified-date, child-position, -child-position, title, -title)`,
       },
     ],
   },
@@ -374,6 +2575,49 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'confluence_page_inline_comments_get',
+    description: `Retrieve the root inline comments of a specific Confluence page. Returns paginated comment results including author, content, and status. Supports filtering by status and resolution status, sorting, and cursor-based pagination.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The numeric ID of the page whose inline comments to retrieve`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `Format of the comment body to include in the response`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for fetching the next page of results`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of inline comments to return per page`,
+      },
+      {
+        name: 'resolution_status',
+        type: 'array',
+        required: false,
+        description: `Filter inline comments by resolution status. Accepts an array of values: resolved, open, dangling, reopened.`,
+      },
+      { name: 'sort', type: 'string', required: false, description: `Sort order for the comments` },
+      {
+        name: 'status',
+        type: 'array',
+        required: false,
+        description: `Filter inline comments by status. Accepts an array of values: current, archived, trashed, deleted, historical, draft.`,
+      },
+    ],
+  },
+  {
     name: 'confluence_page_labels_get',
     description: `Retrieve all labels attached to a Confluence page. Labels can be filtered by prefix (e.g. global, my, team). Returns a paginated list of label names and prefixes. Use cursor-based pagination for pages with many labels.`,
     params: [
@@ -406,6 +2650,42 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Sort order for labels (e.g. created-date, -created-date, name, -name)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_page_like_count_get',
+    description: `Retrieve the total count of likes on a specific Confluence page.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the page for which like count should be returned`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_page_likes_get',
+    description: `Retrieve the account IDs of users who liked a specific Confluence page. Returns a paginated list of account IDs. Use cursor-based pagination to iterate through large result sets.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the page for which like count should be returned`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Used for pagination, this opaque cursor will be returned in the next URL in the Link response header`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of account IDs per result to return (default 25, max 250)`,
       },
     ],
   },
@@ -464,6 +2744,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'confluence_page_title_update',
+    description: `Update only the title of an existing Confluence page, without needing to supply the full page body or version number. Requires the page ID, the desired status (current or draft), and the new title.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the page to be updated`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: true,
+        description: `The status of the page: current or draft`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `The updated title for the page`,
+      },
+    ],
+  },
+  {
     name: 'confluence_page_update',
     description: `Update an existing Confluence page. Requires the page ID, current status, title, and the next version number (must be exactly current version + 1). Optionally update the page body, change the parent, or add a version message. Retrieve the current version number with the Get Page tool before calling this.`,
     params: [
@@ -508,6 +2812,60 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'confluence_page_version_get',
+    description: `Retrieve version details for a specific version number of a Confluence page.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the page for which version details should be returned`,
+      },
+      {
+        name: 'version_number',
+        type: 'string',
+        required: true,
+        description: `The version number of the page to be returned`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_page_versions_get',
+    description: `Retrieve the version history of a specific Confluence page. Returns a paginated list of versions with metadata such as version number, author, and creation date. Use body_format to include body content per version and sort to control ordering.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the page to be queried for its versions`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `The content format types to be returned in the body field of the response (storage or atlas_doc_format)`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Used for pagination, this opaque cursor will be returned in the next URL in the Link response header`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of versions per result to return (default 25, max 250)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Used to sort the result by a particular field (modified-date or -modified-date)`,
+      },
+    ],
+  },
+  {
     name: 'confluence_search',
     description: `Search Confluence content using Confluence Query Language (CQL). CQL is a powerful structured query language for finding pages, blog posts, spaces, attachments, and comments. Returns matching content with metadata including title, space, author, and last modified date.`,
     params: [
@@ -544,6 +2902,234 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'confluence_smart_link_ancestors_get',
+    description: `Retrieve all ancestors of a Confluence Smart Link (embed) in the content tree, in top-to-bottom order (the highest ancestor is first in the response). If more results exist, call again using the ID of the first ancestor returned.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Smart Link (embed) in the content tree`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of items to return (default 25, max 250)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_smart_link_descendants_get',
+    description: `Retrieve descendants in the content tree for a Confluence Smart Link (embed), in top-to-bottom order (the highest descendant is first in the response). Supports a depth parameter to limit how many levels of descendants are returned, and cursor-based pagination for additional results.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Smart Link (embed)`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Opaque cursor for pagination, returned in the Link response header of a previous call`,
+      },
+      {
+        name: 'depth',
+        type: 'integer',
+        required: false,
+        description: `Maximum depth of descendants to return (default 2, max 10)`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of items to return per result (default 25, max 250)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_smart_link_direct_children_get',
+    description: `Retrieve the direct children of a Confluence Smart Link (embed) in the content tree (database, embed, folder, page, or whiteboard types). Returns minimal information about each child; use cursor-based pagination via the returned Link header to fetch more results.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the parent Smart Link (embed)`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Opaque cursor for pagination, returned in the Link response header of a previous call`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of items to return per result (default 25, max 250)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Field and direction to sort the results by. Valid values: created-date, -created-date, id, -id, modified-date, -modified-date, child-position, -child-position, title, -title`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_space_blogposts_list',
+    description: `Retrieve all blog posts in a specific Confluence space. Supports filtering by status and title, control of returned body format, and cursor-based pagination.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the space for which blog posts should be returned`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `Format of the blog post body to return (storage or atlas_doc_format)`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response as _links.next`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of blog posts per result to return (default 25, max 250)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort order for the results (id, -id, created-date, -created-date, modified-date, -modified-date)`,
+      },
+      {
+        name: 'status',
+        type: 'array',
+        required: false,
+        description: `Filter results to blog posts based on their status (current, deleted, trashed). Defaults to current.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `Filter results to blog posts based on their title`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_space_content_labels_get',
+    description: `Retrieve labels attached to content (pages, blog posts, etc.) within a Confluence space. Only labels the caller has permission to view are returned. Supports filtering by prefix, sorting, and cursor-based pagination.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the space for which content labels should be returned`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response as _links.next`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of labels to return per page (default 25, max 250)`,
+      },
+      {
+        name: 'prefix',
+        type: 'string',
+        required: false,
+        description: `Filter the results to labels based on their prefix (e.g. my, team)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Used to sort the result by a particular field (e.g. created-date, -created-date, id, -id, name, -name)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_space_create',
+    description: `Create a new Confluence space. Requires a name; optionally set a unique space key, description (in plain or view format), and alias. Available on tenants with Role-Based Access Control.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The display name of the new space`,
+      },
+      {
+        name: 'alias',
+        type: 'string',
+        required: false,
+        description: `Alternative alias for the space, used in some URL contexts`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Plain text description of the space's purpose`,
+      },
+      {
+        name: 'key',
+        type: 'string',
+        required: false,
+        description: `Unique short key that identifies the space (e.g. DEV, TEAM). Auto-generated from name if omitted.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_space_custom_content_list',
+    description: `Returns all custom content of a given type within a specific Confluence space. Custom content is app-defined content stored under a container such as a space. Results are paginated via cursor; use the type parameter to filter to a specific custom content type.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the space for which custom content should be returned`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: true,
+        description: `The type of custom content being requested`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `The content format types to be returned in the body field of the response (e.g. raw, storage, atlas_doc_format)`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in previous response as _links.next`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of custom content items to return per page (default 25, max 250)`,
+      },
+    ],
+  },
+  {
     name: 'confluence_space_get',
     description: `Retrieve details of a specific Confluence space by its ID. Returns space metadata including key, name, type, status, description, homepage, and permissions. Optionally include the space icon and labels.`,
     params: [
@@ -570,6 +3156,42 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `Whether to include labels applied to the space`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_space_labels_list',
+    description: `Retrieve the labels of a specific Confluence space. Only labels the user has permission to view are returned. Supports filtering by prefix and cursor-based pagination.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the space for which labels should be returned`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response as _links.next`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of labels per result to return (default 25, max 250)`,
+      },
+      {
+        name: 'prefix',
+        type: 'string',
+        required: false,
+        description: `Filter the results to labels based on their prefix (my or team)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort order for labels (created-date, -created-date, id, -id, name, -name)`,
       },
     ],
   },
@@ -611,6 +3233,570 @@ export const tools: Tool[] = [
       { name: 'sort', type: 'string', required: false, description: `Sort order for the results` },
       { name: 'status', type: 'string', required: false, description: `Filter spaces by status` },
       { name: 'type', type: 'string', required: false, description: `Filter spaces by type` },
+    ],
+  },
+  {
+    name: 'confluence_space_pages_list',
+    description: `Returns all pages in a Confluence space. Only pages the caller has permission to view are returned. Supports filtering by depth, status, and title, sorting, and cursor-based pagination.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the space for which pages should be returned`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `The content format types to be returned in the body field of the response (e.g. storage, atlas_doc_format)`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in previous response as _links.next`,
+      },
+      {
+        name: 'depth',
+        type: 'string',
+        required: false,
+        description: `Filter the results to pages at the root level of the space or to all pages in the space (all, root)`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of pages to return per page (default 25, max 250)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Used to sort the result by a particular field (e.g. id, -id, created-date, -created-date, modified-date, -modified-date, title, -title)`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Filter pages by status, comma-separated (e.g. current, archived, deleted, trashed). Defaults to current and archived.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `Filter the results to pages based on their title`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_space_role_assignments_list',
+    description: `Retrieve the space role assignments for a Confluence space. Only available on tenants with Role-Based Access Control enabled. Requires permission to view the space. Supports filtering by role, principal, and cursor-based pagination.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the space for which to retrieve role assignments`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response as _links.next`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of space roles to return per page (default 25, max 250)`,
+      },
+      {
+        name: 'principal_id',
+        type: 'string',
+        required: false,
+        description: `Filters the returned role assignments to the provided principal id. If specified, principal_type must also be specified. Paired with principal_type of ACCESS_CLASS, valid values include anonymous-users, jsm-project-admins, authenticated-users, all-licensed-users, all-product-admins`,
+      },
+      {
+        name: 'principal_type',
+        type: 'string',
+        required: false,
+        description: `Filters the returned role assignments to the provided principal type (USER, GROUP, ACCESS_CLASS). If specified, principal_id must also be specified.`,
+      },
+      {
+        name: 'role_id',
+        type: 'string',
+        required: false,
+        description: `Filters the returned role assignments to the provided role ID`,
+      },
+      {
+        name: 'role_type',
+        type: 'string',
+        required: false,
+        description: `Filters the returned role assignments to the provided role type`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_space_role_assignments_set',
+    description: `Set role assignments for a Confluence space. For each principal provided with a roleId, that principal is assigned the role. For each principal provided without a roleId, the existing role assignment for that principal (if any) is removed. Available only on tenants with Role-Based Access Control enabled. Requires permission to manage roles in the space.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the space for which to set role assignments`,
+      },
+      {
+        name: 'role_assignments',
+        type: 'array',
+        required: true,
+        description: `JSON array of role assignment objects. Each object has a principal (with id and type, e.g. 'user' or 'group') and an optional roleId. Omitting roleId removes the principal's existing role assignment.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_space_role_create',
+    description: `Create a new space role for the tenant. Only available on tenants with Role-Based Access Control enabled. Requires organization or site admin permissions. Connect and Forge app users cannot access this resource.`,
+    params: [
+      {
+        name: 'description',
+        type: 'string',
+        required: true,
+        description: `Description for the space role`,
+      },
+      { name: 'name', type: 'string', required: true, description: `Name of the space role` },
+      {
+        name: 'space_permissions',
+        type: 'array',
+        required: true,
+        description: `The ids of the space permissions associated with the space role, as a JSON array of strings. Sample value "read/space"; retrieve ids from the GET /space-permissions endpoint`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_space_role_delete',
+    description: `Delete a space role by its ID. Only available on tenants with Role-Based Access Control enabled. Requires organization or site admin permissions. This action is irreversible.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `Id of the space role to delete` },
+    ],
+  },
+  {
+    name: 'confluence_space_role_get',
+    description: `Retrieve a single space role by its ID. Only available on tenants with Role-Based Access Control enabled. Requires permission to access the Confluence site.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the space role to retrieve`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_space_role_mode_get',
+    description: `Retrieve the tenant's current space role mode. Only available on tenants with Role-Based Access Control enabled. Requires the 'Can use' global permission on the Confluence site.`,
+    params: [],
+  },
+  {
+    name: 'confluence_space_role_update',
+    description: `Update an existing space role. Only available on tenants with Role-Based Access Control enabled. Requires organization or site admin permissions. Optionally reassign anonymous or guest role assignments to another role when they are removed from this role.`,
+    params: [
+      {
+        name: 'description',
+        type: 'string',
+        required: true,
+        description: `Description for the space role`,
+      },
+      { name: 'id', type: 'string', required: true, description: `Id of the space role to update` },
+      { name: 'name', type: 'string', required: true, description: `Name of the space role` },
+      {
+        name: 'space_permissions',
+        type: 'array',
+        required: true,
+        description: `The ids of the space permissions associated with the space role, as a JSON array of strings. Sample value "read/space"; retrieve ids from the GET /space-permissions endpoint`,
+      },
+      {
+        name: 'anonymous_reassignment_role_id',
+        type: 'string',
+        required: false,
+        description: `If space anonymous access is assigned to the role being modified, the Id of a role to migrate those assignments to can be specified. Anonymous access role assignments are left unchanged if unspecified.`,
+      },
+      {
+        name: 'guest_reassignment_role_id',
+        type: 'string',
+        required: false,
+        description: `If guests are assigned to the role being modified, the Id of a role to migrate those assignments to can be specified. Guest role assignments are left unchanged if unspecified.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_space_roles_list',
+    description: `Retrieve the available space roles for the tenant, optionally filtered to a specific space. Only available on tenants with Role-Based Access Control enabled. Supports filtering by role type, principal, and cursor-based pagination.`,
+    params: [
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response as _links.next`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of space roles to return per page (default 25, max 250)`,
+      },
+      {
+        name: 'principal_id',
+        type: 'string',
+        required: false,
+        description: `The principal ID to filter results by. If specified, principal_type must also be specified. Paired with principal_type of ACCESS_CLASS, valid values include anonymous-users, jsm-project-admins, authenticated-users, all-licensed-users, all-product-admins`,
+      },
+      {
+        name: 'principal_type',
+        type: 'string',
+        required: false,
+        description: `The principal type to filter results by (USER, GROUP, ACCESS_CLASS). If specified, principal_id must also be specified.`,
+      },
+      {
+        name: 'role_type',
+        type: 'string',
+        required: false,
+        description: `The space role type to filter results by`,
+      },
+      {
+        name: 'space_id',
+        type: 'string',
+        required: false,
+        description: `The space ID for which to filter available space roles; if empty, returns all available space roles for the tenant`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_task_get',
+    description: `Retrieve a specific Confluence task by its ID. Returns the task text, status, and location within its containing page or blog post.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the task to be returned. If you don't know the task ID, use List Tasks and filter the results`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `The content format types to be returned in the body field of the response (e.g. storage, atlas_doc_format)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_task_list',
+    description: `List all Confluence tasks the current user has permission to view. Supports filtering by status, space, page, blog post, creator, assignee, completer, and various date ranges. Results are paginated via cursor.`,
+    params: [
+      {
+        name: 'assigned_to',
+        type: 'string',
+        required: false,
+        description: `Filters on the Account ID of the user to whom this task is assigned (comma-separated string, up to 250 IDs)`,
+      },
+      {
+        name: 'blogpost_id',
+        type: 'string',
+        required: false,
+        description: `Filters on the blog post ID of the task (comma-separated string, up to 250 IDs). Can be used together with page-id filters`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `The content format types to be returned in the body field of the response (e.g. storage, atlas_doc_format)`,
+      },
+      {
+        name: 'completed_at_from',
+        type: 'integer',
+        required: false,
+        description: `Filters on start of date-time range of task based on completion date (inclusive). Epoch time in milliseconds`,
+      },
+      {
+        name: 'completed_at_to',
+        type: 'integer',
+        required: false,
+        description: `Filters on end of date-time range of task based on completion date (inclusive). Epoch time in milliseconds`,
+      },
+      {
+        name: 'completed_by',
+        type: 'string',
+        required: false,
+        description: `Filters on the Account ID of the user who completed this task (comma-separated string, up to 250 IDs)`,
+      },
+      {
+        name: 'created_at_from',
+        type: 'integer',
+        required: false,
+        description: `Filters on start of date-time range of task based on creation date (inclusive). Epoch time in milliseconds`,
+      },
+      {
+        name: 'created_at_to',
+        type: 'integer',
+        required: false,
+        description: `Filters on end of date-time range of task based on creation date (inclusive). Epoch time in milliseconds`,
+      },
+      {
+        name: 'created_by',
+        type: 'string',
+        required: false,
+        description: `Filters on the Account ID of the user who created this task (comma-separated string, up to 250 IDs)`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for pagination, returned in the previous response as _links.next`,
+      },
+      {
+        name: 'due_at_from',
+        type: 'integer',
+        required: false,
+        description: `Filters on start of date-time range of task based on due date (inclusive). Epoch time in milliseconds`,
+      },
+      {
+        name: 'due_at_to',
+        type: 'integer',
+        required: false,
+        description: `Filters on end of date-time range of task based on due date (inclusive). Epoch time in milliseconds`,
+      },
+      {
+        name: 'include_blank_tasks',
+        type: 'boolean',
+        required: false,
+        description: `Specifies whether to include blank tasks in the response. Defaults to true`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of tasks to return per page (default 25, max 250)`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: false,
+        description: `Filters on the page ID of the task (comma-separated string, up to 250 IDs). Can be used together with blogpost-id filters`,
+      },
+      {
+        name: 'space_id',
+        type: 'string',
+        required: false,
+        description: `Filters on the space ID of the task (comma-separated string, up to 250 IDs)`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Filters on the status of the task (complete or incomplete)`,
+      },
+      {
+        name: 'task_id',
+        type: 'string',
+        required: false,
+        description: `Filters on task ID (comma-separated string, up to 250 IDs)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_task_update',
+    description: `Update a Confluence task by ID. This endpoint currently only supports updating the task status (complete or incomplete). Requires the current version number of the containing content plus 1.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the task to be updated. If you don't know the task ID, use List Tasks and filter the results`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: true,
+        description: `The new status of the task (complete or incomplete)`,
+      },
+      {
+        name: 'version_number',
+        type: 'integer',
+        required: true,
+        description: `The new version number for this update. Must be exactly the current version number of the task plus 1`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `The content format types to be returned in the body field of the response (e.g. storage, atlas_doc_format)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_users_bulk_lookup',
+    description: `Look up user details in bulk for a list of account IDs. Returns user details for each ID provided that the requester has permission to view. Requires permission to access the Confluence site and to view user profiles.`,
+    params: [
+      {
+        name: 'ids',
+        type: 'array',
+        required: true,
+        description: `JSON array of account IDs to look up user details for`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_whiteboard_ancestors_get',
+    description: `Retrieve all ancestors of a given Confluence whiteboard in top-to-bottom order (the highest ancestor is first in the response). Returns minimal information about each ancestor; use a type-specific tool such as Get Whiteboard to fetch more details.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `The ID of the whiteboard` },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of items per result to return (default 25, max 250)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_whiteboard_children_get',
+    description: `Retrieve the direct children of a given Confluence whiteboard in the content tree (database, embed, folder, page, or whiteboard). Returns minimal information about each child; use a type-specific tool to fetch more details.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the parent whiteboard`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Used for pagination, this opaque cursor will be returned in the next URL in the Link response header`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of items per result to return (default 25, max 250)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Used to sort the result by a particular field (e.g. created-date, id, modified-date, child-position, title, and their descending variants)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_whiteboard_create',
+    description: `Create a new whiteboard in a specified Confluence space. Requires a space ID. Optionally set a title, a parent content ID, a template to pre-populate the whiteboard, and a locale for the template. Set private=true to restrict visibility to the creator.`,
+    params: [
+      {
+        name: 'space_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the space in which to create the whiteboard`,
+      },
+      {
+        name: 'locale',
+        type: 'string',
+        required: false,
+        description: `If template_key is provided, locale determines the language the template is created with`,
+      },
+      {
+        name: 'parent_id',
+        type: 'string',
+        required: false,
+        description: `The parent content ID of the whiteboard`,
+      },
+      {
+        name: 'private',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to create the whiteboard as private, visible only to the creator`,
+      },
+      {
+        name: 'template_key',
+        type: 'string',
+        required: false,
+        description: `Providing a template key will add that template to the new whiteboard (e.g. kanban-board, sprint-planning, swot-analysis)`,
+      },
+      { name: 'title', type: 'string', required: false, description: `Title of the whiteboard` },
+    ],
+  },
+  {
+    name: 'confluence_whiteboard_delete',
+    description: `Delete a Confluence whiteboard by its ID. Moves the whiteboard to the trash, where it can be restored later.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the whiteboard to be deleted`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_whiteboard_descendants_get',
+    description: `Retrieve descendants of a given Confluence whiteboard in top-to-bottom order (database, embed, folder, page, or whiteboard). Use depth to control how many levels deep to fetch, and cursor for pagination through additional results.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `The ID of the whiteboard` },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Used for pagination, this opaque cursor will be returned in the response payload for fetching the next set of results`,
+      },
+      {
+        name: 'depth',
+        type: 'integer',
+        required: false,
+        description: `Maximum depth of descendants to return (default 2, max 10)`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of items per result to return (default 25, max 250)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_whiteboard_get',
+    description: `Retrieve a single Confluence whiteboard by its ID. Returns the whiteboard title, space, and status. Optional flags expose collaborators, direct children, operations, and content properties.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the whiteboard to be returned`,
+      },
+      {
+        name: 'include_collaborators',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include collaborators on the whiteboard`,
+      },
+      {
+        name: 'include_direct_children',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include direct children of the whiteboard`,
+      },
+      {
+        name: 'include_operations',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include operations associated with this whiteboard (limited to 50 results)`,
+      },
+      {
+        name: 'include_properties',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include content properties associated with this whiteboard (limited to 50 results)`,
+      },
     ],
   },
 ]

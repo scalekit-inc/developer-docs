@@ -1,0 +1,1 @@
+resp, _ = scalekit_client.users.list_users(organization_id="org_123", page_size=50)
