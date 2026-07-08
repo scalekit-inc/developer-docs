@@ -66,7 +66,7 @@ This guide shows you how to store these tokens securely with encryption and prop
     scopes: ['openid', 'profile', 'email', 'offline_access']
     ```
 
-   Additionally, Scalekit **rotates refresh tokens** — every time you use a refresh token to get a new access token, you receive a new refresh token. Store the new refresh token immediately and discard the old one. Replaying a used refresh token will result in an error.
+   Additionally, Scalekit **rotates refresh tokens**. Every time you use a refresh token to get a new access token, you receive a new refresh token. Store the new refresh token immediately and discard the old one. Replaying a used refresh token will result in an error.
    </Aside>
 
    Store each token based on its security requirements. For SPAs and mobile apps, consider storing access tokens in memory and sending via `Authorization: Bearer` headers to minimize CSRF exposure. For traditional web apps, use the cookie-based approach below:
@@ -527,7 +527,7 @@ This guide shows you how to store these tokens securely with encryption and prop
 
     Manage user session behavior directly from your Scalekit dashboard without modifying application code. Configure session durations and authentication frequency to balance security and user experience for your application.
 
-    ![](@/assets/docs/manage-session/session-policies-dashboard.png)
+    ![Scalekit Session Policy page with fields for absolute session timeout, idle session timeout, and access token lifetime](@/assets/docs/manage-session/session-policies-dashboard.png)
 
       In your Scalekit dashboard, the **Session settings** page lets you set these options:
 
@@ -666,5 +666,5 @@ This guide shows you how to store these tokens securely with encryption and prop
     </Tabs>
 </Steps>
 
-Your application continuously validates the access token for each incoming request. When the token is valid, the user's session remains active. If the access token expires, your middleware transparently refreshes it using the stored refresh token—users never notice this happening. If the refresh token itself expires or becomes invalid, users are prompted to sign in again.
+Your application continuously validates the access token for each incoming request. When the token is valid, the user's session remains active. If the access token expires, your middleware transparently refreshes it using the stored refresh token, so users never notice this happening. If the refresh token itself expires or becomes invalid, users are prompted to sign in again.
 
