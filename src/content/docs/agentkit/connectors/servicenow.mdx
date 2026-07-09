@@ -19,10 +19,12 @@ head:
       }
 ---
 
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/servicenow'
 import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
 import { AgentKitCredentials } from '@components/templates'
 import { SetupServicenowSection } from '@components/templates'
-import { QuickstartGenericOauthNotoolsSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
 import { SectionAfterSetupServicenowCommonWorkflows } from '@components/templates'
 
 <Steps>
@@ -61,10 +63,27 @@ import { SectionAfterSetupServicenowCommonWorkflows } from '@components/template
 
 4. ### Authorize and make your first call
 
-   <QuickstartGenericOauthNotoolsSection connector="servicenow" providerName="ServiceNow" verifyPath="/api/now/table/sys_user" verifyMethod="GET" />
+   <QuickstartGenericOauthSection connector="servicenow" toolName="servicenow_attachment_list" providerName="ServiceNow" />
 
 </Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Stats aggregate** — Retrieve aggregate statistics (COUNT, SUM, AVG, MIN, MAX) for any ServiceNow table
+- **Delete attachment, catalog cart item, cmdb ci** — Delete a file attachment from a ServiceNow record
+- **Download attachment** — Download the binary file contents of an attachment from ServiceNow
+- **Get attachment, catalog cart, catalog category** — Retrieve metadata for a specific attachment by its sys_id
+- **List attachment, catalog categories, catalog item** — Retrieve a list of attachments associated with a record in ServiceNow
+- **Upload attachment** — Upload a file attachment to a ServiceNow record using base64 data
 
 ## Common workflows
 
 <SectionAfterSetupServicenowCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

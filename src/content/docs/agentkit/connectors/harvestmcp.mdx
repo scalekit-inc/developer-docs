@@ -1,0 +1,72 @@
+---
+title: 'Harvest MCP connector'
+tableOfContents: true
+description: 'Harvest is a time tracking and invoicing tool that helps teams track time, manage projects, and create invoices.'
+sidebar:
+  label: 'Harvest MCP'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/harvestapp.svg
+connectorAuthType: OAuth2.1/DCR
+connectorCategories: [Productivity, Project Management]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/harvestmcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="harvestmcp" toolName="harvestmcp_get_account_settings" providerName="Harvest MCP" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Project add task to, assign user to, remove task from** — Add an existing task to a project
+- **Create client, expense, invoice** — Create a new client
+- **Delete time entry** — Permanently delete a time entry
+- **Get account settings, expense, invoice** — Return account-level settings: company name, plan, timezone, week start day, hour rounding configuration, and other preferences
+- **List clients, expense categories, expenses** — List clients in the user's Harvest account, ordered by name
+- **Time log** — Log a duration-based time entry (not a timer)
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

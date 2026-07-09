@@ -1,0 +1,52 @@
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+
+Register your Mailtrap API token with Scalekit so it can authenticate and proxy email requests on behalf of your users. Mailtrap uses Bearer Token authentication — there is no redirect URI or OAuth flow.
+
+<Steps>
+1. ### Get a Mailtrap API token
+
+   - Sign in to [mailtrap.io](https://mailtrap.io) and go to **Settings** → **API Tokens**.
+   - Click **Add Token** and give it a name (for example, `Agent Connect`).
+   - Copy the generated token.
+
+   ![Mailtrap API Tokens settings page showing an existing token and the Add Token button](@/assets/docs/agent-connectors/mailtrap/api-tokens.png)
+
+2. ### Create a connection in Scalekit
+
+   - In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** → **Connections** → **Create Connection**.
+   - Search for **Mailtrap** and click **Create**.
+   - Note the **Connection name** — use this as `connection_name` in your code (e.g., `mailtrap`).
+
+3. ### Add a connected account
+
+   Connected accounts link a specific user identifier in your system to a Mailtrap API token. Add them via the dashboard for testing, or via the Scalekit API in production.
+
+   **Via dashboard (for testing)**
+
+   - Open the connection and click the **Connected Accounts** tab → **Add account**.
+   - Fill in **Your User's ID** and **API Token**, then click **Save**.
+
+   **Via API (for production)**
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```ts
+       await scalekit.connect.upsertConnectedAccount({
+         connectionName: 'mailtrap',
+         identifier: 'user@example.com',
+         credentials: { token: 'your-mailtrap-api-token' },
+       })
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```python
+       scalekit_client.connect.upsert_connected_account(
+           connection_name="mailtrap",
+           identifier="user@example.com",
+           credentials={"token": "your-mailtrap-api-token"},
+       )
+       ```
+     </TabItem>
+   </Tabs>
+
+</Steps>
