@@ -1558,6 +1558,7 @@ export const catalog: Record<string, ProviderMeta> = {
     iconUrl: 'https://platform.cognee.ai/icon.svg?icon.3c7f72a5.svg',
     authType: 'API Key',
     categories: ['AI', 'Databases'],
+  },
   metricoolmcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/metricool.svg',
     authType: 'OAuth2.1/DCR',
