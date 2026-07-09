@@ -2,6 +2,36 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'cognee_check_status',
+    description: `Check the processing status of Cognee datasets' pipelines. Use this to track an Improve run started with runInBackground=true, or to confirm ingestion/graph-building has completed before recalling.`,
+    params: [
+      {
+        name: 'dataset',
+        type: 'array',
+        required: false,
+        description: `JSON array of dataset UUIDs to check (from List datasets). Omit to get status for all datasets you can read.`,
+      },
+      {
+        name: 'pipeline',
+        type: 'array',
+        required: false,
+        description: `JSON array of pipeline names to check: 'add_pipeline' or 'cognify_pipeline'. Omit to default to cognify_pipeline.`,
+      },
+    ],
+  },
+  {
+    name: 'cognee_create_dataset',
+    description: `Create a new, empty Cognee dataset by name. Returns the dataset's UUID. Datasets are also created automatically by Improve, so use this only when you want to provision a dataset up front.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Name of the dataset to create. If a dataset with this name already exists for the account, the existing one is returned.`,
+      },
+    ],
+  },
+  {
     name: 'cognee_forget',
     description: `Forget stored data in Cognee memory. Deletes a dataset (by name or UUID), a single data item, or the memory graph of a dataset. This action is permanent and cannot be undone. Provide either dataset or datasetId; set everything only to wipe all datasets.`,
     params: [
@@ -78,6 +108,23 @@ export const tools: Tool[] = [
         description: `JSON array of session IDs whose cached memory should be bridged into the permanent graph during this pass.`,
       },
     ],
+  },
+  {
+    name: 'cognee_list_dataset_data',
+    description: `List the individual data items stored in a Cognee dataset, with their UUIDs. Use the returned data IDs with Forget to remove a single item, or to inspect what a dataset contains.`,
+    params: [
+      {
+        name: 'dataset_id',
+        type: 'string',
+        required: true,
+        description: `UUID of the dataset whose data items to list. Get it from List datasets.`,
+      },
+    ],
+  },
+  {
+    name: 'cognee_list_datasets',
+    description: `List the Cognee datasets accessible to the connected account, with their names and UUIDs. Use this to discover dataset identifiers to pass to Recall, Improve, Forget, or the status check.`,
+    params: [],
   },
   {
     name: 'cognee_recall',
