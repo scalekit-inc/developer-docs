@@ -1,7 +1,10 @@
-{/* TODO: stub cloned from _section-after-setup-exa-common-workflows.mdx for Cognee. Review and update connector-specific references (URLs, scopes, app-registration steps) before merging. */}
 export const sectionTitle = 'Common workflows'
 
 import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+<Aside type="note" title="Remember is coming soon">
+  `cognee_remember` is not available yet — see **SK-1178**. The workflow below uses `cognee_improve`'s `data` field to add text into a dataset, which works today with the same effect.
+</Aside>
 
 <details>
 <summary>Proxy API call</summary>
@@ -12,9 +15,9 @@ import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
     const result = await actions.request({
       connectionName: 'cognee',
       identifier: 'user_123',
-      path: '/search',
+      path: '/api/v1/recall',
       method: 'POST',
-      body: { query: 'LLM observability tools 2025', num_results: 5 },
+      body: { query: 'What plan did Acme Corp sign up for?' },
     });
     console.log(result.data);
     ```
@@ -24,9 +27,9 @@ import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
     result = actions.request(
         connection_name='cognee',
         identifier='user_123',
-        path="/search",
+        path="/api/v1/recall",
         method="POST",
-        json={"query": "LLM observability tools 2025", "num_results": 5},
+        json={"query": "What plan did Acme Corp sign up for?"},
     )
     print(result)
     ```
@@ -40,221 +43,148 @@ import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
 </details>
 
 <details>
-<summary>Semantic search</summary>
+<summary>Add data to a dataset</summary>
 
-Search the web by meaning, not just keywords. This cogneemple searches for companies in the AI infrastructure space and returns AI-generated summaries for each result.
+Add text to a dataset and build its knowledge graph in one call. This is the current workaround for `cognee_remember` (coming soon) — pass the content in `data` and `cognee_improve` ingests and graphs it the same way.
 
 ```python
 result = actions.execute_tool(
     connection_name='cognee',
     identifier='user_123',
-    tool_name="cognee_search",
+    tool_name="cognee_improve",
     tool_input={
-        "query": "AI infrastructure companies building GPU cloud platforms",
-        "num_results": 10,
-        "type": "neural",
-        "category": "company",
-        "contents": {
-            "summary": {"query": "What does this company do and who are their customers?"}
-        }
+        "data": "Acme Corp signed a 2-year contract on 2026-01-15 for the Enterprise plan.",
+        "datasetName": "sales_notes",
     }
 )
 
-for item in result.result.get("results", []):
-    print(f"{item['title']}: {item['url']}")
-    print(f"  → {item.get('summary', 'No summary')}\n")
+print(result.result)
 ```
 
 </details>
 
 <details>
-<summary>Search with full content enrichment</summary>
+<summary>Recall by meaning</summary>
 
-Retrieve the full page text and highlighted snippets alongside search results — useful when you want to pass source material directly into an LLM context window.
+Search a dataset's knowledge graph with a natural-language question. `cognee_recall` returns a graph-grounded answer by default — use `searchType` to switch retrieval strategies.
 
-<Aside type="note" title="Credit cost">
-  Requesting `text` or `highlights` costs 1 extra credit per result. With 10 results, this doubles your per-request cost. Set `num_results` conservatively when enriching content.
+```python
+result = actions.execute_tool(
+    connection_name='cognee',
+    identifier='user_123',
+    tool_name="cognee_recall",
+    tool_input={
+        "query": "What plan did Acme Corp sign up for, and when?",
+        "datasets": ["sales_notes"],
+        "topK": 10,
+    }
+)
+
+print(result.result.get("answer"))
+```
+
+<Aside type="note" title="Search strategies">
+  `GRAPH_COMPLETION` (default) returns graph context plus an LLM-generated answer. Use `CHUNKS` or `SUMMARIES` to get raw matching content instead of a synthesized answer, or `RAG_COMPLETION` for classic retrieval-augmented generation.
 </Aside>
 
-```python
-result = actions.execute_tool(
-    connection_name='cognee',
-    identifier='user_123',
-    tool_name="cognee_search",
-    tool_input={
-        "query": "OpenAI API rate limits and pricing 2025",
-        "num_results": 5,
-        "type": "keyword",                     # keyword mode for precise terms
-        "include_domains": ["openai.com", "platform.openai.com"],
-        "contents": {
-            "text": {"max_characters": 2000},  # cap text to save tokens
-            "highlights": {
-                "num_sentences": 3,
-                "highlights_per_url": 2
-            }
-        }
-    }
-)
-
-for item in result.result.get("results", []):
-    print(f"## {item['title']}")
-    print(f"URL: {item['url']}")
-    if item.get("highlights"):
-        print("Highlights:")
-        for h in item["highlights"]:
-            print(f"  - {h}")
-    print()
-
-```
-
 </details>
 
 <details>
-<summary>Find similar pages</summary>
+<summary>Consolidate session memory</summary>
 
-Discover pages that are semantically similar to a known URL — useful for competitive research, finding alternative data sources, or discovering similar products.
-
-```python
-# Find companies similar to a known competitor
-result = actions.execute_tool(
-    connection_name='cognee',
-    identifier='user_123',
-    tool_name="cognee_find_similar",
-    tool_input={
-        "url": "https://www.linear.app",
-        "num_results": 10,
-        "exclude_domains": ["linear.app"],     # exclude the source URL itself
-        "start_published_date": "2024-01-01",  # only recently indexed pages
-        "contents": {
-            "summary": {"query": "What product does this company build?"}
-        }
-    }
-)
-
-print("Similar companies to Linear:")
-for item in result.result.get("results", []):
-    print(f"  {item['title']} — {item['url']}")
-    if item.get("summary"):
-        print(f"    {item['summary']}")
-
-```
-
-</details>
-
-<details>
-<summary>Get content for known URLs</summary>
-
-Extract structured content from a list of URLs you already have — from a CRM export, a prior search, or a manually curated list. No search query required.
-
-```python
-# Enrich a list of company URLs from your CRM
-company_urls = [
-    "https://www.anthropic.com",
-    "https://mistral.ai",
-    "https://cohere.com",
-]
-
-result = actions.execute_tool(
-    connection_name='cognee',
-    identifier='user_123',
-    tool_name="cognee_get_contents",
-    tool_input={
-        "urls": company_urls,
-        "summary": {
-            "query": "What AI models or products does this company offer, and who are their target customers?"
-        },
-        "subpages": 1,                # also fetch one subpage per URL (e.g. /about or /pricing)
-        "subpage_target": "pricing",  # target the pricing subpage specifically
-        "max_age_hours": 48           # use content no older than 48 hours
-    }
-)
-
-for item in result.result.get("results", []):
-    print(f"{item['url']}: {item.get('summary', 'No summary')}")
-
-```
-
-</details>
-
-<details>
-<summary>Get a direct answer</summary>
-
-Ask a question and get a synthesized natural language answer grounded in live web sources. Returns the answer and the source URLs used — ready to display or inject into a citation-aware LLM prompt.
+Bridge memory cached under a session ID into the permanent knowledge graph, so it becomes searchable by `cognee_recall` outside that session.
 
 ```python
 result = actions.execute_tool(
     connection_name='cognee',
     identifier='user_123',
-    tool_name="cognee_answer",
+    tool_name="cognee_improve",
     tool_input={
-        "query": "What are the context window sizes and pricing for Claude Sonnet and GPT-4o as of 2025?",
-        "num_results": 8,
-        "text": True,                                  # include source snippets
-        "include_domains": ["anthropic.com", "openai.com", "platform.openai.com"]
+        "datasetName": "sales_notes",
+        "sessionIds": ["agent-run-1718000000"],
+        "runInBackground": True,  # return immediately; graph builds server-side
     }
 )
 
-print("Answer:", result.result.get("answer"))
-print("\nSources:")
-for source in result.result.get("sources", []):
-    print(f"  - {source['title']}: {source['url']}")
-
+print(result.result)
 ```
 
 </details>
 
 <details>
-<summary>Deep research on a topic</summary>
+<summary>Delete a dataset, an item, or everything</summary>
 
-Run multi-angle research that decomposes your topic into parallel sub-queries and synthesizes the results. Use `output_schema` to get structured JSON instead of free-form text — useful for generating reports your code can consume directly.
+`cognee_forget` deletes at three levels of scope — a single data item, a whole dataset, or (with `everything`) every dataset on the account. Each level is permanent and cannot be undone.
 
-<Aside type="caution" title="Higher credit cost">
-  `cognee_research` runs multiple sub-queries in parallel. With the default `num_subqueries: 5`, expect roughly 5–10× the credit cost of a single `cognee_search` call. Start with a low `num_subqueries` value while testing.
+```python
+# Delete a single data item
+result = actions.execute_tool(
+    connection_name='cognee',
+    identifier='user_123',
+    tool_name="cognee_forget",
+    tool_input={
+        "datasetId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "dataId": "7b1c9f0e-2c3d-4e5f-8a9b-0c1d2e3f4a5b",
+    }
+)
+print(result.result)
+```
+
+```python
+# Delete an entire dataset by name
+result = actions.execute_tool(
+    connection_name='cognee',
+    identifier='user_123',
+    tool_name="cognee_forget",
+    tool_input={"dataset": "sales_notes"}
+)
+print(result.result)
+```
+
+<Aside type="caution" title="Everything means everything">
+  Setting `everything: true` permanently deletes ALL datasets and all memory owned by the account — not just the dataset you're working with. Reserve it for full resets, and never pass it based on unvalidated agent or user input.
 </Aside>
 
+</details>
+
+<details>
+<summary>End-to-end workflow: improve, recall, forget</summary>
+
+A typical Cognee session adds data, queries it, and cleans up when the dataset is no longer needed.
+
 ```python
-result = actions.execute_tool(
+dataset_name = "support_thread_4821"
+
+# 1. Add data and build the knowledge graph (cognee_remember workaround)
+actions.execute_tool(
     connection_name='cognee',
     identifier='user_123',
-    tool_name="cognee_research",
+    tool_name="cognee_improve",
     tool_input={
-        "topic": "Competitive landscape of AI coding assistants in 2025 — key players, pricing, and differentiators",
-        "num_subqueries": 5,
-        "output_schema": {
-            "type": "object",
-            "properties": {
-                "summary": {"type": "string"},
-                "competitors": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "name": {"type": "string"},
-                            "pricing": {"type": "string"},
-                            "key_differentiator": {"type": "string"},
-                            "target_customer": {"type": "string"}
-                        }
-                    }
-                },
-                "market_trends": {
-                    "type": "array",
-                    "items": {"type": "string"}
-                }
-            },
-            "required": ["summary", "competitors", "market_trends"]
-        }
+        "data": "Customer reported a login failure on 2026-02-03. Root cause: expired SSO certificate. Resolved by rotating the certificate.",
+        "datasetName": dataset_name,
     }
 )
 
-report = result.result
-print("Summary:", report.get("summary"))
-print("\nCompetitors:")
-for c in report.get("competitors", []):
-    print(f"  {c['name']}: {c.get('key_differentiator')}")
-print("\nTrends:")
-for t in report.get("market_trends", []):
-    print(f"  - {t}")
+# 2. Recall the relevant context later
+recall_result = actions.execute_tool(
+    connection_name='cognee',
+    identifier='user_123',
+    tool_name="cognee_recall",
+    tool_input={
+        "query": "Why did the customer's login fail, and how was it fixed?",
+        "datasets": [dataset_name],
+    }
+)
+print(recall_result.result.get("answer"))
 
+# 3. Forget the dataset once the thread is closed and no longer needed
+actions.execute_tool(
+    connection_name='cognee',
+    identifier='user_123',
+    tool_name="cognee_forget",
+    tool_input={"dataset": dataset_name}
+)
 ```
 
 </details>
@@ -262,7 +192,7 @@ for t in report.get("market_trends", []):
 <details>
 <summary>LangChain integration</summary>
 
-Let an LLM decide which Cognee tool to call based on natural language. This cogneemple builds an agent that can search, retrieve content, and answer research questions on demand.
+Let an LLM decide which Cognee tool to call based on natural language. This example builds an agent that can enrich memory, recall it, and clean it up on demand.
 
 ```python
 from langchain_openai import ChatOpenAI
@@ -283,10 +213,11 @@ prompt = ChatPromptTemplate.from_messages([
     SystemMessagePromptTemplate(prompt=PromptTemplate(
         input_variables=[],
         template=(
-            "You are a research assistant with access to Cognee web search tools. "
-            "Use cognee_search for general queries, cognee_answer for direct questions, "
-            "cognee_find_similar for competitive analysis, and cognee_research for deep multi-source topics. "
-            "Always cite your sources."
+            "You are an assistant with access to Cognee memory tools. "
+            "Use cognee_improve to add or enrich data in a dataset, cognee_recall to "
+            "search stored memory by meaning, and cognee_forget to delete a dataset "
+            "or data item. cognee_remember is not available yet — use cognee_improve "
+            "with the data field instead. Always confirm before calling cognee_forget."
         )
     )),
     MessagesPlaceholder(variable_name="chat_history", optional=True),
@@ -301,7 +232,7 @@ agent = create_openai_tools_agent(llm, tools, prompt)
 agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
 
 result = agent_executor.invoke({
-    "input": "Who are the top 5 competitors to Notion for team knowledge management? Summarize each and compare their pricing."
+    "input": "Remember that Acme Corp renewed their contract today for the Enterprise plan, then tell me what we know about Acme Corp."
 })
 print(result["output"])
 ```
