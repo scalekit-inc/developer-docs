@@ -1,0 +1,85 @@
+---
+title: 'Customize JWT template'
+description: 'Add custom claims from a user profile and organization to the JWT access token Scalekit issues at login and session refresh'
+tags: [tokens, jwt, claims, sso, session, customization, expr-lang]
+tableOfContents: true
+sidebar:
+  label: 'Customize JWT template'
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+seeAlso:
+  expanded: true
+  items:
+    - title: 'Manage user sessions'
+      icon: 'document'
+      url: '/authenticate/fsa/manage-session/'
+    - title: 'Complete login with code exchange'
+      icon: 'document'
+      url: '/authenticate/fsa/complete-login/'
+    - title: 'Customize user profiles'
+      icon: 'setting'
+      url: '/authenticate/manage-users-orgs/custom-user-attributes/'
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+Every access token Scalekit issues already carries a working set of claims: `sub`, `roles`, `permissions`, the organization the user signed into, and identifiers like `external_id`. That covers what most B2B applications need to authenticate a request.
+
+It doesn't cover everything a request might need to decide. A detail on the user's profile, something in their organization's metadata, a field you've stored on the membership itself: none of that shows up in the token by default. Add it as a custom claim instead of reaching for your database on every request, and it's already there once your API finishes verifying the token.
+
+## Add a custom claim
+
+<Steps>
+1. ### Open Token Claims
+
+   Go to **Dashboard > Customize > Token Claims**. The page lists your **default claims** (the ones Scalekit always includes) and, below them, any **custom claims** you've added.
+
+2. ### Define the claim
+
+   Click **Add custom claim** and fill in two fields:
+
+   - **Claim key**: the name it appears under in the token, for example `a_user_email`.
+   - **Expression**: where the value comes from, for example `user.email`.
+
+   ![Add custom claim panel with a claim key field and an expression field.](@/assets/docs/jwt-template/add-custom-claim.png)
+
+   You don't need any special syntax here, just the dot-path to the field you want, like `user.email` or `organization.metadata.plan`. Scalekit evaluates it for every token going forward.
+
+3. ### Save it
+
+   Scalekit applies the claim immediately; there's no separate publish or enable step. Use the pencil icon next to a claim to edit its expression, or the trash icon to remove it.
+</Steps>
+
+## Preview before you rely on it
+
+The **Token preview** panel on the right of the Token Claims page resolves every claim, default and custom, against a real person. Search for a user, and the JSON view updates with the exact payload that user would get in their next token.
+
+![Token Claims page with a resolved JWT payload in the preview panel.](@/assets/docs/jwt-template/token-claims-page.png)
+
+For a true end-to-end check, sign in through your OIDC flow and decode the access token you receive. That confirms the claim survives the full login path, not just the preview.
+
+<Aside type="note" title="A claim can resolve to nothing">
+If an expression's field is missing for a given user (no `metadata.department` set, for example), Scalekit leaves that claim out of the token rather than adding an empty one. A login never fails because of a claim expression; worst case, the claim just isn't there. Preview against a few different users to catch this before you depend on the claim in production.
+</Aside>
+
+## Write the expression
+
+An expression is a dot-path into `user` or `organization`, evaluated with [expr-lang](https://expr-lang.org/docs/language-definition):
+
+| What you want | Expression |
+|---|---|
+| A profile field | `user.email` |
+| Something from your own metadata | `organization.metadata.plan` |
+| The first role a user holds | `user.current_membership.roles[0]` |
+| A default when a field might be unset | `organization.metadata.plan ?? "free"` |
+| A yes/no from a membership check | `"admin" in user.current_membership.roles` |
+
+`user` and `organization` cover fields like `email`, `name`, `external_id`, and `metadata`; `user` also has `current_membership.roles` and `current_membership.status`. expr-lang also has string and array helpers (`split`, `trim`, `len`, `filter`, and more) for anything more involved than a plain lookup.
+
+## Claims you can't override
+
+`sub`, `iss`, `aud`, `exp`, `iat`, `nbf`, `jti`, `oid`, `sid`, `xoid`, `xuid`, `roles`, and `permissions` are already set by Scalekit on every token. A custom claim can't reuse one of these keys, so pick a name that doesn't collide, the way `a_user_email` avoids colliding with any default claim.
