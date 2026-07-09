@@ -1,0 +1,87 @@
+---
+title: 'Cognee connector'
+tableOfContents: true
+description: "Use Cognee to save, recall, and manage your AI agent's memory in a knowledge graph."
+sidebar:
+  label: 'Cognee'
+overviewTitle: 'Quickstart'
+connectorIcon: https://platform.cognee.ai/icon.svg?icon.3c7f72a5.svg
+connectorAuthType: API Key
+connectorCategories: [AI, Databases]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/cognee'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupCogneeSection } from '@components/templates'
+import { QuickstartGenericApikeySection } from '@components/templates'
+import { SectionAfterSetupCogneeCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Cognee credentials with Scalekit so it can authenticate requests on your behalf. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupCogneeSection />
+
+   </details>
+
+4. ### Make your first call
+
+   <QuickstartGenericApikeySection connector="cognee" toolName="cognee_improve" providerName="Cognee" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Forget records** — Forget stored data by permanently deleting an entire dataset from Cognee memory, including its data items and the knowledge graph built from them
+- **Improve records** — Improve stored memory by running Cognee's cognify step over one or more datasets
+- **Recall records** — Recall data previously saved to Cognee memory
+- **Remember records** — Save data to Cognee memory
+
+## Common workflows
+
+<SectionAfterSetupCogneeCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

@@ -1,0 +1,309 @@
+{/* TODO: stub cloned from _section-after-setup-exa-common-workflows.mdx for Cognee. Review and update connector-specific references (URLs, scopes, app-registration steps) before merging. */}
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+<details>
+<summary>Proxy API call</summary>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.request({
+      connectionName: 'cognee',
+      identifier: 'user_123',
+      path: '/search',
+      method: 'POST',
+      body: { query: 'LLM observability tools 2025', num_results: 5 },
+    });
+    console.log(result.data);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.request(
+        connection_name='cognee',
+        identifier='user_123',
+        path="/search",
+        method="POST",
+        json={"query": "LLM observability tools 2025", "num_results": 5},
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="tip" title="No OAuth flow needed">
+  Cognee uses API key auth — unlike OAuth connectors, there is no authorization link or redirect flow. Once you call `upsertConnectedAccount` (or add an account via the dashboard), your users can make requests immediately.
+</Aside>
+
+</details>
+
+<details>
+<summary>Semantic search</summary>
+
+Search the web by meaning, not just keywords. This cogneemple searches for companies in the AI infrastructure space and returns AI-generated summaries for each result.
+
+```python
+result = actions.execute_tool(
+    connection_name='cognee',
+    identifier='user_123',
+    tool_name="cognee_search",
+    tool_input={
+        "query": "AI infrastructure companies building GPU cloud platforms",
+        "num_results": 10,
+        "type": "neural",
+        "category": "company",
+        "contents": {
+            "summary": {"query": "What does this company do and who are their customers?"}
+        }
+    }
+)
+
+for item in result.result.get("results", []):
+    print(f"{item['title']}: {item['url']}")
+    print(f"  → {item.get('summary', 'No summary')}\n")
+```
+
+</details>
+
+<details>
+<summary>Search with full content enrichment</summary>
+
+Retrieve the full page text and highlighted snippets alongside search results — useful when you want to pass source material directly into an LLM context window.
+
+<Aside type="note" title="Credit cost">
+  Requesting `text` or `highlights` costs 1 extra credit per result. With 10 results, this doubles your per-request cost. Set `num_results` conservatively when enriching content.
+</Aside>
+
+```python
+result = actions.execute_tool(
+    connection_name='cognee',
+    identifier='user_123',
+    tool_name="cognee_search",
+    tool_input={
+        "query": "OpenAI API rate limits and pricing 2025",
+        "num_results": 5,
+        "type": "keyword",                     # keyword mode for precise terms
+        "include_domains": ["openai.com", "platform.openai.com"],
+        "contents": {
+            "text": {"max_characters": 2000},  # cap text to save tokens
+            "highlights": {
+                "num_sentences": 3,
+                "highlights_per_url": 2
+            }
+        }
+    }
+)
+
+for item in result.result.get("results", []):
+    print(f"## {item['title']}")
+    print(f"URL: {item['url']}")
+    if item.get("highlights"):
+        print("Highlights:")
+        for h in item["highlights"]:
+            print(f"  - {h}")
+    print()
+
+```
+
+</details>
+
+<details>
+<summary>Find similar pages</summary>
+
+Discover pages that are semantically similar to a known URL — useful for competitive research, finding alternative data sources, or discovering similar products.
+
+```python
+# Find companies similar to a known competitor
+result = actions.execute_tool(
+    connection_name='cognee',
+    identifier='user_123',
+    tool_name="cognee_find_similar",
+    tool_input={
+        "url": "https://www.linear.app",
+        "num_results": 10,
+        "exclude_domains": ["linear.app"],     # exclude the source URL itself
+        "start_published_date": "2024-01-01",  # only recently indexed pages
+        "contents": {
+            "summary": {"query": "What product does this company build?"}
+        }
+    }
+)
+
+print("Similar companies to Linear:")
+for item in result.result.get("results", []):
+    print(f"  {item['title']} — {item['url']}")
+    if item.get("summary"):
+        print(f"    {item['summary']}")
+
+```
+
+</details>
+
+<details>
+<summary>Get content for known URLs</summary>
+
+Extract structured content from a list of URLs you already have — from a CRM export, a prior search, or a manually curated list. No search query required.
+
+```python
+# Enrich a list of company URLs from your CRM
+company_urls = [
+    "https://www.anthropic.com",
+    "https://mistral.ai",
+    "https://cohere.com",
+]
+
+result = actions.execute_tool(
+    connection_name='cognee',
+    identifier='user_123',
+    tool_name="cognee_get_contents",
+    tool_input={
+        "urls": company_urls,
+        "summary": {
+            "query": "What AI models or products does this company offer, and who are their target customers?"
+        },
+        "subpages": 1,                # also fetch one subpage per URL (e.g. /about or /pricing)
+        "subpage_target": "pricing",  # target the pricing subpage specifically
+        "max_age_hours": 48           # use content no older than 48 hours
+    }
+)
+
+for item in result.result.get("results", []):
+    print(f"{item['url']}: {item.get('summary', 'No summary')}")
+
+```
+
+</details>
+
+<details>
+<summary>Get a direct answer</summary>
+
+Ask a question and get a synthesized natural language answer grounded in live web sources. Returns the answer and the source URLs used — ready to display or inject into a citation-aware LLM prompt.
+
+```python
+result = actions.execute_tool(
+    connection_name='cognee',
+    identifier='user_123',
+    tool_name="cognee_answer",
+    tool_input={
+        "query": "What are the context window sizes and pricing for Claude Sonnet and GPT-4o as of 2025?",
+        "num_results": 8,
+        "text": True,                                  # include source snippets
+        "include_domains": ["anthropic.com", "openai.com", "platform.openai.com"]
+    }
+)
+
+print("Answer:", result.result.get("answer"))
+print("\nSources:")
+for source in result.result.get("sources", []):
+    print(f"  - {source['title']}: {source['url']}")
+
+```
+
+</details>
+
+<details>
+<summary>Deep research on a topic</summary>
+
+Run multi-angle research that decomposes your topic into parallel sub-queries and synthesizes the results. Use `output_schema` to get structured JSON instead of free-form text — useful for generating reports your code can consume directly.
+
+<Aside type="caution" title="Higher credit cost">
+  `cognee_research` runs multiple sub-queries in parallel. With the default `num_subqueries: 5`, expect roughly 5–10× the credit cost of a single `cognee_search` call. Start with a low `num_subqueries` value while testing.
+</Aside>
+
+```python
+result = actions.execute_tool(
+    connection_name='cognee',
+    identifier='user_123',
+    tool_name="cognee_research",
+    tool_input={
+        "topic": "Competitive landscape of AI coding assistants in 2025 — key players, pricing, and differentiators",
+        "num_subqueries": 5,
+        "output_schema": {
+            "type": "object",
+            "properties": {
+                "summary": {"type": "string"},
+                "competitors": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {"type": "string"},
+                            "pricing": {"type": "string"},
+                            "key_differentiator": {"type": "string"},
+                            "target_customer": {"type": "string"}
+                        }
+                    }
+                },
+                "market_trends": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                }
+            },
+            "required": ["summary", "competitors", "market_trends"]
+        }
+    }
+)
+
+report = result.result
+print("Summary:", report.get("summary"))
+print("\nCompetitors:")
+for c in report.get("competitors", []):
+    print(f"  {c['name']}: {c.get('key_differentiator')}")
+print("\nTrends:")
+for t in report.get("market_trends", []):
+    print(f"  - {t}")
+
+```
+
+</details>
+
+<details>
+<summary>LangChain integration</summary>
+
+Let an LLM decide which Cognee tool to call based on natural language. This cogneemple builds an agent that can search, retrieve content, and answer research questions on demand.
+
+```python
+from langchain_openai import ChatOpenAI
+from langchain.agents import AgentExecutor, create_openai_tools_agent
+from langchain_core.prompts import (
+    ChatPromptTemplate, SystemMessagePromptTemplate,
+    HumanMessagePromptTemplate, MessagesPlaceholder, PromptTemplate
+)
+
+# Load all Cognee tools in LangChain format. Use page_size=100 so connector tool lists are not truncated.
+tools = actions.langchain.get_tools(
+    identifier='user_123',
+    providers=["COGNEE"],
+    page_size=100
+)
+
+prompt = ChatPromptTemplate.from_messages([
+    SystemMessagePromptTemplate(prompt=PromptTemplate(
+        input_variables=[],
+        template=(
+            "You are a research assistant with access to Cognee web search tools. "
+            "Use cognee_search for general queries, cognee_answer for direct questions, "
+            "cognee_find_similar for competitive analysis, and cognee_research for deep multi-source topics. "
+            "Always cite your sources."
+        )
+    )),
+    MessagesPlaceholder(variable_name="chat_history", optional=True),
+    HumanMessagePromptTemplate(prompt=PromptTemplate(
+        input_variables=["input"], template="{input}"
+    )),
+    MessagesPlaceholder(variable_name="agent_scratchpad")
+])
+
+llm = ChatOpenAI(model="gpt-4o")
+agent = create_openai_tools_agent(llm, tools, prompt)
+agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+
+result = agent_executor.invoke({
+    "input": "Who are the top 5 competitors to Notion for team knowledge management? Summarize each and compare their pricing."
+})
+print(result["output"])
+```
+
+</details>

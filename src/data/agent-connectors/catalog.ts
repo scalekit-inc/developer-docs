@@ -1554,9 +1554,9 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'OAuth 2.0',
     categories: ['Communication'],
   },
-  upstreammcp: {
-    iconUrl: 'https://framerusercontent.com/images/Pl7PUhW6GIt6eumE6hy3eKACaA.png',
-    authType: 'Bearer Token',
-    categories: ['Automation', 'Productivity'],
+  cognee: {
+    iconUrl: 'https://platform.cognee.ai/icon.svg?icon.3c7f72a5.svg',
+    authType: 'API Key',
+    categories: ['AI', 'Databases'],
   },
 }
