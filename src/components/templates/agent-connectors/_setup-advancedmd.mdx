@@ -1,6 +1,6 @@
 import { Steps, Aside } from '@astrojs/starlight/components'
 
-AdvancedMD uses the SMART on FHIR OAuth 2.0 authorization code flow with PKCE. Because each AdvancedMD FHIR environment exposes its own endpoints, you supply the authorization and token endpoints, the audience (`aud`), and the FHIR server domain when you create the connection. You also register a client with AdvancedMD to obtain a client ID, and a client secret if AdvancedMD issues one.
+AdvancedMD uses the SMART on FHIR OAuth 2.0 authorization code flow with PKCE. Because each AdvancedMD FHIR environment exposes its own endpoints, you supply the authorization and token endpoints, the audience (`aud`), and the FHIR server domain when you create the connection. You also copy the **App Key** and **App Secret** from the **API Keys** section of the AdvancedMD dashboard — these are your client ID and client secret.
 
 <Steps>
 1. ### Discover your AdvancedMD FHIR server's SMART configuration
@@ -23,15 +23,24 @@ AdvancedMD uses the SMART on FHIR OAuth 2.0 authorization code flow with PKCE. B
      SMART on FHIR requires every authorization request to include an `aud` parameter set to the FHIR resource server's base URL. If `aud` doesn't match the server exactly, the authorization request fails.
    </Aside>
 
-2. ### Register an app with AdvancedMD
+2. ### Copy your App Key and App Secret from AdvancedMD
 
-   - Register a new app through the AdvancedMD developer program to obtain a **client ID**. Scalekit uses PKCE, so a public client works; if AdvancedMD issues a **client secret**, note it as well and add it in the next step.
+   Register an app through the AdvancedMD developer program, then open the **API Keys** section of the AdvancedMD dashboard. This is where AdvancedMD issues the credentials Scalekit needs:
 
-     {/* TODO: add provider-specific steps — link to the AdvancedMD developer program app-registration console and the exact navigation path */}
+   - **Key** — the **App Key**. Use this as your **client ID** in Scalekit.
+   - **Secret** — the **App Secret**. Click **Show secret** to reveal it, then use it as your **client secret** in Scalekit.
 
-     {/* TODO: add screenshot — alt: "App registration form in the AdvancedMD developer program" */}
+   If no key is listed yet, click **Add key** to generate one, then copy both values.
 
-   - When prompted for a redirect URI, leave the field open for now — you'll copy the exact value from Scalekit in the next step.
+   ![API Keys section in the AdvancedMD dashboard showing the Key value and the Show secret button](@/assets/docs/agent-connectors/advancedmd/api-keys.png)
+
+   {/* TODO: add provider-specific steps — link to the AdvancedMD developer program app-registration console and the exact navigation path */}
+
+   <Aside type="caution" title="Keep your App Secret private">
+     Treat the App Secret like a password. Store it in a secret manager or environment variable and never commit it to source control.
+   </Aside>
+
+   When prompted for a redirect URI during app registration, leave the field open for now — you'll copy the exact value from Scalekit in the next step.
 
 3. ### Copy the redirect URI from Scalekit
 
@@ -45,8 +54,8 @@ AdvancedMD uses the SMART on FHIR OAuth 2.0 authorization code flow with PKCE. B
 
    Back in the Scalekit dashboard, finish creating the connection with the values you gathered:
 
-   - **Client ID** — the client ID from your AdvancedMD app registration
-   - **Client Secret** — the client secret from your AdvancedMD app registration, if one was issued; leave blank for a public PKCE client
+   - **Client ID** — the **Key** value (App Key) from the AdvancedMD **API Keys** section
+   - **Client Secret** — the **Secret** value (App Secret) from the AdvancedMD **API Keys** section; click **Show secret** in AdvancedMD to reveal it
    - **Authorization Endpoint** — the `authorization_endpoint` from `.well-known/smart-configuration`
    - **Token Endpoint** — the `token_endpoint` from `.well-known/smart-configuration`
    - **Audience (`aud`)** — the AdvancedMD FHIR base URL, sent as the required `aud` parameter on the authorization request
