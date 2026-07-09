@@ -1554,9 +1554,34 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'OAuth 2.0',
     categories: ['Communication'],
   },
-  upstreammcp: {
-    iconUrl: 'https://framerusercontent.com/images/Pl7PUhW6GIt6eumE6hy3eKACaA.png',
+  metricoolmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/metricool.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Analytics', 'Marketing', 'Media'],
+  },
+  minicoursegeneratormcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/minicoursegenerator.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Marketing'],
+  },
+  quizvideomcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/quizvideo.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['AI', 'Media', 'Productivity'],
+  },
+  mailtrap: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/mailtrap.svg',
     authType: 'Bearer Token',
-    categories: ['Automation', 'Productivity'],
+    categories: ['Communication', 'Developer Tools'],
+  },
+  boxmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/box.svg',
+    authType: 'OAuth 2.1',
+    categories: ['Files & Documents', 'Productivity'],
+  },
+  harvestmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/harvestapp.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Productivity', 'Project Management'],
   },
 }

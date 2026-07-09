@@ -1,0 +1,41 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with Box MCP so Scalekit handles the OAuth flow and token lifecycle for your users. Create a Box OAuth application, then add its Client ID and Client Secret to your Scalekit connection.
+
+<Steps>
+1. ### Copy the redirect URI from Scalekit
+
+   - In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **Box MCP** and click **Create**.
+
+     <Aside type="tip" title="Testing vs. production">
+       By default, Scalekit creates the connection using its own shared credentials. This works for testing. Before going to production, follow the steps below to use your own Box OAuth application.
+     </Aside>
+
+   - Click **Use your own credentials** and copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+2. ### Create or open a Box OAuth app
+
+   - Go to the [Box Developer Console](https://app.box.com/developers/console) and click **Platform Apps** in the sidebar.
+   - Click **New App** to create one, or open an existing app that uses **OAuth 2.0** authentication.
+
+     ![Box Platform Apps list showing an app configured with OAuth 2.0 authentication](@/assets/docs/agent-connectors/boxmcp/platform-apps-list.png)
+
+3. ### Add the redirect URI
+
+   - Open the app's **Configuration** tab.
+   - Under **OAuth 2.0 Redirect URIs**, paste the redirect URI you copied from Scalekit and click **Save**.
+
+4. ### Copy your Client ID and Client Secret
+
+   - In the **App Details** panel, copy the **Client ID**.
+   - Click **Copy** next to **Client Secret** to copy it.
+
+     ![Box App Details panel showing the Client ID and Client Secret fields](@/assets/docs/agent-connectors/boxmcp/app-details-credentials.png)
+
+5. ### Add credentials in Scalekit
+
+   - Return to the connection you created in Scalekit and enter:
+     - **Client ID** — from your Box app
+     - **Client Secret** — from your Box app
+   - Click **Save**.
+</Steps>
