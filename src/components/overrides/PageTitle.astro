@@ -16,8 +16,16 @@ const isConnectorPage = Boolean(connectorIcon)
   {
     isConnectorPage ? (
       <>
+        <a class="connector-eyebrow" href="/agentkit/connectors/">
+          <span class="chev" aria-hidden="true">
+            ←
+          </span>{' '}
+          All connectors
+        </a>
         <div class="connector-title-row">
-          <img src={connectorIcon} width="44" height="44" alt="" class="connector-logo" />
+          <span class="connector-logo">
+            <img src={connectorIcon} alt="" loading="lazy" />
+          </span>
           <div class="connector-title-content">
             <div class="connector-heading-line">
               <h1 id="_top">{title}</h1>
@@ -86,33 +94,73 @@ const isConnectorPage = Boolean(connectorIcon)
 
   /* ── Connector page title layout ── */
 
+  /* Eyebrow back-link sits above the title row */
+  .connector-eyebrow {
+    order: -1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    width: fit-content;
+    margin-bottom: 0.9rem;
+    font-size: var(--sl-text-xs);
+    font-weight: 500;
+    color: var(--sl-color-gray-3);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .connector-eyebrow:hover {
+    color: var(--sl-color-text-accent);
+  }
+  .connector-eyebrow .chev {
+    color: var(--sl-color-gray-4);
+    transition: transform 0.15s ease;
+  }
+  .connector-eyebrow:hover .chev {
+    transform: translateX(-2px);
+    color: var(--sl-color-text-accent);
+  }
+
   /* The connector-title-row is order:0 (default), appears before the action buttons (order:3) */
   .connector-title-row {
     display: flex;
     align-items: flex-start;
-    gap: 0.875rem;
+    gap: 1rem;
     order: 0;
   }
 
+  /* Icon sits in a soft, padded tile — matches the catalog card logo treatment */
   .connector-logo {
-    border-radius: 8px;
-    border: 1px solid var(--sl-color-gray-6);
-    background: var(--sl-color-bg);
+    width: 52px;
+    height: 52px;
+    padding: 8px;
+    border-radius: 12px;
+    border: 1px solid var(--sl-color-hairline);
+    background: var(--sl-color-gray-7, var(--sl-color-gray-6));
     flex-shrink: 0;
-    margin-top: 0.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .connector-logo img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
   }
 
   .connector-title-content {
     display: flex;
     flex-direction: column;
-    gap: 0.3rem;
+    gap: 0.4rem;
     min-width: 0;
+    /* Optically align the text block with the padded icon tile */
+    padding-top: 0.1rem;
   }
 
   .connector-heading-line {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.55rem;
     flex-wrap: wrap;
   }
 
@@ -140,29 +188,35 @@ const isConnectorPage = Boolean(connectorIcon)
     display: none;
   }
 
-  /* ── Chips ── */
+  /* ── Metadata chips ── */
   .connector-chip {
     display: inline-flex;
     align-items: center;
-    padding: 0.18rem 0.55rem;
-    border-radius: 100px;
-    font-size: 0.7rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 0.4rem;
+    font-size: 0.72rem;
     font-weight: 500;
     letter-spacing: 0.01em;
     white-space: nowrap;
-    line-height: 1.4;
+    line-height: 1.5;
   }
 
+  /* Auth type — the primary piece of metadata, tinted with the brand accent */
   .auth-chip {
-    background: color-mix(in srgb, var(--sl-color-blue) 10%, transparent);
-    color: var(--sl-color-blue);
-    border: 1px solid color-mix(in srgb, var(--sl-color-blue) 25%, transparent);
+    font-family: var(--sl-font-system-mono);
+    background: var(
+      --sl-color-accent-low,
+      color-mix(in srgb, var(--sl-color-accent) 10%, transparent)
+    );
+    color: var(--sl-color-text-accent);
+    border: 1px solid color-mix(in srgb, var(--sl-color-accent) 22%, transparent);
   }
 
+  /* Categories — quiet, neutral */
   .cat-chip {
-    background: color-mix(in srgb, var(--sl-color-gray-4) 12%, transparent);
+    background: var(--sl-color-gray-6);
     color: var(--sl-color-gray-2);
-    border: 1px solid var(--sl-color-gray-5);
+    border: 1px solid var(--sl-color-hairline);
   }
 
   /* ── Action buttons — match sk-secondary aesthetic ── */

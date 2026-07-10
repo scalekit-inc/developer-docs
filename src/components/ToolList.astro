@@ -10,6 +10,7 @@ const { tools } = Astro.props
 
 <div class="tool-list not-content">
   <div class="tool-filter">
+    <span class="tool-filter-icon" aria-hidden="true">⌕</span>
     <input
       type="search"
       class="tool-filter-input"
@@ -82,23 +83,38 @@ const { tools } = Astro.props
   }
 
   .tool-filter {
-    margin-bottom: 0.25rem;
+    position: relative;
+    max-width: 28rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .tool-filter-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--sl-color-gray-4);
+    pointer-events: none;
+    font-size: 0.95rem;
   }
 
   .tool-filter-input {
     width: 100%;
-    max-width: 28rem;
-    background: var(--sl-color-bg-nav);
-    border: 1px solid var(--sl-color-hairline);
+    background: var(--sl-color-bg-card, var(--sl-color-bg));
+    border: 1px solid var(--sl-color-gray-5);
     color: var(--sl-color-text);
     font-family: var(--sl-font-system);
     font-size: var(--sl-text-sm);
-    padding: 0.375rem 0.625rem;
-    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem 0.5rem 2.2rem;
+    border-radius: 0.5rem;
     outline: none;
+    transition:
+      border-color 0.15s,
+      box-shadow 0.15s;
   }
   .tool-filter-input:focus {
-    border-color: var(--sl-color-text-accent);
+    border-color: var(--sl-color-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--sl-color-accent) 15%, transparent);
   }
   .tool-filter-input::placeholder {
     color: var(--sl-color-gray-4);
@@ -112,15 +128,17 @@ const { tools } = Astro.props
   }
 
   .tool-card {
-    background: var(--sl-color-bg-nav);
+    background: var(--sl-color-bg-card, var(--sl-color-bg));
     border: 1px solid var(--sl-color-hairline);
     border-radius: 0.625rem;
     overflow: hidden;
-    transition: border-color 0.15s;
+    transition:
+      border-color 0.15s,
+      box-shadow 0.15s;
   }
   .tool-card[open] {
-    border-color: var(--sl-color-hairline);
-    background: color-mix(in srgb, var(--sl-color-text-accent) 6%, var(--sl-color-bg-nav));
+    border-color: color-mix(in srgb, var(--sl-color-accent) 30%, var(--sl-color-hairline));
+    box-shadow: 0 1px 0 color-mix(in srgb, var(--sl-color-accent) 10%, transparent);
   }
 
   .tool-header {
@@ -200,7 +218,7 @@ const { tools } = Astro.props
 
   .tool-body {
     border-top: 1px solid var(--sl-color-hairline);
-    background: var(--sl-color-bg);
+    background: var(--sl-color-gray-7, var(--sl-color-gray-6));
   }
 
   .tool-desc {
@@ -237,7 +255,7 @@ const { tools } = Astro.props
     align-items: start;
     gap: 0.75rem;
     padding: 0.625rem 0.75rem;
-    background: var(--sl-color-bg-nav);
+    background: var(--sl-color-bg-card, var(--sl-color-bg));
     border: 1px solid var(--sl-color-hairline);
     border-radius: 0.4375rem;
   }
