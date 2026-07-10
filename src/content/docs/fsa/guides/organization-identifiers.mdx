@@ -479,8 +479,8 @@ User updatedUser = scalekitClient.users().updateUser("<userId>", updateReq);
 <TabItem value="node" label="Node.js">
 
 ```javascript title="Find user by external ID" wrap frame="terminal"
-// Use case: Look up Scalekit user when you have your system's user ID
-const user = await scalekit.user.getUserByExternalId("<organizationId>", "SALESFORCE-003921");
+// Use case: Look up a Scalekit user when you have your own system's user ID
+const { user } = await scalekit.user.getUserByExternalId("SALESFORCE-003921");
 console.log(`Found user: ${user.email} with ID: ${user.id}`);
 ```
 
@@ -488,25 +488,23 @@ console.log(`Found user: ${user.email} with ID: ${user.id}`);
 <TabItem value="python" label="Python">
 
 ```python title="Find user by external ID" wrap frame="terminal"
-# Use case: Look up Scalekit user when you have your system's user ID
-user = scalekit.user.get_user_by_external_id("<organization_id>", "SALESFORCE-003921")
-print(f"Found user: {user['email']} with ID: {user['id']}")
+# Use case: Look up a Scalekit user when you have your own system's user ID
+response = scalekit.user.get_user_by_external_id("SALESFORCE-003921")
+user = response.user
+print(f"Found user: {user.email} with ID: {user.id}")
 ```
 
 </TabItem>
 <TabItem value="go" label="Go">
 
 ```go title="Find user by external ID" wrap frame="terminal"
-// Use case: Look up Scalekit user when you have your system's user ID
-user, err := scalekitClient.User().GetUserByExternalId(
-    ctx,
-    "<organizationId>",
-    "SALESFORCE-003921",
-)
+// Use case: Look up a Scalekit user when you have your own system's user ID
+resp, err := scalekitClient.User().GetUserByExternalId(ctx, "SALESFORCE-003921")
 if err != nil {
     log.Printf("User not found: %v", err)
 } else {
-    fmt.Printf("Found user: %s with ID: %s\n", user.Email, user.Id)
+    user := resp.GetUser()
+    fmt.Printf("Found user: %s with ID: %s\n", user.GetEmail(), user.GetId())
 }
 ```
 
@@ -514,10 +512,10 @@ if err != nil {
 <TabItem value="java" label="Java">
 
 ```java title="Find user by external ID" wrap frame="terminal"
-// Use case: Look up Scalekit user when you have your system's user ID
+// Use case: Look up a Scalekit user when you have your own system's user ID
 try {
-    GetUserByExternalIdResponse response = scalekitClient.users()
-        .getUserByExternalId("<organizationId>", "SALESFORCE-003921");
+    GetUserResponse response = scalekitClient.users()
+        .getUserByExternalId("SALESFORCE-003921");
 
     User user = response.getUser();
     System.out.printf("Found user: %s with ID: %s%n", user.getEmail(), user.getId());
@@ -529,5 +527,9 @@ try {
 </TabItem>
 
 </Tabs>
+
+<Aside type="note" title="External ID method arguments">
+  User operations resolve a user from the external ID alone, so `getUserByExternalId`, `updateUserByExternalId`, and `deleteUserByExternalId` take only the external ID. Membership operations act on a user within an organization, so `createMembershipByExternalId`, `updateMembershipByExternalId`, and `deleteMembershipByExternalId` take both the organization ID and the external ID.
+</Aside>
 
 This integration approach maintains consistent user identity across your system architecture while letting you choose the source of truth for authentication and authorization. Both user and organization external IDs work together to provide complete system integration capabilities.
