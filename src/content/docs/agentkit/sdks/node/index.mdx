@@ -35,6 +35,15 @@ const scalekit = new ScalekitClient({
 });
 ```
 
+<Aside type="note" title="Client timeouts">
+The client sets two gRPC call deadlines you can override when you construct `ScalekitClient`:
+
+- `timeoutMs` (default `20000`) applies to control-plane RPCs, such as organizations, users, and connections.
+- `toolTimeoutMs` (default `60000`) applies to tool-execution RPCs (`tools.*` and `actions.*`), which proxy to third-party provider APIs and can run longer.
+
+Starting in v2.8.0, control-plane calls use a 20-second deadline by default. A call that runs longer fails with a `DeadlineExceeded` error, so raise `timeoutMs` if your workload needs more time.
+</Aside>
+
 ---
 
 ## Actions client
@@ -262,7 +271,7 @@ Makes a REST API call on behalf of a connected account. Scalekit injects the use
   { name: 'body', type: 'unknown', required: false, description: 'JSON-serializable body for POST, PUT, PATCH, or similar methods' },
   { name: 'formData', type: 'Record<string, unknown>', required: false, description: 'Multipart form fields when the upstream API expects form data instead of JSON' },
   { name: 'headers', type: 'Record<string, string>', required: false, description: 'Extra HTTP headers merged with Scalekit-injected auth headers' },
-  { name: 'timeoutMs', type: 'number', required: false, description: 'Default: 30000' },
+  { name: 'timeoutMs', type: 'number', required: false, description: 'Per-call request timeout in ms. Defaults to the client toolTimeoutMs (60000).' },
 ]} />
 
 Returns `AxiosResponse`. Use `.data`, `.status`, and standard Axios response attributes.
