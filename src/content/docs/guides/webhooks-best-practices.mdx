@@ -31,6 +31,32 @@ While you can listen to all events from Scalekit, it's best to subscribe only to
 - Your app doesn't have to process every event
 - You can avoid overloading a single execution context by handling every event type
 
+## Send events to Slack
+
+Scalekit can post events directly to a Slack channel, with no receiver code to build or host. When a webhook endpoint's URL is a Slack incoming webhook (`https://hooks.slack.com/services/...`), Scalekit detects it and reshapes each event into Slack's message format before delivery, so notifications post straight to the channel.
+
+To route events to a Slack channel:
+
+1. In Slack, create an **incoming webhook** for the target channel and copy its URL. Follow Slack's [incoming webhooks guide](https://docs.slack.dev/messaging/sending-messages-using-incoming-webhooks/).
+2. In the Scalekit dashboard, open **Webhooks**, add an endpoint, and paste the Slack incoming webhook URL.
+3. Subscribe the endpoint to only the event types you want in the channel. A Slack channel is high-visibility, so a focused subscription keeps it useful and avoids noise.
+
+<Aside type="note" title="Automatic Slack formatting">
+Scalekit reshapes events into Slack's message format only for endpoints whose host is `hooks.slack.com`. Every other endpoint continues to receive the standard Scalekit event payload, unchanged.
+</Aside>
+
+A delivered Slack message uses the event's display name as the header, lists key event metadata, and attaches the event data as a formatted block:
+
+```json title="Payload delivered to Slack"
+{
+  "text": "User created",
+  "blocks": [
+    { "type": "header", "text": { "type": "plain_text", "text": "User created" } },
+    { "type": "section", "text": { "type": "mrkdwn", "text": "*Event:* scalekit.dir.user.create" } }
+  ]
+}
+```
+
 ## Verify webhook signatures
 
 Scalekit sends POST requests to your registered webhook endpoint. To ensure the request is coming from Scalekit and not a malicious actor, you should verify the request using the signing secret found in the Scalekit dashboard > Webhook > _Any Endpoint_.
