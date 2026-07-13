@@ -61,70 +61,74 @@ External IDs let you identify organizations using your own identifiers instead o
 
    <Tabs syncKey="tech-stack">
    <TabItem value="node" label="Node.js">
-   ```javascript title="Create organization with external ID" {3,9}
+   ```javascript title="Create organization with external ID"
    // During user signup or organization creation
-   const organization = await scalekit.organization.create({
-     display_name: 'Acme Corporation',
-     external_id: 'CUST-12345-ACME', // Your customer ID
+   const { organization } = await scalekit.organization.createOrganization('Acme Corporation', {
+     externalId: 'CUST-12345-ACME', // Your customer ID
+   });
+
+   // The Node.js SDK does not accept metadata at creation, so set it with a follow-up update
+   await scalekit.organization.updateOrganization(organization.id, {
      metadata: {
        plan_type: 'enterprise',
-       billing_customer_id: 'stripe_cus_abc123'
-     }
+       billing_customer_id: 'stripe_cus_abc123',
+     },
    });
 
    console.log('Organization created:', organization.id);
-   console.log('Your ID:', organization.external_id);
+   console.log('Your ID:', organization.externalId);
    ```
    </TabItem>
    <TabItem value="python" label="Python">
-   ```python title="Create organization with external ID" {3,9}
+   ```python title="Create organization with external ID"
+   from scalekit.v1.organizations.organizations_pb2 import CreateOrganization
+
    # During user signup or organization creation
-   organization = scalekit.organization.create({
-       'display_name': 'Acme Corporation',
-       'external_id': 'CUST-12345-ACME',  # Your customer ID
-       'metadata': {
+   organization = CreateOrganization(
+       display_name='Acme Corporation',
+       external_id='CUST-12345-ACME',  # Your customer ID
+       metadata={
            'plan_type': 'enterprise',
            'billing_customer_id': 'stripe_cus_abc123'
        }
-   })
+   )
+   response = scalekit_client.organization.create_organization(organization=organization)
+   created_organization = response[0].organization
 
-   print(f'Organization created: {organization.id}')
-   print(f'Your ID: {organization.external_id}')
+   print(f'Organization created: {created_organization.id}')
+   print(f'Your ID: {created_organization.external_id}')
    ```
    </TabItem>
    <TabItem value="go" label="Go">
-   ```go title="Create organization with external ID" {3,11}
+   ```go title="Create organization with external ID"
    // During user signup or organization creation
-   org, err := scalekit.Organization.Create(OrganizationCreateOptions{
-       DisplayName: "Acme Corporation",
-       ExternalId:  "CUST-12345-ACME", // Your customer ID
-       Metadata: map[string]interface{}{
-           "plan_type":             "enterprise",
-           "billing_customer_id":   "stripe_cus_abc123",
+   resp, err := scalekitClient.Organization().CreateOrganization(ctx, "Acme Corporation", scalekit.CreateOrganizationOptions{
+       ExternalId: "CUST-12345-ACME", // Your customer ID
+       Metadata: map[string]string{
+           "plan_type":           "enterprise",
+           "billing_customer_id": "stripe_cus_abc123",
        },
    })
-
    if err != nil {
        log.Fatal(err)
    }
 
-   fmt.Printf("Organization created: %s\n", org.Id)
-   fmt.Printf("Your ID: %s\n", org.ExternalId)
+   org := resp.GetOrganization()
+   fmt.Printf("Organization created: %s\n", org.GetId())
+   fmt.Printf("Your ID: %s\n", org.GetExternalId())
    ```
    </TabItem>
    <TabItem value="java" label="Java">
-   ```java title="Create organization with external ID" {5,12}
+   ```java title="Create organization with external ID"
    // During user signup or organization creation
-   Map<String, Object> metadata = Map.of(
-       "plan_type", "enterprise",
-       "billing_customer_id", "stripe_cus_abc123"
-   );
+   CreateOrganization createOrg = CreateOrganization.newBuilder()
+       .setDisplayName("Acme Corporation")
+       .setExternalId("CUST-12345-ACME") // Your customer ID
+       .putMetadata("plan_type", "enterprise")
+       .putMetadata("billing_customer_id", "stripe_cus_abc123")
+       .build();
 
-   Organization organization = scalekit.organization().create(
-       "Acme Corporation",
-       "CUST-12345-ACME", // Your customer ID
-       metadata
-   );
+   Organization organization = scalekitClient.organizations().create(createOrg);
 
    System.out.println("Organization created: " + organization.getId());
    System.out.println("Your ID: " + organization.getExternalId());
@@ -142,10 +146,10 @@ External IDs let you identify organizations using your own identifiers instead o
    // When processing a billing webhook or customer update
    const customerId = 'CUST-12345-ACME'; // From your webhook payload
 
-   const organization = await scalekit.organization.getByExternalId(customerId);
+   const { organization } = await scalekit.organization.getOrganizationByExternalId(customerId);
 
    if (organization) {
-     console.log('Found organization:', organization.display_name);
+     console.log('Found organization:', organization.displayName);
      // Update billing status, plan, etc.
      await updateCustomerBilling(organization.metadata.billing_customer_id);
    }
@@ -156,12 +160,13 @@ External IDs let you identify organizations using your own identifiers instead o
    # When processing a billing webhook or customer update
    customer_id = 'CUST-12345-ACME'  # From your webhook payload
 
-   organization = scalekit.organization.get_by_external_id(customer_id)
+   response = scalekit_client.organization.get_organization_by_external_id(customer_id)
+   organization = response[0].organization
 
    if organization:
        print(f'Found organization: {organization.display_name}')
        # Update billing status, plan, etc.
-       await update_customer_billing(organization.metadata['billing_customer_id'])
+       update_customer_billing(organization.metadata['billing_customer_id'])
    ```
    </TabItem>
    <TabItem value="go" label="Go">
@@ -169,16 +174,17 @@ External IDs let you identify organizations using your own identifiers instead o
    // When processing a billing webhook or customer update
    customerId := "CUST-12345-ACME" // From your webhook payload
 
-   org, err := scalekit.Organization.GetByExternalId(customerId)
+   resp, err := scalekitClient.Organization().GetOrganizationByExternalId(ctx, customerId)
    if err != nil {
        log.Printf("Error finding organization: %v", err)
        return
    }
 
+   org := resp.GetOrganization()
    if org != nil {
-       fmt.Printf("Found organization: %s\n", org.DisplayName)
+       fmt.Printf("Found organization: %s\n", org.GetDisplayName())
        // Update billing status, plan, etc.
-       billingId := org.Metadata["billing_customer_id"].(string)
+       billingId := org.GetMetadata()["billing_customer_id"]
        updateCustomerBilling(billingId)
    }
    ```
@@ -188,7 +194,7 @@ External IDs let you identify organizations using your own identifiers instead o
    // When processing a billing webhook or customer update
    String customerId = "CUST-12345-ACME"; // From your webhook payload
 
-   Organization organization = scalekit.organization().getByExternalId(customerId);
+   Organization organization = scalekitClient.organizations().getByExternalId(customerId);
 
    if (organization != null) {
        System.out.println("Found organization: " + organization.getDisplayName());
@@ -207,36 +213,47 @@ External IDs let you identify organizations using your own identifiers instead o
    <Tabs syncKey="tech-stack">
    <TabItem value="node" label="Node.js">
    ```javascript title="Update external ID"
-   const updatedOrg = await scalekit.organization.update(organizationId, {
-     external_id: 'NEW-CUST-12345-ACME'
+   const { organization: updatedOrg } = await scalekit.organization.updateOrganization(organizationId, {
+     externalId: 'NEW-CUST-12345-ACME'
    });
 
-   console.log('External ID updated:', updatedOrg.external_id);
+   console.log('External ID updated:', updatedOrg.externalId);
    ```
    </TabItem>
    <TabItem value="python" label="Python">
    ```python title="Update external ID"
-   updated_org = scalekit.organization.update(organization_id, {
-       'external_id': 'NEW-CUST-12345-ACME'
-   })
+   from scalekit.v1.organizations.organizations_pb2 import UpdateOrganization
+
+   update_organization = UpdateOrganization(external_id='NEW-CUST-12345-ACME')
+   response = scalekit_client.organization.update_organization(
+       organization_id=organization_id, organization=update_organization
+   )
+   updated_org = response[0].organization
 
    print(f'External ID updated: {updated_org.external_id}')
    ```
    </TabItem>
    <TabItem value="go" label="Go">
    ```go title="Update external ID"
-   updatedOrg, err := scalekit.Organization.Update(organizationId, OrganizationUpdateOptions{
-       ExternalId: "NEW-CUST-12345-ACME",
+   newExternalId := "NEW-CUST-12345-ACME"
+   resp, err := scalekitClient.Organization().UpdateOrganization(ctx, organizationId, &organizationsv1.UpdateOrganization{
+       ExternalId: &newExternalId,
    })
+   if err != nil {
+       log.Fatal(err)
+   }
 
-   fmt.Printf("External ID updated: %s\n", updatedOrg.ExternalId)
+   updatedOrg := resp.GetOrganization()
+   fmt.Printf("External ID updated: %s\n", updatedOrg.GetExternalId())
    ```
    </TabItem>
    <TabItem value="java" label="Java">
    ```java title="Update external ID"
-   Organization updatedOrg = scalekit.organization().update(organizationId, Map.of(
-       "external_id", "NEW-CUST-12345-ACME"
-   ));
+   UpdateOrganization updateOrg = UpdateOrganization.newBuilder()
+       .setExternalId("NEW-CUST-12345-ACME")
+       .build();
+
+   Organization updatedOrg = scalekitClient.organizations().updateById(organizationId, updateOrg);
 
    System.out.println("External ID updated: " + updatedOrg.getExternalId());
    ```
@@ -480,7 +497,7 @@ User updatedUser = scalekitClient.users().updateUser("<userId>", updateReq);
 
 ```javascript title="Find user by external ID" wrap frame="terminal"
 // Use case: Look up Scalekit user when you have your system's user ID
-const user = await scalekit.user.getUserByExternalId("<organizationId>", "SALESFORCE-003921");
+const { user } = await scalekit.user.getUserByExternalId("SALESFORCE-003921");
 console.log(`Found user: ${user.email} with ID: ${user.id}`);
 ```
 
@@ -489,8 +506,9 @@ console.log(`Found user: ${user.email} with ID: ${user.id}`);
 
 ```python title="Find user by external ID" wrap frame="terminal"
 # Use case: Look up Scalekit user when you have your system's user ID
-user = scalekit.user.get_user_by_external_id("<organization_id>", "SALESFORCE-003921")
-print(f"Found user: {user['email']} with ID: {user['id']}")
+response = scalekit_client.user.get_user_by_external_id("SALESFORCE-003921")
+user = response[0].user
+print(f"Found user: {user.email} with ID: {user.id}")
 ```
 
 </TabItem>
@@ -498,15 +516,15 @@ print(f"Found user: {user['email']} with ID: {user['id']}")
 
 ```go title="Find user by external ID" wrap frame="terminal"
 // Use case: Look up Scalekit user when you have your system's user ID
-user, err := scalekitClient.User().GetUserByExternalId(
+resp, err := scalekitClient.User().GetUserByExternalId(
     ctx,
-    "<organizationId>",
     "SALESFORCE-003921",
 )
 if err != nil {
     log.Printf("User not found: %v", err)
 } else {
-    fmt.Printf("Found user: %s with ID: %s\n", user.Email, user.Id)
+    user := resp.GetUser()
+    fmt.Printf("Found user: %s with ID: %s\n", user.GetEmail(), user.GetId())
 }
 ```
 
@@ -516,8 +534,8 @@ if err != nil {
 ```java title="Find user by external ID" wrap frame="terminal"
 // Use case: Look up Scalekit user when you have your system's user ID
 try {
-    GetUserByExternalIdResponse response = scalekitClient.users()
-        .getUserByExternalId("<organizationId>", "SALESFORCE-003921");
+    GetUserResponse response = scalekitClient.users()
+        .getUserByExternalId("SALESFORCE-003921");
 
     User user = response.getUser();
     System.out.printf("Found user: %s with ID: %s%n", user.getEmail(), user.getId());
