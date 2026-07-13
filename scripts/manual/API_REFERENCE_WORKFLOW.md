@@ -10,7 +10,6 @@ This guide explains **how the API reference is wired** in developer-docs and the
 openapi/scalekit.yaml                 ← single OpenAPI root (paths + components + webhooks)
 openapi/extensions/{all,agentkit,saaskit}.yaml  ← product overlays (filter + presentation)
 openapi/code_samples/{lang}/…         ← SDK samples (injected at bundle time)
-openapi/webhooks/<event>.yaml         ← optional modular twin of webhook ops (not the publish root)
 openapi/plugins/scalekit.js           ← Redocly decorator: scalekit/product
         ↓  pnpm run bundle:apis
 public/api/{scalekit,agentkit,saaskit}.scalar.{yaml,json}   ← generated; do not sole-edit
@@ -23,7 +22,6 @@ public/api/{scalekit,agentkit,saaskit}.scalar.{yaml,json}   ← generated; do no
 | `openapi/scalekit.yaml`         | **Docs working root** for all three Scalar pages. Paths, schemas, and `webhooks:` live here.                                          |
 | `openapi/extensions/*.yaml`     | Product overlays: `include.tags` / `include.webhooks`, curated `info`/`tags`, and deep-merged `operations` / `schemas` / `root` x-\*. |
 | `openapi/code_samples/`         | Multi-language samples. Plugin injects them as `x-codeSamples` (docs samples win per language).                                       |
-| `openapi/webhooks/*.yaml`       | Optional modular copies of webhook ops for hygiene. **Not loaded by Redocly.**                                                        |
 | `redocly.yaml`                  | Defines three APIs (`agentkit`, `saaskit`, `all`), each with `root: openapi/scalekit.yaml` + overlay.                                 |
 | `public/api/*.scalar.*`         | **Bundle outputs**. Overwritten by `pnpm run bundle:apis`.                                                                            |
 | `scripts/validate-api-split.js` | Fails the build if an operation is missing from both splits or present in both.                                                       |
@@ -107,15 +105,13 @@ Event payloads live in **OpenAPI / Scalar**, not MDX catalogs under `reference/w
 
 ```
 openapi/scalekit.yaml  →  webhooks.<event.name>     ← REQUIRED
-openapi/webhooks/<event.name>.yaml                 ← optional modular twin
 openapi/extensions/{agentkit|saaskit}.yaml         ← only if prefix is NEW
 pnpm run bundle:apis                               ← REQUIRED
 public/api/*.scalar.*                              ← generated
 ```
 
-1. Add the operation under top-level `webhooks:` in `openapi/scalekit.yaml` (match neighboring events).
-2. Optionally add `openapi/webhooks/<event.name>.yaml` with the same body (hygiene only — **not** the publish root).
-3. Check prefix filters:
+1. Add the operation under top-level `webhooks:` in `openapi/scalekit.yaml` (match neighboring events). Add or reuse a schema under `components.schemas` when the event needs a typed payload (prefer event-specific schemas over the shared `ScalekitEvent` when enums/fields differ).
+2. Check prefix filters:
 
    | Prefix                                           | Overlay                                                 | Product page      |
    | ------------------------------------------------ | ------------------------------------------------------- | ----------------- |
@@ -124,14 +120,14 @@ public/api/*.scalar.*                              ← generated
 
    New prefix (e.g. `session.`) → add it to the correct overlay or the event is **stripped** from that product bundle. Combined (`all`) keeps all webhooks when no filter is set.
 
-4. Bundle and confirm:
+3. Bundle and confirm:
 
 ```bash
 pnpm run bundle:apis
 rg "your.event.name" public/api/agentkit.scalar.yaml public/api/saaskit.scalar.yaml public/api/scalekit.scalar.yaml
 ```
 
-5. Commit source **and** regenerated `public/api/*` together.
+4. Commit source **and** regenerated `public/api/*` together.
 
 ### D. Search / deep links
 
@@ -184,9 +180,8 @@ Deep-link guides to Scalar (`/apis/#webhook/…` or product API pages), not remo
 ## 6. Never
 
 - Sole-edit `public/api/*.scalar.*` without updating `openapi/scalekit.yaml` (and re-running `bundle:apis`).
-- Rely on `openapi/webhooks/<event>.yaml` alone to publish an event.
 - Create new MDX event catalogs under `src/content/docs/reference/webhooks/`.
-- Assume `openapi/paths/` or separate `openapi/agentkit.yaml` / `openapi/saaskit.yaml` roots exist — they do not.
+- Assume `openapi/paths/`, `openapi/webhooks/`, or separate `openapi/agentkit.yaml` / `openapi/saaskit.yaml` roots exist — they do not. Webhook ops live only under `webhooks:` in `openapi/scalekit.yaml`.
 - Skip `validate-api-split` when changing product surfaces.
 - Add code samples in the backend repo.
 

@@ -530,7 +530,7 @@ Full pipeline: `scripts/manual/API_REFERENCE_WORKFLOW.md`.
 2. **Docs working root**: `openapi/scalekit.yaml` — single Redocly root for combined, AgentKit, and SaaSKit references
 3. **Product overlays**: `openapi/extensions/{all,agentkit,saaskit}.yaml` (tag/webhook filters, curated `info`/`tags`, Scalar x-\* merges)
 4. **Code samples**: `openapi/code_samples/` only (injected by the Redocly plugin during `pnpm run bundle:apis`)
-5. **Webhook event payloads**: under `openapi/scalekit.yaml` → `webhooks:` (optional modular twin in `openapi/webhooks/`; that folder alone does not publish)
+5. **Webhook event payloads**: under `openapi/scalekit.yaml` → `webhooks:` only (no separate `openapi/webhooks/` tree)
 6. **Generated outputs**: `public/api/{scalekit,agentkit,saaskit}.scalar.*` — do **not** sole-edit; re-run `pnpm run bundle:apis` + `pnpm run validate-api-split`
 7. **Do not** create MDX event catalogs under `reference/webhooks/`
 
