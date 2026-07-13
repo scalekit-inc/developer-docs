@@ -1,0 +1,1844 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hackathon Hub: Build agents with real accounts | Scalekit AgentKit</title>
+    <meta
+      name="description"
+      content="Hackathon resources: npx @scalekit-inc/cli setup, free AgentKit plan, templates, cookbooks, and Slack support. First value = ACTIVE connection + one tool call."
+    />
+    <!--
+    Self-contained hackathon hub for docs.scalekit.com/hackathon
+    Edit model: replace this entire file with a new full HTML document (CSS + markup + JS).
+    No coupon/credits (locked). AgentKit technical content from docs + SDKs.
+  -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #ffffff;
+        --fg: #0a0a0a;
+        --muted: #525252;
+        --border: #0a0a0a;
+        --border-soft: #e5e5e5;
+        --surface: #fafafa;
+        --surface-2: #f5f5f5;
+        --code-bg: #0a0a0a;
+        --code-fg: #f5f5f5;
+        --accent: #0a0a0a;
+        --accent-invert: #ffffff;
+        --focus: #0a0a0a;
+        --max: 70rem;
+        --radius: 0;
+        --font:
+          'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
+          sans-serif;
+        --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        font-family: var(--font);
+        font-size: 15px;
+        line-height: 1.55;
+        color: var(--fg);
+        background: var(--bg);
+        -webkit-font-smoothing: antialiased;
+      }
+      a {
+        color: inherit;
+        text-underline-offset: 3px;
+      }
+      img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+      }
+      code,
+      pre,
+      kbd {
+        font-family: var(--mono);
+        font-size: 0.85em;
+      }
+      code {
+        background: var(--surface-2);
+        border: 1px solid var(--border-soft);
+        padding: 0.08em 0.3em;
+      }
+      pre {
+        background: var(--code-bg);
+        color: var(--code-fg);
+        border: 1px solid var(--border);
+        padding: 0.9rem 1rem;
+        overflow-x: auto;
+        margin: 0.65rem 0 0;
+        line-height: 1.45;
+        border-radius: var(--radius);
+      }
+      pre code {
+        background: none;
+        border: none;
+        padding: 0;
+        font-size: 0.8rem;
+        color: inherit;
+      }
+
+      .skip {
+        position: absolute;
+        left: -9999px;
+      }
+      .skip:focus {
+        left: 1rem;
+        top: 1rem;
+        z-index: 100;
+        background: #fff;
+        border: 2px solid var(--focus);
+        padding: 0.5rem 0.75rem;
+      }
+
+      .wrap {
+        width: min(100% - 2rem, var(--max));
+        margin-inline: auto;
+      }
+      .section {
+        padding: 3.5rem 0;
+        border-top: 1px solid var(--border-soft);
+      }
+      .section.band {
+        background: var(--surface);
+      }
+      .section.no-top {
+        border-top: none;
+      }
+
+      .eyebrow {
+        font-size: 0.7rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin: 0 0 0.65rem;
+        font-weight: 500;
+      }
+      h1,
+      h2,
+      h3 {
+        line-height: 1.15;
+        letter-spacing: -0.025em;
+        font-weight: 600;
+        margin: 0 0 0.7rem;
+      }
+      h1 {
+        font-size: clamp(1.85rem, 3.8vw, 2.75rem);
+        max-width: 18ch;
+      }
+      h2 {
+        font-size: clamp(1.4rem, 2.4vw, 1.85rem);
+      }
+      h3 {
+        font-size: 0.95rem;
+      }
+      .lead {
+        font-size: 1rem;
+        color: var(--muted);
+        max-width: 38rem;
+        margin: 0 0 1.25rem;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .center {
+        text-align: center;
+      }
+      .center .lead {
+        margin-inline: auto;
+      }
+
+      .site-header {
+        border-bottom: 1px solid var(--border);
+        background: color-mix(in srgb, var(--bg) 92%, transparent);
+        backdrop-filter: blur(8px);
+        position: sticky;
+        top: 0;
+        z-index: 50;
+      }
+      .site-header .inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.8rem 0;
+        flex-wrap: wrap;
+      }
+      .brand-mark {
+        flex-shrink: 0;
+        display: block;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        text-decoration: none;
+        color: var(--fg);
+        font-weight: 600;
+        font-size: 0.92rem;
+      }
+      .brand img {
+        width: 26px;
+        height: 26px;
+        filter: none;
+      }
+      .nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.2rem 1rem;
+        font-size: 0.85rem;
+      }
+      .nav a {
+        color: var(--muted);
+        text-decoration: none;
+      }
+      .nav a:hover {
+        color: var(--fg);
+        text-decoration: underline;
+      }
+
+      .btn-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        margin-top: 1.35rem;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        min-height: 2.25rem;
+        padding: 0 0.95rem;
+        font: inherit;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        text-decoration: none;
+        cursor: pointer;
+        background: var(--accent);
+        color: var(--accent-invert);
+        transition:
+          transform 140ms ease-out,
+          background 140ms ease-out;
+      }
+      .btn:hover {
+        opacity: 0.92;
+      }
+      .btn:active {
+        transform: scale(0.98);
+      }
+      .btn:focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+      }
+      .btn-outline {
+        background: transparent;
+        color: var(--fg);
+      }
+      .btn-outline:hover {
+        background: var(--surface-2);
+        opacity: 1;
+      }
+      .btn-wide {
+        width: 100%;
+        max-width: 100%;
+      }
+
+      /* Hero: light, sharp, command-first - not Vapi dark+mint */
+      .hero {
+        background: var(--bg);
+        color: var(--fg);
+        padding: 2.75rem 0 3rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .hero-top {
+        margin-bottom: 1.75rem;
+        max-width: 40rem;
+      }
+      .hero-grid {
+        display: grid;
+        gap: 0;
+        grid-template-columns: 1.05fr 0.95fr;
+        border: 1px solid var(--border);
+      }
+      @media (max-width: 860px) {
+        .hero-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .panel {
+        background: var(--bg);
+        border: none;
+        border-radius: 0;
+        padding: 1.25rem 1.3rem;
+      }
+      .panel + .panel {
+        border-left: 1px solid var(--border);
+      }
+      @media (max-width: 860px) {
+        .panel + .panel {
+          border-left: none;
+          border-top: 1px solid var(--border);
+        }
+      }
+      .panel h2 {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 500;
+        color: var(--muted);
+        margin-bottom: 0.85rem;
+      }
+      .panel p {
+        color: var(--muted);
+        margin: 0 0 0.7rem;
+        font-size: 0.9rem;
+      }
+      .term-chrome {
+        display: none;
+      } /* drop mac traffic lights - Vapi signature */
+      .term-label {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        margin: 0.85rem 0 0.3rem;
+        font-family: var(--mono);
+      }
+
+      .feat-grid {
+        display: grid;
+        gap: 0;
+        grid-template-columns: 1fr 1fr;
+        border: 1px solid var(--border-soft);
+      }
+      .feat {
+        border: none;
+        border-radius: 0;
+        padding: 0.85rem;
+        background: var(--surface);
+        border-right: 1px solid var(--border-soft);
+        border-bottom: 1px solid var(--border-soft);
+      }
+      .feat:nth-child(2n) {
+        border-right: none;
+      }
+      .feat:nth-child(n + 3) {
+        border-bottom: none;
+      }
+      .feat h3 {
+        font-size: 0.88rem;
+        margin: 0 0 0.25rem;
+        color: var(--fg);
+      }
+      .feat p {
+        margin: 0;
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+
+      .templates {
+        margin-top: 1.25rem;
+      }
+      .templates h3 {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        margin-bottom: 0.55rem;
+        font-weight: 500;
+      }
+      .template-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: 1px solid var(--border);
+        border-radius: 0;
+        padding: 0.4rem 0.65rem;
+        font-size: 0.8rem;
+        color: var(--fg);
+        text-decoration: none;
+        background: var(--bg);
+      }
+      .chip:hover {
+        background: var(--surface-2);
+      }
+      .chip .time {
+        color: var(--muted);
+        font-family: var(--mono);
+        font-size: 0.72rem;
+      }
+
+      .free-note {
+        margin-top: 1.35rem;
+        font-size: 0.85rem;
+        color: var(--muted);
+        max-width: 42rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-soft);
+      }
+      .free-note a {
+        color: var(--fg);
+      }
+
+      /* FAQ */
+      .faq-layout {
+        display: grid;
+        gap: 2rem;
+        grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.25fr);
+        align-items: start;
+      }
+      @media (max-width: 800px) {
+        .faq-layout {
+          grid-template-columns: 1fr;
+        }
+      }
+      .accordion {
+        border-top: 1px solid var(--border);
+      }
+      .acc-item {
+        border-bottom: 1px solid var(--border);
+      }
+      .acc-trigger {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        text-align: left;
+        background: transparent;
+        border: none;
+        font: inherit;
+        font-size: 0.92rem;
+        padding: 0.9rem 0;
+        color: inherit;
+        cursor: pointer;
+      }
+      .acc-trigger:hover {
+        background: var(--surface);
+      }
+      .acc-trigger:focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: -2px;
+      }
+      .acc-icon {
+        flex-shrink: 0;
+        width: 1rem;
+        height: 1rem;
+        transition: transform 0.12s ease;
+      }
+      .acc-trigger[aria-expanded='true'] .acc-icon {
+        transform: rotate(45deg);
+      }
+      .acc-panel {
+        padding: 0 0 0.95rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+      .acc-panel[hidden] {
+        display: none;
+      }
+      .acc-panel a {
+        color: var(--fg);
+      }
+
+      /* 3 steps: numbered rule, not soft cards */
+      .steps-stack {
+        display: grid;
+        gap: 0;
+        max-width: 44rem;
+        margin: 1.75rem auto 0;
+        border: 1px solid var(--border);
+        text-align: left;
+      }
+      .step-card {
+        background: var(--bg);
+        color: var(--fg);
+        border-radius: 0;
+        padding: 1.35rem 1.4rem;
+        border: none;
+        border-bottom: 1px solid var(--border);
+      }
+      .step-card:last-child {
+        border-bottom: none;
+      }
+      .step-num {
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        font-family: var(--mono);
+        color: var(--muted);
+        line-height: 1;
+        margin-bottom: 0.65rem;
+      }
+      .step-card h3 {
+        font-size: 1.05rem;
+        margin: 0 0 0.35rem;
+        color: var(--fg);
+      }
+      .step-card > p {
+        margin: 0 0 0.85rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+      .step-link {
+        display: inline-flex;
+        align-items: center;
+        min-height: 2rem;
+        border: 1px solid var(--border);
+        border-radius: 0;
+        font-size: 0.78rem;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        text-transform: none;
+        text-decoration: none;
+        color: var(--fg);
+        padding: 0 0.75rem;
+        margin-bottom: 0.75rem;
+        background: var(--surface);
+      }
+      .step-link:hover {
+        background: var(--surface-2);
+      }
+
+      .col-grid {
+        display: grid;
+        gap: 1.5rem;
+        grid-template-columns: repeat(3, 1fr);
+        margin-top: 1.75rem;
+        text-align: left;
+      }
+      @media (max-width: 900px) {
+        .col-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .col-grid > div > h3 {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        margin-bottom: 0.65rem;
+        font-weight: 500;
+      }
+      .res-card {
+        display: block;
+        border: 1px solid var(--border);
+        border-radius: 0;
+        padding: 0.9rem 1rem;
+        margin-bottom: 0.5rem;
+        text-decoration: none;
+        color: var(--fg);
+        background: var(--bg);
+      }
+      .res-card:hover {
+        background: var(--surface);
+      }
+      .res-card strong {
+        display: block;
+        font-size: 0.92rem;
+        margin-bottom: 0.2rem;
+      }
+      .res-card span {
+        display: block;
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+
+      .grid-2 {
+        display: grid;
+        gap: 0.65rem;
+        grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+        margin-top: 1.35rem;
+      }
+      .help-card {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 0;
+        padding: 1.1rem;
+        color: var(--fg);
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+        min-height: 8.5rem;
+      }
+      .help-card:hover {
+        background: var(--surface);
+      }
+      .help-card h3 {
+        margin: 0;
+        font-size: 0.95rem;
+        color: var(--fg);
+      }
+      .help-card p {
+        margin: 0;
+        flex: 1;
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+      .help-card .cta {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.8rem;
+        font-weight: 500;
+        margin-top: 0.35rem;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        border: none;
+        min-height: auto;
+        letter-spacing: 0;
+        text-transform: none;
+        background: none;
+        color: var(--fg);
+        padding: 0;
+        border-radius: 0;
+      }
+      .help-card .cta.filled {
+        background: none;
+        color: var(--fg);
+        border: none;
+      }
+
+      .tabs {
+        margin-top: 0.75rem;
+      }
+      .tablist {
+        display: flex;
+        gap: 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .tab {
+        appearance: none;
+        border: none;
+        background: transparent;
+        font: inherit;
+        font-size: 0.875rem;
+        padding: 0.55rem 1rem;
+        color: var(--muted);
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;
+      }
+      .tab[aria-selected='true'] {
+        color: var(--fg);
+        border-bottom-color: var(--border);
+        font-weight: 600;
+      }
+      .tab:focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: -2px;
+      }
+      .tabpanel {
+        padding-top: 0.85rem;
+      }
+      .tabpanel[hidden] {
+        display: none;
+      }
+      .code-label {
+        font-size: 0.72rem;
+        color: var(--muted);
+        margin-top: 0.75rem;
+        font-family: var(--mono);
+      }
+      .details-block {
+        border: 1px solid var(--border);
+        border-radius: 0;
+        background: var(--surface);
+        padding: 1.15rem 1.25rem;
+        margin-top: 1.15rem;
+      }
+
+      .crosslinks {
+        display: grid;
+        gap: 0.65rem;
+        grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+        margin-top: 1rem;
+      }
+      .crosslinks a {
+        border: 1px solid var(--border-soft);
+        border-radius: 0;
+        padding: 1rem;
+        text-decoration: none;
+        background: var(--surface);
+        color: inherit;
+      }
+      .crosslinks a:hover {
+        border-color: var(--border);
+      }
+      .crosslinks h3 {
+        margin: 0 0 0.3rem;
+        font-size: 0.92rem;
+      }
+      .crosslinks p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+
+      .callout {
+        border: 1px solid var(--border);
+        background: var(--surface);
+        border-radius: 0;
+        padding: 1rem 1.1rem;
+        font-size: 0.9rem;
+        margin-top: 0;
+      }
+
+      .site-footer {
+        background: var(--bg);
+        color: var(--muted);
+        padding: 2rem 0 2.5rem;
+        font-size: 0.85rem;
+        border-top: 1px solid var(--border);
+      }
+      .site-footer .inner {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem 2rem;
+        justify-content: space-between;
+      }
+      .site-footer a {
+        color: var(--muted);
+        text-decoration: none;
+      }
+      .site-footer a:hover {
+        color: var(--fg);
+        text-decoration: underline;
+      }
+      .site-footer strong {
+        color: var(--fg);
+      }
+
+      /* kill leftover dark-theme classes */
+      .section-dark,
+      .section-light {
+        background: var(--bg);
+        color: var(--fg);
+      }
+      .section-dark .eyebrow,
+      .section-light .eyebrow {
+        color: var(--muted);
+      }
+      .section-dark .lead,
+      .section-dark .muted,
+      .section-dark .acc-panel {
+        color: var(--muted);
+      }
+      .section-dark .accordion {
+        border-color: var(--border);
+      }
+      .section-dark .acc-item {
+        border-color: var(--border);
+      }
+
+      @media (max-width: 640px) {
+        .section {
+          padding: 2.5rem 0;
+        }
+        .feat-grid {
+          grid-template-columns: 1fr;
+        }
+        .feat {
+          border-right: none;
+          border-bottom: 1px solid var(--border-soft);
+        }
+        .feat:last-child {
+          border-bottom: none;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .btn {
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip" href="#main-content">Skip to main content</a>
+
+    <header class="site-header">
+      <div class="wrap inner">
+        <a class="brand" href="#main-content">
+          <svg
+            class="brand-mark"
+            width="26"
+            height="26"
+            viewBox="0 0 26 26"
+            aria-hidden="true"
+            focusable="false"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect width="26" height="26" fill="#0a0a0a" />
+            <path
+              d="M8.2 16.8c1.1 1.5 2.7 2.2 4.7 2.2 2.4 0 4.1-1.2 4.1-3.1 0-1.9-1.3-2.6-3.3-3.3l-1.1-.4c-1.1-.4-1.5-.7-1.5-1.3 0-.7.7-1.2 1.8-1.2 1.1 0 2 .4 2.7 1.2l1.9-1.7C16.4 7.8 14.8 7 12.9 7c-2.5 0-4.2 1.4-4.2 3.4 0 1.9 1.3 2.7 3.1 3.3l1.1.4c1.2.4 1.7.8 1.7 1.4 0 .8-.8 1.3-2 1.3-1.3 0-2.4-.6-3.2-1.7L8.2 16.8z"
+              fill="#fff"
+            />
+          </svg>
+          <span>Scalekit · Hackathon Hub</span>
+        </a>
+        <nav class="nav" aria-label="Page sections">
+          <a href="#hero">Quick start</a>
+          <a href="#faq">FAQ</a>
+          <a href="#steps">3 steps</a>
+          <a href="#resources">Resources</a>
+          <a href="#start">SDK</a>
+          <a href="#support">Support</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <!-- HERO: command first (Vapi-style) -->
+      <section class="hero" id="hero" aria-labelledby="hero-title">
+        <div class="wrap">
+          <div class="hero-top">
+            <p class="eyebrow">Hackathon Resources</p>
+            <h1 id="hero-title">Ship an agent that acts on real user accounts</h1>
+            <p class="lead">
+              Stop spending the hackathon on OAuth. Connect Gmail, Calendar, Slack, GitHub, and 200+
+              apps through AgentKit. Free plan. No special coupon.
+            </p>
+          </div>
+
+          <div class="hero-grid">
+            <div class="panel" id="fast-start">
+              <h2>Quick Start</h2>
+              <p>
+                Run this in your project directory. The wizard installs authstack plugins/skills for
+                your coding agent.
+              </p>
+              <div class="term-chrome" aria-hidden="true">
+                <span></span><span></span><span></span>
+              </div>
+              <pre><code>$ npx @scalekit-inc/cli setup</code></pre>
+              <p class="term-label">Or install globally</p>
+              <pre><code>$ npm install -g @scalekit-inc/cli
+$ scalekit setup</code></pre>
+              <p style="margin-top: 0.85rem; font-size: 0.82rem; color: #888">
+                Choose Claude Code, Cursor, Codex, Copilot CLI, or skills for 40+ agents when
+                prompted. Complete browser authorization if asked.
+              </p>
+
+              <div class="templates" id="templates">
+                <h3>Popular templates</h3>
+                <div class="template-row">
+                  <a
+                    class="chip"
+                    href="https://docs.scalekit.com/agentkit/quickstart"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    Gmail agent <span class="time">~15 min</span>
+                  </a>
+                  <a
+                    class="chip"
+                    href="https://docs.scalekit.com/cookbooks/daily-briefing-agent"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    Daily briefing <span class="time">~30 min</span>
+                  </a>
+                  <a
+                    class="chip"
+                    href="https://docs.scalekit.com/cookbooks/schedule-meeting-and-draft-email"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    Meeting + email <span class="time">~30 min</span>
+                  </a>
+                  <a
+                    class="chip"
+                    href="https://docs.scalekit.com/agentkit/mcp/overview"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    Virtual MCP <span class="time">~25 min</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel" id="what">
+              <h2>What is AgentKit?</h2>
+              <p>
+                Your agent calls a tool; Scalekit handles OAuth, token storage, refresh, and the API
+                call. First value: an <code>ACTIVE</code> connected account and one successful tool
+                response.
+              </p>
+              <div class="feat-grid">
+                <div class="feat">
+                  <h3>Connections</h3>
+                  <p>Configure once in the dashboard. One connection serves all your users.</p>
+                </div>
+                <div class="feat">
+                  <h3>Connected accounts</h3>
+                  <p>Per-user OAuth state. Tokens stay vaulted and refresh automatically.</p>
+                </div>
+                <div class="feat">
+                  <h3>Tools</h3>
+                  <p>Actions like <code>gmail_fetch_mails</code> with LLM-ready schemas.</p>
+                </div>
+                <div class="feat">
+                  <h3>Any framework</h3>
+                  <p>LangChain, Mastra, CrewAI, Vercel AI SDK, coding agents, raw SDKs.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <a class="btn" href="https://app.scalekit.com" target="_blank" rel="noopener"
+              >Create free account</a
+            >
+            <a
+              class="btn btn-outline"
+              href="https://docs.scalekit.com/agentkit/quickstart"
+              target="_blank"
+              rel="noopener"
+              >View documentation</a
+            >
+            <a
+              class="btn btn-outline"
+              href="https://join.slack.com/t/scalekit-community/shared_invite/zt-3gsxwr4hc-0tvhwT2b_qgVSIZQBQCWRw"
+              target="_blank"
+              rel="noopener"
+              >Join Slack</a
+            >
+          </div>
+          <p class="free-note">
+            Free plan: $0, <strong>5,000 tool calls / month</strong> (hard stop), unlimited
+            connected accounts, 200+ connectors. No credit card for signup. No special coupon.
+            Details:
+            <a href="https://www.scalekit.com/pricing" target="_blank" rel="noopener"
+              >scalekit.com/pricing</a
+            >. This page is a resource hub for participants, not a registration page.
+          </p>
+        </div>
+      </section>
+
+      <!-- FAQ early -->
+      <section class="section section-dark" id="faq" aria-labelledby="faq-title">
+        <div class="wrap faq-layout">
+          <div>
+            <p class="eyebrow">FAQ</p>
+            <h2 id="faq-title">Common questions</h2>
+          </div>
+          <div class="accordion" data-accordion>
+            <div class="acc-item">
+              <h3 style="margin: 0">
+                <button
+                  class="acc-trigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="faq-1"
+                  id="faq-1-btn"
+                >
+                  Is the free tier actually free? Do I need a coupon?
+                  <svg
+                    class="acc-icon"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    aria-hidden="true"
+                  >
+                    <path d="M1.5 8h13M8 14.5v-13" />
+                  </svg>
+                </button>
+              </h3>
+              <div class="acc-panel" id="faq-1" role="region" aria-labelledby="faq-1-btn" hidden>
+                <p style="margin: 0">
+                  No special coupon and no credit card for Free. Permanent free tier (not a timed
+                  trial): $0/month, 5,000 tool calls/month hard stop, unlimited connected accounts,
+                  community + email support. See
+                  <a href="https://www.scalekit.com/pricing" target="_blank" rel="noopener"
+                    >pricing</a
+                  >.
+                </p>
+              </div>
+            </div>
+            <div class="acc-item">
+              <h3 style="margin: 0">
+                <button
+                  class="acc-trigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="faq-2"
+                  id="faq-2-btn"
+                >
+                  Where can I get hackathon support?
+                  <svg
+                    class="acc-icon"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    aria-hidden="true"
+                  >
+                    <path d="M1.5 8h13M8 14.5v-13" />
+                  </svg>
+                </button>
+              </h3>
+              <div class="acc-panel" id="faq-2" role="region" aria-labelledby="faq-2-btn" hidden>
+                <p style="margin: 0">
+                  <a
+                    href="https://join.slack.com/t/scalekit-community/shared_invite/zt-3gsxwr4hc-0tvhwT2b_qgVSIZQBQCWRw"
+                    target="_blank"
+                    rel="noopener"
+                    >Scalekit Slack community</a
+                  >, <a href="mailto:support@scalekit.com">support@scalekit.com</a>, or
+                  <a href="https://docs.scalekit.com" target="_blank" rel="noopener"
+                    >docs.scalekit.com</a
+                  >.
+                </p>
+              </div>
+            </div>
+            <div class="acc-item">
+              <h3 style="margin: 0">
+                <button
+                  class="acc-trigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="faq-3"
+                  id="faq-3-btn"
+                >
+                  What can I build with AgentKit?
+                  <svg
+                    class="acc-icon"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    aria-hidden="true"
+                  >
+                    <path d="M1.5 8h13M8 14.5v-13" />
+                  </svg>
+                </button>
+              </h3>
+              <div class="acc-panel" id="faq-3" role="region" aria-labelledby="faq-3-btn" hidden>
+                <p style="margin: 0">
+                  Inbox triage, daily briefing (Calendar + Gmail), meeting booking, multi-agent
+                  crews, Virtual MCP endpoints, GitHub PR agents, and more. Start with one
+                  connector; add a second only if the demo needs it.
+                </p>
+              </div>
+            </div>
+            <div class="acc-item">
+              <h3 style="margin: 0">
+                <button
+                  class="acc-trigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="faq-4"
+                  id="faq-4-btn"
+                >
+                  How do I install the Scalekit CLI?
+                  <svg
+                    class="acc-icon"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    aria-hidden="true"
+                  >
+                    <path d="M1.5 8h13M8 14.5v-13" />
+                  </svg>
+                </button>
+              </h3>
+              <div class="acc-panel" id="faq-4" role="region" aria-labelledby="faq-4-btn" hidden>
+                <p style="margin: 0">
+                  <code>npx @scalekit-inc/cli setup</code>
+                  or <code>npm install -g @scalekit-inc/cli</code> then <code>scalekit setup</code>.
+                  Choose your coding agent in the wizard. Full guide:
+                  <a
+                    href="https://docs.scalekit.com/cookbooks/set-up-agentkit-with-your-coding-agent"
+                    target="_blank"
+                    rel="noopener"
+                    >coding-agent cookbook</a
+                  >.
+                </p>
+              </div>
+            </div>
+            <div class="acc-item">
+              <h3 style="margin: 0">
+                <button
+                  class="acc-trigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="faq-5"
+                  id="faq-5-btn"
+                >
+                  What happens when I hit 5,000 tool calls?
+                  <svg
+                    class="acc-icon"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    aria-hidden="true"
+                  >
+                    <path d="M1.5 8h13M8 14.5v-13" />
+                  </svg>
+                </button>
+              </h3>
+              <div class="acc-panel" id="faq-5" role="region" aria-labelledby="faq-5-btn" hidden>
+                <p style="margin: 0">
+                  On Free, tool calls hard-stop until the next cycle or you upgrade. No silent
+                  overage bill. For a weekend hackathon, 5k is usually enough if you avoid tight
+                  polling loops.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3 STEPS -->
+      <section class="section section-light" id="steps" aria-labelledby="steps-title">
+        <div class="wrap center">
+          <p class="eyebrow">Quick start</p>
+          <h2 id="steps-title">Get started in 3 steps</h2>
+          <p class="lead">
+            Coding agent path first. The CLI installs plugins/skills; you paste one prompt and reach
+            an <code>ACTIVE</code> connection plus a tool call.
+          </p>
+
+          <div class="steps-stack">
+            <article class="step-card">
+              <div class="step-num">STEP 01</div>
+              <h3>Install Scalekit CLI</h3>
+              <p>
+                Get authstack plugins/skills for Claude Code, Cursor, Codex, Copilot CLI, and more.
+              </p>
+              <a
+                class="step-link"
+                href="https://docs.scalekit.com/cookbooks/set-up-agentkit-with-your-coding-agent"
+                target="_blank"
+                rel="noopener"
+                >CLI documentation</a
+              >
+              <div class="term-chrome" aria-hidden="true">
+                <span></span><span></span><span></span>
+              </div>
+              <pre><code>$ npx @scalekit-inc/cli setup</code></pre>
+            </article>
+
+            <article class="step-card">
+              <div class="step-num">STEP 02</div>
+              <h3>Free account + Gmail connection</h3>
+              <p>
+                Sign up at app.scalekit.com. Create a Gmail connection under AgentKit → Connections
+                (Gmail is enabled by default in new environments). Copy the exact Connection name
+                and API credentials.
+              </p>
+              <a class="step-link" href="https://app.scalekit.com" target="_blank" rel="noopener"
+                >Open dashboard</a
+              >
+              <div class="term-chrome" aria-hidden="true">
+                <span></span><span></span><span></span>
+              </div>
+              <pre><code>SCALEKIT_CLIENT_ID=skc_...
+SCALEKIT_CLIENT_SECRET=...
+# Copy exact env URL from dashboard (.scalekit.com or .scalekit.dev)
+SCALEKIT_ENV_URL=https://yourorg.scalekit.com
+GMAIL_CONNECTION_NAME=your-exact-connection-name</code></pre>
+            </article>
+
+            <article class="step-card">
+              <div class="step-num">STEP 03</div>
+              <h3>Paste the prompt and confirm first value</h3>
+              <p>
+                In your coding agent, paste the prompt below. You are activated when status is
+                <code>ACTIVE</code> and <code>gmail_fetch_mails</code> returns structured email
+                data.
+              </p>
+              <a
+                class="step-link"
+                href="https://docs.scalekit.com/agentkit/quickstart"
+                target="_blank"
+                rel="noopener"
+                >AgentKit quickstart</a
+              >
+              <div class="term-chrome" aria-hidden="true">
+                <span></span><span></span><span></span>
+              </div>
+              <pre><code>Configure Scalekit agent authentication for Gmail. Provide code to create a
+connected account, generate an authorization link, and, once the user authorizes,
+fetch the last 5 unread emails using Scalekit's tool API.</code></pre>
+            </article>
+          </div>
+
+          <p class="muted" style="margin-top: 1.75rem; font-size: 0.9rem">
+            Prefer hand-written SDK code?
+            <a href="#start">Manual Node / Python setup</a>. Stuck?
+            <a href="#stuck">Common first-call failures</a>.
+          </p>
+        </div>
+      </section>
+
+      <!-- STUCK -->
+      <section
+        class="section section-light"
+        id="stuck"
+        aria-labelledby="stuck-title"
+        style="padding-top: 0"
+      >
+        <div class="wrap" style="max-width: 40rem">
+          <h2 id="stuck-title" style="font-size: 1.25rem">Stuck? Common first-call failures</h2>
+          <div
+            class="accordion"
+            data-accordion
+            style="
+              margin-top: 0.75rem;
+              background: var(--surface);
+              border-radius: 12px;
+              padding: 0 1rem;
+              border: 1px solid var(--border-soft);
+            "
+          >
+            <div class="acc-item">
+              <h3 style="margin: 0">
+                <button
+                  class="acc-trigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="stuck-1"
+                  id="stuck-1-btn"
+                >
+                  Connection / connector not found
+                  <svg
+                    class="acc-icon"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    aria-hidden="true"
+                  >
+                    <path d="M1.5 8h13M8 14.5v-13" />
+                  </svg>
+                </button>
+              </h3>
+              <div
+                class="acc-panel"
+                id="stuck-1"
+                role="region"
+                aria-labelledby="stuck-1-btn"
+                hidden
+              >
+                <p style="margin: 0">
+                  Create the connection in AgentKit → Connections before running code. Pass the
+                  exact Connection name from the dashboard, not a guessed slug like
+                  <code>gmail</code>.
+                </p>
+              </div>
+            </div>
+            <div class="acc-item">
+              <h3 style="margin: 0">
+                <button
+                  class="acc-trigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="stuck-2"
+                  id="stuck-2-btn"
+                >
+                  Connected account never becomes ACTIVE
+                  <svg
+                    class="acc-icon"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    aria-hidden="true"
+                  >
+                    <path d="M1.5 8h13M8 14.5v-13" />
+                  </svg>
+                </button>
+              </h3>
+              <div
+                class="acc-panel"
+                id="stuck-2"
+                role="region"
+                aria-labelledby="stuck-2-btn"
+                hidden
+              >
+                <p style="margin: 0">
+                  Finish OAuth in the browser. Regenerate the authorization link if needed. Do not
+                  call tools until status is <code>ACTIVE</code>.
+                </p>
+              </div>
+            </div>
+            <div class="acc-item">
+              <h3 style="margin: 0">
+                <button
+                  class="acc-trigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="stuck-3"
+                  id="stuck-3-btn"
+                >
+                  Auth / credential errors
+                  <svg
+                    class="acc-icon"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    aria-hidden="true"
+                  >
+                    <path d="M1.5 8h13M8 14.5v-13" />
+                  </svg>
+                </button>
+              </h3>
+              <div
+                class="acc-panel"
+                id="stuck-3"
+                role="region"
+                aria-labelledby="stuck-3-btn"
+                hidden
+              >
+                <p style="margin: 0">
+                  Check <code>SCALEKIT_ENV_URL</code>, <code>SCALEKIT_CLIENT_ID</code>, and
+                  <code>SCALEKIT_CLIENT_SECRET</code>
+                  from Developers → API Credentials for the same environment as your connection.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RESOURCES: Build with AgentKit -->
+      <section class="section section-dark" id="resources" aria-labelledby="resources-title">
+        <div class="wrap center">
+          <p class="eyebrow">Resources</p>
+          <h2 id="resources-title">Build with AgentKit</h2>
+          <p class="lead" style="margin-inline: auto">
+            Tight path for first win, then cookbooks and advanced topics when you expand.
+          </p>
+
+          <div class="col-grid" style="text-align: left">
+            <div>
+              <h3>Getting started</h3>
+              <a
+                class="res-card"
+                href="https://docs.scalekit.com/agentkit/overview"
+                target="_blank"
+                rel="noopener"
+              >
+                <strong>AgentKit overview</strong>
+                <span>Connections, connected accounts, tools: how the model fits together.</span>
+              </a>
+              <a
+                class="res-card"
+                href="https://docs.scalekit.com/agentkit/quickstart"
+                target="_blank"
+                rel="noopener"
+              >
+                <strong>AgentKit quickstart</strong>
+                <span>End-to-end Gmail agent: authorize and fetch unread mail.</span>
+              </a>
+              <a
+                class="res-card"
+                href="https://docs.scalekit.com/agentkit/connectors/"
+                target="_blank"
+                rel="noopener"
+              >
+                <strong>Connectors catalog</strong>
+                <span>Browse 200+ pre-built connectors and tool libraries.</span>
+              </a>
+              <a
+                class="res-card"
+                href="https://docs.scalekit.com/cookbooks/set-up-agentkit-with-your-coding-agent"
+                target="_blank"
+                rel="noopener"
+              >
+                <strong>Coding agents cookbook</strong>
+                <span>CLI, plugins, and skills for 40+ agents.</span>
+              </a>
+            </div>
+            <div>
+              <h3>Examples</h3>
+              <a
+                class="res-card"
+                href="https://docs.scalekit.com/cookbooks/daily-briefing-agent"
+                target="_blank"
+                rel="noopener"
+              >
+                <strong>Daily briefing agent</strong>
+                <span>Vercel AI SDK + Calendar + Gmail patterns.</span>
+              </a>
+              <a
+                class="res-card"
+                href="https://docs.scalekit.com/cookbooks/mastra-agentkit"
+                target="_blank"
+                rel="noopener"
+              >
+                <strong>Mastra + AgentKit</strong>
+                <span>Gmail and connectors without manual OAuth handling.</span>
+              </a>
+              <a
+                class="res-card"
+                href="https://docs.scalekit.com/cookbooks/crewai-agentkit-email-triage"
+                target="_blank"
+                rel="noopener"
+              >
+                <strong>CrewAI email triage</strong>
+                <span>Multi-agent crew with authenticated Gmail tools.</span>
+              </a>
+              <a
+                class="res-card"
+                href="https://github.com/scalekit-developers/agent-auth-examples"
+                target="_blank"
+                rel="noopener"
+              >
+                <strong>agent-auth-examples</strong>
+                <span>Core Agent Auth patterns on GitHub.</span>
+              </a>
+            </div>
+            <div>
+              <h3>Advanced</h3>
+              <a
+                class="res-card"
+                href="https://docs.scalekit.com/agentkit/mcp/overview"
+                target="_blank"
+                rel="noopener"
+              >
+                <strong>Virtual MCP servers</strong>
+                <span>Least-privilege tools and per-user session tokens.</span>
+              </a>
+              <a
+                class="res-card"
+                href="https://docs.scalekit.com/agentkit/user-verification/"
+                target="_blank"
+                rel="noopener"
+              >
+                <strong>User verification</strong>
+                <span>Confirm OAuth identity matches your logged-in user.</span>
+              </a>
+              <a
+                class="res-card"
+                href="https://docs.scalekit.com/agentkit/bring-your-own-connector/overview"
+                target="_blank"
+                rel="noopener"
+              >
+                <strong>Bring your own connector</strong>
+                <span>Custom connectors when the catalog is not enough.</span>
+              </a>
+              <a
+                class="res-card"
+                href="https://docs.scalekit.com/agentkit/tools/scalekit-optimized-tools/"
+                target="_blank"
+                rel="noopener"
+              >
+                <strong>Optimized tools</strong>
+                <span>Call APIs through Scalekit without managing endpoints.</span>
+              </a>
+            </div>
+          </div>
+
+          <div style="margin-top: 2rem">
+            <a
+              class="btn btn-wide"
+              href="https://docs.scalekit.com/agentkit/overview"
+              target="_blank"
+              rel="noopener"
+              style="max-width: 100%"
+            >
+              Explore all documentation
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- BUILD IDEAS (compact) -->
+      <section class="section section-light" id="build" aria-labelledby="build-title">
+        <div class="wrap center">
+          <p class="eyebrow">Inspiration</p>
+          <h2 id="build-title">What you can build</h2>
+          <p class="lead" style="margin-inline: auto">
+            Project shapes that fit a hackathon weekend. One connector first.
+          </p>
+          <div class="grid-2" style="text-align: left; max-width: 56rem; margin-inline: auto">
+            <div class="callout" style="margin: 0">
+              <h3>Personal ops agent</h3>
+              <p class="muted" style="margin: 0; font-size: 0.88rem">
+                Calendar + Gmail briefing. Start from the daily briefing cookbook.
+              </p>
+            </div>
+            <div class="callout" style="margin: 0">
+              <h3>Inbox triage crew</h3>
+              <p class="muted" style="margin: 0; font-size: 0.88rem">
+                CrewAI or LiteLLM: classify, draft, open GitHub issues with approval gates.
+              </p>
+            </div>
+            <div class="callout" style="margin: 0">
+              <h3>Meeting + follow-up</h3>
+              <p class="muted" style="margin: 0; font-size: 0.88rem">
+                Find free slots, book meetings, draft confirmation emails.
+              </p>
+            </div>
+            <div class="callout" style="margin: 0">
+              <h3>Virtual MCP endpoint</h3>
+              <p class="muted" style="margin: 0; font-size: 0.88rem">
+                Least-privilege MCP server with per-user session tokens.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DEEP SDK (collapsed under details by default content, still full) -->
+      <section
+        class="section section-light"
+        id="start"
+        aria-labelledby="start-title"
+        style="border-top: 1px solid var(--border-soft)"
+      >
+        <div class="wrap">
+          <p class="eyebrow">Deep setup</p>
+          <h2 id="start-title">Manual setup: SDK step by step</h2>
+          <p class="lead">
+            Hand-written Node or Python. Same first value: <code>ACTIVE</code> account +
+            <code>gmail_fetch_mails</code>. If you have not tried the CLI path, start at
+            <a href="#fast-start">Quick Start</a>.
+          </p>
+
+          <div class="details-block">
+            <p class="muted" style="margin: 0 0 0.75rem; font-size: 0.9rem">
+              Env vars (dashboard → Developers → Settings → API Credentials). Connection name must
+              match AgentKit → Connections exactly.
+            </p>
+            <pre><code>SCALEKIT_CLIENT_ID=skc_...
+SCALEKIT_CLIENT_SECRET=...
+SCALEKIT_ENV_URL=https://yourorg.scalekit.com
+GMAIL_CONNECTION_NAME=your-exact-connection-name</code></pre>
+          </div>
+
+          <div class="tabs" data-tabs style="margin-top: 1.5rem">
+            <div class="tablist" role="tablist" aria-label="SDK language">
+              <button
+                class="tab"
+                role="tab"
+                id="tab-node"
+                aria-controls="panel-node"
+                aria-selected="true"
+                tabindex="0"
+              >
+                Node.js
+              </button>
+              <button
+                class="tab"
+                role="tab"
+                id="tab-python"
+                aria-controls="panel-python"
+                aria-selected="false"
+                tabindex="-1"
+              >
+                Python
+              </button>
+            </div>
+            <div class="tabpanel" role="tabpanel" id="panel-node" aria-labelledby="tab-node">
+              <p class="code-label">Install</p>
+              <pre><code>npm install @scalekit-sdk/node</code></pre>
+              <p class="code-label">Client + connected account + authorize + execute tool</p>
+              <pre><code>import { ScalekitClient } from '@scalekit-sdk/node';
+import { ConnectorStatus } from '@scalekit-sdk/node/lib/pkg/grpc/scalekit/v1/connected_accounts/connected_accounts_pb';
+import 'dotenv/config';
+
+const scalekit = new ScalekitClient(
+  process.env.SCALEKIT_ENV_URL,
+  process.env.SCALEKIT_CLIENT_ID,
+  process.env.SCALEKIT_CLIENT_SECRET
+);
+
+const actions = scalekit.actions;
+const connectionName = process.env.GMAIL_CONNECTION_NAME;
+
+const response = await actions.getOrCreateConnectedAccount({
+  connectionName,
+  identifier: 'user_123',
+});
+const connectedAccount = response.connectedAccount;
+
+if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
+  const linkResponse = await actions.getAuthorizationLink({
+    connectionName,
+    identifier: 'user_123',
+  });
+  console.log('Authorize Gmail:', linkResponse.link);
+}
+
+const toolResponse = await actions.executeTool({
+  toolName: 'gmail_fetch_mails',
+  connectedAccountId: connectedAccount?.id,
+  toolInput: { query: 'is:unread', max_results: 5 },
+});
+console.log(toolResponse.data);</code></pre>
+            </div>
+            <div
+              class="tabpanel"
+              role="tabpanel"
+              id="panel-python"
+              aria-labelledby="tab-python"
+              hidden
+            >
+              <p class="code-label">Install</p>
+              <pre><code>pip install scalekit-sdk-python python-dotenv requests</code></pre>
+              <p class="code-label">Client + connected account + authorize + execute tool</p>
+              <pre><code>import os
+import scalekit.client
+from dotenv import load_dotenv
+
+load_dotenv()
+
+scalekit_client = scalekit.client.ScalekitClient(
+    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+    env_url=os.getenv("SCALEKIT_ENV_URL"),
+)
+actions = scalekit_client.actions
+connection_name = os.getenv("GMAIL_CONNECTION_NAME")
+
+response = actions.get_or_create_connected_account(
+    connection_name=connection_name,
+    identifier="user_123",
+)
+connected_account = response.connected_account
+
+if connected_account.status != "ACTIVE":
+    link_response = actions.get_authorization_link(
+        connection_name=connection_name,
+        identifier="user_123",
+    )
+    print("Authorize Gmail:", link_response.link)
+    input("Press Enter after authorizing...")
+
+response = actions.execute_tool(
+    tool_name="gmail_fetch_mails",
+    identifier="user_123",
+    tool_input={"query": "is:unread", "max_results": 5},
+)
+print(response)</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SUPPORT -->
+      <section class="section section-light" id="support" aria-labelledby="support-title">
+        <div class="wrap center">
+          <p class="eyebrow">Support</p>
+          <h2 id="support-title">Learn &amp; get help</h2>
+          <div class="grid-2" style="text-align: left; max-width: 56rem; margin-inline: auto">
+            <a class="help-card" href="https://docs.scalekit.com" target="_blank" rel="noopener">
+              <h3>Documentation</h3>
+              <p>Guides, cookbooks, and API references for building with AgentKit.</p>
+              <span class="cta filled">Read docs</span>
+            </a>
+            <a
+              class="help-card"
+              href="https://join.slack.com/t/scalekit-community/shared_invite/zt-3gsxwr4hc-0tvhwT2b_qgVSIZQBQCWRw"
+              target="_blank"
+              rel="noopener"
+            >
+              <h3>Slack community</h3>
+              <p>Primary live channel for hackathon questions and blockers.</p>
+              <span class="cta">Join Slack</span>
+            </a>
+            <a
+              class="help-card"
+              href="https://docs.scalekit.com/agentkit/sdks/"
+              target="_blank"
+              rel="noopener"
+            >
+              <h3>SDKs &amp; tools</h3>
+              <p>Node, Python, and more for shipping your agent stack.</p>
+              <span class="cta filled">View SDKs</span>
+            </a>
+            <a class="help-card" href="mailto:support@scalekit.com">
+              <h3>Email support</h3>
+              <p>Escalate to support@scalekit.com when Slack is not enough.</p>
+              <span class="cta">Email</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- AFTER -->
+      <section
+        class="section section-light"
+        id="after"
+        aria-labelledby="after-title"
+        style="border-top: 1px solid var(--border-soft)"
+      >
+        <div class="wrap center">
+          <p class="eyebrow">Keep going</p>
+          <h2 id="after-title">After the hackathon</h2>
+          <p class="lead" style="margin-inline: auto">
+            No hard sell. Keep the free account, stay in Slack, deepen with production guides.
+          </p>
+          <div class="grid-2" style="text-align: left; max-width: 48rem; margin-inline: auto">
+            <a
+              class="callout"
+              style="margin: 0; text-decoration: none; display: block"
+              href="https://docs.scalekit.com/agentkit/user-verification/"
+              target="_blank"
+              rel="noopener"
+            >
+              <h3>User verification</h3>
+              <p class="muted" style="margin: 0; font-size: 0.88rem">
+                Match OAuth identity to your logged-in user before production.
+              </p>
+            </a>
+            <a
+              class="callout"
+              style="margin: 0; text-decoration: none; display: block"
+              href="https://www.scalekit.com/pricing"
+              target="_blank"
+              rel="noopener"
+            >
+              <h3>Plans when free is not enough</h3>
+              <p class="muted" style="margin: 0; font-size: 0.88rem">
+                Upgrade on usage growth, not a timer. Limits are published.
+              </p>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- RELATED -->
+      <section
+        class="section section-light"
+        id="more"
+        aria-labelledby="more-title"
+        style="padding-top: 1rem"
+      >
+        <div class="wrap">
+          <p class="eyebrow">Also available</p>
+          <h2 id="more-title">Related Scalekit products (optional)</h2>
+          <p class="muted" style="max-width: 36rem">
+            Not required for AgentKit hackathon demos. Useful if your product story expands.
+          </p>
+          <div class="crosslinks">
+            <a
+              href="https://docs.scalekit.com/authenticate/mcp/overview"
+              target="_blank"
+              rel="noopener"
+            >
+              <h3>MCP server OAuth</h3>
+              <p>Secure your own MCP servers with OAuth 2.1 when you publish a server.</p>
+            </a>
+            <a
+              href="https://docs.scalekit.com/authenticate/fsa/quickstart/"
+              target="_blank"
+              rel="noopener"
+            >
+              <h3>Full-stack auth / SaaSKit</h3>
+              <p>User login, sessions, organizations, RBAC for B2B app auth.</p>
+            </a>
+            <a href="https://docs.scalekit.com/sso/quickstart" target="_blank" rel="noopener">
+              <h3>Enterprise SSO &amp; SCIM</h3>
+              <p>SAML/OIDC SSO and directory sync for enterprise-facing products.</p>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap inner">
+        <div>
+          <strong>Scalekit Hackathon Hub</strong>
+          <div>Build agents that act on real user accounts</div>
+        </div>
+        <div>
+          <a href="https://www.scalekit.com" target="_blank" rel="noopener">scalekit.com</a>
+          ·
+          <a href="https://docs.scalekit.com" target="_blank" rel="noopener">docs</a>
+          ·
+          <a href="https://app.scalekit.com" target="_blank" rel="noopener">dashboard</a>
+          ·
+          <a href="https://www.scalekit.com/pricing" target="_blank" rel="noopener">pricing</a>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      document.querySelectorAll('[data-tabs]').forEach(function (root) {
+        var tabs = Array.prototype.slice.call(root.querySelectorAll('[role="tab"]'))
+        var panels = Array.prototype.slice.call(root.querySelectorAll('[role="tabpanel"]'))
+        function activate(tab) {
+          tabs.forEach(function (t) {
+            var selected = t === tab
+            t.setAttribute('aria-selected', selected ? 'true' : 'false')
+            t.tabIndex = selected ? 0 : -1
+          })
+          panels.forEach(function (p) {
+            var match = p.id === tab.getAttribute('aria-controls')
+            if (match) p.removeAttribute('hidden')
+            else p.setAttribute('hidden', '')
+          })
+        }
+        tabs.forEach(function (tab) {
+          tab.addEventListener('click', function () {
+            activate(tab)
+          })
+          tab.addEventListener('keydown', function (e) {
+            var i = tabs.indexOf(tab)
+            var next = null
+            if (e.key === 'ArrowRight') next = tabs[(i + 1) % tabs.length]
+            if (e.key === 'ArrowLeft') next = tabs[(i - 1 + tabs.length) % tabs.length]
+            if (e.key === 'Home') next = tabs[0]
+            if (e.key === 'End') next = tabs[tabs.length - 1]
+            if (next) {
+              e.preventDefault()
+              next.focus()
+              activate(next)
+            }
+          })
+        })
+      })
+
+      document.querySelectorAll('[data-accordion]').forEach(function (root) {
+        root.querySelectorAll('.acc-trigger').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var expanded = btn.getAttribute('aria-expanded') === 'true'
+            var panel = document.getElementById(btn.getAttribute('aria-controls'))
+            btn.setAttribute('aria-expanded', expanded ? 'false' : 'true')
+            if (panel) {
+              if (expanded) panel.setAttribute('hidden', '')
+              else panel.removeAttribute('hidden')
+            }
+          })
+        })
+      })
+    </script>
+  </body>
+</html>
