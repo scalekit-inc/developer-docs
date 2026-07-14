@@ -1,0 +1,72 @@
+---
+title: 'OpenRouter MCP connector'
+tableOfContents: true
+description: 'Connect to OpenRouter''s MCP server to access unified LLM routing, model discovery, and generation tools directly from your AI workflows.'
+sidebar:
+  label: 'OpenRouter MCP'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/openrouter.svg
+connectorAuthType: OAuth 2.1/DCR
+connectorCategories: [AI]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/openroutermcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="openroutermcp" toolName="openroutermcp_get_credits" providerName="OpenRouter MCP" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Image generate** — Generate an image from a text prompt and return it inline
+- **Get credits, generation, model** — Check the remaining account credit balance before running a workload
+- **List app rankings, benchmarks, daily model rankings** — See which APPS/products drive the most OpenRouter traffic, filterable by category, to gauge ecosystem adoption and find example use cases
+- **Ping records** — Health-check tool that verifies the MCP connection is alive
+- **Search docs** — Search the full OpenRouter documentation to answer "how do I…" questions with correct, current API usage
+- **Send feedback, message** — Submit structured feedback on a specific generation the caller made — a category plus an optional comment
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

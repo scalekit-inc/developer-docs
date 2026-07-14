@@ -1,0 +1,54 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with Cloudflare so Scalekit handles the OAuth flow and token lifecycle for your users. Create a Cloudflare OAuth client, then add its Client ID and Client Secret to your Scalekit connection.
+
+<Steps>
+1. ### Copy the redirect URI from Scalekit
+
+   - In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **Cloudflare** and click **Create**.
+
+     <Aside type="tip" title="Testing vs. production">
+       By default, Scalekit creates the connection using its own shared credentials. This works for testing. Before going to production, follow the steps below to use your own Cloudflare OAuth client.
+     </Aside>
+
+   - Click **Use your own credentials** and copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+2. ### Create an OAuth client in Cloudflare
+
+   - Sign in to the [Cloudflare dashboard](https://dash.cloudflare.com) and go to **Manage account** > **OAuth clients**.
+   - Click **Create OAuth client**.
+   - Fill in the **Configure OAuth client** form:
+     - **Client Name** — for example, `Agent Auth`
+     - **Response Type** — `Code, Token`
+     - **Grant type** — `Authorization Code`
+     - **Token Authentication Method** — `None (PKCE)`
+     - **Redirect (Callback) URLs** — paste the redirect URI you copied from Scalekit, then press **Return** to add it
+   - Click **Next** to continue to **Select permission scopes**.
+
+     ![Cloudflare Create OAuth client form showing Client Name, Response Type, Grant type, Token Authentication Method, and Redirect URLs fields](@/assets/docs/agent-connectors/cloudflare/create-oauth-client.png)
+
+3. ### Select permission scopes
+
+   Enable at least the scopes Scalekit requires:
+
+   | Scope | Required |
+   |-------|----------|
+   | Zone Read (`zone.read`) | Yes |
+   | DNS Read (`dns.read`) | Yes |
+   | DNS Write (`dns.write`) | Only if your agent needs to manage DNS records |
+   | Cache Purge (`cache.purge`) | Only if your agent needs to purge cached content |
+
+   Click **Create** to finish creating the OAuth client.
+
+4. ### Copy your Client ID and Client Secret
+
+   - Cloudflare shows the **Client ID** and **Client Secret** once the client is created.
+   - Copy both values — the secret is shown only once.
+
+5. ### Add credentials in Scalekit
+
+   - Return to the connection you created in Scalekit and enter:
+     - **Client ID** — from your Cloudflare OAuth client
+     - **Client Secret** — from your Cloudflare OAuth client
+   - Click **Save**.
+</Steps>

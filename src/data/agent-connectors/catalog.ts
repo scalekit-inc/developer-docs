@@ -1589,4 +1589,50 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'OAuth2.1/DCR',
     categories: ['Productivity', 'Project Management'],
   },
+  activepiecesmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/activepieces.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Automation'],
+  },
+  cloudflare: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/cloudflare.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Developer Tools', 'Monitoring', 'Automation'],
+  },
+  gongmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/gong.svg',
+    authType: 'OAuth2.1',
+    categories: ['CRM & Sales', 'AI', 'Transcription'],
+  },
+  jiraservicemanagement: {
+    iconUrl:
+      'https://wac-cdn.atlassian.com/dam/jcr:be09430e-3f78-4712-a953-ddcbe01ea541/jsd-icon.svg?cdnVersion=3478',
+    authType: 'OAuth 2.0',
+    categories: ['Project Management', 'Customer Support'],
+  },
+  leadiqmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/leadiq.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['CRM & Sales', 'Analytics'],
+  },
+  signwell: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/signwell.svg',
+    authType: 'API Key',
+    categories: ['Files & Documents', 'Productivity', 'Automation'],
+  },
+  sleekplanmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/sleekplan.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Productivity'],
+  },
+  supabase: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/supabase.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Databases', 'Developer Tools'],
+  },
+  openroutermcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/openrouter.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['AI'],
+  },
 }

@@ -1,0 +1,37 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with the Google Business Profile connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. Then complete the configuration in your application as follows:
+
+<Steps>
+1. ### Set up auth redirects
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **Google Business Profile** and click **Create**. Click **Use your own credentials** and copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+    - Navigate to [Google Cloud Console](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project) → **APIs & Services** → **Credentials**. Select **+ Create Credentials**, then **OAuth client ID**. Choose **Web application** from the Application type menu.
+
+      ![Select Web Application in Google OAuth settings](@/assets/docs/agent-connectors/gmail/oauth-web-app.png)
+
+    - Under **Authorized redirect URIs**, click **+ Add URI**, paste the redirect URI, and click **Create**.
+
+      ![Add authorized redirect URI in Google Cloud Console](@/assets/docs/agent-connectors/gmail/add-redirect-uri.png)
+
+2. ### Enable the Google Business Profile API
+
+    - In [Google Cloud Console](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project), go to **APIs & Services** → **Library**. Search for "Google Business Profile API" (previously "My Business Business Information API") and click **Enable**.
+
+3. ### Get client credentials
+
+    - Google provides your Client ID and Client Secret after you create the OAuth client ID in step 1.
+
+4. ### Add credentials in Scalekit
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** and open the connection you created.
+    - Copy the **Connection name** shown on that connection and use that exact value in your code as `connection_name` or `connectionName`. It may be something like `local-seo-agent-googlebusinessprofile`, not `googlebusinessprofile`.
+    - Enter your credentials:
+      - Client ID (from above)
+      - Client Secret (from above)
+      - Permissions (scopes — see [Google API Scopes reference](https://developers.google.com/identity/protocols/oauth2/scopes))
+
+      ![Add credentials in Scalekit dashboard](@/assets/docs/agent-connectors/gmail/add-credentials.png)
+    - Click **Save**.
+</Steps>
