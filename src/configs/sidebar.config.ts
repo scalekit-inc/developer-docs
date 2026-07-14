@@ -440,7 +440,10 @@ export const sidebar = [
       },
       {
         label: 'Go live',
-        items: ['authenticate/mcp/launch-checklist'],
+        items: [
+          'authenticate/mcp/launch-checklist',
+          'authenticate/mcp/directory-submission-test-credentials',
+        ],
       },
     ],
   },
