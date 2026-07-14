@@ -1,0 +1,42 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with Supabase so Scalekit handles the OAuth flow and token lifecycle for your users. Create a Supabase OAuth app, then add its Client ID and Client Secret to your Scalekit connection.
+
+<Steps>
+1. ### Copy the redirect URI from Scalekit
+
+   - In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **Supabase** and click **Create**.
+
+     <Aside type="tip" title="Testing vs. production">
+       By default, Scalekit creates the connection using its own shared credentials. This works for testing. Before going to production, follow the steps below to use your own Supabase OAuth app.
+     </Aside>
+
+   - Click **Use your own credentials** and copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+2. ### Create an OAuth app in Supabase
+
+   - Sign in to the [Supabase dashboard](https://supabase.com/dashboard) and go to your organization's **Settings** > **OAuth Apps**.
+   - Under **Published apps**, click **Publish OAuth app**.
+   - Give the app a **Name** (for example, `Agent Connect`).
+
+3. ### Add the redirect URI
+
+   - Open the app you created and add the redirect URI you copied from Scalekit under **Authorization callback URLs**.
+   - Click **Add URL**, then save your changes.
+
+     <Aside type="note" title="HTTPS required">
+       All callback URLs must use HTTPS except for `localhost` — the Scalekit redirect URI already meets this requirement.
+     </Aside>
+
+4. ### Copy your Client ID and Client Secret
+
+   - Copy the **Client ID** shown in the **Published apps** table, or from the app's detail panel next to the app name.
+   - Under **Client secrets**, click **Generate new secret** and copy it immediately — Supabase only shows the full secret once.
+
+5. ### Add credentials in Scalekit
+
+   - Return to the connection you created in Scalekit and enter:
+     - **Client ID** — from your Supabase OAuth app
+     - **Client Secret** — from your Supabase OAuth app
+   - Click **Save**.
+</Steps>
