@@ -1,0 +1,57 @@
+---
+title: Set up EU data residency
+description: Provision an EU-resident Scalekit workspace for GDPR compliance and understand billing for EU environments.
+tableOfContents: true
+sidebar:
+  label: Data residency
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+  - tag: meta
+    attrs:
+      name: robots
+      content: noindex
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+Scalekit runs two fully isolated regional deployments: United States (US) and European Union (EU). Choose your region when you create a workspace — you can't change it or migrate data between regions afterward.
+
+## How regional isolation works
+
+The EU deployment is a separate infrastructure stack: dedicated GCP instances in `europe-west3` (Frankfurt), separate databases, and separate authentication data. No customer data crosses regional boundaries in either direction. This satisfies GDPR data residency requirements for organizations that need EU customer data hosted natively in the EU.
+
+<Aside type="caution" title="Region is a one-time choice">
+  A workspace created in the US region cannot be converted to EU, and vice versa. If you signed up in the wrong region, create a new workspace in the correct region and reconfigure your integration there. Scalekit can delete the incorrect workspace on request once you've migrated.
+</Aside>
+
+## Create an EU workspace
+
+Sign up directly on the EU cluster:
+
+1. Go to [auth.eu.scalekit.com/a/auth/signup](https://auth.eu.scalekit.com/a/auth/signup)
+2. Create your workspace as usual
+
+Your new workspace gets its own **Development** and **Production** environments, the same as a US workspace. See [Manage environments](/dev-kit/guides/dashboard/environments/) for how environments work within a region.
+
+<Aside type="note" title="Point your integration at the EU environment">
+  Use the API base URL, client credentials, and redirect URLs from your EU environment specifically. Credentials from a US workspace don't work against the EU deployment.
+</Aside>
+
+## Billing for EU environments
+
+EU data residency is billed separately from your US workspace, as a **$99/month add-on per production environment**. This applies regardless of which product you use — Auth for SaaS (Modular SSO, MCP Auth) or AgentKit.
+
+Other per-environment add-ons, such as **Customization Pro** (custom domain, removing Scalekit branding, custom email templates), are also billed separately for each region. If you run both a US and an EU production environment and want Customization Pro on both, you're billed for the add-on twice — once per region.
+
+Add a payment method under **Workspace Settings → Billing** in your EU workspace so the add-on charge and any usage-based billing go through without interruption. See [Billing and usage](/dev-kit/guides/dashboard/billing/) for details on managing payment methods.
+
+<Aside type="tip" title="Pricing model still depends on product">
+  Regardless of region, AgentKit billing follows its plan tiers (for example Growth) while Auth for SaaS runs on [pay-as-you-go pricing](https://www.scalekit.com/auth-for-saas-pricing). Data residency is an add-on on top of whichever pricing model applies to your product.
+</Aside>
