@@ -152,6 +152,28 @@ export default defineConfig({
             content: AGENT_PLUGIN_META,
           },
         },
+        // Force light theme before first paint. Must be the first script in
+        // <head>, blocking (inline, no defer/async), so it runs before
+        // starlight-theme-nova / astro-theme-toggle ThemeScript in the body
+        // can apply prefers-color-scheme. Source of truth:
+        // /public/js/force-light-theme.js — keep both in sync.
+        {
+          tag: 'script',
+          content: `
+            ;(function () {
+              try {
+                localStorage.setItem('theme-toggle', 'light')
+              } catch (_) {
+                /* private mode / blocked storage */
+              }
+
+              var root = document.documentElement
+              root.classList.remove('dark')
+              root.setAttribute('data-theme', 'light')
+              root.style.colorScheme = 'light'
+            })()
+          `,
+        },
         // GTM/gtag: queue early calls, inject the network script after load+idle
         // so lab LCP/TBT are not blocked by marketing tags (GA4 + Ads via gtag).
         {
@@ -257,13 +279,6 @@ export default defineConfig({
               }
             })()
           `,
-        },
-        {
-          tag: 'script',
-          attrs: {
-            src: '/js/force-light-theme.js',
-            defer: true,
-          },
         },
         {
           tag: 'script',
