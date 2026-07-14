@@ -58,6 +58,12 @@ console.log(account.scopes);
 
 If status is `ACTIVE` but a tool still fails, run a read-only tool (for example `gmail_get_profile`) to confirm the connection end to end. The error message usually points to scopes, credentials, or provider rate limits.
 
+### Detect status changes with webhooks
+
+Polling `get_connected_account` works, but subscribing to webhooks catches status changes as they happen instead of on your next poll. Subscribe to `connected_account.status_updated` to get notified whenever a connected account moves between states (for example `ACTIVE` to `EXPIRED`, or any state to `PENDING_AUTH`). Subscribe to `connected_account.token_refresh_failed` specifically to catch automatic refresh failures, which is usually your earliest signal that a user needs to re-authenticate.
+
+See the [webhook event reference](/apis/?product=agentkit#tag/webhooks) for payload shapes, and [Implement webhooks](/authenticate/implement-workflows/implement-webhooks/) for handler setup and signature verification.
+
 ## Connected account status
 
 <details>
