@@ -152,11 +152,10 @@ export default defineConfig({
             content: AGENT_PLUGIN_META,
           },
         },
-        // Force light theme before first paint. Must be the first script in
-        // <head>, blocking (inline, no defer/async), so it runs before
-        // starlight-theme-nova / astro-theme-toggle ThemeScript in the body
-        // can apply prefers-color-scheme. Source of truth:
-        // /public/js/force-light-theme.js — keep both in sync.
+        // Force light theme before first paint. Sole source of truth: this
+        // blocking inline IIFE (first script in <head>, no defer/async).
+        // Must run before starlight-theme-nova / astro-theme-toggle ThemeScript
+        // in the body can apply prefers-color-scheme.
         {
           tag: 'script',
           content: `
