@@ -1,4 +1,4 @@
-err := scalekitClient.Connection.DeleteConnection(
+err := scalekitClient.Connection().DeleteConnection(
   ctx,
   organizationId,
   connectionId,

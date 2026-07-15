@@ -1,1 +1,5 @@
-// Coming soon — accurate SDK snippets for List connected accounts will be added via scalekit-code-doctor (SK-399)
+const response = await scalekit.connectedAccounts.listConnectedAccounts({
+  organizationId: 'org_123',
+  pageSize: 20,
+})
+const connectedAccounts = response.connectedAccounts
