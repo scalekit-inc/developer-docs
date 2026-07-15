@@ -1,0 +1,279 @@
+---
+title: Clients
+description: OAuth clients for applications.
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Clients
+prev: false
+next: false
+head:
+  - tag: style
+    content: |
+      starlight-toc a[href='#_top'],
+      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
+        display: none !important;
+      }
+      starlight-toc li:has(> a[href='#_top']) > ul {
+        padding-inline-start: 0 !important;
+      }
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+OAuth clients for applications.
+
+
+{/* Client chrome once */}
+<div class="sdk-client-chrome">
+  <CB.ClassBrowser
+    name="Clients"
+    type="client"
+    language="go"
+    source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main"
+  >
+  </CB.ClassBrowser>
+</div>
+
+### `CreateClient`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Clients" type="client" language="go">
+    <CB.ClassMethod name="CreateClient" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Creates a new OIDC client in the environment.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="unknown">
+        Argument (&clients.CreateClient Name: "My Applica…)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+import (
+  clients "github.com/scalekit-inc/scalekit-sdk-go/v2/pkg/grpc/scalekit/v1/clients"
+)
+
+created, err := client.Client().CreateClient(ctx, &clients.CreateClient{
+  Name:                   "My Application",
+  ClientType:             "WEB_APP",
+  PostLoginUris:          []string{"https://myapp.com/callback"},
+  PostLogoutRedirectUris: []string{"https://myapp.com/logout"},
+})
+if err != nil {
+  // handle
+}
+_ = created.Client
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `GetClient`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Clients" type="client" language="go">
+    <CB.ClassMethod name="GetClient" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Fetches an OIDC client by client ID.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. "client_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+got, err := client.Client().GetClient(ctx, "client_123")
+if err != nil {
+  // handle
+}
+_ = got.Client
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `ListClients`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Clients" type="client" language="go">
+    <CB.ClassMethod name="ListClients" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Lists OIDC clients in the environment with optional pagination.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="unknown">
+        Argument (&scalekit.ListClientsOptions PageSize: …)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+clients, err := client.Client().ListClients(ctx, &scalekit.ListClientsOptions{
+  PageSize:  10,
+  PageToken: "",
+})
+if err != nil {
+  // handle
+}
+for _, c := range clients.Clients {
+  _ = c
+}
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `UpdateClient`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Clients" type="client" language="go">
+    <CB.ClassMethod name="UpdateClient" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Updates an OIDC client by client ID with field mask for partial updates.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (clients "github.com/scalekit-inc/scaleki…)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+import (
+  clients "github.com/scalekit-inc/scalekit-sdk-go/v2/pkg/grpc/scalekit/v1/clients"
+  "google.golang.org/protobuf/types/known/fieldmaskpb"
+)
+
+updated, err := client.Client().UpdateClient(ctx, "client_123", &clients.UpdateClient{
+  Name: "Updated Name",
+}, &fieldmaskpb.FieldMask{
+  Paths: []string{"name"},
+})
+if err != nil {
+  // handle
+}
+_ = updated.Client
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `DeleteClient`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Clients" type="client" language="go">
+    <CB.ClassMethod name="DeleteClient" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Deletes an OIDC client by client ID.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. "client_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+if err := client.Client().DeleteClient(ctx, "client_123"); err != nil {
+  // handle
+}
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `CreateClientSecret`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Clients" type="client" language="go">
+    <CB.ClassMethod name="CreateClientSecret" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Creates a new client secret for an OIDC client.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. "client_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+secret, err := client.Client().CreateClientSecret(ctx, "client_123")
+if err != nil {
+  // handle
+}
+// Save the returned secret immediately; it may not be shown again.
+_ = secret.Secret
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `DeleteClientSecret`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Clients" type="client" language="go">
+    <CB.ClassMethod name="DeleteClientSecret" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Deletes a specific client secret from an OIDC client.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. "client_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg3" type="string">
+        e.g. "secret_456"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+if err := client.Client().DeleteClientSecret(ctx, "client_123", "secret_456"); err != nil {
+  // handle
+}
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+</div>

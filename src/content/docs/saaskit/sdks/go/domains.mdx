@@ -1,0 +1,193 @@
+---
+title: Domains
+description: Manage organization email domains.
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Domains
+prev: false
+next: false
+head:
+  - tag: style
+    content: |
+      starlight-toc a[href='#_top'],
+      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
+        display: none !important;
+      }
+      starlight-toc li:has(> a[href='#_top']) > ul {
+        padding-inline-start: 0 !important;
+      }
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+Manage organization email domains.
+
+
+{/* Client chrome once */}
+<div class="sdk-client-chrome">
+  <CB.ClassBrowser
+    name="Domains"
+    type="client"
+    language="go"
+    source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main"
+  >
+  </CB.ClassBrowser>
+</div>
+
+### `CreateDomain`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Domains" type="client" language="go">
+    <CB.ClassMethod name="CreateDomain" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Creates a domain for an organization.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. "org_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg3" type="string">
+        e.g. "acme.com"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+// Without options (backward compatible)
+created, err := client.Domain().CreateDomain(ctx, "org_123", "acme.com")
+if err != nil {
+  // handle
+}
+_ = created.Domain
+
+// With options
+created2, err := client.Domain().CreateDomain(ctx, "org_123", "acme.com", &scalekit.CreateDomainOptions{
+  DomainType: scalekit.DomainTypeOrganization,
+})
+if err != nil {
+  // handle
+}
+_ = created2.Domain
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `GetDomain`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Domains" type="client" language="go">
+    <CB.ClassMethod name="GetDomain" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Fetches a domain by ID within an organization.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. "dom_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg3" type="string">
+        e.g. "org_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+domain, err := client.Domain().GetDomain(ctx, "dom_123", "org_123")
+if err != nil {
+  // handle
+}
+_ = domain.Domain
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `ListDomains`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Domains" type="client" language="go">
+    <CB.ClassMethod name="ListDomains" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Lists domains for an organization (supports optional filtering and pagination).
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. "org_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+// List all domains
+all, err := client.Domain().ListDomains(ctx, "org_123")
+if err != nil {
+  // handle
+}
+_ = all.Domains
+
+// Filter by domain type
+orgDomains, err := client.Domain().ListDomains(ctx, "org_123", &scalekit.ListDomainOptions{
+  DomainType: scalekit.DomainTypeOrganization,
+})
+if err != nil {
+  // handle
+}
+_ = orgDomains.Domains
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `DeleteDomain`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Domains" type="client" language="go">
+    <CB.ClassMethod name="DeleteDomain" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Deletes a domain by ID within an organization.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. "dom_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg3" type="string">
+        e.g. "org_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+if err := client.Domain().DeleteDomain(ctx, "dom_123", "org_123"); err != nil {
+  // handle
+}
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+</div>

@@ -1,0 +1,261 @@
+---
+title: Tokens
+description: Token helpers and verification.
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Tokens
+prev: false
+next: false
+head:
+  - tag: style
+    content: |
+      starlight-toc a[href='#_top'],
+      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
+        display: none !important;
+      }
+      starlight-toc li:has(> a[href='#_top']) > ul {
+        padding-inline-start: 0 !important;
+      }
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+Token helpers and verification.
+
+
+{/* Client chrome once */}
+<div class="sdk-client-chrome">
+  <CB.ClassBrowser
+    name="Tokens"
+    type="client"
+    language="java"
+    source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main"
+  >
+  </CB.ClassBrowser>
+</div>
+
+### `create`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Tokens" type="client" language="java">
+    <CB.ClassMethod name="create" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Creates a new API token for an organization with default settings.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        e.g. "org_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+client.tokens().create("org_123");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `create`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Tokens" type="client" language="java">
+    <CB.ClassMethod name="create" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Creates a new API token for an organization with custom options.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        e.g. "org_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. "user_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg3" type="unknown">
+        Argument (claims)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg4" type="unknown">
+        Argument (expiry)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg5" type="string">
+        e.g. "Production access token"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+import java.util.HashMap;
+import java.util.Map;
+import com.google.protobuf.Timestamp;
+
+Map<String, String> claims = new HashMap<>();
+claims.put("environment", "production");
+
+Timestamp expiry = Timestamp.newBuilder()
+  .setSeconds(System.currentTimeMillis() / 1000 + 86400)
+  .build();
+
+client.tokens().create("org_123", "user_123", claims, expiry, "Production access token");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `validate`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Tokens" type="client" language="java">
+    <CB.ClassMethod name="validate" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Validates an API token and returns associated context.
+
+      <CB.ClassMethodInput name="arg1" type="string">
+        e.g. "apit_xxxxx"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+client.tokens().validate("apit_xxxxx");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `invalidate`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Tokens" type="client" language="java">
+    <CB.ClassMethod name="invalidate" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Invalidates (soft deletes) an API token.
+
+      <CB.ClassMethodInput name="arg1" type="string">
+        e.g. "apit_xxxxx"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+client.tokens().invalidate("apit_xxxxx");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `update`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Tokens" type="client" language="java">
+    <CB.ClassMethod name="update" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Updates custom claims and/or description of an existing API token.
+
+      <CB.ClassMethodInput name="arg1" type="string">
+        e.g. "apit_xxxxx"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="unknown">
+        Argument (newClaims)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg3" type="string">
+        e.g. "Updated description"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+import java.util.HashMap;
+import java.util.Map;
+
+Map<String, String> newClaims = new HashMap<>();
+newClaims.put("environment", "staging");
+newClaims.put("old_claim", "");  // Remove this claim
+
+client.tokens().update("apit_xxxxx", newClaims, "Updated description");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `list`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Tokens" type="client" language="java">
+    <CB.ClassMethod name="list" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Lists API tokens for an organization with pagination.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        e.g. "org_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="number">
+        e.g. 20
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg3" type="string">
+        e.g. ""
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+client.tokens().list("org_123", 20, "");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `list`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Tokens" type="client" language="java">
+    <CB.ClassMethod name="list" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Lists API tokens for an organization and user with pagination.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        e.g. "org_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. "user_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg3" type="number">
+        e.g. 20
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg4" type="string">
+        e.g. ""
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+client.tokens().list("org_123", "user_123", 20, "");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+</div>

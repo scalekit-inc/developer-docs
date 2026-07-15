@@ -1,0 +1,270 @@
+---
+title: M2M client
+description: Machine-to-machine clients and tokens.
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: M2M client
+prev: false
+next: false
+head:
+  - tag: style
+    content: |
+      starlight-toc a[href='#_top'],
+      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
+        display: none !important;
+      }
+      starlight-toc li:has(> a[href='#_top']) > ul {
+        padding-inline-start: 0 !important;
+      }
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+Machine-to-machine clients and tokens.
+
+
+{/* Client chrome once */}
+<div class="sdk-client-chrome">
+  <CB.ClassBrowser
+    name="M2MClient"
+    type="client"
+    language="python"
+    source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main"
+  >
+  </CB.ClassBrowser>
+</div>
+
+### `list_organization_clients`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="M2MClient" type="client" language="python">
+    <CB.ClassMethod name="list_organization_clients" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Lists all machine-to-machine clients for an organization.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (f\Client: client.id\)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+response = scalekit_client.m2m_client.list_organization_clients(
+    'org_123456',
+    page_size=50
+)
+
+for client in response[0].clients:
+    print(f'Client: {client.id}')
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `get_organization_client`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="M2MClient" type="client" language="python">
+    <CB.ClassMethod name="get_organization_client" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Retrieves an organization client by ID.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        e.g. \org_123456\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. \client_123456\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+response = scalekit_client.m2m_client.get_organization_client(
+    'org_123456',
+    'client_123456'
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `create_organization_client`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="M2MClient" type="client" language="python">
+    <CB.ClassMethod name="create_organization_client" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Creates a new machine-to-machine client for an organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        e.g. \org_123456\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="unknown">
+        Argument (client)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+from scalekit.v1.clients.clients_pb2 import OrganizationClient
+
+client = OrganizationClient()
+client.name = "My M2M Client"
+
+response = scalekit_client.m2m_client.create_organization_client(
+    'org_123456',
+    client
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `update_organization_client`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="M2MClient" type="client" language="python">
+    <CB.ClassMethod name="update_organization_client" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Updates an existing machine-to-machine client.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        e.g. \org_123456\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. \client_123456\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg3" type="unknown">
+        Argument (client)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+from scalekit.v1.clients.clients_pb2 import OrganizationClient
+
+client = OrganizationClient()
+client.name = "Updated M2M Client"
+
+response = scalekit_client.m2m_client.update_organization_client(
+    'org_123456',
+    'client_123456',
+    client
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `delete_organization_client`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="M2MClient" type="client" language="python">
+    <CB.ClassMethod name="delete_organization_client" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Deletes a machine-to-machine client from an organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        e.g. \org_123456\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. \client_123456\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+scalekit_client.m2m_client.delete_organization_client(
+    'org_123456',
+    'client_123456'
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `add_organization_client_secret`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="M2MClient" type="client" language="python">
+    <CB.ClassMethod name="add_organization_client_secret" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Adds a new secret to an organization client.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        e.g. \org_123456\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. \client_123456\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+response = scalekit_client.m2m_client.add_organization_client_secret(
+    'org_123456',
+    'client_123456'
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `remove_organization_client_secret`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="M2MClient" type="client" language="python">
+    <CB.ClassMethod name="remove_organization_client_secret" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Removes a secret from an organization client.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        e.g. \org_123456\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. \client_123456\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg3" type="string">
+        e.g. \secret_123456\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+scalekit_client.m2m_client.remove_organization_client_secret(
+    'org_123456',
+    'client_123456',
+    'secret_123456'
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+</div>

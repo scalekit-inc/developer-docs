@@ -1,0 +1,152 @@
+---
+title: Domains
+description: Manage organization email domains
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Domains
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+Use the `domain` client to manage verified organization domains.
+
+### `createDomain`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Domains" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/domain.ts">
+    <CB.ClassMethod name="createDomain" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Adds a new domain configuration to an organization for SSO routing or user suggestions.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        The organization ID (format: "org_...")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="name" type="string">
+        The domain name (e.g., "acme.com", "example.org")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="object" hint="domainType">
+        Optional. Optional domain configuration domainType: Domain type: 'ALLOWED_EMAIL_DOMAIN' or 'ORGANIZATION_DOMAIN'
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateDomainResponse">
+        The created domain with ID and verification status
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.domain.createDomain(
+  'org_123456',
+  'acme.com',
+  { domainType: 'ORGANIZATION_DOMAIN' }
+);
+
+console.log('Domain created:', response.domain.id);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `getDomain`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Domains" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/domain.ts">
+    <CB.ClassMethod name="getDomain" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Retrieves detailed information about a specific domain configuration.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        The organization ID (format: "org_...")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="domainId" type="string">
+        The domain ID (format: "domain_...")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetDomainResponse">
+        Complete domain configuration and status
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.domain.getDomain(
+  'org_123456',
+  'domain_abc123'
+);
+
+console.log('Domain:', response.domain.domain);
+console.log('Type:', response.domain.domainType);
+console.log('Verified:', response.domain.verificationStatus);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `listDomains`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Domains" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/domain.ts">
+    <CB.ClassMethod name="listDomains" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Retrieves all domain configurations for an organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        The organization ID (format: "org_...")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="object" hint="domainType">
+        Optional. Optional parameters for filtering domains domainType: Filter domains by type (ALLOWED_EMAIL_DOMAIN or ORGANIZATION_DOMAIN)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListDomainResponse">
+        List of all domains with their configurations
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.domain.listDomains('org_123456');
+
+console.log(`Found ${response.domains.length} domains`);
+response.domains.forEach(domain => {
+  console.log(`- ${domain.domain} (${domain.domainType}): ${domain.verificationStatus}`);
+});
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `deleteDomain`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Domains" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/domain.ts">
+    <CB.ClassMethod name="deleteDomain" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Deletes a domain from an organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        The organization ID
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="domainId" type="string">
+        The domain ID to delete
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="object" hint="MessageShape(typeof EmptySchema)">
+        Empty response on successful deletion
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+await scalekit.domain.deleteDomain('org_123456', 'domain_abc123');
+console.log('Domain deleted successfully');
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
+</div>

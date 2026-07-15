@@ -2,6 +2,11 @@
 
 Hard-coded ClassBrowser content for AgentKit and SaaSKit SDK reference.
 
+## Status
+
+SaaSKit (node/python/go/java) and AgentKit (node/python) client pages are generated under
+`src/content/docs/{product}/sdks/{lang}/` from partials. Sidebars use `_nav.json`.
+
 ## Layout
 
 ```text
