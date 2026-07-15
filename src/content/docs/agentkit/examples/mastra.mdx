@@ -30,7 +30,7 @@ npm install @scalekit-sdk/node @mastra/core @mastra/mcp @ai-sdk/openai
 
 ## Get a per-user MCP URL
 
-Generate a Scalekit MCP URL for the user. This requires the Python SDK. Call this from your backend and pass the URL to your Mastra application:
+Generate a Scalekit MCP URL for the user. This requires the Python SDK. Call this from your backend for the **current user**, then pass that URL into your Mastra app (API response, session store, or request-scoped config).
 
 ```python
 # Backend (Python): generate once per user session
@@ -39,21 +39,26 @@ inst_response = actions.mcp.ensure_instance(
     user_identifier="user_123",
 )
 mcp_url = inst_response.instance.url
-# Pass mcp_url to your Mastra app (e.g. via environment variable or API response)
+# Return mcp_url to the Mastra app for this user only
 ```
 
 See [Virtual MCP Servers](/agentkit/mcp/overview/) to set up the config and generate the URL.
 
+<Aside type="caution" title="Do not share one MCP URL across users">
+  Each URL is pre-authenticated for a single user. In multi-user deployments, look up the URL for the authenticated user on the server. A process-wide `SCALEKIT_MCP_URL` is only safe for single-user demos; sharing it runs every request as that user.
+</Aside>
+
 ## Build the agent
 
-Pass the MCP URL to `MCPClient`. Mastra fetches the tool list and schemas automatically:
+Pass the **current user's** MCP URL to `MCPClient`. Mastra fetches the tool list and schemas automatically:
 
 ```typescript
 import { Agent } from '@mastra/core/agent';
 import { MCPClient } from '@mastra/mcp';
 import { openai } from '@ai-sdk/openai';
 
-const mcpUrl = process.env.SCALEKIT_MCP_URL!; // set from your backend
+// From your backend for the authenticated user — not a shared process-wide secret
+const mcpUrl = await getMcpUrlForUser(currentUserId);
 
 const mcp = new MCPClient({
   servers: {

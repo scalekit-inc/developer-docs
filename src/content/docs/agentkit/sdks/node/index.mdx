@@ -238,13 +238,17 @@ Lists **app-level** AgentKit connections (tool/provider integrations for the env
   { name: 'prevPageToken', type: 'string', description: 'Token for the previous page, if any' },
 ]} />
 
-```ts title="Example"
-const { connections } = await scalekit.actions.listConnections({
-  pageSize: 30,
-  provider: 'GMAIL',
-});
-for (const conn of connections) {
-  console.log(conn.id, conn.connectionName, conn.enabled);
+```ts title="list-connections.ts"
+try {
+  const { connections } = await scalekit.actions.listConnections({
+    pageSize: 30,
+    provider: 'GMAIL',
+  });
+  for (const conn of connections) {
+    console.log(conn.id, conn.connectionName, conn.enabled);
+  }
+} catch (error) {
+  console.error('Failed to list connections', error);
 }
 ```
 
