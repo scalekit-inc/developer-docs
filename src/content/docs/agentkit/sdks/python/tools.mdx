@@ -64,8 +64,18 @@ scalekit.tools
         Opaque cursor from a previous list response
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListToolsResponse">
-        `tools` (`list`): List of tool schemas (name, description, input schema) ·…
+        List tools.
       </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+from scalekit.v1.tools.tools_pb2 import Filter
+
+response = scalekit_client.tools.list_tools(
+    filter=Filter(query="calendar"),
+    page_size=50,
+)
+```
 
     </CB.ClassMethod>
   </CB.ClassBrowser>
@@ -93,8 +103,18 @@ scalekit.tools
         Opaque cursor from a previous list response
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListScopedToolsResponse">
-        `tools` (`list`): List of tool schemas (name, description, input_schema) · `tools[].name`…
+        List scoped tools.
       </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+from scalekit.v1.tools.tools_pb2 import ScopedToolFilter
+
+response = scalekit_client.tools.list_scoped_tools(
+    "user@example.com",
+    filter=ScopedToolFilter(),
+)
+```
 
     </CB.ClassMethod>
   </CB.ClassBrowser>
@@ -113,7 +133,7 @@ scalekit.tools
         Registered tool name to execute **Required.**
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="identifier" type="str">
-        End-user or workspace identifier used to resolve the connected account **Required.**
+        End-user identifier.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="params" type="dict">
         Tool arguments matching the tool input schema
@@ -124,6 +144,16 @@ scalekit.tools
       <CB.ClassMethodOutput type="ExecuteToolResponse.">
         See return type `ExecuteToolResponse.`.
       </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+# Low-level ToolsClient (tool_name, identifier, params)
+response = scalekit_client.tools.execute_tool(
+    tool_name="gmail.messages.list",
+    identifier="user@example.com",
+    params={"maxResults": 10},
+)
+```
 
     </CB.ClassMethod>
   </CB.ClassBrowser>

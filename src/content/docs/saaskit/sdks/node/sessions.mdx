@@ -31,14 +31,10 @@ Use the `session` client to inspect and revoke user sessions.
         The session identifier to retrieve (format: "ses_...")
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="SessionDetails">
-        Session details containing: - sessionId: Unique session identifier - userId: User who…
+        The session id.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
-// containing: -
-// sessionId: Unique session identifier -
-// userId: User who owns this session -
-// organizationId: Organization context for the sessio…
 const session = await scalekit.session.getSession('ses_123456');
 
 console.log('Status:', session.status);
@@ -61,16 +57,22 @@ console.log('Location:', session.geoLocation);
       Call `getUserSessions`.
 
       <CB.ClassMethodInput name="userId" type="string">
-        userId value
+        User ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="object" hint="pageSize, pageToken, filter, status, startTime, endTime">
-        Optional. 
+        Optional settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="UserSessionDetails">
-        UserSessionDetails
+        The resource.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
+// pageSize: Results per page (default 10, max 100)
+// pageToken: Token for the next page
+// filter: Scoped tool filter
+// status: status
+// startTime: start time
+// endTime: end time
 const response = await scalekit.session.getUserSessions('usr_123456', {
   filter: { status: ['active'] },
   pageSize: 20
@@ -93,10 +95,10 @@ console.log(`User has ${response.totalSize} active sessions`);
       Call `revokeSession`.
 
       <CB.ClassMethodInput name="sessionId" type="string">
-        sessionId value
+        Session ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="RevokeSessionResponse">
-        RevokeSessionResponse
+        Empty on success.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
@@ -118,17 +120,13 @@ console.log('Session revoked at:', response.revokedAt);
       Immediately invalidates all active sessions for a user across all devices and browsers.
 
       <CB.ClassMethodInput name="userId" type="string">
-        The user identifier whose sessions should be revoked (format: "usr_...")
+        The user identifier whose sessions should be revoked.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="RevokeAllUserSessionsResponse">
-        Response containing: - revokedSessions: Array of all revoked session objects with details…
+        Empty on success.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
-// containing: -
-// revokedSessions: Array of all revoked session objects with details -
-// totalCount: Number of sessions that were revoked -
-// revokedAt: Tim…
 const response = await scalekit.session.revokeAllUserSessions('usr_123456');
 
 console.log(`Revoked ${response.totalCount} sessions`);

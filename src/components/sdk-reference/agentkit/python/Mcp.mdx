@@ -13,17 +13,17 @@ import * as CB from '@gesslar/starlight-class-browser'
 
   <CB.ClassMethod name="actions.mcp.create_config">
     <CB.ClassMethodInput name="name" type="str">
-      Config name **Required.**
-    </CB.ClassMethodInput>
+        Config name **Required.**
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="description" type="str">
-      Human-readable summary of what this MCP config exposes
-    </CB.ClassMethodInput>
+        Human-readable summary of what this MCP config exposes
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="connection_tool_mappings" type="list">
-      List of McpConfigConnectionToolMapping objects
-    </CB.ClassMethodInput>
+        List of McpConfigConnectionToolMapping objects
+      </CB.ClassMethodInput>
     <CB.ClassMethodOutput type="CreateMcpConfigResponse">
-      `config.id` (`str`): Config ID · `config.name` (`str`): Config name · `config.connection_tool_mappings` (`list`): Connector-to-tools mappings
-    </CB.ClassMethodOutput>
+        Create mcp config.
+      </CB.ClassMethodOutput>
   </CB.ClassMethod>
 
 ```python title="Example"
@@ -42,68 +42,68 @@ config = actions.mcp.create_config(
 
   <CB.ClassMethod name="actions.mcp.list_configs">
     <CB.ClassMethodInput name="page_size" type="int">
-      Maximum configs per page (server default if omitted)
-    </CB.ClassMethodInput>
+        Maximum configs per page (server default if omitted)
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="page_token" type="str">
-      Opaque cursor from a previous list response
-    </CB.ClassMethodInput>
+        Opaque cursor from a previous list response
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="filter_id" type="str">
-      Filter by config ID
-    </CB.ClassMethodInput>
+        Filter by config ID
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="filter_name" type="str">
-      Filter by exact name
-    </CB.ClassMethodInput>
+        Filter by exact name
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="filter_provider" type="str">
-      Filter by provider slug
-    </CB.ClassMethodInput>
+        Filter by provider slug
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="filter_mcp_server_url" type="str">
-      Filter by MCP server URL
-    </CB.ClassMethodInput>
+        Filter by MCP server URL
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="search" type="str">
-      Free-text search on name
-    </CB.ClassMethodInput>
+        Free-text search on name
+      </CB.ClassMethodInput>
     <CB.ClassMethodOutput type="ListMcpConfigsResponse.">
-      See return type `ListMcpConfigsResponse.`.
-    </CB.ClassMethodOutput>
+        See return type `ListMcpConfigsResponse.`.
+      </CB.ClassMethodOutput>
   </CB.ClassMethod>
 
   <CB.ClassMethod name="actions.mcp.update_config">
     <CB.ClassMethodInput name="config_id" type="str">
-      MCP config ID from create_config or list_configs **Required.**
-    </CB.ClassMethodInput>
+        MCP config ID from create_config or list_configs **Required.**
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="description" type="str">
-      New human-readable description for this config
-    </CB.ClassMethodInput>
+        New human-readable description for this config
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="connection_tool_mappings" type="list">
-      Replaces existing mappings
-    </CB.ClassMethodInput>
+        Replaces existing mappings
+      </CB.ClassMethodInput>
     <CB.ClassMethodOutput type="UpdateMcpConfigResponse.">
-      See return type `UpdateMcpConfigResponse.`.
-    </CB.ClassMethodOutput>
+        See return type `UpdateMcpConfigResponse.`.
+      </CB.ClassMethodOutput>
   </CB.ClassMethod>
 
   <CB.ClassMethod name="actions.mcp.delete_config">
     <CB.ClassMethodInput name="config_id" type="str">
-      MCP config ID to delete **Required.**
-    </CB.ClassMethodInput>
+        MCP config ID to delete **Required.**
+      </CB.ClassMethodInput>
     <CB.ClassMethodOutput type="DeleteMcpConfigResponse.">
-      See return type `DeleteMcpConfigResponse.`.
-    </CB.ClassMethodOutput>
+        See return type `DeleteMcpConfigResponse.`.
+      </CB.ClassMethodOutput>
   </CB.ClassMethod>
 
   <CB.ClassMethod name="actions.mcp.list_mcp_connected_accounts">
     <CB.ClassMethodInput name="config_id" type="str">
-      Virtual MCP Server config ID from list_configs or create_config **Required.**
-    </CB.ClassMethodInput>
+        Virtual MCP config ID. **Required.**
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="identifier" type="str">
-      User identifier **Required.**
-    </CB.ClassMethodInput>
+        User identifier **Required.**
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="include_auth_link" type="bool">
-      When True, creates missing connected accounts if needed and returns short-lived auth/re-auth URLs. When False or omitted, reports existing accounts only and returns no links. Links are empty when a connection has no associated key.
-    </CB.ClassMethodInput>
+        Include auth/re-auth URLs for missing accounts.
+      </CB.ClassMethodInput>
     <CB.ClassMethodOutput type="ListMcpConnectedAccountsResponse">
-      `connected_accounts` (`list`): One entry per connector configured in the Virtual MCP Server · `connected_accounts[].connection_name` (`str`): Connector slug · `connected_accounts[].connected_account_status` (`str`): Auth status for this user and connector (for example active, expired, disconnected) · `connected_accounts[].authentication_link` (`str`): Auth/re-auth URL when include_auth_link is True and a link can be minted; valid for about one minute
-    </CB.ClassMethodOutput>
+        Authorization link.
+      </CB.ClassMethodOutput>
   </CB.ClassMethod>
 
 ```python title="Example"
@@ -121,17 +121,17 @@ for account in accounts_response.connected_accounts:
     Mints a short-lived session token scoped to a user and a Virtual MCP Server config. Pass the token as a bearer auth header when connecting to the MCP server. Mint a fresh token before each agent run.
 
     <CB.ClassMethodInput name="mcp_config_id" type="str">
-      Virtual MCP Server config ID **Required.**
-    </CB.ClassMethodInput>
+        Virtual MCP Server config ID **Required.**
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="identifier" type="str">
-      User identifier **Required.**
-    </CB.ClassMethodInput>
+        User identifier **Required.**
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="expiry" type="timedelta">
-      Token lifetime (server default if omitted, typically 1 hour). Set longer than the expected agent run duration.
-    </CB.ClassMethodInput>
+        Token lifetime (server default if omitted, typically 1 hour).
+      </CB.ClassMethodInput>
     <CB.ClassMethodOutput type="CreateMcpSessionTokenResponse">
-      `token` (`str`): Bearer token to pass as Authorization header · `expires_at` (`datetime`): UTC expiry timestamp for the token
-    </CB.ClassMethodOutput>
+        Create mcp session token.
+      </CB.ClassMethodOutput>
   </CB.ClassMethod>
 
 ```python title="Example"

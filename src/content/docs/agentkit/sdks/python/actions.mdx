@@ -70,8 +70,18 @@ scalekit.actions
         App redirect URL for user verification
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="MagicLinkResponse">
-        `link` (`str`): OAuth magic link URL.
+        The link.
       </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+# connection_name + identifier (or connected_account_id)
+response = scalekit_client.actions.get_authorization_link(
+    connection_name="GMAIL",
+    identifier="user@example.com",
+)
+# response.link, response.expiry
+```
 
     </CB.ClassMethod>
   </CB.ClassBrowser>
@@ -93,8 +103,16 @@ scalekit.actions
         Current user identifier **Required.**
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="VerifyConnectedAccountUserResponse">
-        `post_user_verify_redirect_url` (`str`): URL to redirect the user to after successful…
+        Post-verify redirect URL.
       </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+response = scalekit_client.actions.verify_connected_account_user(
+    auth_request_id="opaque-auth-request-id",
+    identifier="user@example.com",
+)
+```
 
     </CB.ClassMethod>
   </CB.ClassBrowser>
@@ -119,17 +137,28 @@ scalekit.actions
         OAuth token or static auth details
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="organization_id" type="str">
-        Organization tenant ID when your app scopes auth and accounts by org
+        Organization tenant ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="user_id" type="str">
-        Your application user ID when you map Scalekit accounts to internal users
+        Your app user ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="api_config" type="dict">
-        Connector-specific options (for example scopes or static auth fields)
+        Connector-specific options (for example scopes or static.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="CreateConnectedAccountResponse">
-        `connected_account.id` (`str`): Account ID (ca_...) · `connected_account.identifier`…
+        The connected account.id.
       </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+# authorization_details is optional
+response = scalekit_client.actions.get_or_create_connected_account(
+    connection_name="GMAIL",
+    identifier="user@example.com",
+)
+# response.connected_account
+# Alias: scalekit_client.actions.upsert_connected_account(...)
+```
 
     </CB.ClassMethod>
   </CB.ClassBrowser>
@@ -145,17 +174,27 @@ scalekit.actions
       Fetches auth details for a connected account.
 
       <CB.ClassMethodInput name="connection_name" type="str">
-        Connector slug. Use with identifier when you do not pass connected_account_id.
+        Connector slug.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="identifier" type="str">
         End-user or workspace identifier. Use with connection_name.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="connected_account_id" type="str">
-        Connected account ID (ca_...) when resolving by ID instead of name + identifier
+        Connected account ID (ca_...) when resolving by ID instead.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="GetConnectedAccountAuthResponse">
-        `connected_account.id` (`str`): Account ID (ca_...) · `connected_account.identifier`…
+        The connected account.id.
       </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+# Includes auth credentials (sensitive)
+response = scalekit_client.actions.get_connected_account(
+    connection_name="GMAIL",
+    identifier="user@example.com",
+)
+# response.connected_account
+```
 
     </CB.ClassMethod>
   </CB.ClassBrowser>
@@ -171,17 +210,27 @@ scalekit.actions
       Fetches connected account metadata **without** auth credentials.
 
       <CB.ClassMethodInput name="connection_name" type="str">
-        Connector slug. Use with identifier when you do not pass connected_account_id.
+        Connector slug.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="identifier" type="str">
         End-user or workspace identifier. Use with connection_name.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="connected_account_id" type="str">
-        Connected account ID (ca_...) when resolving by ID instead of name + identifier
+        Connected account ID (ca_...) when resolving by ID instead.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="GetConnectedAccountDetailsResponse">
-        `connected_account.id` (`str`): Account ID (ca_...) · `connected_account.identifier`…
+        The connected account.id.
       </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+# Metadata only — no access/refresh tokens
+details = scalekit_client.actions.get_connected_account_details(
+    connection_name="gmail",
+    identifier="user@example.com",
+)
+print(details.connected_account.status)
+```
 
     </CB.ClassMethod>
   </CB.ClassBrowser>
@@ -206,11 +255,20 @@ scalekit.actions
         Filter by provider
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="connection_names" type="list">
-        Filter to accounts for any of these connector slugs (e.g. ["gmail", "slack"])
+        Filter to accounts for any of these connector slugs (e.g.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListConnectedAccountsResponse">
-        `connected_accounts` (`list`): List of ConnectedAccountForList objects (excludes…
+        Paginated connected accounts.
       </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+result = scalekit_client.actions.list_connected_accounts(
+    connection_names=["GMAIL", "slack"],
+    identifier="user@example.com",
+)
+# result.connected_accounts, result.total_count, result.next_page_token
+```
 
     </CB.ClassMethod>
   </CB.ClassBrowser>
@@ -226,26 +284,42 @@ scalekit.actions
       Creates a connected account with explicit auth details.
 
       <CB.ClassMethodInput name="connection_name" type="str">
-        Connector slug. Must match a connection configured in your environment. **Required.**
+        Connector slug.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="identifier" type="str">
-        Stable ID for this end user or workspace (email, user_id, or custom string) **Required.**
+        End-user identifier.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="authorization_details" type="dict">
-        OAuth token payload, API key, or other credentials for this connector **Required.**
+        Authorization details.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="organization_id" type="str">
-        Organization tenant ID when your app scopes auth and accounts by org
+        Organization tenant ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="user_id" type="str">
-        Your application user ID when you map Scalekit accounts to internal users
+        Your app user ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="api_config" type="dict">
-        Connector-specific options (for example scopes or static auth fields)
+        Connector-specific options (for example scopes or static.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="CreateConnectedAccountResponse.">
         See return type `CreateConnectedAccountResponse.`.
       </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+response = scalekit_client.actions.create_connected_account(
+    connection_name="GMAIL",
+    identifier="user@example.com",
+    authorization_details={
+        "oauth_token": {
+            "access_token": "",
+            "refresh_token": "",
+            "scopes": [],
+        }
+    },
+)
+# response.connected_account
+```
 
     </CB.ClassMethod>
   </CB.ClassBrowser>
@@ -261,22 +335,22 @@ scalekit.actions
       Requires `connected_account_id` **or** `connection_name` + `identifier`.
 
       <CB.ClassMethodInput name="connection_name" type="str">
-        Connector slug. Use with identifier when you do not pass connected_account_id.
+        Connector slug.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="identifier" type="str">
         End-user or workspace identifier. Use with connection_name.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="connected_account_id" type="str">
-        Connected account ID (ca_...) when updating by ID instead of name + identifier
+        Connected account ID (ca_...) when updating by ID instead.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="authorization_details" type="dict">
-        Replace or merge stored credentials (OAuth tokens, API keys, etc.)
+        Replace or merge stored credentials (OAuth tokens, API.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="organization_id" type="str">
-        Organization tenant ID when your app scopes auth and accounts by org
+        Organization tenant ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="user_id" type="str">
-        Your application user ID when you map Scalekit accounts to internal users
+        Your app user ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="api_config" type="dict">
         Connector-specific configuration to persist on the account
@@ -284,6 +358,22 @@ scalekit.actions
       <CB.ClassMethodOutput type="UpdateConnectedAccountResponse.">
         See return type `UpdateConnectedAccountResponse.`.
       </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+response = scalekit_client.actions.update_connected_account(
+    connection_name="GMAIL",
+    identifier="user@example.com",
+    authorization_details={
+        "oauth_token": {
+            "access_token": "ya29...",
+            "refresh_token": "...",
+            "scopes": ["email"],
+        }
+    },
+)
+# response.connected_account
+```
 
     </CB.ClassMethod>
   </CB.ClassBrowser>
@@ -299,17 +389,25 @@ scalekit.actions
       Deletes a connected account and revokes its credentials.
 
       <CB.ClassMethodInput name="connection_name" type="str">
-        Connector slug. Use with identifier when you do not pass connected_account_id.
+        Connector slug.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="identifier" type="str">
         End-user or workspace identifier. Use with connection_name.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="connected_account_id" type="str">
-        Connected account ID (ca_...) when deleting by ID instead of name + identifier
+        Connected account ID (ca_...) when deleting by ID instead.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="DeleteConnectedAccountResponse.">
         See return type `DeleteConnectedAccountResponse.`.
       </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+scalekit_client.actions.delete_connected_account(
+    connection_name="GMAIL",
+    identifier="user@example.com",
+)
+```
 
     </CB.ClassMethod>
   </CB.ClassBrowser>
@@ -337,8 +435,19 @@ scalekit.actions
         Direct connected account ID
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ExecuteToolResponse">
-        `data` (`dict`): Tool structured output · `execution_id` (`str`): Unique ID for this…
+        Tool result and execution ID.
       </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+# ActionClient: tool_input first, then tool_name
+result = scalekit_client.actions.execute_tool(
+    tool_input={"max_results": 1},
+    tool_name="gmail_fetch_mails",
+    identifier="user@example.com",
+)
+# result.data, result.execution_id
+```
 
     </CB.ClassMethod>
   </CB.ClassBrowser>
@@ -369,17 +478,29 @@ scalekit.actions
         URL query parameters appended to path
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="body" type="any">
-        JSON-serializable body for POST, PUT, PATCH, or similar methods
+        JSON-serializable body for POST, PUT, PATCH, or similar.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="form_data" type="dict">
-        Multipart form fields when the upstream API expects form data instead of JSON
+        Multipart form fields when the upstream API expects form.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="headers" type="dict">
-        Extra HTTP headers merged with Scalekit-injected auth headers
+        Extra HTTP headers merged with Scalekit-injected auth.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="requests.Response">
         See return type `requests.Response`.
       </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+# Proxied HTTP via {env_url}/proxy{path}
+response = scalekit_client.actions.request(
+    connection_name="GMAIL",
+    identifier="user@example.com",
+    path="/gmail/v1/users/me/profile",
+    method="GET",
+)
+# requests.Response: response.status_code, response.json()
+```
 
     </CB.ClassMethod>
   </CB.ClassBrowser>

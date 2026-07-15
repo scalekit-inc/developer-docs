@@ -28,11 +28,20 @@ import '@/styles/sdk-reference.css'
       Lists tools available in your workspace with optional filtering and pagination.
 
       <CB.ClassMethodInput name="options" type="object" hint="filter, pageSize, pageToken">
-        Optional.
+        Optional settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListToolsResponse">
-        ListToolsResponse
+        Paginated tools.
       </CB.ClassMethodOutput>
+
+
+```typescript wrap showLineNumbers=false
+const res = await scalekit.tools.listTools({
+  pageSize: 50,
+  filter: { query: 'calendar' },
+});
+// res.tools, res.nextPageToken
+```
 
     </CB.ClassMethod>
   </CB.ClassBrowser>
@@ -48,14 +57,25 @@ import '@/styles/sdk-reference.css'
       Lists tools that are scoped to a specific connected account identifier.
 
       <CB.ClassMethodInput name="identifier" type="string">
-        Connected account identifier to scope the tools list (for example,
+        Connected account identifier to scope the tools list (for.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="object" hint="filter, pageSize, pageToken">
-        Filter and pagination parameters filter: Filter configuration for scoped tools…
+        Optional settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListScopedToolsResponse">
-        ListScopedToolsResponse
+        Paginated results.
       </CB.ClassMethodOutput>
+
+
+```typescript wrap showLineNumbers=false
+// options.filter is required
+const res = await scalekit.tools.listScopedTools('user@example.com', {
+  filter: {
+    // providers, toolNames, connectionNames as needed
+  },
+  pageSize: 50,
+});
+```
 
     </CB.ClassMethod>
   </CB.ClassBrowser>
@@ -71,14 +91,21 @@ import '@/styles/sdk-reference.css'
       Lists tools that are available for a specific connected account identifier.
 
       <CB.ClassMethodInput name="identifier" type="string">
-        Connected account identifier to scope the available tools list (for example,
+        Connected account identifier to scope the available tools.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="object" hint="pageSize, pageToken">
-        Optional.
+        Optional settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListAvailableToolsResponse">
-        ListAvailableToolsResponse
+        Paginated results.
       </CB.ClassMethodOutput>
+
+
+```typescript wrap showLineNumbers=false
+const res = await scalekit.tools.listAvailableTools('user@example.com', {
+  pageSize: 50,
+});
+```
 
     </CB.ClassMethod>
   </CB.ClassBrowser>
@@ -94,11 +121,21 @@ import '@/styles/sdk-reference.css'
       Executes a tool using credentials from a connected account.
 
       <CB.ClassMethodInput name="params" type="object" hint="toolName, identifier, params, connectedAccountId, connector, organizationId, userId">
-        Execution configuration toolName: Name of the tool to execute.
+        Tool execution options.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ExecuteToolResponse">
-        ExecuteToolResponse
+        Tool result and execution ID.
       </CB.ClassMethodOutput>
+
+
+```typescript wrap showLineNumbers=false
+// Low-level tools client (params, not toolInput)
+await scalekit.tools.executeTool({
+  toolName: 'slack.chat.postMessage',
+  identifier: 'T0123456',
+  params: { channel: 'C0123', text: 'hi' },
+});
+```
 
     </CB.ClassMethod>
   </CB.ClassBrowser>

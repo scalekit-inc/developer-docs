@@ -61,8 +61,17 @@ Expose AgentKit tools over MCP.
         List of McpConfigConnectionToolMapping objects
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="CreateMcpConfigResponse">
-        `config.id` (`str`): Config ID · `config.name` (`str`): Config name ·…
+        Create mcp config.
       </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+response = scalekit_client.actions.mcp.create_config(
+    name="My agent tools",
+    description="Connectors exposed to the agent",
+)
+# response.config
+```
 
     </CB.ClassMethod>
   </CB.ClassBrowser>
@@ -102,6 +111,13 @@ Expose AgentKit tools over MCP.
         See return type `ListMcpConfigsResponse.`.
       </CB.ClassMethodOutput>
 
+
+```python wrap showLineNumbers=false
+page1 = scalekit_client.actions.mcp.list_configs(page_size=10)
+for cfg in page1.configs:
+    print(cfg.name, cfg.mcp_server_url)
+```
+
     </CB.ClassMethod>
   </CB.ClassBrowser>
 </div>
@@ -116,7 +132,7 @@ Expose AgentKit tools over MCP.
       Call `actions.mcp.update_config`.
 
       <CB.ClassMethodInput name="config_id" type="str">
-        MCP config ID from create_config or list_configs **Required.**
+        MCP config ID from create_config or list_configs.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="description" type="str">
         New human-readable description for this config
@@ -127,6 +143,14 @@ Expose AgentKit tools over MCP.
       <CB.ClassMethodOutput type="UpdateMcpConfigResponse.">
         See return type `UpdateMcpConfigResponse.`.
       </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+response = scalekit_client.actions.mcp.update_config(
+    config_id="cfg_01abc123",
+    description="Updated description",
+)
+```
 
     </CB.ClassMethod>
   </CB.ClassBrowser>
@@ -148,6 +172,11 @@ Expose AgentKit tools over MCP.
         See return type `DeleteMcpConfigResponse.`.
       </CB.ClassMethodOutput>
 
+
+```python wrap showLineNumbers=false
+scalekit_client.actions.mcp.delete_config(config_id="cfg_01abc123")
+```
+
     </CB.ClassMethod>
   </CB.ClassBrowser>
 </div>
@@ -162,17 +191,29 @@ Expose AgentKit tools over MCP.
       Call `actions.mcp.list_mcp_connected_accounts`.
 
       <CB.ClassMethodInput name="config_id" type="str">
-        Virtual MCP Server config ID from list_configs or create_config **Required.**
+        Virtual MCP config ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="identifier" type="str">
         User identifier **Required.**
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="include_auth_link" type="bool">
-        When True, creates missing connected accounts if needed and returns short-lived auth/re-auth URLs.
+        Include auth/re-auth URLs.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListMcpConnectedAccountsResponse">
-        `connected_accounts` (`list`): One entry per connector configured in the Virtual MCP…
+        List mcp connected accounts.
       </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+state = scalekit_client.actions.mcp.list_mcp_connected_accounts(
+    config_id="cfg_01abc123",
+    identifier="alice@example.com",
+    include_auth_link=True,
+)
+for account in state.connected_accounts:
+    if account.connected_account_status != "active":
+        print(account.connection_name, account.authentication_link)
+```
 
     </CB.ClassMethod>
   </CB.ClassBrowser>
@@ -194,11 +235,23 @@ Expose AgentKit tools over MCP.
         User identifier **Required.**
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="expiry" type="timedelta">
-        Token lifetime (server default if omitted, typically 1 hour).
+        Token lifetime (server default if omitted, typically 1.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="CreateMcpSessionTokenResponse">
-        `token` (`str`): Bearer token to pass as Authorization header · `expires_at`…
+        Tokens and claims.
       </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+from datetime import timedelta
+
+resp = scalekit_client.actions.mcp.create_session_token(
+    mcp_config_id="cfg_01abc123",
+    identifier="alice@example.com",
+    expiry=timedelta(hours=1),
+)
+headers = {"Authorization": f"Bearer {resp.token}"}
+```
 
     </CB.ClassMethod>
   </CB.ClassBrowser>

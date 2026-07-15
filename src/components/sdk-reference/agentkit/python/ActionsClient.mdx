@@ -13,23 +13,23 @@ Primary AgentKit interface on `scalekit_client.actions`. Handles connected accou
     Generates a time-limited OAuth magic link to authorize a user's connection.
 
     <CB.ClassMethodInput name="identifier" type="str">
-      User identifier (e.g. email)
-    </CB.ClassMethodInput>
+        User identifier (e.g. email)
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="connection_name" type="str">
-      Connector slug (e.g. gmail)
-    </CB.ClassMethodInput>
+        Connector slug (e.g. gmail)
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="connected_account_id" type="str">
-      Direct connected account ID (ca_...)
-    </CB.ClassMethodInput>
+        Direct connected account ID (ca_...)
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="state" type="str">
-      Opaque value passed through to the redirect URL
-    </CB.ClassMethodInput>
+        Opaque value passed through to the redirect URL
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="user_verify_url" type="str">
-      App redirect URL for user verification
-    </CB.ClassMethodInput>
+        App redirect URL for user verification
+      </CB.ClassMethodInput>
     <CB.ClassMethodOutput type="MagicLinkResponse">
-      `link` (`str`): OAuth magic link URL. Redirect the user here to start the authorization flow. · `expiry` (`datetime`): Link expiry timestamp
-    </CB.ClassMethodOutput>
+        The link.
+      </CB.ClassMethodOutput>
   </CB.ClassMethod>
 
 ```python title="Example"
@@ -45,14 +45,14 @@ magic_link = actions.get_authorization_link(
     Verifies the user after OAuth callback. Call this from your redirect URL handler.
 
     <CB.ClassMethodInput name="auth_request_id" type="str">
-      Token from the redirect URL query params **Required.**
-    </CB.ClassMethodInput>
+        Token from the redirect URL query params **Required.**
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="identifier" type="str">
-      Current user identifier **Required.**
-    </CB.ClassMethodInput>
+        Current user identifier **Required.**
+      </CB.ClassMethodInput>
     <CB.ClassMethodOutput type="VerifyConnectedAccountUserResponse">
-      `post_user_verify_redirect_url` (`str`): URL to redirect the user to after successful verification
-    </CB.ClassMethodOutput>
+        Post-verify redirect URL.
+      </CB.ClassMethodOutput>
   </CB.ClassMethod>
 
 ```python title="Example"
@@ -67,26 +67,26 @@ result = actions.verify_connected_account_user(
     Fetches an existing connected account or creates one if none exists. Use this as the default when setting up a user.
 
     <CB.ClassMethodInput name="connection_name" type="str">
-      Connector slug **Required.**
-    </CB.ClassMethodInput>
+        Connector slug **Required.**
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="identifier" type="str">
-      User's identifier **Required.**
-    </CB.ClassMethodInput>
+        User's identifier **Required.**
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="authorization_details" type="dict">
-      OAuth token or static auth details
-    </CB.ClassMethodInput>
+        OAuth token or static auth details
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="organization_id" type="str">
-      Organization tenant ID when your app scopes auth and accounts by org
-    </CB.ClassMethodInput>
+        Organization tenant ID.
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="user_id" type="str">
-      Your application user ID when you map Scalekit accounts to internal users
-    </CB.ClassMethodInput>
+        Your app user ID.
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="api_config" type="dict">
-      Connector-specific options (for example scopes or static auth fields)
-    </CB.ClassMethodInput>
+        Connector-specific options.
+      </CB.ClassMethodInput>
     <CB.ClassMethodOutput type="CreateConnectedAccountResponse">
-      `connected_account.id` (`str`): Account ID (ca_...) · `connected_account.identifier` (`str`): User's identifier · `connected_account.provider` (`str`): Provider slug · `connected_account.status` (`str`): ACTIVE, INACTIVE, or PENDING · `connected_account.authorization_type` (`str`): OAuth, API_KEY, etc. · `connected_account.token_expires_at` (`datetime`): OAuth token expiry
-    </CB.ClassMethodOutput>
+        The connected account.
+      </CB.ClassMethodOutput>
   </CB.ClassMethod>
 
 ```python title="Example"
@@ -105,17 +105,17 @@ print(account.connected_account.id)
     Requires `connected_account_id` **or** `connection_name` + `identifier`.
 
     <CB.ClassMethodInput name="connection_name" type="str">
-      Connector slug. Use with identifier when you do not pass connected_account_id.
-    </CB.ClassMethodInput>
+        Connector slug.
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="identifier" type="str">
-      End-user or workspace identifier. Use with connection_name.
-    </CB.ClassMethodInput>
+        End-user or workspace identifier. Use with connection_name.
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="connected_account_id" type="str">
-      Connected account ID (ca_...) when resolving by ID instead of name + identifier
-    </CB.ClassMethodInput>
+        Connected account ID (ca_...) when resolving by ID instead.
+      </CB.ClassMethodInput>
     <CB.ClassMethodOutput type="GetConnectedAccountAuthResponse">
-      `connected_account.id` (`str`): Account ID (ca_...) · `connected_account.identifier` (`str`): User's identifier · `connected_account.provider` (`str`): Provider slug · `connected_account.status` (`str`): ACTIVE, INACTIVE, or PENDING · `connected_account.authorization_type` (`str`): OAuth, API_KEY, etc. · `connected_account.authorization_details` (`dict`): Credential payload (access token, API key, etc.) · `connected_account.token_expires_at` (`datetime`): OAuth token expiry · `connected_account.last_used_at` (`datetime`): Last time this account was used · `connected_account.updated_at` (`datetime`): Last update timestamp
-    </CB.ClassMethodOutput>
+        The connected account.
+      </CB.ClassMethodOutput>
   </CB.ClassMethod>
 
   <CB.ClassMethod name="get_connected_account_details">
@@ -124,17 +124,17 @@ print(account.connected_account.id)
     Requires `connected_account_id` **or** `connection_name` + `identifier`.
 
     <CB.ClassMethodInput name="connection_name" type="str">
-      Connector slug. Use with identifier when you do not pass connected_account_id.
-    </CB.ClassMethodInput>
+        Connector slug.
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="identifier" type="str">
-      End-user or workspace identifier. Use with connection_name.
-    </CB.ClassMethodInput>
+        End-user or workspace identifier. Use with connection_name.
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="connected_account_id" type="str">
-      Connected account ID (ca_...) when resolving by ID instead of name + identifier
-    </CB.ClassMethodInput>
+        Connected account ID (ca_...) when resolving by ID instead.
+      </CB.ClassMethodInput>
     <CB.ClassMethodOutput type="GetConnectedAccountDetailsResponse">
-      `connected_account.id` (`str`): Account ID (ca_...) · `connected_account.identifier` (`str`): User's identifier · `connected_account.provider` (`str`): Provider slug · `connected_account.status` (`str`): ACTIVE, INACTIVE, or PENDING · `connected_account.authorization_type` (`str`): OAuth, API_KEY, etc. · `connected_account.api_config` (`dict`): API configuration metadata for the connected account when present · `connected_account.token_expires_at` (`datetime`): OAuth token expiry when known · `connected_account.last_used_at` (`datetime`): Last time this account was used · `connected_account.updated_at` (`datetime`): Last update timestamp
-    </CB.ClassMethodOutput>
+        The connected account.
+      </CB.ClassMethodOutput>
   </CB.ClassMethod>
 
 ```python title="Example"
@@ -147,112 +147,112 @@ print(details.connected_account.status)
 
   <CB.ClassMethod name="list_connected_accounts">
     <CB.ClassMethodInput name="connection_name" type="str">
-      Filter by a single connector slug
-    </CB.ClassMethodInput>
+        Filter by a single connector slug
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="identifier" type="str">
-      Filter by user identifier
-    </CB.ClassMethodInput>
+        Filter by user identifier
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="provider" type="str">
-      Filter by provider
-    </CB.ClassMethodInput>
+        Filter by provider
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="connection_names" type="list">
-      Filter to accounts for any of these connector slugs (e.g. ["gmail", "slack"])
-    </CB.ClassMethodInput>
+        Filter to accounts for any of these connector slugs.
+      </CB.ClassMethodInput>
     <CB.ClassMethodOutput type="ListConnectedAccountsResponse">
-      `connected_accounts` (`list`): List of ConnectedAccountForList objects (excludes authorization_details and api_config) · `total_count` (`int`): Total number of matching accounts · `next_page_token` (`str`): Token for the next page, if any · `previous_page_token` (`str`): Token for the previous page, if any
-    </CB.ClassMethodOutput>
+        Paginated connected accounts.
+      </CB.ClassMethodOutput>
   </CB.ClassMethod>
 
   <CB.ClassMethod name="create_connected_account">
     Creates a connected account with explicit auth details.
 
     <CB.ClassMethodInput name="connection_name" type="str">
-      Connector slug. Must match a connection configured in your environment. **Required.**
-    </CB.ClassMethodInput>
+        Connector slug.
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="identifier" type="str">
-      Stable ID for this end user or workspace (email, user_id, or custom string) **Required.**
-    </CB.ClassMethodInput>
+        Stable ID for this end user or workspace.
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="authorization_details" type="dict">
-      OAuth token payload, API key, or other credentials for this connector **Required.**
-    </CB.ClassMethodInput>
+        OAuth token payload, API key, or other credentials for this.
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="organization_id" type="str">
-      Organization tenant ID when your app scopes auth and accounts by org
-    </CB.ClassMethodInput>
+        Organization tenant ID.
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="user_id" type="str">
-      Your application user ID when you map Scalekit accounts to internal users
-    </CB.ClassMethodInput>
+        Your app user ID.
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="api_config" type="dict">
-      Connector-specific options (for example scopes or static auth fields)
-    </CB.ClassMethodInput>
+        Connector-specific options.
+      </CB.ClassMethodInput>
     <CB.ClassMethodOutput type="CreateConnectedAccountResponse.">
-      See return type `CreateConnectedAccountResponse.`.
-    </CB.ClassMethodOutput>
+        See return type `CreateConnectedAccountResponse.`.
+      </CB.ClassMethodOutput>
   </CB.ClassMethod>
 
   <CB.ClassMethod name="update_connected_account">
     Requires `connected_account_id` **or** `connection_name` + `identifier`.
 
     <CB.ClassMethodInput name="connection_name" type="str">
-      Connector slug. Use with identifier when you do not pass connected_account_id.
-    </CB.ClassMethodInput>
+        Connector slug.
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="identifier" type="str">
-      End-user or workspace identifier. Use with connection_name.
-    </CB.ClassMethodInput>
+        End-user or workspace identifier. Use with connection_name.
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="connected_account_id" type="str">
-      Connected account ID (ca_...) when updating by ID instead of name + identifier
-    </CB.ClassMethodInput>
+        Connected account ID (ca_...) when updating by ID instead.
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="authorization_details" type="dict">
-      Replace or merge stored credentials (OAuth tokens, API keys, etc.)
-    </CB.ClassMethodInput>
+        Replace or merge stored credentials.
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="organization_id" type="str">
-      Organization tenant ID when your app scopes auth and accounts by org
-    </CB.ClassMethodInput>
+        Organization tenant ID.
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="user_id" type="str">
-      Your application user ID when you map Scalekit accounts to internal users
-    </CB.ClassMethodInput>
+        Your app user ID.
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="api_config" type="dict">
-      Connector-specific configuration to persist on the account
-    </CB.ClassMethodInput>
+        Connector-specific configuration to persist on the account
+      </CB.ClassMethodInput>
     <CB.ClassMethodOutput type="UpdateConnectedAccountResponse.">
-      See return type `UpdateConnectedAccountResponse.`.
-    </CB.ClassMethodOutput>
+        See return type `UpdateConnectedAccountResponse.`.
+      </CB.ClassMethodOutput>
   </CB.ClassMethod>
 
   <CB.ClassMethod name="delete_connected_account">
     Deletes a connected account and revokes its credentials. Requires `connected_account_id` **or** `connection_name` + `identifier`.
 
     <CB.ClassMethodInput name="connection_name" type="str">
-      Connector slug. Use with identifier when you do not pass connected_account_id.
-    </CB.ClassMethodInput>
+        Connector slug.
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="identifier" type="str">
-      End-user or workspace identifier. Use with connection_name.
-    </CB.ClassMethodInput>
+        End-user or workspace identifier. Use with connection_name.
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="connected_account_id" type="str">
-      Connected account ID (ca_...) when deleting by ID instead of name + identifier
-    </CB.ClassMethodInput>
+        Connected account ID (ca_...) when deleting by ID instead.
+      </CB.ClassMethodInput>
     <CB.ClassMethodOutput type="DeleteConnectedAccountResponse.">
-      See return type `DeleteConnectedAccountResponse.`.
-    </CB.ClassMethodOutput>
+        See return type `DeleteConnectedAccountResponse.`.
+      </CB.ClassMethodOutput>
   </CB.ClassMethod>
 
   <CB.ClassMethod name="execute_tool">
     Executes a named tool via Scalekit. Pre- and post-modifiers run automatically if registered.
 
     <CB.ClassMethodInput name="tool_name" type="str">
-      Tool name (e.g. gmail_fetch_emails) **Required.**
-    </CB.ClassMethodInput>
+        Tool name (e.g. gmail_fetch_emails) **Required.**
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="tool_input" type="dict">
-      Parameters the tool expects **Required.**
-    </CB.ClassMethodInput>
+        Parameters the tool expects **Required.**
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="identifier" type="str">
-      User's identifier
-    </CB.ClassMethodInput>
+        User's identifier
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="connected_account_id" type="str">
-      Direct connected account ID
-    </CB.ClassMethodInput>
+        Direct connected account ID
+      </CB.ClassMethodInput>
     <CB.ClassMethodOutput type="ExecuteToolResponse">
-      `data` (`dict`): Tool structured output · `execution_id` (`str`): Unique ID for this execution
-    </CB.ClassMethodOutput>
+        Tool result and execution ID.
+      </CB.ClassMethodOutput>
   </CB.ClassMethod>
 
 ```python title="Example"
@@ -268,32 +268,32 @@ emails = result.data
     Makes a REST API call on behalf of a connected account. Scalekit injects the user's OAuth token automatically.
 
     <CB.ClassMethodInput name="connection_name" type="str">
-      Connector slug **Required.**
-    </CB.ClassMethodInput>
+        Connector slug **Required.**
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="identifier" type="str">
-      User's identifier **Required.**
-    </CB.ClassMethodInput>
+        User's identifier **Required.**
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="path" type="str">
-      API path (e.g. /gmail/v1/users/me/messages) **Required.**
-    </CB.ClassMethodInput>
+        API path (e.g. /gmail/v1/users/me/messages) **Required.**
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="method" type="str">
-      HTTP method. Default: GET
-    </CB.ClassMethodInput>
+        HTTP method. Default: GET
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="query_params" type="dict">
-      URL query parameters appended to path
-    </CB.ClassMethodInput>
+        URL query parameters appended to path
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="body" type="any">
-      JSON-serializable body for POST, PUT, PATCH, or similar methods
-    </CB.ClassMethodInput>
+        JSON-serializable body for POST, PUT, PATCH, or similar.
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="form_data" type="dict">
-      Multipart form fields when the upstream API expects form data instead of JSON
-    </CB.ClassMethodInput>
+        Multipart form fields when the upstream API expects form.
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="headers" type="dict">
-      Extra HTTP headers merged with Scalekit-injected auth headers
-    </CB.ClassMethodInput>
+        Extra HTTP headers merged with Scalekit-injected auth.
+      </CB.ClassMethodInput>
     <CB.ClassMethodOutput type="requests.Response">
-      See return type `requests.Response`.
-    </CB.ClassMethodOutput>
+        See return type `requests.Response`.
+      </CB.ClassMethodOutput>
   </CB.ClassMethod>
 
 ```python title="Example"
