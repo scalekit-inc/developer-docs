@@ -32,11 +32,11 @@ Access tokens issued by Scalekit carry a working set of default claims that cove
 
 This guide shows how to add custom claims to the JWT access token through the Scalekit dashboard, and how to preview the exact payload a token will carry before you depend on it in production.
 
-#### Default claims
+## Default claims
 
-Let's start by looking at the default claims already present on every access token:
+Review the default claims already present on every access token:
 
-```json
+```jsonc title="Default access token claims" showLineNumbers=false
 {
   "sub": "usr_96194455173923084",              // Scalekit user ID
   "iss": "https://your-app.scalekit.com",       // Token issuer
@@ -52,7 +52,7 @@ Let's start by looking at the default claims already present on every access tok
 }
 ```
 
-These claims are also listed in your Scalekit dashboard. Navigate to **Dashboard > Customize > Token Claims** to see them. Let's see how to add a custom claim.
+These claims are also listed in your Scalekit dashboard. Navigate to **Dashboard > Customize > Token Claims** to see them.
 
 ## Add a custom claim
 
@@ -72,7 +72,7 @@ To add a custom claim:
 
 Scalekit adds the resolved value to every token going forward:
 
-```json ins={13}
+```jsonc title="Access token with a custom claim" showLineNumbers=false ins={13}
 {
   "sub": "usr_96194455173923084",               // Scalekit user ID
   "iss": "https://your-app.scalekit.com",        // Token issuer
@@ -91,13 +91,17 @@ Scalekit adds the resolved value to every token going forward:
 
 Custom claims are access token extensions you can precisely configure for your application's authorization needs. For example, as a multi-tenant SaaS platform, you might add a claim that exposes the organization's plan, so your API can gate a premium feature without a database lookup on every request. Use the pencil icon next to a claim to edit its expression, or the trash icon to remove it.
 
+<Aside type="caution" title="Keep claims non-sensitive">
+Anyone holding the access token can decode and read its claims, and tokens are often logged or forwarded to other services. Include only the minimal context your API needs to authorize a request, such as a plan tier or a role, and never a secret, password, or unnecessary personal detail.
+</Aside>
+
 ## Preview before you rely on it
 
 The **Token preview** panel on the Token Claims page resolves every claim, default and custom, against a real person. Search for a user, and the JSON view updates with the exact payload that user would get in their next token.
 
 ![Token Claims page showing default and custom claims, with a resolved JWT payload in the preview panel.](@/assets/docs/jwt-template/token-claims-page.png)
 
-For a true end-to-end check, sign in through your OIDC flow and decode the access token you receive. That confirms the claim survives the full login path, not just the preview.
+For a true end-to-end check, sign in through your OIDC flow and decode the access token you receive. Decoding only shows you what a token contains, it doesn't validate it: your API must still verify the signature and check `iss`, `aud`, and the expiry before trusting any claim on it. A custom claim also only reflects the data at the time the token was issued, so an existing token keeps its old value until the user logs in again or the token refreshes.
 
 <Aside type="note" title="A claim can resolve to nothing">
 If an expression's field is missing for a given user (no `metadata.department` set, for example), Scalekit leaves that claim out of the token rather than adding an empty one. A login never fails because of a claim expression; worst case, the claim just isn't there. Preview against a few different users to catch this before you depend on the claim in production.
@@ -143,7 +147,7 @@ Every expression reads from one of two objects: `user` or `organization`.
 
 The simplest expression is just a field path, like `user.email`. Scalekit evaluates it against the signed-in user and their organization, and the result becomes the claim's value.
 
-Chain a fallback with `??` for when the first field might be empty, for example `user.email ?? user.preferred_username`.
+Chain a fallback with `??` for when the first field might be missing, for example `user.email ?? user.preferred_username`. It only falls back on a missing or `nil` value, not an empty string.
 
 A few more patterns:
 
