@@ -1,6 +1,6 @@
 ---
 title: Scalekit Client
-description: Create the SDK client and run core auth helpers.
+description: Create the SDK client and run core auth helpers
 topic: saaskit-sdks
 tableOfContents:
   minHeadingLevel: 3
@@ -9,16 +9,6 @@ sidebar:
   label: Scalekit Client
 prev: false
 next: false
-head:
-  - tag: style
-    content: |
-      starlight-toc a[href='#_top'],
-      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
-        display: none !important;
-      }
-      starlight-toc li:has(> a[href='#_top']) > ul {
-        padding-inline-start: 0 !important;
-      }
 ---
 
 import * as CB from '@gesslar/starlight-class-browser'
@@ -26,37 +16,25 @@ import '@/styles/sdk-reference.css'
 
 <div class="sdk-client-page">
 
-Create the SDK client and run core auth helpers.
-
-
-{/* Client chrome once */}
-<div class="sdk-client-chrome">
-  <CB.ClassBrowser
-    name="ScalekitClient"
-    type="class"
-    language="python"
-    source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main"
-  >
-  </CB.ClassBrowser>
-</div>
+Create a `ScalekitClient` with your environment URL and credentials.
 
 ### `get_authorization_url`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="python">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/client.py">
     <CB.ClassMethod name="get_authorization_url" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Utility method to generate the OAuth 2.0 authorization URL to initiate the SSO authentication flow.
+      Method to get authorization URL
 
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. \https://yourapp.com/auth/callback\
+      <CB.ClassMethodInput name="redirect_uri" type="str">
+        Redirect URI for SAML SSO
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="unknown">
-        Argument (options)
+      <CB.ClassMethodInput name="options" type="AuthorizationUrlOptions | None">
+        Auth URL options object
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="None">
+        Authorization URL
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -81,17 +59,23 @@ auth_url = scalekit_client.get_authorization_url(
 ### `authenticate_with_code`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="python">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/client.py">
     <CB.ClassMethod name="authenticate_with_code" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Exchanges an authorization code for access tokens and user information.
+      Method to authenticate with code options
 
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. \/auth/callback\
+      <CB.ClassMethodInput name="code" type="Any">
+        authorization_code
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodInput name="redirect_uri" type="Any">
+        Redirect URI
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="CodeAuthenticationOptions">
+        CodeAuthenticationOptions Object
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="None">
+        dict with user, id token, optionally access token & refresh token
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -119,17 +103,23 @@ async def auth_callback(request):
 ### `get_idp_initiated_login_claims`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="python">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/client.py">
     <CB.ClassMethod name="get_idp_initiated_login_claims" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Extracts and validates claims from an IdP-initiated login token.
+      Method to get IDP initiated login claims
 
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. \idp_initiated_login\
+      <CB.ClassMethodInput name="idp_initiated_login_token" type="str">
+        IDP initiated login token
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodInput name="options" type="Optional[TokenValidationOptions]">
+        Optional. Optional validation options for issuer and audience
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="audience" type="Any">
+        Optional. audience for validation (deprecated, use options.audience instead)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="IdpInitiatedLoginClaims">
+        ``` IdpInitiatedLoginClaims ```
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -162,17 +152,23 @@ async def auth_callback(request):
 ### `validate_access_token`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="python">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/client.py">
     <CB.ClassMethod name="validate_access_token" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Validates the access token and returns a boolean result.
+      Method to validate access token
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (token)
+      <CB.ClassMethodInput name="token" type="str">
+        access token
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodInput name="options" type="Optional[TokenValidationOptions]">
+        Optional. Optional validation options for issuer, audience, and scopes
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="audience" type="Any">
+        Optional. audience for validation (deprecated, use options.audience instead)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="bool">
+        bool
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -189,17 +185,17 @@ if is_valid:
 ### `get_logout_url`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="python">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/client.py">
     <CB.ClassMethod name="get_logout_url" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Returns the logout URL that can be used to log out the user.
+      Method to get logout URL
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (options)
+      <CB.ClassMethodInput name="options" type="LogoutUrlOptions">
+        Logout URL options object
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="str">
+        str: The logout URL
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -217,17 +213,23 @@ logout_url = scalekit_client.get_logout_url(options)
 ### `verify_webhook_payload`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="python">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/client.py">
     <CB.ClassMethod name="verify_webhook_payload" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Verifies the webhook payload signature using the provided secret.
+      Method to verify webhook payload
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (request.headers)
+      <CB.ClassMethodInput name="secret" type="str">
+        Secret for webhook verification
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodInput name="headers" type="Dict[str, str]">
+        Webhook request headers
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="payload" type="str | bytes">
+        Webhook payload in str or bytes
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="bool">
+        bool
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -254,17 +256,17 @@ async def webhook_handler(request):
 ### `refresh_access_token`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="python">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/client.py">
     <CB.ClassMethod name="refresh_access_token" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Refreshes an access token using a refresh token.
+      Method to refresh access token using refresh token
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (refresh_token)
+      <CB.ClassMethodInput name="refresh_token" type="str">
+        Refresh token to get new access token
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="None">
+        dict with access token & refresh token
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -276,4 +278,150 @@ new_refresh_token = result['refresh_token']
     </CB.ClassMethod>
   </CB.ClassBrowser>
 </div>
+
+### `generate_client_token`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/client.py">
+    <CB.ClassMethod name="generate_client_token" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to generate access token
+
+      <CB.ClassMethodInput name="client_id" type="str">
+        Client Id for access token
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="client_secret" type="str">
+        Client Secret for access token
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="scopes" type="Optional[list[str]]">
+        Optional.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="str">
+        access token
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `get_client_access_token`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/client.py">
+    <CB.ClassMethod name="get_client_access_token" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to generate an access token using the stored client credentials.
+
+      <CB.ClassMethodOutput type="str">
+        access token string
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `validate_access_token_and_get_claims`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/client.py">
+    <CB.ClassMethod name="validate_access_token_and_get_claims" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to validate access token and get claims
+
+      <CB.ClassMethodInput name="token" type="str">
+        access token
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="Optional[TokenValidationOptions]">
+        Optional. Optional validation options for issuer, audience, and scopes
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="audience" type="Any">
+        Optional. audience for validation (deprecated, use options.audience instead)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="Dict[str, Any]">
+        claims
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `validate_token`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/client.py">
+    <CB.ClassMethod name="validate_token" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to validate token
+
+      <CB.ClassMethodInput name="token" type="str">
+        token
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="Optional[TokenValidationOptions]">
+        Optional. validation options for issuer, audience, and scopes
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="audience" type="Optional[str]">
+        Optional. audience for validation
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="Dict[str, Any]">
+        payload
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `verify_scopes`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/client.py">
+    <CB.ClassMethod name="verify_scopes" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Verify that the token contains the required scopes
+
+      <CB.ClassMethodInput name="token" type="str">
+        The token to verify
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="required_scopes" type="list[str]">
+        The scopes that must be present in the token
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="bool">
+        bool: Returns True if all required scopes are present
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `verify_interceptor_payload`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/client.py">
+    <CB.ClassMethod name="verify_interceptor_payload" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to verify interceptor payload using common verification logic
+
+      <CB.ClassMethodInput name="secret" type="str">
+        Secret for interceptor verification
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="headers" type="Dict[str, str]">
+        Interceptor request headers (with interceptor-id, interceptor-timestamp…
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="payload" type="str | bytes">
+        Interceptor payload in str or bytes
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="bool">
+        bool
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
 </div>

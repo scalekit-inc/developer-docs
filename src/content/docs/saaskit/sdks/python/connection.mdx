@@ -1,6 +1,6 @@
 ---
 title: Connection
-description: Configure enterprise SSO connections.
+description: Configure enterprise SSO connections
 topic: saaskit-sdks
 tableOfContents:
   minHeadingLevel: 3
@@ -9,16 +9,6 @@ sidebar:
   label: Connection
 prev: false
 next: false
-head:
-  - tag: style
-    content: |
-      starlight-toc a[href='#_top'],
-      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
-        display: none !important;
-      }
-      starlight-toc li:has(> a[href='#_top']) > ul {
-        padding-inline-start: 0 !important;
-      }
 ---
 
 import * as CB from '@gesslar/starlight-class-browser'
@@ -26,34 +16,25 @@ import '@/styles/sdk-reference.css'
 
 <div class="sdk-client-page">
 
-Configure enterprise SSO connections.
-
-
-{/* Client chrome once */}
-<div class="sdk-client-chrome">
-  <CB.ClassBrowser
-    name="Connection"
-    type="client"
-    language="python"
-    source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main"
-  >
-  </CB.ClassBrowser>
-</div>
+Use `scalekit_client.connection` to manage enterprise SSO connections.
 
 ### `list_connections`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Connection" type="client" language="python">
+  <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
     <CB.ClassMethod name="list_connections" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Lists all SSO connections for an organization.
+      Method to list connections
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (f"Connection: conn.id")
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Client organization id to get connections
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodInput name="include" type="Optional[str]">
+        Optional. Return active connections or all, E.g. - 'all'
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListConnectionsResponse">
+        List Connections Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -73,20 +54,20 @@ for conn in response[0].connections:
 ### `list_connections_by_domain`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Connection" type="client" language="python">
+  <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
     <CB.ClassMethod name="list_connections_by_domain" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Lists all SSO connections for a domain.
+      Method to get connection object by domain
 
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. \acme.com\
+      <CB.ClassMethodInput name="domain" type="str">
+        Client domain id to get connections
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="include" type="string">
-        e.g. \all\
+      <CB.ClassMethodInput name="include" type="Optional[str]">
+        Optional. Return active connections or all, E.g. - 'all'
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="ListConnectionsResponse">
+        List Connections Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -103,20 +84,20 @@ response = scalekit_client.connection.list_connections_by_domain(
 ### `get_connection`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Connection" type="client" language="python">
+  <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
     <CB.ClassMethod name="get_connection" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Retrieves a specific SSO connection by ID.
+      Method to get connection object
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. \org_123456\
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Client organization id to get connection
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. \conn_123456\
+      <CB.ClassMethodInput name="conn_id" type="str">
+        Client connection id to get connection
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="GetConnectionResponse">
+        Connection Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -134,20 +115,20 @@ connection = response[0].connection
 ### `create_connection`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Connection" type="client" language="python">
+  <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
     <CB.ClassMethod name="create_connection" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Creates a new SSO connection for an organization.
+      Method to create a new connection
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. \org_123456\
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id to create connection for
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="unknown">
-        Argument (connection)
+      <CB.ClassMethodInput name="connection" type="CreateConnection">
+        CreateConnection object with expected values for conn creation
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="CreateConnectionResponse">
+        Create Connection Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -169,20 +150,20 @@ response = scalekit_client.connection.create_connection(
 ### `enable_connection`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Connection" type="client" language="python">
+  <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
     <CB.ClassMethod name="enable_connection" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Enables an SSO connection for an organization.
+      Method to enable connection
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. \org_123456\
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Client organization id to enable connection
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. \conn_123456\
+      <CB.ClassMethodInput name="conn_id" type="str">
+        Client connection id to enable connection
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="ToggleConnectionResponse">
+        Enable Connection Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -196,20 +177,20 @@ scalekit_client.connection.enable_connection('org_123456', 'conn_123456')
 ### `disable_connection`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Connection" type="client" language="python">
+  <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
     <CB.ClassMethod name="disable_connection" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Disables an SSO connection for an organization.
+      Method to disable connection
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. \org_123456\
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Client organization id to disable connection
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. \conn_123456\
+      <CB.ClassMethodInput name="conn_id" type="str">
+        Client connection id to disable connection
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="ToggleConnectionResponse">
+        Disable Connection Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -223,20 +204,20 @@ scalekit_client.connection.disable_connection('org_123456', 'conn_123456')
 ### `delete_connection`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Connection" type="client" language="python">
+  <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
     <CB.ClassMethod name="delete_connection" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Deletes an SSO connection from an organization.
+      Method to delete a connection based in given organization and connection id
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. \org_123456\
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id to delete connection for
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. \conn_123456\
+      <CB.ClassMethodInput name="connection_id" type="str">
+        Connection id of connection to be deleted
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="None">
+        None
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -250,20 +231,23 @@ scalekit_client.connection.delete_connection('org_123456', 'conn_123456')
 ### `list_app_connections`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Connection" type="client" language="python">
+  <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
     <CB.ClassMethod name="list_app_connections" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Lists all environment-level app connections.
+      Method to list environment-level app connections
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (f"Connection: conn.id)
+      <CB.ClassMethodInput name="page_size" type="Optional[int]">
+        Optional. Maximum number of connections to return (max 30)
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="unknown">
-        Argument (Provider: conn.provider_key")
+      <CB.ClassMethodInput name="page_token" type="Optional[str]">
+        Optional. Token for pagination
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodInput name="provider" type="Optional[str]">
+        Optional. Filter by provider (e.g. 'HUBSPOT')
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListAppConnectionsResponse">
+        List App Connections Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -284,20 +268,17 @@ response = scalekit_client.connection.list_app_connections(provider='HUBSPOT', p
 ### `get_environment_connection`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Connection" type="client" language="python">
+  <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
     <CB.ClassMethod name="get_environment_connection" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Retrieves an environment-level connection by its ID.
+      Method to get an environment-level connection by its id
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (f"Provider: conn.provider_key)
+      <CB.ClassMethodInput name="connection_id" type="str">
+        Connection id to retrieve
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="unknown">
-        Argument (Type: conn.type")
-      </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="GetConnectionResponse">
+        Get Connection Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -313,20 +294,20 @@ print(f"Provider: {conn.provider_key}, Type: {conn.type}")
 ### `create_environment_connection`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Connection" type="client" language="python">
+  <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
     <CB.ClassMethod name="create_environment_connection" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Creates a new environment-level connection.
+      Method to create a new environment-level connection
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (f"Created: conn.id)
+      <CB.ClassMethodInput name="connection" type="CreateConnection">
+        CreateConnection object with expected values for conn creation
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="unknown">
-        Argument (Key: conn.key_id")
+      <CB.ClassMethodInput name="flags" type="Optional[Flags]">
+        Optional. Optional Flags (is_login, is_app)
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="CreateConnectionResponse">
+        Create Connection Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -363,20 +344,20 @@ response = scalekit_client.connection.create_environment_connection(
 ### `update_environment_connection`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Connection" type="client" language="python">
+  <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
     <CB.ClassMethod name="update_environment_connection" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Updates an environment-level connection.
+      Method to update an environment-level connection
 
-      <CB.ClassMethodInput name="connection_id" type="string">
-        e.g. \conn_123456\
+      <CB.ClassMethodInput name="connection_id" type="str">
+        Connection id to update
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="connection" type="unknown">
-        Argument (UpdateConnection( provider_key=\GOOGLEDW…)
+      <CB.ClassMethodInput name="connection" type="UpdateConnection">
+        UpdateConnection object with fields to update
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="UpdateConnectionResponse">
+        Update Connection Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -418,4 +399,6 @@ conn = response[0].connection
     </CB.ClassMethod>
   </CB.ClassBrowser>
 </div>
+
+
 </div>

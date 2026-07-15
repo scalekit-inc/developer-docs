@@ -1,24 +1,14 @@
 ---
-title: Web Authn
-description: Passkey and WebAuthn credentials.
+title: WebAuthn
+description: Passkey and WebAuthn credentials
 topic: saaskit-sdks
 tableOfContents:
   minHeadingLevel: 3
   maxHeadingLevel: 3
 sidebar:
-  label: Web Authn
+  label: WebAuthn
 prev: false
 next: false
-head:
-  - tag: style
-    content: |
-      starlight-toc a[href='#_top'],
-      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
-        display: none !important;
-      }
-      starlight-toc li:has(> a[href='#_top']) > ul {
-        padding-inline-start: 0 !important;
-      }
 ---
 
 import * as CB from '@gesslar/starlight-class-browser'
@@ -26,31 +16,25 @@ import '@/styles/sdk-reference.css'
 
 <div class="sdk-client-page">
 
-Passkey and WebAuthn credentials.
-
-
-{/* Client chrome once */}
-<div class="sdk-client-chrome">
-  <CB.ClassBrowser
-    name="WebAuthn"
-    type="client"
-    language="go"
-    source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main"
-  >
-  </CB.ClassBrowser>
-</div>
+Use the WebAuthn client for passkeys.
 
 ### `ListCredentials`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="WebAuthn" type="client" language="go">
+  <CB.ClassBrowser name="WebAuthn" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/webauthn.go">
     <CB.ClassMethod name="ListCredentials" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Lists passkey credentials for a user.
+      ListCredentials retrieves all registered passkeys for a user
 
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="userId" type="string">
+        userId value
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListCredentialsResponse">
+        ListCredentialsResponse
       </CB.ClassMethodOutput>
 
     </CB.ClassMethod>
@@ -60,14 +44,23 @@ Passkey and WebAuthn credentials.
 ### `UpdateCredential`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="WebAuthn" type="client" language="go">
+  <CB.ClassBrowser name="WebAuthn" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/webauthn.go">
     <CB.ClassMethod name="UpdateCredential" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Updates the display name of a passkey credential.
+      UpdateCredential updates the display name of a passkey credential
 
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="credentialId" type="string">
+        credentialId value
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="displayName" type="string">
+        displayName value
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateCredentialResponse">
+        UpdateCredentialResponse
       </CB.ClassMethodOutput>
 
     </CB.ClassMethod>
@@ -77,17 +70,25 @@ Passkey and WebAuthn credentials.
 ### `DeleteCredential`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="WebAuthn" type="client" language="go">
+  <CB.ClassBrowser name="WebAuthn" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/webauthn.go">
     <CB.ClassMethod name="DeleteCredential" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Deletes a passkey credential by credential ID.
+      DeleteCredential deletes a specific passkey credential
 
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="credentialId" type="string">
+        credentialId value
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="DeleteCredentialResponse">
+        DeleteCredentialResponse
       </CB.ClassMethodOutput>
 
     </CB.ClassMethod>
   </CB.ClassBrowser>
 </div>
+
+
 </div>

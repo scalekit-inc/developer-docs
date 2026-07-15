@@ -31,13 +31,19 @@ Use the `user` client to provision users and manage organization memberships.
         The organization ID to add the user to
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="CreateUserRequest">
-        User creation configuration email: User's email address (required, must be unique) userProfile: Optional user profile information userProfile.firstName: User's first name userProfile.lastName: User's last name metadata: Custom metadata key-value pairs sendInvitationEmail: =true] - Whether to send invitation email to the user
+        User creation configuration email: User's email address (required, must be unique)…
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="CreateUserAndMembershipResponse">
-        Response containing: - user: The created user object with profile and membership details
+        Response containing: - user: The created user object with profile and membership details.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
+// email: User's email address (required, must be unique)
+// userProfile: Optional user profile information userProfile
+// firstName: User's first name userProfile
+// lastName: User's last name
+// metadata: Custom metadata key-value pairs
+// sendInvitationEmail: =true] - Whether to send invitation email to the user
 const response = await scalekit.user.createUserAndMembership(
   'org_123456',
   {
@@ -73,10 +79,15 @@ console.log('User created:', response.user.id);
         The Scalekit-generated user identifier (format: "usr_...")
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="GetUserResponse">
-        Response containing: - user: Complete user object with: - id: Scalekit's unique user identifier - email: User's email address - userProfile: Profile informat…
+        Response containing: - user: Complete user object.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
+// containing: -
+// user: Complete user object
+// id: Scalekit's unique user identifier -
+// email: User's email address -
+// userProfile: Profile informat…
 const response = await scalekit.user.getUser('usr_123456');
 const user = response.user;
 
@@ -99,13 +110,20 @@ console.log('Organizations:', user.memberships?.length);
       Retrieves a paginated list of all users across your Scalekit environment.
 
       <CB.ClassMethodInput name="options" type="object" hint="pageSize, pageToken">
-        Optional. Optional pagination parameters pageSize: Number of users to return per page (valid range: 10-100, default: 10) pageToken: Token for retrieving the next page of results.
+        Optional.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListUsersResponse">
-        Response containing: - users: Array of user objects with profiles and membership details - nextPageToken: Token for fetching the next page (empty if no more …
+        Response containing: - users: Array of user objects with profiles and membership details…
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
+// pageSize: Number of users to return per page (valid
+// range: 10-100,
+// default: 10)
+// pageToken: Token for retrieving the next page of results
+// containing: -
+// users: Array of user objects with profiles and membership details -
+// nextPageToken: Token for fetching the next page (empty if no more …
 const response = await scalekit.user.listUsers({
   pageSize: 20
 });
@@ -134,7 +152,7 @@ console.log('Total users:', response.totalSize);
         Object containing fields to update:
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="UpdateUserResponse">
-        Response containing: - user: The updated user object with all current values
+        Response containing: - user: The updated user object with all current values.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
@@ -195,13 +213,16 @@ console.log('User deleted successfully');
         The user ID to add as a member (format: "usr_...")
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="object" hint="roles, metadata, sendInvitationEmail">
-        =()] - Optional membership configuration roles: Array of role names to assign to the user metadata: Custom metadata key-value pairs sendInvitationEmail: =true] - Whether to send invitation email
+        =()] - Optional membership configuration roles: Array of role names to assign to the user…
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="CreateMembershipResponse">
-        Response containing: - user: The updated user object including the new membership details
+        Response containing: - user: The updated user object including the new membership details.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
+// roles: Array of role names to assign to the user
+// metadata: Custom metadata key-value pairs
+// sendInvitationEmail: =true] - Whether to send invitation email
 const response = await scalekit.user.createMembership(
   'org_123456',
   'usr_789012',
@@ -260,13 +281,15 @@ console.log('User removed from organization');
         The user ID whose membership to update (format: "usr_...")
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="object" hint="roles, metadata">
-        =()] - Fields to update roles: Array of role names to assign (replaces existing roles) metadata: Custom metadata key-value pairs
+        =()] - Fields to update roles: Array of role names to assign (replaces existing roles)…
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="UpdateMembershipResponse">
-        Response containing: - user: The updated user object with modified membership details
+        Response containing: - user: The updated user object with modified membership details.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
+// roles: Array of role names to assign (replaces existing roles)
+// metadata: Custom metadata key-value pairs
 const response = await scalekit.user.updateMembership(
   'org_123456',
   'usr_789012',
@@ -291,13 +314,19 @@ const response = await scalekit.user.updateMembership(
         The organization ID to list users from (format: "org_...")
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="object" hint="pageSize, pageToken">
-        Optional. Optional pagination parameters pageSize: Number of users to return per page (valid range: 1-100) pageToken: Token for retrieving the next page of results.
+        Optional.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListOrganizationUsersResponse">
-        Response containing: - users: Array of user objects with profiles, roles, and membership details - nextPageToken: Token for fetching the next page (empty if …
+        Response containing: - users: Array of user objects with profiles, roles, and membership…
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
+// pageSize: Number of users to return per page (valid
+// range: 1-100)
+// pageToken: Token for retrieving the next page of results
+// containing: -
+// users: Array of user objects with profiles, roles, and membershi…
+// nextPageToken: Token for fetching the next page (empty if …
 const response = await scalekit.user.listOrganizationUsers('org_123456', {
   pageSize: 25
 });
@@ -326,7 +355,7 @@ console.log('Total members:', response.totalSize);
         The user ID who should receive the invite (format: "usr_...")
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ResendInviteResponse">
-        Response containing: - invite: The invitation details including status and expiration
+        Response containing: - invite: The invitation details including status and expiration.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
@@ -354,7 +383,7 @@ console.log('Invitation resent:', response.invite);
         The user ID whose roles to list (format: "usr_...")
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListUserRolesResponse">
-        Response containing: - roles: Array of Role objects assigned to the user in the organization
+        Response containing: - roles: Array of Role objects assigned to the user in the organization.
       </CB.ClassMethodOutput>
 
     </CB.ClassMethod>
@@ -377,7 +406,7 @@ console.log('Invitation resent:', response.invite);
         The user ID whose permissions to list (format: "usr_...")
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListUserPermissionsResponse">
-        Response containing: - permissions: Array of Permission objects effective for the user in the organization
+        Response containing: - permissions: Array of Permission objects effective for the user in the…
       </CB.ClassMethodOutput>
 
     </CB.ClassMethod>
@@ -570,7 +599,7 @@ console.log('Invitation resent:', response.invite);
         The external identifier for the user
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="object" hint="roles, metadata, sendInvitationEmail">
-        =()] - Optional membership configuration roles: Array of role names to assign metadata: Custom metadata for this membership sendInvitationEmail: Whether to send invitation email
+        =()] - Optional membership configuration roles: Array of role names to assign metadata…
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="CreateMembershipResponse">
         Response containing the updated user
@@ -619,7 +648,7 @@ console.log('Invitation resent:', response.invite);
         The external identifier for the user
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="object" hint="roles, metadata">
-        =()] - Fields to update roles: Array of role names to assign (replaces existing) metadata: Custom metadata for this membership
+        =()] - Fields to update roles: Array of role names to assign (replaces existing)…
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="UpdateMembershipResponse">
         Response containing the updated user

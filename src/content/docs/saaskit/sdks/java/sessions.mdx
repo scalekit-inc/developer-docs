@@ -1,6 +1,6 @@
 ---
 title: Sessions
-description: Validate tokens and manage user sessions.
+description: Validate tokens and manage user sessions
 topic: saaskit-sdks
 tableOfContents:
   minHeadingLevel: 3
@@ -9,16 +9,6 @@ sidebar:
   label: Sessions
 prev: false
 next: false
-head:
-  - tag: style
-    content: |
-      starlight-toc a[href='#_top'],
-      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
-        display: none !important;
-      }
-      starlight-toc li:has(> a[href='#_top']) > ul {
-        padding-inline-start: 0 !important;
-      }
 ---
 
 import * as CB from '@gesslar/starlight-class-browser'
@@ -26,34 +16,22 @@ import '@/styles/sdk-reference.css'
 
 <div class="sdk-client-page">
 
-Validate tokens and manage user sessions.
-
-
-{/* Client chrome once */}
-<div class="sdk-client-chrome">
-  <CB.ClassBrowser
-    name="Sessions"
-    type="client"
-    language="java"
-    source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main"
-  >
-  </CB.ClassBrowser>
-</div>
+Use `client.sessions()` to inspect and revoke sessions.
 
 ### `getSession`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Sessions" type="client" language="java">
+  <CB.ClassBrowser name="Sessions" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/SessionClient.java">
     <CB.ClassMethod name="getSession" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Gets session details by session ID.
+      Call `getSession`.
 
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. "sess_123"
+      <CB.ClassMethodInput name="sessionId" type="String">
+        sessionId value
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="SessionDetails">
+        SessionDetails
       </CB.ClassMethodOutput>
 
 ```java wrap showLineNumbers=false
@@ -67,26 +45,26 @@ client.sessions().getSession("sess_123");
 ### `getUserSessions`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Sessions" type="client" language="java">
+  <CB.ClassBrowser name="Sessions" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/SessionClient.java">
     <CB.ClassMethod name="getUserSessions" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Lists sessions for a user with pagination and optional filtering.
+      Call `getUserSessions`.
 
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. "user_123"
+      <CB.ClassMethodInput name="userId" type="String">
+        userId value
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="number">
-        e.g. 20
+      <CB.ClassMethodInput name="pageSize" type="Integer">
+        pageSize value
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg3" type="string">
-        e.g. ""
+      <CB.ClassMethodInput name="pageToken" type="String">
+        pageToken value
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg4" type="unknown">
-        Argument (filter)
+      <CB.ClassMethodInput name="filter" type="UserSessionFilter">
+        filter value
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="UserSessionDetails">
+        UserSessionDetails
       </CB.ClassMethodOutput>
 
 ```java wrap showLineNumbers=false
@@ -104,17 +82,17 @@ client.sessions().getUserSessions("user_123", 20, "", filter);
 ### `revokeSession`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Sessions" type="client" language="java">
+  <CB.ClassBrowser name="Sessions" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/SessionClient.java">
     <CB.ClassMethod name="revokeSession" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Revokes a session by session ID.
+      Call `revokeSession`.
 
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. "sess_123"
+      <CB.ClassMethodInput name="sessionId" type="String">
+        sessionId value
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="RevokeSessionResponse">
+        RevokeSessionResponse
       </CB.ClassMethodOutput>
 
 ```java wrap showLineNumbers=false
@@ -128,17 +106,17 @@ client.sessions().revokeSession("sess_123");
 ### `revokeAllUserSessions`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Sessions" type="client" language="java">
+  <CB.ClassBrowser name="Sessions" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/SessionClient.java">
     <CB.ClassMethod name="revokeAllUserSessions" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Revokes all sessions for a user.
+      Call `revokeAllUserSessions`.
 
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. "user_123"
+      <CB.ClassMethodInput name="userId" type="String">
+        userId value
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="RevokeAllUserSessionsResponse">
+        RevokeAllUserSessionsResponse
       </CB.ClassMethodOutput>
 
 ```java wrap showLineNumbers=false
@@ -148,4 +126,6 @@ client.sessions().revokeAllUserSessions("user_123");
     </CB.ClassMethod>
   </CB.ClassBrowser>
 </div>
+
+
 </div>

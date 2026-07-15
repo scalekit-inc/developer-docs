@@ -1,6 +1,6 @@
 ---
 title: M2M
-description: Machine-to-machine clients and tokens.
+description: Machine-to-machine clients and tokens
 topic: saaskit-sdks
 tableOfContents:
   minHeadingLevel: 3
@@ -9,16 +9,6 @@ sidebar:
   label: M2M
 prev: false
 next: false
-head:
-  - tag: style
-    content: |
-      starlight-toc a[href='#_top'],
-      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
-        display: none !important;
-      }
-      starlight-toc li:has(> a[href='#_top']) > ul {
-        padding-inline-start: 0 !important;
-      }
 ---
 
 import * as CB from '@gesslar/starlight-class-browser'
@@ -26,34 +16,25 @@ import '@/styles/sdk-reference.css'
 
 <div class="sdk-client-page">
 
-Machine-to-machine clients and tokens.
-
-
-{/* Client chrome once */}
-<div class="sdk-client-chrome">
-  <CB.ClassBrowser
-    name="M2M"
-    type="client"
-    language="java"
-    source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main"
-  >
-  </CB.ClassBrowser>
-</div>
+Manage organization machine-to-machine clients.
 
 ### `createOrganizationClient`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="M2M" type="client" language="java">
+  <CB.ClassBrowser name="M2M" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/M2MClient.java">
     <CB.ClassMethod name="createOrganizationClient" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Creates a new M2M (machine-to-machine) API client for an organization.
+      Interface for managing M2M (machine-to-machine) API clients per organization.
 
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. "Production Service Account"
+      <CB.ClassMethodInput name="organizationId" type="String">
+        The organization ID to create the client for
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodInput name="client" type="com.scalekit.grpc.scalekit.v1.clients.Organizat…">
+        OrganizationClient proto with desired properties (name, scopes, audience, customClaims)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateOrganizationClientResponse">
+        CreateOrganizationClientResponse
       </CB.ClassMethodOutput>
 
 ```java wrap showLineNumbers=false
@@ -73,20 +54,20 @@ client.m2m().createOrganizationClient("org_123", orgClient);
 ### `getOrganizationClient`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="M2M" type="client" language="java">
+  <CB.ClassBrowser name="M2M" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/M2MClient.java">
     <CB.ClassMethod name="getOrganizationClient" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
       Retrieves details of a specific M2M client.
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. "org_123"
+      <CB.ClassMethodInput name="organizationId" type="String">
+        The organization ID
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. "skc_xxxxx"
+      <CB.ClassMethodInput name="clientId" type="String">
+        The client ID (format: skc_xxxxx)
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="GetOrganizationClientResponse">
+        GetOrganizationClientResponse
       </CB.ClassMethodOutput>
 
 ```java wrap showLineNumbers=false
@@ -100,23 +81,23 @@ client.m2m().getOrganizationClient("org_123", "skc_xxxxx");
 ### `updateOrganizationClient`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="M2M" type="client" language="java">
+  <CB.ClassBrowser name="M2M" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/M2MClient.java">
     <CB.ClassMethod name="updateOrganizationClient" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
       Updates the configuration of an existing M2M client.
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. "org_123"
+      <CB.ClassMethodInput name="organizationId" type="String">
+        The organization ID
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. "skc_xxxxx"
+      <CB.ClassMethodInput name="clientId" type="String">
+        The client ID to update
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg3" type="unknown">
-        Argument (updates)
+      <CB.ClassMethodInput name="client" type="com.scalekit.grpc.scalekit.v1.clients.Organizat…">
+        OrganizationClient proto with fields to update
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="UpdateOrganizationClientResponse">
+        UpdateOrganizationClientResponse
       </CB.ClassMethodOutput>
 
 ```java wrap showLineNumbers=false
@@ -136,20 +117,20 @@ client.m2m().updateOrganizationClient("org_123", "skc_xxxxx", updates);
 ### `deleteOrganizationClient`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="M2M" type="client" language="java">
+  <CB.ClassBrowser name="M2M" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/M2MClient.java">
     <CB.ClassMethod name="deleteOrganizationClient" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
       Permanently deletes an M2M client from an organization.
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. "org_123"
+      <CB.ClassMethodInput name="organizationId" type="String">
+        The organization ID
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. "skc_xxxxx"
+      <CB.ClassMethodInput name="clientId" type="String">
+        The client ID to delete
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="void">
+        No return value
       </CB.ClassMethodOutput>
 
 ```java wrap showLineNumbers=false
@@ -160,58 +141,50 @@ client.m2m().deleteOrganizationClient("org_123", "skc_xxxxx");
   </CB.ClassBrowser>
 </div>
 
-### `createOrganizationClientSecret`
+### `addOrganizationClientSecret`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="M2M" type="client" language="java">
-    <CB.ClassMethod name="createOrganizationClientSecret" open={true}>
+  <CB.ClassBrowser name="M2M" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/M2MClient.java">
+    <CB.ClassMethod name="addOrganizationClientSecret" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Creates a new secret for an M2M client.
+      Adds a new secret to an M2M client.
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. "org_123"
+      <CB.ClassMethodInput name="organizationId" type="String">
+        The organization ID
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. "skc_xxxxx"
+      <CB.ClassMethodInput name="clientId" type="String">
+        The client ID to add a secret to
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="CreateOrganizationClientSecretResponse">
+        CreateOrganizationClientSecretResponse
       </CB.ClassMethodOutput>
-
-```java wrap showLineNumbers=false
-client.m2m().createOrganizationClientSecret("org_123", "skc_xxxxx");
-```
 
     </CB.ClassMethod>
   </CB.ClassBrowser>
 </div>
 
-### `deleteOrganizationClientSecret`
+### `removeOrganizationClientSecret`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="M2M" type="client" language="java">
-    <CB.ClassMethod name="deleteOrganizationClientSecret" open={true}>
+  <CB.ClassBrowser name="M2M" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/M2MClient.java">
+    <CB.ClassMethod name="removeOrganizationClientSecret" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Permanently deletes a secret from an M2M client.
+      Permanently removes a secret from an M2M client.
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. "org_123"
+      <CB.ClassMethodInput name="organizationId" type="String">
+        The organization ID
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. "skc_xxxxx"
+      <CB.ClassMethodInput name="clientId" type="String">
+        The client ID
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg3" type="string">
-        e.g. "sks_xxxxx"
+      <CB.ClassMethodInput name="secretId" type="String">
+        The secret ID to remove
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="void">
+        No return value
       </CB.ClassMethodOutput>
-
-```java wrap showLineNumbers=false
-client.m2m().deleteOrganizationClientSecret("org_123", "skc_xxxxx", "sks_xxxxx");
-```
 
     </CB.ClassMethod>
   </CB.ClassBrowser>
@@ -220,23 +193,23 @@ client.m2m().deleteOrganizationClientSecret("org_123", "skc_xxxxx", "sks_xxxxx")
 ### `listOrganizationClients`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="M2M" type="client" language="java">
+  <CB.ClassBrowser name="M2M" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/M2MClient.java">
     <CB.ClassMethod name="listOrganizationClients" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
       Lists all M2M clients for an organization with pagination.
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. "org_123"
+      <CB.ClassMethodInput name="organizationId" type="String">
+        The organization ID
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="number">
-        e.g. 20
+      <CB.ClassMethodInput name="pageSize" type="int">
+        Page size (between 10 and 100; 0 uses server default)
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg3" type="string">
-        e.g. ""
+      <CB.ClassMethodInput name="pageToken" type="String">
+        Pagination cursor for next page (null or empty for first page)
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="ListOrganizationClientsResponse">
+        ListOrganizationClientsResponse
       </CB.ClassMethodOutput>
 
 ```java wrap showLineNumbers=false
@@ -246,4 +219,6 @@ client.m2m().listOrganizationClients("org_123", 20, "");
     </CB.ClassMethod>
   </CB.ClassBrowser>
 </div>
+
+
 </div>
