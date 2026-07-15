@@ -1,6 +1,6 @@
 ---
 title: 'Python SDK reference'
-description: 'Complete API reference for the Scalekit Python SDK: actions client, MCP configs/instances/session tokens, custom providers, framework adapters, tools, and modifiers.'
+description: 'Python SDK reference for actions, MCP configs and session tokens, custom providers, framework adapters, tools, and modifiers.'
 sidebar:
   label: 'Python SDK'
 tableOfContents:
@@ -171,6 +171,7 @@ Requires `connected_account_id` **or** `connection_name` + `identifier`.
   { name: 'connected_account.provider', type: 'str', description: 'Provider slug' },
   { name: 'connected_account.status', type: 'str', description: 'ACTIVE, INACTIVE, or PENDING' },
   { name: 'connected_account.authorization_type', type: 'str', description: 'OAuth, API_KEY, etc.' },
+  { name: 'connected_account.api_config', type: 'dict', description: 'API configuration metadata for the connected account when present' },
   { name: 'connected_account.token_expires_at', type: 'datetime', description: 'OAuth token expiry when known' },
   { name: 'connected_account.last_used_at', type: 'datetime', description: 'Last time this account was used' },
   { name: 'connected_account.updated_at', type: 'datetime', description: 'Last update timestamp' },
@@ -309,7 +310,7 @@ messages = response.json()["messages"]
 
 `actions.mcp` manages Virtual MCP Servers. Any MCP-compatible agent framework (LangChain, Google ADK, Anthropic, OpenAI, and others) can connect to these servers directly.
 
-**Common model:** Create a **config** once (defines which connectors and tools to expose). For a static Virtual MCP Server URL, mint a short-lived **session token** before each agent run. For frameworks that need a per-user MCP endpoint URL, call **`ensure_instance`** instead (or in addition) and use `instance.url`.
+**Two-step model:** Create a **config** once (defines which connectors and tools to expose) to get a static Virtual MCP Server URL. Before each agent run, mint a short-lived session token to authenticate the user.
 
 ### Configs
 
@@ -373,85 +374,6 @@ Returns UpdateMcpConfigResponse.
 
 Returns DeleteMcpConfigResponse.
 
-### Instances
-
-Use instances when you need a per-user MCP endpoint URL (for example Mastra or other MCP clients). Prefer configs + session tokens for the static Virtual MCP Server URL model; use `ensure_instance` when the framework needs an instance URL.
-
-#### actions.mcp.ensure_instance
-
-Creates or returns an MCP instance for a config and user.
-
-<MethodParams label="Input schema" params={[
-  { name: 'config_name', type: 'str', required: true, description: 'MCP config name to bind the instance to' },
-  { name: 'user_identifier', type: 'str', required: true, description: 'End-user identifier (email or opaque user ID)' },
-  { name: 'name', type: 'str', required: false, description: 'Optional display name for the instance' },
-]} />
-
-<MethodReturns type="EnsureMcpInstanceResponse" fields={[
-  { name: 'instance.id', type: 'str', description: 'Instance ID' },
-  { name: 'instance.url', type: 'str', description: 'MCP endpoint URL for this user instance' },
-  { name: 'instance.name', type: 'str', description: 'Display name' },
-  { name: 'instance.user_identifier', type: 'str', description: 'User identifier bound to the instance' },
-]} />
-
-```python title="Example"
-inst_response = actions.mcp.ensure_instance(
-    config_name="email-agent",
-    user_identifier="user@example.com",
-)
-mcp_url = inst_response.instance.url
-```
-
-#### actions.mcp.get_instance
-
-<MethodParams label="Input schema" params={[
-  { name: 'instance_id', type: 'str', required: true, description: 'MCP instance ID from ensure_instance or list_instances' },
-]} />
-
-Returns GetMcpInstanceResponse with the same `instance` shape as `ensure_instance`.
-
-#### actions.mcp.list_instances
-
-<MethodParams label="Input schema" params={[
-  { name: 'page_size', type: 'int', required: false, description: 'Maximum instances per page' },
-  { name: 'page_token', type: 'str', required: false, description: 'Opaque cursor from a previous list response' },
-  { name: 'filter_id', type: 'str', required: false, description: 'Filter by instance ID' },
-  { name: 'filter_name', type: 'str', required: false, description: 'Filter by instance name' },
-  { name: 'filter_config_name', type: 'str', required: false, description: 'Filter by MCP config name' },
-  { name: 'filter_user_identifier', type: 'str', required: false, description: 'Filter by user identifier' },
-]} />
-
-Returns ListMcpInstancesResponse.
-
-#### actions.mcp.update_instance
-
-<MethodParams label="Input schema" params={[
-  { name: 'instance_id', type: 'str', required: true, description: 'MCP instance ID to update' },
-  { name: 'name', type: 'str', required: false, description: 'New display name' },
-  { name: 'config_name', type: 'str', required: false, description: 'Rebind the instance to another config name' },
-]} />
-
-Returns UpdateMcpInstanceResponse.
-
-#### actions.mcp.delete_instance
-
-<MethodParams label="Input schema" params={[
-  { name: 'instance_id', type: 'str', required: true, description: 'MCP instance ID to delete' },
-]} />
-
-Returns DeleteMcpInstanceResponse.
-
-#### actions.mcp.get_instance_auth_state
-
-Returns authorization health for connectors used by an instance. Optionally mint fresh auth links.
-
-<MethodParams label="Input schema" params={[
-  { name: 'instance_id', type: 'str', required: true, description: 'MCP instance ID' },
-  { name: 'include_auth_links', type: 'bool', required: false, description: 'When True, include fresh auth/re-auth links for connections' },
-]} />
-
-Returns GetMcpInstanceAuthStateResponse.
-
 ### Session tokens
 
 #### actions.mcp.list_mcp_connected_accounts
@@ -461,14 +383,14 @@ Returns the connection status for each connector configured in a Virtual MCP Ser
 <MethodParams label="Input schema" params={[
   { name: 'config_id', type: 'str', required: true, description: 'Virtual MCP Server config ID from list_configs or create_config' },
   { name: 'identifier', type: 'str', required: true, description: 'User identifier' },
-  { name: 'include_auth_link', type: 'bool', required: false, description: 'When True, include one-minute auth/re-auth URLs for each connection' },
+  { name: 'include_auth_link', type: 'bool', required: false, description: 'When True, creates missing connected accounts if needed and returns short-lived auth/re-auth URLs. When False or omitted, reports existing accounts only and returns no links. Links are empty when a connection has no associated key.' },
 ]} />
 
 <MethodReturns type="ListMcpConnectedAccountsResponse" fields={[
   { name: 'connected_accounts', type: 'list', description: 'One entry per connector configured in the Virtual MCP Server' },
   { name: 'connected_accounts[].connection_name', type: 'str', description: 'Connector slug' },
   { name: 'connected_accounts[].connected_account_status', type: 'str', description: 'Auth status for this user and connector (for example active, expired, disconnected)' },
-  { name: 'connected_accounts[].authentication_link', type: 'str', description: 'Present when include_auth_link is True; valid for about one minute' },
+  { name: 'connected_accounts[].authentication_link', type: 'str', description: 'Auth/re-auth URL when include_auth_link is True and a link can be minted; valid for about one minute' },
 ]} />
 
 ```python title="Example"
@@ -515,54 +437,16 @@ token = token_response.token
 
 `actions.providers` manages custom providers used with bring-your-own connectors. Methods take typed request objects and return typed responses.
 
+Working end-to-end examples for OAuth, API key, bearer, and other auth types live in the [custom connectors demos](https://github.com/scalekit-inc/python-connect-demos/tree/main/custom-connectors) repo. Use those samples for field-complete setup rather than partial request shapes here.
+
 See [Bring your own connector](/agentkit/bring-your-own-connector/overview/) for the product flow.
 
-#### actions.providers.create_custom_provider
-
-<MethodParams label="Input schema" params={[
-  { name: 'request', type: 'CreateCustomProviderRequest', required: true, description: 'display_name and proxy_url required; optional description, proxy_enabled, auth_patterns' },
-]} />
-
-Returns CreateCustomProviderResponse with the created provider (including server-assigned identifier).
-
-```python title="Example"
-from scalekit.actions.types import CreateCustomProviderRequest
-
-response = actions.providers.create_custom_provider(
-    CreateCustomProviderRequest(
-        display_name="My API",
-        proxy_url="https://api.example.com",
-    )
-)
-```
-
-#### actions.providers.update_custom_provider
-
-Partial update. Only non-`None` fields on the request are applied.
-
-<MethodParams label="Input schema" params={[
-  { name: 'request', type: 'UpdateCustomProviderRequest', required: true, description: 'identifier required; optional display_name, description, proxy_url, auth_patterns' },
-]} />
-
-Returns UpdateCustomProviderResponse.
-
-#### actions.providers.list_providers
-
-<MethodParams label="Input schema" params={[
-  { name: 'request', type: 'ListProvidersRequest', required: true, description: 'All fields optional: provider_type, page_size, page_token, identifier. Empty request lists all.' },
-]} />
-
-Returns ListProvidersResponse with a page of providers and `next_page_token`.
-
-#### actions.providers.delete_custom_provider
-
-Permanent delete by identifier.
-
-<MethodParams label="Input schema" params={[
-  { name: 'request', type: 'DeleteCustomProviderRequest', required: true, description: 'identifier of the custom provider to delete' },
-]} />
-
-Returns DeleteCustomProviderResponse.
+| Method | Purpose |
+| --- | --- |
+| `actions.providers.create_custom_provider` | Create a custom provider (`CreateCustomProviderRequest`) |
+| `actions.providers.update_custom_provider` | Partial update (`UpdateCustomProviderRequest`; only non-`None` fields apply) |
+| `actions.providers.list_providers` | List or filter providers (`ListProvidersRequest`) |
+| `actions.providers.delete_custom_provider` | Permanent delete by identifier (`DeleteCustomProviderRequest`) |
 
 ---
 
