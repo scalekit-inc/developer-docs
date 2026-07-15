@@ -1,6 +1,6 @@
 ---
 title: Directory
-description: Sync users and groups via SCIM directories.
+description: Sync users and groups via SCIM directories
 topic: saaskit-sdks
 tableOfContents:
   minHeadingLevel: 3
@@ -9,16 +9,6 @@ sidebar:
   label: Directory
 prev: false
 next: false
-head:
-  - tag: style
-    content: |
-      starlight-toc a[href='#_top'],
-      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
-        display: none !important;
-      }
-      starlight-toc li:has(> a[href='#_top']) > ul {
-        padding-inline-start: 0 !important;
-      }
 ---
 
 import * as CB from '@gesslar/starlight-class-browser'
@@ -26,34 +16,22 @@ import '@/styles/sdk-reference.css'
 
 <div class="sdk-client-page">
 
-Sync users and groups via SCIM directories.
-
-
-{/* Client chrome once */}
-<div class="sdk-client-chrome">
-  <CB.ClassBrowser
-    name="Directory"
-    type="client"
-    language="python"
-    source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main"
-  >
-  </CB.ClassBrowser>
-</div>
+Use `scalekit_client.directory` for SCIM directory sync.
 
 ### `list_directories`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Directory" type="client" language="python">
+  <CB.ClassBrowser name="Directory" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/directory.py">
     <CB.ClassMethod name="list_directories" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Lists all directories for an organization.
+      Method to list directories for given organization id
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (f"Directory: directory.id")
+      <CB.ClassMethodInput name="organization_id" type="Any">
+        org id to fetch directory list
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="ListDirectoriesResponse">
+        list of directories
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -70,20 +48,20 @@ for directory in response[0].directories:
 ### `get_directory`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Directory" type="client" language="python">
+  <CB.ClassBrowser name="Directory" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/directory.py">
     <CB.ClassMethod name="get_directory" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Retrieves a specific directory by ID.
+      Method to get directory based on given organization and directory id
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. \org_123456\
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. \directory_123456\
+      <CB.ClassMethodInput name="directory_id" type="str">
+        directory id
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="GetDirectoryResponse">
+        Get Directory Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -101,20 +79,20 @@ directory = response[0].directory
 ### `create_directory`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Directory" type="client" language="python">
+  <CB.ClassBrowser name="Directory" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/directory.py">
     <CB.ClassMethod name="create_directory" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Creates a new directory for an organization.
+      Method to create directory based on given organization id
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. \org_123456\
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id to create directory for
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="unknown">
-        Argument (directory)
+      <CB.ClassMethodInput name="directory" type="CreateDirectory">
+        CreateDirectory object with expected values for dir creation
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="CreateDirectoryResponse">
+        Create Directory Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -136,17 +114,32 @@ response = scalekit_client.directory.create_directory(
 ### `list_directory_users`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Directory" type="client" language="python">
+  <CB.ClassBrowser name="Directory" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/directory.py">
     <CB.ClassMethod name="list_directory_users" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Lists all users in a directory with pagination support.
+      Call `list_directory_users`.
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (f"User: user.email")
+      <CB.ClassMethodInput name="organization_id" type="str">
+        organization_id value
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodInput name="directory_id" type="str">
+        directory_id value
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="page_size" type="Optional[int]">
+        Optional. 
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="page_token" type="Optional[str]">
+        Optional. 
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="include_detail" type="Optional[bool]">
+        Optional. 
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="updated_after" type="Optional[str]">
+        Optional. 
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="tuple[ListDirUsersResponse, Any]">
+        tuple[ListDirUsersResponse, Any]
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -167,17 +160,32 @@ for user in response[0].users:
 ### `list_directory_groups`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Directory" type="client" language="python">
+  <CB.ClassBrowser name="Directory" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/directory.py">
     <CB.ClassMethod name="list_directory_groups" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Lists all groups in a directory with pagination support.
+      Call `list_directory_groups`.
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (f"Group: group.display_name")
+      <CB.ClassMethodInput name="organization_id" type="str">
+        organization_id value
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodInput name="directory_id" type="str">
+        directory_id value
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="page_size" type="Optional[int]">
+        Optional. 
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="page_token" type="Optional[str]">
+        Optional. 
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="include_detail" type="Optional[bool]">
+        Optional. 
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="updated_after" type="Optional[str]">
+        Optional. 
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="tuple[ListDirGroupsResponse, Any]">
+        tuple[ListDirGroupsResponse, Any]
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -198,20 +206,20 @@ for group in response[0].groups:
 ### `enable_directory`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Directory" type="client" language="python">
+  <CB.ClassBrowser name="Directory" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/directory.py">
     <CB.ClassMethod name="enable_directory" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Enables a directory for an organization.
+      Method to enable directory based on given organization and directory id
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. \org_123456\
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. \directory_123456\
+      <CB.ClassMethodInput name="directory_id" type="str">
+        directory id
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="ToggleDirectoryResponse">
+        Toggle Directory Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -225,20 +233,20 @@ scalekit_client.directory.enable_directory('org_123456', 'directory_123456')
 ### `disable_directory`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Directory" type="client" language="python">
+  <CB.ClassBrowser name="Directory" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/directory.py">
     <CB.ClassMethod name="disable_directory" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Disables a directory for an organization.
+      Method to disable directory based on given organization and directory id
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. \org_123456\
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. \directory_123456\
+      <CB.ClassMethodInput name="directory_id" type="str">
+        directory id
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="ToggleDirectoryResponse">
+        Toggle Directory Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -252,20 +260,20 @@ scalekit_client.directory.disable_directory('org_123456', 'directory_123456')
 ### `delete_directory`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Directory" type="client" language="python">
+  <CB.ClassBrowser name="Directory" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/directory.py">
     <CB.ClassMethod name="delete_directory" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Deletes a directory from an organization.
+      Method to delete directory based on given organization and directory id
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. \org_123456\
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id to delete directory for
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. \directory_123456\
+      <CB.ClassMethodInput name="directory_id" type="str">
+        Directory id for directory to be deleted
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="None">
+        None
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -275,4 +283,26 @@ scalekit_client.directory.delete_directory('org_123456', 'directory_123456')
     </CB.ClassMethod>
   </CB.ClassBrowser>
 </div>
+
+### `get_primary_directory_by_organization_id`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directory" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/directory.py">
+    <CB.ClassMethod name="get_primary_directory_by_organization_id" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to get primary directory based on given organization id
+
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="None">
+        Primary directory
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
 </div>

@@ -1,6 +1,6 @@
 ---
 title: API tokens
-description: API tokens for service access.
+description: API tokens for service access
 topic: saaskit-sdks
 tableOfContents:
   minHeadingLevel: 3
@@ -9,16 +9,6 @@ sidebar:
   label: API tokens
 prev: false
 next: false
-head:
-  - tag: style
-    content: |
-      starlight-toc a[href='#_top'],
-      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
-        display: none !important;
-      }
-      starlight-toc li:has(> a[href='#_top']) > ul {
-        padding-inline-start: 0 !important;
-      }
 ---
 
 import * as CB from '@gesslar/starlight-class-browser'
@@ -26,34 +16,28 @@ import '@/styles/sdk-reference.css'
 
 <div class="sdk-client-page">
 
-API tokens for service access.
-
-
-{/* Client chrome once */}
-<div class="sdk-client-chrome">
-  <CB.ClassBrowser
-    name="APITokens"
-    type="client"
-    language="go"
-    source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main"
-  >
-  </CB.ClassBrowser>
-</div>
+Create and validate API tokens.
 
 ### `CreateToken`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="APITokens" type="client" language="go">
+  <CB.ClassBrowser name="APITokens" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/token.go">
     <CB.ClassMethod name="CreateToken" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Creates a new API token for an organization with optional custom claims and expiration.
+      Call `CreateToken`.
 
-      <CB.ClassMethodInput name="arg1" type="number">
-        e.g. 24 * time.Hour
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodInput name="organizationId" type="string">
+        organizationId value
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="CreateTokenOptions">
+        options value
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateTokenResponse">
+        CreateTokenResponse
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -79,20 +63,20 @@ _ = resp.Token
 ### `ValidateToken`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="APITokens" type="client" language="go">
+  <CB.ClassBrowser name="APITokens" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/token.go">
     <CB.ClassMethod name="ValidateToken" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Validates an API token and returns token information if valid.
+      Call `ValidateToken`.
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (ctx)
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. "api_token_here"
+      <CB.ClassMethodInput name="token" type="string">
+        token value
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="ValidateTokenResponse">
+        ValidateTokenResponse
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -110,20 +94,20 @@ _ = resp.Token
 ### `InvalidateToken`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="APITokens" type="client" language="go">
+  <CB.ClassBrowser name="APITokens" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/token.go">
     <CB.ClassMethod name="InvalidateToken" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Invalidates (revokes) an API token immediately.
+      Call `InvalidateToken`.
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (ctx)
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. "api_token_here"
+      <CB.ClassMethodInput name="token" type="string">
+        token value
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="error">
+        error
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -139,23 +123,23 @@ if err := client.Token().InvalidateToken(ctx, "api_token_here"); err != nil {
 ### `ListTokens`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="APITokens" type="client" language="go">
+  <CB.ClassBrowser name="APITokens" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/token.go">
     <CB.ClassMethod name="ListTokens" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Lists API tokens for an organization with optional filtering and pagination.
+      Call `ListTokens`.
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (ctx)
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. "org_123"
+      <CB.ClassMethodInput name="organizationId" type="string">
+        organizationId value
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg3" type="unknown">
-        Argument (scalekit.ListTokensOptions)
+      <CB.ClassMethodInput name="options" type="ListTokensOptions">
+        options value
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="ListTokensResponse">
+        ListTokensResponse
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -177,4 +161,32 @@ userTokens, err := client.Token().ListTokens(ctx, "org_123", scalekit.ListTokens
     </CB.ClassMethod>
   </CB.ClassBrowser>
 </div>
+
+### `UpdateToken`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="APITokens" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/token.go">
+    <CB.ClassMethod name="UpdateToken" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Call `UpdateToken`.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="token" type="string">
+        token value
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="UpdateTokenOptions">
+        options value
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateTokenResponse">
+        UpdateTokenResponse
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
 </div>

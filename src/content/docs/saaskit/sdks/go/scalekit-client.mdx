@@ -1,6 +1,6 @@
 ---
 title: Scalekit Client
-description: Create the SDK client and run core auth helpers.
+description: Create the SDK client and run core auth helpers
 topic: saaskit-sdks
 tableOfContents:
   minHeadingLevel: 3
@@ -9,16 +9,6 @@ sidebar:
   label: Scalekit Client
 prev: false
 next: false
-head:
-  - tag: style
-    content: |
-      starlight-toc a[href='#_top'],
-      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
-        display: none !important;
-      }
-      starlight-toc li:has(> a[href='#_top']) > ul {
-        padding-inline-start: 0 !important;
-      }
 ---
 
 import * as CB from '@gesslar/starlight-class-browser'
@@ -26,73 +16,25 @@ import '@/styles/sdk-reference.css'
 
 <div class="sdk-client-page">
 
-Create the SDK client and run core auth helpers.
-
-
-{/* Client chrome once */}
-<div class="sdk-client-chrome">
-  <CB.ClassBrowser
-    name="ScalekitClient"
-    type="class"
-    language="go"
-    source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main"
-  >
-  </CB.ClassBrowser>
-</div>
-
-### `method`
-
-<div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
-    <CB.ClassMethod name="method" open={true}>
-      <CB.ClassModifier type="async" slot="modifiers" />
-
-      Creates a new Scalekit Go SDK client.
-
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. "(SCALEKIT_ENV_URL)"
-      </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. "(SCALEKIT_CLIENT_ID)"
-      </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg3" type="string">
-        e.g. "(SCALEKIT_CLIENT_SECRET)"
-      </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
-      </CB.ClassMethodOutput>
-
-```go wrap showLineNumbers=false
-import "github.com/scalekit-inc/scalekit-sdk-go/v2"
-
-client := scalekit.NewScalekitClient(
-  "<SCALEKIT_ENV_URL>",
-  "<SCALEKIT_CLIENT_ID>",
-  "<SCALEKIT_CLIENT_SECRET>",
-)
-```
-
-    </CB.ClassMethod>
-  </CB.ClassBrowser>
-</div>
+Create a Scalekit client with your environment URL and credentials.
 
 ### `GetAuthorizationUrl`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="GetAuthorizationUrl" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Utility method to generate the OAuth 2.0 authorization URL to initiate the SSO authentication flow.
+      Call `GetAuthorizationUrl`.
 
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. "https://yourapp.com/auth/callback"
+      <CB.ClassMethodInput name="redirectUri" type="string">
+        redirectUri value
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="unknown">
-        Argument (scalekit.AuthorizationUrlOptions State:…)
+      <CB.ClassMethodInput name="options" type="AuthorizationUrlOptions">
+        options value
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="url.URL">
+        url.URL
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -117,26 +59,26 @@ if err != nil {
 ### `AuthenticateWithCode`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="AuthenticateWithCode" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Exchanges an authorization code for tokens and user information.
+      Call `AuthenticateWithCode`.
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (ctx)
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="unknown">
-        Argument (code)
+      <CB.ClassMethodInput name="code" type="string">
+        code value
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg3" type="string">
-        e.g. "https://yourapp.com/auth/callback"
+      <CB.ClassMethodInput name="redirectUri" type="string">
+        redirectUri value
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg4" type="unknown">
-        Argument (scalekit.AuthenticationOptions)
+      <CB.ClassMethodInput name="options" type="AuthenticationOptions">
+        options value
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="AuthenticationResponse">
+        AuthenticationResponse
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -163,20 +105,20 @@ _ = user
 ### `GetIdpInitiatedLoginClaims`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="GetIdpInitiatedLoginClaims" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Extracts and validates claims from an IdP-initiated login token.
+      Call `GetIdpInitiatedLoginClaims`.
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (ctx)
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="unknown">
-        Argument (idpInitiatedLoginToken)
+      <CB.ClassMethodInput name="idpInitiateLoginToken" type="string">
+        idpInitiateLoginToken value
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="IdpInitiatedLoginClaims">
+        IdpInitiatedLoginClaims
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -196,20 +138,20 @@ _ = claims
 ### `GetAccessTokenClaims`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="GetAccessTokenClaims" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Parses and validates an access token and returns its claims.
+      Call `GetAccessTokenClaims`.
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (ctx)
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="unknown">
-        Argument (accessToken)
+      <CB.ClassMethodInput name="accessToken" type="string">
+        accessToken value
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="AccessTokenClaims">
+        AccessTokenClaims
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -227,20 +169,20 @@ _ = claims
 ### `ValidateAccessToken`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="ValidateAccessToken" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Validates an access token (including expiration checks) and returns whether it is valid.
+      Call `ValidateAccessToken`.
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (ctx)
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="unknown">
-        Argument (accessToken)
+      <CB.ClassMethodInput name="accessToken" type="string">
+        accessToken value
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="bool">
+        bool
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -258,20 +200,20 @@ _ = ok
 ### `RefreshAccessToken`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="RefreshAccessToken" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Exchanges a refresh token for a new access token (and optionally a new refresh token).
+      Call `RefreshAccessToken`.
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (ctx)
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="unknown">
-        Argument (refreshToken)
+      <CB.ClassMethodInput name="refreshToken" type="string">
+        refreshToken value
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="TokenResponse">
+        TokenResponse
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -289,17 +231,17 @@ _ = tokens.AccessToken
 ### `GetLogoutUrl`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="GetLogoutUrl" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Generates a logout URL for OIDC logout flows.
+      Call `GetLogoutUrl`.
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (scalekit.LogoutUrlOptions IdTokenHint: …)
+      <CB.ClassMethodInput name="options" type="LogoutUrlOptions">
+        options value
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="url.URL">
+        url.URL
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -321,17 +263,23 @@ _ = logoutURL
 ### `VerifyWebhookPayload`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="VerifyWebhookPayload" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Verifies a Scalekit webhook payload signature using `webhook-id`, `webhook-timestamp`, and `webhook-signature` headers.
+      Call `VerifyWebhookPayload`.
 
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. `"event":"user.created","data":"id":"1
+      <CB.ClassMethodInput name="secret" type="string">
+        secret value
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodInput name="headers" type="map[string]string">
+        headers value
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="payload" type="[]byte">
+        payload value
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="bool">
+        bool
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -357,23 +305,23 @@ _ = valid
 ### `VerifyInterceptorPayload`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="VerifyInterceptorPayload" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Verifies an interceptor payload signature.
+      Call `VerifyInterceptorPayload`.
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (secret)
+      <CB.ClassMethodInput name="secret" type="string">
+        secret value
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="unknown">
-        Argument (headers)
+      <CB.ClassMethodInput name="headers" type="map[string]string">
+        headers value
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg3" type="unknown">
-        Argument (payload)
+      <CB.ClassMethodInput name="payload" type="[]byte">
+        payload value
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="bool">
+        bool
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -391,14 +339,14 @@ _ = valid
 ### `Connection`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="Connection" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Returns the Connections client (`client.Connection()`), used to manage and query SSO connections.
+      Call `Connection`.
 
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="Connection">
+        Connection
       </CB.ClassMethodOutput>
 
     </CB.ClassMethod>
@@ -408,14 +356,14 @@ _ = valid
 ### `Organization`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="Organization" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Returns the Organizations client (`client.Organization()`), used to manage organizations (tenants).
+      Call `Organization`.
 
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="Organization">
+        Organization
       </CB.ClassMethodOutput>
 
     </CB.ClassMethod>
@@ -425,14 +373,14 @@ _ = valid
 ### `User`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="User" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Returns the Users client (`client.User()`), used to manage users and memberships.
+      Call `User`.
 
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="UserService">
+        UserService
       </CB.ClassMethodOutput>
 
     </CB.ClassMethod>
@@ -442,14 +390,14 @@ _ = valid
 ### `Domain`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="Domain" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Returns the Domains client (`client.Domain()`), used to manage and query domains for organizations.
+      Call `Domain`.
 
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="Domain">
+        Domain
       </CB.ClassMethodOutput>
 
     </CB.ClassMethod>
@@ -459,14 +407,14 @@ _ = valid
 ### `Directory`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="Directory" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Returns the Directories client (`client.Directory()`), used to list directories and directory users/groups (SCIM/Directory Sync).
+      Call `Directory`.
 
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="Directory">
+        Directory
       </CB.ClassMethodOutput>
 
     </CB.ClassMethod>
@@ -476,14 +424,14 @@ _ = valid
 ### `Session`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="Session" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Returns the Sessions client (`client.Session()`), used to list and revoke sessions.
+      Call `Session`.
 
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="SessionService">
+        SessionService
       </CB.ClassMethodOutput>
 
     </CB.ClassMethod>
@@ -493,14 +441,14 @@ _ = valid
 ### `Role`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="Role" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Returns the Roles client (`client.Role()`), used to manage roles and organization roles.
+      Call `Role`.
 
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="RoleService">
+        RoleService
       </CB.ClassMethodOutput>
 
     </CB.ClassMethod>
@@ -510,14 +458,14 @@ _ = valid
 ### `Permission`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="Permission" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Returns the Permissions client (`client.Permission()`), used to manage permissions and role-permission relationships.
+      Call `Permission`.
 
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="PermissionService">
+        PermissionService
       </CB.ClassMethodOutput>
 
     </CB.ClassMethod>
@@ -527,14 +475,14 @@ _ = valid
 ### `Passwordless`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="Passwordless" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Returns the Passwordless client (`client.Passwordless()`), used for passwordless email flows (OTP / magic link).
+      Call `Passwordless`.
 
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="PasswordlessService">
+        PasswordlessService
       </CB.ClassMethodOutput>
 
     </CB.ClassMethod>
@@ -544,14 +492,14 @@ _ = valid
 ### `WebAuthn`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="WebAuthn" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Returns the WebAuthn client (`client.WebAuthn()`), used to manage passkey credentials.
+      Call `WebAuthn`.
 
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="WebAuthnService">
+        WebAuthnService
       </CB.ClassMethodOutput>
 
     </CB.ClassMethod>
@@ -561,14 +509,14 @@ _ = valid
 ### `Auth`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="Auth" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Returns the Auth client (`client.Auth()`), used for Auth gRPC helper methods (e.g.
+      Call `Auth`.
 
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="AuthService">
+        AuthService
       </CB.ClassMethodOutput>
 
     </CB.ClassMethod>
@@ -578,14 +526,14 @@ _ = valid
 ### `Client`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="Client" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Returns the Client service (`client.Client()`), used to manage OIDC application clients and client secrets in the environment.
+      Call `Client`.
 
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="ClientService">
+        ClientService
       </CB.ClassMethodOutput>
 
     </CB.ClassMethod>
@@ -595,14 +543,14 @@ _ = valid
 ### `Token`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="Token" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Returns the API token service (`client.Token()`), used to create, validate, list, and revoke organization API tokens.
+      Call `Token`.
 
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="TokenService">
+        TokenService
       </CB.ClassMethodOutput>
 
     </CB.ClassMethod>
@@ -612,23 +560,23 @@ _ = valid
 ### `ValidateTokenWithOptions`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="ValidateTokenWithOptions" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Validates a signed JWT (access token or ID token) and enforces optional checks such as audience and scope validation.
+      ValidateTokenWithOptions validates a signed JWT (access token or ID token) and enforces optional checks such as audience and scope validation.
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (ctx)
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="unknown">
-        Argument (accessToken)
+      <CB.ClassMethodInput name="token" type="string">
+        token value
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg3" type="unknown">
-        Argument (&scalekit.ValidateTokenOptions Audience…)
+      <CB.ClassMethodInput name="options" type="ValidateTokenOptions">
+        options value
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="bool">
+        bool
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -649,20 +597,20 @@ _ = valid
 ### `ValidateToken`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="ValidateToken" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Validates the token signature and expiry, then returns all claims as a Claims map.
+      Call `ValidateToken`.
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (ctx)
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="unknown">
-        Argument (idToken)
+      <CB.ClassMethodInput name="token" type="string">
+        token value
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="Claims">
+        Claims
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -677,52 +625,20 @@ _ = claims
   </CB.ClassBrowser>
 </div>
 
-### `GeneratePKCEConfiguration`
-
-<div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
-    <CB.ClassMethod name="GeneratePKCEConfiguration" open={true}>
-      <CB.ClassModifier type="async" slot="modifiers" />
-
-      Generates PKCE code verifier and challenge for OAuth authorization code flow.
-
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (scalekit.PKCEOptions VerifierLength: 64…)
-      </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
-      </CB.ClassMethodOutput>
-
-```go wrap showLineNumbers=false
-pkce, err := client.GeneratePKCEConfiguration(scalekit.PKCEOptions{
-  VerifierLength: 64,
-})
-if err != nil {
-  // handle
-}
-
-// Use pkce.CodeVerifier in token exchange
-// Use pkce.CodeChallenge and pkce.CodeChallengeMethod in authorization URL
-```
-
-    </CB.ClassMethod>
-  </CB.ClassBrowser>
-</div>
-
 ### `WithSecret`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="WithSecret" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Returns a new Scalekit client instance with a different client secret.
+      Call `WithSecret`.
 
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. "new_client_secret"
+      <CB.ClassMethodInput name="clientSecret" type="string">
+        clientSecret value
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="Scalekit">
+        Scalekit
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -736,20 +652,20 @@ clientWithNewSecret := client.WithSecret("new_client_secret")
 ### `GenerateClientToken`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="GenerateClientToken" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Creates a client-credentials access token using the OAuth client credentials grant type.
+      GenerateClientToken creates a client-credentials access token.
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (ctx)
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="unknown">
-        Argument (scalekit.GenerateClientTokenOptions Cli…)
+      <CB.ClassMethodInput name="options" type="GenerateClientTokenOptions">
+        options value
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="ClientTokenResponse">
+        ClientTokenResponse
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -771,17 +687,17 @@ _ = resp.AccessToken
 ### `GetClientAccessToken`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="ScalekitClient" type="class" language="go">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
     <CB.ClassMethod name="GetClientAccessToken" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Generates an access token using the client credentials of the current client.
+      Call `GetClientAccessToken`.
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (ctx)
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="string">
+        string
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -795,4 +711,69 @@ _ = accessToken
     </CB.ClassMethod>
   </CB.ClassBrowser>
 </div>
+
+### `UnmarshalJSON`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
+    <CB.ClassMethod name="UnmarshalJSON" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Call `UnmarshalJSON`.
+
+      <CB.ClassMethodInput name="data" type="[]byte">
+        data value
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="error">
+        error
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `M2M`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
+    <CB.ClassMethod name="M2M" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Call `M2M`.
+
+      <CB.ClassMethodOutput type="M2MService">
+        M2MService
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `VerifyPayloadSignature`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/scalekit.go">
+    <CB.ClassMethod name="VerifyPayloadSignature" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Call `VerifyPayloadSignature`.
+
+      <CB.ClassMethodInput name="secret" type="string">
+        secret value
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="headers" type="map[string]string">
+        headers value
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="payload" type="[]byte">
+        payload value
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="bool">
+        bool
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
 </div>

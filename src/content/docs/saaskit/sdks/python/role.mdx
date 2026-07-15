@@ -1,6 +1,6 @@
 ---
 title: Role
-description: Define and assign organization roles.
+description: Define and assign organization roles
 topic: saaskit-sdks
 tableOfContents:
   minHeadingLevel: 3
@@ -9,16 +9,6 @@ sidebar:
   label: Role
 prev: false
 next: false
-head:
-  - tag: style
-    content: |
-      starlight-toc a[href='#_top'],
-      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
-        display: none !important;
-      }
-      starlight-toc li:has(> a[href='#_top']) > ul {
-        padding-inline-start: 0 !important;
-      }
 ---
 
 import * as CB from '@gesslar/starlight-class-browser'
@@ -26,34 +16,19 @@ import '@/styles/sdk-reference.css'
 
 <div class="sdk-client-page">
 
-Define and assign organization roles.
-
-
-{/* Client chrome once */}
-<div class="sdk-client-chrome">
-  <CB.ClassBrowser
-    name="Role"
-    type="client"
-    language="python"
-    source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main"
-  >
-  </CB.ClassBrowser>
-</div>
+Use `scalekit_client.role` to manage roles.
 
 ### `list_roles`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Role" type="client" language="python">
+  <CB.ClassBrowser name="Role" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/role.py">
     <CB.ClassMethod name="list_roles" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Lists all roles in the environment.
+      Method to list all roles
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (f"Role: role.name")
-      </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="ListRolesResponse">
+        List Roles Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -70,17 +45,17 @@ for role in response[0].roles:
 ### `get_role`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Role" type="client" language="python">
+  <CB.ClassBrowser name="Role" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/role.py">
     <CB.ClassMethod name="get_role" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Retrieves role details by role name.
+      Method to get role by name
 
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. \admin\
+      <CB.ClassMethodInput name="role_name" type="str">
+        Role name to get role details
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="GetRoleResponse">
+        Get Role Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -95,17 +70,17 @@ role = response[0].role
 ### `create_role`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Role" type="client" language="python">
+  <CB.ClassBrowser name="Role" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/role.py">
     <CB.ClassMethod name="create_role" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Creates a new role.
+      Method to create a new role
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (role)
+      <CB.ClassMethodInput name="role" type="CreateRole">
+        CreateRole object with expected values for role creation
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="CreateRoleResponse">
+        Create Role Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -125,20 +100,20 @@ response = scalekit_client.roles.create_role(role)
 ### `update_role`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Role" type="client" language="python">
+  <CB.ClassBrowser name="Role" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/role.py">
     <CB.ClassMethod name="update_role" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Updates an existing role by name.
+      Method to update an existing role by name
 
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. \editor\
+      <CB.ClassMethodInput name="role_name" type="str">
+        Role name to update
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="unknown">
-        Argument (role)
+      <CB.ClassMethodInput name="role" type="UpdateRole">
+        UpdateRole object with expected values for role update
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="UpdateRoleResponse">
+        Update Role Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -157,20 +132,20 @@ response = scalekit_client.roles.update_role('editor', role)
 ### `delete_role`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Role" type="client" language="python">
+  <CB.ClassBrowser name="Role" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/role.py">
     <CB.ClassMethod name="delete_role" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Deletes a role by name.
+      Method to delete role by name
 
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. \editor\
+      <CB.ClassMethodInput name="role_name" type="str">
+        Role name to be deleted
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="reassign_role_name" type="string">
-        e.g. \viewer\
+      <CB.ClassMethodInput name="reassign_role_name" type="Optional[str]">
+        Optional. Role name to reassign users to when deleting this role
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="None">
+        None
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -184,17 +159,17 @@ scalekit_client.roles.delete_role('editor', reassign_role_name='viewer')
 ### `get_role_users_count`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Role" type="client" language="python">
+  <CB.ClassBrowser name="Role" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/role.py">
     <CB.ClassMethod name="get_role_users_count" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Gets the count of users associated with a role.
+      Method to get the count of users associated with a role
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (f"User count: response[0].count")
+      <CB.ClassMethodInput name="role_name" type="str">
+        Role name to get user count for
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="GetRoleUsersCountResponse">
+        Get Role Users Count Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -209,17 +184,17 @@ print(f"User count: {response[0].count}")
 ### `list_organization_roles`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Role" type="client" language="python">
+  <CB.ClassBrowser name="Role" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/role.py">
     <CB.ClassMethod name="list_organization_roles" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Lists all organization-specific roles.
+      Method to list all organization roles
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (f"Role: role.name")
+      <CB.ClassMethodInput name="org_id" type="str">
+        Organization ID
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="ListOrganizationRolesResponse">
+        List Organization Roles Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -236,20 +211,20 @@ for role in response[0].roles:
 ### `create_organization_role`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Role" type="client" language="python">
+  <CB.ClassBrowser name="Role" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/role.py">
     <CB.ClassMethod name="create_organization_role" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Creates a new organization-specific role.
+      Method to create a new organization role
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. \org_123456\
+      <CB.ClassMethodInput name="org_id" type="str">
+        Organization ID
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="unknown">
-        Argument (role)
+      <CB.ClassMethodInput name="role" type="CreateOrganizationRole">
+        CreateOrganizationRole object with expected values for role creation
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="CreateOrganizationRoleResponse">
+        Create Organization Role Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -269,20 +244,20 @@ response = scalekit_client.roles.create_organization_role('org_123456', role)
 ### `get_organization_role`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Role" type="client" language="python">
+  <CB.ClassBrowser name="Role" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/role.py">
     <CB.ClassMethod name="get_organization_role" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Retrieves organization-specific role details by name.
+      Method to get organization role by name
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. \org_123456\
+      <CB.ClassMethodInput name="org_id" type="str">
+        Organization ID
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. \org_admin\
+      <CB.ClassMethodInput name="role_name" type="str">
+        Role name to get role details
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="GetOrganizationRoleResponse">
+        Get Organization Role Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -297,23 +272,23 @@ role = response[0].role
 ### `update_organization_role`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Role" type="client" language="python">
+  <CB.ClassBrowser name="Role" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/role.py">
     <CB.ClassMethod name="update_organization_role" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Updates an existing organization-specific role.
+      Method to update an existing organization role by name
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. \org_123456\
+      <CB.ClassMethodInput name="org_id" type="str">
+        Organization ID
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. \org_admin\
+      <CB.ClassMethodInput name="role_name" type="str">
+        Role name to update
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg3" type="unknown">
-        Argument (role)
+      <CB.ClassMethodInput name="role" type="UpdateRole">
+        UpdateOrganizationRole object with expected values for role update
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="UpdateOrganizationRoleResponse">
+        Update Organization Role Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -336,23 +311,23 @@ response = scalekit_client.roles.update_organization_role(
 ### `delete_organization_role`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Role" type="client" language="python">
+  <CB.ClassBrowser name="Role" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/role.py">
     <CB.ClassMethod name="delete_organization_role" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Deletes an organization-specific role.
+      Method to delete organization role by name
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. \org_123456\
+      <CB.ClassMethodInput name="org_id" type="str">
+        Organization ID
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. \org_admin\
+      <CB.ClassMethodInput name="role_name" type="str">
+        Role name to be deleted
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="reassign_role_name" type="string">
-        e.g. \member\
+      <CB.ClassMethodInput name="reassign_role_name" type="Optional[str]">
+        Optional. Role name to reassign users to when deleting this role
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="None">
+        None
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -366,4 +341,138 @@ scalekit_client.roles.delete_organization_role(
     </CB.ClassMethod>
   </CB.ClassBrowser>
 </div>
+
+### `delete_role_base`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Role" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/role.py">
+    <CB.ClassMethod name="delete_role_base" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to delete the base inheritance relationship for an environment-level role
+
+      <CB.ClassMethodInput name="role_name" type="str">
+        Role name to remove base relationship for
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="None">
+        None
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `get_organization_role_users_count`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Role" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/role.py">
+    <CB.ClassMethod name="get_organization_role_users_count" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to get the count of users associated with an organization role
+
+      <CB.ClassMethodInput name="org_id" type="str">
+        Organization ID
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="role_name" type="str">
+        Role name to get user count for
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetOrganizationRoleUsersCountResponse">
+        Get Organization Role Users Count Response
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `update_default_organization_roles`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Role" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/role.py">
+    <CB.ClassMethod name="update_default_organization_roles" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to update default organization roles
+
+      <CB.ClassMethodInput name="org_id" type="str">
+        Organization ID
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="default_roles" type="UpdateDefaultOrganizationRolesRequest">
+        UpdateDefaultOrganizationRoles object with default role settings
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateDefaultOrganizationRolesResponse">
+        Update Default Organization Roles Response
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `delete_organization_role_base`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Role" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/role.py">
+    <CB.ClassMethod name="delete_organization_role_base" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to delete organization role base relationship by name
+
+      <CB.ClassMethodInput name="org_id" type="str">
+        Organization ID
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="role_name" type="str">
+        Role name to remove base relationship for
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="None">
+        None
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `update_default_roles`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Role" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/role.py">
+    <CB.ClassMethod name="update_default_roles" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to update default environment-level roles
+
+      <CB.ClassMethodInput name="default_creator_role" type="Optional[str]">
+        Optional. Name of the role to set as default creator role
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="default_member_role" type="Optional[str]">
+        Optional. Name of the role to set as default member role
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateDefaultRolesResponse">
+        Update Default Roles Response
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `list_dependent_roles`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Role" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/role.py">
+    <CB.ClassMethod name="list_dependent_roles" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to list roles that directly extend (depend on) the specified base role
+
+      <CB.ClassMethodInput name="role_name" type="str">
+        Name of the base role
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListDependentRolesResponse">
+        List Dependent Roles Response
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
 </div>

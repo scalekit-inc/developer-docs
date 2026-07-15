@@ -1,6 +1,6 @@
 ---
 title: Sessions
-description: Validate tokens and manage user sessions.
+description: Validate tokens and manage user sessions
 topic: saaskit-sdks
 tableOfContents:
   minHeadingLevel: 3
@@ -9,16 +9,6 @@ sidebar:
   label: Sessions
 prev: false
 next: false
-head:
-  - tag: style
-    content: |
-      starlight-toc a[href='#_top'],
-      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
-        display: none !important;
-      }
-      starlight-toc li:has(> a[href='#_top']) > ul {
-        padding-inline-start: 0 !important;
-      }
 ---
 
 import * as CB from '@gesslar/starlight-class-browser'
@@ -26,34 +16,22 @@ import '@/styles/sdk-reference.css'
 
 <div class="sdk-client-page">
 
-Validate tokens and manage user sessions.
-
-
-{/* Client chrome once */}
-<div class="sdk-client-chrome">
-  <CB.ClassBrowser
-    name="Sessions"
-    type="client"
-    language="python"
-    source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main"
-  >
-  </CB.ClassBrowser>
-</div>
+Use `scalekit_client.sessions` to inspect and revoke sessions.
 
 ### `get_session`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Sessions" type="client" language="python">
+  <CB.ClassBrowser name="Sessions" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/sessions.py">
     <CB.ClassMethod name="get_session" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Retrieves session details by session ID.
+      Method to get session details by session ID
 
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. \session_123456\
+      <CB.ClassMethodInput name="session_id" type="str">
+        Session ID to get session details
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="SessionDetails">
+        Session Details
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -68,17 +46,26 @@ session = response[0]
 ### `get_user_sessions`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Sessions" type="client" language="python">
+  <CB.ClassBrowser name="Sessions" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/sessions.py">
     <CB.ClassMethod name="get_user_sessions" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Retrieves all session details for a user with pagination and filtering support.
+      Method to get all session details for a user with pagination and filtering support
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (f\Session: session.id\)
+      <CB.ClassMethodInput name="user_id" type="str">
+        User ID to get all session details for
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodInput name="page_size" type="int">
+        Optional. Number of sessions to return per page
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="page_token" type="str">
+        Optional. Token for pagination to get next/previous page
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="filter" type="UserSessionFilter">
+        Optional. Filter to apply to sessions (status, time range)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UserSessionDetails">
+        User Session Details with pagination info
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -98,17 +85,17 @@ for session in response[0].sessions:
 ### `revoke_session`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Sessions" type="client" language="python">
+  <CB.ClassBrowser name="Sessions" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/sessions.py">
     <CB.ClassMethod name="revoke_session" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Revokes a session for a user.
+      Method to revoke a session for a user
 
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. \session_123456\
+      <CB.ClassMethodInput name="session_id" type="str">
+        Session ID to revoke
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="RevokeSessionResponse">
+        Revoke Session Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -122,17 +109,17 @@ response = scalekit_client.sessions.revoke_session('session_123456')
 ### `revoke_all_user_sessions`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Sessions" type="client" language="python">
+  <CB.ClassBrowser name="Sessions" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/sessions.py">
     <CB.ClassMethod name="revoke_all_user_sessions" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Revokes all sessions for a user.
+      Method to revoke all sessions for a user
 
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. \usr_123456\
+      <CB.ClassMethodInput name="user_id" type="str">
+        User ID to revoke all sessions for
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="RevokeAllUserSessionsResponse">
+        Revoke All User Sessions Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -142,4 +129,32 @@ response = scalekit_client.sessions.revoke_all_user_sessions('usr_123456')
     </CB.ClassMethod>
   </CB.ClassBrowser>
 </div>
+
+### `create_session_filter`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Sessions" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/sessions.py">
+    <CB.ClassMethod name="create_session_filter" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Helper method to create a UserSessionFilter for filtering sessions
+
+      <CB.ClassMethodInput name="status" type="Optional[List[str]]">
+        Optional. List of session statuses to filter by
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="start_time" type="Optional[Timestamp]">
+        Optional. Filter sessions from this timestamp
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="end_time" type="Optional[Timestamp]">
+        Optional. Filter sessions until this timestamp
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UserSessionFilter">
+        UserSessionFilter object
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
 </div>

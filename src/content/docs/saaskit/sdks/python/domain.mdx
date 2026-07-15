@@ -1,6 +1,6 @@
 ---
 title: Domain
-description: Manage organization email domains.
+description: Manage organization email domains
 topic: saaskit-sdks
 tableOfContents:
   minHeadingLevel: 3
@@ -9,16 +9,6 @@ sidebar:
   label: Domain
 prev: false
 next: false
-head:
-  - tag: style
-    content: |
-      starlight-toc a[href='#_top'],
-      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
-        display: none !important;
-      }
-      starlight-toc li:has(> a[href='#_top']) > ul {
-        padding-inline-start: 0 !important;
-      }
 ---
 
 import * as CB from '@gesslar/starlight-class-browser'
@@ -26,40 +16,28 @@ import '@/styles/sdk-reference.css'
 
 <div class="sdk-client-page">
 
-Manage organization email domains.
-
-
-{/* Client chrome once */}
-<div class="sdk-client-chrome">
-  <CB.ClassBrowser
-    name="Domain"
-    type="client"
-    language="python"
-    source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main"
-  >
-  </CB.ClassBrowser>
-</div>
+Use `scalekit_client.domain` to manage verified organization domains.
 
 ### `create_domain`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Domain" type="client" language="python">
+  <CB.ClassBrowser name="Domain" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/domain.py">
     <CB.ClassMethod name="create_domain" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Creates a new domain for an organization.
+      Method to create domain
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. \org_123456\
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id to create domain for
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. \acme.com\
+      <CB.ClassMethodInput name="domain_name" type="str">
+        Domain name for new creation
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="domain_type" type="string">
-        e.g. \ORGANIZATION_DOMAIN\
+      <CB.ClassMethodInput name="domain_type" type="Optional[Union[str, 'DomainType']]">
+        Optional. Type of domain ("ALLOWED_EMAIL_DOMAIN", "ORGANIZATION_DOMAIN", or "UNSPECIFIED")
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="CreateDomainResponse">
+        Domain Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -77,17 +55,20 @@ response = scalekit_client.domain.create_domain(
 ### `list_domains`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Domain" type="client" language="python">
+  <CB.ClassBrowser name="Domain" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/domain.py">
     <CB.ClassMethod name="list_domains" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Lists all domains for an organization.
+      Method to list existing domains
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (f"Domain: domain.domain")
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id to list domains for
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodInput name="domain_type" type="Optional[Union[str, 'DomainType']]">
+        Optional. Type of domain ("ALLOWED_EMAIL_DOMAIN", "ORGANIZATION_DOMAIN", or "UNSPECIFIED")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListDomainResponse">
+        List Domain Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -107,20 +88,20 @@ for domain in response[0].domains:
 ### `get_domain`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Domain" type="client" language="python">
+  <CB.ClassBrowser name="Domain" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/domain.py">
     <CB.ClassMethod name="get_domain" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Retrieves a specific domain by ID.
+      Method to list existing domains
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. \org_123456\
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id to list domains for
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. \domain_123456\
+      <CB.ClassMethodInput name="domain_id" type="str">
+        Domain name for new creation
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="GetDomainResponse">
+        Get Domain Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -135,20 +116,20 @@ domain = response[0].domain
 ### `delete_domain`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Domain" type="client" language="python">
+  <CB.ClassBrowser name="Domain" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/domain.py">
     <CB.ClassMethod name="delete_domain" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Deletes a domain from an organization.
+      Method to delete domain
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. \org_123456\
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id to delete domain for
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. \domain_123456\
+      <CB.ClassMethodInput name="domain_id" type="str">
+        Domain id to delete
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="None">
+        None
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -158,4 +139,6 @@ scalekit_client.domain.delete_domain('org_123456', 'domain_123456')
     </CB.ClassMethod>
   </CB.ClassBrowser>
 </div>
+
+
 </div>

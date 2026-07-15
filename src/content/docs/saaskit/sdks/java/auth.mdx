@@ -1,6 +1,6 @@
 ---
 title: Auth
-description: Authorization helpers for protected resources.
+description: Authorization helpers for protected resources
 topic: saaskit-sdks
 tableOfContents:
   minHeadingLevel: 3
@@ -9,16 +9,6 @@ sidebar:
   label: Auth
 prev: false
 next: false
-head:
-  - tag: style
-    content: |
-      starlight-toc a[href='#_top'],
-      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
-        display: none !important;
-      }
-      starlight-toc li:has(> a[href='#_top']) > ul {
-        padding-inline-start: 0 !important;
-      }
 ---
 
 import * as CB from '@gesslar/starlight-class-browser'
@@ -26,34 +16,25 @@ import '@/styles/sdk-reference.css'
 
 <div class="sdk-client-page">
 
-Authorization helpers for protected resources.
-
-
-{/* Client chrome once */}
-<div class="sdk-client-chrome">
-  <CB.ClassBrowser
-    name="Auth"
-    type="client"
-    language="java"
-    source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main"
-  >
-  </CB.ClassBrowser>
-</div>
+Use auth helpers for login and token flows.
 
 ### `getAuthorizationUrl`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Auth" type="client" language="java">
+  <CB.ClassBrowser name="Auth" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/AuthClient.java">
     <CB.ClassMethod name="getAuthorizationUrl" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Utility method to generate the OAuth 2.0 authorization URL to initiate the SSO authentication flow.
+      Call `getAuthorizationUrl`.
 
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. "random-state-value"
+      <CB.ClassMethodInput name="redirectUri" type="String">
+        redirectUri value
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodInput name="options" type="AuthorizationUrlOptions">
+        options value
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="URL">
+        URL
       </CB.ClassMethodOutput>
 
 ```java wrap showLineNumbers=false
@@ -74,32 +55,68 @@ URL authUrl = client.authentication().getAuthorizationUrl(
   </CB.ClassBrowser>
 </div>
 
-### `getLogoutUrl`
+### `validateAccessToken`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Auth" type="client" language="java">
-    <CB.ClassMethod name="getLogoutUrl" open={true}>
+  <CB.ClassBrowser name="Auth" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/AuthClient.java">
+    <CB.ClassMethod name="validateAccessToken" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Utility method to generate the OAuth 2.0 logout URL to initiate the logout flow.
+      Call `validateAccessToken`.
 
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. "https://yourapp.com"
+      <CB.ClassMethodInput name="jwt" type="String">
+        jwt value
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="boolean">
+        boolean
       </CB.ClassMethodOutput>
 
 ```java wrap showLineNumbers=false
-import com.scalekit.internal.http.LogoutUrlOptions;
-import java.net.URL;
+boolean ok = client.authentication().validateAccessToken("<access_token_jwt>");
+```
 
-LogoutUrlOptions options = new LogoutUrlOptions();
-options.setIdTokenHint(user.getIdToken());
-options.setPostLogoutRedirectUri("https://yourapp.com");
-options.setState("random-state-value");
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
 
-URL logoutUrl = client.authentication().getLogoutUrl(options);
+### `generateClientToken`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Auth" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/AuthClient.java">
+    <CB.ClassMethod name="generateClientToken" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Call `generateClientToken`.
+
+      <CB.ClassMethodInput name="clientId" type="String">
+        clientId value
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="clientSecret" type="String">
+        clientSecret value
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="String">
+        String
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `getClientAccessToken`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Auth" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/AuthClient.java">
+    <CB.ClassMethod name="getClientAccessToken" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Call `getClientAccessToken`.
+
+      <CB.ClassMethodOutput type="String">
+        String
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+String token = client.authentication().getClientAccessToken();
 ```
 
     </CB.ClassMethod>
@@ -109,23 +126,23 @@ URL logoutUrl = client.authentication().getLogoutUrl(options);
 ### `authenticateWithCode`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Auth" type="client" language="java">
+  <CB.ClassBrowser name="Auth" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/AuthClient.java">
     <CB.ClassMethod name="authenticateWithCode" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Exchanges an authorization code for access tokens and ID token information.
+      Call `authenticateWithCode`.
 
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. "(code)"
+      <CB.ClassMethodInput name="code" type="String">
+        code value
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. "https://yourapp.com/auth/callback"
+      <CB.ClassMethodInput name="redirectUri" type="String">
+        redirectUri value
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg3" type="unknown">
-        Argument (new AuthenticationOptions())
+      <CB.ClassMethodInput name="options" type="AuthenticationOptions">
+        options value
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="AuthenticationResponse">
+        AuthenticationResponse
       </CB.ClassMethodOutput>
 
 ```java wrap showLineNumbers=false
@@ -145,124 +162,5 @@ String accessToken = result.getAccessToken();
   </CB.ClassBrowser>
 </div>
 
-### `getIdpInitiatedLoginClaims`
 
-<div class="sdk-method-section">
-  <CB.ClassBrowser name="Auth" type="client" language="java">
-    <CB.ClassMethod name="getIdpInitiatedLoginClaims" open={true}>
-      <CB.ClassModifier type="async" slot="modifiers" />
-
-      Extracts and validates claims from an IdP-initiated login token.
-
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. "(idp_initiated_login_token)"
-      </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
-      </CB.ClassMethodOutput>
-
-```java wrap showLineNumbers=false
-import com.scalekit.internal.http.IdpInitiatedLoginClaims;
-
-IdpInitiatedLoginClaims claims = client.authentication().getIdpInitiatedLoginClaims("<idp_initiated_login_token>");
-```
-
-    </CB.ClassMethod>
-  </CB.ClassBrowser>
-</div>
-
-### `refreshAccessToken`
-
-<div class="sdk-method-section">
-  <CB.ClassBrowser name="Auth" type="client" language="java">
-    <CB.ClassMethod name="refreshAccessToken" open={true}>
-      <CB.ClassModifier type="async" slot="modifiers" />
-
-      Refreshes access credentials using a refresh token.
-
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. "(refresh_token)"
-      </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
-      </CB.ClassMethodOutput>
-
-```java wrap showLineNumbers=false
-client.authentication().refreshAccessToken("<refresh_token>");
-```
-
-    </CB.ClassMethod>
-  </CB.ClassBrowser>
-</div>
-
-### `validateAccessToken`
-
-<div class="sdk-method-section">
-  <CB.ClassBrowser name="Auth" type="client" language="java">
-    <CB.ClassMethod name="validateAccessToken" open={true}>
-      <CB.ClassModifier type="async" slot="modifiers" />
-
-      Validates an access token's signature and expiry.
-
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. "(access_token_jwt)"
-      </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
-      </CB.ClassMethodOutput>
-
-```java wrap showLineNumbers=false
-boolean ok = client.authentication().validateAccessToken("<access_token_jwt>");
-```
-
-    </CB.ClassMethod>
-  </CB.ClassBrowser>
-</div>
-
-### `validateAccessTokenAndGetClaims`
-
-<div class="sdk-method-section">
-  <CB.ClassBrowser name="Auth" type="client" language="java">
-    <CB.ClassMethod name="validateAccessTokenAndGetClaims" open={true}>
-      <CB.ClassModifier type="async" slot="modifiers" />
-
-      Validates an access token and returns decoded claims as a map.
-
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. "(access_token_jwt)"
-      </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
-      </CB.ClassMethodOutput>
-
-```java wrap showLineNumbers=false
-import java.util.Map;
-
-Map<String, Object> claims = client.authentication().validateAccessTokenAndGetClaims("<access_token_jwt>");
-```
-
-    </CB.ClassMethod>
-  </CB.ClassBrowser>
-</div>
-
-### `getClientAccessToken`
-
-<div class="sdk-method-section">
-  <CB.ClassBrowser name="Auth" type="client" language="java">
-    <CB.ClassMethod name="getClientAccessToken" open={true}>
-      <CB.ClassModifier type="async" slot="modifiers" />
-
-      Fetches an access token using the client credentials grant (machine-to-machine).
-
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
-      </CB.ClassMethodOutput>
-
-```java wrap showLineNumbers=false
-String token = client.authentication().getClientAccessToken();
-```
-
-    </CB.ClassMethod>
-  </CB.ClassBrowser>
-</div>
 </div>

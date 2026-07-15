@@ -1,6 +1,6 @@
 ---
 title: User
-description: Provision and manage users and memberships.
+description: Provision and manage users and memberships
 topic: saaskit-sdks
 tableOfContents:
   minHeadingLevel: 3
@@ -9,16 +9,6 @@ sidebar:
   label: User
 prev: false
 next: false
-head:
-  - tag: style
-    content: |
-      starlight-toc a[href='#_top'],
-      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
-        display: none !important;
-      }
-      starlight-toc li:has(> a[href='#_top']) > ul {
-        padding-inline-start: 0 !important;
-      }
 ---
 
 import * as CB from '@gesslar/starlight-class-browser'
@@ -26,34 +16,25 @@ import '@/styles/sdk-reference.css'
 
 <div class="sdk-client-page">
 
-Provision and manage users and memberships.
-
-
-{/* Client chrome once */}
-<div class="sdk-client-chrome">
-  <CB.ClassBrowser
-    name="User"
-    type="client"
-    language="python"
-    source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main"
-  >
-  </CB.ClassBrowser>
-</div>
+Use `scalekit_client.users` to provision users and manage memberships.
 
 ### `list_users`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="User" type="client" language="python">
+  <CB.ClassBrowser name="User" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/users.py">
     <CB.ClassMethod name="list_users" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Lists all users in the environment with pagination support.
+      Method to list all users in environment
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (f"User: user.email")
+      <CB.ClassMethodInput name="page_size" type="Optional[int]">
+        Optional. Page size for pagination
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodInput name="page_token" type="Optional[str]">
+        Optional. Page token for pagination
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListUsersResponse">
+        List Users Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -73,17 +54,23 @@ for user in response[0].users:
 ### `list_organization_users`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="User" type="client" language="python">
+  <CB.ClassBrowser name="User" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/users.py">
     <CB.ClassMethod name="list_organization_users" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Lists all users in a specific organization with pagination support.
+      Method to list users for given organization id
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (f"User: user.email")
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id to list users for
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodInput name="page_size" type="Optional[int]">
+        Optional. Page size for pagination
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="page_token" type="Optional[str]">
+        Optional. Page token for pagination
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListOrganizationUsersResponse">
+        List Organization Users Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -103,17 +90,17 @@ for user in response[0].users:
 ### `get_user`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="User" type="client" language="python">
+  <CB.ClassBrowser name="User" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/users.py">
     <CB.ClassMethod name="get_user" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Retrieves user details by user ID.
+      Method to get user by ID
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (f"User: user.email")
+      <CB.ClassMethodInput name="user_id" type="str">
+        User id to get user details
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="GetUserResponse">
+        Get User Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -129,17 +116,17 @@ print(f"User: {user.email}")
 ### `get_user_by_external_id`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="User" type="client" language="python">
+  <CB.ClassBrowser name="User" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/users.py">
     <CB.ClassMethod name="get_user_by_external_id" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Retrieves user details by external ID.
+      Method to get user by external ID
 
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. \external_123\
+      <CB.ClassMethodInput name="external_id" type="str">
+        External id to get user details
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="GetUserResponse">
+        Get User Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -154,23 +141,23 @@ user = response[0].user
 ### `create_user_and_membership`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="User" type="client" language="python">
+  <CB.ClassBrowser name="User" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/users.py">
     <CB.ClassMethod name="create_user_and_membership" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Creates a new user and adds them to an organization.
+      Method to create a new user and add them to an organization
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. \org_123456\
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id to create user for
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="unknown">
-        Argument (user)
+      <CB.ClassMethodInput name="user" type="CreateUser">
+        CreateUser object with expected values for user creation
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="send_invitation_email" type="boolean">
-        e.g. True
+      <CB.ClassMethodInput name="send_invitation_email" type="bool">
+        Optional. Whether to send invitation email to the user
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="CreateUserAndMembershipResponse">
+        Create User And Membership Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -195,20 +182,20 @@ response = scalekit_client.users.create_user_and_membership(
 ### `update_user`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="User" type="client" language="python">
+  <CB.ClassBrowser name="User" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/users.py">
     <CB.ClassMethod name="update_user" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Updates an existing user by user ID.
+      Method to update an existing user by ID
 
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. \usr_123456\
+      <CB.ClassMethodInput name="user_id" type="str">
+        User id to update
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="unknown">
-        Argument (user)
+      <CB.ClassMethodInput name="user" type="UpdateUser">
+        UpdateUser object with expected values for user update
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="UpdateUserResponse">
+        Update User Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -227,17 +214,17 @@ response = scalekit_client.users.update_user('usr_123456', user)
 ### `delete_user`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="User" type="client" language="python">
+  <CB.ClassBrowser name="User" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/users.py">
     <CB.ClassMethod name="delete_user" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Deletes a user by user ID.
+      Method to delete user by ID
 
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. \usr_123456\
+      <CB.ClassMethodInput name="user_id" type="str">
+        User id to be deleted
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="None">
+        None
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -251,26 +238,26 @@ scalekit_client.users.delete_user('usr_123456')
 ### `create_membership`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="User" type="client" language="python">
+  <CB.ClassBrowser name="User" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/users.py">
     <CB.ClassMethod name="create_membership" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Creates a membership for a user in an organization.
+      Method to create a membership for a user by user ID
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. \org_123456\
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. \usr_123456\
+      <CB.ClassMethodInput name="user_id" type="str">
+        User id
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg3" type="unknown">
-        Argument (membership)
+      <CB.ClassMethodInput name="membership" type="CreateMembership">
+        CreateMembership object
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="send_invitation_email" type="boolean">
-        e.g. True
+      <CB.ClassMethodInput name="send_invitation_email" type="bool">
+        Optional. Whether to send invitation email to the user
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="CreateMembershipResponse">
+        Create Membership Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -293,23 +280,23 @@ response = scalekit_client.users.create_membership(
 ### `update_membership`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="User" type="client" language="python">
+  <CB.ClassBrowser name="User" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/users.py">
     <CB.ClassMethod name="update_membership" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Updates a membership for a user in an organization.
+      Method to update a membership for a user by user ID
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. \org_123456\
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. \usr_123456\
+      <CB.ClassMethodInput name="user_id" type="str">
+        User id
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg3" type="unknown">
-        Argument (membership)
+      <CB.ClassMethodInput name="membership" type="UpdateMembership">
+        UpdateMembership object
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="UpdateMembershipResponse">
+        Update Membership Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -331,20 +318,20 @@ response = scalekit_client.users.update_membership(
 ### `delete_membership`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="User" type="client" language="python">
+  <CB.ClassBrowser name="User" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/users.py">
     <CB.ClassMethod name="delete_membership" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Deletes a membership for a user in an organization.
+      Method to delete a membership for a user by user ID
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. \org_123456\
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. \usr_123456\
+      <CB.ClassMethodInput name="user_id" type="str">
+        User id
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="None">
+        None
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -358,20 +345,20 @@ scalekit_client.users.delete_membership('org_123456', 'usr_123456')
 ### `resend_invite`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="User" type="client" language="python">
+  <CB.ClassBrowser name="User" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/users.py">
     <CB.ClassMethod name="resend_invite" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Resends an invitation email to a user who has a pending invitation.
+      Method to resend an invitation email to a user who has a pending invitation
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. \org_123456\
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id containing the pending invitation
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="string">
-        e.g. \usr_123456\
+      <CB.ClassMethodInput name="user_id" type="str">
+        User id who has a pending invitation
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="ResendInviteResponse">
+        Resend Invite Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -381,4 +368,173 @@ response = scalekit_client.users.resend_invite('org_123456', 'usr_123456')
     </CB.ClassMethod>
   </CB.ClassBrowser>
 </div>
+
+### `update_user_by_external_id`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="User" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/users.py">
+    <CB.ClassMethod name="update_user_by_external_id" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to update an existing user by external ID
+
+      <CB.ClassMethodInput name="external_id" type="str">
+        External id to update
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="user" type="UpdateUser">
+        UpdateUser object with expected values for user update
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateUserResponse">
+        Update User Response
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `delete_user_by_external_id`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="User" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/users.py">
+    <CB.ClassMethod name="delete_user_by_external_id" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to delete user by external ID
+
+      <CB.ClassMethodInput name="external_id" type="str">
+        External id to be deleted
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="None">
+        None
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `create_membership_by_external_id`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="User" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/users.py">
+    <CB.ClassMethod name="create_membership_by_external_id" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to create a membership for a user by external ID
+
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="external_id" type="str">
+        External id
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="membership" type="CreateMembership">
+        CreateMembership object
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="send_invitation_email" type="bool">
+        Optional. Whether to send invitation email to the user
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateMembershipResponse">
+        Create Membership Response
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `update_membership_by_external_id`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="User" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/users.py">
+    <CB.ClassMethod name="update_membership_by_external_id" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to update a membership for a user by external ID
+
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="external_id" type="str">
+        External id
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="membership" type="UpdateMembership">
+        UpdateMembership object
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateMembershipResponse">
+        Update Membership Response
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `delete_membership_by_external_id`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="User" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/users.py">
+    <CB.ClassMethod name="delete_membership_by_external_id" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to delete a membership for a user by external ID
+
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="external_id" type="str">
+        External id
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="None">
+        None
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `list_user_roles`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="User" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/users.py">
+    <CB.ClassMethod name="list_user_roles" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to list all roles assigned to a user in an organization
+
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id containing the user
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="user_id" type="str">
+        User id to list roles for
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListUserRolesResponse">
+        List User Roles Response
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `list_user_permissions`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="User" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/users.py">
+    <CB.ClassMethod name="list_user_permissions" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to list all permissions granted to a user in an organization
+
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id containing the user
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="user_id" type="str">
+        User id to list permissions for
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListUserPermissionsResponse">
+        List User Permissions Response
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
 </div>

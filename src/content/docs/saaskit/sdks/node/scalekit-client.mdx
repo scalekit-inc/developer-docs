@@ -111,13 +111,17 @@ const isValid = await scalekit.validateAccessToken(accessToken);
         The same redirect URI used in getAuthorizationUrl(). Must match exactly.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="AuthenticationOptions">
-        Optional. Optional authentication configuration codeVerifier: PKCE code verifier to validate the code challenge (required if PKCE was used)
+        Optional.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="AuthenticationResponse">
-        Authentication response containing: - user: User profile information (email, name, organization, etc.) - idToken: JWT ID token containing user claims - acces…
+        Authentication response containing: - user: User profile information (email, name…
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
+// codeVerifier: PKCE code verifier to validate the code challenge (requir…
+// containing: -
+// user: User profile information (email, name, organization, etc
+// idToken: JWT ID token containing user claims - acces…
 app.get('/auth/callback', async (req, res) => {
   const { code } = req.query;
 
@@ -150,13 +154,19 @@ app.get('/auth/callback', async (req, res) => {
         The token received in the 'idp_initiated_login' query parameter
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="TokenValidationOptions">
-        Optional. Optional token validation configuration issuer: Expected token issuer for validation audience: Expected token audience for validation
+        Optional.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="IdpInitiatedLoginClaims">
-        Claims containing: - connection_id: The SSO connection identifier - organization_id: The organization identifier - login_hint: User's email or login identifi…
+        Claims containing: - connection_id: The SSO connection identifier - organization_id: The…
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
+// issuer: Expected token issuer for validation
+// audience: Expected token audience for validation
+// containing: -
+// connection_id: The SSO connection identifier -
+// organization_id: The organization identifier -
+// login_hint: User's email or login identifi…
 app.get('/auth/callback', async (req, res) => {
   const { idp_initiated_login } = req.query;
 
@@ -195,10 +205,13 @@ app.get('/auth/callback', async (req, res) => {
         The refresh token obtained from a previous authentication
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="RefreshTokenResponse">
-        Response containing: - accessToken: New access token for API authorization - refreshToken: New refresh token (the old one is invalidated)
+        Response containing: - accessToken: New access token for API authorization -…
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
+// containing: -
+// accessToken: New access token for API authorization -
+// refreshToken: New refresh token (the old one is invalidated)
 const result = await scalekit.refreshAccessToken(oldRefreshToken);
 // Store the new tokens
 await storeTokens(userId, {

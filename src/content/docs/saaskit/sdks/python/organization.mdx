@@ -1,6 +1,6 @@
 ---
 title: Organization
-description: Manage your customer organizations.
+description: Manage your customer organizations
 topic: saaskit-sdks
 tableOfContents:
   minHeadingLevel: 3
@@ -9,16 +9,6 @@ sidebar:
   label: Organization
 prev: false
 next: false
-head:
-  - tag: style
-    content: |
-      starlight-toc a[href='#_top'],
-      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
-        display: none !important;
-      }
-      starlight-toc li:has(> a[href='#_top']) > ul {
-        padding-inline-start: 0 !important;
-      }
 ---
 
 import * as CB from '@gesslar/starlight-class-browser'
@@ -26,34 +16,25 @@ import '@/styles/sdk-reference.css'
 
 <div class="sdk-client-page">
 
-Manage your customer organizations.
-
-
-{/* Client chrome once */}
-<div class="sdk-client-chrome">
-  <CB.ClassBrowser
-    name="Organization"
-    type="client"
-    language="python"
-    source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main"
-  >
-  </CB.ClassBrowser>
-</div>
+Use `scalekit_client.organization` to create tenants, list customers, and update organization settings.
 
 ### `list_organizations`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Organization" type="client" language="python">
+  <CB.ClassBrowser name="Organization" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/organization.py">
     <CB.ClassMethod name="list_organizations" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Lists all organizations with pagination support.
+      Method to list organizations
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (f"Organization: org.display_name")
+      <CB.ClassMethodInput name="page_size" type="Optional[int]">
+        Optional. page size for org list fetch (optional, uses server default if not provided)
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodInput name="page_token" type="Optional[str]">
+        Optional. page token for org list fetch
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListOrganizationsResponse">
+        list of organizations
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -73,17 +54,17 @@ for org in response[0].organizations:
 ### `create_organization`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Organization" type="client" language="python">
+  <CB.ClassBrowser name="Organization" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/organization.py">
     <CB.ClassMethod name="create_organization" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Creates a new organization with the provided details.
+      Method to create organization based on given data
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (f"Created organization: response[0].org…)
+      <CB.ClassMethodInput name="organization" type="CreateOrganization">
+        Create Organization obj with details for org creation
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="CreateOrganizationResponse">
+        Create Organization Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -104,17 +85,17 @@ print(f"Created organization: {response[0].organization.id}")
 ### `get_organization`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Organization" type="client" language="python">
+  <CB.ClassBrowser name="Organization" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/organization.py">
     <CB.ClassMethod name="get_organization" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Retrieves organization details by organization ID.
+      Method to get organization based on given org id
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (f"Organization: organization.display_na…)
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="GetOrganizationResponse">
+        Get Organization Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -130,17 +111,17 @@ print(f"Organization: {organization.display_name}")
 ### `get_organization_by_external_id`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Organization" type="client" language="python">
+  <CB.ClassBrowser name="Organization" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/organization.py">
     <CB.ClassMethod name="get_organization_by_external_id" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Retrieves organization details by external ID.
+      Method to get organization based on given org id
 
-      <CB.ClassMethodInput name="arg1" type="string">
-        e.g. \acme_123\
+      <CB.ClassMethodInput name="external_id" type="str">
+        External id to fetch org details
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="None">
+        Get Organization Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -155,20 +136,20 @@ organization = response[0].organization
 ### `update_organization`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Organization" type="client" language="python">
+  <CB.ClassBrowser name="Organization" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/organization.py">
     <CB.ClassMethod name="update_organization" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Updates an existing organization with new information.
+      Method to update organization based on given data
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. \org_123456\
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id to update
       </CB.ClassMethodInput>
-      <CB.ClassMethodInput name="arg2" type="unknown">
-        Argument (org)
+      <CB.ClassMethodInput name="organization" type="UpdateOrganization">
+        params for update organization operation
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="UpdateOrganizationResponse">
+        Update Organization Response
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -187,17 +168,17 @@ response = scalekit_client.organization.update_organization('org_123456', org)
 ### `delete_organization`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Organization" type="client" language="python">
+  <CB.ClassBrowser name="Organization" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/organization.py">
     <CB.ClassMethod name="delete_organization" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Deletes an organization by organization ID.
+      Method to delete organization based on given org id
 
-      <CB.ClassMethodInput name="organizationId" type="string">
-        e.g. \org_123456\
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodOutput type="None">
+        None
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -211,17 +192,20 @@ scalekit_client.organization.delete_organization('org_123456')
 ### `generate_portal_link`
 
 <div class="sdk-method-section">
-  <CB.ClassBrowser name="Organization" type="client" language="python">
+  <CB.ClassBrowser name="Organization" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/organization.py">
     <CB.ClassMethod name="generate_portal_link" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Generates a customer portal link for the organization.
+      Method to generate customer portal link
 
-      <CB.ClassMethodInput name="arg1" type="unknown">
-        Argument (f"Portal Link: portal_link")
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id to fetch portal link for
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="unknown">
-        Return value of this method
+      <CB.ClassMethodInput name="features" type="[Feature]">
+        Optional. Feature list to generate portal link for
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GeneratePortalLinkResponse">
+        GeneratePortalLinkResponse
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -232,4 +216,133 @@ print(f"Portal Link: {portal_link}")
     </CB.ClassMethod>
   </CB.ClassBrowser>
 </div>
+
+### `update_organization_by_external_id`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Organization" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/organization.py">
+    <CB.ClassMethod name="update_organization_by_external_id" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to update organization based on external id
+
+      <CB.ClassMethodInput name="external_id" type="str">
+        External id to update org
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organization" type="UpdateOrganization">
+        params for update organization operation
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateOrganizationResponse">
+        Update Organization Response
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `update_organization_settings`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Organization" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/organization.py">
+    <CB.ClassMethod name="update_organization_settings" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to update organization settings
+
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id for org update
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="settings" type="List[Dict[str, bool]]">
+        Organization settings
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="None">
+        None
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `upsert_user_management_settings`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Organization" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/organization.py">
+    <CB.ClassMethod name="upsert_user_management_settings" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Upsert organization user management settings like maximum allowed users.
+
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id for update
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="max_allowed_users" type="Optional[int]">
+        Optional. Maximum allowed users (None to clear)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="None">
+        OrganizationUserManagementSettings
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `get_organization_session_policy`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Organization" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/organization.py">
+    <CB.ClassMethod name="get_organization_session_policy" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Get the session policy for an organization.
+
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetOrganizationSessionPolicyResponse">
+        GetOrganizationSessionPolicyResponse
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `update_organization_session_policy`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Organization" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/organization.py">
+    <CB.ClassMethod name="update_organization_session_policy" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Call `update_organization_session_policy`.
+
+      <CB.ClassMethodInput name="organization_id" type="str">
+        organization_id value
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="policy_source" type="SessionPolicyType">
+        policy_source value
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="absolute_session_timeout" type="Optional[int]">
+        Optional. 
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="absolute_session_timeout_unit" type="Optional[TimeUnit]">
+        Optional. 
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="idle_session_timeout_enabled" type="Optional[bool]">
+        Optional. 
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="idle_session_timeout" type="Optional[int]">
+        Optional. 
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="idle_session_timeout_unit" type="Optional[TimeUnit]">
+        Optional. 
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateOrganizationSessionPolicyResponse">
+        UpdateOrganizationSessionPolicyResponse
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
 </div>
