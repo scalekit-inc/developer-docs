@@ -1,0 +1,384 @@
+---
+title: User
+description: Provision and manage users and memberships.
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: User
+prev: false
+next: false
+head:
+  - tag: style
+    content: |
+      starlight-toc a[href='#_top'],
+      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
+        display: none !important;
+      }
+      starlight-toc li:has(> a[href='#_top']) > ul {
+        padding-inline-start: 0 !important;
+      }
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+Provision and manage users and memberships.
+
+
+{/* Client chrome once */}
+<div class="sdk-client-chrome">
+  <CB.ClassBrowser
+    name="User"
+    type="client"
+    language="python"
+    source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main"
+  >
+  </CB.ClassBrowser>
+</div>
+
+### `list_users`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="User" type="client" language="python">
+    <CB.ClassMethod name="list_users" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Lists all users in the environment with pagination support.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (f"User: user.email")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+response = scalekit_client.users.list_users(
+    page_size=50,
+    page_token='next_page_token'
+)
+
+for user in response[0].users:
+    print(f"User: {user.email}")
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `list_organization_users`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="User" type="client" language="python">
+    <CB.ClassMethod name="list_organization_users" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Lists all users in a specific organization with pagination support.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (f"User: user.email")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+response = scalekit_client.users.list_organization_users(
+    'org_123456',
+    page_size=50
+)
+
+for user in response[0].users:
+    print(f"User: {user.email}")
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `get_user`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="User" type="client" language="python">
+    <CB.ClassMethod name="get_user" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Retrieves user details by user ID.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (f"User: user.email")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+response = scalekit_client.users.get_user('usr_123456')
+user = response[0].user
+print(f"User: {user.email}")
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `get_user_by_external_id`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="User" type="client" language="python">
+    <CB.ClassMethod name="get_user_by_external_id" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Retrieves user details by external ID.
+
+      <CB.ClassMethodInput name="arg1" type="string">
+        e.g. \external_123\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+response = scalekit_client.users.get_user_by_external_id('external_123')
+user = response[0].user
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `create_user_and_membership`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="User" type="client" language="python">
+    <CB.ClassMethod name="create_user_and_membership" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Creates a new user and adds them to an organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        e.g. \org_123456\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="unknown">
+        Argument (user)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="send_invitation_email" type="boolean">
+        e.g. True
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+from scalekit.v1.users.users_pb2 import CreateUser
+
+user = CreateUser()
+user.email = "john.doe@example.com"
+user.given_name = "John"
+user.family_name = "Doe"
+
+response = scalekit_client.users.create_user_and_membership(
+    'org_123456',
+    user,
+    send_invitation_email=True
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `update_user`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="User" type="client" language="python">
+    <CB.ClassMethod name="update_user" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Updates an existing user by user ID.
+
+      <CB.ClassMethodInput name="arg1" type="string">
+        e.g. \usr_123456\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="unknown">
+        Argument (user)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+from scalekit.v1.users.users_pb2 import UpdateUser
+
+user = UpdateUser()
+user.given_name = "John"
+
+response = scalekit_client.users.update_user('usr_123456', user)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `delete_user`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="User" type="client" language="python">
+    <CB.ClassMethod name="delete_user" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Deletes a user by user ID.
+
+      <CB.ClassMethodInput name="arg1" type="string">
+        e.g. \usr_123456\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+scalekit_client.users.delete_user('usr_123456')
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `create_membership`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="User" type="client" language="python">
+    <CB.ClassMethod name="create_membership" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Creates a membership for a user in an organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        e.g. \org_123456\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. \usr_123456\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg3" type="unknown">
+        Argument (membership)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="send_invitation_email" type="boolean">
+        e.g. True
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+from scalekit.v1.users.users_pb2 import CreateMembership
+
+membership = CreateMembership()
+
+response = scalekit_client.users.create_membership(
+    'org_123456',
+    'usr_123456',
+    membership,
+    send_invitation_email=True
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `update_membership`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="User" type="client" language="python">
+    <CB.ClassMethod name="update_membership" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Updates a membership for a user in an organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        e.g. \org_123456\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. \usr_123456\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg3" type="unknown">
+        Argument (membership)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+from scalekit.v1.users.users_pb2 import UpdateMembership
+
+membership = UpdateMembership()
+
+response = scalekit_client.users.update_membership(
+    'org_123456',
+    'usr_123456',
+    membership
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `delete_membership`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="User" type="client" language="python">
+    <CB.ClassMethod name="delete_membership" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Deletes a membership for a user in an organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        e.g. \org_123456\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. \usr_123456\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+scalekit_client.users.delete_membership('org_123456', 'usr_123456')
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `resend_invite`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="User" type="client" language="python">
+    <CB.ClassMethod name="resend_invite" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Resends an invitation email to a user who has a pending invitation.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        e.g. \org_123456\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. \usr_123456\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+response = scalekit_client.users.resend_invite('org_123456', 'usr_123456')
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+</div>

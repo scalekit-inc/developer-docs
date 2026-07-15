@@ -1,0 +1,215 @@
+---
+title: Scalekit Client
+description: Create the SDK client and run core auth helpers
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Scalekit Client
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+Create a `ScalekitClient` with your environment URL and credentials.
+
+### `validateAccessToken`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/scalekit.ts">
+    <CB.ClassMethod name="validateAccessToken" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Validates the access token and returns a boolean result.
+
+      <CB.ClassMethodInput name="token" type="string">
+        The token to be validated.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="TokenValidationOptions">
+        Optional. Optional validation options for issuer, audience, and scopes
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="boolean">
+        Returns true if the token is valid, false otherwise.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const isValid = await scalekit.validateAccessToken(accessToken);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `validateAccessToken`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/scalekit.ts">
+    <CB.ClassMethod name="validateAccessToken" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Validates the access token and returns a boolean result.
+
+      <CB.ClassMethodInput name="token" type="string">
+        The token to be validated.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="TokenValidationOptions">
+        Optional. Optional validation options for issuer, audience, and scopes
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="boolean">
+        Returns true if the token is valid, false otherwise.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const isValid = await scalekit.validateAccessToken(accessToken);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `generateClientToken`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/scalekit.ts">
+    <CB.ClassMethod name="generateClientToken" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Generates an M2M access token using the client credentials grant for the given clientId and clientSecret.
+
+      <CB.ClassMethodInput name="clientId" type="string">
+        The client ID to authenticate with
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="clientSecret" type="string">
+        The client secret to authenticate with
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="string">
+        The access token string
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `authenticateWithCode`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/scalekit.ts">
+    <CB.ClassMethod name="authenticateWithCode" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Exchanges an authorization code for access tokens and user information.
+
+      <CB.ClassMethodInput name="code" type="string">
+        The authorization code received in the callback URL after user authentication
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="redirectUri" type="string">
+        The same redirect URI used in getAuthorizationUrl(). Must match exactly.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="AuthenticationOptions">
+        Optional. Optional authentication configuration codeVerifier: PKCE code verifier to validate the code challenge (required if PKCE was used)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="AuthenticationResponse">
+        Authentication response containing: - user: User profile information (email, name, organization, etc.) - idToken: JWT ID token containing user claims - acces…
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+app.get('/auth/callback', async (req, res) => {
+  const { code } = req.query;
+
+  const result = await scalekit.authenticateWithCode(
+    code,
+    'https://yourapp.com/auth/callback'
+  );
+
+  req.session.accessToken = result.accessToken;
+  req.session.user = result.user;
+
+  res.redirect('/dashboard');
+});
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `getIdpInitiatedLoginClaims`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/scalekit.ts">
+    <CB.ClassMethod name="getIdpInitiatedLoginClaims" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Extracts and validates claims from an IdP-initiated login token.
+
+      <CB.ClassMethodInput name="idpInitiatedLoginToken" type="string">
+        The token received in the 'idp_initiated_login' query parameter
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="TokenValidationOptions">
+        Optional. Optional token validation configuration issuer: Expected token issuer for validation audience: Expected token audience for validation
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="IdpInitiatedLoginClaims">
+        Claims containing: - connection_id: The SSO connection identifier - organization_id: The organization identifier - login_hint: User's email or login identifi…
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+app.get('/auth/callback', async (req, res) => {
+  const { idp_initiated_login } = req.query;
+
+  if (idp_initiated_login) {
+    const claims = await scalekit.getIdpInitiatedLoginClaims(idp_initiated_login);
+
+    const authUrl = scalekit.getAuthorizationUrl(
+      'https://yourapp.com/auth/callback',
+      {
+        connectionId: claims.connection_id,
+        organizationId: claims.organization_id,
+        loginHint: claims.login_hint,
+        ...(claims.relay_state && { state: claims.relay_state })
+      }
+    );
+
+    return res.redirect(authUrl);
+  }
+});
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `refreshAccessToken`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/scalekit.ts">
+    <CB.ClassMethod name="refreshAccessToken" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Obtains a new access token using a refresh token.
+
+      <CB.ClassMethodInput name="refreshToken" type="string">
+        The refresh token obtained from a previous authentication
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="RefreshTokenResponse">
+        Response containing: - accessToken: New access token for API authorization - refreshToken: New refresh token (the old one is invalidated)
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const result = await scalekit.refreshAccessToken(oldRefreshToken);
+// Store the new tokens
+await storeTokens(userId, {
+  accessToken: result.accessToken,
+  refreshToken: result.refreshToken
+});
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
+</div>

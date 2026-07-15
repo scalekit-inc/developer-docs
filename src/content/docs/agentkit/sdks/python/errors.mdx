@@ -1,0 +1,34 @@
+---
+title: Errors
+description: Error types and handling for AgentKit calls
+topic: agentkit-sdks
+tableOfContents:
+  minHeadingLevel: 2
+  maxHeadingLevel: 3
+sidebar:
+  label: Errors
+prev: false
+next: false
+---
+
+```python
+from scalekit.common.exceptions import ScalekitNotFoundException, ScalekitServerException
+
+try:
+    account = actions.get_connected_account(
+        connection_name="gmail",
+        identifier="user@example.com",
+    )
+except ScalekitNotFoundException:
+    # Account does not exist: create it or redirect to auth
+    pass
+except ScalekitServerException as e:
+    print(e.error_code, e.http_status)
+```
+
+| Exception | When raised |
+|---|---|
+| `ScalekitNotFoundException` | Resource not found |
+| `ScalekitUnauthorizedException` | Invalid credentials |
+| `ScalekitForbiddenException` | Insufficient permissions |
+| `ScalekitServerException` | Base class for all server errors |

@@ -1,0 +1,260 @@
+---
+title: Actions
+description: Connected accounts, auth links, and tool execution
+topic: agentkit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Actions
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+`scalekit.actions` is the primary AgentKit interface for connected accounts and tool execution.
+
+### `verifyConnectedAccountUser`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/actions.ts">
+    <CB.ClassMethod name="verifyConnectedAccountUser" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Verify the connected account user after OAuth callback.
+
+      <CB.ClassMethodInput name="params" type="object" hint="authRequestId, identifier">
+        params parameter
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="VerifyConnectedAccountUserResponse">
+        VerifyConnectedAccountUserResponse
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `listConnectedAccounts`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/actions.ts">
+    <CB.ClassMethod name="listConnectedAccounts" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      List connected accounts with optional filters.
+
+      <CB.ClassMethodInput name="params" type="object" hint="connectionName, identifier, provider, organizationId, userId, pageSize, pageToken, query">
+        Optional.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListConnectedAccountsResponse">
+        ListConnectedAccountsResponse
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `executeTool`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/actions.ts">
+    <CB.ClassMethod name="executeTool" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Execute a tool on behalf of a connected account.
+
+      <CB.ClassMethodInput name="params" type="object" hint="toolName, toolInput, identifier, connectedAccountId, connector, organizationId, userId">
+        params parameter
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ExecuteToolResponse">
+        ExecuteToolResponse
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `getAuthorizationLink`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/actions.ts">
+    <CB.ClassMethod name="getAuthorizationLink" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Get an authorization magic link for a connected account.
+
+      <CB.ClassMethodInput name="params" type="object" hint="connectionName, identifier, connectedAccountId, organizationId, userId, state, userVerifyUrl">
+        params parameter
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetMagicLinkForConnectedAccountResponse">
+        GetMagicLinkForConnectedAccountResponse
+      </CB.ClassMethodOutput>
+
+    
+```ts wrap showLineNumbers=false
+
+  <CB.ClassMethod name="verifyConnectedAccountUser">
+    Verifies the user after OAuth callback. Call this from your redirect URL handler.
+
+    <CB.ClassMethodInput name="authRequestId" type="string">
+      Token from the redirect URL query params **Required.**
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="identifier" type="string">
+      Current user's identifier **Required.**
+    </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="VerifyConnectedAccountUserResponse">
+      `postUserVerifyRedirectUrl` (`string`): URL to redirect the user to after successful verification
+    </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `listConnections`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/actions.ts">
+    <CB.ClassMethod name="listConnections" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      List app-level connections with optional pagination and provider filtering.
+
+      <CB.ClassMethodInput name="params" type="object" hint="pageSize, pageToken, provider">
+        Optional. Optional pagination and filtering parameters pageSize: Maximum number of connections to return per page (max 30) pageToken: Token identifying the page of results to return provider: Filter by provider key (case-sensitive, e.g. "SALESFORCE", "GMAIL")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListAppConnectionsResult">
+        ListAppConnectionsResult
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `deleteConnectedAccount`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/actions.ts">
+    <CB.ClassMethod name="deleteConnectedAccount" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Delete a connected account.
+
+      <CB.ClassMethodInput name="params" type="object" hint="connectionName, identifier, connectedAccountId, organizationId, userId">
+        params parameter
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="DeleteConnectedAccountResponse">
+        DeleteConnectedAccountResponse
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `getConnectedAccount`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/actions.ts">
+    <CB.ClassMethod name="getConnectedAccount" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Get connected account authorization details.
+
+      <CB.ClassMethodInput name="params" type="object" hint="connectionName, identifier, connectedAccountId, organizationId, userId">
+        params parameter
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetConnectedAccountByIdentifierResponse">
+        GetConnectedAccountByIdentifierResponse
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `createConnectedAccount`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/actions.ts">
+    <CB.ClassMethod name="createConnectedAccount" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Create a new connected account.
+
+      <CB.ClassMethodInput name="params" type="object" hint="connectionName, identifier, authorizationDetails, organizationId, userId, apiConfig">
+        params parameter
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateConnectedAccountResponse">
+        CreateConnectedAccountResponse
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `getOrCreateConnectedAccount`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/actions.ts">
+    <CB.ClassMethod name="getOrCreateConnectedAccount" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Get an existing connected account or create a new one if it doesn't exist.
+
+      <CB.ClassMethodInput name="params" type="object" hint="connectionName, identifier, authorizationDetails, organizationId, userId, apiConfig">
+        params parameter
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateConnectedAccountResponse">
+        CreateConnectedAccountResponse
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `updateConnectedAccount`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/actions.ts">
+    <CB.ClassMethod name="updateConnectedAccount" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Update an existing connected account.
+
+      <CB.ClassMethodInput name="params" type="object" hint="connectionName, identifier, authorizationDetails, organizationId, userId, connectedAccountId, apiConfig">
+        params parameter
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateConnectedAccountResponse">
+        UpdateConnectedAccountResponse
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `request`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/actions.ts">
+    <CB.ClassMethod name="request" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Make a proxied REST API call on behalf of a connected account.
+
+      <CB.ClassMethodInput name="params" type="object" hint="connectionName, identifier, path, method, queryParams, body, formData, headers">
+        timeoutMs: Per-call request timeout in ms. Defaults to `toolTimeoutMs`
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="object" hint="AxiosResponse(any)">
+        AxiosResponse(any)
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
+</div>

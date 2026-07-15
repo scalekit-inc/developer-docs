@@ -1,0 +1,267 @@
+---
+title: Permissions
+description: Manage fine-grained permissions
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Permissions
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+Use the `permission` client to manage permissions.
+
+### `createPermission`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Permissions" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/permission.ts">
+    <CB.ClassMethod name="createPermission" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Creates a new permission defining a specific action users can perform.
+
+      <CB.ClassMethodInput name="permission" type="CreatePermission">
+        Permission object containing:
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreatePermissionResponse">
+        Created permission with ID and timestamps
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+await scalekit.permission.createPermission({
+  name: 'read:invoices',
+  description: 'View invoice details'
+});
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `getPermission`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Permissions" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/permission.ts">
+    <CB.ClassMethod name="getPermission" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Retrieves complete information for a specific permission.
+
+      <CB.ClassMethodInput name="permissionName" type="string">
+        Permission identifier (e.g., 'read:documents')
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetPermissionResponse">
+        Permission details including description and timestamps
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.permission.getPermission('read:invoices');
+console.log('Description:', response.permission.description);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `listPermissions`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Permissions" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/permission.ts">
+    <CB.ClassMethod name="listPermissions" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Lists all permissions with pagination support.
+
+      <CB.ClassMethodInput name="pageToken" type="string">
+        Optional. Token for retrieving the next page
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="pageSize" type="number">
+        Optional. Number of permissions per page (max: 100)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListPermissionsResponse">
+        Paginated list of permissions
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.permission.listPermissions();
+response.permissions.forEach(perm => {
+  console.log(`${perm.name}: ${perm.description}`);
+});
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `updatePermission`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Permissions" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/permission.ts">
+    <CB.ClassMethod name="updatePermission" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Updates an existing permission's attributes.
+
+      <CB.ClassMethodInput name="permissionName" type="string">
+        Permission to update
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="permission" type="CreatePermission">
+        Updated permission properties
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdatePermissionResponse">
+        Updated permission details
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+await scalekit.permission.updatePermission('read:invoices', {
+  name: 'read:invoices',
+  description: 'View invoice details and history (updated)'
+});
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `deletePermission`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Permissions" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/permission.ts">
+    <CB.ClassMethod name="deletePermission" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Permanently removes a permission.
+
+      <CB.ClassMethodInput name="permissionName" type="string">
+        Permission identifier to delete
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="object" hint="MessageShape(typeof EmptySchema)">
+        Empty response on success
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+await scalekit.permission.deletePermission('deprecated:feature');
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `listRolePermissions`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Permissions" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/permission.ts">
+    <CB.ClassMethod name="listRolePermissions" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Lists direct permissions assigned to a role (excluding inherited permissions).
+
+      <CB.ClassMethodInput name="roleName" type="string">
+        Role to examine
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListRolePermissionsResponse">
+        List of directly assigned permissions only
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.permission.listRolePermissions('editor');
+console.log('Direct permissions:', response.permissions);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `addPermissionsToRole`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Permissions" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/permission.ts">
+    <CB.ClassMethod name="addPermissionsToRole" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Grants additional permissions to a role without removing existing assignments.
+
+      <CB.ClassMethodInput name="roleName" type="string">
+        Target role to enhance
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="permissionNames" type="string[]">
+        Array of permission identifiers to add
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="AddPermissionsToRoleResponse">
+        Updated list of all role permissions
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+await scalekit.permission.addPermissionsToRole('editor', [
+  'read:documents',
+  'write:documents',
+  'edit:documents'
+]);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `removePermissionFromRole`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Permissions" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/permission.ts">
+    <CB.ClassMethod name="removePermissionFromRole" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Revokes a specific permission from a role, restricting access for all assigned users.
+
+      <CB.ClassMethodInput name="roleName" type="string">
+        Role to modify
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="permissionName" type="string">
+        Permission to remove
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="object" hint="MessageShape(typeof EmptySchema)">
+        Empty response on success
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+await scalekit.permission.removePermissionFromRole('editor', 'delete:documents');
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `listEffectiveRolePermissions`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Permissions" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/permission.ts">
+    <CB.ClassMethod name="listEffectiveRolePermissions" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Lists all effective permissions for a role including both direct and inherited permissions.
+
+      <CB.ClassMethodInput name="roleName" type="string">
+        Role to analyze
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListEffectiveRolePermissionsResponse">
+        Complete list including inherited permissions
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.permission.listEffectiveRolePermissions('senior_editor');
+
+console.log('Total effective permissions:', response.permissions.length);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
+</div>

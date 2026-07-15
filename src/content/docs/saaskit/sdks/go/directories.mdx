@@ -1,0 +1,360 @@
+---
+title: Directories
+description: Sync users and groups via SCIM directories.
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Directories
+prev: false
+next: false
+head:
+  - tag: style
+    content: |
+      starlight-toc a[href='#_top'],
+      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
+        display: none !important;
+      }
+      starlight-toc li:has(> a[href='#_top']) > ul {
+        padding-inline-start: 0 !important;
+      }
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+Sync users and groups via SCIM directories.
+
+
+{/* Client chrome once */}
+<div class="sdk-client-chrome">
+  <CB.ClassBrowser
+    name="Directories"
+    type="client"
+    language="go"
+    source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main"
+  >
+  </CB.ClassBrowser>
+</div>
+
+### `CreateDirectory`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="go">
+    <CB.ClassMethod name="CreateDirectory" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Creates a directory for an organization.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. "org_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg3" type="unknown">
+        Argument (&directoriesv1.CreateDirectory Director…)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+import (
+  directoriesv1 "github.com/scalekit-inc/scalekit-sdk-go/v2/pkg/grpc/scalekit/v1/directories"
+)
+
+created, err := client.Directory().CreateDirectory(ctx, "org_123", &directoriesv1.CreateDirectory{
+  DirectoryType:     directoriesv1.DirectoryType_SCIM,
+  DirectoryProvider: directoriesv1.DirectoryProvider_OKTA,
+})
+if err != nil {
+  // handle
+}
+_ = created.Directory
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `DeleteDirectory`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="go">
+    <CB.ClassMethod name="DeleteDirectory" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Deletes a directory by ID within an organization.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. "org_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg3" type="string">
+        e.g. "dir_456"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+if err := client.Directory().DeleteDirectory(ctx, "org_123", "dir_456"); err != nil {
+  // handle
+}
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `ListDirectories`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="go">
+    <CB.ClassMethod name="ListDirectories" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Lists directories for an organization.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. "org_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+dirs, err := client.Directory().ListDirectories(ctx, "org_123")
+if err != nil {
+  // handle
+}
+_ = dirs.Directories
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `GetDirectory`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="go">
+    <CB.ClassMethod name="GetDirectory" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Fetches a directory by ID within an organization.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. "org_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg3" type="string">
+        e.g. "dir_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+dir, err := client.Directory().GetDirectory(ctx, "org_123", "dir_123")
+if err != nil {
+  // handle
+}
+_ = dir.Directory
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `GetPrimaryDirectoryByOrganizationId`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="go">
+    <CB.ClassMethod name="GetPrimaryDirectoryByOrganizationId" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Convenience helper to return the first directory for an organization (if any).
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. "org_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+dir, err := client.Directory().GetPrimaryDirectoryByOrganizationId(ctx, "org_123")
+if err != nil {
+  // handle
+}
+_ = dir.Directory
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `ListDirectoryUsers`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="go">
+    <CB.ClassMethod name="ListDirectoryUsers" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Lists users from a directory (paginated).
+
+      <CB.ClassMethodInput name="arg1" type="number">
+        e.g. 1729851960
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="number">
+        e.g. 0
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+includeDetail := true
+updatedAfter := time.Unix(1729851960, 0)
+
+resp, err := client.Directory().ListDirectoryUsers(ctx, "org_123", "dir_123", &scalekit.ListDirectoryUsersOptions{
+  PageSize:      10,
+  PageToken:     "",
+  IncludeDetail: &includeDetail,
+  UpdatedAfter:  &updatedAfter,
+})
+if err != nil {
+  // handle
+}
+_ = resp.Users
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `ListDirectoryGroups`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="go">
+    <CB.ClassMethod name="ListDirectoryGroups" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Lists groups from a directory (paginated).
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. "org_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg3" type="string">
+        e.g. "dir_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg4" type="unknown">
+        Argument (&scalekit.ListDirectoryGroupsOptions Pa…)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+includeDetail := true
+resp, err := client.Directory().ListDirectoryGroups(ctx, "org_123", "dir_123", &scalekit.ListDirectoryGroupsOptions{
+  PageSize:      10,
+  PageToken:     "",
+  IncludeDetail: &includeDetail,
+})
+if err != nil {
+  // handle
+}
+_ = resp.Groups
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `EnableDirectory`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="go">
+    <CB.ClassMethod name="EnableDirectory" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Enables a directory for an organization.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. "org_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg3" type="string">
+        e.g. "dir_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+resp, err := client.Directory().EnableDirectory(ctx, "org_123", "dir_123")
+if err != nil {
+  // handle
+}
+_ = resp.Enabled
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `DisableDirectory`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="go">
+    <CB.ClassMethod name="DisableDirectory" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Disables a directory for an organization.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. "org_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg3" type="string">
+        e.g. "dir_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+resp, err := client.Directory().DisableDirectory(ctx, "org_123", "dir_123")
+if err != nil {
+  // handle
+}
+_ = resp.Enabled
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+</div>

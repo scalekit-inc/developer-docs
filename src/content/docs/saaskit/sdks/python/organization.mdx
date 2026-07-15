@@ -1,0 +1,235 @@
+---
+title: Organization
+description: Manage your customer organizations.
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Organization
+prev: false
+next: false
+head:
+  - tag: style
+    content: |
+      starlight-toc a[href='#_top'],
+      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
+        display: none !important;
+      }
+      starlight-toc li:has(> a[href='#_top']) > ul {
+        padding-inline-start: 0 !important;
+      }
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+Manage your customer organizations.
+
+
+{/* Client chrome once */}
+<div class="sdk-client-chrome">
+  <CB.ClassBrowser
+    name="Organization"
+    type="client"
+    language="python"
+    source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main"
+  >
+  </CB.ClassBrowser>
+</div>
+
+### `list_organizations`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Organization" type="client" language="python">
+    <CB.ClassMethod name="list_organizations" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Lists all organizations with pagination support.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (f"Organization: org.display_name")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+response = scalekit_client.organization.list_organizations(
+    page_size=50,
+    page_token='next_page_token'
+)
+
+for org in response[0].organizations:
+    print(f"Organization: {org.display_name}")
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `create_organization`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Organization" type="client" language="python">
+    <CB.ClassMethod name="create_organization" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Creates a new organization with the provided details.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (f"Created organization: response[0].org…)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+from scalekit.v1.organizations.organizations_pb2 import CreateOrganization
+
+org = CreateOrganization()
+org.display_name = "Acme Corp"
+org.external_id = "acme_123"
+
+response = scalekit_client.organization.create_organization(org)
+print(f"Created organization: {response[0].organization.id}")
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `get_organization`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Organization" type="client" language="python">
+    <CB.ClassMethod name="get_organization" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Retrieves organization details by organization ID.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (f"Organization: organization.display_na…)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+response = scalekit_client.organization.get_organization('org_123456')
+organization = response[0].organization
+print(f"Organization: {organization.display_name}")
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `get_organization_by_external_id`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Organization" type="client" language="python">
+    <CB.ClassMethod name="get_organization_by_external_id" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Retrieves organization details by external ID.
+
+      <CB.ClassMethodInput name="arg1" type="string">
+        e.g. \acme_123\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+response = scalekit_client.organization.get_organization_by_external_id('acme_123')
+organization = response[0].organization
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `update_organization`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Organization" type="client" language="python">
+    <CB.ClassMethod name="update_organization" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Updates an existing organization with new information.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        e.g. \org_123456\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="unknown">
+        Argument (org)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+from scalekit.v1.organizations.organizations_pb2 import UpdateOrganization
+
+org = UpdateOrganization()
+org.display_name = "Acme Corporation"
+
+response = scalekit_client.organization.update_organization('org_123456', org)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `delete_organization`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Organization" type="client" language="python">
+    <CB.ClassMethod name="delete_organization" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Deletes an organization by organization ID.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        e.g. \org_123456\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+scalekit_client.organization.delete_organization('org_123456')
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `generate_portal_link`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Organization" type="client" language="python">
+    <CB.ClassMethod name="generate_portal_link" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Generates a customer portal link for the organization.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (f"Portal Link: portal_link")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+portal_link = scalekit_client.organization.generate_portal_link('org_123456')
+print(f"Portal Link: {portal_link}")
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+</div>

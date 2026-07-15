@@ -1,0 +1,279 @@
+---
+title: Scalekit Client
+description: Create the SDK client and run core auth helpers.
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Scalekit Client
+prev: false
+next: false
+head:
+  - tag: style
+    content: |
+      starlight-toc a[href='#_top'],
+      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
+        display: none !important;
+      }
+      starlight-toc li:has(> a[href='#_top']) > ul {
+        padding-inline-start: 0 !important;
+      }
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+Create the SDK client and run core auth helpers.
+
+
+{/* Client chrome once */}
+<div class="sdk-client-chrome">
+  <CB.ClassBrowser
+    name="ScalekitClient"
+    type="class"
+    language="python"
+    source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main"
+  >
+  </CB.ClassBrowser>
+</div>
+
+### `get_authorization_url`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="python">
+    <CB.ClassMethod name="get_authorization_url" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Utility method to generate the OAuth 2.0 authorization URL to initiate the SSO authentication flow.
+
+      <CB.ClassMethodInput name="arg1" type="string">
+        e.g. \https://yourapp.com/auth/callback\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="unknown">
+        Argument (options)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+from scalekit import ScalekitClient, AuthorizationUrlOptions
+
+# Initiate Enterprise SSO authentication for a given org_id
+options = AuthorizationUrlOptions()
+options.state = 'random-state-value'
+options.organization_id = 'org_123456'
+
+auth_url = scalekit_client.get_authorization_url(
+    'https://yourapp.com/auth/callback',
+    options
+)
+# Redirect user to auth_url
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `authenticate_with_code`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="python">
+    <CB.ClassMethod name="authenticate_with_code" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Exchanges an authorization code for access tokens and user information.
+
+      <CB.ClassMethodInput name="arg1" type="string">
+        e.g. \/auth/callback\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+from scalekit import ScalekitClient
+
+@app.get('/auth/callback')
+async def auth_callback(request):
+    code = request.query_params.get('code')
+
+    result = scalekit_client.authenticate_with_code(
+        code,
+        'https://yourapp.com/auth/callback'
+    )
+
+    request.session['access_token'] = result['access_token']
+    request.session['user'] = result['user']
+
+    return RedirectResponse('/dashboard')
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `get_idp_initiated_login_claims`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="python">
+    <CB.ClassMethod name="get_idp_initiated_login_claims" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Extracts and validates claims from an IdP-initiated login token.
+
+      <CB.ClassMethodInput name="arg1" type="string">
+        e.g. \idp_initiated_login\
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+@app.get('/auth/callback')
+async def auth_callback(request):
+    idp_initiated_login = request.query_params.get('idp_initiated_login')
+
+    if idp_initiated_login:
+        claims = scalekit_client.get_idp_initiated_login_claims(idp_initiated_login)
+
+        options = AuthorizationUrlOptions()
+        options.connection_id = claims['connection_id']
+        options.organization_id = claims['organization_id']
+        options.login_hint = claims.get('login_hint')
+        if claims.get('relay_state'):
+            options.state = claims['relay_state']
+
+        auth_url = scalekit_client.get_authorization_url(
+            'https://yourapp.com/auth/callback',
+            options
+        )
+
+        return RedirectResponse(auth_url)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `validate_access_token`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="python">
+    <CB.ClassMethod name="validate_access_token" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Validates the access token and returns a boolean result.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (token)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+is_valid = scalekit_client.validate_access_token(token)
+if is_valid:
+    # Token is valid, proceed with request
+    pass
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `get_logout_url`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="python">
+    <CB.ClassMethod name="get_logout_url" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Returns the logout URL that can be used to log out the user.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (options)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+options = LogoutUrlOptions()
+options.post_logout_redirect_uri = 'https://example.com'
+options.state = 'some-state'
+
+logout_url = scalekit_client.get_logout_url(options)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `verify_webhook_payload`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="python">
+    <CB.ClassMethod name="verify_webhook_payload" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Verifies the webhook payload signature using the provided secret.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (request.headers)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+@app.post('/webhooks')
+async def webhook_handler(request):
+    payload = await request.body()
+    headers = dict(request.headers)
+
+    is_valid = scalekit_client.verify_webhook_payload(
+        'your_webhook_secret',
+        headers,
+        payload
+    )
+
+    if is_valid:
+        # Process webhook
+        pass
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `refresh_access_token`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitClient" type="class" language="python">
+    <CB.ClassMethod name="refresh_access_token" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Refreshes an access token using a refresh token.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (refresh_token)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+result = scalekit_client.refresh_access_token(refresh_token)
+new_access_token = result['access_token']
+new_refresh_token = result['refresh_token']
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+</div>

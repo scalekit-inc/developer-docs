@@ -1,0 +1,484 @@
+---
+title: Organizations
+description: Manage your customer organizations.
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Organizations
+prev: false
+next: false
+head:
+  - tag: style
+    content: |
+      starlight-toc a[href='#_top'],
+      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
+        display: none !important;
+      }
+      starlight-toc li:has(> a[href='#_top']) > ul {
+        padding-inline-start: 0 !important;
+      }
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+Manage your customer organizations.
+
+
+{/* Client chrome once */}
+<div class="sdk-client-chrome">
+  <CB.ClassBrowser
+    name="Organizations"
+    type="client"
+    language="go"
+    source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main"
+  >
+  </CB.ClassBrowser>
+</div>
+
+### `CreateOrganization`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Organizations" type="client" language="go">
+    <CB.ClassMethod name="CreateOrganization" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Creates a new organization (tenant).
+
+      <CB.ClassMethodInput name="arg1" type="string">
+        e.g. "Organization ID:"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="unknown">
+        Argument (org.Organization.Id)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+import (
+  "context"
+  "fmt"
+
+  "github.com/scalekit-inc/scalekit-sdk-go/v2"
+)
+
+ctx := context.Background()
+org, err := client.Organization().CreateOrganization(ctx, "Acme Corporation", scalekit.CreateOrganizationOptions{
+  ExternalId: "customer_12345",
+  Metadata: map[string]string{
+    "source": "signup",
+  },
+})
+if err != nil {
+  // handle
+}
+
+fmt.Println("Organization ID:", org.Organization.Id)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `ListOrganization`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Organizations" type="client" language="go">
+    <CB.ClassMethod name="ListOrganization" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Retrieves a paginated list of organizations in your environment.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="unknown">
+        Argument (nil)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+// Paginate through all organizations
+orgs, err := client.Organization().ListOrganization(ctx, &scalekit.ListOrganizationOptions{
+  PageSize:  10,
+  PageToken: "",
+})
+if err != nil {
+  // handle
+}
+for _, org := range orgs.Organizations {
+  _ = org.Id
+}
+
+// Use server defaults
+orgs, err = client.Organization().ListOrganization(ctx, nil)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `GetOrganization`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Organizations" type="client" language="go">
+    <CB.ClassMethod name="GetOrganization" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Fetches an organization by Scalekit organization ID.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. "org_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+org, err := client.Organization().GetOrganization(ctx, "org_123")
+if err != nil {
+  // handle
+}
+_ = org.Organization
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `GetOrganizationByExternalId`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Organizations" type="client" language="go">
+    <CB.ClassMethod name="GetOrganizationByExternalId" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Fetches an organization by your external ID (if set).
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. "customer_12345"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+org, err := client.Organization().GetOrganizationByExternalId(ctx, "customer_12345")
+if err != nil {
+  // handle
+}
+_ = org.Organization
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `UpdateOrganization`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Organizations" type="client" language="go">
+    <CB.ClassMethod name="UpdateOrganization" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Updates an organization by Scalekit organization ID.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. "org_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg3" type="unknown">
+        Argument (&organizations.UpdateOrganization Displ…)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+updated, err := client.Organization().UpdateOrganization(
+  ctx,
+  "org_123",
+  &organizations.UpdateOrganization{
+    DisplayName: func() *string { s := "Updated name"; return &s }(),
+  },
+)
+if err != nil {
+  // handle
+}
+_ = updated.Organization
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `UpdateOrganizationByExternalId`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Organizations" type="client" language="go">
+    <CB.ClassMethod name="UpdateOrganizationByExternalId" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Updates an organization by your external ID.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. "customer_12345"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg3" type="unknown">
+        Argument (&organizations.UpdateOrganization Displ…)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+updated, err := client.Organization().UpdateOrganizationByExternalId(
+  ctx,
+  "customer_12345",
+  &organizations.UpdateOrganization{
+    DisplayName: func() *string { s := "Updated name"; return &s }(),
+  },
+)
+if err != nil {
+  // handle
+}
+_ = updated.Organization
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `DeleteOrganization`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Organizations" type="client" language="go">
+    <CB.ClassMethod name="DeleteOrganization" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Deletes an organization by Scalekit organization ID.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. "org_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+if err := client.Organization().DeleteOrganization(ctx, "org_123"); err != nil {
+  // handle
+}
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `GeneratePortalLink`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Organizations" type="client" language="go">
+    <CB.ClassMethod name="GeneratePortalLink" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Generates an admin portal link for an organization.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. "org_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+link, err := client.Organization().GeneratePortalLink(ctx, "org_123")
+if err != nil {
+  // handle
+}
+_ = link.Url
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `UpdateOrganizationSettings`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Organizations" type="client" language="go">
+    <CB.ClassMethod name="UpdateOrganizationSettings" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Updates organization settings (feature toggles).
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. "org_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg3" type="unknown">
+        Argument (scalekit.OrganizationSettings Features:…)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+resp, err := client.Organization().UpdateOrganizationSettings(ctx, "org_123", scalekit.OrganizationSettings{
+  Features: []scalekit.Feature{
+    {Name: "sso", Enabled: true},
+    {Name: "dir_sync", Enabled: true},
+  },
+})
+if err != nil {
+  // handle
+}
+_ = resp.Organization.Settings
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `UpsertUserManagementSettings`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Organizations" type="client" language="go">
+    <CB.ClassMethod name="UpsertUserManagementSettings" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Creates or updates user management settings for an organization.
+
+      <CB.ClassMethodInput name="arg1" type="number">
+        e.g. 150
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+maxUsers := int32(150)
+settings, err := client.Organization().UpsertUserManagementSettings(
+  ctx,
+  "org_123",
+  scalekit.OrganizationUserManagementSettings{
+    MaxAllowedUsers: &maxUsers,
+  },
+)
+if err != nil {
+  // handle
+}
+_ = settings.MaxAllowedUsers
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `GetOrganizationSessionPolicy`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Organizations" type="client" language="go">
+    <CB.ClassMethod name="GetOrganizationSessionPolicy" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Retrieves the session policy for an organization.
+
+      <CB.ClassMethodInput name="arg1" type="unknown">
+        Argument (ctx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="arg2" type="string">
+        e.g. "org_123"
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+policy, err := client.Organization().GetOrganizationSessionPolicy(ctx, "org_123")
+if err != nil {
+  // handle
+}
+if policy.PolicySource == scalekit.SessionPolicySourceCustom {
+  _ = policy.AbsoluteSessionTimeout.GetValue()
+}
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### `UpdateOrganizationSessionPolicy`
+
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Organizations" type="client" language="go">
+    <CB.ClassMethod name="UpdateOrganizationSessionPolicy" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Sets a custom session policy for an organization or reverts it to application defaults.
+
+      <CB.ClassMethodInput name="arg1" type="number">
+        e.g. 360
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="unknown">
+        Return value of this method
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+// Set a custom policy
+timeout := int32(360)
+idleTimeout := int32(60)
+idleEnabled := true
+policy, err := client.Organization().UpdateOrganizationSessionPolicy(ctx, "org_123", scalekit.OrganizationSessionPolicy{
+  PolicySource:               scalekit.SessionPolicySourceCustom,
+  AbsoluteSessionTimeout:     &timeout,
+  AbsoluteSessionTimeoutUnit: scalekit.TimeUnitMinutes,
+  IdleSessionTimeoutEnabled:  &idleEnabled,
+  IdleSessionTimeout:         &idleTimeout,
+  IdleSessionTimeoutUnit:     scalekit.TimeUnitMinutes,
+})
+if err != nil {
+  // handle
+}
+_ = policy
+
+// Revert to application defaults
+reverted, err := client.Organization().UpdateOrganizationSessionPolicy(ctx, "org_123", scalekit.OrganizationSessionPolicy{
+  PolicySource: scalekit.SessionPolicySourceApplication,
+})
+if err != nil {
+  // handle
+}
+_ = reverted
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+</div>
