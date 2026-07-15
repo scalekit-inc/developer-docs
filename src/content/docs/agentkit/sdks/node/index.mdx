@@ -28,11 +28,11 @@ npm install @scalekit-sdk/node
 ```ts
 import { ScalekitClient } from '@scalekit-sdk/node';
 
-const scalekit = new ScalekitClient({
-  clientId: process.env.SCALEKIT_CLIENT_ID!,
-  clientSecret: process.env.SCALEKIT_CLIENT_SECRET!,
-  envUrl: process.env.SCALEKIT_ENV_URL!,
-});
+const scalekit = new ScalekitClient(
+  process.env.SCALEKIT_ENV_URL!,
+  process.env.SCALEKIT_CLIENT_ID!,
+  process.env.SCALEKIT_CLIENT_SECRET!
+);
 ```
 
 ---
@@ -121,6 +121,8 @@ const { connectedAccount } = await scalekit.actions.getOrCreateConnectedAccount(
 });
 console.log(connectedAccount.id);
 ```
+
+`upsertConnectedAccount` is an alias of `getOrCreateConnectedAccount`. Prefer the upsert name when you mean create-or-update credential semantics.
 
 #### getConnectedAccount
 
@@ -212,6 +214,39 @@ Deletes a connected account and revokes its credentials. Requires `connectedAcco
 ]} />
 
 Returns DeleteConnectedAccountResponse.
+
+#### listConnections
+
+Lists **app-level** AgentKit connections (tool/provider integrations for the environment). This is not the same as SSO organization connections on `scalekit.connection`.
+
+<MethodParams label="Input schema" params={[
+  { name: 'pageSize', type: 'number', required: false, description: 'Maximum connections per page (max 30)' },
+  { name: 'pageToken', type: 'string', required: false, description: 'Opaque cursor from a previous list response' },
+  { name: 'provider', type: 'string', required: false, description: 'Filter by provider key (case-sensitive, e.g. GMAIL, SALESFORCE)' },
+]} />
+
+<MethodReturns type="ListAppConnectionsResult" fields={[
+  { name: 'connections', type: 'array', description: 'Normalized AppConnection objects' },
+  { name: 'connections[].id', type: 'string', description: 'Connection ID (conn_...)' },
+  { name: 'connections[].connectionName', type: 'string', description: 'Connection name / key identifier' },
+  { name: 'connections[].provider', type: 'string', description: 'Provider key (e.g. GMAIL)' },
+  { name: 'connections[].type', type: 'string', description: 'Connection type (e.g. OAUTH)' },
+  { name: 'connections[].status', type: 'string', description: 'Connection status (e.g. COMPLETED, DRAFT)' },
+  { name: 'connections[].enabled', type: 'boolean', description: 'Whether the connection is enabled' },
+  { name: 'totalSize', type: 'number', description: 'Total number of matching connections' },
+  { name: 'nextPageToken', type: 'string', description: 'Token for the next page, if any' },
+  { name: 'prevPageToken', type: 'string', description: 'Token for the previous page, if any' },
+]} />
+
+```ts title="Example"
+const { connections } = await scalekit.actions.listConnections({
+  pageSize: 30,
+  provider: 'GMAIL',
+});
+for (const conn of connections) {
+  console.log(conn.id, conn.connectionName, conn.enabled);
+}
+```
 
 ---
 
