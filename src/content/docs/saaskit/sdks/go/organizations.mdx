@@ -31,13 +31,13 @@ Use the Organization client to create tenants, list customers, and update organi
         Request context
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="name" type="string">
-        name value
+        Display name.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="CreateOrganizationOptions">
-        options value
+        Optional settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="CreateOrganizationResponse">
-        CreateOrganizationResponse
+        The created organization.
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -79,14 +79,13 @@ fmt.Println("Organization ID:", org.Organization.Id)
         Request context
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="request" type="ListOrganizationOptions">
-        request value
+        Request payload.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListOrganizationsResponse">
-        ListOrganizationsResponse
+        Paginated organizations.
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-// Paginate through all organizations
 orgs, err := client.Organization().ListOrganization(ctx, &scalekit.ListOrganizationOptions{
   PageSize:  10,
   PageToken: "",
@@ -119,10 +118,10 @@ orgs, err = client.Organization().ListOrganization(ctx, nil)
         Request context
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="id" type="string">
-        id value
+        Resource ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="GetOrganizationResponse">
-        GetOrganizationResponse
+        The organization.
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -150,10 +149,10 @@ _ = org.Organization
         Request context
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="externalId" type="string">
-        externalId value
+        External ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="GetOrganizationResponse">
-        GetOrganizationResponse
+        The organization.
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -181,16 +180,17 @@ _ = org.Organization
         Request context
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="id" type="string">
-        id value
+        Resource ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="organization" type="UpdateOrganization">
-        organization value
+        Fields to update.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="UpdateOrganizationResponse">
-        UpdateOrganizationResponse
+        The updated organization.
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
+// DisplayName: Display name
 updated, err := client.Organization().UpdateOrganization(
   ctx,
   "org_123",
@@ -221,16 +221,17 @@ _ = updated.Organization
         Request context
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="externalId" type="string">
-        externalId value
+        External ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="organization" type="UpdateOrganization">
-        organization value
+        Fields to update.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="UpdateOrganizationResponse">
-        UpdateOrganizationResponse
+        The updated organization.
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
+// DisplayName: Display name
 updated, err := client.Organization().UpdateOrganizationByExternalId(
   ctx,
   "customer_12345",
@@ -261,7 +262,7 @@ _ = updated.Organization
         Request context
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="id" type="string">
-        id value
+        Resource ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="error">
         error
@@ -290,10 +291,10 @@ if err := client.Organization().DeleteOrganization(ctx, "org_123"); err != nil {
         Request context
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="organizationId" type="string">
-        organizationId value
+        Organization ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="Link">
-        Link
+        Authorization link.
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -321,13 +322,13 @@ _ = link.Url
         Request context
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="id" type="string">
-        id value
+        Resource ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="settings" type="OrganizationSettings">
-        settings value
+        Settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="GetOrganizationResponse">
-        GetOrganizationResponse
+        The organization.
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -360,10 +361,10 @@ _ = resp.Organization.Settings
         Request context
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="organizationId" type="string">
-        organizationId value
+        Organization ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="settings" type="OrganizationUserManagementSettings">
-        settings value
+        Settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="organizationsv1.OrganizationUserManagementSettings">
         organizationsv1.OrganizationUserManagementSettings
@@ -401,10 +402,10 @@ _ = settings.MaxAllowedUsers
         Request context
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="organizationId" type="string">
-        organizationId value
+        Organization ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="OrganizationSessionPolicySettings">
-        OrganizationSessionPolicySettings
+        The resource.
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -434,17 +435,16 @@ if policy.PolicySource == scalekit.SessionPolicySourceCustom {
         Request context
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="organizationId" type="string">
-        organizationId value
+        Organization ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="policy" type="OrganizationSessionPolicy">
-        policy value
+        Policy.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="OrganizationSessionPolicySettings">
-        OrganizationSessionPolicySettings
+        The updated resource.
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-// Set a custom policy
 timeout := int32(360)
 idleTimeout := int32(60)
 idleEnabled := true

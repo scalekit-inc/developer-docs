@@ -28,18 +28,13 @@ Use the `directory` client for SCIM directory sync.
       Retrieves all SCIM directories configured for an organization.
 
       <CB.ClassMethodInput name="organizationId" type="string">
-        The organization ID to list directories for (format: "org_...")
+        Organization ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListDirectoriesResponse">
-        Response containing: - directories: Array of directory objects.
+        Directories for the org.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
-// containing: -
-// directories: Array of directory objects
-// id: Unique directory identifier -
-// organizationId: Parent organization ID -
-// provider: I…
 const response = await scalekit.directory.listDirectories('org_123456');
 
 console.log(`Found ${response.directories.length} directories`);
@@ -63,21 +58,16 @@ response.directories.forEach(dir => {
       Retrieves comprehensive details about a specific SCIM directory.
 
       <CB.ClassMethodInput name="organizationId" type="string">
-        The organization ID that owns the directory (format: "org_...")
+        Organization ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="directoryId" type="string">
         The directory identifier to retrieve (format: "dir_...")
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="GetDirectoryResponse">
-        Response containing: - directory: Complete directory object.
+        The directory.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
-// containing: -
-// directory: Complete directory object
-// id: Unique directory identifier -
-// organizationId: Parent organization ID -
-// provider: Iden…
 const response = await scalekit.directory.getDirectory(
   'org_123456',
   'dir_abc123'
@@ -103,7 +93,7 @@ console.log('Users:', dir.userCount);
       Retrieves the primary (first) directory for an organization.
 
       <CB.ClassMethodInput name="organizationId" type="string">
-        The organization ID to get the primary directory for (format: "org_...")
+        Organization ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="Directory">
         The first directory object for the organization
@@ -136,22 +126,18 @@ console.log('Users:', directory.userCount);
         The directory ID
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="object" hint="pageSize, pageToken, includeDetail, directoryGroupId, updatedAfter">
-        Optional.
+        Optional settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListDirectoryUsersResponse">
-        Response containing: - users: Array of directory user objects with profiles and…
+        Directory users.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
-// pageSize: Number of users per page (max: 100)
-// pageToken: Token for next page from previous response
-// includeDetail: Include full user profile details
-// directoryGroupId: Filter users by group membership
-// updatedAfter: ISO 8601 timestamp to fetch only users updated after this…
-// containing: -
-// users: Array of directory user objects with profiles and attribu…
-// nextPageToken: Token for retrieving the next page -
-// totalSize: T…
+// pageSize: Results per page (default 10, max 100)
+// pageToken: Token for the next page
+// includeDetail: include detail
+// directoryGroupId: directory group id
+// updatedAfter: Only resources updated after this time
 const response = await scalekit.directory.listDirectoryUsers(
   'org_123456',
   'dir_abc123',
@@ -181,23 +167,17 @@ console.log(`Found ${response.totalSize} users`);
         The directory ID (format: "dir_...")
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="object" hint="pageSize, pageToken, includeDetail, updatedAfter">
-        Optional.
+        Optional settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListDirectoryGroupsResponse">
-        Response containing: - groups: Array of directory group objects.
+        Directory groups.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
-// pageSize: Number of groups per page (max: 30,
-// default: 10)
-// pageToken: Token for next page from previous response
-// includeDetail: Include full group details and member lists
-// updatedAfter: ISO 8601 timestamp to fetch only groups updated after thi…
-// containing: -
-// groups: Array of directory group objects
-// id: Group identifier -
-// displayName: Group name -
-// description: Group description - mem…
+// pageSize: Results per page (default 10, max 100)
+// pageToken: Token for the next page
+// includeDetail: include detail
+// updatedAfter: Only resources updated after this time
 const response = await scalekit.directory.listDirectoryGroups(
   'org_123456',
   'dir_abc123',
@@ -227,12 +207,10 @@ console.log(`Found ${response.totalSize} groups`);
         The directory ID to enable (format: "dir_...")
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ToggleDirectoryResponse">
-        Response containing: - directory: The updated directory object with enabled status set to true.
+        The updated resource.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
-// containing: -
-// directory: The updated directory object with enabled status set to true
 const response = await scalekit.directory.enableDirectory(
   'org_123456',
   'dir_abc123'
@@ -261,12 +239,10 @@ console.log('Directory enabled:', response.directory.enabled);
         The directory ID to disable (format: "dir_...")
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ToggleDirectoryResponse">
-        Response containing: - directory: The updated directory object with enabled status set to false.
+        The updated resource.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
-// containing: -
-// directory: The updated directory object with enabled status set to f…
 const response = await scalekit.directory.disableDirectory(
   'org_123456',
   'dir_abc123'

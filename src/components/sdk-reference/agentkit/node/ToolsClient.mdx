@@ -13,37 +13,37 @@ import * as CB from '@gesslar/starlight-class-browser'
     Lists all tools available in your workspace.
 
     <CB.ClassMethodInput name="filter" type="Filter">
-      Filter by provider, identifier, or tool name
-    </CB.ClassMethodInput>
+        Filter by provider, identifier, or tool name
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="pageSize" type="number">
-      Maximum tools per page (server default if omitted)
-    </CB.ClassMethodInput>
+        Maximum tools per page (server default if omitted)
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="pageToken" type="string">
-      Opaque cursor from a previous list response
-    </CB.ClassMethodInput>
+        Opaque cursor from a previous list response
+      </CB.ClassMethodInput>
     <CB.ClassMethodOutput type="ListToolsResponse">
-      `tools` (`array`): List of tool schemas (name, description, input schema) · `nextPageToken` (`string`): Token for the next page, if any
-    </CB.ClassMethodOutput>
+        Paginated tools.
+      </CB.ClassMethodOutput>
   </CB.ClassMethod>
 
   <CB.ClassMethod name="listScopedTools">
     Lists tools scoped to a specific user. Use this for tool discovery because it returns pagination metadata such as `nextPageToken` and `totalSize`.
 
     <CB.ClassMethodInput name="identifier" type="string">
-      User's connected account identifier **Required.**
-    </CB.ClassMethodInput>
+        User's connected account identifier **Required.**
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="filter" type="ScopedToolFilter">
-      Filter by providers, tool names, or connection names
-    </CB.ClassMethodInput>
+        Filter by providers, tool names, or connection names
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="pageSize" type="number">
-      Maximum tools per page. Use 100 for discovery so connectors with more than the default page are not truncated.
-    </CB.ClassMethodInput>
+        Maximum tools per page.
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="pageToken" type="string">
-      Opaque cursor from a previous list response
-    </CB.ClassMethodInput>
+        Opaque cursor from a previous list response
+      </CB.ClassMethodInput>
     <CB.ClassMethodOutput type="ListScopedToolsResponse">
-      `tools` (`array`): List of tool schemas · `tools[].name` (`string`): Tool name · `tools[].description` (`string`): Tool description · `tools[].inputSchema` (`object`): JSON Schema for tool inputs. Pass directly to LLM API. · `nextPageToken` (`string`): Token for the next page, if any
-    </CB.ClassMethodOutput>
+        Paginated tools.
+      </CB.ClassMethodOutput>
   </CB.ClassMethod>
 
 ```ts title="Example"
@@ -58,46 +58,47 @@ const { tools } = await scalekit.tools.listScopedTools('user@example.com', {
     Lists tools available for a given identifier. These tools can be activated but may not yet be scoped to the user.
 
     <CB.ClassMethodInput name="identifier" type="string">
-      User's connected account identifier **Required.**
-    </CB.ClassMethodInput>
+        User's connected account identifier **Required.**
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="pageSize" type="number">
-      Maximum tools per page (server default if omitted)
-    </CB.ClassMethodInput>
+        Maximum tools per page (server default if omitted)
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="pageToken" type="string">
-      Opaque cursor from a previous list response
-    </CB.ClassMethodInput>
+        Opaque cursor from a previous list response
+      </CB.ClassMethodInput>
     <CB.ClassMethodOutput type="ListAvailableToolsResponse">
-      `tools` (`array`): List of available tool schemas · `nextPageToken` (`string`): Token for the next page, if any
-    </CB.ClassMethodOutput>
+        Paginated tools.
+      </CB.ClassMethodOutput>
   </CB.ClassMethod>
 
   <CB.ClassMethod name="executeTool">
     Low-level tool execution. Prefer `scalekit.actions.executeTool` for most use cases.
 
     <CB.ClassMethodInput name="toolName" type="string">
-      Registered tool name to execute **Required.**
-    </CB.ClassMethodInput>
+        Registered tool name to execute **Required.**
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="identifier" type="string">
-      End-user or workspace identifier used to resolve the connected account
-    </CB.ClassMethodInput>
-    <CB.ClassMethodInput name="params" type={"Record<string, unknown>"}>
+        End-user or workspace identifier used to resolve.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="params" type={"Record<string, unknown>
+        "}>
       Tool arguments matching the tool input schema
-    </CB.ClassMethodInput>
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="connectedAccountId" type="string">
-      Connected account ID (ca_...) when you already know it
-    </CB.ClassMethodInput>
+        Connected account ID (ca_...) when you already know it
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="connector" type="string">
-      Connector slug when the tool name exists on more than one connector
-    </CB.ClassMethodInput>
+        Connector slug when the tool name exists on more than one.
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="organizationId" type="string">
-      Organization tenant ID when your app scopes auth and accounts by org
-    </CB.ClassMethodInput>
+        Organization tenant ID.
+      </CB.ClassMethodInput>
     <CB.ClassMethodInput name="userId" type="string">
-      Your application user ID when you map Scalekit accounts to internal users
-    </CB.ClassMethodInput>
+        Your app user ID.
+      </CB.ClassMethodInput>
     <CB.ClassMethodOutput type="ExecuteToolResponse.">
-      See return type `ExecuteToolResponse.`.
-    </CB.ClassMethodOutput>
+        See return type `ExecuteToolResponse.`.
+      </CB.ClassMethodOutput>
   </CB.ClassMethod>
 
 </CB.ClassBrowser>

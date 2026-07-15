@@ -28,21 +28,16 @@ Use the `connection` client to manage enterprise SSO connections.
       Retrieves complete configuration and status details for a specific SSO connection.
 
       <CB.ClassMethodInput name="organizationId" type="string">
-        The organization ID that owns the connection (format: "org_...")
+        Organization ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="id" type="string">
         The connection identifier to retrieve (format: "conn_...")
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="GetConnectionResponse">
-        Response containing: - connection: Complete connection object.
+        The connection.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
-// containing: -
-// connection: Complete connection object
-// id: Unique connection identifier -
-// organizationId: Parent organization ID -
-// provider: I…
 const response = await scalekit.connection.getConnection(
   'org_123456',
   'conn_abc123'
@@ -71,7 +66,7 @@ console.log('Status:', conn.enabled ? 'Enabled' : 'Disabled');
         The email domain to search for (e.g., "acme.com")
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListConnectionsResponse">
-        Response containing: - connections: Array of connection objects for the domain.
+        Paginated connections.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
@@ -101,12 +96,10 @@ if (response.connections.length > 0) {
         The organization ID
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListConnectionsResponse">
-        Response containing: - connections: Array of connection objects with provider details and status.
+        Paginated connections.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
-// containing: -
-// connections: Array of connection objects with provider details and status
 const response = await scalekit.connection.listConnections('org_123456');
 
 console.log(`Found ${response.connections.length} connections`);
@@ -129,10 +122,10 @@ response.connections.forEach(conn => {
       Lists app-level connections configured for the account (not scoped to an organization).
 
       <CB.ClassMethodInput name="params" type="object" hint="pageSize, pageToken, provider">
-        Optional.
+        Request parameters.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListAppConnectionsResponse">
-        Response containing: - connections: Array of connection objects - nextPageToken: Token…
+        Paginated connections.
       </CB.ClassMethodOutput>
 
     </CB.ClassMethod>

@@ -75,7 +75,7 @@ auth_url = scalekit_client.get_authorization_url(
         CodeAuthenticationOptions Object
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="None">
-        dict with user, id token, optionally access token & refresh token
+        Tokens and claims.
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
@@ -113,15 +113,14 @@ async def auth_callback(request):
         IDP initiated login token
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="Optional[TokenValidationOptions]">
-        Optional. Optional validation options for issuer and audience
+        Optional settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="audience" type="Any">
-        Optional. audience for validation (deprecated, use options.audience instead)
+        Token audience.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="IdpInitiatedLoginClaims">
         ``` IdpInitiatedLoginClaims ```
       </CB.ClassMethodOutput>
-
 ```python wrap showLineNumbers=false
 @app.get('/auth/callback')
 async def auth_callback(request):
@@ -144,7 +143,6 @@ async def auth_callback(request):
 
         return RedirectResponse(auth_url)
 ```
-
     </CB.ClassMethod>
   </CB.ClassBrowser>
 </div>
@@ -162,10 +160,10 @@ async def auth_callback(request):
         access token
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="Optional[TokenValidationOptions]">
-        Optional. Optional validation options for issuer, audience, and scopes
+        Optional settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="audience" type="Any">
-        Optional. audience for validation (deprecated, use options.audience instead)
+        Token audience.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="bool">
         bool
@@ -177,7 +175,6 @@ if is_valid:
     # Token is valid, proceed with request
     pass
 ```
-
     </CB.ClassMethod>
   </CB.ClassBrowser>
 </div>
@@ -205,7 +202,6 @@ options.state = 'some-state'
 
 logout_url = scalekit_client.get_logout_url(options)
 ```
-
     </CB.ClassMethod>
   </CB.ClassBrowser>
 </div>
@@ -248,7 +244,6 @@ async def webhook_handler(request):
         # Process webhook
         pass
 ```
-
     </CB.ClassMethod>
   </CB.ClassBrowser>
 </div>
@@ -295,7 +290,7 @@ new_refresh_token = result['refresh_token']
         Client Secret for access token
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="scopes" type="Optional[list[str]]">
-        Optional.
+        OAuth scopes.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="str">
         access token
@@ -335,10 +330,10 @@ new_refresh_token = result['refresh_token']
         access token
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="Optional[TokenValidationOptions]">
-        Optional. Optional validation options for issuer, audience, and scopes
+        Optional settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="audience" type="Any">
-        Optional. audience for validation (deprecated, use options.audience instead)
+        Token audience.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="Dict[str, Any]">
         claims
@@ -361,7 +356,7 @@ new_refresh_token = result['refresh_token']
         token
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="Optional[TokenValidationOptions]">
-        Optional. validation options for issuer, audience, and scopes
+        Optional settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="audience" type="Optional[str]">
         Optional. audience for validation
@@ -410,7 +405,7 @@ new_refresh_token = result['refresh_token']
         Secret for interceptor verification
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="headers" type="Dict[str, str]">
-        Interceptor request headers (with interceptor-id, interceptor-timestamp…
+        Headers.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="payload" type="str | bytes">
         Interceptor payload in str or bytes

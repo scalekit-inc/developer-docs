@@ -31,18 +31,16 @@ Use the `organization` client on `ScalekitClient` to create tenants, list custom
         Display name for the organization (e.g., "Acme Corporation")
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="object" hint="externalId, logoUrl, slug">
-        Optional.
+        Optional settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="CreateOrganizationResponse">
         The created organization.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
-// externalId: Your system's unique identifier for this organization
-// logoUrl: Publicly accessible URL of the organization's logo
-// slug: DNS-safe slug for the organization (e
-// id: Scalekit's unique organization identifier -
-// displayName: The organization's name -
+// externalId: Your system's ID for this org
+// logoUrl: Public URL of the org logo
+// slug: URL-safe org slug
 const org = await scalekit.organization.createOrganization(
   'Acme Corporation',
   { externalId: 'customer_12345' }
@@ -65,20 +63,15 @@ console.log('Organization ID:', org.organization.id);
       Retrieves a paginated list of all organizations in your Scalekit environment.
 
       <CB.ClassMethodInput name="options" type="object" hint="pageSize, pageToken">
-        Optional.
+        Optional settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListOrganizationsResponse">
-        Response containing: - organizations: Array of organization objects - nextPageToken…
+        Paginated organizations.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
-// pageSize: Number of organizations to return per page (default: 10,
-// max: 100)
-// pageToken: Token for retrieving the next page of results
-// containing: -
-// organizations: Array of organization objects -
-// nextPageToken: Token for fetching the next page (empty if no more pages) -
-// totalSize: T…
+// pageSize: Results per page (default 10, max 100)
+// pageToken: Token for the next page
 const response = await scalekit.organization.listOrganization({
   pageSize: 20
 });
@@ -101,17 +94,13 @@ console.log('Total:', response.totalSize);
       Retrieves detailed information about a specific organization using its Scalekit ID.
 
       <CB.ClassMethodInput name="id" type="string">
-        The Scalekit-generated organization identifier (format: "org_...")
+        Scalekit resource ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="GetOrganizationResponse">
-        Response containing: - organization: Complete organization object.
+        The organization.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
-// containing: -
-// organization: Complete organization object
-// id: Scalekit's unique identifier -
-// displayName: Organization's display name - exter…
 const response = await scalekit.organization.getOrganization('org_12345');
 const org = response.organization;
 
@@ -136,12 +125,10 @@ console.log('External ID:', org.externalId);
         Your system's unique identifier for the organization
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="GetOrganizationResponse">
-        Response containing: - organization: Complete organization object with all details (same…
+        The organization.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
-// containing: -
-// organization: Complete organization object with all details (same struc…
 const response = await scalekit.organization.getOrganizationByExternalId('customer_12345');
 const org = response.organization;
 
@@ -166,15 +153,15 @@ console.log('Organization:', org.displayName);
         The Scalekit organization identifier (format: "org_...")
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="organization" type="object" hint="Partial(UpdateOrganization)">
-        Object containing fields to update:
+        Fields to update.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="UpdateOrganizationResponse">
-        Response containing: - organization: The updated organization object with all current values.
+        The updated organization.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
-// containing: -
-// organization: The updated organization object with all current values
+// displayName: Display name
+// metadata: Custom key-value metadata
 const response = await scalekit.organization.updateOrganization('org_12345', {
   displayName: 'Acme Corporation (Updated)',
   metadata: {
@@ -201,15 +188,14 @@ const response = await scalekit.organization.updateOrganization('org_12345', {
         Your system's unique identifier for the organization
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="organization" type="object" hint="Partial(UpdateOrganization)">
-        Object containing fields to update:
+        Fields to update.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="UpdateOrganizationResponse">
-        Response containing: - organization: The updated organization object with all current values.
+        The updated organization.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
-// containing: -
-// organization: The updated organization object with all current values
+// displayName: Display name
 const response = await scalekit.organization.updateOrganizationByExternalId(
   'customer_12345',
   { displayName: 'New Company Name' }
@@ -258,13 +244,10 @@ console.log('Organization deleted successfully');
         The Scalekit organization ID
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="Link">
-        Link object containing: - location: The complete portal URL to redirect the admin to -…
+        Portal or auth URL.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
-// containing: -
-// location: The complete portal URL to redirect the admin to -
-// expiresAt: Timestamp when the link expires (60 seconds from generation)
 app.get('/admin/sso-settings', async (req, res) => {
   const organizationId = req.user.organizationId;
 
@@ -288,13 +271,13 @@ app.get('/admin/sso-settings', async (req, res) => {
       Updates configuration settings and feature flags for an organization.
 
       <CB.ClassMethodInput name="organizationId" type="string">
-        The Scalekit organization identifier (format: "org_...")
+        Organization ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="settings" type="OrganizationSettings">
         Configuration settings object containing:
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="GetOrganizationResponse">
-        Response containing: - organization: Complete organization object with updated settings.
+        The organization.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
@@ -320,18 +303,16 @@ const response = await scalekit.organization.updateOrganizationSettings('org_123
       Creates or updates user management settings for an organization.
 
       <CB.ClassMethodInput name="organizationId" type="string">
-        The Scalekit organization identifier (format: "org_...")
+        Organization ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="settings" type="OrganizationUserManagementSettingsInput">
         User management configuration:
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="OrganizationUserManagementSettingsMessage | undefi" hint="OrganizationUserManagementSettingsMessage | undefined">
-        The updated settings object containing: - maxAllowedUsers: The configured user limit (if set).
+        Organization user management settings message | undefi.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
-// containing: -
-// maxAllowedUsers: The configured user limit (if set)
 const settings = await scalekit.organization.upsertUserManagementSettings(
   'org_12345',
   { maxAllowedUsers: 100 }
@@ -363,7 +344,7 @@ console.log('Max users allowed:', settings?.maxAllowedUsers);
         Optional. Pagination token for the next page
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="SearchOrganizationsResponse">
-        Response containing matching organizations
+        Paginated results.
       </CB.ClassMethodOutput>
 
     </CB.ClassMethod>
@@ -383,7 +364,7 @@ console.log('Max users allowed:', settings?.maxAllowedUsers);
         The Scalekit organization identifier
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="GetOrganizationUserManagementSettingsResponse">
-        Response containing user management settings
+        The resource.
       </CB.ClassMethodOutput>
 
     </CB.ClassMethod>
@@ -400,7 +381,7 @@ console.log('Max users allowed:', settings?.maxAllowedUsers);
       Sets a custom session policy for an organization or reverts it to application defaults.
 
       <CB.ClassMethodInput name="organizationId" type="string">
-        The Scalekit organization identifier (format: "org_...")
+        Organization ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="policy" type="OrganizationSessionPolicyInput">
         The policy to apply.

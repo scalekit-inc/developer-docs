@@ -31,7 +31,7 @@ Create a `ScalekitClient` with your environment URL and credentials.
         The token to be validated.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="TokenValidationOptions">
-        Optional. Optional validation options for issuer, audience, and scopes
+        Optional settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="boolean">
         Returns true if the token is valid, false otherwise.
@@ -58,7 +58,7 @@ const isValid = await scalekit.validateAccessToken(accessToken);
         The token to be validated.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="TokenValidationOptions">
-        Optional. Optional validation options for issuer, audience, and scopes
+        Optional settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="boolean">
         Returns true if the token is valid, false otherwise.
@@ -105,23 +105,19 @@ const isValid = await scalekit.validateAccessToken(accessToken);
       Exchanges an authorization code for access tokens and user information.
 
       <CB.ClassMethodInput name="code" type="string">
-        The authorization code received in the callback URL after user authentication
+        The authorization code received in the callback URL after.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="redirectUri" type="string">
-        The same redirect URI used in getAuthorizationUrl(). Must match exactly.
+        The same redirect URI used in getAuthorizationUrl().
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="AuthenticationOptions">
-        Optional.
+        Optional settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="AuthenticationResponse">
-        Authentication response containing: - user: User profile information (email, name…
+        Tokens and user claims.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
-// codeVerifier: PKCE code verifier to validate the code challenge (requir…
-// containing: -
-// user: User profile information (email, name, organization, etc
-// idToken: JWT ID token containing user claims - acces…
 app.get('/auth/callback', async (req, res) => {
   const { code } = req.query;
 
@@ -151,22 +147,16 @@ app.get('/auth/callback', async (req, res) => {
       Extracts and validates claims from an IdP-initiated login token.
 
       <CB.ClassMethodInput name="idpInitiatedLoginToken" type="string">
-        The token received in the 'idp_initiated_login' query parameter
+        The token received in the 'idp_initiated_login' query.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="TokenValidationOptions">
-        Optional.
+        Optional settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="IdpInitiatedLoginClaims">
-        Claims containing: - connection_id: The SSO connection identifier - organization_id: The…
+        The connection id.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
-// issuer: Expected token issuer for validation
-// audience: Expected token audience for validation
-// containing: -
-// connection_id: The SSO connection identifier -
-// organization_id: The organization identifier -
-// login_hint: User's email or login identifi…
 app.get('/auth/callback', async (req, res) => {
   const { idp_initiated_login } = req.query;
 
@@ -205,13 +195,10 @@ app.get('/auth/callback', async (req, res) => {
         The refresh token obtained from a previous authentication
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="RefreshTokenResponse">
-        Response containing: - accessToken: New access token for API authorization -…
+        Tokens and claims.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
-// containing: -
-// accessToken: New access token for API authorization -
-// refreshToken: New refresh token (the old one is invalidated)
 const result = await scalekit.refreshAccessToken(oldRefreshToken);
 // Store the new tokens
 await storeTokens(userId, {

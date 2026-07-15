@@ -65,18 +65,51 @@ starlight-toc a span,
   overflow-x: visible;
 }
 
-/* Param / return rows wrap cleanly */
+/*
+ * Param / return rows: keep name + type + description on one line when
+ * there is space. A prior flex-basis:10rem + flex-wrap forced the desc
+ * onto a second line even on wide layouts. MDX also wraps slot text in
+ * <p>, which is block-level and blows out the flex item min-width.
+ */
 .sdk-client-page .cb-param-row,
 .sdk-client-page .cb-returns-row {
-  flex-wrap: wrap;
+  display: flex;
+  flex-wrap: nowrap;
   align-items: baseline;
   gap: 0.35rem 0.5rem;
+  min-width: 0;
+}
+.sdk-client-page .cb-param-label,
+.sdk-client-page .cb-returns-label,
+.sdk-client-page .cb-param-name,
+.sdk-client-page .cb-returns-type-name,
+.sdk-client-page .cb-type-annotation {
+  flex-shrink: 0;
 }
 .sdk-client-page .cb-param-desc,
 .sdk-client-page .cb-returns-desc {
-  flex: 1 1 10rem;
-  min-width: min(100%, 10rem);
+  flex: 1 1 auto;
+  min-width: 0;
   line-height: 1.45;
+  /* wrap text inside the desc only, not the whole flex item onto a new row */
+  overflow-wrap: anywhere;
+}
+.sdk-client-page .cb-param-desc :is(p, div),
+.sdk-client-page .cb-returns-desc :is(p, div) {
+  display: inline;
+  margin: 0;
+}
+
+/* Only stack on very narrow method cards */
+@media (max-width: 28rem) {
+  .sdk-client-page .cb-param-row,
+  .sdk-client-page .cb-returns-row {
+    flex-wrap: wrap;
+  }
+  .sdk-client-page .cb-param-desc,
+  .sdk-client-page .cb-returns-desc {
+    flex: 1 1 100%;
+  }
 }
 
 .sdk-hub-with-sidebar .sdk-cards-grid {
