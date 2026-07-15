@@ -1,0 +1,94 @@
+---
+title: 'Cognee connector'
+tableOfContents: true
+description: "Use Cognee to recall, enrich, and manage your AI agent's memory in a knowledge graph."
+sidebar:
+  label: 'Cognee'
+overviewTitle: 'Quickstart'
+connectorIcon: https://platform.cognee.ai/icon.svg?icon.3c7f72a5.svg
+connectorAuthType: API Key
+connectorCategories: [AI, Databases]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/cognee'
+import { Steps, Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupCogneeSection } from '@components/templates'
+import { QuickstartGenericApikeySection } from '@components/templates'
+import { SectionAfterSetupCogneeCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Cognee credentials with Scalekit so it can authenticate requests on your behalf. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupCogneeSection />
+
+   </details>
+
+4. ### Make your first call
+
+   <QuickstartGenericApikeySection connector="cognee" toolName="cognee_list_datasets" providerName="Cognee" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Recall records** — Search Cognee's knowledge graph by meaning and get back an answer or matching context
+- **Improve records** — Enrich a dataset's knowledge graph with new text, or reprocess the existing graph to sharpen later recall
+- **Forget records** — Permanently delete a dataset (by name or ID), a single data item, or just its memory graph
+- **List datasets** — Discover the dataset names and UUIDs accessible to the connected account
+- **List dataset data** — Inspect the individual data items stored in a dataset, with their UUIDs
+- **Check status** — Check the processing status of a dataset's ingestion or enrichment pipeline
+- **Create dataset** — Provision a new, empty dataset up front by name
+
+<Aside type="note" title="Remember is coming soon">
+  Cognee's ingest endpoint (`POST /api/v1/remember`) requires a `multipart/form-data` request, which the Scalekit tool proxy doesn't support yet (JSON bodies only). Track backend support in **SK-1178**. Until then, use `cognee_improve` with the `data` field to add text into a dataset.
+</Aside>
+
+## Common workflows
+
+<SectionAfterSetupCogneeCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

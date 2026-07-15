@@ -54,7 +54,7 @@ const sharedSdksItem: NavItem = {
     },
     {
       id: 'rest-apis',
-      href: '/apis/#description/overview',
+      href: '/saaskit/apis/#description/quickstart',
       label: 'REST APIs',
       iconComponent: IconApi,
       description: 'Programmatic control to manage users, orgs, sessions etc.',
@@ -83,7 +83,7 @@ const agentKitItems: NavItem[] = [
   },
   {
     id: 'agentkit-api-reference',
-    href: '/apis/?product=agentkit',
+    href: '/agentkit/apis/#description/quickstart',
     label: 'API reference',
     iconComponent: IconApi,
   },

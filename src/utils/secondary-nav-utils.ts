@@ -91,11 +91,9 @@ export function getActiveSecondaryNavId(
   }
 
   // 3. Hard-coded fallbacks for pages without a sidebar (e.g. Scalar /apis)
-  if (pathname.startsWith('/apis')) {
-    // When arriving from AgentKit context, highlight the AgentKit API reference item
-    if (searchParams?.get('product') === 'agentkit') return 'agentkit-api-reference'
-    return 'rest-apis'
-  }
+  if (pathname.startsWith('/agentkit/apis')) return 'agentkit-api-reference'
+  if (pathname.startsWith('/saaskit/apis')) return 'rest-apis'
+  if (pathname.startsWith('/apis')) return 'rest-apis'
 
   // Fallback for AgentKit pages not registered in the sidebar map (e.g. /agentkit/sdks index)
   // Routes through the 'connect' mapping which has path overrides for all /agentkit/* paths.

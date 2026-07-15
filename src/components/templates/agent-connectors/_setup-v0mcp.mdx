@@ -1,0 +1,53 @@
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+
+Register your v0 API key with Scalekit so it can authenticate and proxy requests on behalf of your users. v0 MCP uses Bearer Token authentication — there is no redirect URI or OAuth flow.
+
+<Steps>
+1. ### Get a v0 API key
+
+   - Go to [v0.dev](https://v0.dev) and sign in to your account.
+   - Click your workspace name in the top-left corner and select **Settings**.
+   - In the left sidebar, click **API Keys**.
+   - Click **New Key**, give it a name (e.g. `Agent Auth`), and copy the generated key.
+
+   ![v0 Settings page showing the API Keys section with an existing key and the New Key button](@/assets/docs/agent-connectors/v0mcp/create-api-key.png)
+
+2. ### Create a connection in Scalekit
+
+   - In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** → **Connections** → **Create Connection**.
+   - Search for **v0 MCP** and click **Create**.
+   - Note the **Connection name** — use this as `connection_name` in your code (e.g., `v0mcp`).
+
+3. ### Add a connected account
+
+   Connected accounts link a specific user identifier in your system to a v0 API key. Add them via the dashboard for testing, or via the Scalekit API in production.
+
+   **Via dashboard (for testing)**
+
+   - Open the connection and click the **Connected Accounts** tab → **Add account**.
+   - Fill in **Your User's ID** and **API Key**, then click **Save**.
+
+   **Via API (for production)**
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```ts
+       await scalekit.connect.upsertConnectedAccount({
+         connectionName: 'v0mcp',
+         identifier: 'user@example.com',
+         credentials: { token: 'your-v0-api-key' },
+       })
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```python
+       scalekit_client.connect.upsert_connected_account(
+           connection_name="v0mcp",
+           identifier="user@example.com",
+           credentials={"token": "your-v0-api-key"},
+       )
+       ```
+     </TabItem>
+   </Tabs>
+
+</Steps>

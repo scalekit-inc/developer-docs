@@ -152,26 +152,66 @@ export default defineConfig({
             content: AGENT_PLUGIN_META,
           },
         },
+        // Force light theme before first paint. Sole source of truth: this
+        // blocking inline IIFE (first script in <head>, no defer/async).
+        // Must run before starlight-theme-nova / astro-theme-toggle ThemeScript
+        // in the body can apply prefers-color-scheme.
         {
           tag: 'script',
-          attrs: {
-            async: true,
-            src: 'https://www.googletagmanager.com/gtag/js?id=G-F4K36V5HPL',
-          },
+          content: `
+            ;(function () {
+              try {
+                localStorage.setItem('theme-toggle', 'light')
+              } catch (_) {
+                /* private mode / blocked storage */
+              }
+
+              var root = document.documentElement
+              root.classList.remove('dark')
+              root.setAttribute('data-theme', 'light')
+              root.style.colorScheme = 'light'
+            })()
+          `,
         },
+        // GTM/gtag: queue early calls, inject the network script after load+idle
+        // so lab LCP/TBT are not blocked by marketing tags (GA4 + Ads via gtag).
         {
           tag: 'script',
           content: `
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'G-F4K36V5HPL');
+          window.gtag = gtag;
+          ;(function () {
+            var loaded = false
+            function loadGtag() {
+              if (loaded) return
+              loaded = true
+              var s = document.createElement('script')
+              s.async = true
+              s.src = 'https://www.googletagmanager.com/gtag/js?id=G-F4K36V5HPL'
+              s.onload = function () {
+                gtag('js', new Date())
+                gtag('config', 'G-F4K36V5HPL')
+              }
+              document.head.appendChild(s)
+            }
+            function schedule() {
+              if (typeof requestIdleCallback === 'function') {
+                requestIdleCallback(function () { loadGtag() }, { timeout: 2500 })
+              } else {
+                setTimeout(loadGtag, 2000)
+              }
+            }
+            if (document.readyState === 'complete') schedule()
+            else window.addEventListener('load', schedule)
+          })()
         `,
         },
         {
           tag: 'script',
           attrs: {
             src: '/js/posthog.js',
+            defer: true,
           },
         },
         {
@@ -242,13 +282,8 @@ export default defineConfig({
         {
           tag: 'script',
           attrs: {
-            src: '/js/force-light-theme.js',
-          },
-        },
-        {
-          tag: 'script',
-          attrs: {
             src: '/js/sidebar-scroll.js',
+            defer: true,
           },
         },
         // Pylon widget configuration (must run in head before widget loads)
@@ -256,6 +291,7 @@ export default defineConfig({
           tag: 'script',
           attrs: {
             src: '/js/pylon-widget.js',
+            defer: true,
           },
         },
         // Prevent HubSpot from auto-showing chat; we load it explicitly for anonymous users
@@ -263,6 +299,8 @@ export default defineConfig({
           tag: 'script',
           content: `window.hsConversationsSettings = { loadImmediately: false };`,
         },
+        // HubSpot: same idle schedule as GTM. Skip iframes. Chat still loads via
+        // pylon-widget.js when HubSpotConversations becomes ready.
         {
           tag: 'script',
           content: `
@@ -277,13 +315,27 @@ export default defineConfig({
 
               if (inIframe()) return
 
-              var script = document.createElement('script')
-              script.type = 'text/javascript'
-              script.id = 'hs-script-loader'
-              script.async = true
-              script.defer = true
-              script.src = '//js-na2.hs-scripts.com/44204598.js'
-              document.head.appendChild(script)
+              var loaded = false
+              function loadHubSpot() {
+                if (loaded || document.getElementById('hs-script-loader')) return
+                loaded = true
+                var script = document.createElement('script')
+                script.type = 'text/javascript'
+                script.id = 'hs-script-loader'
+                script.async = true
+                script.defer = true
+                script.src = '//js-na2.hs-scripts.com/44204598.js'
+                document.head.appendChild(script)
+              }
+              function schedule() {
+                if (typeof requestIdleCallback === 'function') {
+                  requestIdleCallback(function () { loadHubSpot() }, { timeout: 2500 })
+                } else {
+                  setTimeout(loadHubSpot, 2000)
+                }
+              }
+              if (document.readyState === 'complete') schedule()
+              else window.addEventListener('load', schedule)
             })()
           `,
         },

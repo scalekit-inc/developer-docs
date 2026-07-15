@@ -1,0 +1,346 @@
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+<Aside type="note" title="Remember is coming soon">
+  `cognee_remember` is not available yet — see **SK-1178**. The workflow below uses `cognee_improve`'s `data` field to add text into a dataset, which works today with the same effect.
+</Aside>
+
+<details>
+<summary>Proxy API call</summary>
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const result = await actions.request({
+      connectionName: 'cognee',
+      identifier: 'user_123',
+      path: '/api/v1/recall',
+      method: 'POST',
+      body: { query: 'What plan did Acme Corp sign up for?' },
+    });
+    console.log(result.data);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    result = actions.request(
+        connection_name='cognee',
+        identifier='user_123',
+        path="/api/v1/recall",
+        method="POST",
+        json={"query": "What plan did Acme Corp sign up for?"},
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="tip" title="No OAuth flow needed">
+  Cognee uses API key auth — unlike OAuth connectors, there is no authorization link or redirect flow. Once you call `upsertConnectedAccount` (or add an account via the dashboard), your users can make requests immediately.
+</Aside>
+
+</details>
+
+<details>
+<summary>Create a dataset</summary>
+
+Provision an empty dataset up front by name. This is optional — `cognee_improve` creates a dataset automatically the first time you add data to it — but useful when you want the dataset's UUID before ingesting anything.
+
+```python
+result = actions.execute_tool(
+    connection_name='cognee',
+    identifier='user_123',
+    tool_name="cognee_create_dataset",
+    tool_input={"name": "sales_notes"}
+)
+
+print(result.result)  # includes the new dataset's UUID
+```
+
+</details>
+
+<details>
+<summary>List datasets</summary>
+
+Discover the dataset names and UUIDs available to the connected account. Use the returned UUIDs anywhere a tool accepts `datasetId` — `cognee_recall`, `cognee_improve`, `cognee_forget`, or `cognee_check_status`.
+
+```python
+result = actions.execute_tool(
+    connection_name='cognee',
+    identifier='user_123',
+    tool_name="cognee_list_datasets",
+    tool_input={}
+)
+
+for dataset in result.result.get("datasets", []):
+    print(f"{dataset['name']}: {dataset['id']}")
+```
+
+</details>
+
+<details>
+<summary>Add data to a dataset</summary>
+
+Add text to a dataset and build its knowledge graph in one call. This is the current workaround for `cognee_remember` (coming soon) — pass the content in `data` and `cognee_improve` ingests and graphs it the same way.
+
+```python
+result = actions.execute_tool(
+    connection_name='cognee',
+    identifier='user_123',
+    tool_name="cognee_improve",
+    tool_input={
+        "data": "Acme Corp signed a 2-year contract on 2026-01-15 for the Enterprise plan.",
+        "datasetName": "sales_notes",
+    }
+)
+
+print(result.result)
+```
+
+</details>
+
+<details>
+<summary>Check pipeline status</summary>
+
+Poll the processing status of a dataset's ingestion or enrichment pipeline — useful after calling `cognee_improve` with `runInBackground: true`, or to confirm the knowledge graph has finished building before recalling.
+
+```python
+result = actions.execute_tool(
+    connection_name='cognee',
+    identifier='user_123',
+    tool_name="cognee_check_status",
+    tool_input={
+        "dataset": ["3fa85f64-5717-4562-b3fc-2c963f66afa6"],
+        "pipeline": ["cognify_pipeline"],
+    }
+)
+
+print(result.result)
+```
+
+</details>
+
+<details>
+<summary>Recall by meaning</summary>
+
+Search a dataset's knowledge graph with a natural-language question. `cognee_recall` returns a graph-grounded answer by default — use `searchType` to switch retrieval strategies.
+
+```python
+result = actions.execute_tool(
+    connection_name='cognee',
+    identifier='user_123',
+    tool_name="cognee_recall",
+    tool_input={
+        "query": "What plan did Acme Corp sign up for, and when?",
+        "datasets": ["sales_notes"],
+        "topK": 10,
+    }
+)
+
+print(result.result.get("answer"))
+```
+
+<Aside type="note" title="Search strategies">
+  `GRAPH_COMPLETION` (default) returns graph context plus an LLM-generated answer. Use `CHUNKS` or `SUMMARIES` to get raw matching content instead of a synthesized answer, or `RAG_COMPLETION` for classic retrieval-augmented generation.
+</Aside>
+
+</details>
+
+<details>
+<summary>List the data in a dataset</summary>
+
+Inspect the individual data items stored in a dataset, with their UUIDs. Use a returned `dataId` with `cognee_forget` to delete a single item instead of the whole dataset.
+
+```python
+result = actions.execute_tool(
+    connection_name='cognee',
+    identifier='user_123',
+    tool_name="cognee_list_dataset_data",
+    tool_input={"dataset_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"}
+)
+
+for item in result.result.get("data", []):
+    print(f"{item['id']}: {item.get('name', 'untitled')}")
+```
+
+</details>
+
+<details>
+<summary>Consolidate session memory</summary>
+
+Bridge memory cached under a session ID into the permanent knowledge graph, so it becomes searchable by `cognee_recall` outside that session.
+
+```python
+result = actions.execute_tool(
+    connection_name='cognee',
+    identifier='user_123',
+    tool_name="cognee_improve",
+    tool_input={
+        "datasetName": "sales_notes",
+        "sessionIds": ["agent-run-1718000000"],
+        "runInBackground": True,  # return immediately; graph builds server-side
+    }
+)
+
+print(result.result)
+```
+
+</details>
+
+<details>
+<summary>Delete a dataset, an item, or everything</summary>
+
+`cognee_forget` deletes at three levels of scope — a single data item, a whole dataset, or (with `everything`) every dataset on the account. Each level is permanent and cannot be undone.
+
+```python
+# Delete a single data item
+result = actions.execute_tool(
+    connection_name='cognee',
+    identifier='user_123',
+    tool_name="cognee_forget",
+    tool_input={
+        "datasetId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "dataId": "7b1c9f0e-2c3d-4e5f-8a9b-0c1d2e3f4a5b",
+    }
+)
+print(result.result)
+```
+
+```python
+# Delete an entire dataset by name
+result = actions.execute_tool(
+    connection_name='cognee',
+    identifier='user_123',
+    tool_name="cognee_forget",
+    tool_input={"dataset": "sales_notes"}
+)
+print(result.result)
+```
+
+<Aside type="caution" title="Everything means everything">
+  Setting `everything: true` permanently deletes ALL datasets and all memory owned by the account — not just the dataset you're working with. Reserve it for full resets, and never pass it based on unvalidated agent or user input.
+</Aside>
+
+</details>
+
+<details>
+<summary>End-to-end workflow: create, improve, check status, recall, list, forget</summary>
+
+A typical Cognee session provisions a dataset, adds data to it, waits for the graph to build, queries it, inspects what's stored, and cleans up when it's no longer needed.
+
+```python
+# 1. Create the dataset up front to get its UUID
+create_result = actions.execute_tool(
+    connection_name='cognee',
+    identifier='user_123',
+    tool_name="cognee_create_dataset",
+    tool_input={"name": "support_thread_4821"}
+)
+dataset_id = create_result.result["id"]
+
+# 2. Add data and build the knowledge graph (cognee_remember workaround)
+actions.execute_tool(
+    connection_name='cognee',
+    identifier='user_123',
+    tool_name="cognee_improve",
+    tool_input={
+        "data": "Customer reported a login failure on 2026-02-03. Root cause: expired SSO certificate. Resolved by rotating the certificate.",
+        "datasetId": dataset_id,
+        "runInBackground": True,
+    }
+)
+
+# 3. Poll until the enrichment pipeline finishes
+status_result = actions.execute_tool(
+    connection_name='cognee',
+    identifier='user_123',
+    tool_name="cognee_check_status",
+    tool_input={"dataset": [dataset_id]}
+)
+print(status_result.result)
+
+# 4. Recall the relevant context once processing completes
+recall_result = actions.execute_tool(
+    connection_name='cognee',
+    identifier='user_123',
+    tool_name="cognee_recall",
+    tool_input={
+        "query": "Why did the customer's login fail, and how was it fixed?",
+        "datasets": ["support_thread_4821"],
+    }
+)
+print(recall_result.result.get("answer"))
+
+# 5. List what's in the dataset before deciding to clean it up
+list_result = actions.execute_tool(
+    connection_name='cognee',
+    identifier='user_123',
+    tool_name="cognee_list_dataset_data",
+    tool_input={"dataset_id": dataset_id}
+)
+print(f"{len(list_result.result.get('data', []))} item(s) in the dataset")
+
+# 6. Forget the dataset once the thread is closed and no longer needed
+actions.execute_tool(
+    connection_name='cognee',
+    identifier='user_123',
+    tool_name="cognee_forget",
+    tool_input={"datasetId": dataset_id}
+)
+```
+
+</details>
+
+<details>
+<summary>LangChain integration</summary>
+
+Let an LLM decide which Cognee tool to call based on natural language. This example builds an agent that can create datasets, enrich memory, recall it, inspect it, and clean it up on demand.
+
+```python
+from langchain_openai import ChatOpenAI
+from langchain.agents import AgentExecutor, create_openai_tools_agent
+from langchain_core.prompts import (
+    ChatPromptTemplate, SystemMessagePromptTemplate,
+    HumanMessagePromptTemplate, MessagesPlaceholder, PromptTemplate
+)
+
+# Load all Cognee tools in LangChain format. Use page_size=100 so connector tool lists are not truncated.
+tools = actions.langchain.get_tools(
+    identifier='user_123',
+    providers=["COGNEE"],
+    page_size=100
+)
+
+prompt = ChatPromptTemplate.from_messages([
+    SystemMessagePromptTemplate(prompt=PromptTemplate(
+        input_variables=[],
+        template=(
+            "You are an assistant with access to Cognee memory tools. "
+            "Use cognee_list_datasets to discover existing datasets, cognee_create_dataset "
+            "to provision a new one, cognee_improve to add or enrich data in a dataset, "
+            "cognee_check_status to confirm a pipeline has finished, cognee_recall to search "
+            "stored memory by meaning, cognee_list_dataset_data to inspect what a dataset "
+            "contains, and cognee_forget to delete a dataset or data item. cognee_remember "
+            "is not available yet — use cognee_improve with the data field instead. Always "
+            "confirm before calling cognee_forget."
+        )
+    )),
+    MessagesPlaceholder(variable_name="chat_history", optional=True),
+    HumanMessagePromptTemplate(prompt=PromptTemplate(
+        input_variables=["input"], template="{input}"
+    )),
+    MessagesPlaceholder(variable_name="agent_scratchpad")
+])
+
+llm = ChatOpenAI(model="gpt-4o")
+agent = create_openai_tools_agent(llm, tools, prompt)
+agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+
+result = agent_executor.invoke({
+    "input": "Remember that Acme Corp renewed their contract today for the Enterprise plan, then tell me what we know about Acme Corp."
+})
+print(result["output"])
+```
+
+</details>

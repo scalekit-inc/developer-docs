@@ -1,0 +1,52 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with Gong so Scalekit handles the OAuth flow and token lifecycle for your users. Create a Gong OAuth integration, then add its Client ID and Client Secret to your Scalekit connection.
+
+<Steps>
+1. ### Copy the redirect URI from Scalekit
+
+   - In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **Gong MCP** and click **Create**.
+
+     <Aside type="tip" title="Testing vs. production">
+       By default, Scalekit creates the connection using its own shared credentials. This works for testing. Before going to production, follow the steps below to use your own Gong OAuth integration.
+     </Aside>
+
+   - Click **Use your own credentials** and copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+2. ### Create an OAuth integration in Gong
+
+   - Sign in to Gong and go to **Admin Center** > **API**.
+   - Click the **Integrations** tab.
+   - Click **Create Integration**.
+
+     <Aside type="note" title="Private by default">
+       New integrations default to **Private**, meaning OAuth only works for your own Gong account. Keep it private unless you're building an integration for other Gong customers.
+     </Aside>
+
+     ![Gong Admin Center API page showing the Integrations tab with a Scalekit Integration client](@/assets/docs/agent-connectors/gongmcp/integrations-list.png)
+
+3. ### Configure the integration's scopes and URLs
+
+   - Under **Required authorization scopes**, select the scopes your agent needs (for example, calls and transcript read access).
+   - Go to the **URLs & endpoints** tab and fill in:
+     - **Redirect URI needed for the OAuth authorization code flow** — paste the redirect URI you copied from Scalekit
+     - **Link to your integration's "privacy policy" page** and **"terms & conditions" page** — a URL your organization controls (Gong requires both fields even for private integrations)
+     - **Link to your integration's help article** — a URL your organization controls
+     - **Link to page in your integration where authorization process begins** — the same redirect URI from Scalekit works here for a private integration
+   - Click **Save**.
+
+     ![Gong Integration URLs & endpoints tab showing the redirect URI and required links](@/assets/docs/agent-connectors/gongmcp/urls-endpoints.png)
+
+4. ### Copy your Client ID and Client Secret
+
+   - Back on the **Integrations** tab, find your integration in the table.
+   - Copy the **Client ID**.
+   - Click **Show secret** to reveal and copy the **Client Secret**.
+
+5. ### Add credentials in Scalekit
+
+   - Return to the connection you created in Scalekit and enter:
+     - **Client ID** — from your Gong integration
+     - **Client Secret** — from your Gong integration
+   - Click **Save**.
+</Steps>

@@ -1,0 +1,1 @@
+await scalekit.connection.enableConnection(organizationId, connectionId)

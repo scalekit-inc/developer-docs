@@ -1,0 +1,1 @@
+const res = await scalekit.webauthn.deleteCredential('wac_123')

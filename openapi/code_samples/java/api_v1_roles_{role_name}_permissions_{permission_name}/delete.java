@@ -1,0 +1,1 @@
+scalekitClient.permissions().removePermissionFromRole("admin", "read:users");

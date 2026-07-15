@@ -1,0 +1,1 @@
+res = scalekit_client.webauthn.delete_credential(credential_id="wac_123")

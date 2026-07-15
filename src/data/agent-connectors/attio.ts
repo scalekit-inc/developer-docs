@@ -290,6 +290,72 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'attio_create_select_option',
+    description: `Creates a new select option for a select or multiselect attribute in Attio. Requires object_configuration:read-write scope.`,
+    params: [
+      {
+        name: 'attribute',
+        type: 'string',
+        required: true,
+        description: `The slug of the select-type attribute.`,
+      },
+      {
+        name: 'object',
+        type: 'string',
+        required: true,
+        description: `The slug of the object type the attribute belongs to (e.g. 'people', 'companies').`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `Display title for the select option.`,
+      },
+      {
+        name: 'color',
+        type: 'string',
+        required: false,
+        description: `Color for the select option (e.g. 'red', 'green', 'blue', 'yellow', 'orange', 'purple', 'pink', 'cyan', 'grey').`,
+      },
+    ],
+  },
+  {
+    name: 'attio_create_status',
+    description: `Creates a new status option for a status attribute in Attio. Requires object_configuration:read-write scope.`,
+    params: [
+      {
+        name: 'attribute',
+        type: 'string',
+        required: true,
+        description: `The slug of the select-type attribute.`,
+      },
+      {
+        name: 'object',
+        type: 'string',
+        required: true,
+        description: `The slug of the object type the attribute belongs to (e.g. 'people', 'companies').`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `Display title for the status.`,
+      },
+      {
+        name: 'celebration_enabled',
+        type: 'boolean',
+        required: false,
+        description: `Whether to show a celebration animation when a record reaches this status.`,
+      },
+      {
+        name: 'color',
+        type: 'string',
+        required: false,
+        description: `Color for the status (e.g. 'red', 'green', 'blue', 'yellow', 'orange', 'purple').`,
+      },
+    ],
+  },
+  {
     name: 'attio_create_task',
     description: `Create a new task in Attio. Tasks can be linked to one or more records (people, companies, deals, etc.) and assigned to workspace members. Supports setting a deadline and initial completion status. Only plaintext format is supported for task content.`,
     params: [
@@ -326,6 +392,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'attio_create_user_record',
+    description: `Creates a new user record in Attio. Users represent end-users of a product. Throws an error on conflicts of unique attributes. Use attio_upsert_user_record to update on conflicts.`,
+    params: [
+      {
+        name: 'values',
+        type: 'object',
+        required: true,
+        description: `Attribute values for the new user record.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_create_webhook',
+    description: `Creates a new webhook in Attio to receive event notifications at a target URL. Requires webhook:read-write scope. The target URL must use HTTPS.`,
+    params: [
+      {
+        name: 'subscriptions',
+        type: 'array',
+        required: true,
+        description: `Array of event subscriptions. Each item must have an event_type (e.g. 'record.created', 'note.created', 'task.created') and a filter (use null to receive all events of that type).`,
+      },
+      {
+        name: 'target_url',
+        type: 'string',
+        required: true,
+        description: `The HTTPS URL where webhook events will be delivered.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_create_workspace_record',
+    description: `Creates a new workspace record in Attio. Workspaces represent customer workspaces or tenants. Throws an error on conflicts of unique attributes. Use attio_upsert_workspace_record to update on conflicts.`,
+    params: [
+      {
+        name: 'values',
+        type: 'object',
+        required: true,
+        description: `Attribute values for the new workspace record.`,
+      },
+    ],
+  },
+  {
     name: 'attio_delete_comment',
     description: `Permanently deletes a comment by its comment_id. If the comment is at the head of a thread, all messages in the thread are also deleted.`,
     params: [
@@ -358,6 +466,36 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique identifier of the deal record to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_delete_file',
+    description: `Permanently deletes a file from Attio by its file ID. This action cannot be undone.`,
+    params: [
+      {
+        name: 'file_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the file to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_delete_list_entry',
+    description: `Removes an entry from a list in Attio. The parent record is not deleted, only its membership in this list.`,
+    params: [
+      {
+        name: 'entry_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the list entry to delete.`,
+      },
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: `The slug or UUID of the list.`,
       },
     ],
   },
@@ -460,6 +598,42 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'attio_get_call_recording',
+    description: `Retrieves a single call recording by its ID from Attio. Returns recording metadata including duration and associated meeting.`,
+    params: [
+      {
+        name: 'meeting_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the meeting the call recording belongs to.`,
+      },
+      {
+        name: 'recording_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the call recording to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_get_call_transcript',
+    description: `Retrieves the transcript for a call recording in Attio. Returns the full transcript text with speaker attribution and timestamps.`,
+    params: [
+      {
+        name: 'meeting_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the meeting the call recording belongs to.`,
+      },
+      {
+        name: 'recording_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the call recording to get the transcript for.`,
+      },
+    ],
+  },
+  {
     name: 'attio_get_comment',
     description: `Retrieves a single comment by its comment_id in Attio. Returns the comment's content, author, thread, and resolution status.`,
     params: [
@@ -501,6 +675,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'attio_get_file',
+    description: `Retrieves metadata for a single file stored in Attio by its file ID. Returns name, size, MIME type, and other metadata. Use attio_download_file to get the file content.`,
+    params: [
+      {
+        name: 'file_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the file to retrieve.`,
+      },
+    ],
+  },
+  {
     name: 'attio_get_list',
     description: `Retrieves details of a single list in the Attio workspace by its UUID or slug.`,
     params: [
@@ -527,6 +713,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique identifier or slug of the list.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_get_meeting',
+    description: `Retrieves a single meeting by its ID from Attio. Returns meeting details including title, participants, start/end times, and linked records. This endpoint is in beta.`,
+    params: [
+      {
+        name: 'meeting_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the meeting to retrieve.`,
       },
     ],
   },
@@ -612,6 +810,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'attio_get_thread',
+    description: `Retrieves a single comment thread by its ID from Attio. Returns the thread and all comments within it.`,
+    params: [
+      {
+        name: 'thread_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the comment thread to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_get_user_record',
+    description: `Retrieves a single user record by its record_id from Attio. Returns all attribute values with temporal and audit metadata.`,
+    params: [
+      {
+        name: 'record_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the user record.`,
+      },
+    ],
+  },
+  {
     name: 'attio_get_webhook',
     description: `Retrieves a single webhook by its webhook_id in Attio. Returns the webhook's target URL, event subscriptions, status, and metadata.`,
     params: [
@@ -682,6 +904,30 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Object slug or UUID to list attributes for.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_list_call_recordings',
+    description: `Lists all call recordings for a specific meeting in Attio. Returns recording metadata including duration.`,
+    params: [
+      {
+        name: 'meeting_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the meeting to list call recordings for.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor returned by a previous response to fetch the next page.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return. Defaults to 50, maximum 200.`,
       },
     ],
   },
@@ -778,6 +1024,78 @@ export const tools: Tool[] = [
         type: 'array',
         required: false,
         description: `Sorting criteria for the results.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_list_entry_attribute_values',
+    description: `Retrieves all values for a specific attribute on a list entry in Attio. Can include historic values. Not available for COMINT or enriched attributes.`,
+    params: [
+      {
+        name: 'attribute',
+        type: 'string',
+        required: true,
+        description: `The slug or UUID of the attribute to retrieve values for.`,
+      },
+      {
+        name: 'entry_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the list entry.`,
+      },
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: `The slug or UUID of the list.`,
+      },
+      {
+        name: 'show_historic',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include historic values.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_list_files',
+    description: `Lists files attached to a specific record in Attio. Optionally filter by storage provider or parent folder. Supports cursor-based pagination.`,
+    params: [
+      {
+        name: 'object',
+        type: 'string',
+        required: true,
+        description: `The slug of the object type the record belongs to (e.g. 'people', 'companies').`,
+      },
+      {
+        name: 'record_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the record to list files for.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor returned by a previous response to fetch the next page.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of files to return. Must be between 1 and 200. Defaults to 50.`,
+      },
+      {
+        name: 'parent_folder_id',
+        type: 'string',
+        required: false,
+        description: `Filter files by parent folder UUID. When omitted, all files at all nesting levels are returned.`,
+      },
+      {
+        name: 'storage_provider',
+        type: 'string',
+        required: false,
+        description: `Filter files by storage provider. One of: attio, dropbox, box, google-drive, microsoft-onedrive.`,
       },
     ],
   },
@@ -932,6 +1250,42 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'attio_list_select_options',
+    description: `Lists all select options for a select-type attribute in Attio. Returns each option's title, color, and ID.`,
+    params: [
+      {
+        name: 'attribute',
+        type: 'string',
+        required: true,
+        description: `The slug of the select-type attribute.`,
+      },
+      {
+        name: 'object',
+        type: 'string',
+        required: true,
+        description: `The slug of the object type the attribute belongs to.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_list_statuses',
+    description: `Lists all status options for a status-type attribute in Attio (e.g. deal stages). Returns the status title, color, and ID.`,
+    params: [
+      {
+        name: 'attribute',
+        type: 'string',
+        required: true,
+        description: `The slug of the status-type attribute (e.g. 'stage').`,
+      },
+      {
+        name: 'object',
+        type: 'string',
+        required: true,
+        description: `The slug of the object type the attribute belongs to (e.g. 'deals', 'companies').`,
+      },
+    ],
+  },
+  {
     name: 'attio_list_tasks',
     description: `List tasks in Attio, optionally filtered by linked record. Returns tasks with their content, deadline, completion status, assignees, and linked records. Use record filters to retrieve tasks associated with a specific contact, company, or deal.`,
     params: [
@@ -1069,6 +1423,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'attio_query_sql',
+    description: `Executes a SQL query against the Attio workspace data. Supports SELECT statements across objects, lists, and their attributes. Useful for complex analytical queries and bulk data retrieval.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `The SQL SELECT query to execute against Attio data. Use object slugs as table names (e.g. SELECT * FROM people LIMIT 10).`,
+      },
+    ],
+  },
+  {
     name: 'attio_remove_from_list',
     description: `Remove a specific entry from an Attio list by its entry ID. This deletes the list entry but does not delete the underlying record. Obtain the entry ID from the Add to List response or by querying list entries. Returns 404 if the entry does not exist.`,
     params: [
@@ -1117,6 +1483,180 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'attio_update_attribute',
+    description: `Updates the configuration of an attribute in Attio (e.g. its title, description, or default value). Requires object_configuration:read-write scope.`,
+    params: [
+      {
+        name: 'attribute',
+        type: 'string',
+        required: true,
+        description: `The slug or UUID of the attribute to update.`,
+      },
+      {
+        name: 'identifier',
+        type: 'string',
+        required: true,
+        description: `Slug or UUID of the object (when target is "objects") or list (when target is "lists").`,
+      },
+      {
+        name: 'target',
+        type: 'string',
+        required: true,
+        description: `Whether the attribute belongs to an object or a list. Use 'objects' for standard objects (people, companies, deals) and 'lists' for lists.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `New description for the attribute.`,
+      },
+      {
+        name: 'is_required',
+        type: 'boolean',
+        required: false,
+        description: `Whether this attribute is required when creating a record.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `New display title for the attribute.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_update_company',
+    description: `Updates an existing company record in Attio by appending to multiselect attribute values. Use attio_update_record (PUT) to overwrite multiselect values instead.`,
+    params: [
+      {
+        name: 'record_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the company record to update.`,
+      },
+      {
+        name: 'values',
+        type: 'object',
+        required: true,
+        description: `Attribute values to update on the company record. Keys are attribute slugs.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_update_deal',
+    description: `Updates an existing deal record in Attio by appending to multiselect attribute values. Use attio_update_record (PUT) to overwrite multiselect values instead.`,
+    params: [
+      {
+        name: 'record_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the deal record to update.`,
+      },
+      {
+        name: 'values',
+        type: 'object',
+        required: true,
+        description: `Attribute values to update on the deal record. Keys are attribute slugs.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_update_list',
+    description: `Updates the configuration of a list in Attio (e.g. its name or description). Requires list_configuration:read-write scope.`,
+    params: [
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: `The slug or UUID of the list to update.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `New description for the list.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `New display name for the list.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_update_list_entry',
+    description: `Updates attribute values on a list entry in Attio. Multiselect attribute values are appended (not overwritten). Use to update entry-level attributes like stage, owner, or custom fields on list entries.`,
+    params: [
+      {
+        name: 'entry_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the list entry to update.`,
+      },
+      {
+        name: 'entry_values',
+        type: 'object',
+        required: true,
+        description: `Attribute values to update on the list entry. Keys are entry-level attribute slugs.`,
+      },
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: `The slug or UUID of the list containing the entry.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_update_object',
+    description: `Updates the configuration of an object (e.g. its singular noun, plural noun, or API slug) in Attio. Requires object_configuration:read-write scope.`,
+    params: [
+      {
+        name: 'object_id',
+        type: 'string',
+        required: true,
+        description: `The slug or UUID of the object to update.`,
+      },
+      {
+        name: 'api_slug',
+        type: 'string',
+        required: false,
+        description: `New API slug for the object (URL-safe, lowercase, hyphenated).`,
+      },
+      {
+        name: 'plural_noun',
+        type: 'string',
+        required: false,
+        description: `New plural noun for the object (e.g. 'Contacts').`,
+      },
+      {
+        name: 'singular_noun',
+        type: 'string',
+        required: false,
+        description: `New singular noun for the object (e.g. 'Contact').`,
+      },
+    ],
+  },
+  {
+    name: 'attio_update_person',
+    description: `Updates an existing person record in Attio by appending to multiselect attribute values. Use attio_update_record (PUT) to overwrite multiselect values instead.`,
+    params: [
+      {
+        name: 'record_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the person record to update.`,
+      },
+      {
+        name: 'values',
+        type: 'object',
+        required: true,
+        description: `Attribute values to update on the person record. Keys are attribute slugs.`,
+      },
+    ],
+  },
+  {
     name: 'attio_update_record',
     description: `Update an existing record's attributes in Attio. For multiselect attributes, the supplied values will overwrite (replace) the existing list of values. Use the Append Multiselect endpoint instead if you want to add values without removing existing ones. Supports people, companies, deals, and custom objects. IMPORTANT: Prefer using specific update tools when available — use attio_update_person for people records, attio_update_company for company records, attio_update_deal for deal records, attio_update_task for tasks, attio_update_attribute for attributes, attio_update_list for lists, attio_update_list_entry for list entries, attio_update_webhook for webhooks, attio_update_workspace_record for workspace records, and attio_update_user_record for user records. Use this generic tool only for custom objects or when no specific tool exists.`,
     params: [
@@ -1137,6 +1677,330 @@ export const tools: Tool[] = [
         type: 'object',
         required: true,
         description: `Attribute values to update. Keys are attribute API slugs; values are the new data. For multiselect attributes, the supplied array replaces all existing values.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_update_select_option',
+    description: `Updates a select option for a select or multiselect attribute in Attio. Requires object_configuration:read-write scope.`,
+    params: [
+      {
+        name: 'attribute',
+        type: 'string',
+        required: true,
+        description: `The slug of the select-type attribute.`,
+      },
+      {
+        name: 'object',
+        type: 'string',
+        required: true,
+        description: `The slug of the object type the attribute belongs to (e.g. 'people', 'companies').`,
+      },
+      {
+        name: 'option_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the select option to update.`,
+      },
+      {
+        name: 'color',
+        type: 'string',
+        required: false,
+        description: `New color for the select option (e.g. 'red', 'green', 'blue').`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `New display title for the select option.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_update_status',
+    description: `Updates a status option for a status attribute in Attio. Requires object_configuration:read-write scope.`,
+    params: [
+      {
+        name: 'attribute',
+        type: 'string',
+        required: true,
+        description: `The slug of the select-type attribute.`,
+      },
+      {
+        name: 'object',
+        type: 'string',
+        required: true,
+        description: `The slug of the object type the attribute belongs to (e.g. 'people', 'companies').`,
+      },
+      {
+        name: 'status_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the status to update.`,
+      },
+      {
+        name: 'celebration_enabled',
+        type: 'boolean',
+        required: false,
+        description: `Whether to show a celebration animation when a record reaches this status.`,
+      },
+      {
+        name: 'color',
+        type: 'string',
+        required: false,
+        description: `New color for the status (e.g. 'red', 'green', 'blue').`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `New display title for the status.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_update_task',
+    description: `Updates an existing task in Attio. Supports updating content, deadline, completion status, assignees, and linked records. Requires task:read-write scope.`,
+    params: [
+      {
+        name: 'task_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the task to update.`,
+      },
+      {
+        name: 'assignees',
+        type: 'array',
+        required: false,
+        description: `Updated list of assignees. Each item must have referenced_actor_type and referenced_actor_id, or workspace_member_email_address.`,
+      },
+      {
+        name: 'content',
+        type: 'string',
+        required: false,
+        description: `New text content for the task. Maximum 2000 characters. Only plaintext is supported.`,
+      },
+      {
+        name: 'deadline_at',
+        type: 'string',
+        required: false,
+        description: `New ISO 8601 datetime for the task deadline, e.g. 2024-03-31T17:00:00.000Z.`,
+      },
+      {
+        name: 'is_completed',
+        type: 'boolean',
+        required: false,
+        description: `Whether the task is completed.`,
+      },
+      {
+        name: 'linked_records',
+        type: 'array',
+        required: false,
+        description: `Updated list of records linked to this task.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_update_user_record',
+    description: `Updates an existing user record in Attio by appending to multiselect attribute values.`,
+    params: [
+      {
+        name: 'record_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the user record to update.`,
+      },
+      {
+        name: 'values',
+        type: 'object',
+        required: true,
+        description: `Attribute values to update on the user record. Keys are attribute slugs.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_update_webhook',
+    description: `Updates an existing webhook in Attio. Can update the target URL and/or event subscriptions. Requires webhook:read-write scope.`,
+    params: [
+      {
+        name: 'webhook_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the webhook to update.`,
+      },
+      {
+        name: 'subscriptions',
+        type: 'array',
+        required: false,
+        description: `Updated list of event subscriptions. Each item must have an event_type and filter (use null to receive all events of that type).`,
+      },
+      {
+        name: 'target_url',
+        type: 'string',
+        required: false,
+        description: `New HTTPS URL where webhook events will be delivered.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_update_workspace_record',
+    description: `Updates an existing workspace record in Attio by appending to multiselect attribute values.`,
+    params: [
+      {
+        name: 'record_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the workspace record to update.`,
+      },
+      {
+        name: 'values',
+        type: 'object',
+        required: true,
+        description: `Attribute values to update on the workspace record. Keys are attribute slugs.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_upsert_company',
+    description: `Creates or updates a company record in Attio based on a matching attribute (e.g. domain). If a matching record is found, it is updated; otherwise a new record is created. Multiselect values are overwritten on update.`,
+    params: [
+      {
+        name: 'matching_attribute',
+        type: 'string',
+        required: true,
+        description: `The attribute slug used to match an existing company record (e.g. 'domains'). If a record with this attribute value exists, it will be updated.`,
+      },
+      {
+        name: 'values',
+        type: 'object',
+        required: true,
+        description: `Attribute values for the company record. Must include the matching attribute.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_upsert_deal',
+    description: `Creates or updates a deal record in Attio based on a matching attribute. If a matching record is found, it is updated; otherwise a new record is created. Multiselect values are overwritten on update.`,
+    params: [
+      {
+        name: 'matching_attribute',
+        type: 'string',
+        required: true,
+        description: `The attribute slug used to match an existing deal record (e.g. 'name'). If a record with this attribute value exists, it will be updated.`,
+      },
+      {
+        name: 'values',
+        type: 'object',
+        required: true,
+        description: `Attribute values for the deal record. Must include the matching attribute.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_upsert_list_entry',
+    description: `Creates or updates a list entry in Attio by matching on the parent record. If an entry for the specified parent record already exists in the list, it is updated; otherwise a new entry is created. Multiselect values are overwritten on update.`,
+    params: [
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: `The slug or UUID of the list.`,
+      },
+      {
+        name: 'parent_object',
+        type: 'string',
+        required: true,
+        description: `The object type slug the parent record belongs to (e.g. 'companies', 'people', 'deals').`,
+      },
+      {
+        name: 'parent_record_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the parent record to upsert the entry for.`,
+      },
+      {
+        name: 'entry_values',
+        type: 'object',
+        required: false,
+        description: `Attribute values to set on the list entry itself. Keys are entry-level attribute slugs.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_upsert_person',
+    description: `Creates or updates a person record in Attio based on a matching attribute (e.g. email_addresses). If a matching record is found, it is updated; otherwise a new record is created. Multiselect values are overwritten on update.`,
+    params: [
+      {
+        name: 'matching_attribute',
+        type: 'string',
+        required: true,
+        description: `The attribute slug used to match an existing person record (e.g. 'email_addresses'). If a record with this attribute value exists, it will be updated.`,
+      },
+      {
+        name: 'values',
+        type: 'object',
+        required: true,
+        description: `Attribute values for the person record. Must include the matching attribute.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_upsert_record',
+    description: `Creates or updates a record of any object type in Attio based on a matching attribute. If a matching record is found, it is updated; otherwise a new record is created. Multiselect values are overwritten on update. Use specific upsert tools when available (attio_upsert_company, attio_upsert_person, attio_upsert_deal) — use this generic tool only for custom objects.`,
+    params: [
+      {
+        name: 'matching_attribute',
+        type: 'string',
+        required: true,
+        description: `The attribute slug used to match an existing record. If a record with this attribute value exists, it will be updated.`,
+      },
+      {
+        name: 'object',
+        type: 'string',
+        required: true,
+        description: `The slug or UUID of the object type. Common slugs: 'people', 'companies', 'deals'.`,
+      },
+      {
+        name: 'values',
+        type: 'object',
+        required: true,
+        description: `Attribute values for the record. Must include the matching attribute.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_upsert_user_record',
+    description: `Creates or updates a user record in Attio based on a matching attribute. If a matching record is found, it is updated; otherwise a new record is created.`,
+    params: [
+      {
+        name: 'matching_attribute',
+        type: 'string',
+        required: true,
+        description: `The attribute slug used to match an existing user record (e.g. 'primary_email_address').`,
+      },
+      {
+        name: 'values',
+        type: 'object',
+        required: true,
+        description: `Attribute values for the user record. Must include the matching attribute.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_upsert_workspace_record',
+    description: `Creates or updates a workspace record in Attio based on a matching attribute. If a matching record is found, it is updated; otherwise a new record is created.`,
+    params: [
+      {
+        name: 'matching_attribute',
+        type: 'string',
+        required: true,
+        description: `The attribute slug used to match an existing workspace record.`,
+      },
+      {
+        name: 'values',
+        type: 'object',
+        required: true,
+        description: `Attribute values for the workspace record. Must include the matching attribute.`,
       },
     ],
   },

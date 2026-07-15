@@ -1,0 +1,51 @@
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+
+Register your Signwell API key with Scalekit so it can authenticate and proxy requests on behalf of your users. Signwell uses API key authentication — there is no redirect URI or OAuth flow.
+
+<Steps>
+1. ### Get a Signwell API key
+
+   - Sign in to [signwell.com](https://www.signwell.com) and go to **Settings** → **API**.
+   - Under **Your API Key**, click **Copy** to copy your key.
+
+     ![Signwell API settings page showing the API key field and usage limits](@/assets/docs/agent-connectors/signwell/api-key.png)
+
+2. ### Create a connection in Scalekit
+
+   - In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** → **Connections** → **Create Connection**.
+   - Search for **Signwell** and click **Create**.
+   - Note the **Connection name** — use this as `connection_name` in your code (e.g., `signwell`).
+
+3. ### Add a connected account
+
+   Connected accounts link a specific user identifier in your system to a Signwell API key. Add them via the dashboard for testing, or via the Scalekit API in production.
+
+   **Via dashboard (for testing)**
+
+   - Open the connection and click the **Connected Accounts** tab → **Add account**.
+   - Fill in **Your User's ID** and **API Key**, then click **Save**.
+
+   **Via API (for production)**
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```ts
+       await scalekit.connect.upsertConnectedAccount({
+         connectionName: 'signwell',
+         identifier: 'user@example.com',
+         credentials: { apiKey: 'your-signwell-api-key' },
+       })
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```python
+       scalekit_client.connect.upsert_connected_account(
+           connection_name="signwell",
+           identifier="user@example.com",
+           credentials={"api_key": "your-signwell-api-key"},
+       )
+       ```
+     </TabItem>
+   </Tabs>
+
+</Steps>

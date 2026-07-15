@@ -524,10 +524,22 @@ Documentation must be organized into logical sections (FSA, SSO, Directory/SCIM,
 
 ### API Reference Workflow
 
-1. **Source of Truth**: API specifications are generated from the `scalekit-inc/scalekit` repository
-2. **Spec Location**: Generated OpenAPI/Swagger specs MUST be placed in `public/api/` directory
-3. **Temporary Changes**: Direct edits to spec files in `public/api/` are temporary and will be overwritten
-4. **Permanent Changes**: All API reference changes MUST be made in the `scalekit-inc/scalekit` repository
+Full pipeline: `scripts/manual/API_REFERENCE_WORKFLOW.md`.
+
+1. **Contract source**: REST API contracts are defined in the backend (`scalekit-inc/scalekit`) and landed into the docs working root
+2. **Docs working root**: `openapi/scalekit.yaml` — single Redocly root for combined, AgentKit, and SaaSKit references
+3. **Product overlays**: `openapi/extensions/{all,agentkit,saaskit}.yaml` (tag/webhook filters, curated `info`/`tags`, Scalar x-\* merges)
+4. **Code samples**: `openapi/code_samples/` only (injected by the Redocly plugin during `pnpm run bundle:apis`)
+5. **Webhook event payloads**: under `openapi/scalekit.yaml` → `webhooks:` only (no separate `openapi/webhooks/` tree)
+6. **Generated outputs**: `public/api/{scalekit,agentkit,saaskit}.scalar.*` — do **not** sole-edit; re-run `pnpm run bundle:apis` + `pnpm run validate-api-split`
+7. **Do not** create MDX event catalogs under `reference/webhooks/`
+
+### Diagram SVGs (d2)
+
+Diagrams authored in fenced `d2` code blocks render to SVG files under `public/d2/`. Netlify sets `skipGeneration` for `astro-d2` (`skipGeneration: !!process.env['NETLIFY']` in `astro.config.mjs`), so production builds do NOT run the `d2` binary - they serve the pre-generated SVGs committed to the repository. A local build regenerates SVGs on the fly, which hides the problem locally.
+
+- **Check in the SVGs for the diagrams you add or change**: When you add or edit a `d2` block, run `pnpm start` or a local build (any local run where the `NETLIFY` env var is not set) to generate its SVG under `public/d2/…`, then commit that file alongside your MDX. Without it, the Netlify deploy fails when it renders the page.
+- **Commit only the SVGs related to your change**: A local build often rewrites unrelated SVGs due to `d2` version drift. Reset those with `git checkout -- <file>` and stage only the SVGs for the pages you actually touched - never commit the full `public/d2/` churn.
 
 ### Adding New Concepts
 

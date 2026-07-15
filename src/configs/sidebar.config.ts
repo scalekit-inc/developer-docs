@@ -114,6 +114,10 @@ export const sidebar = [
         ],
       },
       {
+        label: 'Manage encryption keys',
+        link: 'authenticate/encryption-keys',
+      },
+      {
         label: 'View auth integrations',
         link: 'guides/integrations',
       },
@@ -198,6 +202,10 @@ export const sidebar = [
           'agentkit/bring-your-own-connector/create-connector',
           'agentkit/bring-your-own-connector/making-tool-calls',
         ],
+      },
+      {
+        label: 'Manage encryption keys',
+        link: 'agentkit/encryption-keys',
       },
       {
         label: 'Go live',
@@ -403,6 +411,7 @@ export const sidebar = [
           'mcp/auth-methods/enterprise',
           'mcp/auth-methods/social',
           'mcp/auth-methods/custom-auth',
+          'mcp/auth-methods/xaa',
         ],
       },
       {
@@ -432,7 +441,10 @@ export const sidebar = [
       },
       {
         label: 'Go live',
-        items: ['authenticate/mcp/launch-checklist'],
+        items: [
+          'authenticate/mcp/launch-checklist',
+          'authenticate/mcp/directory-submission-test-credentials',
+        ],
       },
     ],
   },
@@ -738,6 +750,7 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
       '/agentkit/connections': 'agentkit-quickstart',
       '/agentkit/connected-accounts': 'agentkit-connectors',
       '/agentkit/sdks': 'agentkit-sdks',
+      '/agentkit/apis': 'agentkit-api-reference',
       '/agentkit/tools/agent-tools-quickstart': 'agentkit-quickstart',
       '/agentkit/openclaw': 'agentkit-quickstart',
       '/agentkit/frameworks': 'agentkit-quickstart',

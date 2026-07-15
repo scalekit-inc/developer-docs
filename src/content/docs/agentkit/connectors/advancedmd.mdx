@@ -1,0 +1,84 @@
+---
+title: 'AdvancedMD connector'
+tableOfContents: true
+description: 'AdvancedMD is a cloud-based medical practice management and electronic health record (EHR) platform. This connector uses the SMART on FHIR authorization...'
+sidebar:
+  label: 'AdvancedMD'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/advancedmd.png
+connectorAuthType: SMART On FHIR
+connectorCategories: [Healthcare]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/advancedmd'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupAdvancedmdSection } from '@components/templates'
+import { SectionAfterSetupAdvancedmdCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your AdvancedMD credentials with Scalekit so it can authenticate requests on your behalf. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupAdvancedmdSection />
+
+   </details>
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Read clinical records** — retrieve a Patient, Practitioner, Organization, Encounter, Condition, Observation, AllergyIntolerance, Immunization, MedicationRequest, DiagnosticReport, Procedure, or Appointment by its FHIR logical ID
+- **Search clinical records** — find any supported FHIR resource using parameters like patient, clinical status, category, date, and code
+- **Create clinical records** — add new records for any of the twelve supported FHIR resource types
+- **Update clinical records** — modify an existing FHIR resource by its logical ID
+- **Delete clinical records** — remove a FHIR resource by its logical ID
+- **Retrieve everything for a patient** — invoke the `$everything` operation on a Patient to pull all associated clinical resources in a single Bundle
+
+## Common workflows
+
+<SectionAfterSetupAdvancedmdCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

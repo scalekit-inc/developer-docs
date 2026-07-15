@@ -241,36 +241,10 @@ const classified = classifyPages(pages)
 const rootPage = pages.find((p) => p.urlPath === '/')
 
 // --- Build the llms.txt content ---
-// Include agent plugin install instructions (sourced from the same guidance as the wirings)
-const AGENT_PLUGIN_BLOCK = `
-## Building with AI coding agents?
-
-Install the authstack plugin for coding agents with one command. This is the recommended way to give your agent accurate Scalekit implementation guidance.
-
-**Recommended**:
-\`\`\`bash
-npx @scalekit-inc/cli setup
-\`\`\`
-
-For repeated use:
-\`\`\`bash
-npm install -g @scalekit-inc/cli
-scalekit setup
-\`\`\`
-
-The CLI installs the authstack plugin for Claude Code, Cursor, GitHub Copilot, Codex, and skills for 40+ other agents.
-
-Use natural language or the specific feature skills: full-stack-auth, agent-auth, mcp-auth, modular-sso, modular-scim.
-
-[Full setup guide](https://docs.scalekit.com/dev-kit/build-with-ai/)
-`
-
 const lines = [
   '# Scalekit',
   '',
   '> Scalekit is a developer platform for enterprise authentication, providing Full Stack Auth (FSA), Single Sign-On (SSO), SCIM provisioning, Agent Authentication, MCP Authentication, and API authentication solutions for B2B and AI applications.',
-  '',
-  AGENT_PLUGIN_BLOCK.trim(),
   '',
   '## How to use',
   '',
@@ -312,8 +286,12 @@ const lines = [
   '',
   '## Optional',
   '',
-  `- [API reference markdown](${BASE_URL}/apis.md): LLM-friendly Markdown from the Scalekit OpenAPI specification`,
-  `- [OpenAPI Specification](${BASE_URL}/api/scalekit.scalar.yaml): OpenAPI Specification for Scalekit REST API (YAML)`,
+  `- [API reference markdown — all endpoints](${BASE_URL}/apis.md): LLM-friendly Markdown from the full Scalekit OpenAPI specification`,
+  `- [AgentKit API reference markdown](${BASE_URL}/agentkit/apis.md): AgentKit APIs — connected accounts, tool execution, webhooks`,
+  `- [SaaSKit API reference markdown](${BASE_URL}/saaskit/apis.md): SaaSKit APIs — SSO, SCIM, directories, sessions, roles, users`,
+  `- [OpenAPI Specification — all endpoints](${BASE_URL}/api/scalekit.scalar.json): OpenAPI Specification for Scalekit REST API`,
+  `- [AgentKit OpenAPI Specification](${BASE_URL}/api/agentkit.scalar.json): OpenAPI Specification for AgentKit REST API`,
+  `- [SaaSKit OpenAPI Specification](${BASE_URL}/api/saaskit.scalar.json): OpenAPI Specification for SaaSKit REST API`,
   '',
 ]
 

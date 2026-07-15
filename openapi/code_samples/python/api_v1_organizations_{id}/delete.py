@@ -1,0 +1,1 @@
+scalekit_client.organization.delete_organization(organization_id)

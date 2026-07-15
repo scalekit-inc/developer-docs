@@ -17,11 +17,18 @@ function loadSwaggerSpec() {
 
 // Generate URL fragment for API endpoint
 function generateUrlFragment(path, method, tags) {
-  const tag = tags && tags[0] ? tags[0].toLowerCase() : 'api'
-  // Use lowercase HTTP method as used by @scalar/api-reference anchors
-  const lowerMethod = method.toLowerCase()
+  // Scalar slugifies tag names: lowercase, spaces/special chars become hyphens
+  const tag =
+    tags && tags[0]
+      ? tags[0]
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '')
+      : 'api'
+  // Scalar uses UPPERCASE HTTP methods in anchor IDs
+  const upperMethod = method.toUpperCase()
   // Do NOT encode path parameters – Scalar keeps the curly braces intact in the anchor id
-  return `#tag/${tag}/${lowerMethod}${path}`
+  return `#tag/${tag}/${upperMethod}${path}`
 }
 
 // Extract and structure API records from Swagger (used by ApiSearchIndex.astro at build time)
@@ -84,18 +91,18 @@ function testUrlGeneration() {
       path: '/api/v1/organizations/{id}',
       method: 'PATCH',
       expectedUrl:
-        'https://docs.scalekit.com/apis/#tag/organizations/patch/api/v1/organizations/{id}',
+        'https://docs.scalekit.com/apis/#tag/organizations/PATCH/api/v1/organizations/{id}',
     },
     {
       path: '/api/v1/organizations/{organization_id}/directories/{directory_id}/users',
       method: 'GET',
       expectedUrl:
-        'https://docs.scalekit.com/apis/#tag/directory/get/api/v1/organizations/{organization_id}/directories/{directory_id}/users',
+        'https://docs.scalekit.com/apis/#tag/directory/GET/api/v1/organizations/{organization_id}/directories/{directory_id}/users',
     },
     {
       path: '/api/v1/organizations',
       method: 'GET',
-      expectedUrl: 'https://docs.scalekit.com/apis/#tag/organizations/get/api/v1/organizations',
+      expectedUrl: 'https://docs.scalekit.com/apis/#tag/organizations/GET/api/v1/organizations',
     },
   ]
 

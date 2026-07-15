@@ -62,11 +62,11 @@ app.post('/stripe/webhook', async (req, res) => {
     const customerId = event.data.object.customer;
 
     // Find organization by external ID (Stripe customer ID)
-    const org = await scalekit.organization.getByExternalId(customerId);
+    const { organization: org } = await scalekit.organization.getOrganizationByExternalId(customerId);
 
     if (org) {
       // Update subscription metadata
-      await scalekit.organization.update(org.id, {
+      await scalekit.organization.updateOrganization(org.id, {
         metadata: {
           ...org.metadata,
           subscription_status: event.data.object.status,
@@ -88,10 +88,10 @@ app.post('/stripe/webhook', async (req, res) => {
   // Handle customer deletion
   if (event.type === 'customer.deleted') {
     const customerId = event.data.object.id;
-    const org = await scalekit.organization.getByExternalId(customerId);
+    const { organization: org } = await scalekit.organization.getOrganizationByExternalId(customerId);
 
     if (org) {
-      await scalekit.organization.update(org.id, {
+      await scalekit.organization.updateOrganization(org.id, {
         metadata: {
           ...org.metadata,
           billing_status: 'deleted',
@@ -116,7 +116,8 @@ def stripe_webhook():
         customer_id = event['data']['object']['customer']
 
         # Find organization by external ID (Stripe customer ID)
-        org = scalekit.organization.get_by_external_id(customer_id)
+        response = scalekit_client.organization.get_organization_by_external_id(customer_id)
+        org = response[0].organization
 
         if org:
             # Update subscription metadata
@@ -130,7 +131,10 @@ def stripe_webhook():
                 ).isoformat()
             }
 
-            scalekit.organization.update(org.id, {'metadata': updated_metadata})
+            update_organization = UpdateOrganization(metadata=updated_metadata)
+            scalekit_client.organization.update_organization(
+                organization_id=org.id, organization=update_organization
+            )
 
             # Use case: Automatically provision/deprovision features based on subscription status
             if event['data']['object']['status'] == 'active':
@@ -141,7 +145,8 @@ def stripe_webhook():
     # Handle customer deletion
     elif event['type'] == 'customer.deleted':
         customer_id = event['data']['object']['id']
-        org = scalekit.organization.get_by_external_id(customer_id)
+        response = scalekit_client.organization.get_organization_by_external_id(customer_id)
+        org = response[0].organization
 
         if org:
             updated_metadata = {
@@ -149,7 +154,10 @@ def stripe_webhook():
                 'billing_status': 'deleted',
                 'deletion_date': datetime.utcnow().isoformat()
             }
-            scalekit.organization.update(org.id, {'metadata': updated_metadata})
+            update_organization = UpdateOrganization(metadata=updated_metadata)
+            scalekit_client.organization.update_organization(
+                organization_id=org.id, organization=update_organization
+            )
 
     return 'OK', 200
 ```
@@ -180,7 +188,7 @@ async function syncOrganizationWithCRM(organizationId, salesforceAccountId) {
     const crmData = await salesforce.getAccount(salesforceAccountId);
 
     // Update Scalekit organization with CRM data
-    await scalekit.organization.update(organizationId, {
+    await scalekit.organization.updateOrganization(organizationId, {
       metadata: {
         salesforce_account_id: salesforceAccountId,
         industry: crmData.Industry,
@@ -227,7 +235,7 @@ async function syncUserWithCRM(userId, organizationId, salesforceContactId) {
 
 // Bidirectional sync: Update Salesforce when Scalekit data changes
 async function updateCRMFromScalekit(organizationId) {
-  const org = await scalekit.organization.getById(organizationId);
+  const { organization: org } = await scalekit.organization.getOrganization(organizationId);
 
   if (org.metadata.salesforce_account_id) {
     await salesforce.updateAccount(org.metadata.salesforce_account_id, {
@@ -259,7 +267,10 @@ async def sync_organization_with_crm(organization_id, salesforce_account_id):
             'crm_last_modified': crm_data.get('LastModifiedDate')
         }
 
-        scalekit.organization.update(organization_id, {'metadata': metadata})
+        update_organization = UpdateOrganization(metadata=metadata)
+        scalekit_client.organization.update_organization(
+            organization_id=organization_id, organization=update_organization
+        )
 
         # Use case: Update user permissions based on account type
         if crm_data.get('Type') == 'Enterprise':
@@ -290,7 +301,8 @@ async def sync_user_with_crm(user_id, organization_id, salesforce_contact_id):
 
 # Bidirectional sync: Update Salesforce when Scalekit data changes
 async def update_crm_from_scalekit(organization_id):
-    org = scalekit.organization.get_by_id(organization_id)
+    response = scalekit_client.organization.get_organization(organization_id)
+    org = response[0].organization
 
     if org.metadata.get('salesforce_account_id'):
         await salesforce.update_account(org.metadata['salesforce_account_id'], {
@@ -357,7 +369,7 @@ async function syncNewEmployeeWithScalekit(employeeData) {
 async function handleEmployeeStatusChange(employee_id, status) {
   try {
     // Find user by HR system external ID
-    const user = await scalekit.user.getUserByExternalId(organization.id, employee_id);
+    const { user } = await scalekit.user.getUserByExternalId(employee_id);
 
     if (user) {
       if (status === 'terminated') {
@@ -371,7 +383,7 @@ async function handleEmployeeStatusChange(employee_id, status) {
         });
 
         // Remove from organization
-        await scalekit.user.removeMembership(user.id, organization.id);
+        await scalekit.user.deleteMembership(organization.id, user.id);
 
       } else if (status === 'on_leave') {
         // Temporarily suspend access
@@ -403,9 +415,12 @@ async function onboardNewCustomer(customerData) {
 
   try {
     // 1. Create organization in Scalekit
-    const organization = await scalekit.organization.create({
-      display_name: company_name,
-      external_id: stripe_customer_id, // Use billing system ID as primary external ID
+    const { organization } = await scalekit.organization.createOrganization(company_name, {
+      externalId: stripe_customer_id, // Use billing system ID as primary external ID
+    });
+
+    // The Node.js SDK does not accept metadata at creation, so set it with a follow-up update
+    await scalekit.organization.updateOrganization(organization.id, {
       metadata: {
         plan_type: plan_type,
         salesforce_account_id: salesforce_account_id,
@@ -482,7 +497,7 @@ async function retryWithBackoff(fn, maxRetries = 3, baseDelay = 1000) {
 // Resilient external ID lookup
 async function findOrganizationWithRetry(externalId) {
   return retryWithBackoff(async () => {
-    const org = await scalekit.organization.getByExternalId(externalId);
+    const { organization: org } = await scalekit.organization.getOrganizationByExternalId(externalId);
     if (!org) {
       throw new Error(`Organization not found for external ID: ${externalId}`);
     }

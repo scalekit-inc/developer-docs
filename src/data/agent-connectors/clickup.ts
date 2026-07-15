@@ -163,6 +163,12 @@ export const tools: Tool[] = [
         required: true,
         description: `Whether the comment is marked as resolved`,
       },
+      {
+        name: 'group_assignee',
+        type: 'string',
+        required: false,
+        description: `User group ID to assign this comment to`,
+      },
     ],
   },
   {
@@ -966,9 +972,9 @@ export const tools: Tool[] = [
       },
       {
         name: 'events',
-        type: 'string',
+        type: 'array',
         required: true,
-        description: `Comma-separated list of events to subscribe to, or '*' for all events`,
+        description: `List of events to subscribe to, or ["*"] for all events`,
       },
       { name: 'team_id', type: 'string', required: true, description: `The workspace (team) ID` },
       {
@@ -1022,9 +1028,9 @@ export const tools: Tool[] = [
       },
       {
         name: 'events',
-        type: 'string',
+        type: 'array',
         required: true,
-        description: `Events to subscribe to, or '*' for all events`,
+        description: `List of events to subscribe to, or ["*"] for all events`,
       },
       {
         name: 'status',
@@ -1042,7 +1048,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'clickup_workspace_members_list',
-    description: `Retrieve all members in a ClickUp Workspace.`,
+    description: `Retrieve all members in a ClickUp Workspace. Returns all workspaces the authenticated user can access, each with its embedded members array; filter the result for the workspace matching team_id.`,
     params: [{ name: 'team_id', type: 'string', required: true, description: `Workspace ID` }],
   },
   {
