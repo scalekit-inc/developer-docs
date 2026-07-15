@@ -31,6 +31,34 @@ Every access token Scalekit issues already carries a working set of claims: `sub
 
 It doesn't cover everything a request might need to decide. A detail on the user's profile, something in their organization's metadata, a field you've stored on the membership itself: none of that shows up in the token by default. Add it as a custom claim instead of reaching for your database on every request, and it's already there once your API finishes verifying the token.
 
+## Fields you can reference
+
+Every expression reads from one of two objects: `user` or `organization`.
+
+**User fields:**
+
+| Field | Holds |
+|---|---|
+| `user.id` | Scalekit user ID |
+| `user.email`, `user.email_verified` | Primary email and its verification state |
+| `user.name`, `user.given_name`, `user.family_name` | Display, first, and last name |
+| `user.external_id` | Your system's identifier for this user |
+| `user.metadata` | Key-value data you've attached to the user |
+| `user.custom_attributes` | Custom profile attributes |
+| `user.locale` | Language and region preference |
+| `user.current_membership.roles` | Roles the user holds in the organization they're signing into |
+| `user.current_membership.status` | Membership status, for example `active` |
+| `user.current_membership.metadata` | Key-value data on the membership itself |
+
+**Organization fields:**
+
+| Field | Holds |
+|---|---|
+| `organization.id` | Scalekit organization ID |
+| `organization.name` | Organization display name |
+| `organization.external_id` | Your system's identifier for this organization |
+| `organization.metadata` | Key-value data you've attached to the organization |
+
 ## Add a custom claim
 
 <Steps>
@@ -78,7 +106,7 @@ An expression is a dot-path into `user` or `organization`, evaluated with [expr-
 | A default when a field might be unset | `organization.metadata.plan ?? "free"` |
 | A yes/no from a membership check | `"admin" in user.current_membership.roles` |
 
-`user` and `organization` cover fields like `email`, `name`, `external_id`, and `metadata`; `user` also has `current_membership.roles` and `current_membership.status`. expr-lang also has string and array helpers (`split`, `trim`, `len`, `filter`, and more) for anything more involved than a plain lookup.
+expr-lang also has string and array helpers (`split`, `trim`, `len`, `filter`, and more) for anything more involved than a plain lookup.
 
 ## Claims you can't override
 
