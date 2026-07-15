@@ -1,1 +1,2 @@
-SendPasswordlessResponse resendResponse = passwordlessClient.resendPasswordlessEmail(authRequestId);
+SendPasswordlessResponse resendResponse = scalekitClient.passwordless()
+    .resendPasswordlessEmail(authRequestId);

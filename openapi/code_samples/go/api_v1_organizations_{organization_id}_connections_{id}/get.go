@@ -1,4 +1,4 @@
-connection, err := scalekitClient.Connection.GetConnection(
+connection, err := scalekitClient.Connection().GetConnection(
   ctx,
   organizationId,
   connectionId,

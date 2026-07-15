@@ -1,9 +1,9 @@
-# Get client ID from environment variables
-org_id = '<SCALEKIT_ORGANIZATION_ID>'
-client_id = os.environ['M2M_CLIENT_ID']
+import os
 
-# Delete the specified client from the organization
-response = scalekit_client.m2m_client.delete_organization_client(
+org_id = "org_123"
+client_id = os.environ["M2M_CLIENT_ID"]
+
+scalekit_client.m2m_client.delete_organization_client(
     organization_id=org_id,
-    client_id=client_id
+    client_id=client_id,
 )

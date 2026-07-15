@@ -1,1 +1,1 @@
-users.deleteUser("usr_123");
+scalekitClient.users().deleteUser("usr_123");

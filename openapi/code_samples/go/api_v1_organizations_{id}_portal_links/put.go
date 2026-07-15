@@ -1,4 +1,4 @@
-link, err := scalekitClient.Organization.GeneratePortalLink(
+link, err := scalekitClient.Organization().GeneratePortalLink(
   ctx,
-  organizationId
+  organizationId,
 )

@@ -1,2 +1,2 @@
-UpdateCredentialResponse res = scalekitClient.webauthn()
+UpdateCredentialResponse res = scalekitClient.webAuthn()
     .updateCredential("wac_123", "Work Laptop Passkey");

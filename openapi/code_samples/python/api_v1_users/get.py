@@ -1,2 +1,2 @@
-# pass empty org to fetch all users in environment
-resp,_ = scalekit_client.users.list_users(organization_id="", page_size=100)
+# List all users in the environment
+response = scalekit_client.users.list_users(page_size=100)
