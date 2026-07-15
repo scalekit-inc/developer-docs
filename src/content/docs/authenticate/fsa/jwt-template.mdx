@@ -1,7 +1,7 @@
 ---
 title: 'Customize JWT template'
 description: 'Add custom claims from a user profile and organization to the JWT access token Scalekit issues at login and session refresh'
-tags: [tokens, jwt, claims, sso, session, customization, expr-lang]
+tags: [tokens, jwt, claims, sso, session, customization]
 tableOfContents:
   maxHeadingLevel: 2
 sidebar:
@@ -63,6 +63,10 @@ To add a custom claim:
    - **Claim key** - the name it appears under in the token, for example `plan`.
    - **Expression** - the dot-path to the value, evaluated against `user` or `organization`, for example `organization.metadata.plan`.
 3. Click **Add**. Scalekit applies the claim immediately, there's no separate publish step.
+
+<Aside type="caution" title="Reserved claim keys">
+`sub`, `iss`, `aud`, `exp`, `iat`, `nbf`, `jti`, `oid`, `sid`, `xoid`, `xuid`, `roles`, and `permissions` are already set by Scalekit. Pick a claim key that doesn't collide with these, like `plan` or `a_user_email`.
+</Aside>
 
 ![Add custom claim panel with a claim key field and an expression field.](@/assets/docs/jwt-template/add-custom-claim.png)
 
@@ -139,7 +143,7 @@ Every expression reads from one of two objects: `user` or `organization`.
 
 The simplest expression is just a field path, like `user.email`. Scalekit evaluates it against the signed-in user and their organization, and the result becomes the claim's value.
 
-Chain a fallback with `??` for when the first field might be empty, for example `user.email ?? user.preferred_username`. Expressions are written in [expr-lang](https://expr-lang.org/docs/language-definition); try one out in the [expr-lang playground](https://expr-lang.org/playground) before adding it as a claim.
+Chain a fallback with `??` for when the first field might be empty, for example `user.email ?? user.preferred_username`.
 
 A few more patterns:
 
@@ -149,8 +153,4 @@ A few more patterns:
 | Something from your own metadata | `organization.metadata.plan` |
 | A default when a field might be unset | `organization.metadata.plan ?? "free"` |
 
-expr-lang also has string and array helpers (`split`, `trim`, `len`, `filter`, and more) for anything more involved than a plain lookup.
-
-## Claims you can't override
-
-`sub`, `iss`, `aud`, `exp`, `iat`, `nbf`, `jti`, `oid`, `sid`, `xoid`, `xuid`, `roles`, and `permissions` are already set by Scalekit on every token. A custom claim can't reuse one of these keys, so pick a name that doesn't collide, like `plan` or `a_user_email`.
+A few string and array helpers are also available (`split`, `trim`, `len`, `filter`, and more) for anything more involved than a plain lookup.
