@@ -15236,6 +15236,13 @@ Triggered when a new connected account is created
 
 Triggered when a connected account is updated
 
+### Connected Account Status Updated
+
+- **Method:**`POST`
+- **Path:**`/webhooks/connected_account.status_updated`
+
+Triggered when a connected account's status changes between two states (for example PENDING\_AUTH to ACTIVE, ACTIVE to EXPIRED, or any state to DISCONNECTED). Not triggered on account creation.
+
 ### Connected Account Deleted
 
 - **Method:**`POST`
@@ -31806,5 +31813,147 @@ For update messages ensure the indexes are same as the base model itself.
     "created_at": "2024-01-01T00:00:00Z"
   },
   "display_name": "Organization Created"
+}
+```
+
+### ConnectedAccountStatusUpdatedEvent
+
+- **Type:**`object`
+
+Payload delivered for the connected\_account.status\_updated webhook event.
+
+- **`data` (required)**
+
+  `object` — The connected account whose status changed, including its previous status.
+
+  - **`authorization_type` (required)**
+
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — The authorization type of the connected account
+
+  - **`connection_id` (required)**
+
+    `string` — Identifier of the connection (prefixed with "conn\_")
+
+  - **`id` (required)**
+
+    `string` — Unique identifier of the connected account (prefixed with "ca\_")
+
+  - **`identifier` (required)**
+
+    `string` — The end-user identifier the connected account belongs to
+
+  - **`old_status` (required)**
+
+    `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — The previous status of the connected account
+
+  - **`provider` (required)**
+
+    `string` — The provider of the connected account
+
+  - **`status` (required)**
+
+    `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — The new status of the connected account
+
+  - **`connection_name`**
+
+    `string` — The connection's key\_id. Omitted when it cannot be resolved.
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"ConnectedAccount"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"connected_account.status_updated"` — The event type
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "evt_101652975398683158",
+  "type": "connected_account.status_updated",
+  "occurred_at": "2025-12-02T06:31:34.895815554Z",
+  "environment_id": "env_88640229614813449",
+  "object": "ConnectedAccount",
+  "data": {
+    "id": "ca_133400349586228019",
+    "identifier": "john@acmecorp.com",
+    "connection_id": "conn_133400101014995480",
+    "connection_name": "gmail",
+    "provider": "GMAIL",
+    "authorization_type": "OAUTH",
+    "status": "EXPIRED",
+    "old_status": "ACTIVE"
+  }
+}
+```
+
+### ConnectedAccountStatusUpdatedEventData
+
+- **Type:**`object`
+
+The connected account whose status changed, including its previous status.
+
+- **`authorization_type` (required)**
+
+  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — The authorization type of the connected account
+
+- **`connection_id` (required)**
+
+  `string` — Identifier of the connection (prefixed with "conn\_")
+
+- **`id` (required)**
+
+  `string` — Unique identifier of the connected account (prefixed with "ca\_")
+
+- **`identifier` (required)**
+
+  `string` — The end-user identifier the connected account belongs to
+
+- **`old_status` (required)**
+
+  `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — The previous status of the connected account
+
+- **`provider` (required)**
+
+  `string` — The provider of the connected account
+
+- **`status` (required)**
+
+  `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — The new status of the connected account
+
+- **`connection_name`**
+
+  `string` — The connection's key\_id. Omitted when it cannot be resolved.
+
+**Example:**
+
+```json
+{
+  "id": "ca_133400349586228019",
+  "identifier": "john@acmecorp.com",
+  "connection_id": "conn_133400101014995480",
+  "connection_name": "gmail",
+  "provider": "GMAIL",
+  "authorization_type": "OAUTH",
+  "status": "EXPIRED",
+  "old_status": "ACTIVE"
 }
 ```

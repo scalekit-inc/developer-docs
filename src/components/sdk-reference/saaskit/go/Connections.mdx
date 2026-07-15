@@ -1,0 +1,107 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="Connections"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main"
+  language="go"
+>
+
+  <CB.ClassMethod name="CreateConnection">
+    Creates a new SSO connection for an organization.
+
+  </CB.ClassMethod>
+
+```go
+import (
+  connectionsv1 "github.com/scalekit-inc/scalekit-sdk-go/v2/pkg/grpc/scalekit/v1/connections"
+)
+
+created, err := client.Connection().CreateConnection(ctx, "org_123", &connectionsv1.CreateConnection{
+  Provider:    connectionsv1.ConnectionProvider_OKTA,
+  Type:        connectionsv1.ConnectionType_SAML,
+  ProviderKey: "my-okta-connection",
+})
+if err != nil {
+  // handle
+}
+_ = created.Connection
+```
+
+  <CB.ClassMethod name="DeleteConnection">
+    Deletes a connection by ID within an organization.
+
+  </CB.ClassMethod>
+
+```go
+if err := client.Connection().DeleteConnection(ctx, "org_123", "conn_456"); err != nil {
+  // handle
+}
+```
+
+  <CB.ClassMethod name="GetConnection">
+    Fetches a connection by ID within an organization.
+
+  </CB.ClassMethod>
+
+```go
+conn, err := client.Connection().GetConnection(ctx, "org_123", "conn_123")
+if err != nil {
+  // handle
+}
+_ = conn.Connection
+```
+
+  <CB.ClassMethod name="ListConnectionsByDomain">
+    Lists connections that match a given domain (e.g. to support domain discovery for SSO).
+
+  </CB.ClassMethod>
+
+```go
+conns, err := client.Connection().ListConnectionsByDomain(ctx, "acme.com")
+if err != nil {
+  // handle
+}
+_ = conns.Connections
+```
+
+  <CB.ClassMethod name="ListConnections">
+    Lists all connections for an organization.
+
+  </CB.ClassMethod>
+
+```go
+conns, err := client.Connection().ListConnections(ctx, "org_123")
+if err != nil {
+  // handle
+}
+_ = conns.Connections
+```
+
+  <CB.ClassMethod name="EnableConnection">
+    Enables a connection for an organization.
+
+  </CB.ClassMethod>
+
+```go
+resp, err := client.Connection().EnableConnection(ctx, "org_123", "conn_123")
+if err != nil {
+  // handle
+}
+_ = resp.Enabled
+```
+
+  <CB.ClassMethod name="DisableConnection">
+    Disables a connection for an organization.
+
+  </CB.ClassMethod>
+
+```go
+resp, err := client.Connection().DisableConnection(ctx, "org_123", "conn_123")
+if err != nil {
+  // handle
+}
+_ = resp.Enabled
+```
+
+</CB.ClassBrowser>

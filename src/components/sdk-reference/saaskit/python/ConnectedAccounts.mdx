@@ -1,0 +1,108 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="ConnectedAccounts"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main"
+  language="python"
+>
+
+  <CB.ClassMethod name="list_connected_accounts">
+    Lists all connected accounts with optional filtering.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.connected_accounts.list_connected_accounts(
+    organization_id='org_123456',
+    user_id='usr_123456',
+    page_size=50
+)
+
+for account in response[0].connected_accounts:
+    print(f'Account: {account.id}')
+```
+
+  <CB.ClassMethod name="get_connected_account_by_identifier">
+    Retrieves a connected account by identifier.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.connected_accounts.get_connected_account_by_identifier(
+    'slack',
+    'workspace_id',
+    organization_id='org_123456',
+    user_id='usr_123456'
+)
+```
+
+  <CB.ClassMethod name="create_connected_account">
+    Creates a new connected account.
+
+  </CB.ClassMethod>
+
+```python
+from scalekit.v1.connected_accounts.connected_accounts_pb2 import CreateConnectedAccount
+
+account = CreateConnectedAccount()
+
+response = scalekit_client.connected_accounts.create_connected_account(
+    'slack',
+    'workspace_id',
+    account,
+    organization_id='org_123456',
+    user_id='usr_123456'
+)
+```
+
+  <CB.ClassMethod name="update_connected_account">
+    Updates an existing connected account.
+
+  </CB.ClassMethod>
+
+```python
+from scalekit.v1.connected_accounts.connected_accounts_pb2 import UpdateConnectedAccount
+
+account = UpdateConnectedAccount()
+
+response = scalekit_client.connected_accounts.update_connected_account(
+    'slack',
+    'workspace_id',
+    account,
+    organization_id='org_123456',
+    user_id='usr_123456'
+)
+```
+
+  <CB.ClassMethod name="delete_connected_account">
+    Deletes a connected account.
+
+  </CB.ClassMethod>
+
+```python
+scalekit_client.connected_accounts.delete_connected_account(
+    'slack',
+    'workspace_id',
+    organization_id='org_123456',
+    user_id='usr_123456'
+)
+```
+
+  <CB.ClassMethod name="get_magic_link_for_connected_account">
+    Generates a magic link for a connected account.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.connected_accounts.get_magic_link_for_connected_account(
+    'slack',
+    'workspace_id',
+    organization_id='org_123456',
+    user_id='usr_123456'
+)
+
+print(f'Magic Link: {response[0].magic_link}')
+```
+
+</CB.ClassBrowser>

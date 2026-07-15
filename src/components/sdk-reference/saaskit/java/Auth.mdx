@@ -1,0 +1,113 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="Auth"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main"
+  language="java"
+>
+
+  <CB.ClassMethod name="getAuthorizationUrl">
+    Utility method to generate the OAuth 2.0 authorization URL to initiate the SSO authentication flow. This method doesn't make any network calls but instead generates a fully formed Authorization URL that you can redirect your users to.
+
+  </CB.ClassMethod>
+
+```java
+import com.scalekit.internal.http.AuthorizationUrlOptions;
+import java.net.URL;
+
+AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+options.setOrganizationId("org_123");
+options.setState("random-state-value");
+
+URL authUrl = client.authentication().getAuthorizationUrl(
+  "https://yourapp.com/auth/callback",
+  options
+);
+```
+
+  <CB.ClassMethod name="getLogoutUrl">
+    Utility method to generate the OAuth 2.0 logout URL to initiate the logout flow. This method doesn't make any network calls but instead generates a fully formed logout URL that you can redirect your users to for logging out.
+
+  </CB.ClassMethod>
+
+```java
+import com.scalekit.internal.http.LogoutUrlOptions;
+import java.net.URL;
+
+LogoutUrlOptions options = new LogoutUrlOptions();
+options.setIdTokenHint(user.getIdToken());
+options.setPostLogoutRedirectUri("https://yourapp.com");
+options.setState("random-state-value");
+
+URL logoutUrl = client.authentication().getLogoutUrl(options);
+```
+
+  <CB.ClassMethod name="authenticateWithCode">
+    Exchanges an authorization code for access tokens and ID token information.
+
+  </CB.ClassMethod>
+
+```java
+import com.scalekit.internal.http.AuthenticationOptions;
+import com.scalekit.internal.http.AuthenticationResponse;
+
+AuthenticationResponse result = client.authentication().authenticateWithCode(
+  "<code>",
+  "https://yourapp.com/auth/callback",
+  new AuthenticationOptions()
+);
+
+String accessToken = result.getAccessToken();
+```
+
+  <CB.ClassMethod name="getIdpInitiatedLoginClaims">
+    Extracts and validates claims from an IdP-initiated login token.
+
+  </CB.ClassMethod>
+
+```java
+import com.scalekit.internal.http.IdpInitiatedLoginClaims;
+
+IdpInitiatedLoginClaims claims = client.authentication().getIdpInitiatedLoginClaims("<idp_initiated_login_token>");
+```
+
+  <CB.ClassMethod name="refreshAccessToken">
+    Refreshes access credentials using a refresh token.
+
+  </CB.ClassMethod>
+
+```java
+client.authentication().refreshAccessToken("<refresh_token>");
+```
+
+  <CB.ClassMethod name="validateAccessToken">
+    Validates an access token's signature and expiry.
+
+  </CB.ClassMethod>
+
+```java
+boolean ok = client.authentication().validateAccessToken("<access_token_jwt>");
+```
+
+  <CB.ClassMethod name="validateAccessTokenAndGetClaims">
+    Validates an access token and returns decoded claims as a map.
+
+  </CB.ClassMethod>
+
+```java
+import java.util.Map;
+
+Map<String, Object> claims = client.authentication().validateAccessTokenAndGetClaims("<access_token_jwt>");
+```
+
+  <CB.ClassMethod name="getClientAccessToken">
+    Fetches an access token using the client credentials grant (machine-to-machine).
+
+  </CB.ClassMethod>
+
+```java
+String token = client.authentication().getClientAccessToken();
+```
+
+</CB.ClassBrowser>

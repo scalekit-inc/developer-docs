@@ -1,0 +1,75 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+`scalekit_client.actions.tools` gives access to raw tool schemas. Use this when building a custom adapter or passing schemas directly to an LLM API.
+
+<CB.ClassBrowser
+  name="ToolsClient"
+  type="class"
+  source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/tools.py"
+  language="python"
+>
+
+  <CB.ClassMethod name="actions.tools.list_tools">
+    <CB.ClassMethodInput name="filter" type="Filter">
+      Filter by provider, identifier, or tool name
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="page_size" type="int">
+      Maximum tools per page. Use 100 for discovery so connectors with more than the default page are not truncated.
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="page_token" type="str">
+      Opaque cursor from a previous list response
+    </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="ListToolsResponse">
+      `tools` (`list`): List of tool schemas (name, description, input schema) · `next_page_token` (`str`): Token for the next page, if any
+    </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+  <CB.ClassMethod name="actions.tools.list_scoped_tools">
+    Lists tools scoped to a specific user. Use this method for tool discovery because it returns pagination metadata such as `next_page_token` and `total_size`; framework `get_tools()` helpers return framework-ready tool objects and do not expose that metadata.
+
+    <CB.ClassMethodInput name="identifier" type="str">
+      User connected account identifier **Required.**
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="filter" type="ScopedToolFilter">
+      Filter by providers, tool names, or connection names
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="page_size" type="int">
+      Maximum tools per page. Use 100 for discovery so connectors with more than the default page are not truncated.
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="page_token" type="str">
+      Opaque cursor from a previous list response
+    </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="ListScopedToolsResponse">
+      `tools` (`list`): List of tool schemas (name, description, input_schema) · `tools[].name` (`str`): Tool name · `tools[].description` (`str`): Tool description · `tools[].input_schema` (`object`): JSON Schema for tool inputs. Pass directly to LLM API. · `next_page_token` (`str`): Token for the next page, if any
+    </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+```python title="Example"
+tools_response = scalekit_client.actions.tools.list_scoped_tools(
+    identifier="user@example.com",
+    page_size=100,
+)
+# Pass tools_response.tools to your LLM's tool call API
+```
+
+  <CB.ClassMethod name="actions.tools.execute_tool">
+    Low-level tool execution. Bypasses modifiers. Prefer `actions.execute_tool` in most cases.
+
+    <CB.ClassMethodInput name="tool_name" type="str">
+      Registered tool name to execute **Required.**
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="identifier" type="str">
+      End-user or workspace identifier used to resolve the connected account **Required.**
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="params" type="dict">
+      Tool arguments matching the tool input schema
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="connected_account_id" type="str">
+      Connected account ID (ca_...) when you already know it
+    </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="ExecuteToolResponse.">
+      See return type `ExecuteToolResponse.`.
+    </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+</CB.ClassBrowser>

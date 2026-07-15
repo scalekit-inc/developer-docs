@@ -1,0 +1,113 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="Directories"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main"
+  language="java"
+>
+
+  <CB.ClassMethod name="getDirectory">
+    Gets a directory by ID within an organization.
+
+  </CB.ClassMethod>
+
+```java
+client.directories().getDirectory("dir_123", "org_123");
+```
+
+  <CB.ClassMethod name="listDirectories">
+    Lists directories for an organization.
+
+  </CB.ClassMethod>
+
+```java
+client.directories().listDirectories("org_123");
+```
+
+  <CB.ClassMethod name="listDirectoryUsers">
+    Lists directory users with pagination and optional filtering, returning a Java-friendly wrapper response.
+
+  </CB.ClassMethod>
+
+```java
+import com.scalekit.api.util.ListDirectoryResourceOptions;
+import com.scalekit.api.util.ListDirectoryUserResponse;
+
+ListDirectoryResourceOptions options = ListDirectoryResourceOptions.builder()
+  .pageSize(50)
+  .includeDetail(true)
+  .build();
+
+ListDirectoryUserResponse res = client.directories().listDirectoryUsers("dir_123", "org_123", options);
+```
+
+  <CB.ClassMethod name="listDirectoryGroups">
+    Lists directory groups with pagination and optional filtering, returning a Java-friendly wrapper response.
+
+  </CB.ClassMethod>
+
+```java
+import com.scalekit.api.util.ListDirectoryGroupResponse;
+import com.scalekit.api.util.ListDirectoryResourceOptions;
+
+ListDirectoryResourceOptions options = ListDirectoryResourceOptions.builder()
+  .pageSize(50)
+  .includeDetail(true)
+  .build();
+
+ListDirectoryGroupResponse res = client.directories().listDirectoryGroups("dir_123", "org_123", options);
+```
+
+  <CB.ClassMethod name="enableDirectory">
+    Enables a directory within an organization.
+
+  </CB.ClassMethod>
+
+```java
+client.directories().enableDirectory("dir_123", "org_123");
+```
+
+  <CB.ClassMethod name="disableDirectory">
+    Disables a directory within an organization.
+
+  </CB.ClassMethod>
+
+```java
+client.directories().disableDirectory("dir_123", "org_123");
+```
+
+  <CB.ClassMethod name="getPrimaryDirectoryByOrganizationId">
+    Gets the primary directory for an organization.
+
+  </CB.ClassMethod>
+
+```java
+client.directories().getPrimaryDirectoryByOrganizationId("org_123");
+```
+
+  <CB.ClassMethod name="createDirectory">
+    Creates a directory for an organization.
+
+  </CB.ClassMethod>
+
+```java
+import com.scalekit.grpc.scalekit.v1.directories.CreateDirectory;
+
+CreateDirectory req = CreateDirectory.newBuilder()
+  .setDisplayName("Acme SCIM Directory")
+  .build();
+
+client.directories().createDirectory("org_123", req);
+```
+
+  <CB.ClassMethod name="deleteDirectory">
+    Deletes a directory within an organization.
+
+  </CB.ClassMethod>
+
+```java
+client.directories().deleteDirectory("dir_123", "org_123");
+```
+
+</CB.ClassBrowser>

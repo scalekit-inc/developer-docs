@@ -1,0 +1,352 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+Primary AgentKit interface on `scalekit.actions`. Handles connected account management, tool execution, and proxied API calls.
+
+<CB.ClassBrowser
+  name="ActionsClient"
+  type="class"
+  source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/actions.ts"
+  language="typescript"
+>
+
+  <CB.ClassMethod name="getAuthorizationLink">
+    Generates a time-limited OAuth magic link to authorize a user's connection.
+
+    <CB.ClassMethodInput name="connectionName" type="string">
+      Connector slug (e.g. gmail)
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="identifier" type="string">
+      User's identifier (e.g. email)
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="connectedAccountId" type="string">
+      Direct connected account ID (ca_...)
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="organizationId" type="string">
+      Organization tenant ID when your app scopes auth and accounts by org
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="userId" type="string">
+      Your application user ID when you map Scalekit accounts to internal users
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="state" type="string">
+      Opaque value passed through to the redirect URL
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="userVerifyUrl" type="string">
+      Your app's redirect URL for user verification
+    </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="GetMagicLinkForConnectedAccountResponse">
+      `link` (`string`): OAuth magic link URL. Redirect the user here to start the authorization flow.
+    </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+```ts title="Example"
+const { link } = await scalekit.actions.getAuthorizationLink({
+  connectionName: 'gmail',
+  identifier: 'user@example.com',
+  userVerifyUrl: 'https://your-app.com/verify',
+});
+// Redirect the user to link
+```
+
+  <CB.ClassMethod name="verifyConnectedAccountUser">
+    Verifies the user after OAuth callback. Call this from your redirect URL handler.
+
+    <CB.ClassMethodInput name="authRequestId" type="string">
+      Token from the redirect URL query params **Required.**
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="identifier" type="string">
+      Current user's identifier **Required.**
+    </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="VerifyConnectedAccountUserResponse">
+      `postUserVerifyRedirectUrl` (`string`): URL to redirect the user to after successful verification
+    </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+```ts title="Example"
+await scalekit.actions.verifyConnectedAccountUser({
+  authRequestId: req.query.auth_request_id as string,
+  identifier: 'user@example.com',
+});
+```
+
+  <CB.ClassMethod name="getOrCreateConnectedAccount">
+    Fetches an existing connected account or creates one if none exists. Use this as the default when setting up a user.
+
+    <CB.ClassMethodInput name="connectionName" type="string">
+      Connector slug **Required.**
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="identifier" type="string">
+      User's identifier **Required.**
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="authorizationDetails" type="object">
+      OAuth token or static auth details
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="organizationId" type="string">
+      Organization tenant ID when your app scopes auth and accounts by org
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="userId" type="string">
+      Your application user ID when you map Scalekit accounts to internal users
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="apiConfig" type={"Record<string, unknown>"}>
+      Connector-specific options (for example scopes or static auth fields)
+    </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="CreateConnectedAccountResponse">
+      `connectedAccount.id` (`string`): Account ID (ca_...) · `connectedAccount.identifier` (`string`): User's identifier · `connectedAccount.provider` (`string`): Provider slug · `connectedAccount.status` (`string`): ACTIVE, INACTIVE, or PENDING · `connectedAccount.authorizationType` (`string`): OAuth, API_KEY, etc. · `connectedAccount.tokenExpiresAt` (`string`): ISO 8601 OAuth token expiry
+    </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+```ts title="Example"
+const { connectedAccount } = await scalekit.actions.getOrCreateConnectedAccount({
+  connectionName: 'gmail',
+  identifier: 'user@example.com',
+});
+console.log(connectedAccount.id);
+```
+
+  <CB.ClassMethod name="getConnectedAccount">
+    Fetches auth details for a connected account. Returns sensitive credentials. Protect access to this method.
+    
+    Requires `connectedAccountId` **or** `connectionName` + `identifier`.
+
+    <CB.ClassMethodInput name="connectionName" type="string">
+      Connector slug. Use with identifier when you do not pass connectedAccountId.
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="identifier" type="string">
+      End-user or workspace identifier. Use with connectionName.
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="connectedAccountId" type="string">
+      Connected account ID (ca_...) when resolving by ID instead of name + identifier
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="organizationId" type="string">
+      Organization tenant ID when your app scopes auth and accounts by org
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="userId" type="string">
+      Your application user ID when you map Scalekit accounts to internal users
+    </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="GetConnectedAccountByIdentifierResponse">
+      `connectedAccount.id` (`string`): Account ID (ca_...) · `connectedAccount.identifier` (`string`): User's identifier · `connectedAccount.provider` (`string`): Provider slug · `connectedAccount.status` (`string`): ACTIVE, INACTIVE, or PENDING · `connectedAccount.authorizationType` (`string`): OAuth, API_KEY, etc. · `connectedAccount.authorizationDetails` (`object`): Credential payload (access token, API key, etc.) · `connectedAccount.tokenExpiresAt` (`string`): ISO 8601 OAuth token expiry · `connectedAccount.lastUsedAt` (`string`): Last time this account was used · `connectedAccount.updatedAt` (`string`): Last update timestamp
+    </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+  <CB.ClassMethod name="listConnectedAccounts">
+    <CB.ClassMethodInput name="connectionName" type="string">
+      Filter by connector
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="identifier" type="string">
+      Filter by user identifier
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="provider" type="string">
+      Filter by provider
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="organizationId" type="string">
+      Organization tenant ID when your app scopes auth and accounts by org
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="userId" type="string">
+      Your application user ID when you map Scalekit accounts to internal users
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="pageSize" type="number">
+      Maximum accounts per page (server default if omitted)
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="pageToken" type="string">
+      Opaque cursor from a previous list response
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="query" type="string">
+      Free-text search
+    </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="ListConnectedAccountsResponse">
+      `connectedAccounts` (`array`): List of ConnectedAccountForList objects (excludes authorizationDetails) · `totalSize` (`number`): Total number of matching accounts · `nextPageToken` (`string`): Token for the next page, if any · `prevPageToken` (`string`): Token for the previous page, if any
+    </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+  <CB.ClassMethod name="createConnectedAccount">
+    Creates a connected account with explicit auth details.
+
+    <CB.ClassMethodInput name="connectionName" type="string">
+      Connector slug. Must match a connection configured in your environment. **Required.**
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="identifier" type="string">
+      Stable ID for this end user or workspace (email, user_id, or custom string) **Required.**
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="authorizationDetails" type="object">
+      OAuth token payload, API key, or other credentials for this connector **Required.**
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="organizationId" type="string">
+      Organization tenant ID when your app scopes auth and accounts by org
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="userId" type="string">
+      Your application user ID when you map Scalekit accounts to internal users
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="apiConfig" type={"Record<string, unknown>"}>
+      Connector-specific options (for example scopes or static auth fields)
+    </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="CreateConnectedAccountResponse.">
+      See return type `CreateConnectedAccountResponse.`.
+    </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+  <CB.ClassMethod name="updateConnectedAccount">
+    Requires `connectedAccountId` **or** `connectionName` + `identifier`.
+
+    <CB.ClassMethodInput name="connectionName" type="string">
+      Connector slug. Use with identifier when you do not pass connectedAccountId.
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="identifier" type="string">
+      End-user or workspace identifier. Use with connectionName.
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="connectedAccountId" type="string">
+      Connected account ID (ca_...) when updating by ID instead of name + identifier
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="authorizationDetails" type="object">
+      Replace or merge stored credentials (OAuth tokens, API keys, etc.)
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="organizationId" type="string">
+      Organization tenant ID when your app scopes auth and accounts by org
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="userId" type="string">
+      Your application user ID when you map Scalekit accounts to internal users
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="apiConfig" type="object">
+      Connector-specific configuration to persist on the account
+    </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="UpdateConnectedAccountResponse.">
+      See return type `UpdateConnectedAccountResponse.`.
+    </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+  <CB.ClassMethod name="deleteConnectedAccount">
+    Deletes a connected account and revokes its credentials. Requires `connectedAccountId` **or** `connectionName` + `identifier`.
+
+    <CB.ClassMethodInput name="connectionName" type="string">
+      Connector slug. Use with identifier when you do not pass connectedAccountId.
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="identifier" type="string">
+      End-user or workspace identifier. Use with connectionName.
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="connectedAccountId" type="string">
+      Connected account ID (ca_...) when deleting by ID instead of name + identifier
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="organizationId" type="string">
+      Organization tenant ID when your app scopes auth and accounts by org
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="userId" type="string">
+      Your application user ID when you map Scalekit accounts to internal users
+    </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="DeleteConnectedAccountResponse.">
+      See return type `DeleteConnectedAccountResponse.`.
+    </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+  <CB.ClassMethod name="listConnections">
+    Lists **app-level** AgentKit connections (tool/provider integrations for the environment). This is not the same as SSO organization connections on `scalekit.connection`.
+
+    <CB.ClassMethodInput name="pageSize" type="number">
+      Maximum connections per page (max 30)
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="pageToken" type="string">
+      Opaque cursor from a previous list response
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="provider" type="string">
+      Filter by provider key (case-sensitive, e.g. GMAIL, SALESFORCE)
+    </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="ListAppConnectionsResult">
+      `connections` (`array`): Normalized AppConnection objects · `connections[].id` (`string`): Connection ID (conn_...) · `connections[].connectionName` (`string`): Connection name / key identifier · `connections[].provider` (`string`): Provider key (e.g. GMAIL) · `connections[].type` (`string`): Connection type (e.g. OAUTH) · `connections[].status` (`string`): Connection status (e.g. COMPLETED, DRAFT) · `connections[].enabled` (`boolean`): Whether the connection is enabled · `totalSize` (`number`): Total number of matching connections · `nextPageToken` (`string`): Token for the next page, if any · `prevPageToken` (`string`): Token for the previous page, if any
+    </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+```ts title="list-connections.ts"
+try {
+  const { connections } = await scalekit.actions.listConnections({
+    pageSize: 30,
+    provider: 'GMAIL',
+  });
+  for (const conn of connections) {
+    console.log(conn.id, conn.connectionName, conn.enabled);
+  }
+} catch (error) {
+  console.error('Failed to list connections', error);
+}
+```
+
+  <CB.ClassMethod name="executeTool">
+    Executes a named tool via Scalekit.
+
+    <CB.ClassMethodInput name="toolName" type="string">
+      Tool name (e.g. gmail_fetch_emails) **Required.**
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="toolInput" type={"Record<string, unknown>"}>
+      Parameters the tool expects **Required.**
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="identifier" type="string">
+      User's identifier
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="connectedAccountId" type="string">
+      Direct connected account ID
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="connector" type="string">
+      Connector slug
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="organizationId" type="string">
+      Organization tenant ID when your app scopes auth and accounts by org
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="userId" type="string">
+      Your application user ID when you map Scalekit accounts to internal users
+    </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="ExecuteToolResponse">
+      `data` (`object`): Tool's structured output · `executionId` (`string`): Unique ID for this execution
+    </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+```ts title="Example"
+const result = await scalekit.actions.executeTool({
+  toolName: 'gmail_fetch_emails',
+  toolInput: { maxResults: 5, label: 'UNREAD' },
+  identifier: 'user@example.com',
+});
+const emails = result.data;
+```
+
+  <CB.ClassMethod name="request">
+    Makes a REST API call on behalf of a connected account. Scalekit injects the user's OAuth token automatically.
+
+    <CB.ClassMethodInput name="connectionName" type="string">
+      Connector slug **Required.**
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="identifier" type="string">
+      User's identifier **Required.**
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="path" type="string">
+      API path (e.g. /gmail/v1/users/me/messages) **Required.**
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="method" type="string">
+      HTTP method. Default: GET
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="queryParams" type={"Record<string, unknown>"}>
+      URL query parameters appended to path
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="body" type="unknown">
+      JSON-serializable body for POST, PUT, PATCH, or similar methods
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="formData" type={"Record<string, unknown>"}>
+      Multipart form fields when the upstream API expects form data instead of JSON
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="headers" type={"Record<string, string>"}>
+      Extra HTTP headers merged with Scalekit-injected auth headers
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="timeoutMs" type="number">
+      Default: 30000
+    </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="AxiosResponse">
+      See return type `AxiosResponse`.
+    </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+```ts title="Example"
+const response = await scalekit.actions.request({
+  connectionName: 'gmail',
+  identifier: 'user@example.com',
+  path: '/gmail/v1/users/me/messages',
+  queryParams: { maxResults: 5, q: 'is:unread' },
+});
+const messages = response.data.messages;
+```
+
+</CB.ClassBrowser>

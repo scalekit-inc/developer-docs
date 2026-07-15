@@ -1,0 +1,65 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="Domains"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main"
+  language="typescript"
+>
+
+  <CB.ClassMethod name="createDomain">
+    Adds a new domain configuration to an organization for SSO routing or user suggestions. Domains serve two purposes based on their type: - **ORGANIZATION_DOMAIN**: Used to identify the SSO connection for the organization - **ALLOWED_EMAIL_DOMAIN**: Enables users to join the organization with automatic suggestions Note: Public disposable domains (gmail.com, outlook.com, etc.) are automatically blocked for security.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekitClient.domain.createDomain(
+  'org_123456',
+  'acme.com',
+  { domainType: 'ORGANIZATION_DOMAIN' }
+);
+
+console.log('Domain created:', response.domain.id);
+```
+
+  <CB.ClassMethod name="getDomain">
+    Retrieves detailed information about a specific domain configuration. Returns complete domain details including the domain name, type, verification status, and timestamps.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekitClient.domain.getDomain(
+  'org_123456',
+  'domain_abc123'
+);
+
+console.log('Domain:', response.domain.domain);
+console.log('Type:', response.domain.domainType);
+console.log('Verified:', response.domain.verificationStatus);
+```
+
+  <CB.ClassMethod name="listDomains">
+    Retrieves all domain configurations for an organization. Returns a complete list of domains configured for the organization, including both ORGANIZATION_DOMAIN and ALLOWED_EMAIL_DOMAIN types.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekitClient.domain.listDomains('org_123456');
+
+console.log(`Found ${response.domains.length} domains`);
+response.domains.forEach(domain => {
+  console.log(`- ${domain.domain} (${domain.domainType}): ${domain.verificationStatus}`);
+});
+```
+
+  <CB.ClassMethod name="deleteDomain">
+    Deletes a domain from an organization. Removes the domain configuration from the organization. Users with email addresses from this domain will no longer be automatically routed to this organization's SSO connection.
+
+  </CB.ClassMethod>
+
+```typescript
+await scalekitClient.domain.deleteDomain('org_123456', 'domain_abc123');
+console.log('Domain deleted successfully');
+```
+
+</CB.ClassBrowser>

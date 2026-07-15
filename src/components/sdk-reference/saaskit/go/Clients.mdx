@@ -1,0 +1,121 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="Clients"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main"
+  language="go"
+>
+
+  <CB.ClassMethod name="CreateClient">
+    Creates a new OIDC client in the environment.
+
+  </CB.ClassMethod>
+
+```go
+import (
+  clients "github.com/scalekit-inc/scalekit-sdk-go/v2/pkg/grpc/scalekit/v1/clients"
+)
+
+created, err := client.Client().CreateClient(ctx, &clients.CreateClient{
+  Name:                   "My Application",
+  ClientType:             "WEB_APP",
+  PostLoginUris:          []string{"https://myapp.com/callback"},
+  PostLogoutRedirectUris: []string{"https://myapp.com/logout"},
+})
+if err != nil {
+  // handle
+}
+_ = created.Client
+```
+
+  <CB.ClassMethod name="GetClient">
+    Fetches an OIDC client by client ID.
+
+  </CB.ClassMethod>
+
+```go
+got, err := client.Client().GetClient(ctx, "client_123")
+if err != nil {
+  // handle
+}
+_ = got.Client
+```
+
+  <CB.ClassMethod name="ListClients">
+    Lists OIDC clients in the environment with optional pagination.
+
+  </CB.ClassMethod>
+
+```go
+clients, err := client.Client().ListClients(ctx, &scalekit.ListClientsOptions{
+  PageSize:  10,
+  PageToken: "",
+})
+if err != nil {
+  // handle
+}
+for _, c := range clients.Clients {
+  _ = c
+}
+```
+
+  <CB.ClassMethod name="UpdateClient">
+    Updates an OIDC client by client ID with field mask for partial updates.
+
+  </CB.ClassMethod>
+
+```go
+import (
+  clients "github.com/scalekit-inc/scalekit-sdk-go/v2/pkg/grpc/scalekit/v1/clients"
+  "google.golang.org/protobuf/types/known/fieldmaskpb"
+)
+
+updated, err := client.Client().UpdateClient(ctx, "client_123", &clients.UpdateClient{
+  Name: "Updated Name",
+}, &fieldmaskpb.FieldMask{
+  Paths: []string{"name"},
+})
+if err != nil {
+  // handle
+}
+_ = updated.Client
+```
+
+  <CB.ClassMethod name="DeleteClient">
+    Deletes an OIDC client by client ID.
+
+  </CB.ClassMethod>
+
+```go
+if err := client.Client().DeleteClient(ctx, "client_123"); err != nil {
+  // handle
+}
+```
+
+  <CB.ClassMethod name="CreateClientSecret">
+    Creates a new client secret for an OIDC client.
+
+  </CB.ClassMethod>
+
+```go
+secret, err := client.Client().CreateClientSecret(ctx, "client_123")
+if err != nil {
+  // handle
+}
+// Save the returned secret immediately; it may not be shown again.
+_ = secret.Secret
+```
+
+  <CB.ClassMethod name="DeleteClientSecret">
+    Deletes a specific client secret from an OIDC client.
+
+  </CB.ClassMethod>
+
+```go
+if err := client.Client().DeleteClientSecret(ctx, "client_123", "secret_456"); err != nil {
+  // handle
+}
+```
+
+</CB.ClassBrowser>

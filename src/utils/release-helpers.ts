@@ -77,7 +77,7 @@ export function getSDKConfigs(releases: any[]): Record<string, SDKConfig> {
       title: 'Node.js',
       showTitle: false,
       icon: 'nodejs',
-      href: '/sdks/node/',
+      href: '/saaskit/sdks/node/',
       repo: 'scalekit-inc/scalekit-sdk-node',
       description: 'Full-featured, TypeScript-friendly SDK for modern Node.js based applications',
       features: ['TypeScript & ESM ready', 'Express, NestJS, Next.js compatible'],
@@ -86,7 +86,7 @@ export function getSDKConfigs(releases: any[]): Record<string, SDKConfig> {
     python: {
       title: 'Python',
       icon: 'python',
-      href: '/sdks/python/',
+      href: '/saaskit/sdks/python/',
       repo: 'scalekit-inc/scalekit-sdk-python',
       description: 'Async-first design with complete type hints and Pydantic validation',
       features: ['Pydantic v2 validated', 'FastAPI, Django, Flask compatible'],
@@ -95,7 +95,7 @@ export function getSDKConfigs(releases: any[]): Record<string, SDKConfig> {
     go: {
       title: 'Go',
       icon: 'go',
-      href: '/sdks/go/',
+      href: '/saaskit/sdks/go/',
       repo: 'scalekit-inc/scalekit-sdk-go',
       description: 'Zero-dependency, idiomatic Go SDK for high-performance services',
       features: ['Thread-safe & lightweight', 'Gin, Echo, Chi compatible'],
@@ -104,7 +104,7 @@ export function getSDKConfigs(releases: any[]): Record<string, SDKConfig> {
     java: {
       title: 'Java',
       icon: 'java',
-      href: '/sdks/java/',
+      href: '/saaskit/sdks/java/',
       repo: 'scalekit-inc/scalekit-sdk-java',
       description: 'Enterprise-ready SDK with seamless Spring Boot integration',
       features: ['Spring Boot integrated', 'Maven Central published'],

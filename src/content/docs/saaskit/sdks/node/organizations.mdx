@@ -1,0 +1,353 @@
+---
+title: Organizations
+description: Manage your customer organizations with the Node.js SDK.
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Organizations
+  order: 10
+prev: false
+next: false
+head:
+  - tag: style
+    content: |
+      /* Hide Overview label; keep method links */
+      starlight-toc a[href='#_top'] > span,
+      .right-sidebar-panel a[href='#_top'] > span {
+        display: none !important;
+      }
+      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
+        display: none !important;
+      }
+      starlight-toc li:has(> a[href='#_top']) > ul {
+        padding-inline-start: 0 !important;
+      }
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+Manage your customer organizations — create tenants, list customers, and update organization
+settings.
+
+Use the `organization` client on `ScalekitClient`:
+
+```ts wrap showLineNumbers=false
+scalekit.organization.listOrganization({ pageSize: 20 })
+```
+
+{/* Client chrome once — not repeated per method */}
+<div class="sdk-client-chrome">
+  <CB.ClassBrowser
+    name="Organizations"
+    type="client"
+    language="typescript"
+    source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main"
+  >
+  </CB.ClassBrowser>
+</div>
+
+### `createOrganization`
+
+<div class="sdk-method-browser">
+  <CB.ClassBrowser name="Organizations" type="client" language="typescript">
+    <CB.ClassMethod name="createOrganization" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      <p>Create a new organization (tenant) for a B2B customer.</p>
+
+      <CB.ClassMethodInput name="displayName" type="string">
+        {'Name shown for the organization.'}
+      </CB.ClassMethodInput>
+
+      <CB.ClassMethodInput name="options" type="CreateOrganizationOptions">
+        {'Optional. Pass externalId to map the tenant to your system.'}
+      </CB.ClassMethodInput>
+
+      <CB.ClassMethodOutput type="CreateOrganizationResponse">
+        {'Created organization payload.'}
+      </CB.ClassMethodOutput>
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+```ts wrap showLineNumbers=false
+const org = await scalekit.organization.createOrganization('Acme Corporation', {
+  externalId: 'customer_12345',
+})
+
+console.log('Organization ID:', org.organization.id)
+```
+
+### `listOrganization`
+
+<div class="sdk-method-browser">
+  <CB.ClassBrowser name="Organizations" type="client" language="typescript">
+    <CB.ClassMethod name="listOrganization" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      <p>List organizations in your environment with pagination.</p>
+
+      <CB.ClassMethodInput name="options" type="ListOrganizationsOptions">
+        {'Optional page size, cursor, and filters.'}
+      </CB.ClassMethodInput>
+
+      <CB.ClassMethodOutput type="ListOrganizationsResponse">
+        {'Paginated organizations and total count.'}
+      </CB.ClassMethodOutput>
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+```ts wrap showLineNumbers=false
+const response = await scalekit.organization.listOrganization({
+  pageSize: 20,
+})
+
+console.log('Organizations:', response.organizations)
+console.log('Total:', response.totalSize)
+```
+
+### `getOrganization`
+
+<div class="sdk-method-browser">
+  <CB.ClassBrowser name="Organizations" type="client" language="typescript">
+    <CB.ClassMethod name="getOrganization" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      <p>Get one organization by its Scalekit ID.</p>
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        {'Scalekit organization ID.'}
+      </CB.ClassMethodInput>
+
+      <CB.ClassMethodOutput type="GetOrganizationResponse">
+        {'Full organization record.'}
+      </CB.ClassMethodOutput>
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+```ts wrap showLineNumbers=false
+const response = await scalekit.organization.getOrganization('org_12345')
+const org = response.organization
+
+console.log('Organization:', org.displayName)
+console.log('External ID:', org.externalId)
+```
+
+### `getOrganizationByExternalId`
+
+<div class="sdk-method-browser">
+  <CB.ClassBrowser name="Organizations" type="client" language="typescript">
+    <CB.ClassMethod name="getOrganizationByExternalId" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      <p>Look up an organization with your own external identifier.</p>
+
+      <CB.ClassMethodInput name="externalId" type="string">
+        {'Your system\'s tenant identifier.'}
+      </CB.ClassMethodInput>
+
+      <CB.ClassMethodOutput type="GetOrganizationResponse">
+        {'Full organization record.'}
+      </CB.ClassMethodOutput>
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+```ts wrap showLineNumbers=false
+const response = await scalekit.organization.getOrganizationByExternalId('customer_12345')
+const org = response.organization
+
+console.log('Scalekit ID:', org.id)
+console.log('Organization:', org.displayName)
+```
+
+### `updateOrganization`
+
+<div class="sdk-method-browser">
+  <CB.ClassBrowser name="Organizations" type="client" language="typescript">
+    <CB.ClassMethod name="updateOrganization" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      <p>Update organization fields by Scalekit ID. Only fields you send are changed.</p>
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        {'Scalekit organization ID.'}
+      </CB.ClassMethodInput>
+
+      <CB.ClassMethodInput name="update" type="UpdateOrganizationRequest">
+        {'Fields to change.'}
+      </CB.ClassMethodInput>
+
+      <CB.ClassMethodOutput type="UpdateOrganizationResponse">
+        {'Updated organization.'}
+      </CB.ClassMethodOutput>
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+```ts wrap showLineNumbers=false
+const response = await scalekit.organization.updateOrganization('org_12345', {
+  displayName: 'Acme Corporation (Updated)',
+  metadata: {
+    industry: 'Technology',
+    size: 'Enterprise',
+  },
+})
+```
+
+### `updateOrganizationByExternalId`
+
+<div class="sdk-method-browser">
+  <CB.ClassBrowser name="Organizations" type="client" language="typescript">
+    <CB.ClassMethod name="updateOrganizationByExternalId" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      <p>Update organization fields by external ID.</p>
+
+      <CB.ClassMethodInput name="externalId" type="string">
+        {'Your system\'s tenant identifier.'}
+      </CB.ClassMethodInput>
+
+      <CB.ClassMethodInput name="update" type="UpdateOrganizationRequest">
+        {'Fields to change.'}
+      </CB.ClassMethodInput>
+
+      <CB.ClassMethodOutput type="UpdateOrganizationResponse">
+        {'Updated organization.'}
+      </CB.ClassMethodOutput>
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+```ts wrap showLineNumbers=false
+const response = await scalekit.organization.updateOrganizationByExternalId('customer_12345', {
+  displayName: 'New Company Name',
+})
+```
+
+### `deleteOrganization`
+
+<div class="sdk-method-browser">
+  <CB.ClassBrowser name="Organizations" type="client" language="typescript">
+    <CB.ClassMethod name="deleteOrganization" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      <p>Permanently delete an organization and related data. This cannot be undone.</p>
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        {'Scalekit organization ID.'}
+      </CB.ClassMethodInput>
+
+      <CB.ClassMethodOutput type="void">
+        {'Resolves when deletion completes.'}
+      </CB.ClassMethodOutput>
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+```ts wrap showLineNumbers=false
+await scalekit.organization.deleteOrganization('org_12345')
+console.log('Organization deleted successfully')
+```
+
+### `generatePortalLink`
+
+<div class="sdk-method-browser">
+  <CB.ClassBrowser name="Organizations" type="client" language="typescript">
+    <CB.ClassMethod name="generatePortalLink" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      <p>Create a short-lived Admin Portal URL for SSO/SCIM setup.</p>
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        {'Organization that will configure SSO/SCIM.'}
+      </CB.ClassMethodInput>
+
+      <CB.ClassMethodOutput type="PortalLink">
+        {'One-time portal URL (valid about one minute until opened).'}
+      </CB.ClassMethodOutput>
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+```ts wrap showLineNumbers=false
+app.get('/admin/sso-settings', async (req, res) => {
+  const organizationId = req.user.organizationId
+  const link = await scalekit.organization.generatePortalLink(organizationId)
+  res.redirect(link.location)
+})
+```
+
+### `updateOrganizationSettings`
+
+<div class="sdk-method-browser">
+  <CB.ClassBrowser name="Organizations" type="client" language="typescript">
+    <CB.ClassMethod name="updateOrganizationSettings" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      <p>Enable or disable organization-level features and settings.</p>
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        {'Scalekit organization ID.'}
+      </CB.ClassMethodInput>
+
+      <CB.ClassMethodInput name="settings" type="OrganizationSettings">
+        {'Feature flags and configuration.'}
+      </CB.ClassMethodInput>
+
+      <CB.ClassMethodOutput type="UpdateOrganizationSettingsResponse">
+        {'Updated settings.'}
+      </CB.ClassMethodOutput>
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+```ts wrap showLineNumbers=false
+const response = await scalekit.organization.updateOrganizationSettings('org_12345', {
+  features: [
+    { name: 'sso', enabled: true },
+    { name: 'directory_sync', enabled: true },
+  ],
+})
+```
+
+### `upsertUserManagementSettings`
+
+<div class="sdk-method-browser">
+  <CB.ClassBrowser name="Organizations" type="client" language="typescript">
+    <CB.ClassMethod name="upsertUserManagementSettings" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      <p>Create or update user management limits for an organization.</p>
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        {'Scalekit organization ID.'}
+      </CB.ClassMethodInput>
+
+      <CB.ClassMethodInput name="settings" type="UserManagementSettings">
+        {'Policies such as maxAllowedUsers.'}
+      </CB.ClassMethodInput>
+
+      <CB.ClassMethodOutput type="UserManagementSettings">
+        {'Stored settings.'}
+      </CB.ClassMethodOutput>
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+```ts wrap showLineNumbers=false
+const settings = await scalekit.organization.upsertUserManagementSettings('org_12345', {
+  maxAllowedUsers: 100,
+})
+
+console.log('Max users allowed:', settings?.maxAllowedUsers)
+```
+
+</div>

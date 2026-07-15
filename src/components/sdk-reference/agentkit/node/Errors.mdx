@@ -1,0 +1,27 @@
+```ts
+import {
+  ScalekitNotFoundException,
+  ScalekitServerException,
+} from '@scalekit-sdk/node';
+
+try {
+  const account = await scalekit.actions.getConnectedAccount({
+    connectionName: 'gmail',
+    identifier: 'user@example.com',
+  });
+} catch (err) {
+  if (err instanceof ScalekitNotFoundException) {
+    // Account does not exist: create it or redirect to auth
+  } else if (err instanceof ScalekitServerException) {
+    // Network or server error
+    console.error(err);
+  }
+}
+```
+
+| Exception | When raised |
+|---|---|
+| `ScalekitNotFoundException` | Resource not found |
+| `ScalekitUnauthorizedException` | Invalid credentials |
+| `ScalekitForbiddenException` | Insufficient permissions |
+| `ScalekitServerException` | Base class for all server errors |

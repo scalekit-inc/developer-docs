@@ -1,0 +1,34 @@
+### Exception Hierarchy
+
+Scalekit SDK uses a typed exception hierarchy rooted at `ScalekitException`:
+
+- `ScalekitException` (base)
+  - `ScalekitValidateTokenFailureException` - Token validation failures
+  - `ScalekitServerException` - HTTP errors (400-599)
+    - Specific subclasses for each status code (400, 401, 403, 404, 409, 422, 429, 500, 502, 503, 504)
+  - `WebhookVerificationError` - Webhook signature verification failures
+
+### Usage Example
+
+```typescript
+import { ScalekitServerException } from '@scalekit-sdk/node';
+
+try {
+  const result = await scalekitClient.organization.getOrganization('invalid_id');
+} catch (error) {
+  if (error instanceof ScalekitServerException) {
+    console.log('HTTP Status:', error.httpStatus);
+    console.log('Error Code:', error.errorCode);
+    console.log('Message:', error.message);
+  }
+}
+```
+
+### ScalekitServerException Properties
+
+- `grpcStatus`: gRPC status code
+- `httpStatus`: HTTP status code (e.g., 404)
+- `errorCode`: Scalekit error code
+- `message`: Error message
+- `errDetails`: Additional error details
+- `unpackedDetails`: Unpacked protobuf details

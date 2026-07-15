@@ -1,0 +1,85 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="M2M"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main"
+  language="java"
+>
+
+  <CB.ClassMethod name="createOrganizationClient">
+    Creates a new M2M (machine-to-machine) API client for an organization. The plain secret is returned only at creation time and cannot be retrieved again.
+
+  </CB.ClassMethod>
+
+```java
+import com.scalekit.grpc.scalekit.v1.clients.OrganizationClient;
+
+OrganizationClient orgClient = OrganizationClient.newBuilder()
+  .setName("Production Service Account")
+  .build();
+
+client.m2m().createOrganizationClient("org_123", orgClient);
+```
+
+  <CB.ClassMethod name="getOrganizationClient">
+    Retrieves details of a specific M2M client.
+
+  </CB.ClassMethod>
+
+```java
+client.m2m().getOrganizationClient("org_123", "skc_xxxxx");
+```
+
+  <CB.ClassMethod name="updateOrganizationClient">
+    Updates the configuration of an existing M2M client.
+
+  </CB.ClassMethod>
+
+```java
+import com.scalekit.grpc.scalekit.v1.clients.OrganizationClient;
+
+OrganizationClient updates = OrganizationClient.newBuilder()
+  .setName("Updated Service Account Name")
+  .build();
+
+client.m2m().updateOrganizationClient("org_123", "skc_xxxxx", updates);
+```
+
+  <CB.ClassMethod name="deleteOrganizationClient">
+    Permanently deletes an M2M client from an organization. This operation cannot be undone and all associated secrets are invalidated.
+
+  </CB.ClassMethod>
+
+```java
+client.m2m().deleteOrganizationClient("org_123", "skc_xxxxx");
+```
+
+  <CB.ClassMethod name="createOrganizationClientSecret">
+    Creates a new secret for an M2M client. The plain secret value is returned only at creation time and cannot be retrieved again.
+
+  </CB.ClassMethod>
+
+```java
+client.m2m().createOrganizationClientSecret("org_123", "skc_xxxxx");
+```
+
+  <CB.ClassMethod name="deleteOrganizationClientSecret">
+    Permanently deletes a secret from an M2M client.
+
+  </CB.ClassMethod>
+
+```java
+client.m2m().deleteOrganizationClientSecret("org_123", "skc_xxxxx", "sks_xxxxx");
+```
+
+  <CB.ClassMethod name="listOrganizationClients">
+    Lists all M2M clients for an organization with pagination.
+
+  </CB.ClassMethod>
+
+```java
+client.m2m().listOrganizationClients("org_123", 20, "");
+```
+
+</CB.ClassBrowser>

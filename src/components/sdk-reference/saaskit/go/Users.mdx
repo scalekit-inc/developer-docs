@@ -1,0 +1,168 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="Users"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main"
+  language="go"
+>
+
+  <CB.ClassMethod name="ListUsers">
+    Lists users across the environment with optional pagination. Pass `nil` options to use server defaults.
+
+  </CB.ClassMethod>
+
+```go
+users, err := client.User().ListUsers(ctx, &scalekit.ListUsersOptions{
+  PageSize:  50,
+  PageToken: "",
+})
+if err != nil {
+  // handle
+}
+for _, u := range users.Users {
+  _ = u
+}
+```
+
+  <CB.ClassMethod name="ListOrganizationUsers">
+    Lists users in an organization (paginated).
+
+  </CB.ClassMethod>
+
+```go
+users, err := client.User().ListOrganizationUsers(ctx, "org_123", &scalekit.ListUsersOptions{
+  PageSize:  10,
+  PageToken: "",
+})
+if err != nil {
+  // handle
+}
+_ = users.Users
+```
+
+  <CB.ClassMethod name="GetUser">
+    Fetches a user by user ID.
+
+  </CB.ClassMethod>
+
+```go
+user, err := client.User().GetUser(ctx, "usr_123")
+if err != nil {
+  // handle
+}
+_ = user.User
+```
+
+  <CB.ClassMethod name="UpdateUser">
+    Updates a user by user ID.
+
+  </CB.ClassMethod>
+
+```go
+firstName := "Test"
+lastName := "User"
+name := "Test User"
+locale := "en-US"
+
+updated, err := client.User().UpdateUser(ctx, "usr_123", &users.UpdateUser{
+  UserProfile: &users.UpdateUserProfile{
+    FirstName: &firstName,
+    LastName:  &lastName,
+    Name:      &name,
+    Locale:    &locale,
+  },
+})
+if err != nil {
+  // handle
+}
+_ = updated.User
+```
+
+  <CB.ClassMethod name="CreateUserAndMembership">
+    Creates a user and adds them to an organization with a membership.
+
+  </CB.ClassMethod>
+
+```go
+created, err := client.User().CreateUserAndMembership(ctx, "org_123", &users.CreateUser{
+  Email: "test.user@example.com",
+  Metadata: map[string]string{
+    "source": "test",
+  },
+}, true)
+if err != nil {
+  // handle
+}
+_ = created.User.Id
+```
+
+  <CB.ClassMethod name="DeleteUser">
+    Deletes a user by user ID.
+
+  </CB.ClassMethod>
+
+```go
+if err := client.User().DeleteUser(ctx, "usr_123"); err != nil {
+  // handle
+}
+```
+
+  <CB.ClassMethod name="CreateMembership">
+    Creates a membership for an existing user in an organization.
+
+  </CB.ClassMethod>
+
+```go
+resp, err := client.User().CreateMembership(ctx, "org_123", "usr_123", &users.CreateMembership{
+  Roles: []*commons.Role{{Name: "admin"}},
+  Metadata: map[string]string{
+    "membership_type": "test",
+  },
+}, false)
+if err != nil {
+  // handle
+}
+_ = resp.User
+```
+
+  <CB.ClassMethod name="UpdateMembership">
+    Updates a membership for a user within an organization.
+
+  </CB.ClassMethod>
+
+```go
+resp, err := client.User().UpdateMembership(ctx, "org_123", "usr_123", &users.UpdateMembership{
+  Roles: []*commons.Role{{Name: "member"}},
+})
+if err != nil {
+  // handle
+}
+_ = resp.User
+```
+
+  <CB.ClassMethod name="DeleteMembership">
+    Deletes a membership for a user from an organization. If `cascade` is true, the API may also delete related resources (behavior depends on backend).
+
+  </CB.ClassMethod>
+
+```go
+if err := client.User().DeleteMembership(ctx, "org_123", "usr_123", false); err != nil {
+  // handle
+}
+```
+
+  <CB.ClassMethod name="ResendInvite">
+    Resends a pending invite for a user in an organization.
+
+  </CB.ClassMethod>
+
+```go
+resp, err := client.User().ResendInvite(ctx, "org_123", "usr_123")
+if err != nil {
+  // handle
+}
+_ = resp.Invite
+```
+
+</CB.ClassBrowser>
