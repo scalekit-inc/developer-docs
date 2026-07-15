@@ -1,16 +1,18 @@
 ---
+/**
+ * AgentKit SDKs home — language cards + left sidebar.
+ */
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
 import { getCollection } from 'astro:content'
 import FoldCard from '@components/ui/FoldCard.astro'
 import { Badge } from '@astrojs/starlight/components'
 import { getSDKConfigs, formatTimeAgo, type SDKConfig } from '@/utils/release-helpers'
 import '@/styles/pages/sdks.css'
+import '@/styles/sdk-reference.css'
 
-// Load GitHub releases and get latest release data for AgentKit SDKs (Node.js and Python only)
 const releases = await getCollection('github-releases')
 const allSdkConfigs = getSDKConfigs(releases)
 
-// AgentKit supports Node.js and Python only
 const sdkConfigs: Record<string, SDKConfig> = {
   node: { ...allSdkConfigs.node, href: '/agentkit/sdks/node/' },
   python: { ...allSdkConfigs.python, href: '/agentkit/sdks/python/' },
@@ -18,16 +20,21 @@ const sdkConfigs: Record<string, SDKConfig> = {
 
 const frontmatter = {
   title: 'AgentKit SDKs',
-  template: 'splash' as const,
-  description: 'Official SDKs for integrating AgentKit into your Node.js and Python applications',
+  description: 'Node.js and Python SDKs for AgentKit — connected accounts, tools, and agent auth',
+  template: 'doc' as const,
+  topic: 'agentkit-sdks',
   tableOfContents: false,
   prev: false,
   next: false,
 }
 ---
 
-<StarlightPage frontmatter={frontmatter} hasSidebar={false}>
-  <div class="sdk-section-layout">
+<StarlightPage frontmatter={frontmatter} hasSidebar={true}>
+  <div class="sdk-hub-with-sidebar">
+    <p>
+      Install a language SDK from the cards below, or use the left sidebar to open Installation and
+      client pages.
+    </p>
     <div class="sdk-cards-grid" style="grid-template-columns: repeat(2, 1fr);">
       {
         (Object.values(sdkConfigs) as SDKConfig[]).map((sdk: SDKConfig) => (
@@ -36,9 +43,10 @@ const frontmatter = {
               title={sdk.title}
               iconKey={sdk.icon}
               href={sdk.href}
-              showCta={false}
+              showCta={true}
+              cta="Get Started →"
               showTitle={false}
-              clickable={true}
+              clickable={false}
               ctaSmall={true}
             >
               <div class="sdk-card-header-meta">
@@ -61,10 +69,9 @@ const frontmatter = {
 
               <div class="sdk-bottom-row">
                 <div class="sdk-meta-row">
-                  <span class="get-started-link">View SDK →</span>
                   {sdk.release && sdk.release.repoStargazerCount > 50 && (
                     <div class="meta-item" title="GitHub Stars">
-                      ⭐ {sdk.release.repoStargazerCount}
+                      {sdk.release.repoStargazerCount} stars
                     </div>
                   )}
                 </div>

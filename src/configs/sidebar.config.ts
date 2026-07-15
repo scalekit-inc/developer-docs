@@ -1,4 +1,13 @@
 import { createSectionHeader, createSpacing } from './sidebar-utils'
+import { buildLanguageGroup } from './sdk-sidebar'
+import saaskitNodeNav from '../components/sdk-reference/saaskit/node/_nav.json'
+import saaskitPythonNav from '../components/sdk-reference/saaskit/python/_nav.json'
+import saaskitGoNav from '../components/sdk-reference/saaskit/go/_nav.json'
+import saaskitJavaNav from '../components/sdk-reference/saaskit/java/_nav.json'
+import agentkitNodeNav from '../components/sdk-reference/agentkit/node/_nav.json'
+import agentkitPythonNav from '../components/sdk-reference/agentkit/python/_nav.json'
+import saaskitExpoNav from '../components/sdk-reference/saaskit/expo/_nav.json'
+import saaskitIosNav from '../components/sdk-reference/saaskit/ios/_nav.json'
 
 export const sidebar = [
   {
@@ -142,14 +151,7 @@ export const sidebar = [
         items: [
           'agentkit/overview',
           { label: 'Quickstart (AgentKit)', link: 'agentkit/quickstart' },
-          {
-            label: 'SDKs',
-            collapsed: true,
-            items: [
-              { label: 'Node.js SDK', link: '/agentkit/sdks/node/' },
-              { label: 'Python SDK', link: '/agentkit/sdks/python/' },
-            ],
-          },
+          { label: 'SDKs', link: '/agentkit/sdks/' },
           {
             label: 'Code samples',
             collapsed: true,
@@ -267,6 +269,10 @@ export const sidebar = [
         label: 'SDKs & APIs',
         items: [
           'dev-kit/sdks',
+          {
+            label: 'TEMP: Class Browser playground',
+            link: 'dev-kit/class-browser-playground',
+          },
           {
             label: 'APIs',
             link: '/apis/#description/overview',
@@ -547,53 +553,27 @@ export const sidebar = [
     ],
   },
   {
-    label: 'SDKs & APIs',
-    id: 'sdks',
-    link: '/sdks/',
+    label: 'SaaSKit SDKs',
+    id: 'saaskit-sdks',
+    link: '/saaskit/sdks/',
     icon: 'seti:webpack',
     items: [
-      {
-        label: 'Node.js SDK',
-        items: [
-          { label: 'Overview', link: '/sdks/node/' },
-          { label: 'SDK reference', link: '/sdks/node/reference/' },
-        ],
-      },
-      {
-        label: 'Python SDK',
-        items: [
-          { label: 'Overview', link: '/sdks/python/' },
-          { label: 'SDK reference', link: '/sdks/python/reference/' },
-        ],
-      },
-      {
-        label: 'Go SDK',
-        items: [
-          { label: 'Overview', link: '/sdks/go/' },
-          { label: 'SDK reference', link: '/sdks/go/reference/' },
-        ],
-      },
-      {
-        label: 'Java SDK',
-        items: [
-          { label: 'Overview', link: '/sdks/java/' },
-          { label: 'SDK reference', link: '/sdks/java/reference/' },
-        ],
-      },
-      {
-        label: 'Expo SDK',
-        link: '/sdks/expo/',
-        // Note: No SDK reference yet - only Overview page
-      },
-      {
-        label: 'iOS SDK',
-        link: '/sdks/ios/',
-      },
-      {
-        label: 'APIs',
-        link: '/apis/#description/overview',
-        attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
-      },
+      buildLanguageGroup('saaskit', 'node', saaskitNodeNav),
+      buildLanguageGroup('saaskit', 'python', saaskitPythonNav),
+      buildLanguageGroup('saaskit', 'go', saaskitGoNav),
+      buildLanguageGroup('saaskit', 'java', saaskitJavaNav),
+      buildLanguageGroup('saaskit', 'expo', saaskitExpoNav),
+      buildLanguageGroup('saaskit', 'ios', saaskitIosNav),
+    ],
+  },
+  {
+    label: 'AgentKit SDKs',
+    id: 'agentkit-sdks',
+    link: '/agentkit/sdks/',
+    icon: 'seti:javascript',
+    items: [
+      buildLanguageGroup('agentkit', 'node', agentkitNodeNav),
+      buildLanguageGroup('agentkit', 'python', agentkitPythonNav),
     ],
   },
 ]
@@ -642,6 +622,10 @@ export const topics = {
 
   // Agent connectors (dedicated connectors sidebar — must come before connect)
   'agent-connectors': ['/agentkit/connectors/**/*'],
+
+  // Product SDK sidebars (before connect catch-all)
+  'agentkit-sdks': ['/agentkit/sdks/**/*'],
+  'saaskit-sdks': ['/saaskit/sdks/**/*', '/sdks', '/sdks/', '/sdks/expo/**/*', '/sdks/ios/**/*'],
 
   // AgentKit / Connect
   connect: ['/agentkit/**/*'],
@@ -782,8 +766,9 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
     },
   },
 
-  // SDKs sidebar → 'SDKs' tab
-  sdks: 'sdks',
+  // Product SDK sidebars → product SDKs tabs
+  'saaskit-sdks': 'saaskit-sdks',
+  'agentkit-sdks': 'agentkit-sdks',
 
   // Events reference sidebar → 'Webhooks' tab under API Reference
   'events-reference': 'webhooks-events',

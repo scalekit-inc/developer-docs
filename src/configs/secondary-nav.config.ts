@@ -2,7 +2,6 @@ import {
   IconMcp,
   IconApi,
   IconSdk,
-  IconMdiCubeOutline,
   IconCodiconDebugStart,
   IconMaterialSymbolsShieldLockOutlineRounded,
   IconPhUsersFourLight,
@@ -36,32 +35,6 @@ export interface NavItem {
   shared?: boolean
 }
 
-// SDKs & APIs is shared across both products until the SDK docs are split per product.
-// TODO: replace this with product-specific SDK entries when Agent Kit and SaaS Kit SDK docs are ready
-const sharedSdksItem: NavItem = {
-  id: 'api-reference',
-  href: '#sdks-apis',
-  label: 'SDKs & APIs',
-  iconComponent: IconMdiCubeOutline,
-  shared: true,
-  children: [
-    {
-      id: 'sdks',
-      href: '/sdks/',
-      label: 'SDKs',
-      iconComponent: IconSdk,
-      description: 'Ready-to-use libraries to implement auth in your app',
-    },
-    {
-      id: 'rest-apis',
-      href: '/saaskit/apis/#description/quickstart',
-      label: 'REST APIs',
-      iconComponent: IconApi,
-      description: 'Programmatic control to manage users, orgs, sessions etc.',
-    },
-  ],
-}
-
 const agentKitItems: NavItem[] = [
   {
     id: 'agentkit-quickstart',
@@ -84,7 +57,7 @@ const agentKitItems: NavItem[] = [
   {
     id: 'agentkit-api-reference',
     href: '/agentkit/apis/#description/quickstart',
-    label: 'API reference',
+    label: 'APIs',
     iconComponent: IconApi,
   },
 ]
@@ -186,7 +159,18 @@ const saasKitItems: NavItem[] = [
       },
     ],
   },
-  sharedSdksItem,
+  {
+    id: 'saaskit-sdks',
+    href: '/sdks/',
+    label: 'SDKs',
+    iconComponent: IconSdk,
+  },
+  {
+    id: 'saaskit-apis',
+    href: '/saaskit/apis/#description/quickstart',
+    label: 'APIs',
+    iconComponent: IconApi,
+  },
 ]
 
 export const secondaryNavConfig: Record<'agentkit' | 'saaskit', NavItem[]> = {

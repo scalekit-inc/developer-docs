@@ -1,0 +1,145 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="Directories"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main"
+  language="go"
+>
+
+  <CB.ClassMethod name="CreateDirectory">
+    Creates a directory for an organization.
+
+  </CB.ClassMethod>
+
+```go
+import (
+  directoriesv1 "github.com/scalekit-inc/scalekit-sdk-go/v2/pkg/grpc/scalekit/v1/directories"
+)
+
+created, err := client.Directory().CreateDirectory(ctx, "org_123", &directoriesv1.CreateDirectory{
+  DirectoryType:     directoriesv1.DirectoryType_SCIM,
+  DirectoryProvider: directoriesv1.DirectoryProvider_OKTA,
+})
+if err != nil {
+  // handle
+}
+_ = created.Directory
+```
+
+  <CB.ClassMethod name="DeleteDirectory">
+    Deletes a directory by ID within an organization.
+
+  </CB.ClassMethod>
+
+```go
+if err := client.Directory().DeleteDirectory(ctx, "org_123", "dir_456"); err != nil {
+  // handle
+}
+```
+
+  <CB.ClassMethod name="ListDirectories">
+    Lists directories for an organization.
+
+  </CB.ClassMethod>
+
+```go
+dirs, err := client.Directory().ListDirectories(ctx, "org_123")
+if err != nil {
+  // handle
+}
+_ = dirs.Directories
+```
+
+  <CB.ClassMethod name="GetDirectory">
+    Fetches a directory by ID within an organization.
+
+  </CB.ClassMethod>
+
+```go
+dir, err := client.Directory().GetDirectory(ctx, "org_123", "dir_123")
+if err != nil {
+  // handle
+}
+_ = dir.Directory
+```
+
+  <CB.ClassMethod name="GetPrimaryDirectoryByOrganizationId">
+    Convenience helper to return the first directory for an organization (if any).
+
+  </CB.ClassMethod>
+
+```go
+dir, err := client.Directory().GetPrimaryDirectoryByOrganizationId(ctx, "org_123")
+if err != nil {
+  // handle
+}
+_ = dir.Directory
+```
+
+  <CB.ClassMethod name="ListDirectoryUsers">
+    Lists users from a directory (paginated). Supports optional `UpdatedAfter`, group filtering, and detail inclusion.
+
+  </CB.ClassMethod>
+
+```go
+includeDetail := true
+updatedAfter := time.Unix(1729851960, 0)
+
+resp, err := client.Directory().ListDirectoryUsers(ctx, "org_123", "dir_123", &scalekit.ListDirectoryUsersOptions{
+  PageSize:      10,
+  PageToken:     "",
+  IncludeDetail: &includeDetail,
+  UpdatedAfter:  &updatedAfter,
+})
+if err != nil {
+  // handle
+}
+_ = resp.Users
+```
+
+  <CB.ClassMethod name="ListDirectoryGroups">
+    Lists groups from a directory (paginated).
+
+  </CB.ClassMethod>
+
+```go
+includeDetail := true
+resp, err := client.Directory().ListDirectoryGroups(ctx, "org_123", "dir_123", &scalekit.ListDirectoryGroupsOptions{
+  PageSize:      10,
+  PageToken:     "",
+  IncludeDetail: &includeDetail,
+})
+if err != nil {
+  // handle
+}
+_ = resp.Groups
+```
+
+  <CB.ClassMethod name="EnableDirectory">
+    Enables a directory for an organization.
+
+  </CB.ClassMethod>
+
+```go
+resp, err := client.Directory().EnableDirectory(ctx, "org_123", "dir_123")
+if err != nil {
+  // handle
+}
+_ = resp.Enabled
+```
+
+  <CB.ClassMethod name="DisableDirectory">
+    Disables a directory for an organization.
+
+  </CB.ClassMethod>
+
+```go
+resp, err := client.Directory().DisableDirectory(ctx, "org_123", "dir_123")
+if err != nil {
+  // handle
+}
+_ = resp.Enabled
+```
+
+</CB.ClassBrowser>

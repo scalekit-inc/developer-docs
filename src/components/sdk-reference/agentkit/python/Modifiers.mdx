@@ -1,0 +1,22 @@
+Modifiers intercept tool calls to transform inputs or outputs, useful for validation, enrichment, or logging.
+
+```python
+@actions.pre_modifier(tool_names=["gmail_fetch_emails"])
+def add_default_label(tool_input):
+    tool_input.setdefault("label", "UNREAD")
+    return tool_input
+
+@actions.post_modifier(tool_names=["gmail_fetch_emails"])
+def filter_attachments(tool_output):
+    tool_output["emails"] = [e for e in tool_output["emails"] if not e.get("has_attachment")]
+    return tool_output
+```
+
+| Decorator | Receives | Returns |
+|---|---|---|
+| `@actions.pre_modifier(tool_names)` | `dict` | Modified `dict` |
+| `@actions.post_modifier(tool_names)` | `dict` | Modified `dict` |
+
+`tool_names` accepts a string or a list of strings. Multiple modifiers for the same tool chain in registration order.
+
+---

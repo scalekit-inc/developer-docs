@@ -449,4 +449,17 @@ export const redirects = {
   // Additional API subpaths and variants seen in agent evals
   '/apis/connected-accounts': '/apis',
   '/apis/connected-accounts/*': '/apis',
+
+  // =============================================================================
+  // SDK PATHS → product-scoped SaaSKit SDKs (preserve public links)
+  // One entry per path (trailing-slash form) to avoid Astro redirect collisions.
+  // =============================================================================
+  '/sdks/node': '/saaskit/sdks/node/',
+  '/sdks/node/reference': '/saaskit/sdks/node/',
+  '/sdks/python': '/saaskit/sdks/python/',
+  '/sdks/python/reference': '/saaskit/sdks/python/',
+  '/sdks/go': '/saaskit/sdks/go/',
+  '/sdks/go/reference': '/saaskit/sdks/go/',
+  '/sdks/java': '/saaskit/sdks/java/',
+  '/sdks/java/reference': '/saaskit/sdks/java/',
 }

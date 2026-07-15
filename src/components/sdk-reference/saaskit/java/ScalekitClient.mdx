@@ -1,0 +1,196 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="ScalekitClient"
+  type="class"
+  source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main"
+  language="java"
+>
+
+  <CB.ClassMethod name="ScalekitClient">
+    Creates a new Scalekit client instance configured for your environment, and provides access to all API clients (organizations, users, connections, directories, API tokens, M2M clients, etc.).
+
+  </CB.ClassMethod>
+
+```java
+import com.scalekit.ScalekitClient;
+
+ScalekitClient client = new ScalekitClient(
+  "https://<your-env>.scalekit.com",
+  "<client_id>",
+  "<client_secret>"
+);
+```
+
+  <CB.ClassMethod name="organizations">
+    Returns an <a href="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/OrganizationClient.java">OrganizationClient</a> for managing organizations (tenants).
+
+  </CB.ClassMethod>
+
+```java
+client.organizations().getById("org_123");
+```
+
+  <CB.ClassMethod name="connections">
+    Returns a <a href="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/ConnectionClient.java">ConnectionClient</a> for managing SSO connections.
+
+  </CB.ClassMethod>
+
+```java
+client.connections().listConnectionsByOrganization("org_123");
+```
+
+  <CB.ClassMethod name="users">
+    Returns a <a href="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/UserClient.java">UserClient</a> for managing users and org memberships.
+
+  </CB.ClassMethod>
+
+```java
+client.users().getUser("user_123");
+```
+
+  <CB.ClassMethod name="domains">
+    Returns a <a href="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/DomainClient.java">DomainClient</a> for managing organization domains.
+
+  </CB.ClassMethod>
+
+```java
+client.domains().listDomainsByOrganizationId("org_123");
+```
+
+  <CB.ClassMethod name="directories">
+    Returns a <a href="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/DirectoryClient.java">DirectoryClient</a> for managing directories and directory resources (users/groups).
+
+  </CB.ClassMethod>
+
+```java
+client.directories().listDirectories("org_123");
+```
+
+  <CB.ClassMethod name="sessions">
+    Returns a <a href="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/SessionClient.java">SessionClient</a> for session retrieval and revocation.
+
+  </CB.ClassMethod>
+
+```java
+client.sessions().getSession("sess_123");
+```
+
+  <CB.ClassMethod name="roles">
+    Returns a <a href="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/RoleClient.java">RoleClient</a> for environment and organization role management.
+
+  </CB.ClassMethod>
+
+```java
+client.roles().listRoles();
+```
+
+  <CB.ClassMethod name="permissions">
+    Returns a <a href="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/PermissionClient.java">PermissionClient</a> for permission management and role-permission relationships.
+
+  </CB.ClassMethod>
+
+```java
+client.permissions().listPermissions();
+```
+
+  <CB.ClassMethod name="passwordless">
+    Returns a <a href="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/PasswordlessClient.java">PasswordlessClient</a> for passwordless auth flows (magic links / OTP).
+
+  </CB.ClassMethod>
+
+```java
+client.passwordless().sendPasswordlessEmail("user@acme.com");
+```
+
+  <CB.ClassMethod name="webAuthn">
+    Returns a <a href="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/WebAuthnClient.java">WebAuthnClient</a> for WebAuthn credential management.
+
+  </CB.ClassMethod>
+
+```java
+client.webAuthn().listCredentials("user_123");
+```
+
+  <CB.ClassMethod name="authentication">
+    Returns an <a href="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/AuthClient.java">AuthClient</a> for OAuth flows, token validation, and token exchange.
+
+  </CB.ClassMethod>
+
+```java
+client.authentication().getClientAccessToken();
+```
+
+  <CB.ClassMethod name="webhook">
+    Returns a <a href="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/webhooks/Webhook.java">Webhook</a> verifier for validating Scalekit webhook payload signatures.
+
+  </CB.ClassMethod>
+
+```java
+import java.util.Map;
+
+boolean ok = client.webhook().verifyWebhookPayload(
+  "whsec_...",
+  headers,
+  payloadBytes
+);
+```
+
+  <CB.ClassMethod name="verifyWebhookPayload">
+    Verifies the authenticity and integrity of webhook payloads from Scalekit. This validates the HMAC signature and timestamp (5-minute tolerance window) to ensure the webhook was sent by Scalekit and hasn't been tampered with.
+
+  </CB.ClassMethod>
+
+```java
+import java.util.Map;
+
+Map<String, String> headers = new java.util.HashMap<>();
+headers.put("webhook-id", "<id>");
+headers.put("webhook-timestamp", "<epoch_seconds>");
+headers.put("webhook-signature", "v1,<base64sig>");
+
+byte[] payload = requestBodyBytes;
+
+boolean isValid = client.webhook().verifyWebhookPayload("whsec_...", headers, payload);
+```
+
+  <CB.ClassMethod name="ScalekitInterceptor">
+    Verifies the authenticity and integrity of interceptor payloads from Scalekit. This validates the HMAC signature and timestamp (5-minute tolerance window) to ensure the interceptor request was sent by Scalekit and hasn't been tampered with.
+
+  </CB.ClassMethod>
+
+```java
+import com.scalekit.webhooks.ScalekitInterceptor;
+import java.util.Map;
+
+ScalekitInterceptor interceptor = new ScalekitInterceptor();
+
+Map<String, String> headers = new java.util.HashMap<>();
+headers.put("interceptor-id", "<id>");
+headers.put("interceptor-timestamp", "<epoch_seconds>");
+headers.put("interceptor-signature", "v1,<base64sig>");
+
+byte[] payload = requestBodyBytes;
+
+boolean isValid = interceptor.verifyInterceptorPayload("insec_...", headers, payload);
+```
+
+  <CB.ClassMethod name="tokens">
+    Returns a <a href="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/TokenClient.java">TokenClient</a> for managing API tokens (programmatic access credentials).
+
+  </CB.ClassMethod>
+
+```java
+client.tokens().create("org_123");
+```
+
+  <CB.ClassMethod name="m2m">
+    Returns a <a href="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/M2MClient.java">M2MClient</a> for managing machine-to-machine API clients.
+
+  </CB.ClassMethod>
+
+```java
+client.m2m().listOrganizationClients("org_123", 20, "");
+```
+
+</CB.ClassBrowser>

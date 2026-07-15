@@ -1,0 +1,122 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="Permission"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main"
+  language="python"
+>
+
+  <CB.ClassMethod name="list_permissions">
+    Lists all permissions with pagination support.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.permissions.list_permissions(
+    page_size=50
+)
+
+for permission in response[0].permissions:
+    print(f"Permission: {permission.name}")
+```
+
+  <CB.ClassMethod name="get_permission">
+    Retrieves permission details by permission name.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.permissions.get_permission('write:articles')
+permission = response[0].permission
+```
+
+  <CB.ClassMethod name="create_permission">
+    Creates a new permission.
+
+  </CB.ClassMethod>
+
+```python
+from scalekit.v1.roles.roles_pb2 import CreatePermission
+
+permission = CreatePermission()
+permission.name = "write:articles"
+permission.description = "Permission to write articles"
+
+response = scalekit_client.permissions.create_permission(permission)
+```
+
+  <CB.ClassMethod name="update_permission">
+    Updates an existing permission by name.
+
+  </CB.ClassMethod>
+
+```python
+from scalekit.v1.roles.roles_pb2 import CreatePermission
+
+permission = CreatePermission()
+permission.description = "Updated description"
+
+response = scalekit_client.permissions.update_permission(
+    'write:articles',
+    permission
+)
+```
+
+  <CB.ClassMethod name="delete_permission">
+    Deletes a permission by name.
+
+  </CB.ClassMethod>
+
+```python
+scalekit_client.permissions.delete_permission('write:articles')
+```
+
+  <CB.ClassMethod name="list_role_permissions">
+    Lists all permissions associated with a role.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.permissions.list_role_permissions('editor')
+
+for permission in response[0].permissions:
+    print(f"Permission: {permission.name}")
+```
+
+  <CB.ClassMethod name="add_permissions_to_role">
+    Adds permissions to a role.
+
+  </CB.ClassMethod>
+
+```python
+scalekit_client.permissions.add_permissions_to_role(
+    'editor',
+    ['write:articles', 'edit:articles']
+)
+```
+
+  <CB.ClassMethod name="remove_permission_from_role">
+    Removes a permission from a role.
+
+  </CB.ClassMethod>
+
+```python
+scalekit_client.permissions.remove_permission_from_role(
+    'editor',
+    'write:articles'
+)
+```
+
+  <CB.ClassMethod name="list_effective_role_permissions">
+    Lists all effective permissions for a role including both direct and inherited permissions. This returns the complete set of capabilities available through the role hierarchy.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.permissions.list_effective_role_permissions('senior_editor')
+
+print(f'Total effective permissions: {len(response[0].permissions)}')
+```
+
+</CB.ClassBrowser>

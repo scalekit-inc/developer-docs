@@ -1,0 +1,139 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="ScalekitClient"
+  type="class"
+  source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main"
+  language="python"
+>
+
+  <CB.ClassMethod name="get_authorization_url">
+    Utility method to generate the OAuth 2.0 authorization URL to initiate the SSO authentication flow. This method doesn't make any network calls but instead generates a fully formed Authorization URL as a string that you can redirect your users to initiate authentication.
+
+  </CB.ClassMethod>
+
+```python
+from scalekit import ScalekitClient, AuthorizationUrlOptions
+
+# Initiate Enterprise SSO authentication for a given org_id
+options = AuthorizationUrlOptions()
+options.state = 'random-state-value'
+options.organization_id = 'org_123456'
+
+auth_url = scalekit_client.get_authorization_url(
+    'https://yourapp.com/auth/callback',
+    options
+)
+# Redirect user to auth_url
+```
+
+  <CB.ClassMethod name="authenticate_with_code">
+    Exchanges an authorization code for access tokens and user information. This method completes the OAuth 2.0 authorization code flow by exchanging the code received in the callback for access tokens, ID tokens, and user profile information. Call this method in your redirect URI handler after receiving the authorization code.
+
+  </CB.ClassMethod>
+
+```python
+from scalekit import ScalekitClient
+
+@app.get('/auth/callback')
+async def auth_callback(request):
+    code = request.query_params.get('code')
+
+    result = scalekit_client.authenticate_with_code(
+        code,
+        'https://yourapp.com/auth/callback'
+    )
+
+    request.session['access_token'] = result['access_token']
+    request.session['user'] = result['user']
+
+    return RedirectResponse('/dashboard')
+```
+
+  <CB.ClassMethod name="get_idp_initiated_login_claims">
+    Extracts and validates claims from an IdP-initiated login token. Use this method when handling IdP-initiated SSO flows, where the authentication is initiated from the identity provider's portal rather than your application. This validates the token and returns the necessary information to initiate a new SP Initiated SSO workflow.
+
+  </CB.ClassMethod>
+
+```python
+@app.get('/auth/callback')
+async def auth_callback(request):
+    idp_initiated_login = request.query_params.get('idp_initiated_login')
+
+    if idp_initiated_login:
+        claims = scalekit_client.get_idp_initiated_login_claims(idp_initiated_login)
+
+        options = AuthorizationUrlOptions()
+        options.connection_id = claims['connection_id']
+        options.organization_id = claims['organization_id']
+        options.login_hint = claims.get('login_hint')
+        if claims.get('relay_state'):
+            options.state = claims['relay_state']
+
+        auth_url = scalekit_client.get_authorization_url(
+            'https://yourapp.com/auth/callback',
+            options
+        )
+
+        return RedirectResponse(auth_url)
+```
+
+  <CB.ClassMethod name="validate_access_token">
+    Validates the access token and returns a boolean result.
+
+  </CB.ClassMethod>
+
+```python
+is_valid = scalekit_client.validate_access_token(token)
+if is_valid:
+    # Token is valid, proceed with request
+    pass
+```
+
+  <CB.ClassMethod name="get_logout_url">
+    Returns the logout URL that can be used to log out the user.
+
+  </CB.ClassMethod>
+
+```python
+options = LogoutUrlOptions()
+options.post_logout_redirect_uri = 'https://example.com'
+options.state = 'some-state'
+
+logout_url = scalekit_client.get_logout_url(options)
+```
+
+  <CB.ClassMethod name="verify_webhook_payload">
+    Verifies the webhook payload signature using the provided secret.
+
+  </CB.ClassMethod>
+
+```python
+@app.post('/webhooks')
+async def webhook_handler(request):
+    payload = await request.body()
+    headers = dict(request.headers)
+
+    is_valid = scalekit_client.verify_webhook_payload(
+        'your_webhook_secret',
+        headers,
+        payload
+    )
+
+    if is_valid:
+        # Process webhook
+        pass
+```
+
+  <CB.ClassMethod name="refresh_access_token">
+    Refreshes an access token using a refresh token.
+
+  </CB.ClassMethod>
+
+```python
+result = scalekit_client.refresh_access_token(refresh_token)
+new_access_token = result['access_token']
+new_refresh_token = result['refresh_token']
+```
+
+</CB.ClassBrowser>

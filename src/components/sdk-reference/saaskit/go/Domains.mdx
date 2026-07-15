@@ -1,0 +1,80 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="Domains"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main"
+  language="go"
+>
+
+  <CB.ClassMethod name="CreateDomain">
+    Creates a domain for an organization. The SDK supports backward-compatible signatures: - `CreateDomain(ctx, orgId, domain)` (no options) - `CreateDomain(ctx, orgId, domain, options)` (with options)
+
+  </CB.ClassMethod>
+
+```go
+// Without options (backward compatible)
+created, err := client.Domain().CreateDomain(ctx, "org_123", "acme.com")
+if err != nil {
+  // handle
+}
+_ = created.Domain
+
+// With options
+created2, err := client.Domain().CreateDomain(ctx, "org_123", "acme.com", &scalekit.CreateDomainOptions{
+  DomainType: scalekit.DomainTypeOrganization,
+})
+if err != nil {
+  // handle
+}
+_ = created2.Domain
+```
+
+  <CB.ClassMethod name="GetDomain">
+    Fetches a domain by ID within an organization.
+
+  </CB.ClassMethod>
+
+```go
+domain, err := client.Domain().GetDomain(ctx, "dom_123", "org_123")
+if err != nil {
+  // handle
+}
+_ = domain.Domain
+```
+
+  <CB.ClassMethod name="ListDomains">
+    Lists domains for an organization (supports optional filtering and pagination).
+
+  </CB.ClassMethod>
+
+```go
+// List all domains
+all, err := client.Domain().ListDomains(ctx, "org_123")
+if err != nil {
+  // handle
+}
+_ = all.Domains
+
+// Filter by domain type
+orgDomains, err := client.Domain().ListDomains(ctx, "org_123", &scalekit.ListDomainOptions{
+  DomainType: scalekit.DomainTypeOrganization,
+})
+if err != nil {
+  // handle
+}
+_ = orgDomains.Domains
+```
+
+  <CB.ClassMethod name="DeleteDomain">
+    Deletes a domain by ID within an organization.
+
+  </CB.ClassMethod>
+
+```go
+if err := client.Domain().DeleteDomain(ctx, "dom_123", "org_123"); err != nil {
+  // handle
+}
+```
+
+</CB.ClassBrowser>

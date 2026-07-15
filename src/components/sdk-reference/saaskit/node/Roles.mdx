@@ -1,0 +1,174 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="Roles"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main"
+  language="typescript"
+>
+
+  <CB.ClassMethod name="createRole">
+    Creates a new environment-level role with specified permissions. Environment roles are available across all organizations in your environment.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekitClient.role.createRole({
+  name: 'content_editor',
+  displayName: 'Content Editor',
+  description: 'Can create and edit content',
+  permissions: ['content:read', 'content:write', 'content:edit']
+});
+```
+
+  <CB.ClassMethod name="getRole">
+    Retrieves complete information for a specific environment role.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekitClient.role.getRole('content_editor');
+console.log('Role:', response.role.displayName);
+console.log('Permissions:', response.role.permissions);
+```
+
+  <CB.ClassMethod name="listRoles">
+    Lists all environment-level roles available in your Scalekit environment.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekitClient.role.listRoles();
+response.roles.forEach(role => {
+  console.log(`${role.displayName}: ${role.permissions.length} permissions`);
+});
+```
+
+  <CB.ClassMethod name="updateRole">
+    Updates an existing environment role's properties and permissions. Only specified fields are updated. The new permission list replaces existing permissions.
+
+  </CB.ClassMethod>
+
+```typescript
+await scalekitClient.role.updateRole('content_editor', {
+  displayName: 'Content Editor (Updated)',
+  permissions: ['content:read', 'content:write', 'content:edit', 'content:review']
+});
+```
+
+  <CB.ClassMethod name="deleteRole">
+    Deletes an environment role and reassigns its users to another role. Cannot delete if dependent roles exist. Users must be reassigned before deletion. This operation is irreversible.
+
+  </CB.ClassMethod>
+
+```typescript
+await scalekitClient.role.deleteRole('old_role', 'new_role');
+```
+
+  <CB.ClassMethod name="getRoleUsersCount">
+    Gets the number of users assigned to an environment role. Useful for capacity planning, security auditing, and impact assessment before role changes.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekitClient.role.getRoleUsersCount('admin');
+console.log(`${response.count} users have admin role`);
+```
+
+  <CB.ClassMethod name="createOrganizationRole">
+    Creates a new organization-specific role with custom permissions. Organization roles are scoped to a specific organization for multi-tenant isolation.
+
+  </CB.ClassMethod>
+
+```typescript
+await scalekitClient.role.createOrganizationRole('org_123456', {
+  name: 'department_lead',
+  displayName: 'Department Lead',
+  description: 'Manages department members',
+  permissions: ['dept:members:read', 'dept:members:invite']
+});
+```
+
+  <CB.ClassMethod name="getOrganizationRole">
+    Retrieves details for a specific organization role.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekitClient.role.getOrganizationRole(
+  'org_123456',
+  'department_lead'
+);
+
+console.log('Permissions:', response.role.permissions);
+```
+
+  <CB.ClassMethod name="listOrganizationRoles">
+    Lists all roles available to an organization (environment + organization-specific). Returns both environment-level roles and organization-scoped roles.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekitClient.role.listOrganizationRoles('org_123456');
+response.roles.forEach(role => {
+  console.log(`${role.displayName} (${role.scope})`);
+});
+```
+
+  <CB.ClassMethod name="updateOrganizationRole">
+    Updates an organization role's properties and permissions. Only specified fields are updated. New permissions replace existing ones.
+
+  </CB.ClassMethod>
+
+```typescript
+await scalekitClient.role.updateOrganizationRole('org_123456', 'department_lead', {
+  permissions: ['dept:members:read', 'dept:members:invite', 'dept:members:remove']
+});
+```
+
+  <CB.ClassMethod name="deleteOrganizationRole">
+    Deletes an organization role and reassigns its users. Cannot delete if dependent roles exist. Users must be reassigned. Operation is irreversible.
+
+  </CB.ClassMethod>
+
+```typescript
+await scalekitClient.role.deleteOrganizationRole(
+  'org_123456',
+  'old_role',
+  'new_role'
+);
+```
+
+  <CB.ClassMethod name="getOrganizationRoleUsersCount">
+    Gets the number of users assigned to an organization role.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekitClient.role.getOrganizationRoleUsersCount(
+  'org_123456',
+  'admin'
+);
+
+console.log(`${response.count} admins in this organization`);
+```
+
+  <CB.ClassMethod name="updateDefaultOrganizationRoles">
+    Sets the default role automatically assigned to new organization members. This is the role that is by default assigned to every new user added to this organization.
+
+  </CB.ClassMethod>
+
+```typescript
+await scalekitClient.role.updateDefaultOrganizationRoles('org_123456', 'member');
+```
+
+  <CB.ClassMethod name="deleteOrganizationRoleBase">
+    Removes a role's inheritance relationship, eliminating inherited permissions from base role. Role retains only directly assigned permissions after removal. This action cannot be undone.
+
+  </CB.ClassMethod>
+
+```typescript
+await scalekitClient.role.deleteOrganizationRoleBase('org_123456', 'custom_role');
+```
+
+</CB.ClassBrowser>

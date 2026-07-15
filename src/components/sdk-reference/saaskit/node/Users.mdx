@@ -1,0 +1,153 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="Users"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main"
+  language="typescript"
+>
+
+  <CB.ClassMethod name="createUserAndMembership">
+    Creates a new user and adds them as a member of an organization in a single operation. This is the primary method for user provisioning. It creates the user account and establishes their membership in the specified organization. Optionally sends an invitation email to the user.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekitClient.user.createUserAndMembership(
+  'org_123456',
+  {
+    email: 'john.doe@company.com',
+    userProfile: {
+      firstName: 'John',
+      lastName: 'Doe'
+    },
+    sendInvitationEmail: true,
+    metadata: {
+      department: 'Engineering'
+    }
+  }
+);
+
+console.log('User created:', response.user.id);
+```
+
+  <CB.ClassMethod name="getUser">
+    Retrieves comprehensive details about a specific user including their profile and memberships. Use this method to fetch complete user information including their organization memberships, roles, profile details, and custom metadata.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekitClient.user.getUser('usr_123456');
+const user = response.user;
+
+console.log('User:', user.email);
+console.log('Name:', user.userProfile?.firstName, user.userProfile?.lastName);
+console.log('Organizations:', user.memberships?.length);
+```
+
+  <CB.ClassMethod name="listUsers">
+    Retrieves a paginated list of all users across your Scalekit environment. This method returns all users in your environment regardless of organization membership.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekitClient.user.listUsers({
+  pageSize: 20
+});
+
+console.log('Users:', response.users.length);
+console.log('Total users:', response.totalSize);
+```
+
+  <CB.ClassMethod name="updateUser">
+    Updates a user's profile information and custom metadata. Use this method to modify user profile details such as name or to update custom metadata associated with the user.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekitClient.user.updateUser('usr_123456', {
+  userProfile: {
+    firstName: 'John',
+    lastName: 'Smith'
+  },
+  metadata: {
+    department: 'Engineering',
+    title: 'Senior Developer'
+  }
+});
+```
+
+  <CB.ClassMethod name="deleteUser">
+    Permanently deletes a user from your Scalekit environment. This operation removes the user's profile, all organization memberships, and related data. This action is irreversible.
+
+  </CB.ClassMethod>
+
+```typescript
+await scalekitClient.user.deleteUser('usr_123456');
+console.log('User deleted successfully');
+```
+
+  <CB.ClassMethod name="createMembership">
+    Adds an existing user as a member of a new organization with specified roles. Use this method to grant organization access to users who already have accounts in your Scalekit environment.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekitClient.user.createMembership(
+  'org_123456',
+  'usr_789012',
+  {
+    roles: ['admin'],
+    sendInvitationEmail: true
+  }
+);
+```
+
+  <CB.ClassMethod name="deleteMembership">
+    Removes a user's membership from a specific organization. This operation revokes the user's access to the specified organization while keeping their user account intact.
+
+  </CB.ClassMethod>
+
+```typescript
+await scalekitClient.user.deleteMembership('org_123456', 'usr_789012');
+console.log('User removed from organization');
+```
+
+  <CB.ClassMethod name="updateMembership">
+    Updates a user's roles and metadata within a specific organization. Use this method to modify a user's permissions by changing their assigned roles or to update membership-specific metadata.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekitClient.user.updateMembership(
+  'org_123456',
+  'usr_789012',
+  { roles: ['admin'] }
+);
+```
+
+  <CB.ClassMethod name="listOrganizationUsers">
+    Retrieves a paginated list of all users who are members of a specific organization. This method returns all users with access to the specified organization, including their roles, membership details, and profiles.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekitClient.user.listOrganizationUsers('org_123456', {
+  pageSize: 25
+});
+
+console.log('Organization users:', response.users.length);
+console.log('Total members:', response.totalSize);
+```
+
+  <CB.ClassMethod name="resendInvite">
+    Resends an invitation email to a user for a specific organization. Use this method when a user hasn't received or has lost their invitation email.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekitClient.user.resendInvite('org_123456', 'usr_789012');
+console.log('Invitation resent:', response.invite);
+```
+
+</CB.ClassBrowser>
