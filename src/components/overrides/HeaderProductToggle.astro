@@ -88,6 +88,7 @@ const productLinks = [
               aria-selected={link.isActive}
               data-storage-value={link.storageValue}
               data-label={link.label}
+              data-product-switch
             >
               <div class="item-icon-wrapper">
                 {IconComponent && <IconComponent class="item-icon" />}
@@ -200,6 +201,43 @@ const productLinks = [
         if (!dropdown.contains(e.target as Node) && e.target !== trigger) {
           closeMenu()
         }
+      },
+      { signal },
+    )
+
+    // Product switch: close menu + optimistic label/active state so chrome
+    // updates before the soft navigation paints the new secondary nav.
+    dropdown.addEventListener(
+      'click',
+      (e) => {
+        const option = (e.target as Element | null)?.closest?.('[data-product-switch]')
+        if (!(option instanceof HTMLElement)) return
+
+        const label = option.getAttribute('data-label')
+        const labelEl = trigger.querySelector('.product-label')
+        const prefixEl = trigger.querySelector('.phrase-prefix')
+
+        if (label) {
+          if (labelEl) {
+            labelEl.textContent = label
+          } else if (prefixEl) {
+            const span = document.createElement('span')
+            span.id = 'product-label'
+            span.className = 'product-label'
+            span.textContent = label
+            prefixEl.replaceWith(span)
+            trigger.classList.remove('is-placeholder')
+            trigger.setAttribute('data-has-selection', 'true')
+          }
+        }
+
+        getOptions().forEach((item) => {
+          const active = item === option
+          item.classList.toggle('is-active', active)
+          item.setAttribute('aria-selected', String(active))
+        })
+
+        closeMenu()
       },
       { signal },
     )

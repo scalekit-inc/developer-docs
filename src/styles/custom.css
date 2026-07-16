@@ -633,24 +633,63 @@ main:not(:has(.posts, .post-footer)) .content-panel:nth-of-type(2) {
 /* =============================================================================
    VIEW TRANSITIONS (with Astro <ClientRouter />)
    -----------------------------------------------------------------------------
-   Soft navigations keep chrome stable. Scalar uses renderMode="client" so the
-   API reference remounts on astro:page-load. Short fade — docs feel snappy.
+   Root/chrome stay put; only main content cross-fades quickly so secondary nav
+   and header do not “blink out”. Scalar uses renderMode="client".
    ============================================================================= */
 
-header.header {
-  view-transition-name: sk-site-header;
+@keyframes sk-content-out {
+  to {
+    opacity: 0;
+  }
 }
 
+@keyframes sk-content-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Default: no full-page flash */
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: 0.12s;
-  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Sticky header + product chrome morph in place */
+header.header {
+  view-transition-name: sk-site-header;
 }
 
 ::view-transition-old(sk-site-header),
 ::view-transition-new(sk-site-header) {
   animation: none;
   mix-blend-mode: normal;
+}
+
+/* Secondary nav swaps in-place with a tight cross-fade (product switch) */
+.secondary-nav {
+  view-transition-name: sk-secondary-nav;
+}
+
+::view-transition-old(sk-secondary-nav),
+::view-transition-new(sk-secondary-nav) {
+  animation-duration: 0.08s;
+  animation-timing-function: ease-out;
+  mix-blend-mode: normal;
+}
+
+/* Article / API body is the only surface that should feel like “loading” */
+main {
+  view-transition-name: sk-main-content;
+}
+
+::view-transition-old(sk-main-content) {
+  animation: sk-content-out 0.07s ease-out both;
+}
+
+::view-transition-new(sk-main-content) {
+  animation: sk-content-in 0.09s ease-out both;
 }
 
 @media (prefers-reduced-motion: reduce) {
