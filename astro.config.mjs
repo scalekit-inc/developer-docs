@@ -37,12 +37,10 @@ export default defineConfig({
   // Memory-intensive builds: see vite.build settings below.
   output: 'server',
   site: 'https://docs.scalekit.com',
-  // Starlight enables this by default; keep it explicit. Hover-prefetch warms
-  // the next docs page so full navigations feel faster without SPA routing
-  // (which breaks Scalar API reference and some Starlight widgets).
+  // Viewport + manual secondary-nav prefetch so ClientRouter swaps feel instant.
   prefetch: {
     prefetchAll: true,
-    defaultStrategy: 'hover',
+    defaultStrategy: 'viewport',
   },
   server: {
     // Match Netlify dev's readiness probe, which connects to `localhost`.
