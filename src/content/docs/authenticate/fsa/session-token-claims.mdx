@@ -1,11 +1,11 @@
 ---
-title: 'Customize JWT template'
+title: 'Customize session token claims'
 description: 'Add custom claims from a user profile and organization to the JWT access token Scalekit issues at login and session refresh'
 tags: [tokens, jwt, claims, sso, session, customization]
 tableOfContents:
   maxHeadingLevel: 2
 sidebar:
-  label: 'Customize JWT template'
+  label: 'Session token claims'
 head:
   - tag: style
     content: |
@@ -52,13 +52,13 @@ Review the default claims already present on every access token:
 }
 ```
 
-These claims are also listed in your Scalekit dashboard. Navigate to **Dashboard > Customize > Token Claims** to see them.
+These claims are also listed in your Scalekit dashboard. Navigate to **Dashboard > Authentication > Token Claims** to see them.
 
 ## Add a custom claim
 
 To add a custom claim:
 
-1. Navigate to **Dashboard > Customize > Token Claims** and click **Add custom claim**.
+1. Navigate to **Dashboard > Authentication > Token Claims** and click **Add custom claim**.
 2. Configure the new claim:
    - **Claim key** - the name it appears under in the token, for example `plan`.
    - **Expression** - the dot-path to the value, evaluated against `user` or `organization`, for example `organization.metadata.plan`.
@@ -68,7 +68,7 @@ To add a custom claim:
 `sub`, `iss`, `aud`, `exp`, `iat`, `nbf`, `jti`, `oid`, `sid`, `xoid`, `xuid`, `roles`, and `permissions` are already set by Scalekit. Pick a claim key that doesn't collide with these, like `plan` or `a_user_email`.
 </Aside>
 
-![Add custom claim panel with a claim key field and an expression field.](@/assets/docs/jwt-template/add-custom-claim.png)
+![Add custom claim panel with a claim key field and an expression field.](@/assets/docs/session-token-claims/add-custom-claim.png)
 
 Scalekit adds the resolved value to every token going forward:
 
@@ -97,9 +97,9 @@ Anyone holding the access token can decode and read its claims, and tokens are o
 
 ## Preview before you rely on it
 
-The **Token preview** panel on the Token Claims page resolves every claim, default and custom, against a real person. Search for a user, and the JSON view updates with the exact payload that user would get in their next token.
+The **Token preview** panel on the Token Claims page resolves every claim, default and custom, against a real session. Select a user and their organization, and the JSON view updates with the exact payload that session's token would carry.
 
-![Token Claims page showing default and custom claims, with a resolved JWT payload in the preview panel.](@/assets/docs/jwt-template/token-claims-page.png)
+![Token Claims page with a user and an organization selected, showing the resolved JWT payload in the preview panel.](@/assets/docs/session-token-claims/token-claims-page.png)
 
 For a true end-to-end check, sign in through your OIDC flow and decode the access token you receive. Decoding only shows you what a token contains, it doesn't validate it: your API must still verify the signature and check `iss`, `aud`, and the expiry before trusting any claim on it. A custom claim also only reflects the data at the time the token was issued, so an existing token keeps its old value until the user logs in again or the token refreshes.
 
@@ -145,9 +145,11 @@ Every expression reads from one of two objects: `user` or `organization`.
 
 ## Write the expression
 
-The simplest expression is just a field path, like `user.email`. Scalekit evaluates it against the signed-in user and their organization, and the result becomes the claim's value.
+The simplest expression is a field path, like `user.email`. Scalekit evaluates it against the signed-in user and their organization, and the result becomes the claim's value.
 
 Chain a fallback with `??` for when the first field might be missing, for example `user.email ?? user.preferred_username`. It only falls back on a missing or `nil` value, not an empty string.
+
+Once a chain goes more than one level below a field that might not exist, add `?.` at that hop instead of a plain `.`. `?.` short-circuits to a missing value the moment the left side is missing, so `??` can still catch it; a plain `.` on a missing value causes a runtime error instead, which `??` can't resolve. You only need `?.` below the uncertain field, not before it: `organization.metadata` is always present, so `organization.metadata.billing` is safe as-is, but `billing` itself might be missing, so reaching into it needs `organization.metadata.billing?.tier`.
 
 A few more patterns:
 
@@ -156,5 +158,6 @@ A few more patterns:
 | A profile field | `user.email` |
 | Something from your own metadata | `organization.metadata.plan` |
 | A default when a field might be unset | `organization.metadata.plan ?? "free"` |
+| A default two levels below a field that might be missing | `organization.metadata.billing?.tier ?? "free"` |
 
 A few string and array helpers are also available (`split`, `trim`, `len`, `filter`, and more) for anything more involved than a plain lookup.
