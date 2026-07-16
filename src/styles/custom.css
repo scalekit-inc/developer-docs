@@ -631,27 +631,19 @@ main:not(:has(.posts, .post-footer)) .content-panel:nth-of-type(2) {
 }
 
 /* =============================================================================
-   CROSS-DOCUMENT VIEW TRANSITIONS (MPA — Starlight-safe)
+   VIEW TRANSITIONS (with Astro <ClientRouter />)
    -----------------------------------------------------------------------------
-   Native browser transitions between full page loads. Unlike <ClientRouter />,
-   scripts still re-run (Scalar, DocSearch, secondary nav) and no SPA swap is
-   required. Unsupported browsers simply navigate as usual.
-   See: https://docs.astro.build/en/guides/view-transitions/
+   Soft navigations keep chrome stable. Scalar uses renderMode="client" so the
+   API reference remounts on astro:page-load. Short fade — docs feel snappy.
    ============================================================================= */
 
-@view-transition {
-  navigation: auto;
-}
-
-/* Keep sticky chrome stable across navigations */
 header.header {
   view-transition-name: sk-site-header;
 }
 
-/* Short cross-fade — docs should feel instant, not cinematic */
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: 0.14s;
+  animation-duration: 0.12s;
   animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -662,10 +654,6 @@ header.header {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  @view-transition {
-    navigation: none;
-  }
-
   ::view-transition-group(*),
   ::view-transition-old(*),
   ::view-transition-new(*) {

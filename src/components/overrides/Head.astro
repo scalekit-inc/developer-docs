@@ -1,5 +1,6 @@
 ---
 import Default from '@astrojs/starlight/components/Head.astro'
+import { ClientRouter } from 'astro:transitions'
 ---
 
 <!-- LLM-friendly documentation directive — must appear first for AI agent discovery -->
@@ -7,16 +8,15 @@ import Default from '@astrojs/starlight/components/Head.astro'
 <meta name="ai-content-type" content="documentation" />
 
 <!--
-  Navigation smoothness strategy (Starlight-aligned):
-  - Do NOT use Astro <ClientRouter /> SPA mode. Starlight has no first-class
-    support for it; DocSearch/Scalar/sidebar widgets often break after soft nav
-    (see withastro/starlight#3447 and our Scalar blank-page bug).
-  - Starlight already enables hover prefetch by default (prefetchAll).
-  - Cross-document View Transitions are pure CSS in custom.css
-    (@view-transition { navigation: auto }) — full page loads still run, so
-    Scalar and other client SPAs mount correctly, with a short native cross-fade
-    where the browser supports it.
+  Smooth docs navigation (Starlight + Astro utilities):
+  - ClientRouter: soft navigations keep chrome stable (secondary nav does not
+    hard-flash). Pair with transition:persist on the header top row.
+  - Starlight hover prefetch (astro.config) warms the next page.
+  - Scalar API pages MUST use <ScalarComponent renderMode="client" /> so the
+    reference remounts on astro:page-load (see @scalar/astro docs — static
+    mode only runs on hard refresh under ClientRouter).
 -->
+<ClientRouter />
 
 <!-- WebMCP: expose site tools to AI agents via the browser -->
 <script src="/js/webmcp.js" defer></script>
