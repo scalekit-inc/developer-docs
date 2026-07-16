@@ -17,6 +17,16 @@ const searchParams = Astro.url.searchParams
 const activeProduct = getActiveProduct(Astro.url.pathname, entry?.data?.topic, searchParams)
 const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry, searchParams)
 const navItems = secondaryNavConfig[activeProduct]
+
+/** Scalar SPA pages need a full document load (ClientRouter soft-nav leaves them blank). */
+const needsFullReload = (href: string) => {
+  try {
+    const path = new URL(href, 'https://docs.scalekit.com').pathname.replace(/\/+$/, '') || '/'
+    return path === '/apis' || path === '/agentkit/apis' || path === '/saaskit/apis'
+  } catch {
+    return false
+  }
+}
 ---
 
 <nav class="secondary-nav sl-hidden md:sl-flex" aria-label="Main topics navigation">
@@ -54,7 +64,12 @@ const navItems = secondaryNavConfig[activeProduct]
                   </div>
                 </button>
               ) : (
-                <a href={item.href} class={itemClass} aria-current={isCurrent ? 'page' : undefined}>
+                <a
+                  href={item.href}
+                  class={itemClass}
+                  aria-current={isCurrent ? 'page' : undefined}
+                  data-astro-reload={needsFullReload(item.href) ? true : undefined}
+                >
                   <div class="nav-item-content">
                     {IconComponent && <IconComponent class="nav-icon" />}
                     {item.label && <span class="nav-label">{item.label}</span>}
@@ -120,6 +135,7 @@ const navItems = secondaryNavConfig[activeProduct]
                             }
                             data-nav-label={child.label}
                             data-dropdown-label={child.dropdownLabel || child.label}
+                            data-astro-reload={needsFullReload(child.href) ? true : undefined}
                           >
                             <div class="dropdown-item-icon-wrapper">
                               {(function () {
@@ -174,6 +190,7 @@ const navItems = secondaryNavConfig[activeProduct]
                             }
                             data-nav-label={child.label}
                             data-dropdown-label={child.dropdownLabel || child.label}
+                            data-astro-reload={needsFullReload(child.href) ? true : undefined}
                           >
                             <div class="dropdown-item-icon-wrapper">
                               {(function () {
@@ -212,6 +229,7 @@ const navItems = secondaryNavConfig[activeProduct]
                             ? 'page'
                             : undefined
                         }
+                        data-astro-reload={needsFullReload(child.href) ? true : undefined}
                       >
                         <div class="dropdown-item-icon-wrapper">
                           {(function () {

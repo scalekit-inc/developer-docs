@@ -10,6 +10,56 @@ import { ClientRouter } from 'astro:transitions'
 <!-- Client-side routing: soft navigations (secondary nav, sidebar) without full-page white flash -->
 <ClientRouter />
 
+<!--
+  Scalar API reference pages mount a client SPA that does not re-init under
+  ClientRouter soft navigations (blank page until hard refresh). Mark those
+  links with data-astro-reload so Astro does a full document load instead.
+-->
+<script is:inline>
+  ;(() => {
+    const isScalarApiPath = (pathname) => {
+      const p = (pathname || '/').replace(/\/+$/, '') || '/'
+      return p === '/apis' || p === '/agentkit/apis' || p === '/saaskit/apis'
+    }
+
+    const markIfScalarLink = (anchor) => {
+      if (!(anchor instanceof HTMLAnchorElement) && !(anchor instanceof SVGAElement)) return
+      try {
+        const url = new URL(anchor.href, location.origin)
+        if (url.origin !== location.origin) return
+        if (isScalarApiPath(url.pathname)) {
+          anchor.setAttribute('data-astro-reload', '')
+        }
+      } catch {
+        // ignore invalid hrefs
+      }
+    }
+
+    // Capture phase runs before ClientRouter's click handler
+    document.addEventListener(
+      'click',
+      (event) => {
+        const target = event.target
+        if (!(target instanceof Element)) return
+        const link = target.closest('a[href]')
+        if (link) markIfScalarLink(link)
+      },
+      true,
+    )
+
+    // Also mark known secondary-nav / sidebar links as they appear after soft navs
+    const markAll = () => {
+      document.querySelectorAll('a[href]').forEach((a) => markIfScalarLink(a))
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', markAll, { once: true })
+    } else {
+      markAll()
+    }
+    document.addEventListener('astro:page-load', markAll)
+  })()
+</script>
+
 <!-- WebMCP: expose site tools to AI agents via the browser -->
 <script src="/js/webmcp.js" defer></script>
 
