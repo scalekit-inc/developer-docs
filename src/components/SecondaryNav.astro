@@ -17,16 +17,6 @@ const searchParams = Astro.url.searchParams
 const activeProduct = getActiveProduct(Astro.url.pathname, entry?.data?.topic, searchParams)
 const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry, searchParams)
 const navItems = secondaryNavConfig[activeProduct]
-
-/** Scalar SPA pages need a full document load (ClientRouter soft-nav leaves them blank). */
-const needsFullReload = (href: string) => {
-  try {
-    const path = new URL(href, 'https://docs.scalekit.com').pathname.replace(/\/+$/, '') || '/'
-    return path === '/apis' || path === '/agentkit/apis' || path === '/saaskit/apis'
-  } catch {
-    return false
-  }
-}
 ---
 
 <nav class="secondary-nav sl-hidden md:sl-flex" aria-label="Main topics navigation">
@@ -64,12 +54,7 @@ const needsFullReload = (href: string) => {
                   </div>
                 </button>
               ) : (
-                <a
-                  href={item.href}
-                  class={itemClass}
-                  aria-current={isCurrent ? 'page' : undefined}
-                  data-astro-reload={needsFullReload(item.href) ? true : undefined}
-                >
+                <a href={item.href} class={itemClass} aria-current={isCurrent ? 'page' : undefined}>
                   <div class="nav-item-content">
                     {IconComponent && <IconComponent class="nav-icon" />}
                     {item.label && <span class="nav-label">{item.label}</span>}
@@ -135,7 +120,6 @@ const needsFullReload = (href: string) => {
                             }
                             data-nav-label={child.label}
                             data-dropdown-label={child.dropdownLabel || child.label}
-                            data-astro-reload={needsFullReload(child.href) ? true : undefined}
                           >
                             <div class="dropdown-item-icon-wrapper">
                               {(function () {
@@ -190,7 +174,6 @@ const needsFullReload = (href: string) => {
                             }
                             data-nav-label={child.label}
                             data-dropdown-label={child.dropdownLabel || child.label}
-                            data-astro-reload={needsFullReload(child.href) ? true : undefined}
                           >
                             <div class="dropdown-item-icon-wrapper">
                               {(function () {
@@ -229,7 +212,6 @@ const needsFullReload = (href: string) => {
                             ? 'page'
                             : undefined
                         }
-                        data-astro-reload={needsFullReload(child.href) ? true : undefined}
                       >
                         <div class="dropdown-item-icon-wrapper">
                           {(function () {
@@ -1085,7 +1067,8 @@ const needsFullReload = (href: string) => {
     )
   }
 
-  // Initial load (MPA) + client-side navigations (ClientRouter)
+  // Full page loads (Starlight MPA). astro:page-load is a no-op unless SPA
+  // routing is re-enabled later; keep it for safety.
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initSecondaryNav, { once: true })
   } else {

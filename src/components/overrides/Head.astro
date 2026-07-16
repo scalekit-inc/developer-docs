@@ -1,64 +1,22 @@
 ---
 import Default from '@astrojs/starlight/components/Head.astro'
-import { ClientRouter } from 'astro:transitions'
 ---
 
 <!-- LLM-friendly documentation directive — must appear first for AI agent discovery -->
 <link rel="alternate" type="text/plain" title="LLM-friendly documentation" href="/llms.txt" />
 <meta name="ai-content-type" content="documentation" />
 
-<!-- Client-side routing: soft navigations (secondary nav, sidebar) without full-page white flash -->
-<ClientRouter />
-
 <!--
-  Scalar API reference pages mount a client SPA that does not re-init under
-  ClientRouter soft navigations (blank page until hard refresh). Mark those
-  links with data-astro-reload so Astro does a full document load instead.
+  Navigation smoothness strategy (Starlight-aligned):
+  - Do NOT use Astro <ClientRouter /> SPA mode. Starlight has no first-class
+    support for it; DocSearch/Scalar/sidebar widgets often break after soft nav
+    (see withastro/starlight#3447 and our Scalar blank-page bug).
+  - Starlight already enables hover prefetch by default (prefetchAll).
+  - Cross-document View Transitions are pure CSS in custom.css
+    (@view-transition { navigation: auto }) — full page loads still run, so
+    Scalar and other client SPAs mount correctly, with a short native cross-fade
+    where the browser supports it.
 -->
-<script is:inline>
-  ;(() => {
-    const isScalarApiPath = (pathname) => {
-      const p = (pathname || '/').replace(/\/+$/, '') || '/'
-      return p === '/apis' || p === '/agentkit/apis' || p === '/saaskit/apis'
-    }
-
-    const markIfScalarLink = (anchor) => {
-      if (!(anchor instanceof HTMLAnchorElement) && !(anchor instanceof SVGAElement)) return
-      try {
-        const url = new URL(anchor.href, location.origin)
-        if (url.origin !== location.origin) return
-        if (isScalarApiPath(url.pathname)) {
-          anchor.setAttribute('data-astro-reload', '')
-        }
-      } catch {
-        // ignore invalid hrefs
-      }
-    }
-
-    // Capture phase runs before ClientRouter's click handler
-    document.addEventListener(
-      'click',
-      (event) => {
-        const target = event.target
-        if (!(target instanceof Element)) return
-        const link = target.closest('a[href]')
-        if (link) markIfScalarLink(link)
-      },
-      true,
-    )
-
-    // Also mark known secondary-nav / sidebar links as they appear after soft navs
-    const markAll = () => {
-      document.querySelectorAll('a[href]').forEach((a) => markIfScalarLink(a))
-    }
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', markAll, { once: true })
-    } else {
-      markAll()
-    }
-    document.addEventListener('astro:page-load', markAll)
-  })()
-</script>
 
 <!-- WebMCP: expose site tools to AI agents via the browser -->
 <script src="/js/webmcp.js" defer></script>
