@@ -122,12 +122,12 @@ head:
         }
       }
 
-      /* Soft paper gradients — theme-aware (no pure #fff) */
+      /* Soft paper gradients — theme-aware via --sk-color-agent-* tokens */
       .panel-agents {
         background: linear-gradient(
           180deg,
           var(--sl-color-bg) 0%,
-          color-mix(in srgb, #ecfdf5 70%, var(--sl-color-bg)) 100%
+          color-mix(in srgb, var(--sk-color-agent-soft, #ecfdf5) 70%, var(--sl-color-bg)) 100%
         );
       }
 
@@ -143,7 +143,7 @@ head:
         background: linear-gradient(
           180deg,
           var(--sl-color-bg) 0%,
-          color-mix(in srgb, #052e16 45%, var(--sl-color-bg)) 100%
+          color-mix(in srgb, var(--sk-color-agent-deep, #052e16) 45%, var(--sl-color-bg)) 100%
         );
       }
 
@@ -166,9 +166,17 @@ head:
       }
 
       .panel-agents .panel-badge {
-        background-color: color-mix(in srgb, #ecfdf5 80%, var(--sl-color-bg-card));
-        border-color: color-mix(in srgb, #16b364 55%, var(--sl-color-hairline));
-        color: color-mix(in srgb, #0e8a4a 85%, var(--sl-color-text));
+        background-color: color-mix(
+          in srgb,
+          var(--sk-color-agent-soft, #ecfdf5) 80%,
+          var(--sl-color-bg-card)
+        );
+        border-color: color-mix(
+          in srgb,
+          var(--sk-color-agent-mid, #16b364) 55%,
+          var(--sl-color-hairline)
+        );
+        color: color-mix(in srgb, var(--sk-color-agent-ink, #0e8a4a) 85%, var(--sl-color-text));
       }
 
       .panel-saas .panel-badge {
@@ -178,18 +186,28 @@ head:
       }
 
       :root[data-theme='dark'] .panel-agents .panel-badge {
-        background-color: color-mix(in srgb, #052e16 55%, var(--sl-color-bg-card));
-        border-color: color-mix(in srgb, #16b364 40%, var(--sl-color-hairline));
-        color: var(--sl-color-green-high, #6ee7b7);
+        background-color: color-mix(
+          in srgb,
+          var(--sk-color-agent-deep, #052e16) 55%,
+          var(--sl-color-bg-card)
+        );
+        border-color: color-mix(
+          in srgb,
+          var(--sk-color-agent-mid, #16b364) 40%,
+          var(--sl-color-hairline)
+        );
+        color: var(--sk-color-agent-ink, var(--sl-color-green-high, #6ee7b7));
       }
 
       @media (hover: hover) and (min-width: 1024px) {
-        .gateway:hover .panel:not(:hover) {
+        /* Don't dim a keyboard-focused panel when the other is hovered */
+        .gateway:hover .panel:not(:hover):not(:focus-visible) {
           flex: 0.72;
           opacity: 0.78;
         }
-        .gateway:hover .panel:hover {
+        .gateway:hover .panel:is(:hover, :focus-visible) {
           flex: 1.28;
+          opacity: 1;
         }
       }
 
@@ -248,7 +266,14 @@ head:
 
 
       .panel-visual {
-        display: none;
+        width: min(100%, 36rem);
+        margin: 0.1rem auto 0;
+        border-radius: var(--sk-radius-xl, 0.75rem);
+        border: none;
+        background: transparent;
+        box-shadow: none;
+        overflow: hidden;
+        text-align: left;
       }
 
       .panel-visual-header {
@@ -449,7 +474,8 @@ head:
         }
       }
 
-      @media (hover: hover) and (min-width: 1024px) {
+      /* Desktop: hide illustrations so panels + CLI strip fill the viewport */
+      @media (min-width: 1024px) {
         .panel-visual {
           display: none;
         }
@@ -669,7 +695,7 @@ import authForSaasHero from '../../assets/pages/hero/auth-for-saas.svg'
             alt="Agent authentication flow diagram"
             width={920}
             height={440}
-            fetchpriority="high"
+            loading="lazy"
             decoding="async"
             style="width: 100%; height: auto;"
           />
@@ -695,6 +721,7 @@ import authForSaasHero from '../../assets/pages/hero/auth-for-saas.svg'
               alt="Authentication architecture overview"
               width={920}
               height={440}
+              loading="lazy"
               decoding="async"
               style="width: 100%; height: auto;"
             />
@@ -710,7 +737,13 @@ import authForSaasHero from '../../assets/pages/hero/auth-for-saas.svg'
       <li class="gateway-cli-step">
         <span class="gateway-cli-step-num" aria-hidden="true">1</span>
         <p class="gateway-cli-step-title">Run the CLI</p>
-        <Code code="npx @scalekit-inc/cli setup" lang="sh" frame="none" showLineNumbers={false} />
+        <Code
+          code="npx @scalekit-inc/cli setup"
+          lang="sh"
+          frame="none"
+          showLineNumbers={false}
+          wrap
+        />
       </li>
       <li class="gateway-cli-step">
         <span class="gateway-cli-step-num" aria-hidden="true">2</span>
