@@ -392,6 +392,102 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'advancedmd_care_plan_read',
+    description: `Retrieve a single FHIR CarePlan resource by its logical ID. Care plans describe planned activities to manage a patient's health issues.`,
+    params: [
+      {
+        name: 'care_plan_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the CarePlan resource`,
+      },
+    ],
+  },
+  {
+    name: 'advancedmd_care_plan_search',
+    description: `Search for FHIR CarePlan resources describing planned patient care activities using parameters like patient, category, status, and date.`,
+    params: [
+      {
+        name: '_count',
+        type: 'number',
+        required: false,
+        description: `Maximum number of results to return per page`,
+      },
+      {
+        name: '_offset',
+        type: 'number',
+        required: false,
+        description: `Number of results to skip for pagination`,
+      },
+      {
+        name: 'category',
+        type: 'string',
+        required: false,
+        description: `Category of the care plan, e.g. assess-plan`,
+      },
+      {
+        name: 'date',
+        type: 'string',
+        required: false,
+        description: `Filter by care plan period date (YYYY-MM-DD or range with prefix)`,
+      },
+      {
+        name: 'patient',
+        type: 'string',
+        required: false,
+        description: `Patient ID to filter care plans by`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Care plan status: draft, active, on-hold, revoked, completed, entered-in-error, unknown`,
+      },
+    ],
+  },
+  {
+    name: 'advancedmd_care_team_read',
+    description: `Retrieve a single FHIR CareTeam resource by its logical ID. Care teams represent the group of practitioners involved in a patient's care.`,
+    params: [
+      {
+        name: 'care_team_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the CareTeam resource`,
+      },
+    ],
+  },
+  {
+    name: 'advancedmd_care_team_search',
+    description: `Search for FHIR CareTeam resources representing groups of practitioners involved in patient care, filtered by patient and status.`,
+    params: [
+      {
+        name: '_count',
+        type: 'number',
+        required: false,
+        description: `Maximum number of results to return per page`,
+      },
+      {
+        name: '_offset',
+        type: 'number',
+        required: false,
+        description: `Number of results to skip for pagination`,
+      },
+      {
+        name: 'patient',
+        type: 'string',
+        required: false,
+        description: `Patient ID to filter care teams by`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Care team status: proposed, active, suspended, inactive, entered-in-error`,
+      },
+    ],
+  },
+  {
     name: 'advancedmd_condition_create',
     description: `Create a new FHIR Condition resource representing a diagnosis or health problem for a patient.`,
     params: [
@@ -576,6 +672,84 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Verification status: unconfirmed, provisional, differential, confirmed, refuted, entered-in-error`,
+      },
+    ],
+  },
+  {
+    name: 'advancedmd_coverage_read',
+    description: `Retrieve a single FHIR Coverage resource by its logical ID. Coverage resources describe a patient's insurance or payment details.`,
+    params: [
+      {
+        name: 'coverage_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the Coverage resource`,
+      },
+    ],
+  },
+  {
+    name: 'advancedmd_coverage_search',
+    description: `Search for FHIR Coverage resources describing a patient's insurance or payment details, filtered by patient.`,
+    params: [
+      {
+        name: '_count',
+        type: 'number',
+        required: false,
+        description: `Maximum number of results to return per page`,
+      },
+      {
+        name: '_offset',
+        type: 'number',
+        required: false,
+        description: `Number of results to skip for pagination`,
+      },
+      {
+        name: 'patient',
+        type: 'string',
+        required: false,
+        description: `Patient ID to filter coverage records by`,
+      },
+    ],
+  },
+  {
+    name: 'advancedmd_device_read',
+    description: `Retrieve a single FHIR Device resource by its logical ID. Devices represent implantable medical devices associated with a patient.`,
+    params: [
+      {
+        name: 'device_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the Device resource`,
+      },
+    ],
+  },
+  {
+    name: 'advancedmd_device_search',
+    description: `Search for FHIR Device resources representing implantable medical devices using parameters like patient and device type.`,
+    params: [
+      {
+        name: '_count',
+        type: 'number',
+        required: false,
+        description: `Maximum number of results to return per page`,
+      },
+      {
+        name: '_offset',
+        type: 'number',
+        required: false,
+        description: `Number of results to skip for pagination`,
+      },
+      {
+        name: 'patient',
+        type: 'string',
+        required: false,
+        description: `Patient ID to filter devices by`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `Device type code, e.g. SNOMED code for the device type`,
       },
     ],
   },
@@ -766,6 +940,72 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'advancedmd_document_reference_read',
+    description: `Retrieve a single FHIR DocumentReference resource by its logical ID. Document references index clinical documents such as summaries and notes.`,
+    params: [
+      {
+        name: 'document_reference_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the DocumentReference resource`,
+      },
+    ],
+  },
+  {
+    name: 'advancedmd_document_reference_search',
+    description: `Search for FHIR DocumentReference resources indexing clinical documents using parameters like patient, status, category, type, date, and period.`,
+    params: [
+      {
+        name: '_count',
+        type: 'number',
+        required: false,
+        description: `Maximum number of results to return per page`,
+      },
+      {
+        name: '_offset',
+        type: 'number',
+        required: false,
+        description: `Number of results to skip for pagination`,
+      },
+      {
+        name: 'category',
+        type: 'string',
+        required: false,
+        description: `Document category, e.g. clinical-note`,
+      },
+      {
+        name: 'date',
+        type: 'string',
+        required: false,
+        description: `Filter by document creation date (YYYY-MM-DD or range with prefix)`,
+      },
+      {
+        name: 'patient',
+        type: 'string',
+        required: false,
+        description: `Patient ID to filter document references by`,
+      },
+      {
+        name: 'period',
+        type: 'string',
+        required: false,
+        description: `Filter by the time period the document content covers`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Document status: current, superseded, entered-in-error`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `Document type code, e.g. LOINC code for a discharge summary`,
+      },
+    ],
+  },
+  {
     name: 'advancedmd_encounter_create',
     description: `Create a new FHIR Encounter resource representing a patient visit or admission.`,
     params: [
@@ -952,6 +1192,108 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'advancedmd_endpoint_read',
+    description: `Retrieve a single FHIR Endpoint resource by its logical ID. Endpoints describe technical details of a service endpoint used for exchanging data.`,
+    params: [
+      {
+        name: 'endpoint_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the Endpoint resource`,
+      },
+    ],
+  },
+  {
+    name: 'advancedmd_endpoint_search',
+    description: `Search for FHIR Endpoint resources describing service endpoints for data exchange, filtered by category, status, patient, and date.`,
+    params: [
+      {
+        name: '_count',
+        type: 'number',
+        required: false,
+        description: `Maximum number of results to return per page`,
+      },
+      {
+        name: '_offset',
+        type: 'number',
+        required: false,
+        description: `Number of results to skip for pagination`,
+      },
+      {
+        name: 'category',
+        type: 'string',
+        required: false,
+        description: `Connection type category for the endpoint`,
+      },
+      {
+        name: 'date',
+        type: 'string',
+        required: false,
+        description: `Filter by endpoint record date (YYYY-MM-DD or range with prefix)`,
+      },
+      {
+        name: 'patient',
+        type: 'string',
+        required: false,
+        description: `Patient ID to filter endpoints by`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Endpoint status: active, suspended, error, off, entered-in-error, test`,
+      },
+    ],
+  },
+  {
+    name: 'advancedmd_goal_read',
+    description: `Retrieve a single FHIR Goal resource by its logical ID. Goals describe desired health outcomes for a patient.`,
+    params: [
+      {
+        name: 'goal_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the Goal resource`,
+      },
+    ],
+  },
+  {
+    name: 'advancedmd_goal_search',
+    description: `Search for FHIR Goal resources describing desired patient health outcomes using parameters like patient, lifecycle status, and target date.`,
+    params: [
+      {
+        name: '_count',
+        type: 'number',
+        required: false,
+        description: `Maximum number of results to return per page`,
+      },
+      {
+        name: '_offset',
+        type: 'number',
+        required: false,
+        description: `Number of results to skip for pagination`,
+      },
+      {
+        name: 'lifecycle_status',
+        type: 'string',
+        required: false,
+        description: `Goal lifecycle status: proposed, planned, accepted, active, on-hold, completed, cancelled, entered-in-error, rejected`,
+      },
+      {
+        name: 'patient',
+        type: 'string',
+        required: false,
+        description: `Patient ID to filter goals by`,
+      },
+      {
+        name: 'target_date',
+        type: 'string',
+        required: false,
+        description: `Filter by the goal's target date (YYYY-MM-DD or range with prefix)`,
+      },
+    ],
+  },
+  {
     name: 'advancedmd_immunization_create',
     description: `Create a new FHIR Immunization resource recording a vaccination event for a patient.`,
     params: [
@@ -1103,6 +1445,115 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Human-readable display for the vaccine`,
+      },
+    ],
+  },
+  {
+    name: 'advancedmd_location_read',
+    description: `Retrieve a single FHIR Location resource by its logical ID. Locations represent physical places where care is delivered, such as clinics or rooms.`,
+    params: [
+      {
+        name: 'location_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the Location resource`,
+      },
+    ],
+  },
+  {
+    name: 'advancedmd_location_search',
+    description: `Search for FHIR Location resources representing care facilities using parameters like name and address.`,
+    params: [
+      {
+        name: '_count',
+        type: 'number',
+        required: false,
+        description: `Maximum number of results to return per page`,
+      },
+      {
+        name: '_offset',
+        type: 'number',
+        required: false,
+        description: `Number of results to skip for pagination`,
+      },
+      {
+        name: 'address',
+        type: 'string',
+        required: false,
+        description: `Any part of the location's address`,
+      },
+      {
+        name: 'address_city',
+        type: 'string',
+        required: false,
+        description: `City of the location's address`,
+      },
+      {
+        name: 'address_postalcode',
+        type: 'string',
+        required: false,
+        description: `Postal code of the location's address`,
+      },
+      {
+        name: 'address_state',
+        type: 'string',
+        required: false,
+        description: `State of the location's address`,
+      },
+      { name: 'name', type: 'string', required: false, description: `Name of the location` },
+    ],
+  },
+  {
+    name: 'advancedmd_medication_dispense_read',
+    description: `Retrieve a single FHIR MedicationDispense resource by its logical ID. Medication dispenses record medications that have been provided to a patient.`,
+    params: [
+      {
+        name: 'medication_dispense_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the MedicationDispense resource`,
+      },
+    ],
+  },
+  {
+    name: 'advancedmd_medication_dispense_search',
+    description: `Search for FHIR MedicationDispense resources recording medications provided to a patient using parameters like status, type, patient, and medication.`,
+    params: [
+      {
+        name: '_count',
+        type: 'number',
+        required: false,
+        description: `Maximum number of results to return per page`,
+      },
+      {
+        name: '_offset',
+        type: 'number',
+        required: false,
+        description: `Number of results to skip for pagination`,
+      },
+      {
+        name: 'medication',
+        type: 'string',
+        required: false,
+        description: `Medication code or reference dispensed`,
+      },
+      {
+        name: 'patient',
+        type: 'string',
+        required: false,
+        description: `Patient ID to filter medication dispenses by`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Dispense status: preparation, in-progress, completed, entered-in-error, stopped`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `Dispense type code, e.g. RFP for a refill`,
       },
     ],
   },
@@ -2168,6 +2619,127 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `SNOMED code for the reason the procedure was performed`,
+      },
+    ],
+  },
+  {
+    name: 'advancedmd_provenance_read',
+    description: `Retrieve a single FHIR Provenance resource by its logical ID. Provenance records who created or changed a resource and when.`,
+    params: [
+      {
+        name: 'provenance_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the Provenance resource`,
+      },
+    ],
+  },
+  {
+    name: 'advancedmd_related_person_read',
+    description: `Retrieve a single FHIR RelatedPerson resource by its logical ID. Related persons represent individuals connected to a patient, such as family members or caregivers.`,
+    params: [
+      {
+        name: 'related_person_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the RelatedPerson resource`,
+      },
+    ],
+  },
+  {
+    name: 'advancedmd_related_person_search',
+    description: `Search for FHIR RelatedPerson resources representing individuals connected to a patient, such as family members or caregivers, filtered by patient and name.`,
+    params: [
+      {
+        name: '_count',
+        type: 'number',
+        required: false,
+        description: `Maximum number of results to return per page`,
+      },
+      {
+        name: '_offset',
+        type: 'number',
+        required: false,
+        description: `Number of results to skip for pagination`,
+      },
+      { name: 'name', type: 'string', required: false, description: `Name of the related person` },
+      {
+        name: 'patient',
+        type: 'string',
+        required: false,
+        description: `Patient ID to filter related persons by`,
+      },
+    ],
+  },
+  {
+    name: 'advancedmd_service_request_read',
+    description: `Retrieve a single FHIR ServiceRequest resource by its logical ID. Service requests represent orders for services such as lab tests or referrals.`,
+    params: [
+      {
+        name: 'service_request_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the ServiceRequest resource`,
+      },
+    ],
+  },
+  {
+    name: 'advancedmd_service_request_search',
+    description: `Search for FHIR ServiceRequest resources representing orders for services such as lab tests or referrals, filtered by patient.`,
+    params: [
+      {
+        name: '_count',
+        type: 'number',
+        required: false,
+        description: `Maximum number of results to return per page`,
+      },
+      {
+        name: '_offset',
+        type: 'number',
+        required: false,
+        description: `Number of results to skip for pagination`,
+      },
+      {
+        name: 'patient',
+        type: 'string',
+        required: false,
+        description: `Patient ID to filter service requests by`,
+      },
+    ],
+  },
+  {
+    name: 'advancedmd_specimen_read',
+    description: `Retrieve a single FHIR Specimen resource by its logical ID. Specimens represent samples collected from a patient for laboratory analysis.`,
+    params: [
+      {
+        name: 'specimen_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the Specimen resource`,
+      },
+    ],
+  },
+  {
+    name: 'advancedmd_specimen_search',
+    description: `Search for FHIR Specimen resources representing laboratory samples collected from a patient, filtered by patient.`,
+    params: [
+      {
+        name: '_count',
+        type: 'number',
+        required: false,
+        description: `Maximum number of results to return per page`,
+      },
+      {
+        name: '_offset',
+        type: 'number',
+        required: false,
+        description: `Number of results to skip for pagination`,
+      },
+      {
+        name: 'patient',
+        type: 'string',
+        required: false,
+        description: `Patient ID to filter specimens by`,
       },
     ],
   },
