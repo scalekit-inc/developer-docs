@@ -867,32 +867,39 @@ const navItems = secondaryNavConfig[activeProduct]
     }
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    // Update selection state based on path on initial load
-    updateCurrentStateFromPath()
+  /** Abort prior bindings when client-side router swaps the page */
+  let secondaryNavAbort = null
 
-    // Update selection state based on hash on initial load (for hash-based routes like APIs)
+  function initSecondaryNav() {
+    secondaryNavAbort?.abort()
+    secondaryNavAbort = new AbortController()
+    const { signal } = secondaryNavAbort
+
+    // Close any dropdown left open from the previous page
+    hideAllDropdowns()
+
+    updateCurrentStateFromPath()
     updateCurrentStateFromHash()
 
-    // Update selection state when hash changes
-    window.addEventListener('hashchange', updateCurrentStateFromHash)
-
-    // Update selection state on navigation (back/forward buttons)
-    window.addEventListener('popstate', () => {
-      updateCurrentStateFromPath()
-      updateCurrentStateFromHash()
-    })
+    window.addEventListener('hashchange', updateCurrentStateFromHash, { signal })
+    window.addEventListener(
+      'popstate',
+      () => {
+        updateCurrentStateFromPath()
+        updateCurrentStateFromHash()
+      },
+      { signal },
+    )
 
     const dropdownTriggers = document.querySelectorAll('.nav-item-wrapper.has-dropdown')
     let currentOpenDropdown = null
-    let isClickOpen = false // Track if any dropdown is open via click globally
+    let isClickOpen = false
 
     dropdownTriggers.forEach((trigger) => {
       const triggerBtn = trigger.querySelector('.nav-item')
       const navKey = triggerBtn?.getAttribute('data-nav-key')
       if (!navKey) return
 
-      // Menu panel lives in the portal; trigger carries data-nav-key
       const dropdown = document.querySelector(
         `#dropdown-portal [data-dropdown][data-nav-key="${navKey}"]`,
       )
@@ -902,95 +909,115 @@ const navItems = secondaryNavConfig[activeProduct]
 
       let hoverTimeout = null
 
-      trigger.addEventListener('click', (e) => {
-        e.preventDefault()
-        e.stopPropagation()
+      trigger.addEventListener(
+        'click',
+        (e) => {
+          e.preventDefault()
+          e.stopPropagation()
 
-        if (currentOpenDropdown === dropdown && dropdown.classList.contains('open')) {
-          hideDropdown(dropdown)
-          currentOpenDropdown = null
-          isClickOpen = false
-        } else {
-          hideAllDropdowns()
-          positionDropdown(trigger, dropdown)
-          dropdown.style.pointerEvents = 'all'
-          currentOpenDropdown = dropdown
-          isClickOpen = true
-        }
-      })
-
-      trigger.addEventListener('mouseenter', () => {
-        clearTimeout(hoverTimeout)
-
-        // Only auto-open on hover if no dropdown is currently open via click
-        if (!isClickOpen) {
-          hoverTimeout = setTimeout(() => {
+          if (currentOpenDropdown === dropdown && dropdown.classList.contains('open')) {
+            hideDropdown(dropdown)
+            currentOpenDropdown = null
+            isClickOpen = false
+          } else {
             hideAllDropdowns()
             positionDropdown(trigger, dropdown)
             dropdown.style.pointerEvents = 'all'
             currentOpenDropdown = dropdown
-          }, 100)
-        }
-      })
+            isClickOpen = true
+          }
+        },
+        { signal },
+      )
 
-      trigger.addEventListener('mouseleave', () => {
-        clearTimeout(hoverTimeout)
+      trigger.addEventListener(
+        'mouseenter',
+        () => {
+          clearTimeout(hoverTimeout)
+          if (!isClickOpen) {
+            hoverTimeout = setTimeout(() => {
+              hideAllDropdowns()
+              positionDropdown(trigger, dropdown)
+              dropdown.style.pointerEvents = 'all'
+              currentOpenDropdown = dropdown
+            }, 100)
+          }
+        },
+        { signal },
+      )
 
-        // Only close on mouse leave if dropdown was opened by hover, not click
-        if (currentOpenDropdown === dropdown && !isClickOpen) {
-          hoverTimeout = setTimeout(() => {
-            if (!dropdown.matches(':hover') && !trigger.matches(':hover')) {
-              hideDropdown(dropdown)
-              currentOpenDropdown = null
-            }
-          }, 200)
-        }
-      })
+      trigger.addEventListener(
+        'mouseleave',
+        () => {
+          clearTimeout(hoverTimeout)
+          if (currentOpenDropdown === dropdown && !isClickOpen) {
+            hoverTimeout = setTimeout(() => {
+              if (!dropdown.matches(':hover') && !trigger.matches(':hover')) {
+                hideDropdown(dropdown)
+                currentOpenDropdown = null
+              }
+            }, 200)
+          }
+        },
+        { signal },
+      )
 
-      dropdown.addEventListener('mouseenter', () => {
-        clearTimeout(hoverTimeout)
-      })
+      dropdown.addEventListener(
+        'mouseenter',
+        () => {
+          clearTimeout(hoverTimeout)
+        },
+        { signal },
+      )
 
-      dropdown.addEventListener('mouseleave', () => {
-        if (currentOpenDropdown === dropdown && !isClickOpen) {
-          hideDropdown(dropdown)
-          currentOpenDropdown = null
-        }
-      })
+      dropdown.addEventListener(
+        'mouseleave',
+        () => {
+          if (currentOpenDropdown === dropdown && !isClickOpen) {
+            hideDropdown(dropdown)
+            currentOpenDropdown = null
+          }
+        },
+        { signal },
+      )
 
-      dropdown.addEventListener('click', (e) => {
-        const target = e.target.closest('.dropdown-item')
-        if (target) {
-          const isRightColumnItem = target.classList.contains('dropdown-item-shortcut')
-          const wrapper = triggerBtn.closest('.nav-item-wrapper')
-          const hasKeepParentLabel = wrapper?.hasAttribute('data-keep-parent-label')
+      dropdown.addEventListener(
+        'click',
+        (e) => {
+          const target = e.target.closest('.dropdown-item')
+          if (target) {
+            const isRightColumnItem = target.classList.contains('dropdown-item-shortcut')
+            const wrapper = triggerBtn.closest('.nav-item-wrapper')
+            const hasKeepParentLabel = wrapper?.hasAttribute('data-keep-parent-label')
 
-          if (!hasKeepParentLabel && !isRightColumnItem) {
-            const labelSpan =
-              target.querySelector('.dropdown-item-label') || target.querySelector('span')
-            const clickedLabel = labelSpan?.textContent
-            const iconEl = target.querySelector('.dropdown-item-icon')
+            if (!hasKeepParentLabel && !isRightColumnItem) {
+              const labelSpan =
+                target.querySelector('.dropdown-item-label') || target.querySelector('span')
+              const clickedLabel = labelSpan?.textContent
+              const iconEl = target.querySelector('.dropdown-item-icon')
 
-            if (clickedLabel) {
-              const parentLabel = triggerBtn.querySelector('.nav-label')
-              if (parentLabel) parentLabel.textContent = clickedLabel
-            }
+              if (clickedLabel) {
+                const parentLabel = triggerBtn.querySelector('.nav-label')
+                if (parentLabel) parentLabel.textContent = clickedLabel
+              }
 
-            if (iconEl) {
-              const clonedIcon = iconEl.cloneNode(true)
-              const parentIcon = triggerBtn.querySelector('.nav-icon')
-              if (parentIcon) {
-                parentIcon.replaceWith(clonedIcon)
-                clonedIcon.classList.add('nav-icon')
+              if (iconEl) {
+                const clonedIcon = iconEl.cloneNode(true)
+                const parentIcon = triggerBtn.querySelector('.nav-icon')
+                if (parentIcon) {
+                  parentIcon.replaceWith(clonedIcon)
+                  clonedIcon.classList.add('nav-icon')
+                }
               }
             }
-          }
 
-          hideDropdown(dropdown)
-          currentOpenDropdown = null
-          isClickOpen = false
-        }
-      })
+            hideDropdown(dropdown)
+            currentOpenDropdown = null
+            isClickOpen = false
+          }
+        },
+        { signal },
+      )
 
       let ticking = false
       const updatePosition = () => {
@@ -1003,29 +1030,48 @@ const navItems = secondaryNavConfig[activeProduct]
         }
       }
 
-      window.addEventListener('scroll', updatePosition, { passive: true })
-      window.addEventListener('resize', updatePosition)
+      window.addEventListener('scroll', updatePosition, { passive: true, signal })
+      window.addEventListener('resize', updatePosition, { signal })
     })
 
-    document.addEventListener('click', (e) => {
-      const target = e.target
-      if (!target.closest('.nav-item-wrapper.has-dropdown') && !target.closest('[data-dropdown]')) {
-        hideAllDropdowns()
-        currentOpenDropdown = null
-        isClickOpen = false
-      }
-    })
+    document.addEventListener(
+      'click',
+      (e) => {
+        const target = e.target
+        if (
+          !target.closest('.nav-item-wrapper.has-dropdown') &&
+          !target.closest('[data-dropdown]')
+        ) {
+          hideAllDropdowns()
+          currentOpenDropdown = null
+          isClickOpen = false
+        }
+      },
+      { signal },
+    )
 
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        const openTrigger = document.querySelector(
-          '.nav-item-wrapper.has-dropdown .nav-item[aria-expanded="true"]',
-        )
-        hideAllDropdowns()
-        currentOpenDropdown = null
-        isClickOpen = false
-        if (openTrigger instanceof HTMLElement) openTrigger.focus()
-      }
-    })
-  })
+    document.addEventListener(
+      'keydown',
+      (e) => {
+        if (e.key === 'Escape') {
+          const openTrigger = document.querySelector(
+            '.nav-item-wrapper.has-dropdown .nav-item[aria-expanded="true"]',
+          )
+          hideAllDropdowns()
+          currentOpenDropdown = null
+          isClickOpen = false
+          if (openTrigger instanceof HTMLElement) openTrigger.focus()
+        }
+      },
+      { signal },
+    )
+  }
+
+  // Initial load (MPA) + client-side navigations (ClientRouter)
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSecondaryNav, { once: true })
+  } else {
+    initSecondaryNav()
+  }
+  document.addEventListener('astro:page-load', initSecondaryNav)
 </script>

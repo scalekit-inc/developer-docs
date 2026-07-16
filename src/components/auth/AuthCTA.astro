@@ -145,7 +145,7 @@ const loginHref = '/auth/login'
     }
   }
 
-  const ctas = document.querySelectorAll('[data-auth-cta]')
+  let authCtaAbort = null
 
   // Periodically refresh CTA state without re-attaching listeners
   const refreshCtaState = async (cta) => {
@@ -170,8 +170,8 @@ const loginHref = '/auth/login'
     }
   }
 
-  /** @param {Element} cta */
-  const updateCta = async (cta) => {
+  /** @param {Element} cta @param {AbortSignal} signal */
+  const updateCta = async (cta, signal) => {
     await refreshCtaState(cta)
 
     const profileMenu = cta.querySelector('[data-profile-menu]')
@@ -179,12 +179,8 @@ const loginHref = '/auth/login'
 
     const trigger = profileMenu.querySelector('[data-profile-trigger]')
     const popover = profileMenu.querySelector('[data-profile-popover]')
-    const emailElement = profileMenu.querySelector('[data-profile-email]')
     const signOutLink = profileMenu.querySelector('[data-sign-out]')
     if (!trigger || !popover) return
-
-    // Populate email when authenticated
-    // (Handled by refreshCtaState)
 
     const closeMenu = () => {
       profileMenu.classList.remove('is-open')
@@ -196,42 +192,64 @@ const loginHref = '/auth/login'
       trigger.setAttribute('aria-expanded', 'true')
     }
 
-    trigger.addEventListener('click', (event) => {
-      event.preventDefault()
-      event.stopPropagation()
-      if (profileMenu.classList.contains('is-open')) closeMenu()
-      else openMenu()
-    })
-
-    // Handle sign out - extract ID token, clear localStorage, then navigate
-    if (signOutLink) {
-      signOutLink.addEventListener('click', (event) => {
+    trigger.addEventListener(
+      'click',
+      (event) => {
         event.preventDefault()
+        event.stopPropagation()
+        if (profileMenu.classList.contains('is-open')) closeMenu()
+        else openMenu()
+      },
+      { signal },
+    )
 
-        // Extract raw ID token from localStorage BEFORE clearing
-        const session = readCache()
-        const idToken = session?.idToken || ''
-
-        clearCache()
-
-        // Pass ID token via query parameter
-        window.location.href = `/auth/logout?id_token=${encodeURIComponent(idToken)}`
-      })
+    if (signOutLink) {
+      signOutLink.addEventListener(
+        'click',
+        (event) => {
+          event.preventDefault()
+          const session = readCache()
+          const idToken = session?.idToken || ''
+          clearCache()
+          window.location.href = `/auth/logout?id_token=${encodeURIComponent(idToken)}`
+        },
+        { signal },
+      )
     }
 
-    document.addEventListener('click', (event) => {
-      if (!profileMenu.classList.contains('is-open')) return
-      if (profileMenu.contains(event.target)) return
-      closeMenu()
-    })
+    document.addEventListener(
+      'click',
+      (event) => {
+        if (!profileMenu.classList.contains('is-open')) return
+        if (profileMenu.contains(event.target)) return
+        closeMenu()
+      },
+      { signal },
+    )
 
-    document.addEventListener('keydown', (event) => {
-      if (event.key !== 'Escape') return
-      closeMenu()
-    })
+    document.addEventListener(
+      'keydown',
+      (event) => {
+        if (event.key !== 'Escape') return
+        closeMenu()
+      },
+      { signal },
+    )
   }
 
-  ctas.forEach(updateCta)
+  function initAuthCta() {
+    authCtaAbort?.abort()
+    authCtaAbort = new AbortController()
+    const { signal } = authCtaAbort
+    document.querySelectorAll('[data-auth-cta]').forEach((cta) => updateCta(cta, signal))
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAuthCta, { once: true })
+  } else {
+    initAuthCta()
+  }
+  document.addEventListener('astro:page-load', initAuthCta)
 </script>
 
 <style>

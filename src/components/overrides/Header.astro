@@ -129,8 +129,6 @@ const { entry, locale } = Astro.props
     }
   }
 
-  const dashboardButtons = document.querySelectorAll('[data-dashboard-btn]')
-
   // Periodically refresh Dashboard button state without re-attaching listeners
   const refreshDashboardState = async (btn) => {
     const data = await getSession()
@@ -141,12 +139,16 @@ const { entry, locale } = Astro.props
     }
   }
 
-  /** @param {Element} btn */
-  const updateDashboardButton = async (btn) => {
-    await refreshDashboardState(btn)
+  function initDashboardButtons() {
+    document.querySelectorAll('[data-dashboard-btn]').forEach(refreshDashboardState)
   }
 
-  dashboardButtons.forEach(updateDashboardButton)
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDashboardButtons, { once: true })
+  } else {
+    initDashboardButtons()
+  }
+  document.addEventListener('astro:page-load', initDashboardButtons)
 </script>
 
 <style>
