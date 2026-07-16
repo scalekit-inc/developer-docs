@@ -22,27 +22,68 @@ head:
         margin-top: 0 !important;
       }
 
-      /* Keep custom footer near the fold on average laptop screens */
+      /* Sticky footer: fill viewport under fixed nav so residual space
+         grows the gateway (not a white band below the footer). */
+      body:has(.gateway) .page {
+        min-height: 100dvh;
+      }
+      body:has(.gateway) .main-frame {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        box-sizing: border-box;
+      }
+      body:has(.gateway) .main-frame > .lg\:sl-flex,
+      body:has(.gateway) .main-pane,
+      body:has(.gateway) main {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+      /* Drop Starlight bottom padding that left a white strip under the footer */
+      body:has(.gateway) main {
+        padding-bottom: 0 !important;
+      }
+      body:has(.gateway) .content-panel:has(.gateway-shell) {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        border-top: 0 !important;
+      }
+      body:has(.gateway) .content-panel:has(.gateway-shell) > .sl-container {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        max-width: none !important;
+        width: 100%;
+      }
+      /* VideosMarkdownContent nests a second .sl-markdown-content — both must flex */
+      body:has(.gateway) .content-panel:has(.gateway-shell) .sl-markdown-content {
+        flex: 1 1 auto;
+        display: flex !important;
+        flex-direction: column;
+        min-height: 0;
+        margin-top: 0 !important;
+      }
+
       body:has(.gateway) .footer {
-        margin-top: 0.75rem !important;
-        margin-bottom: 0.75rem !important;
+        margin-top: 0.5rem !important;
+        margin-bottom: 0.5rem !important;
+        flex-shrink: 0;
       }
       body:has(.gateway) .footer-fold-separator {
-        margin-top: 0 !important;
+        margin-top: auto !important;
+        flex-shrink: 0;
       }
 
       body:has(.gateway) button[aria-label="Menu"].sl-flex.md\:sl-hidden {
         display: none !important;
-      }
-      body:has(.gateway) .content-panel:has(.gateway-shell) {
-        padding-top: 0 !important;
-        border-top: 0 !important;
-      }
-      body:has(.gateway) .content-panel:has(.gateway-shell) > .sl-container {
-        max-width: none !important;
-      }
-      body:has(.gateway) .content-panel:has(.gateway-shell) > .sl-container > .sl-markdown-content {
-        margin-top: 0 !important;
       }
       body:has(.gateway) starlight-image-zoom-zoomable {
         display: contents !important;
@@ -72,7 +113,8 @@ head:
         z-index: 1;
         display: flex;
         flex-direction: column;
-        /* Content-sized: do not force full viewport (that buried the footer) */
+        /* Grow into residual viewport height; footer stays at bottom */
+        flex: 1 1 auto;
         min-height: 0;
       }
 
@@ -93,8 +135,8 @@ head:
       .gateway {
         display: flex;
         flex-direction: row;
-        flex: 0 0 auto;
-        /* Compact half-panels for average laptop heights (~900–1000px) */
+        /* Absorb leftover height so the footer sits at the viewport bottom */
+        flex: 1 1 auto;
         min-height: 0;
         margin-top: 0;
         padding-top: 0;
