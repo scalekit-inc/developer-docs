@@ -11,27 +11,28 @@ import AuthCTA from '../auth/AuthCTA.astro'
 const { entry, locale } = Astro.props
 ---
 
-<div class="header" transition:name="sk-site-header">
+{
+  /*
+  No transition:name / transition:persist — named regions morph from left/right/center.
+  Page transitions are a single root fade in custom.css.
+*/
+}
+<div class="header">
   <div class="top-row">
     <div class="header-left">
-      {/* Logo stable across soft navigations */}
-      <div transition:persist="sk-site-title">
-        <SiteTitle {locale} />
-      </div>
-      {/* Must re-render — active product label is page-dependent */}
+      <SiteTitle {locale} />
       <HeaderProductToggle entry={entry} />
     </div>
 
     <div class="header-center">
-      {/* Persist DocSearch instance so it does not remount/break after soft nav */}
-      <div class="search-wrapper" transition:persist="sk-search">
+      <div class="search-wrapper">
         <Search {locale} />
         <MobileMenuToggle />
       </div>
     </div>
 
     <div class="header-right">
-      <div class="right-actions sl-hidden md:sl-flex" transition:persist="sk-header-actions">
+      <div class="right-actions sl-hidden md:sl-flex">
         <LinkButton
           href="https://schedule.scalekit.com/meet/ravi-madabhushi/demo-8b100203"
           target="_blank"
@@ -57,13 +58,6 @@ const { entry, locale } = Astro.props
     </div>
   </div>
 
-  {
-    /*
-    Soft-swap (not persist): keeps the same chrome layout while current highlight
-    and product-specific items update. Full MPA reload was what made secondary
-    nav vanish and reappear on API reference.
-  */
-  }
   <SecondaryNav entry={entry} />
 </div>
 

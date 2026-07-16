@@ -51,11 +51,6 @@ import { ClientRouter } from 'astro:transitions'
       prefetchDocument('/authenticate/fsa/quickstart/')
     }
 
-    const setNavigating = (on) => {
-      if (on) document.documentElement.setAttribute('data-sk-navigating', '')
-      else document.documentElement.removeAttribute('data-sk-navigating')
-    }
-
     // Optimistic current-state so secondary nav feels instant before HTML arrives
     document.addEventListener(
       'click',
@@ -77,7 +72,6 @@ import { ClientRouter } from 'astro:transitions'
           return
         }
 
-        setNavigating(true)
         prefetchDocument(anchor.href)
 
         if (anchor.classList.contains('nav-item')) {
@@ -116,10 +110,7 @@ import { ClientRouter } from 'astro:transitions'
       true,
     )
 
-    document.addEventListener('astro:before-preparation', () => setNavigating(true))
-    document.addEventListener('astro:after-swap', () => setNavigating(false))
     document.addEventListener('astro:page-load', () => {
-      setNavigating(false)
       prefetchChromeDestinations()
     })
 

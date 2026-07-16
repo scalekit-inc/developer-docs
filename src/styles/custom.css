@@ -662,48 +662,35 @@ body {
 }
 
 /* =============================================================================
-   VIEW TRANSITIONS (with Astro <ClientRouter />)
+   VIEW TRANSITIONS — simple full-page fade only
    -----------------------------------------------------------------------------
-   Keep transitions near-zero so lag is only network/prefetch, not animation.
-   Prefetch (viewport + secondary-nav eager) should make swaps feel instant.
+   No named regions (those morph from left/right/center). One short opacity
+   cross-fade on the root snapshot. Prefetch still removes the wait.
    ============================================================================= */
 
-/* No root fade — avoids a perceived “pause” between pages */
-::view-transition-old(root),
+@keyframes sk-page-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes sk-page-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Do not morph individual elements — only fade the whole page */
+::view-transition-group(*) {
+  animation: none;
+}
+
+::view-transition-old(root) {
+  animation: sk-page-fade-out 0.12s ease-out both;
+}
+
 ::view-transition-new(root) {
-  animation: none;
-  mix-blend-mode: normal;
-}
-
-header.header {
-  view-transition-name: sk-site-header;
-}
-
-::view-transition-old(sk-site-header),
-::view-transition-new(sk-site-header) {
-  animation: none;
-  mix-blend-mode: normal;
-}
-
-.secondary-nav {
-  view-transition-name: sk-secondary-nav;
-}
-
-::view-transition-old(sk-secondary-nav),
-::view-transition-new(sk-secondary-nav) {
-  animation: none;
-  mix-blend-mode: normal;
-}
-
-main {
-  view-transition-name: sk-main-content;
-}
-
-/* Barely-there content swap (50ms) — lag should not come from animation */
-::view-transition-old(sk-main-content),
-::view-transition-new(sk-main-content) {
-  animation: none;
-  mix-blend-mode: normal;
+  animation: sk-page-fade-in 0.12s ease-out both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -712,10 +699,4 @@ main {
   ::view-transition-new(*) {
     animation: none !important;
   }
-}
-
-/* While ClientRouter is fetching, keep chrome fully interactive/visible */
-html[data-sk-navigating] main {
-  opacity: 0.92;
-  transition: opacity 0.08s linear;
 }
