@@ -2,6 +2,12 @@
 import { getCollection } from 'astro:content'
 import { catalog } from '@/data/agent-connectors/catalog'
 
+/* Hallmark · macrostructure: Ecosystem Index · genre: modern-minimal
+ * theme: project tokens (Starlight / Scalekit) · tone: utilitarian
+ * audience: developers finding a connector or tool · use: search → open docs
+ * enrichment: none · nav/footer: Starlight chrome (page component)
+ */
+
 const connectors = await getCollection(
   'docs',
   ({ id }) => id.startsWith('agentkit/connectors/') && id !== 'agentkit/connectors/index',
@@ -26,6 +32,9 @@ const items = connectors.map((entry) => {
   }
 })
 
+// Unique list for search surface (one card per connector)
+const uniqueItems = [...items].sort((a, b) => a.title.localeCompare(b.title))
+
 const CATEGORY_LABELS: Record<string, string> = {
   ai: 'AI',
   analytics: 'Analytics',
@@ -49,14 +58,12 @@ function categoryLabel(slug: string): string {
   return CATEGORY_LABELS[slug] ?? slug.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
 }
 
-// Derive category order from catalog data; put 'Other' last
 const allCategories = Array.from(new Set(items.flatMap((i) => i.categories))).sort((a, b) => {
-  if (a === 'other') return 1
-  if (b === 'other') return -1
+  if (a === 'other' || a === 'Other') return 1
+  if (b === 'other' || b === 'Other') return -1
   return categoryLabel(a).localeCompare(categoryLabel(b))
 })
 
-// Derive auth types from catalog data
 const allAuthTypes = Array.from(new Set(items.map((i) => i.authType))).sort()
 
 const grouped = allCategories
@@ -68,69 +75,137 @@ const grouped = allCategories
   }))
   .filter((g) => g.items.length > 0)
 
-// Small map for tool result display (slug -> human title)
 const slugToTitle = Object.fromEntries(items.map((i) => [i.slug, i.title]))
+
+function cardAttrs(item: (typeof items)[0]) {
+  return {
+    href: item.href,
+    slug: item.slug,
+    name: item.title.toLowerCase(),
+    desc: item.description.toLowerCase(),
+    auth: item.authType,
+    categories: item.categories.join(','),
+  }
+}
 ---
 
 <div class="provider-catalog not-content" data-slug-map={JSON.stringify(slugToTitle)}>
+  <!-- Discovery control: primary action on the page -->
   <div class="filters-bar">
     <div class="search-wrap">
-      <span class="search-icon" aria-hidden="true">⌕</span>
+      <span class="search-icon" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.5"></circle>
+          <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+          ></path>
+        </svg>
+      </span>
       <input
         class="search-input"
         type="search"
         placeholder="Search connectors or tools…"
         aria-label="Search connectors or tools"
+        autocomplete="off"
+        enterkeyhint="search"
       />
     </div>
     <select class="filter-select" id="category-select" aria-label="Filter by category">
       <option value="all">All categories</option>
       {allCategories.map((cat) => <option value={cat}>{categoryLabel(cat)}</option>)}
     </select>
-    <select class="filter-select" id="auth-select" aria-label="Filter by auth type">
+    <select class="filter-select" id="auth-select" aria-label="Filter by auth type" hidden>
       <option value="all">All auth types</option>
       {allAuthTypes.map((auth) => <option value={auth}>{auth}</option>)}
     </select>
   </div>
 
-  {
-    grouped.map((group) => (
-      <section class="category-section" data-category={group.name}>
-        <h2 class="category-heading">{categoryLabel(group.name)}</h2>
-        <div class="providers-grid">
-          {group.items.map((item) => (
-            <a
-              href={item.href}
-              class="provider-card"
-              data-name={item.title.toLowerCase()}
-              data-desc={item.description.toLowerCase()}
-              data-auth={item.authType}
-              data-categories={item.categories.join(',')}
-            >
-              <div class="card-top">
-                <div class="provider-logo">
-                  <img src={item.iconUrl} alt="" width="24" height="24" />
-                </div>
-                <span class="provider-name">{item.title}</span>
-              </div>
-              <p class="provider-desc">{item.description}</p>
-              <div class="card-bottom">
-                <span class="auth-badge">{item.authType}</span>
-              </div>
-            </a>
-          ))}
-        </div>
-      </section>
-    ))
-  }
+  <!-- Live summary while searching: connectors + tools counts -->
+  <p class="result-meta" hidden aria-live="polite"></p>
 
-  <!-- Tool search results (populated client-side when the search matches tools) -->
-  <div class="tool-results" hidden aria-live="polite">
-    <h3 class="tool-results-heading">Matching tools</h3>
-    <div class="tool-results-list"></div>
+  <!-- SEARCH SURFACE: one unique connector grid (never multi-category dupes) -->
+  <section class="search-surface" hidden data-surface="search">
+    <div class="result-band" data-band="connectors" hidden>
+      <h2 class="band-heading">
+        Connectors <span class="band-count" data-count="connectors"></span>
+      </h2>
+      <div class="providers-grid" data-search-grid>
+        {
+          uniqueItems.map((item) => {
+            const a = cardAttrs(item)
+            return (
+              <a
+                href={a.href}
+                class="provider-card"
+                data-slug={a.slug}
+                data-name={a.name}
+                data-desc={a.desc}
+                data-auth={a.auth}
+                data-categories={a.categories}
+              >
+                <div class="card-top">
+                  <div class="provider-logo">
+                    <img src={item.iconUrl} alt="" width="24" height="24" loading="lazy" />
+                  </div>
+                  <span class="provider-name">{item.title}</span>
+                </div>
+                <p class="provider-desc">{item.description}</p>
+                <div class="card-bottom">
+                  <span class="auth-badge">{item.authType}</span>
+                </div>
+              </a>
+            )
+          })
+        }
+      </div>
+    </div>
+
+    <div class="result-band tool-results" data-band="tools" hidden>
+      <h2 class="band-heading">
+        Tools <span class="band-count" data-count="tools"></span>
+      </h2>
+      <div class="tool-results-list"></div>
+    </div>
+  </section>
+
+  <!-- BROWSE SURFACE: category rails (multi-category listing is intentional when browsing) -->
+  <div class="browse-surface" data-surface="browse">
+    {
+      grouped.map((group) => (
+        <section class="category-section" data-category={group.name}>
+          <h2 class="category-heading">{categoryLabel(group.name)}</h2>
+          <div class="providers-grid">
+            {group.items.map((item) => {
+              const a = cardAttrs(item)
+              return (
+                <a
+                  href={a.href}
+                  class="provider-card"
+                  data-slug={a.slug}
+                  data-name={a.name}
+                  data-desc={a.desc}
+                  data-auth={a.auth}
+                  data-categories={a.categories}
+                >
+                  <div class="card-top">
+                    <div class="provider-logo">
+                      <img src={item.iconUrl} alt="" width="24" height="24" loading="lazy" />
+                    </div>
+                    <span class="provider-name">{item.title}</span>
+                  </div>
+                  <p class="provider-desc">{item.description}</p>
+                  <div class="card-bottom">
+                    <span class="auth-badge">{item.authType}</span>
+                  </div>
+                </a>
+              )
+            })}
+          </div>
+        </section>
+      ))
+    }
   </div>
 
-  <p class="no-results" hidden>No matches found.</p>
+  <p class="no-results" hidden>No connectors or tools match your search.</p>
 </div>
 
 <script>
@@ -139,10 +214,18 @@ const slugToTitle = Object.fromEntries(items.map((i) => [i.slug, i.title]))
   const categorySelect = catalogEl?.querySelector('#category-select') as HTMLSelectElement | null
   const authSelect = catalogEl?.querySelector('#auth-select') as HTMLSelectElement | null
   const noResults = catalogEl?.querySelector('.no-results') as HTMLElement | null
-  const toolResultsEl = catalogEl?.querySelector('.tool-results') as HTMLElement | null
-  const toolResultsList = toolResultsEl?.querySelector('.tool-results-list') as HTMLElement | null
+  const resultMeta = catalogEl?.querySelector('.result-meta') as HTMLElement | null
+  const browseSurface = catalogEl?.querySelector('.browse-surface') as HTMLElement | null
+  const searchSurface = catalogEl?.querySelector('.search-surface') as HTMLElement | null
+  const connectorsBand = catalogEl?.querySelector('[data-band="connectors"]') as HTMLElement | null
+  const toolsBand = catalogEl?.querySelector('[data-band="tools"]') as HTMLElement | null
+  const toolResultsList = toolsBand?.querySelector('.tool-results-list') as HTMLElement | null
+  const searchGrid = catalogEl?.querySelector('[data-search-grid]') as HTMLElement | null
+  const connectorCountEl = catalogEl?.querySelector(
+    '[data-count="connectors"]',
+  ) as HTMLElement | null
+  const toolCountEl = catalogEl?.querySelector('[data-count="tools"]') as HTMLElement | null
 
-  // Small slug->title map embedded via data attr (populated at build)
   let slugToTitle: Record<string, string> = {}
   try {
     const raw = catalogEl?.dataset.slugMap
@@ -154,8 +237,29 @@ const slugToTitle = Object.fromEntries(items.map((i) => [i.slug, i.title]))
   let searchQuery = ''
   let toolIndexCache: Array<{ slug: string; name: string; description: string }> | null = null
 
-  function applyFilters(): number {
-    const sections = catalogEl?.querySelectorAll<HTMLElement>('.category-section')
+  function truncate(str: string, n: number) {
+    if (!str) return ''
+    return str.length > n ? str.slice(0, n - 1) + '…' : str
+  }
+
+  function cardMatches(card: HTMLElement, query: string): boolean {
+    if (!query) return true
+    return (card.dataset.name ?? '').includes(query) || (card.dataset.desc ?? '').includes(query)
+  }
+
+  function cardMatchesAuth(card: HTMLElement): boolean {
+    return activeAuth === 'all' || card.dataset.auth === activeAuth
+  }
+
+  function cardMatchesCategory(card: HTMLElement): boolean {
+    if (activeCategory === 'all') return true
+    const cats = (card.dataset.categories ?? '').split(',').map((c) => c.trim())
+    return cats.includes(activeCategory)
+  }
+
+  /** Browse mode: filter category rails in place */
+  function applyBrowseFilters(): number {
+    const sections = browseSurface?.querySelectorAll<HTMLElement>('.category-section')
     let totalVisible = 0
 
     sections?.forEach((section) => {
@@ -171,12 +275,7 @@ const slugToTitle = Object.fromEntries(items.map((i) => [i.slug, i.title]))
       let sectionVisible = 0
 
       cards.forEach((card) => {
-        const matchesSearch =
-          !searchQuery ||
-          (card.dataset.name ?? '').includes(searchQuery) ||
-          (card.dataset.desc ?? '').includes(searchQuery)
-        const matchesAuth = activeAuth === 'all' || card.dataset.auth === activeAuth
-        const show = matchesSearch && matchesAuth
+        const show = cardMatchesAuth(card)
         card.style.display = show ? '' : 'none'
         if (show) sectionVisible++
       })
@@ -185,8 +284,28 @@ const slugToTitle = Object.fromEntries(items.map((i) => [i.slug, i.title]))
       totalVisible += sectionVisible
     })
 
-    // noResults visibility is decided after tool results are also considered (see updateNoResults)
     return totalVisible
+  }
+
+  /**
+   * Search mode: unique connectors only (one card per slug), then tools.
+   * Multi-category connectors never appear more than once.
+   */
+  function applySearchFilters(): number {
+    if (!searchGrid) return 0
+    let visible = 0
+
+    searchGrid.querySelectorAll<HTMLElement>('.provider-card').forEach((card) => {
+      const show =
+        cardMatches(card, searchQuery) && cardMatchesAuth(card) && cardMatchesCategory(card)
+      card.style.display = show ? '' : 'none'
+      if (show) visible++
+    })
+
+    if (connectorsBand) connectorsBand.hidden = visible === 0
+    if (connectorCountEl) connectorCountEl.textContent = visible > 0 ? String(visible) : ''
+
+    return visible
   }
 
   async function loadToolIndex(): Promise<
@@ -203,7 +322,6 @@ const slugToTitle = Object.fromEntries(items.map((i) => [i.slug, i.title]))
     }
   }
 
-  // Improved multi-term search (better than plain includes). Name-weighted.
   function scoreToolMatches(
     index: Array<{ slug: string; name: string; description: string }>,
     query: string,
@@ -222,7 +340,14 @@ const slugToTitle = Object.fromEntries(items.map((i) => [i.slug, i.title]))
       href: string
     }> = []
 
+    // Dedupe tools by connector slug + tool name
+    const seen = new Set<string>()
+
     for (const entry of index) {
+      const key = `${entry.slug}::${entry.name}`
+      if (seen.has(key)) continue
+      seen.add(key)
+
       const name = (entry.name || '').toLowerCase()
       const desc = (entry.description || '').toLowerCase()
       let score = 0
@@ -251,12 +376,13 @@ const slugToTitle = Object.fromEntries(items.map((i) => [i.slug, i.title]))
   }
 
   function renderToolResults(matches: ReturnType<typeof scoreToolMatches>) {
-    if (!toolResultsList || !toolResultsEl) return
+    if (!toolResultsList || !toolsBand) return
 
     toolResultsList.innerHTML = ''
 
     if (!matches.length) {
-      toolResultsEl.hidden = true
+      toolsBand.hidden = true
+      if (toolCountEl) toolCountEl.textContent = ''
       return
     }
 
@@ -291,62 +417,108 @@ const slugToTitle = Object.fromEntries(items.map((i) => [i.slug, i.title]))
     if (matches.length > MAX) {
       const more = document.createElement('div')
       more.className = 'tool-result-more'
-      more.textContent = `+ ${matches.length - MAX} more tools match — refine your query for better results.`
+      more.textContent = `+ ${matches.length - MAX} more — refine your query`
       toolResultsList.appendChild(more)
     }
 
-    toolResultsEl.hidden = false
+    toolsBand.hidden = false
+    if (toolCountEl) toolCountEl.textContent = String(matches.length)
   }
 
-  function truncate(str: string, n: number) {
-    if (!str) return ''
-    return str.length > n ? str.slice(0, n - 1) + '…' : str
+  function setMode(isSearching: boolean) {
+    catalogEl?.classList.toggle('is-searching', isSearching)
+    if (browseSurface) browseSurface.hidden = isSearching
+    if (searchSurface) searchSurface.hidden = !isSearching
+    if (categorySelect) {
+      // Category still filters search results; keep visible
+      categorySelect.disabled = false
+    }
   }
 
-  function escapeHtml(str: string) {
-    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  function updateMeta(connectorCount: number, toolCount: number) {
+    if (!resultMeta) return
+    const isSearching = searchQuery.length > 0
+    if (!isSearching) {
+      resultMeta.hidden = true
+      resultMeta.textContent = ''
+      return
+    }
+
+    const parts: string[] = []
+    if (connectorCount > 0) {
+      parts.push(`${connectorCount} connector${connectorCount === 1 ? '' : 's'}`)
+    }
+    if (toolCount > 0) {
+      parts.push(`${toolCount} tool${toolCount === 1 ? '' : 's'}`)
+    }
+
+    if (parts.length === 0) {
+      resultMeta.hidden = true
+      resultMeta.textContent = ''
+      return
+    }
+
+    resultMeta.hidden = false
+    resultMeta.textContent = parts.join(' · ')
   }
 
-  function updateNoResults(connectorVisible: number, hasToolMatches: boolean) {
+  function updateNoResults(connectorVisible: number, toolCount: number) {
     if (!noResults) return
-    const anyVisible = connectorVisible > 0 || hasToolMatches
-    noResults.hidden = anyVisible
+    const isSearching = searchQuery.length > 0
+    noResults.hidden = !isSearching || connectorVisible > 0 || toolCount > 0
   }
 
-  // Main search handler (connectors + tools)
-  let searchDebounce: number | null = null
-  searchInput?.addEventListener('input', async (e) => {
-    searchQuery = (e.target as HTMLInputElement).value.toLowerCase().trim()
+  async function runSearch() {
+    const isSearching = searchQuery.length > 0
+    setMode(isSearching)
 
-    const connectorVisible = applyFilters()
+    if (!isSearching) {
+      const browseVisible = applyBrowseFilters()
+      renderToolResults([])
+      updateMeta(0, 0)
+      updateNoResults(browseVisible, 0)
+      return
+    }
 
-    // Tool search kicks in for any non-trivial query
+    const connectorVisible = applySearchFilters()
+
+    // Tools join at 2+ chars so short connector lookups stay clean
+    let toolCount = 0
     if (searchQuery.length >= 2) {
       const idx = await loadToolIndex()
       const matches = scoreToolMatches(idx, searchQuery)
-      renderToolResults(matches)
-      updateNoResults(connectorVisible, matches.length > 0)
+      // If category filter is active, only show tools for connectors in that category
+      let filtered = matches
+      if (activeCategory !== 'all') {
+        const allowed = new Set<string>()
+        searchGrid?.querySelectorAll<HTMLElement>('.provider-card').forEach((card) => {
+          if (cardMatchesCategory(card)) allowed.add(card.dataset.slug ?? '')
+        })
+        filtered = matches.filter((m) => allowed.has(m.slug))
+      }
+      renderToolResults(filtered)
+      toolCount = filtered.length
     } else {
-      if (toolResultsEl) toolResultsEl.hidden = true
-      updateNoResults(connectorVisible, false)
+      renderToolResults([])
     }
+
+    updateMeta(connectorVisible, toolCount)
+    updateNoResults(connectorVisible, toolCount)
+  }
+
+  searchInput?.addEventListener('input', (e) => {
+    searchQuery = (e.target as HTMLInputElement).value.toLowerCase().trim()
+    void runSearch()
   })
 
   categorySelect?.addEventListener('change', () => {
     activeCategory = categorySelect.value
-    const connectorVisible = applyFilters()
-    // Re-apply current tool results (they are independent of category)
-    const hasTools =
-      toolResultsEl && !toolResultsEl.hidden && (toolResultsList?.children.length || 0) > 0
-    updateNoResults(connectorVisible, !!hasTools)
+    void runSearch()
   })
 
   authSelect?.addEventListener('change', () => {
     activeAuth = authSelect.value
-    const connectorVisible = applyFilters()
-    const hasTools =
-      toolResultsEl && !toolResultsEl.hidden && (toolResultsList?.children.length || 0) > 0
-    updateNoResults(connectorVisible, !!hasTools)
+    void runSearch()
   })
 
   catalogEl?.querySelectorAll<HTMLImageElement>('.provider-logo img').forEach((img) => {
@@ -355,27 +527,29 @@ const slugToTitle = Object.fromEntries(items.map((i) => [i.slug, i.title]))
     })
   })
 
-  // Initial state (no query)
-  const initialVisible = applyFilters()
-  if (noResults) noResults.hidden = initialVisible > 0
+  // Initial browse state
+  void runSearch()
 </script>
 
 <style>
+  /* Hallmark · Ecosystem Index · Starlight tokens · search-first catalog */
+
   .provider-catalog {
-    margin-top: 1.5rem;
+    margin-top: 0;
   }
 
+  /* —— Discovery bar —— */
   .filters-bar {
     display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    margin-bottom: 1.5rem;
+    align-items: stretch;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
     flex-wrap: wrap;
   }
 
   .filters-bar .search-wrap {
-    flex: 1;
-    min-width: 12rem;
+    flex: 1 1 16rem;
+    min-width: 0;
   }
 
   .search-wrap {
@@ -384,116 +558,195 @@ const slugToTitle = Object.fromEntries(items.map((i) => [i.slug, i.title]))
 
   .search-icon {
     position: absolute;
-    left: 0.75rem;
+    left: 0.875rem;
     top: 50%;
     transform: translateY(-50%);
     color: var(--sl-color-gray-3);
     pointer-events: none;
+    display: flex;
+    align-items: center;
   }
 
   .search-input {
     width: 100%;
+    min-height: var(--sk-control-min-height, 2.25rem);
     background: var(--sl-color-bg-nav);
     border: 1px solid var(--sl-color-hairline);
     color: var(--sl-color-text);
     font-family: var(--sl-font-system);
     font-size: var(--sl-text-sm);
-    padding: 0.5rem 0.75rem 0.5rem 2.25rem;
-    border-radius: 0.5rem;
+    padding: 0.55rem 0.875rem 0.55rem 2.5rem;
+    border-radius: var(--sk-radius-lg, 0.5rem);
     outline: none;
-    transition: border-color 0.15s;
+    transition: border-color 0.15s ease;
   }
-  .search-input:focus {
-    border-color: var(--sl-color-text-accent);
+
+  .search-input:hover {
+    border-color: var(--sl-color-gray-4);
   }
+
+  .search-input:focus-visible {
+    border-color: var(--sl-color-accent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--sl-color-accent) 25%, transparent);
+  }
+
   .search-input::placeholder {
     color: var(--sl-color-gray-4);
   }
 
   .filter-select {
+    min-height: var(--sk-control-min-height, 2.25rem);
     background: var(--sl-color-bg-nav);
     border: 1px solid var(--sl-color-hairline);
     color: var(--sl-color-text);
     font-family: var(--sl-font-system);
     font-size: var(--sl-text-sm);
-    padding: 0.5rem 2rem 0.5rem 0.75rem;
-    border-radius: 0.5rem;
+    padding: 0.55rem 2rem 0.55rem 0.75rem;
+    border-radius: var(--sk-radius-lg, 0.5rem);
     cursor: pointer;
     outline: none;
     appearance: auto;
-    transition: border-color 0.15s;
+    transition: border-color 0.15s ease;
     white-space: nowrap;
   }
-  .filter-select:focus {
-    border-color: var(--sl-color-text-accent);
+
+  .filter-select:hover {
+    border-color: var(--sl-color-gray-4);
   }
 
-  #auth-select {
-    display: none;
+  .filter-select:focus-visible {
+    border-color: var(--sl-color-accent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--sl-color-accent) 25%, transparent);
   }
 
-  .category-section {
-    margin-top: 2.5rem;
+  /* —— Result meta line —— */
+  .result-meta {
+    margin: 0 0 1rem;
+    font-size: var(--sl-text-xs);
+    color: var(--sl-color-gray-3);
+    font-family: var(--sl-font-system-mono);
+    letter-spacing: 0.02em;
+  }
+
+  /* —— Band headings (search surface) —— */
+  .result-band {
+    margin-bottom: 1.75rem;
+  }
+
+  .result-band:last-child {
     margin-bottom: 0;
+  }
+
+  .band-heading {
+    font-family: var(--sl-font-system-mono) !important;
+    font-size: var(--sl-text-xs) !important;
+    font-weight: 600 !important;
+    font-style: normal !important;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--sl-color-gray-3) !important;
+    margin: 0 0 0.75rem !important;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--sl-color-hairline);
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .band-count {
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--sl-color-gray-4);
+  }
+
+  .band-count:not(:empty)::before {
+    content: '· ';
+  }
+
+  /* —— Browse category rails —— */
+  .category-section {
+    margin-top: 2rem;
+    margin-bottom: 0;
+  }
+
+  .browse-surface .category-section:first-child {
+    margin-top: 0.25rem;
   }
 
   .category-heading {
     font-family: var(--sl-font-system-mono) !important;
     font-size: var(--sl-text-xs) !important;
     font-weight: 600 !important;
+    font-style: normal !important;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--sl-color-gray-3) !important;
-    margin-bottom: 0.875rem !important;
+    margin-bottom: 0.75rem !important;
     margin-top: 0 !important;
-    padding-bottom: 0.625rem;
+    padding-bottom: 0.5rem;
     border-bottom: 1px solid var(--sl-color-hairline);
     border-top: none !important;
   }
 
+  /* —— Card grid —— */
   .providers-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
     gap: 0.625rem;
   }
 
   .provider-card {
     background: var(--sl-color-bg-card);
     border: 1px solid var(--sl-color-gray-6);
-    border-radius: 0.5rem;
-    padding: 1rem 1.25rem 1rem;
+    border-radius: var(--sk-radius-lg, 0.5rem);
+    padding: 1rem 1.125rem;
     text-decoration: none;
     transition:
-      border-color 0.2s ease,
-      transform 0.2s ease,
-      box-shadow 0.2s ease;
+      border-color 0.15s ease,
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    min-height: 7rem;
+    min-height: 6.5rem;
+    min-width: 0;
   }
+
   :root[data-theme='light'] .provider-card {
     background: #fff;
   }
+
   .provider-card:hover {
     border-color: var(--sl-color-accent);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   }
+
   :root[data-theme='dark'] .provider-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+  }
+
+  .provider-card:focus-visible {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 2px;
+  }
+
+  .provider-card:active {
+    transform: translateY(0);
   }
 
   .card-top {
     display: flex;
     align-items: center;
     gap: 0.625rem;
+    min-width: 0;
   }
 
   .provider-logo {
-    width: 36px;
-    height: 36px;
-    border-radius: 0.5rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--sk-radius-md, 0.375rem);
     background: var(--sl-color-bg);
     border: 1px solid var(--sl-color-gray-6);
     display: flex;
@@ -503,6 +756,12 @@ const slugToTitle = Object.fromEntries(items.map((i) => [i.slug, i.title]))
     overflow: hidden;
   }
 
+  .provider-logo img {
+    width: 1.25rem;
+    height: 1.25rem;
+    object-fit: contain;
+  }
+
   .provider-name {
     font-size: var(--sl-text-base);
     font-weight: 600;
@@ -510,8 +769,10 @@ const slugToTitle = Object.fromEntries(items.map((i) => [i.slug, i.title]))
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    transition: color 0.2s ease;
+    min-width: 0;
+    transition: color 0.15s ease;
   }
+
   .provider-card:hover .provider-name {
     color: var(--sl-color-accent);
   }
@@ -519,7 +780,7 @@ const slugToTitle = Object.fromEntries(items.map((i) => [i.slug, i.title]))
   .provider-desc {
     font-size: var(--sl-text-sm);
     color: var(--sl-color-gray-2);
-    line-height: 1.55;
+    line-height: 1.5;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -532,7 +793,6 @@ const slugToTitle = Object.fromEntries(items.map((i) => [i.slug, i.title]))
     margin-top: auto;
   }
 
-  /* Quiet metadata: same look for all auth types; text stays readable */
   .auth-badge {
     display: inline-block;
     font-family: var(--sl-font-system-mono);
@@ -541,8 +801,8 @@ const slugToTitle = Object.fromEntries(items.map((i) => [i.slug, i.title]))
     letter-spacing: 0.02em;
     line-height: 1.45;
     max-width: 100%;
-    padding: 0.125rem 0;
-    color: var(--sl-color-gray-2);
+    padding: 0;
+    color: var(--sl-color-gray-3);
     background: none;
     border: none;
   }
@@ -550,28 +810,12 @@ const slugToTitle = Object.fromEntries(items.map((i) => [i.slug, i.title]))
   .no-results {
     text-align: center;
     color: var(--sl-color-gray-3);
-    padding: 2rem;
+    padding: 2rem 1rem;
     font-size: var(--sl-text-sm);
+    margin: 0;
   }
 
-  /* Tool search results (shown under the connector grid when query matches tools) */
-  /* Use :global because these elements are created via innerHTML at runtime */
-  :global(.tool-results) {
-    margin-top: 1.5rem;
-    border-top: 1px solid var(--sl-color-hairline);
-    padding-top: 1rem;
-  }
-
-  :global(.tool-results-heading) {
-    font-family: var(--sl-font-system-mono) !important;
-    font-size: var(--sl-text-xs) !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--sl-color-gray-3) !important;
-    margin: 0 0 0.5rem !important;
-  }
-
+  /* —— Tool results (created at runtime; :global for Astro scoped CSS) —— */
   :global(.tool-results-list) {
     display: flex;
     flex-direction: column;
@@ -580,19 +824,25 @@ const slugToTitle = Object.fromEntries(items.map((i) => [i.slug, i.title]))
 
   :global(.tool-result) {
     display: block;
-    padding: 0.5rem 0.75rem;
+    padding: 0.625rem 0.875rem;
     border: 1px solid var(--sl-color-gray-6);
-    border-radius: 0.375rem;
+    border-radius: var(--sk-radius-md, 0.375rem);
     text-decoration: none;
     color: inherit;
     background: var(--sl-color-bg-nav);
     transition:
-      border-color 0.15s,
-      background 0.15s;
+      border-color 0.15s ease,
+      background 0.15s ease;
   }
+
   :global(.tool-result:hover) {
     border-color: var(--sl-color-accent);
     background: color-mix(in srgb, var(--sl-color-accent) 4%, var(--sl-color-bg-nav));
+  }
+
+  :global(.tool-result:focus-visible) {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 2px;
   }
 
   :global(.tool-result-head) {
@@ -600,6 +850,7 @@ const slugToTitle = Object.fromEntries(items.map((i) => [i.slug, i.title]))
     align-items: center;
     gap: 0.5rem;
     flex-wrap: wrap;
+    min-width: 0;
   }
 
   :global(.tool-result-name) {
@@ -615,7 +866,7 @@ const slugToTitle = Object.fromEntries(items.map((i) => [i.slug, i.title]))
   :global(.tool-result-connector) {
     font-size: 0.6875rem;
     padding: 0.0625rem 0.375rem;
-    border-radius: 999px;
+    border-radius: var(--sk-radius-pill, 999px);
     background: var(--sl-color-bg);
     border: 1px solid var(--sl-color-hairline);
     color: var(--sl-color-gray-2);
@@ -637,5 +888,18 @@ const slugToTitle = Object.fromEntries(items.map((i) => [i.slug, i.title]))
     font-size: var(--sl-text-xs);
     color: var(--sl-color-gray-3);
     padding: 0.25rem 0.5rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .provider-card,
+    .search-input,
+    .filter-select,
+    :global(.tool-result) {
+      transition: none;
+    }
+
+    .provider-card:hover {
+      transform: none;
+    }
   }
 </style>
