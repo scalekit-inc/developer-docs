@@ -468,7 +468,11 @@ function cardAttrs(item: (typeof items)[0]) {
     noResults.hidden = !isSearching || connectorVisible > 0 || toolCount > 0
   }
 
+  // Bump on every run so a slower earlier loadToolIndex cannot overwrite newer results
+  let searchRevision = 0
+
   async function runSearch() {
+    const revision = ++searchRevision
     const isSearching = searchQuery.length > 0
     setMode(isSearching)
 
@@ -486,6 +490,8 @@ function cardAttrs(item: (typeof items)[0]) {
     let toolCount = 0
     if (searchQuery.length >= 2) {
       const idx = await loadToolIndex()
+      // Discard if a newer search started while the index was loading
+      if (revision !== searchRevision) return
       const matches = scoreToolMatches(idx, searchQuery)
       // If category filter is active, only show tools for connectors in that category
       let filtered = matches
@@ -502,6 +508,7 @@ function cardAttrs(item: (typeof items)[0]) {
       renderToolResults([])
     }
 
+    if (revision !== searchRevision) return
     updateMeta(connectorVisible, toolCount)
     updateNoResults(connectorVisible, toolCount)
   }
