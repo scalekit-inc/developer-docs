@@ -23,61 +23,55 @@ const navItems = secondaryNavConfig[activeProduct]
   <div class="nav-section nav-left">
     <div class="nav-items">
       {
-        navItems.map((item) => (
-          <div
-            class={`nav-item-wrapper ${item.children && item.children.length > 0 ? 'has-dropdown' : ''}`}
-            data-keep-parent-label={item.keepParentLabel ? 'true' : undefined}
-          >
-            {(() => {
-              const isCurrent = isCurrentPage(Astro.url.pathname, item, entry, searchParams)
-              return (
-                <a
-                  href={item.href}
-                  class={`nav-item ${isCurrent ? 'current' : ''} ${item.shared ? 'shared' : ''}`}
+        navItems.map((item) => {
+          const hasDropdown = Boolean(item.children && item.children.length > 0)
+          const isCurrent = isCurrentPage(Astro.url.pathname, item, entry, searchParams)
+          const IconComponent = hasDropdown
+            ? getDisplayIcon(Astro.url.pathname, item, entry, searchParams)
+            : item.iconComponent
+          const label = hasDropdown
+            ? getDisplayLabel(Astro.url.pathname, item, entry, searchParams)
+            : item.label
+          const itemClass = `nav-item ${isCurrent ? 'current' : ''} ${item.shared ? 'shared' : ''}`
+
+          return (
+            <div
+              class={`nav-item-wrapper ${hasDropdown ? 'has-dropdown' : ''}`}
+              data-keep-parent-label={item.keepParentLabel ? 'true' : undefined}
+            >
+              {hasDropdown ? (
+                <button
+                  type="button"
+                  class={itemClass}
+                  data-nav-key={item.href}
+                  aria-haspopup="menu"
+                  aria-expanded="false"
                   aria-current={isCurrent ? 'page' : undefined}
                 >
                   <div class="nav-item-content">
-                    {(function () {
-                      const IconComponent =
-                        item.children && item.children.length > 0
-                          ? getDisplayIcon(Astro.url.pathname, item, entry, searchParams)
-                          : item.iconComponent
-                      return IconComponent && <IconComponent class="nav-icon" />
-                    })()}
-                    {item.label && (
-                      <span class="nav-label">
-                        {item.children && item.children.length > 0
-                          ? getDisplayLabel(Astro.url.pathname, item, entry, searchParams)
-                          : item.label}
-                      </span>
-                    )}
-                    {item.children && item.children.length > 0 && (
-                      <IconChevronDown class="dropdown-icon" />
-                    )}
+                    {IconComponent && <IconComponent class="nav-icon" />}
+                    {label && <span class="nav-label">{label}</span>}
+                    <IconChevronDown class="dropdown-icon" />
+                  </div>
+                </button>
+              ) : (
+                <a href={item.href} class={itemClass} aria-current={isCurrent ? 'page' : undefined}>
+                  <div class="nav-item-content">
+                    {IconComponent && <IconComponent class="nav-icon" />}
+                    {item.label && <span class="nav-label">{item.label}</span>}
                   </div>
                 </a>
-              )
-            })()}
-          </div>
-        ))
+              )}
+            </div>
+          )
+        })
       }
     </div>
-  </div>
-
-  <div class="nav-section nav-center">
-    <!-- Center space for logo alignment -->
-  </div>
-
-  <div class="nav-section nav-right">
-    <!-- Reserved for future right-aligned nav items -->
   </div>
 </nav>
 
 <!-- Dropdown portal to ensure menu overlays main content -->
-<div
-  id="dropdown-portal"
-  style="position: fixed; top: 0; left: 0; pointer-events: none; z-index: 999999;"
->
+<div id="dropdown-portal" class="dropdown-portal">
   {
     navItems
       .filter((item) => item.children && item.children.length > 0)
@@ -252,23 +246,28 @@ const navItems = secondaryNavConfig[activeProduct]
     display: none;
   }
 
-  /* Show the sidebar topics whenever the secondary nav bar is hidden (<= 60rem),
-     so product topics stay reachable in the sidebar and there is no dead zone */
-  @media (max-width: 60rem) {
+  /* Match header CTA seam (--sk-chrome-bp / 50rem): show topics when secondary nav hides */
+  @media (max-width: 50rem) {
     :global(.starlight-sidebar-topics) {
       display: block !important;
     }
   }
 
+  .dropdown-portal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: var(--sl-z-index-dropdown, 15);
+  }
+
   .secondary-nav {
-    position: sticky;
-    top: var(--sl-nav-height);
+    /* Parent header is already sticky — flow layout only */
     display: flex;
     align-items: center;
     width: 100%;
     isolation: isolate;
     background-color: var(--sl-color-bg);
-    z-index: calc(var(--sl-z-index-navbar) - 1);
     border-bottom: 1px solid var(--sl-color-hairline-shade);
   }
 
@@ -283,19 +282,6 @@ const navItems = secondaryNavConfig[activeProduct]
     justify-content: flex-start;
   }
 
-  .nav-center {
-    justify-content: center;
-  }
-
-  .nav-right {
-    justify-content: flex-end;
-  }
-
-  .nav-center,
-  .nav-right {
-    flex: 0;
-  }
-
   .nav-items {
     font-weight: 500;
     display: flex;
@@ -304,6 +290,7 @@ const navItems = secondaryNavConfig[activeProduct]
     scrollbar-width: none;
     -ms-overflow-style: none;
     justify-content: flex-start;
+    gap: 0.125rem;
   }
 
   .nav-items::-webkit-scrollbar {
@@ -319,38 +306,47 @@ const navItems = secondaryNavConfig[activeProduct]
   .nav-item {
     display: flex;
     align-items: center;
-    padding: 0.5rem 0.9rem; /* Back to original padding */
+    margin: 0.25rem 0;
+    padding: 0.35rem 0.9rem;
     color: var(--sl-color-gray-2);
     text-decoration: none;
     white-space: nowrap;
     position: relative;
     line-height: 1;
     box-sizing: border-box;
+    border-radius: var(--sk-radius-md, 0.375rem);
+    background: transparent;
+    border: none;
+    font: inherit;
+    cursor: pointer;
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease;
   }
 
   .nav-item:hover {
-    color: var(--sl-color-white);
+    color: var(--sl-color-text);
+    background-color: var(--sl-color-gray-6);
+  }
+
+  .nav-item:focus-visible {
+    outline: var(--sk-focus-ring, 2px solid var(--sl-color-accent));
+    outline-offset: var(--sk-focus-offset, 2px);
   }
 
   .nav-item.current {
-    color: var(--sl-color-white);
-    padding: 0.3rem 0.9rem;
+    color: var(--sl-color-text);
     background-color: var(--sl-color-gray-6);
-    border-radius: 0.375rem;
-    border-bottom: none;
-    margin: 0.25rem 0;
+    font-weight: 600;
   }
 
   /* Shared items are temporary — will be split into product-specific entries */
   .nav-item.shared {
     color: var(--sl-color-gray-3);
-    border-radius: 0.375rem;
-    margin: 0.25rem 0;
-    padding: 0.3rem 0.9rem;
   }
 
   .nav-item.shared:hover {
-    color: var(--sl-color-gray-1);
+    color: var(--sl-color-text);
   }
 
   .nav-item-content {
@@ -381,7 +377,8 @@ const navItems = secondaryNavConfig[activeProduct]
     margin-left: 0.1rem;
   }
 
-  .nav-item-wrapper.has-dropdown:hover .dropdown-icon {
+  .nav-item-wrapper.has-dropdown:hover .dropdown-icon,
+  .nav-item-wrapper.has-dropdown .nav-item[aria-expanded='true'] .dropdown-icon {
     transform: rotate(180deg);
   }
 
@@ -394,7 +391,7 @@ const navItems = secondaryNavConfig[activeProduct]
       opacity 0.2s ease,
       transform 0.2s ease,
       visibility 0.2s ease;
-    z-index: 999999 !important;
+    z-index: var(--sl-z-index-dropdown, 15);
     pointer-events: none;
     isolation: isolate;
     top: -9999px;
@@ -408,18 +405,27 @@ const navItems = secondaryNavConfig[activeProduct]
     pointer-events: all;
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .dropdown-menu,
+    .dropdown-icon,
+    .nav-item,
+    .dropdown-item,
+    .dropdown-item-check-icon {
+      transition: none;
+    }
+
+    .dropdown-menu {
+      transform: none;
+    }
+  }
+
   .dropdown-content {
-    background: var(--sl-color-bg) !important;
+    background: var(--sl-color-bg);
     border: 1px solid var(--sl-color-gray-5);
-    border-radius: 0.5rem;
-    box-shadow:
-      0 1px 2px 0 rgba(10, 10, 10, 0.05),
-      0 4px 6px -1px rgba(0, 0, 0, 0.1),
-      0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+    border-radius: var(--sk-radius-lg, 0.5rem);
+    box-shadow: var(--sk-shadow-menu);
     padding: 0.75rem 1rem;
-    backdrop-filter: blur(12px);
     position: relative;
-    /* z-index: 100000 !important; assumed this was needed */
     isolation: isolate;
     min-width: 220px;
     width: 31.875rem;
@@ -473,14 +479,22 @@ const navItems = secondaryNavConfig[activeProduct]
     padding: 0.5rem 0.25rem;
     color: var(--sl-color-gray-1);
     text-decoration: none;
-    transition: all 0.2s ease;
-    border-radius: 0.375rem;
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease;
+    border-radius: var(--sk-radius-md, 0.375rem);
     width: 100%;
+    position: relative;
   }
 
   .dropdown-item.with-description {
     padding: 0.5rem 0.25rem;
     min-height: 4rem;
+  }
+
+  .dropdown-item:focus-visible {
+    outline: var(--sk-focus-ring, 2px solid var(--sl-color-accent));
+    outline-offset: var(--sk-focus-offset, 2px);
   }
 
   .dropdown-item-icon-wrapper {
@@ -489,7 +503,7 @@ const navItems = secondaryNavConfig[activeProduct]
     justify-content: center;
     width: 1.5rem;
     height: 1.5rem;
-    border-radius: 0.375rem;
+    border-radius: var(--sk-radius-md, 0.375rem);
     flex-shrink: 0;
     margin-top: 0.125rem;
   }
@@ -519,13 +533,9 @@ const navItems = secondaryNavConfig[activeProduct]
   .dropdown-item-description {
     font-size: 0.875rem;
     line-height: 1.25rem;
-    color: var(--sl-color-gray-3);
+    color: var(--sk-color-muted-text, var(--sl-color-gray-3));
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-
-  :root[data-theme='light'] .dropdown-item-description {
-    color: #646464;
   }
 
   .dropdown-item:hover {
@@ -533,7 +543,7 @@ const navItems = secondaryNavConfig[activeProduct]
   }
 
   .dropdown-item.current {
-    background: transparent;
+    background: var(--sl-color-gray-6);
     position: relative;
   }
 
@@ -544,7 +554,7 @@ const navItems = secondaryNavConfig[activeProduct]
     transform: translateY(-50%);
     width: 1rem;
     height: 1rem;
-    color: #10b981;
+    color: var(--sk-color-success, var(--sl-color-green-high));
     flex-shrink: 0;
     opacity: 0;
     visibility: hidden;
@@ -630,8 +640,8 @@ const navItems = secondaryNavConfig[activeProduct]
     padding-right: 1.5rem;
   }
 
-  /* Responsive adjustments */
-  @media (max-width: 60rem) {
+  /* Responsive adjustments — hide with header CTA seam at 50rem */
+  @media (max-width: 50rem) {
     .secondary-nav {
       display: none !important;
     }
@@ -639,7 +649,7 @@ const navItems = secondaryNavConfig[activeProduct]
 
   @media (max-width: 72rem) {
     .nav-item {
-      padding: 0.5rem 0.75rem; /* Back to original responsive padding */
+      padding: 0.35rem 0.75rem;
     }
 
     .nav-label {
@@ -649,14 +659,23 @@ const navItems = secondaryNavConfig[activeProduct]
     .nav-left .nav-items {
       margin-left: 0.75rem;
     }
-
-    .nav-right .nav-items {
-      margin-right: 0.75rem;
-    }
   }
 </style>
 
 <script>
+  function getTriggerForDropdown(dropdown) {
+    const navKey = dropdown.getAttribute('data-nav-key')
+    if (!navKey) return null
+    return document.querySelector(
+      `.nav-item-wrapper.has-dropdown .nav-item[data-nav-key="${navKey}"]`,
+    )
+  }
+
+  function setTriggerExpanded(dropdown, expanded) {
+    const triggerBtn = getTriggerForDropdown(dropdown)
+    if (triggerBtn) triggerBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false')
+  }
+
   function positionDropdown(trigger, dropdown) {
     const rect = trigger.getBoundingClientRect()
     const dropdownContent = dropdown.querySelector('.dropdown-content')
@@ -676,11 +695,13 @@ const navItems = secondaryNavConfig[activeProduct]
     }
 
     dropdown.classList.add('open')
+    setTriggerExpanded(dropdown, true)
   }
 
   function hideDropdown(dropdown) {
     dropdown.classList.remove('open')
     dropdown.style.pointerEvents = 'none'
+    setTriggerExpanded(dropdown, false)
     // Use a small delay before moving off-screen to allow animations
     setTimeout(() => {
       if (!dropdown.classList.contains('open')) {
@@ -742,11 +763,10 @@ const navItems = secondaryNavConfig[activeProduct]
 
       const dropdownMenu = matchingItem.closest('[data-dropdown]')
       if (dropdownMenu) {
-        const navKey = dropdownMenu.getAttribute('data-nav-key')
-        const parentTrigger = document.querySelector(
-          `.nav-item-wrapper.has-dropdown .nav-item[href="${navKey}"]`,
-        )
+        const parentTrigger = getTriggerForDropdown(dropdownMenu)
         if (parentTrigger) {
+          parentTrigger.classList.add('current')
+
           // Check if this is a right column item (Full-stack Auth shortcut)
           const isRightColumnItem = matchingItem.classList.contains('dropdown-item-shortcut')
 
@@ -814,10 +834,7 @@ const navItems = secondaryNavConfig[activeProduct]
     if (matchingItem && matchingLabel) {
       const dropdownMenu = matchingItem.closest('[data-dropdown]')
       if (dropdownMenu) {
-        const navKey = dropdownMenu.getAttribute('data-nav-key')
-        const parentTrigger = document.querySelector(
-          `.nav-item-wrapper.has-dropdown .nav-item[href="${navKey}"]`,
-        )
+        const parentTrigger = getTriggerForDropdown(dropdownMenu)
         if (parentTrigger) {
           // Ensure parent is marked as current
           parentTrigger.classList.add('current')
@@ -872,11 +889,14 @@ const navItems = secondaryNavConfig[activeProduct]
     let isClickOpen = false // Track if any dropdown is open via click globally
 
     dropdownTriggers.forEach((trigger) => {
-      const triggerLink = trigger.querySelector('.nav-item')
-      const href = triggerLink?.getAttribute('href')
-      if (!href) return
+      const triggerBtn = trigger.querySelector('.nav-item')
+      const navKey = triggerBtn?.getAttribute('data-nav-key')
+      if (!navKey) return
 
-      const dropdown = document.querySelector(`[data-nav-key="${href}"]`)
+      // Menu panel lives in the portal; trigger carries data-nav-key
+      const dropdown = document.querySelector(
+        `#dropdown-portal [data-dropdown][data-nav-key="${navKey}"]`,
+      )
       if (!dropdown) return
 
       hideDropdown(dropdown)
@@ -884,17 +904,14 @@ const navItems = secondaryNavConfig[activeProduct]
       let hoverTimeout = null
 
       trigger.addEventListener('click', (e) => {
-        // Prevent default and handle click toggle
         e.preventDefault()
         e.stopPropagation()
 
         if (currentOpenDropdown === dropdown && dropdown.classList.contains('open')) {
-          // Close if clicking the same trigger
           hideDropdown(dropdown)
           currentOpenDropdown = null
           isClickOpen = false
         } else {
-          // Open new dropdown
           hideAllDropdowns()
           positionDropdown(trigger, dropdown)
           dropdown.style.pointerEvents = 'all'
@@ -913,7 +930,7 @@ const navItems = secondaryNavConfig[activeProduct]
             positionDropdown(trigger, dropdown)
             dropdown.style.pointerEvents = 'all'
             currentOpenDropdown = dropdown
-          }, 100) // Small delay to prevent accidental triggers
+          }, 100)
         }
       })
 
@@ -945,33 +962,24 @@ const navItems = secondaryNavConfig[activeProduct]
       dropdown.addEventListener('click', (e) => {
         const target = e.target.closest('.dropdown-item')
         if (target) {
-          // Check if this is a right column item (Full-stack Auth shortcut)
           const isRightColumnItem = target.classList.contains('dropdown-item-shortcut')
-
-          // Update parent label and icon immediately if keepParentLabel is not set
-          // AND if this is NOT a right column item
-          const wrapper = triggerLink.closest('.nav-item-wrapper')
+          const wrapper = triggerBtn.closest('.nav-item-wrapper')
           const hasKeepParentLabel = wrapper?.hasAttribute('data-keep-parent-label')
 
           if (!hasKeepParentLabel && !isRightColumnItem) {
-            // Get label from the clicked item
             const labelSpan =
               target.querySelector('.dropdown-item-label') || target.querySelector('span')
             const clickedLabel = labelSpan?.textContent
-
-            // Get icon from the clicked item
             const iconEl = target.querySelector('.dropdown-item-icon')
 
             if (clickedLabel) {
-              const parentLabel = triggerLink.querySelector('.nav-label')
-              if (parentLabel) {
-                parentLabel.textContent = clickedLabel
-              }
+              const parentLabel = triggerBtn.querySelector('.nav-label')
+              if (parentLabel) parentLabel.textContent = clickedLabel
             }
 
             if (iconEl) {
               const clonedIcon = iconEl.cloneNode(true)
-              const parentIcon = triggerLink.querySelector('.nav-icon')
+              const parentIcon = triggerBtn.querySelector('.nav-icon')
               if (parentIcon) {
                 parentIcon.replaceWith(clonedIcon)
                 clonedIcon.classList.add('nav-icon')
@@ -1011,9 +1019,13 @@ const navItems = secondaryNavConfig[activeProduct]
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
+        const openTrigger = document.querySelector(
+          '.nav-item-wrapper.has-dropdown .nav-item[aria-expanded="true"]',
+        )
         hideAllDropdowns()
         currentOpenDropdown = null
         isClickOpen = false
+        if (openTrigger instanceof HTMLElement) openTrigger.focus()
       }
     })
   })

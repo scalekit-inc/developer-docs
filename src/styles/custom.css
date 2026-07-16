@@ -52,23 +52,61 @@
     /* Outline and accessibility tokens */
     --sl-outline-offset-inside: -0.1875rem;
 
+    /* Radius scale — chrome uses sm/md/lg only */
+    --sk-radius-sm: 0.25rem; /* 4px — code, badges */
+    --sk-radius-md: 0.375rem; /* 6px — buttons, nav chips, menu items */
+    --sk-radius-lg: 0.5rem; /* 8px — menus, cards, popovers */
+    --sk-radius-xl: 0.75rem; /* 12px — images, large cards */
+    --sk-radius-pill: 999px;
+    --sk-radius-full: 50%;
+
+    /* Elevation */
+    --sk-shadow-menu:
+      0 1px 2px 0 rgba(10, 10, 10, 0.05), 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --sk-shadow-menu-dark:
+      0 1px 2px 0 rgba(0, 0, 0, 0.2), 0 4px 6px -1px rgba(0, 0, 0, 0.3),
+      0 10px 15px -3px rgba(0, 0, 0, 0.4);
+    --sk-shadow-button:
+      0 4px 10px -2px rgba(10, 10, 10, 0.1), 0 2px 5px -2px rgba(10, 10, 10, 0.05);
+
+    /* Interactive control rhythm */
+    --sk-control-min-height: 2.25rem;
+    --sk-control-padding-y: 0.4rem;
+    --sk-control-padding-x: 1.25rem;
+    --sk-focus-ring: 2px solid var(--sl-color-accent);
+    --sk-focus-offset: 2px;
+
+    /* Semantic status (replaces hard-coded Tailwind emerald / grays) */
+    --sk-color-success: var(--sl-color-green-high, #34d399);
+    --sk-color-muted-text: var(--sl-color-gray-3);
+
+    /* Chrome breakpoint — header CTAs + secondary nav share this seam */
+    --sk-chrome-bp: 50rem;
+
     /* Z-index tokens */
     --sl-z-index-toc: 4;
     --sl-z-index-menu: 5;
     --sl-z-index-navbar: 10;
+    --sl-z-index-dropdown: 15;
     --sl-z-index-skiplink: 20;
   }
 
-  /* Responsive nav height adjustments */
-  @media (max-width: 60rem) {
+  :root[data-theme='dark'] {
+    --sk-shadow-menu: var(--sk-shadow-menu-dark);
+    --sk-color-success: var(--sl-color-green-high, #6ee7b7);
+  }
+
+  /* Responsive nav height adjustments — aligned to --sk-chrome-bp (50rem) */
+  @media (max-width: 50rem) {
     :root {
-      --sl-nav-height: 5.8rem; /* Smaller screens get slightly less height */
+      --sl-nav-height: 5.8rem;
     }
   }
 
   @media (max-width: 48rem) {
     :root {
-      --sl-nav-height: 5.5rem; /* Tablet screens get less height */
+      --sl-nav-height: 5.5rem;
     }
   }
 }
@@ -84,45 +122,93 @@
    COMPONENTS LAYER - Reusable component styles
    ============================================================================= */
 @layer scalekit.components {
-  /* Button components */
+  /* Shared focus ring for chrome controls */
+  .sk-focus-ring:focus-visible {
+    outline: var(--sk-focus-ring);
+    outline-offset: var(--sk-focus-offset);
+  }
+
+  /* Button components — equal height, full state set */
   .sk-primary,
   .sk-secondary,
   .sk-minimal {
     display: inline-flex;
-    padding: 0.5rem 1.5rem; /* originally, add this to header only */
+    min-height: var(--sk-control-min-height);
+    padding: var(--sk-control-padding-y) var(--sk-control-padding-x);
     justify-content: center;
     align-items: center;
-    border-radius: 0.375rem;
+    border-radius: var(--sk-radius-md);
+    box-sizing: border-box;
+    font-size: var(--sl-text-sm);
+    white-space: nowrap;
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease,
+      color 0.15s ease,
+      box-shadow 0.15s ease,
+      opacity 0.15s ease;
   }
 
-  .sk-primary {
-    border-radius: 0.375rem;
+  .sk-primary:hover {
+    background: var(--sl-color-gray-5);
+    box-shadow: var(--sk-shadow-button);
   }
 
   :root[data-theme='dark'] .sk-primary:hover {
-    border-radius: 0.375rem;
-    background: #505050;
-    box-shadow:
-      0 4px 10px -2px rgba(10, 10, 10, 0.1),
-      0 2px 5px -2px rgba(10, 10, 10, 0.05);
+    background: var(--sl-color-gray-5);
+    box-shadow: var(--sk-shadow-button);
+  }
+
+  .sk-primary:active,
+  .sk-secondary:active,
+  .sk-minimal:active {
+    transform: translateY(0.5px);
+  }
+
+  .sk-primary:focus-visible,
+  .sk-secondary:focus-visible,
+  .sk-minimal:focus-visible {
+    outline: var(--sk-focus-ring);
+    outline-offset: var(--sk-focus-offset);
+  }
+
+  .sk-primary:disabled,
+  .sk-secondary:disabled,
+  .sk-minimal:disabled,
+  .sk-primary[aria-disabled='true'],
+  .sk-secondary[aria-disabled='true'],
+  .sk-minimal[aria-disabled='true'] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .sk-primary[data-state='loading'],
+  .sk-secondary[data-state='loading'] {
+    opacity: 0.7;
+    cursor: wait;
+    pointer-events: none;
+  }
+
+  .sk-secondary:hover {
+    background-color: var(--sl-color-gray-6);
   }
 
   /* Quiz component button styling */
   sl-videos-quiz form button,
   sl-videos-quiz .sl-videos-quiz-status {
     display: inline-flex !important;
-    padding: 0.3rem 1.5rem !important;
+    min-height: var(--sk-control-min-height) !important;
+    padding: var(--sk-control-padding-y) var(--sk-control-padding-x) !important;
     justify-content: center !important;
     align-items: center !important;
-    border-radius: 0.375rem !important;
+    border-radius: var(--sk-radius-md) !important;
   }
 
   :root[data-theme='dark'] sl-videos-quiz form button:hover {
-    border-radius: 0.375rem !important;
-    background: #505050 !important;
-    box-shadow:
-      0 4px 10px -2px rgba(10, 10, 10, 0.1),
-      0 2px 5px -2px rgba(10, 10, 10, 0.05) !important;
+    border-radius: var(--sk-radius-md) !important;
+    background: var(--sl-color-gray-5) !important;
+    box-shadow: var(--sk-shadow-button) !important;
   }
 
   /* Table components */
@@ -132,7 +218,7 @@
   starlight-image-zoom-zoomable img {
     border: 1px solid var(--sl-color-gray-5);
     padding: 10px;
-    border-radius: 4px;
+    border-radius: var(--sk-radius-sm);
   }
 
   /* Typography components */
@@ -170,7 +256,7 @@
     pointer-events: none;
     cursor: default;
     font-size: 0.78rem !important; /* 10px - reduced from 11px */
-    font-weight: 650 !important;
+    font-weight: 600 !important;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--sl-color-gray-3) !important;
@@ -291,8 +377,8 @@
   .sl-markdown-content sl-videos-quiz button[type='submit'] {
     font-size: var(--sl-text-sm);
     line-height: 1.25rem;
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem !important; /* match .sk-primary */
+    padding: var(--sk-control-padding-y) 1rem;
+    border-radius: var(--sk-radius-md) !important;
     font-weight: 500;
   }
 
@@ -302,9 +388,14 @@
   .sl-markdown-content sl-videos-quiz button[type='submit']:focus,
   .sl-markdown-content sl-videos-quiz button[type='submit']:disabled,
   .sl-markdown-content sl-videos-quiz .sl-videos-quiz-status {
-    border-radius: 0.375rem !important;
+    border-radius: var(--sk-radius-md) !important;
     line-height: 1.25rem;
-    padding: 0.5rem 1rem;
+    padding: var(--sk-control-padding-y) 1rem;
+  }
+
+  .sl-markdown-content sl-videos-quiz button[type='submit']:focus-visible {
+    outline: var(--sk-focus-ring);
+    outline-offset: var(--sk-focus-offset);
   }
 
   /* Sidebar selected item background - less intrusive */
@@ -399,7 +490,7 @@
     font-size: var(--sl-text-sm) !important;
     color: inherit;
     text-transform: none;
-    font-weight: 550;
+    font-weight: 500;
   }
 
   .starlight-sidebar-topics-dropdown-dropdown {
@@ -431,9 +522,9 @@
     height: 2.5rem;
   }
 
-  /* Override nova-page-frame-header background to white */
+  /* Header frame follows theme surface (not pure white) */
   .nova-page-frame-header {
-    background-color: white !important;
+    background-color: var(--sl-color-bg);
   }
 
   /* Fix Nova theme background color persistence in production builds */
@@ -490,7 +581,7 @@
     border: none !important;
     background-color: color-mix(in srgb, currentColor 7%, transparent) !important;
     padding: 0.1em 0.35em !important;
-    border-radius: 0.25rem !important;
+    border-radius: var(--sk-radius-sm) !important;
   }
 }
 
