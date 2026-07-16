@@ -25,7 +25,9 @@ import { ClientRouter } from 'astro:transitions'
       try {
         const url = new URL(href, location.origin)
         if (url.origin !== location.origin) return
-        const key = url.pathname.replace(/\/+$/, '') || '/'
+        // Include search so /path?mode=a and /path?mode=b stay distinct
+        const pathname = url.pathname.replace(/\/+$/, '') || '/'
+        const key = pathname + url.search
         if (prefetched.has(key)) return
         prefetched.add(key)
         // Prefer native document prefetch for ClientRouter HTML payloads
