@@ -1,10 +1,22 @@
 ---
 import Default from '@astrojs/starlight/components/Head.astro'
+import { ClientRouter } from 'astro:transitions'
 ---
 
 <!-- LLM-friendly documentation directive — must appear first for AI agent discovery -->
 <link rel="alternate" type="text/plain" title="LLM-friendly documentation" href="/llms.txt" />
 <meta name="ai-content-type" content="documentation" />
+
+<!--
+  Smooth docs navigation (Starlight + Astro utilities):
+  - ClientRouter: soft navigations keep chrome stable (secondary nav does not
+    hard-flash). Pair with transition:persist on the header top row.
+  - Starlight hover prefetch (astro.config) warms the next page.
+  - Scalar API pages MUST use <ScalarComponent renderMode="client" /> so the
+    reference remounts on astro:page-load (see @scalar/astro docs — static
+    mode only runs on hard refresh under ClientRouter).
+-->
+<ClientRouter />
 
 <!-- WebMCP: expose site tools to AI agents via the browser -->
 <script src="/js/webmcp.js" defer></script>

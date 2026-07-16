@@ -88,6 +88,7 @@ const productLinks = [
               aria-selected={link.isActive}
               data-storage-value={link.storageValue}
               data-label={link.label}
+              data-product-switch
             >
               <div class="item-icon-wrapper">
                 {IconComponent && <IconComponent class="item-icon" />}
@@ -106,21 +107,148 @@ const productLinks = [
 </div>
 
 <script>
-  const trigger = document.getElementById('product-dropdown-trigger') as HTMLButtonElement | null
-  const dropdown = document.getElementById('product-dropdown')
+  let productToggleAbort: AbortController | null = null
 
-  if (trigger && dropdown) {
-    trigger.addEventListener('click', (e) => {
-      e.stopPropagation()
-      const isOpen = dropdown.classList.toggle('is-open')
-      trigger.setAttribute('aria-expanded', String(isOpen))
-    })
+  function initProductToggle() {
+    const trigger = document.getElementById('product-dropdown-trigger') as HTMLButtonElement | null
+    const dropdown = document.getElementById('product-dropdown')
+    if (!trigger || !dropdown) return
 
-    document.addEventListener('click', () => {
+    productToggleAbort?.abort()
+    productToggleAbort = new AbortController()
+    const { signal } = productToggleAbort
+
+    dropdown.classList.remove('is-open')
+    trigger.setAttribute('aria-expanded', 'false')
+
+    const getOptions = () =>
+      Array.from(dropdown.querySelectorAll<HTMLElement>('.product-dropdown__item[role="option"]'))
+
+    const openMenu = () => {
+      dropdown.classList.add('is-open')
+      trigger.setAttribute('aria-expanded', 'true')
+    }
+
+    const closeMenu = (restoreFocus = false) => {
       dropdown.classList.remove('is-open')
       trigger.setAttribute('aria-expanded', 'false')
-    })
+      if (restoreFocus) trigger.focus()
+    }
+
+    const focusOption = (index: number) => {
+      const options = getOptions()
+      if (!options.length) return
+      const next = ((index % options.length) + options.length) % options.length
+      options[next]?.focus()
+    }
+
+    trigger.addEventListener(
+      'click',
+      (e) => {
+        e.stopPropagation()
+        if (dropdown.classList.contains('is-open')) closeMenu()
+        else openMenu()
+      },
+      { signal },
+    )
+
+    trigger.addEventListener(
+      'keydown',
+      (e) => {
+        if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          openMenu()
+          const options = getOptions()
+          const activeIndex = options.findIndex((o) => o.classList.contains('is-active'))
+          focusOption(activeIndex >= 0 ? activeIndex : 0)
+        } else if (e.key === 'Escape') {
+          closeMenu(true)
+        }
+      },
+      { signal },
+    )
+
+    dropdown.addEventListener(
+      'keydown',
+      (e) => {
+        if (!dropdown.classList.contains('is-open')) return
+        const options = getOptions()
+        const currentIndex = options.findIndex((o) => o === document.activeElement)
+
+        if (e.key === 'Escape') {
+          e.preventDefault()
+          closeMenu(true)
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault()
+          focusOption(currentIndex + 1)
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault()
+          focusOption(currentIndex <= 0 ? options.length - 1 : currentIndex - 1)
+        } else if (e.key === 'Home') {
+          e.preventDefault()
+          focusOption(0)
+        } else if (e.key === 'End') {
+          e.preventDefault()
+          focusOption(options.length - 1)
+        }
+      },
+      { signal },
+    )
+
+    document.addEventListener(
+      'click',
+      (e) => {
+        if (!dropdown.contains(e.target as Node) && e.target !== trigger) {
+          closeMenu()
+        }
+      },
+      { signal },
+    )
+
+    // Product switch: close menu + optimistic label/active state so chrome
+    // updates before the soft navigation paints the new secondary nav.
+    dropdown.addEventListener(
+      'click',
+      (e) => {
+        const option = (e.target as Element | null)?.closest?.('[data-product-switch]')
+        if (!(option instanceof HTMLElement)) return
+
+        const label = option.getAttribute('data-label')
+        const labelEl = trigger.querySelector('.product-label')
+        const prefixEl = trigger.querySelector('.phrase-prefix')
+
+        if (label) {
+          if (labelEl) {
+            labelEl.textContent = label
+          } else if (prefixEl) {
+            const span = document.createElement('span')
+            span.id = 'product-label'
+            span.className = 'product-label'
+            span.textContent = label
+            prefixEl.replaceWith(span)
+            trigger.classList.remove('is-placeholder')
+            trigger.setAttribute('data-has-selection', 'true')
+          }
+        }
+
+        getOptions().forEach((item) => {
+          const active = item === option
+          item.classList.toggle('is-active', active)
+          item.setAttribute('aria-selected', String(active))
+        })
+
+        closeMenu()
+      },
+      { signal },
+    )
   }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initProductToggle, { once: true })
+  } else {
+    initProductToggle()
+  }
+  document.addEventListener('astro:page-load', initProductToggle)
 </script>
 
 <style>
@@ -161,9 +289,9 @@ const productLinks = [
   }
 
   .product-dropdown__trigger:focus-visible {
-    outline: 2px solid var(--sl-color-accent);
-    outline-offset: 2px;
-    border-radius: 2px;
+    outline: var(--sk-focus-ring, 2px solid var(--sl-color-accent));
+    outline-offset: var(--sk-focus-offset, 2px);
+    border-radius: var(--sk-radius-sm, 0.25rem);
   }
 
   .chevron {
@@ -184,18 +312,21 @@ const productLinks = [
     min-width: 16rem;
     background: var(--sl-color-bg);
     border: 1px solid var(--sl-color-gray-5);
-    border-radius: 0.5rem;
-    box-shadow:
-      0 1px 2px 0 rgba(10, 10, 10, 0.05),
-      0 4px 6px -1px rgba(0, 0, 0, 0.1),
-      0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    z-index: 100;
+    border-radius: var(--sk-radius-lg, 0.5rem);
+    box-shadow: var(--sk-shadow-menu);
+    z-index: var(--sl-z-index-dropdown, 15);
     overflow: hidden;
     padding: 0.5rem;
   }
 
   .product-dropdown.is-open .product-dropdown__menu {
     display: block;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chevron {
+      transition: none;
+    }
   }
 
   .menu-section-label {
@@ -214,13 +345,18 @@ const productLinks = [
     padding: 0.5rem 0.5rem;
     color: var(--sl-color-gray-1);
     text-decoration: none;
-    border-radius: 0.375rem;
+    border-radius: var(--sk-radius-md, 0.375rem);
     transition: background-color 0.1s ease;
     position: relative;
   }
 
   .product-dropdown__item:hover {
     background: var(--sl-color-gray-6);
+  }
+
+  .product-dropdown__item:focus-visible {
+    outline: var(--sk-focus-ring, 2px solid var(--sl-color-accent));
+    outline-offset: var(--sk-focus-offset, 2px);
   }
 
   .item-icon-wrapper {
@@ -257,23 +393,23 @@ const productLinks = [
   .item-description {
     font-size: 0.75rem;
     line-height: 1.25;
-    color: var(--sl-color-gray-3);
-  }
-
-  :root[data-theme='light'] .item-description {
-    color: #646464;
+    color: var(--sk-color-muted-text, var(--sl-color-gray-3));
   }
 
   .item-check-icon {
     width: 0.875rem;
     height: 0.875rem;
-    color: #10b981;
+    color: var(--sk-color-success, var(--sl-color-green-high));
     flex-shrink: 0;
     opacity: 0;
     visibility: hidden;
     transition:
       opacity 0.15s ease,
       visibility 0.15s ease;
+  }
+
+  .product-dropdown__item.is-active {
+    background: var(--sl-color-gray-6);
   }
 
   .product-dropdown__item.is-active .item-check-icon {
@@ -286,10 +422,6 @@ const productLinks = [
   }
 
   :root[data-theme='dark'] .product-dropdown__menu {
-    box-shadow:
-      0 1px 2px 0 rgba(0, 0, 0, 0.2),
-      0 4px 6px -1px rgba(0, 0, 0, 0.3),
-      0 10px 15px -3px rgba(0, 0, 0, 0.4);
     border-color: var(--sl-color-gray-4);
   }
 </style>

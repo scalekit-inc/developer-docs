@@ -60,14 +60,32 @@ head:
         transform: translateX(-50%);
         position: relative;
         z-index: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: calc(100dvh - var(--sl-nav-height, 6.3rem));
       }
+
+      .gateway-section-label {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--sl-color-text-muted);
+        text-align: center;
+        margin: 0 0 1rem;
+        padding: 0;
+      }
+
+      .gateway { order: -1; }
+      .gateway-cli { order: 1; }
 
       .gateway {
         display: flex;
         flex-direction: row;
-        min-height: clamp(22rem, calc(100vh - var(--sl-nav-height) - 20rem), 35rem);
+        flex: 1;
+        min-height: 0;
         margin-top: 0;
-        padding-top: 0.5rem;
+        padding-top: 0;
         overflow: hidden;
         background: var(--sl-color-bg);
       }
@@ -78,18 +96,24 @@ head:
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 1.25rem;
-        padding: 2.5rem 3rem;
+        gap: 1rem;
+        padding: 2rem 2.5rem;
         text-align: center;
         text-decoration: none;
         color: inherit;
         transition:
-          flex 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-          opacity 0.374s ease,
-          background 0.3s ease,
-          box-shadow 0.3s ease;
+          flex 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+          opacity 0.3s ease,
+          background 0.3s ease;
         position: relative;
         overflow: hidden;
+        border-radius: 0;
+      }
+
+      .panel:focus-visible {
+        outline: var(--sk-focus-ring, 2px solid var(--sl-color-accent));
+        outline-offset: -2px;
+        z-index: 1;
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -98,12 +122,37 @@ head:
         }
       }
 
+      /* Soft paper gradients — theme-aware via --sk-color-agent-* tokens */
       .panel-agents {
-        background: linear-gradient(180deg, #ffffff 0%, #ECFDF5 100%);
+        background: linear-gradient(
+          180deg,
+          var(--sl-color-bg) 0%,
+          color-mix(in srgb, var(--sk-color-agent-soft, #ecfdf5) 70%, var(--sl-color-bg)) 100%
+        );
       }
 
       .panel-saas {
-        background: linear-gradient(180deg, #ffffff 0%, #F3F4F6 100%);
+        background: linear-gradient(
+          180deg,
+          var(--sl-color-bg) 0%,
+          color-mix(in srgb, var(--sl-color-gray-6) 55%, var(--sl-color-bg)) 100%
+        );
+      }
+
+      :root[data-theme='dark'] .panel-agents {
+        background: linear-gradient(
+          180deg,
+          var(--sl-color-bg) 0%,
+          color-mix(in srgb, var(--sk-color-agent-deep, #052e16) 45%, var(--sl-color-bg)) 100%
+        );
+      }
+
+      :root[data-theme='dark'] .panel-saas {
+        background: linear-gradient(
+          180deg,
+          var(--sl-color-bg) 0%,
+          color-mix(in srgb, var(--sl-color-gray-6) 40%, var(--sl-color-bg)) 100%
+        );
       }
 
       .panel::before {
@@ -117,30 +166,48 @@ head:
       }
 
       .panel-agents .panel-badge {
-        background-color: #ECFDF5;
-        border-color: #16B364;
-        color: #0E8A4A;
+        background-color: color-mix(
+          in srgb,
+          var(--sk-color-agent-soft, #ecfdf5) 80%,
+          var(--sl-color-bg-card)
+        );
+        border-color: color-mix(
+          in srgb,
+          var(--sk-color-agent-mid, #16b364) 55%,
+          var(--sl-color-hairline)
+        );
+        color: color-mix(in srgb, var(--sk-color-agent-ink, #0e8a4a) 85%, var(--sl-color-text));
       }
 
       .panel-saas .panel-badge {
-        background-color: #F3F4F6;
-        border-color: #E5E7EB;
-        color: #6B7280;
+        background-color: var(--sl-color-gray-6);
+        border-color: var(--sl-color-hairline);
+        color: var(--sl-color-text-muted);
+      }
+
+      :root[data-theme='dark'] .panel-agents .panel-badge {
+        background-color: color-mix(
+          in srgb,
+          var(--sk-color-agent-deep, #052e16) 55%,
+          var(--sl-color-bg-card)
+        );
+        border-color: color-mix(
+          in srgb,
+          var(--sk-color-agent-mid, #16b364) 40%,
+          var(--sl-color-hairline)
+        );
+        color: var(--sk-color-agent-ink, var(--sl-color-green-high, #6ee7b7));
       }
 
       @media (hover: hover) and (min-width: 1024px) {
-        .gateway:hover .panel:not(:hover) {
-          flex: 0.6;
-          opacity: 0.72;
+        /* Don't dim a keyboard-focused panel when the other is hovered */
+        .gateway:hover .panel:not(:hover):not(:focus-visible) {
+          flex: 0.72;
+          opacity: 0.78;
         }
-        .gateway:hover .panel:hover {
-          flex: 1.4;
-        }
-        .panel-agents:hover {
-          background: linear-gradient(180deg, #ffffff 0%, color-mix(in srgb, #ECFDF5 80%, #d1fae5) 100%);
-        }
-        .panel-saas:hover {
-          background: linear-gradient(180deg, #ffffff 0%, #E5E7EB 100%);
+        .gateway:hover .panel:is(:hover, :focus-visible) {
+          flex: 1.28;
+          opacity: 1;
         }
       }
 
@@ -155,17 +222,17 @@ head:
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
-        padding: 0 12px;
-        background-color: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 4px;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 12px;
+        gap: 0.5rem;
+        padding: 0 0.75rem;
+        background-color: var(--sl-color-bg-card);
+        border: 1px solid var(--sl-color-hairline);
+        border-radius: var(--sk-radius-sm, 0.25rem);
+        font-family: var(--sl-font-mono, 'JetBrains Mono', monospace);
+        font-size: 0.75rem;
         font-weight: 600;
-        line-height: 18px;
+        line-height: 1.125rem;
         text-transform: uppercase;
-        color: #0e1828;
+        color: var(--sl-color-text);
         text-align: center;
         white-space: nowrap;
         font-feature-settings: 'liga' 0, 'calt' 0;
@@ -174,7 +241,7 @@ head:
 
       .panel-label {
         font-size: clamp(1.625rem, 1.2rem + 1vw, 2.2rem);
-        font-weight: 600;
+        font-weight: 500;
         color: var(--sl-color-text-heading);
         line-height: 1.15;
         letter-spacing: -0.03em;
@@ -201,7 +268,7 @@ head:
       .panel-visual {
         width: min(100%, 36rem);
         margin: 0.1rem auto 0;
-        border-radius: 1.15rem;
+        border-radius: var(--sk-radius-xl, 0.75rem);
         border: none;
         background: transparent;
         box-shadow: none;
@@ -407,82 +474,210 @@ head:
         }
       }
 
-      @media (hover: hover) and (min-width: 1024px) {
-        .panel-agents,
-        .panel-saas {
-          justify-content: flex-start;
-        }
-
+      /* Desktop: hide illustrations so panels + CLI strip fill the viewport */
+      @media (min-width: 1024px) {
         .panel-visual {
-          width: 70%;
-          margin-top: 0.5rem;
+          display: none;
         }
-      }
-
-      .gateway-intro {
-        background: #fff;
       }
 
       .gateway-cli {
         text-align: center;
-        padding: 0.5rem 0 0.75rem;
+        padding: 1.5rem 1.5rem 1.75rem;
+        margin: 0;
+        background: var(--sl-color-bg);
+        border-top: 1px solid var(--sl-color-hairline);
+        flex-shrink: 0;
+      }
+
+      @keyframes gateway-fade-up {
+        from { opacity: 0; transform: translateY(6px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+
+      .gateway-cli-steps {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      .gateway-cli-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        flex: 1 1 12rem;
+        min-width: 11rem;
+        max-width: 18rem;
+        text-align: center;
+        background: var(--sl-color-bg-card);
+        border: 1px solid var(--sl-color-hairline);
+        border-radius: var(--sk-radius-xl, 0.75rem);
+        padding: 1rem 1.1rem;
+        overflow: hidden;
+        box-shadow: var(--sk-shadow-menu, 0 1px 2px rgba(10, 10, 10, 0.04));
+      }
+
+      @media (prefers-reduced-motion: no-preference) {
+        .gateway-cli-step {
+          opacity: 0;
+          animation: gateway-fade-up 280ms ease-out forwards;
+        }
+        .gateway-cli-step:nth-child(1) { animation-delay: 0ms; }
+        .gateway-cli-step:nth-child(2) { animation-delay: 70ms; }
+        .gateway-cli-step:nth-child(3) { animation-delay: 140ms; }
+      }
+
+      .gateway-cli-step-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: var(--sk-radius-full, 50%);
+        border: 1px solid var(--sl-color-accent);
+        background: var(--sl-color-bg-card);
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--sl-color-accent);
+        flex-shrink: 0;
+      }
+
+      .gateway-cli-step-title {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--sl-color-text-heading);
         margin: 0;
       }
 
-      .gateway-cli-label {
-        font-size: 0.85rem;
+      .gateway-cli-step .expressive-code {
+        width: 100%;
+        max-width: 100%;
+      }
+
+      .gateway-cli-step .expressive-code pre {
+        overflow-x: auto;
+      }
+
+      .gateway-cli-agent-icons {
+        list-style: none;
+        margin: 0.25rem 0 0;
+        padding: 0;
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+      }
+
+      .gateway-cli-agent-icons > li {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .gateway-cli-agent-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        border-radius: var(--sk-radius-md, 0.375rem);
+        border: 1px solid var(--sl-color-hairline);
+        background: var(--sl-color-bg);
         color: var(--sl-color-text-muted);
-        margin: 0 0 0.3rem;
+        font-size: 1rem;
       }
 
-      .gateway-cli .expressive-code {
-        max-width: 360px;
-        margin: 0 auto;
-        display: block;
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
       }
 
-      .gateway-intro-inner {
-        max-width: 1280px;
-        margin: 0 auto;
-        padding: 2rem 4rem 0.75rem;
+      .gateway-cli-step-prompt {
+        font-size: 0.82rem;
+        font-style: normal;
+        color: var(--sl-color-text-muted);
+        line-height: 1.45;
+        max-width: 14rem;
+        margin: 0;
+        quotes: '"' '"';
       }
 
-      .gateway-intro-title {
-        max-width: 42rem;
-        margin: 0 auto;
-        font-size: clamp(2rem, 1.6rem + 1.2vw, 3rem);
-        line-height: 1.08;
-        letter-spacing: -0.04em;
-        font-weight: 400;
-        color: var(--sl-color-text-heading);
-        text-align: center;
+      .gateway-cli-step-prompt::before {
+        content: open-quote;
+      }
+
+      .gateway-cli-step-prompt::after {
+        content: close-quote;
+      }
+
+      /* Desktop: flow arrows between steps without polluting the ordered list */
+      .gateway-cli-step:not(:last-child) {
+        position: relative;
+      }
+
+      @media (min-width: 48rem) {
+        .gateway-cli-steps {
+          flex-wrap: nowrap;
+          gap: 1.5rem;
+        }
+        .gateway-cli-step {
+          flex: 1 1 0;
+          min-width: 0;
+        }
+        .gateway-cli-step:not(:last-child)::after {
+          content: '→';
+          position: absolute;
+          right: -1.15rem;
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 1.1rem;
+          color: var(--sl-color-gray-3);
+          opacity: 0.55;
+          pointer-events: none;
+        }
+      }
+
+      @media (max-width: 47.99rem) {
+        .gateway-cli {
+          padding: 1.25rem 1rem 1.5rem;
+        }
+        .gateway-cli-steps {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .gateway-cli-step {
+          max-width: none;
+          flex: 1 1 auto;
+        }
       }
 
 
 ---
 
+import { Code } from '@astrojs/starlight/components'
+import IconClaude from '~icons/simple-icons/claude'
+import IconCopilot from '~icons/simple-icons/githubcopilot'
+import IconCursor from '~icons/simple-icons/cursor'
+import IconCodex from '~icons/simple-icons/openai'
 import agentkitHero from '../../assets/pages/hero/agentkit.svg'
 import authForSaasHero from '../../assets/pages/hero/auth-for-saas.svg'
 
 
 
 <div class="gateway-shell not-content">
-  <section class="gateway-intro" aria-labelledby="gateway-intro-title">
-    <div class="gateway-intro-inner">
-      <h2 class="gateway-intro-title" id="gateway-intro-title">
-        What are you solving?
-      </h2>
-    <h1 class="sr-only">Choose your Scalekit documentation path</h1>
-    </div>
-  </section>
-
-  <div class="gateway-cli not-content">
-
-```sh frame="none" showLineNumbers=false
-npx @scalekit-inc/cli setup
-```
-
-  </div>
+  <h1 class="sr-only">Choose your Scalekit documentation path</h1>
 
   <div class="gateway">
     <a
@@ -500,7 +695,7 @@ npx @scalekit-inc/cli setup
             alt="Agent authentication flow diagram"
             width={920}
             height={440}
-            fetchpriority="high"
+            loading="lazy"
             decoding="async"
             style="width: 100%; height: auto;"
           />
@@ -526,6 +721,7 @@ npx @scalekit-inc/cli setup
               alt="Authentication architecture overview"
               width={920}
               height={440}
+              loading="lazy"
               decoding="async"
               style="width: 100%; height: auto;"
             />
@@ -534,4 +730,56 @@ npx @scalekit-inc/cli setup
       </div>
     </a>
   </div>
+
+  <section class="gateway-cli not-content" aria-labelledby="gateway-cli-heading">
+    <h2 class="gateway-section-label" id="gateway-cli-heading">Try it in 3 steps</h2>
+    <ol class="gateway-cli-steps">
+      <li class="gateway-cli-step">
+        <span class="gateway-cli-step-num" aria-hidden="true">1</span>
+        <p class="gateway-cli-step-title">Run the CLI</p>
+        <Code
+          code="npx @scalekit-inc/cli setup"
+          lang="sh"
+          frame="none"
+          showLineNumbers={false}
+          wrap
+        />
+      </li>
+      <li class="gateway-cli-step">
+        <span class="gateway-cli-step-num" aria-hidden="true">2</span>
+        <p class="gateway-cli-step-title">Choose your coding agent</p>
+        <ul class="gateway-cli-agent-icons" aria-label="Supported coding agents">
+          <li>
+            <span class="gateway-cli-agent-icon" title="Claude Code">
+              <IconClaude aria-hidden="true" />
+              <span class="sr-only">Claude Code</span>
+            </span>
+          </li>
+          <li>
+            <span class="gateway-cli-agent-icon" title="GitHub Copilot">
+              <IconCopilot aria-hidden="true" />
+              <span class="sr-only">GitHub Copilot</span>
+            </span>
+          </li>
+          <li>
+            <span class="gateway-cli-agent-icon" title="Cursor">
+              <IconCursor aria-hidden="true" />
+              <span class="sr-only">Cursor</span>
+            </span>
+          </li>
+          <li>
+            <span class="gateway-cli-agent-icon" title="Codex">
+              <IconCodex aria-hidden="true" />
+              <span class="sr-only">Codex</span>
+            </span>
+          </li>
+        </ul>
+      </li>
+      <li class="gateway-cli-step">
+        <span class="gateway-cli-step-num" aria-hidden="true">3</span>
+        <p class="gateway-cli-step-title">Ask it</p>
+        <p class="gateway-cli-step-prompt">Analyze my project and tell me what problems Scalekit can solve for me</p>
+      </li>
+    </ol>
+  </section>
 </div>

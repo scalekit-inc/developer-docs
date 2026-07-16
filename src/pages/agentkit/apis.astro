@@ -127,7 +127,15 @@ const frontmatter = {
       pageObserver.observe(document.documentElement, { childList: true, subtree: true })
     })()
   </script>
+  {
+    /*
+    renderMode="client" is required under Astro ClientRouter / Starlight soft
+    navigations. Static mode only runs its bootstrap script on hard load, which
+    left this page blank after SDKs → API reference. See @scalar/astro docs.
+  */
+  }
   <ScalarComponent
+    renderMode="client"
     configuration={{
       url: '/api/agentkit.scalar.yaml',
       theme: 'default',

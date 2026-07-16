@@ -11,22 +11,27 @@ import AuthCTA from '../auth/AuthCTA.astro'
 const { entry, locale } = Astro.props
 ---
 
-<div class="header">
+<div class="header" transition:name="sk-site-header">
   <div class="top-row">
     <div class="header-left">
-      <SiteTitle {locale} />
+      {/* Logo stable across soft navigations */}
+      <div transition:persist="sk-site-title">
+        <SiteTitle {locale} />
+      </div>
+      {/* Must re-render — active product label is page-dependent */}
       <HeaderProductToggle entry={entry} />
     </div>
 
     <div class="header-center">
-      <div class="search-wrapper">
+      {/* Persist DocSearch instance so it does not remount/break after soft nav */}
+      <div class="search-wrapper" transition:persist="sk-search">
         <Search {locale} />
         <MobileMenuToggle />
       </div>
     </div>
 
     <div class="header-right">
-      <div class="right-actions sl-hidden md:sl-flex">
+      <div class="right-actions sl-hidden md:sl-flex" transition:persist="sk-header-actions">
         <LinkButton
           href="https://schedule.scalekit.com/meet/ravi-madabhushi/demo-8b100203"
           target="_blank"
@@ -52,6 +57,13 @@ const { entry, locale } = Astro.props
     </div>
   </div>
 
+  {
+    /*
+    Soft-swap (not persist): keeps the same chrome layout while current highlight
+    and product-specific items update. Full MPA reload was what made secondary
+    nav vanish and reappear on API reference.
+  */
+  }
   <SecondaryNav entry={entry} />
 </div>
 
@@ -129,8 +141,6 @@ const { entry, locale } = Astro.props
     }
   }
 
-  const dashboardButtons = document.querySelectorAll('[data-dashboard-btn]')
-
   // Periodically refresh Dashboard button state without re-attaching listeners
   const refreshDashboardState = async (btn) => {
     const data = await getSession()
@@ -141,12 +151,16 @@ const { entry, locale } = Astro.props
     }
   }
 
-  /** @param {Element} btn */
-  const updateDashboardButton = async (btn) => {
-    await refreshDashboardState(btn)
+  function initDashboardButtons() {
+    document.querySelectorAll('[data-dashboard-btn]').forEach(refreshDashboardState)
   }
 
-  dashboardButtons.forEach(updateDashboardButton)
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDashboardButtons, { once: true })
+  } else {
+    initDashboardButtons()
+  }
+  document.addEventListener('astro:page-load', initDashboardButtons)
 </script>
 
 <style>
@@ -209,30 +223,25 @@ const { entry, locale } = Astro.props
       align-items: center;
     }
 
-    /* Custom padding for header LinkButtons only */
-    .right-actions :global(.sk-primary) {
-      padding: 0.3rem 1.5rem;
-    }
-
+    /* Shared control rhythm — equal height for primary + secondary in the toolbar */
+    .right-actions :global(.sk-primary),
     .right-actions :global(.sk-secondary),
     .right-actions :global(.sk-minimal) {
-      padding: 0.5rem 1.5rem;
+      min-height: var(--sk-control-min-height, 2.25rem);
+      padding: var(--sk-control-padding-y, 0.4rem) var(--sk-control-padding-x, 1.25rem);
+      font-size: var(--sl-text-sm);
+      border-radius: var(--sk-radius-md, 0.375rem);
     }
 
-    /* Match font size with other site buttons */
-    .right-actions :global(.sk-primary),
-    .right-actions :global(.sk-secondary) {
-      font-size: var(--sl-text-sm); /* Match other site buttons (14.4px) */
-    }
-
-    /* Hover/focus states for secondary buttons */
-    .right-actions :global(.sk-secondary:hover),
-    .right-actions :global(.sk-secondary:focus-visible) {
+    .right-actions :global(.sk-secondary:hover) {
       background-color: var(--sl-color-gray-6);
-      transition:
-        background-color 0.2s ease,
-        border-color 0.2s ease,
-        color 0.2s ease;
+    }
+
+    .right-actions :global(.sk-primary:focus-visible),
+    .right-actions :global(.sk-secondary:focus-visible),
+    .right-actions :global(.sk-minimal:focus-visible) {
+      outline: var(--sk-focus-ring, 2px solid var(--sl-color-accent));
+      outline-offset: var(--sk-focus-offset, 2px);
     }
 
     /* Prevent any button text from wrapping to two lines */
@@ -254,7 +263,7 @@ const { entry, locale } = Astro.props
      RESPONSIVE LAYER - Breakpoint-specific adaptations
      ============================================================================= */
   @layer header.responsive {
-    /* Desktop: Show right actions at medium breakpoint and above */
+    /* Desktop: Show right actions with secondary nav (shared --sk-chrome-bp) */
     @media (min-width: 50rem) {
       .right-actions {
         display: flex;

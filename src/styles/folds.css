@@ -78,7 +78,7 @@ body > div > div > div > div > main {
 .agent-connect-header .fold-lead {
   /* width: 35rem; */
   color: var(--sl-color-text-muted);
-  font-family: Inter, ui-sans-serif, system-ui, Roboto, Arial, sans-serif;
+  font-family: var(--sl-font, 'Inter Variable', ui-sans-serif, system-ui, sans-serif);
   font-size: 1.125rem;
   font-style: normal;
   font-weight: 400;
@@ -99,7 +99,7 @@ body > div > div > div > div > main {
 .auth-modules-header .fold-lead {
   /* width: 35rem; */
   color: var(--sl-color-text-muted);
-  font-family: Inter, ui-sans-serif, system-ui, Roboto, Arial, sans-serif;
+  font-family: var(--sl-font, 'Inter Variable', ui-sans-serif, system-ui, sans-serif);
   font-size: 1.125rem;
   font-style: normal;
   font-weight: 400;
@@ -110,14 +110,20 @@ body > div > div > div > div > main {
    FEATURE CARD STYLES (for Agent Auth and Auth Modules)
    ======================================== */
 
-/* Feature card grid layout */
+/* Feature card grid layout — slight asymmetry breaks equal-card sameness */
 .feature-cards-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.718rem;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.75rem;
   width: 100%;
   align-items: stretch;
   justify-items: stretch;
+}
+
+@media (max-width: 50rem) {
+  .feature-cards-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 /* Feature card container styles */
@@ -125,8 +131,8 @@ body > div > div > div > div > main {
   width: 100% !important;
   margin: 0 !important;
   padding: 1.5rem 2rem !important;
-  border-radius: 0.57438rem !important;
-  border: 1.149px solid var(--sl-color-border) !important;
+  border-radius: var(--sk-radius-lg) !important;
+  border: 1px solid var(--sl-color-border) !important;
   background: var(--sl-color-bg-card) !important;
   box-shadow: var(--sl-shadow-sm) !important;
   height: 100% !important;
@@ -135,9 +141,15 @@ body > div > div > div > div > main {
   justify-content: space-between !important;
   align-items: flex-start !important;
   box-sizing: border-box !important;
-  transition: all 0.2s ease !important;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease !important;
   position: relative !important;
   top: 0 !important;
+}
+
+.feature-cards-grid > .feature-card:first-child {
+  padding: 1.65rem 2rem !important;
 }
 
 /* Card content styles */
@@ -169,38 +181,41 @@ a .card-cta {
    HERO SECTION STYLES
    ======================================== */
 
-/* Hero section content and layout */
+/* Hero section content and layout — content-height, left-biased */
 .hero-content {
   width: min(50.625rem, 90vw);
   max-width: 100%;
-  height: 28rem;
+  min-height: 0;
+  height: auto;
   flex-shrink: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: flex-start;
 }
 
 .hero-container {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
+  justify-content: flex-start;
+  align-items: flex-start;
+  text-align: start;
+  width: 100%;
 }
 
 .hero-main {
   width: 100%;
+  max-width: 42rem;
 }
 
 .hero-header .fold-lead {
-  text-align: center;
-  max-width: 100%;
+  text-align: start;
+  max-width: 40rem;
   margin-top: 1rem;
 }
 
 /* Hero image styles */
 .hero-image {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   margin-top: 2rem;
   margin-bottom: 1rem;
@@ -210,7 +225,7 @@ a .card-cta {
   width: 100vw;
   max-width: 62.5rem;
   height: auto;
-  border-radius: 0.75rem;
+  border-radius: var(--sk-radius-xl);
   border: 1px solid var(--sl-color-border);
   box-shadow: 0 0.25rem 1.25rem var(--sl-color-shadow);
 }
@@ -484,7 +499,7 @@ a .card-cta {
     width: 100%;
     max-width: 21.875rem;
     border: 1px solid var(--sl-color-border);
-    border-radius: 0.5rem;
+    border-radius: var(--sk-radius-lg);
     box-shadow: 0 0.125rem 0.75rem var(--sl-color-shadow);
   }
 
@@ -499,7 +514,7 @@ a .card-cta {
   .hero-content {
     width: 100%;
     height: auto;
-    min-height: 37.6875rem;
+    min-height: 0;
   }
 }
 
@@ -510,7 +525,7 @@ a .card-cta {
 .fold-media img {
   width: 100%;
   height: auto;
-  border-radius: 12px;
+  border-radius: var(--sk-radius-xl);
   border: 1px solid var(--sl-color-border);
   background: var(--sl-color-bg);
 }

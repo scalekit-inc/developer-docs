@@ -59,13 +59,21 @@ const isExternal = href && (href.startsWith('http://') || href.startsWith('https
     margin-left: 8px;
     text-decoration: none;
     font-weight: inherit;
-    border-bottom: 1px solid transparent;
+    /* 2px always — hover only changes color (avoids layout shift) */
+    border-bottom: 2px solid transparent;
     color: inherit;
-    transition: all 0.2s ease;
+    transition:
+      color 0.2s ease,
+      border-bottom-color 0.2s ease;
   }
 
   .check-item-link:hover {
     text-decoration: none;
-    border-bottom: 2px solid currentColor;
+    border-bottom-color: currentColor;
+  }
+
+  .check-item-link:focus-visible {
+    outline: var(--sk-focus-ring, 2px solid var(--sl-color-accent));
+    outline-offset: var(--sk-focus-offset, 2px);
   }
 </style>
