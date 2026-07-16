@@ -515,14 +515,6 @@ const footerClass = 'footer'
         scriptEl.setAttribute('async', 'true')
         scriptEl.setAttribute('src', 'https://widget.usepylon.com/widget/' + PYLON_APP_ID)
 
-        scriptEl.onload = function () {
-          console.log('[pylon] widget script loaded successfully')
-        }
-
-        scriptEl.onerror = function (err) {
-          console.error('[pylon] widget script failed to load:', err)
-        }
-
         var firstScript = t.getElementsByTagName('script')[0]
         firstScript.parentNode.insertBefore(scriptEl, firstScript)
       }
@@ -541,7 +533,6 @@ const footerClass = 'footer'
       attempts = attempts || 0
 
       if (window.pylon) {
-        console.log('[pylon] config found, loading widget')
         loadPylonWidget()
       } else if (attempts < 50) {
         // Retry up to 5 seconds (50 * 100ms)
@@ -549,7 +540,6 @@ const footerClass = 'footer'
           waitForPylonConfig(attempts + 1)
         }, 100)
       } else {
-        console.warn('[pylon] window.pylon config not found after 5 seconds, loading widget anyway')
         // Load widget anyway (for anonymous users or if config script failed)
         loadPylonWidget()
       }

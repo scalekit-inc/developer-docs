@@ -29,6 +29,15 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
+# First-party head scripts under /public/js.
+# Filenames are not content-hashed — short max-age with revalidation only.
+# Do not use stale-while-revalidate or immutable: a fresh HTML deploy must not
+# keep serving week-old non-hashed JS from CDN/browser caches.
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600, must-revalidate"
+
 # LLM index files — 1h fresh, 24h stale. All four rules below are intentionally identical;
 # Netlify TOML requires a separate [[headers]] block per path pattern.
 [[headers]]

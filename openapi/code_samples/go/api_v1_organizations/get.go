@@ -1,6 +1,6 @@
-organizations, err := scalekitClient.Organization.ListOrganizations(
+organizations, err := scalekitClient.Organization().ListOrganization(
   ctx,
   &scalekit.ListOrganizationOptions{
     PageSize: 10,
-  }
+  },
 )

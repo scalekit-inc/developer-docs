@@ -1,4 +1,4 @@
-err := scalekitClient.Connection.DisableConnection(
+err := scalekitClient.Connection().DisableConnection(
   ctx,
   organizationId,
   connectionId,

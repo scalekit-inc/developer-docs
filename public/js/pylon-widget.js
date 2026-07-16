@@ -161,13 +161,6 @@
       name = email
     }
 
-    console.log('[pylon] derived user for widget', {
-      hasEmail: !!email,
-      hasName: !!name,
-      hasUid: !!uid,
-      hasXoid: !!xoid,
-    })
-
     // Build config object
     var pylonConfig = {
       chat_settings: {
@@ -185,7 +178,6 @@
 
     // Set config immediately so widget can start loading
     window.pylon = pylonConfig
-    console.log('[pylon] config set initially:', window.pylon)
 
     // Fetch and add support_hash (email_hash) for Pylon identity verification
     if (email) {
@@ -193,10 +185,6 @@
       if (cachedSupportHash) {
         pylonConfig.chat_settings.email_hash = cachedSupportHash
         window.pylon = pylonConfig
-        console.log(
-          '[pylon] support_hash passed to widget (from cache), email_hash:',
-          !!pylonConfig.chat_settings.email_hash,
-        )
       } else {
         // Fetch hash asynchronously and update config when available
         fetchEmailHash().then(function (supportHash) {
@@ -205,12 +193,6 @@
             setCachedSupportHash(supportHash)
             // Update the existing config object
             window.pylon = pylonConfig
-            console.log(
-              '[pylon] support_hash fetched and added, email_hash:',
-              !!pylonConfig.chat_settings.email_hash,
-            )
-          } else {
-            console.log('[pylon] support_hash not available from API')
           }
         })
       }
@@ -224,12 +206,10 @@
    */
   var initializeMinimalConfig = function () {
     if (inIframe()) {
-      console.log('[chat] iframe detected — skipping HubSpot widget')
       return
     }
 
     // Anonymous user: show HubSpot instead of Pylon
-    console.log('[chat] anonymous user — loading HubSpot widget')
     if (window.HubSpotConversations) {
       window.HubSpotConversations.widget.load()
     } else {
@@ -255,7 +235,6 @@
         waitForAuthenticatedSession(attempts + 1)
       }, 100)
     } else {
-      console.log('[pylon] no authenticated session found after wait, setting minimal config')
       // Set minimal config for anonymous users so widget can still load
       initializeMinimalConfig()
     }

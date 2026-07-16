@@ -7,10 +7,10 @@ templateVariables.put("supportEmail", "support@yourcompany.com");
 SendPasswordlessOptions options = new SendPasswordlessOptions();
 options.setTemplate(templateType);
 options.setExpiresIn(100);
-options.setMagiclinkAuthUri("https://www.example.com");
+options.setMagiclinkAuthUri("https://yourapp.com/auth/passwordless/callback");
 options.setTemplateVariables(templateVariables);
 
-SendPasswordlessResponse response = passwordlessClient.sendPasswordlessEmail(
+SendPasswordlessResponse response = scalekitClient.passwordless().sendPasswordlessEmail(
     "john.doe@example.com",
     options
 );

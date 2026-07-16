@@ -524,10 +524,15 @@ Documentation must be organized into logical sections (FSA, SSO, Directory/SCIM,
 
 ### API Reference Workflow
 
-1. **Source of Truth**: API specifications are generated from the `scalekit-inc/scalekit` repository
-2. **Spec Location**: Generated OpenAPI/Swagger specs MUST be placed in `public/api/` directory
-3. **Temporary Changes**: Direct edits to spec files in `public/api/` are temporary and will be overwritten
-4. **Permanent Changes**: All API reference changes MUST be made in the `scalekit-inc/scalekit` repository
+Full pipeline: `scripts/manual/API_REFERENCE_WORKFLOW.md`.
+
+1. **Contract source**: REST API contracts are defined in the backend (`scalekit-inc/scalekit`) and landed into the docs working root
+2. **Docs working root**: `openapi/scalekit.yaml` — single Redocly root for combined, AgentKit, and SaaSKit references
+3. **Product overlays**: `openapi/extensions/{all,agentkit,saaskit}.yaml` (tag/webhook filters, curated `info`/`tags`, Scalar x-\* merges)
+4. **Code samples**: `openapi/code_samples/` only (injected by the Redocly plugin during `pnpm run bundle:apis`)
+5. **Webhook event payloads**: under `openapi/scalekit.yaml` → `webhooks:` only (no separate `openapi/webhooks/` tree)
+6. **Generated outputs**: `public/api/{scalekit,agentkit,saaskit}.scalar.*` — do **not** sole-edit; re-run `pnpm run bundle:apis` + `pnpm run validate-api-split`
+7. **Do not** create MDX event catalogs under `reference/webhooks/`
 
 ### Diagram SVGs (d2)
 

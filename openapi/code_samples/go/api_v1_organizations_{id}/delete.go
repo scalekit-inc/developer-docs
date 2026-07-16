@@ -1,4 +1,4 @@
-err := scalekitClient.Organization.DeleteOrganization(
+err := scalekitClient.Organization().DeleteOrganization(
   ctx,
-  organizationId
+  organizationId,
 )

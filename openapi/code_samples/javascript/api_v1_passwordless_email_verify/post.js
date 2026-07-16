@@ -1,12 +1,12 @@
 const { authRequestId } = sendResponse
+
+// Verify with OTP code
 const verifyResponse = await scalekit.passwordless.verifyPasswordlessEmail(
-  // Verification Code (OTP)
-
   { code: '123456' },
-
-  // Magic Link Token
-
-  { linkToken: link_token },
-
   authRequestId,
 )
+
+// Or verify with magic link token
+const linkVerifyResponse = await scalekit.passwordless.verifyPasswordlessEmail({
+  linkToken: linkToken,
+})

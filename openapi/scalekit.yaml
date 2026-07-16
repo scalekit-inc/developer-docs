@@ -10791,6 +10791,130 @@ components:
           example: Organization Created
           minLength: 1
           maxLength: 200
+    ConnectedAccountStatusUpdatedEvent:
+      type: object
+      description: >-
+        Payload delivered for the connected_account.status_updated webhook
+        event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          example: evt_101652975398683158
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+          minLength: 1
+          maxLength: 32
+        type:
+          type: string
+          description: The event type
+          enum:
+            - connected_account.status_updated
+          example: connected_account.status_updated
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+          example: 2025-12-02T06:31:34.895815554Z
+        environment_id:
+          type: string
+          pattern: ^env_
+          example: env_88640229614813449
+          description: The environment ID where the event occurred
+          minLength: 1
+          maxLength: 32
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - ConnectedAccount
+          example: ConnectedAccount
+        data:
+          $ref: '#/components/schemas/ConnectedAccountStatusUpdatedEventData'
+    ConnectedAccountStatusUpdatedEventData:
+      type: object
+      description: >-
+        The connected account whose status changed, including its previous
+        status.
+      required:
+        - id
+        - identifier
+        - connection_id
+        - provider
+        - authorization_type
+        - status
+        - old_status
+      properties:
+        id:
+          type: string
+          pattern: ^ca_
+          example: ca_133400349586228019
+          description: Unique identifier of the connected account (prefixed with "ca_")
+        identifier:
+          type: string
+          example: john@acmecorp.com
+          description: The end-user identifier the connected account belongs to
+        connection_id:
+          type: string
+          pattern: ^conn_
+          example: conn_133400101014995480
+          description: Identifier of the connection (prefixed with "conn_")
+        connection_name:
+          type: string
+          example: gmail
+          description: >-
+            The connection's key_id. Omitted when it cannot be resolved.
+        provider:
+          type: string
+          example: GMAIL
+          description: The provider of the connected account
+        authorization_type:
+          type: string
+          enum:
+            - OAUTH
+            - API_KEY
+            - BASIC_AUTH
+            - BEARER_TOKEN
+            - BASIC
+            - OAUTH_M2M
+            - TRELLO_OAUTH1
+            - GOOGLE_DWD
+            - TRUSTED_IDP
+            - SMART_FHIR
+          example: OAUTH
+          description: The authorization type of the connected account
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - EXPIRED
+            - PENDING_AUTH
+            - PENDING_VERIFICATION
+            - DISCONNECTED
+          example: EXPIRED
+          description: The new status of the connected account
+        old_status:
+          type: string
+          enum:
+            - ACTIVE
+            - EXPIRED
+            - PENDING_AUTH
+            - PENDING_VERIFICATION
+            - DISCONNECTED
+          example: ACTIVE
+          description: The previous status of the connected account
   securitySchemes:
     oauth2:
       type: oauth2
@@ -11991,6 +12115,37 @@ webhooks:
                 identifier: Pranesh
                 provider: SUPABASE
                 status: PENDING_AUTH
+      responses:
+        '200':
+          description: Webhook received successfully
+  connected_account.status_updated:
+    post:
+      summary: Connected Account Status Updated
+      description: >-
+        Triggered when a connected account's status changes between two states
+        (for example PENDING_AUTH to ACTIVE, ACTIVE to EXPIRED, or any state to
+        DISCONNECTED). Not triggered on account creation.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConnectedAccountStatusUpdatedEvent'
+            example:
+              spec_version: '1'
+              id: evt_101652975398683158
+              type: connected_account.status_updated
+              object: ConnectedAccount
+              occurred_at: 2025-12-02T06:31:34.895815554Z
+              environment_id: env_88640229614813449
+              data:
+                authorization_type: OAUTH
+                connection_id: conn_133400101014995480
+                connection_name: gmail
+                id: ca_133400349586228019
+                identifier: john@acmecorp.com
+                provider: GMAIL
+                status: EXPIRED
+                old_status: ACTIVE
       responses:
         '200':
           description: Webhook received successfully

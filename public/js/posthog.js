@@ -219,10 +219,17 @@ if (!isNonProdHost) {
       (e.__SV = 1))
   })(document, window.posthog || [])
 
-  // Initialize PostHog
+  // Initialize PostHog — keep pageviews + identify; drop heavy remote modules
+  // (session recorder, surveys, dead-clicks, exception autocapture) that dominate
+  // lab main-thread time on docs.
   posthog.init('phc_85pLP8gwYvRCQdxgLQP24iqXHPRGaLgEw4S4dgZHJZ', {
     api_host: 'https://ph.scalekit.com',
     person_profiles: 'identified_only',
+    disable_session_recording: true,
+    disable_surveys: true,
+    capture_dead_clicks: false,
+    capture_performance: false,
+    enable_recording_console_log: false,
   })
 
   watchForSession()
@@ -276,6 +283,11 @@ if (ENABLE_NON_PROD_ANALYTICS) {
     api_host: 'https://ph.scalekit.com',
     defaults: '2025-05-24',
     person_profiles: 'identified_only',
+    disable_session_recording: true,
+    disable_surveys: true,
+    capture_dead_clicks: false,
+    capture_performance: false,
+    enable_recording_console_log: false,
   })
   console.log(
     '%c[PostHog] Staging project initialized (non-prod). Disable with: localStorage.removeItem("enableBeaconStaging") + reload',

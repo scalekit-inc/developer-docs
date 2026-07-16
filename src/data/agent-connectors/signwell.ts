@@ -1,0 +1,823 @@
+import type { Tool } from '../../types/agent-connectors'
+
+export const tools: Tool[] = [
+  {
+    name: 'signwell_create_bulk_send',
+    description: `Create a bulk send to send a document to many recipients at once using a CSV file and one or more templates.`,
+    params: [
+      {
+        name: 'bulk_send_csv',
+        type: 'string',
+        required: true,
+        description: `RFC 4648 base64-encoded CSV file content. Use Get Bulk Send CSV Template to retrieve the correct column format.`,
+      },
+      {
+        name: 'template_ids',
+        type: 'array',
+        required: true,
+        description: `Array of template ID strings (UUIDs) to use for the bulk send.`,
+      },
+      {
+        name: 'api_application_id',
+        type: 'string',
+        required: false,
+        description: `API Application ID for branding the signing experience.`,
+      },
+      {
+        name: 'apply_signing_order',
+        type: 'boolean',
+        required: false,
+        description: `Recipients sign one at a time in order.`,
+      },
+      {
+        name: 'custom_requester_email',
+        type: 'string',
+        required: false,
+        description: `Custom requester email shown in all communications to recipients.`,
+      },
+      {
+        name: 'custom_requester_name',
+        type: 'string',
+        required: false,
+        description: `Custom requester name shown in all communications to recipients.`,
+      },
+      {
+        name: 'message',
+        type: 'string',
+        required: false,
+        description: `Email message body for the signature request sent to each recipient.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Name for the bulk send, used as the document name for each recipient.`,
+      },
+      {
+        name: 'skip_row_errors',
+        type: 'boolean',
+        required: false,
+        description: `Skip rows with errors instead of failing the entire bulk send.`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: false,
+        description: `Email subject for the signature request sent to each recipient.`,
+      },
+    ],
+  },
+  {
+    name: 'signwell_create_document',
+    description: `Create and optionally send a new document for signing. Set draft to true to save without sending.`,
+    params: [
+      {
+        name: 'files',
+        type: 'array',
+        required: true,
+        description: `Array of file objects to include in the document. Each object must have a 'name' (with a valid extension such as .pdf, .doc, .docx, .pages, .jpg) and either 'file_url' (a publicly accessible URL) or 'file_base64' (base64-encoded file content).`,
+      },
+      {
+        name: 'recipients',
+        type: 'array',
+        required: true,
+        description: `Array of recipient objects. Each must have an 'id' (unique string identifier, e.g. '1'), 'email', and optionally 'name', 'passcode', 'subject', 'message'.`,
+      },
+      {
+        name: 'allow_decline',
+        type: 'boolean',
+        required: false,
+        description: `Allow recipients to decline signing the document.`,
+      },
+      {
+        name: 'allow_reassign',
+        type: 'boolean',
+        required: false,
+        description: `Allow recipients to reassign signing to another person.`,
+      },
+      {
+        name: 'apply_signing_order',
+        type: 'boolean',
+        required: false,
+        description: `Require recipients to sign one at a time in the specified order.`,
+      },
+      {
+        name: 'custom_requester_email',
+        type: 'string',
+        required: false,
+        description: `Custom email address shown to recipients in email communications.`,
+      },
+      {
+        name: 'custom_requester_name',
+        type: 'string',
+        required: false,
+        description: `Custom name shown to recipients in email communications.`,
+      },
+      {
+        name: 'draft',
+        type: 'boolean',
+        required: false,
+        description: `If true, saves the document as a draft without sending it to recipients.`,
+      },
+      {
+        name: 'embedded_signing',
+        type: 'boolean',
+        required: false,
+        description: `Enable embedded signing so recipients can sign within an iFrame on your website.`,
+      },
+      {
+        name: 'expires_in',
+        type: 'integer',
+        required: false,
+        description: `Number of days before the signing request expires (1–365).`,
+      },
+      {
+        name: 'language',
+        type: 'string',
+        required: false,
+        description: `Language for the recipient signing UI. ISO 639-1 code.`,
+      },
+      {
+        name: 'message',
+        type: 'string',
+        required: false,
+        description: `Email message body sent to recipients with the signing request (max 4000 chars).`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Key-value metadata to attach to the document (max 50 pairs, keys max 40 chars, values max 500 chars).`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Display name of the document.`,
+      },
+      {
+        name: 'redirect_url',
+        type: 'string',
+        required: false,
+        description: `URL to redirect recipients to after they complete signing.`,
+      },
+      {
+        name: 'reminders',
+        type: 'boolean',
+        required: false,
+        description: `Send automatic reminder emails to recipients on days 3, 6, and 10 after the initial request.`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: false,
+        description: `Email subject line for the signature request sent to recipients (max 255 chars).`,
+      },
+      {
+        name: 'test_mode',
+        type: 'boolean',
+        required: false,
+        description: `When true, the document is created in test mode and does not count toward billing.`,
+      },
+    ],
+  },
+  {
+    name: 'signwell_create_document_from_template',
+    description: `Create a document for signing from an existing template. Assign recipients to template placeholders and optionally pre-fill field values.`,
+    params: [
+      {
+        name: 'recipients',
+        type: 'array',
+        required: true,
+        description: `Array of recipient objects mapping to template placeholders. Each must have 'id' (unique recipient identifier, any string), 'placeholder_name' (matching the template placeholder's name exactly, e.g. 'Signer'), and 'email'. Optionally include 'name'.`,
+      },
+      {
+        name: 'template_id',
+        type: 'string',
+        required: true,
+        description: `Template ID (UUID) to create the document from.`,
+      },
+      {
+        name: 'allow_decline',
+        type: 'boolean',
+        required: false,
+        description: `If true, allows recipients to decline signing the document.`,
+      },
+      {
+        name: 'allow_reassign',
+        type: 'boolean',
+        required: false,
+        description: `If true, allows recipients to reassign the signing request to another person.`,
+      },
+      {
+        name: 'apply_signing_order',
+        type: 'boolean',
+        required: false,
+        description: `If true, recipients must sign in the sequential order defined in the template.`,
+      },
+      {
+        name: 'custom_requester_email',
+        type: 'string',
+        required: false,
+        description: `Custom requester email address shown to recipients instead of the account owner's email.`,
+      },
+      {
+        name: 'custom_requester_name',
+        type: 'string',
+        required: false,
+        description: `Custom requester name shown to recipients instead of the account owner's name.`,
+      },
+      {
+        name: 'draft',
+        type: 'boolean',
+        required: false,
+        description: `If true, saves the document as a draft without sending it to recipients.`,
+      },
+      {
+        name: 'expires_in',
+        type: 'integer',
+        required: false,
+        description: `Number of days before the signing request expires.`,
+      },
+      {
+        name: 'fields',
+        type: 'array',
+        required: false,
+        description: `Pre-filled field values for template fields. Each object has 'api_id' (the field's api_id from the template) and 'value'.`,
+      },
+      {
+        name: 'message',
+        type: 'string',
+        required: false,
+        description: `Email message body sent to recipients. Overrides the template's default message. Maximum 4000 characters.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Key-value metadata to attach to the document for your own reference.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Name of the document to create. Displayed in the Signwell dashboard and emails.`,
+      },
+      {
+        name: 'redirect_url',
+        type: 'string',
+        required: false,
+        description: `URL to redirect signers to after they complete signing.`,
+      },
+      {
+        name: 'reminders',
+        type: 'boolean',
+        required: false,
+        description: `If true, automatic reminder emails will be sent to unsigned recipients.`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: false,
+        description: `Email subject line sent to recipients. Overrides the template's default subject. Maximum 255 characters.`,
+      },
+      {
+        name: 'test_mode',
+        type: 'boolean',
+        required: false,
+        description: `If true, creates the document in test mode. Test mode documents do not count toward billing.`,
+      },
+    ],
+  },
+  {
+    name: 'signwell_create_template',
+    description: `Create a new reusable signing template with placeholders for recipients and optional pre-placed fields.`,
+    params: [
+      {
+        name: 'files',
+        type: 'array',
+        required: true,
+        description: `Array of file objects. Each must have 'name' (with valid extension) and either 'file_url' (public URL) or 'file_base64' (base64-encoded content).`,
+      },
+      {
+        name: 'placeholders',
+        type: 'array',
+        required: true,
+        description: `Array of placeholder objects. Each must have 'id' (unique string) and 'name' (role name, e.g. 'Client'). Optional: 'preassigned_recipient_name', 'preassigned_recipient_email'.`,
+      },
+      {
+        name: 'allow_decline',
+        type: 'boolean',
+        required: false,
+        description: `Allow recipients to decline signing.`,
+      },
+      {
+        name: 'allow_reassign',
+        type: 'boolean',
+        required: false,
+        description: `Allow recipients to reassign the signing request to someone else.`,
+      },
+      {
+        name: 'apply_signing_order',
+        type: 'boolean',
+        required: false,
+        description: `Sequential signing order — recipients sign one at a time in order.`,
+      },
+      {
+        name: 'draft',
+        type: 'boolean',
+        required: false,
+        description: `If true, template is not yet available for use.`,
+      },
+      {
+        name: 'expires_in',
+        type: 'integer',
+        required: false,
+        description: `Days before signature request expires.`,
+      },
+      {
+        name: 'language',
+        type: 'string',
+        required: false,
+        description: `Language code (ISO 639-1) for the signing interface.`,
+      },
+      {
+        name: 'message',
+        type: 'string',
+        required: false,
+        description: `Default email message (max 4000 chars).`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Arbitrary key-value metadata to associate with the template.`,
+      },
+      { name: 'name', type: 'string', required: false, description: `Template name.` },
+      {
+        name: 'redirect_url',
+        type: 'string',
+        required: false,
+        description: `Post-signing redirect URL.`,
+      },
+      {
+        name: 'reminders',
+        type: 'boolean',
+        required: false,
+        description: `Send reminder emails to recipients who have not yet signed.`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: false,
+        description: `Default email subject for documents created from this template.`,
+      },
+    ],
+  },
+  {
+    name: 'signwell_create_webhook',
+    description: `Register a webhook callback URL to receive document lifecycle events (sent, viewed, signed, completed, declined, etc.).`,
+    params: [
+      {
+        name: 'callback_url',
+        type: 'string',
+        required: true,
+        description: `HTTPS URL to POST document events to.`,
+      },
+      {
+        name: 'api_application_id',
+        type: 'string',
+        required: false,
+        description: `Scope the webhook to a specific API Application ID.`,
+      },
+    ],
+  },
+  {
+    name: 'signwell_delete_api_application',
+    description: `Permanently delete an API Application from the Signwell account.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Unique identifier (UUID) of the API Application to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'signwell_delete_document',
+    description: `Delete a document. Also cancels the document signing process if it is in progress.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Unique identifier (UUID) of the document to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'signwell_delete_template',
+    description: `Permanently delete a document template. This action cannot be undone.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Template ID (UUID) of the template to permanently delete.`,
+      },
+    ],
+  },
+  {
+    name: 'signwell_delete_webhook',
+    description: `Delete a registered webhook callback URL.`,
+    params: [{ name: 'id', type: 'string', required: true, description: `Webhook ID (UUID).` }],
+  },
+  {
+    name: 'signwell_get_api_application',
+    description: `Get details of a specific API Application including preferences and owner information.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `API Application ID (UUID).` },
+    ],
+  },
+  {
+    name: 'signwell_get_bulk_send',
+    description: `Get details and status of a bulk send, including document counts and completion progress.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Bulk send ID (UUID) to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'signwell_get_bulk_send_csv_template',
+    description: `Get a blank CSV template for the given template IDs. Use this to understand the required columns before creating a bulk send.`,
+    params: [
+      {
+        name: 'template_ids',
+        type: 'array',
+        required: true,
+        description: `Array of template ID strings (UUIDs) to generate the CSV template for.`,
+      },
+      {
+        name: 'base64',
+        type: 'boolean',
+        required: false,
+        description: `When true, returns the CSV as a base64-encoded string in JSON. Recommended: true.`,
+      },
+    ],
+  },
+  {
+    name: 'signwell_get_bulk_send_documents',
+    description: `List all documents within a bulk send with pagination support.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `Bulk send ID (UUID).` },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (1-50).`,
+      },
+      { name: 'page', type: 'integer', required: false, description: `Page number (minimum 1).` },
+    ],
+  },
+  {
+    name: 'signwell_get_completed_pdf',
+    description: `Get the URL to download the completed signed document as PDF or ZIP. Returns a URL to the signed file.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Unique identifier (UUID) of the completed document.`,
+      },
+      {
+        name: 'audit_page',
+        type: 'boolean',
+        required: false,
+        description: `Include the audit trail page in the downloaded document.`,
+      },
+      {
+        name: 'file_format',
+        type: 'string',
+        required: false,
+        description: `File format for the download: 'pdf' for a single PDF or 'zip' for a ZIP archive.`,
+      },
+      {
+        name: 'url_only',
+        type: 'boolean',
+        required: false,
+        description: `Return JSON with a file_url instead of binary file data. Recommended: true.`,
+      },
+    ],
+  },
+  {
+    name: 'signwell_get_document',
+    description: `Get a document and all associated data including recipients, fields, and signing status.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Unique identifier (UUID) of the document to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'signwell_get_me',
+    description: `Get account information and user details associated with the current API key.`,
+    params: [],
+  },
+  {
+    name: 'signwell_get_nom151_certificate',
+    description: `Download the NOM-151 compliance certificate for a completed document. NOM-151 is a Mexican regulatory standard for electronic signatures.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Unique identifier (UUID) of the completed document.`,
+      },
+      {
+        name: 'object_only',
+        type: 'boolean',
+        required: false,
+        description: `If true, returns only the certificate object without additional metadata.`,
+      },
+      {
+        name: 'url_only',
+        type: 'boolean',
+        required: false,
+        description: `If true, returns only a URL to download the certificate instead of the full object.`,
+      },
+    ],
+  },
+  {
+    name: 'signwell_get_template',
+    description: `Get a document template and all associated template data including placeholders and fields.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Template ID (UUID) of the document template to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'signwell_list_bulk_sends',
+    description: `List all bulk sends in the account with pagination support.`,
+    params: [
+      {
+        name: 'api_application_id',
+        type: 'string',
+        required: false,
+        description: `Filter by API Application ID.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (1-50, max 50).`,
+      },
+      { name: 'page', type: 'integer', required: false, description: `Page number (minimum 1).` },
+      {
+        name: 'user_email',
+        type: 'string',
+        required: false,
+        description: `Filter by user email. Admins can view others' bulk sends.`,
+      },
+    ],
+  },
+  {
+    name: 'signwell_list_webhooks',
+    description: `List all webhook subscriptions configured in the account.`,
+    params: [],
+  },
+  {
+    name: 'signwell_send_document',
+    description: `Update a draft document and send it to recipients for signing.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Unique identifier (UUID) of the draft document to send.`,
+      },
+      {
+        name: 'allow_decline',
+        type: 'boolean',
+        required: false,
+        description: `Allow recipients to decline signing the document.`,
+      },
+      {
+        name: 'allow_reassign',
+        type: 'boolean',
+        required: false,
+        description: `Allow recipients to reassign their signing to another person.`,
+      },
+      {
+        name: 'apply_signing_order',
+        type: 'boolean',
+        required: false,
+        description: `Require recipients to sign one at a time in order.`,
+      },
+      {
+        name: 'custom_requester_email',
+        type: 'string',
+        required: false,
+        description: `Custom email address shown to recipients in email communications.`,
+      },
+      {
+        name: 'custom_requester_name',
+        type: 'string',
+        required: false,
+        description: `Custom name shown to recipients in email communications.`,
+      },
+      {
+        name: 'embedded_signing',
+        type: 'boolean',
+        required: false,
+        description: `Enable embedded signing via iFrame.`,
+      },
+      {
+        name: 'expires_in',
+        type: 'integer',
+        required: false,
+        description: `Number of days before the signing request expires (1–365).`,
+      },
+      {
+        name: 'message',
+        type: 'string',
+        required: false,
+        description: `Email message body sent to recipients (max 4000 chars).`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Update the display name of the document before sending.`,
+      },
+      {
+        name: 'redirect_url',
+        type: 'string',
+        required: false,
+        description: `URL to redirect recipients to after they complete signing.`,
+      },
+      {
+        name: 'reminders',
+        type: 'boolean',
+        required: false,
+        description: `Send automatic reminder emails on days 3, 6, and 10.`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: false,
+        description: `Email subject line for the signing request (max 255 chars).`,
+      },
+    ],
+  },
+  {
+    name: 'signwell_send_reminder',
+    description: `Send a reminder email to recipients who have not yet signed a document.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Document ID (UUID) of the document to send reminders for.`,
+      },
+      {
+        name: 'recipients',
+        type: 'array',
+        required: false,
+        description: `Specific recipients to remind. Each object has 'email' (string) and optionally 'name' (string). If omitted, all unsigned recipients are reminded.`,
+      },
+    ],
+  },
+  {
+    name: 'signwell_update_authentication',
+    description: `Update passcode delivery settings for recipients on a sent document. Only recipients who have not started signing can be updated.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Document ID (UUID) of the document whose recipient authentication should be updated.`,
+      },
+      {
+        name: 'recipients',
+        type: 'array',
+        required: true,
+        description: `Array of recipient authentication update objects. Each must have 'id' (recipient ID). Optional fields: 'passcode' (string), 'passcode_delivery' (object with 'enabled' bool, 'methods' array, 'expire_after_access' bool).`,
+      },
+    ],
+  },
+  {
+    name: 'signwell_update_recipients',
+    description: `Update one or more recipients on a sent document that has not yet been fully signed. Recipients who have already started signing cannot be updated.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Document ID (UUID) of the document whose recipients should be updated.`,
+      },
+      {
+        name: 'recipients',
+        type: 'array',
+        required: true,
+        description: `Array of recipient update objects. Each must have 'id' (recipient ID from Get Document), 'name' (string), and 'email' (string). Optional fields: 'subject', 'message', 'passcode'.`,
+      },
+    ],
+  },
+  {
+    name: 'signwell_update_template',
+    description: `Update an existing document template. Replaces the template properties with the provided values.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Template ID (UUID) of the template to update.`,
+      },
+      {
+        name: 'allow_decline',
+        type: 'boolean',
+        required: false,
+        description: `Allow recipients to decline signing.`,
+      },
+      {
+        name: 'allow_reassign',
+        type: 'boolean',
+        required: false,
+        description: `Allow recipients to reassign the signing request to someone else.`,
+      },
+      {
+        name: 'apply_signing_order',
+        type: 'boolean',
+        required: false,
+        description: `Sequential signing order — recipients sign one at a time in order.`,
+      },
+      {
+        name: 'expires_in',
+        type: 'integer',
+        required: false,
+        description: `Days before signature request expires.`,
+      },
+      {
+        name: 'message',
+        type: 'string',
+        required: false,
+        description: `Default email message (max 4000 chars).`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Arbitrary key-value metadata to associate with the template.`,
+      },
+      { name: 'name', type: 'string', required: false, description: `Template name.` },
+      {
+        name: 'redirect_url',
+        type: 'string',
+        required: false,
+        description: `Post-signing redirect URL.`,
+      },
+      {
+        name: 'reminders',
+        type: 'boolean',
+        required: false,
+        description: `Send reminder emails to recipients who have not yet signed.`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: false,
+        description: `Default email subject for documents created from this template.`,
+      },
+    ],
+  },
+  {
+    name: 'signwell_validate_bulk_send_csv',
+    description: `Validate a bulk send CSV file before creating the bulk send. Returns validation errors by row if the CSV is invalid.`,
+    params: [
+      {
+        name: 'bulk_send_csv',
+        type: 'string',
+        required: true,
+        description: `RFC 4648 base64-encoded CSV file content.`,
+      },
+      {
+        name: 'template_ids',
+        type: 'array',
+        required: true,
+        description: `Array of template ID strings (UUIDs) the CSV maps to.`,
+      },
+    ],
+  },
+]

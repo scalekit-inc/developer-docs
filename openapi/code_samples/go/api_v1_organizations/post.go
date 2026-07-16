@@ -1,7 +1,7 @@
-organization, err := ScalekitClient.Organization.CreateOrganization(
+organization, err := scalekitClient.Organization().CreateOrganization(
   ctx,
   name,
   scalekit.CreateOrganizationOptions{
-    ExternalID: "externalId",
+    ExternalId: "externalId",
   },
 )
