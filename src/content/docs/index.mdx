@@ -60,14 +60,32 @@ head:
         transform: translateX(-50%);
         position: relative;
         z-index: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: calc(100vh - 64px);
       }
+
+      .gateway-section-label {
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: var(--sl-color-text-muted);
+        text-align: center;
+        margin: 0;
+        padding: 1.25rem 0 0.5rem;
+      }
+
+      .gateway { order: -1; }
+      .gateway-cli { order: 1; }
 
       .gateway {
         display: flex;
         flex-direction: row;
-        min-height: clamp(22rem, calc(100vh - var(--sl-nav-height) - 20rem), 35rem);
+        flex: 1;
+        min-height: auto;
         margin-top: 0;
-        padding-top: 0.5rem;
+        padding-top: 0;
         overflow: hidden;
         background: var(--sl-color-bg);
       }
@@ -78,8 +96,8 @@ head:
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 1.25rem;
-        padding: 2.5rem 3rem;
+        gap: 1rem;
+        padding: 2rem 2.5rem;
         text-align: center;
         text-decoration: none;
         color: inherit;
@@ -174,7 +192,7 @@ head:
 
       .panel-label {
         font-size: clamp(1.625rem, 1.2rem + 1vw, 2.2rem);
-        font-weight: 600;
+        font-weight: 400;
         color: var(--sl-color-text-heading);
         line-height: 1.15;
         letter-spacing: -0.03em;
@@ -199,14 +217,7 @@ head:
 
 
       .panel-visual {
-        width: min(100%, 36rem);
-        margin: 0.1rem auto 0;
-        border-radius: 1.15rem;
-        border: none;
-        background: transparent;
-        box-shadow: none;
-        overflow: hidden;
-        text-align: left;
+        display: none;
       }
 
       .panel-visual-header {
@@ -408,14 +419,8 @@ head:
       }
 
       @media (hover: hover) and (min-width: 1024px) {
-        .panel-agents,
-        .panel-saas {
-          justify-content: flex-start;
-        }
-
         .panel-visual {
-          width: 70%;
-          margin-top: 0.5rem;
+          display: none;
         }
       }
 
@@ -425,20 +430,129 @@ head:
 
       .gateway-cli {
         text-align: center;
-        padding: 0.5rem 0 0.75rem;
+        padding: 1.25rem 2rem 1.5rem;
         margin: 0;
+        background: var(--sl-color-bg);
+        border-top: 1px solid var(--sl-color-hairline);
+        flex-shrink: 0;
       }
 
       .gateway-cli-label {
-        font-size: 0.85rem;
+        font-size: 1.1rem;
+        font-weight: 400;
         color: var(--sl-color-text-muted);
-        margin: 0 0 0.3rem;
+        margin: 0 0 1.25rem;
       }
 
-      .gateway-cli .expressive-code {
-        max-width: 360px;
-        margin: 0 auto;
-        display: block;
+      @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+
+      .gateway-cli-steps {
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .gateway-cli-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        max-width: 22rem;
+        text-align: center;
+        background: var(--sl-color-bg-card);
+        border: 1px solid var(--sl-color-hairline);
+        border-radius: 0.75rem;
+        padding: 1rem 1.1rem;
+        overflow: hidden;
+        opacity: 0;
+        animation: fadeUp 300ms ease-out forwards;
+      }
+
+      .gateway-cli-step:nth-child(1) { animation-delay: 0ms; }
+      .gateway-cli-step:nth-child(3) { animation-delay: 80ms; }
+      .gateway-cli-step:nth-child(5) { animation-delay: 160ms; }
+
+      .gateway-cli-step-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.6rem;
+        height: 1.6rem;
+        border-radius: 50%;
+        border: 1px solid var(--sl-color-accent);
+        background: var(--sl-color-bg-card);
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--sl-color-accent);
+        flex-shrink: 0;
+      }
+
+      .gateway-cli-step-title {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--sl-color-text-heading);
+      }
+
+      .gateway-cli-step-code {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.78rem;
+        padding: 0.25rem 0.6rem;
+        border-radius: 0.4rem;
+        background: var(--sl-color-bg);
+        border: 1px solid var(--sl-color-hairline);
+        color: var(--sl-color-text);
+        white-space: nowrap;
+      }
+
+      .gateway-cli-step .expressive-code {
+        width: 100%;
+        max-width: 100%;
+      }
+
+      .gateway-cli-step .expressive-code pre {
+        overflow-x: auto;
+      }
+
+      .gateway-cli-agent-icons {
+        display: flex;
+        gap: 0.6rem;
+        justify-content: center;
+        margin-top: 0.25rem;
+      }
+
+      .gateway-cli-agent-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.5rem;
+        border: 1px solid var(--sl-color-hairline);
+        background: var(--sl-color-bg);
+        color: var(--sl-color-text-muted);
+        font-size: 1rem;
+      }
+
+      .gateway-cli-step-prompt {
+        font-size: 0.82rem;
+        font-style: italic;
+        color: var(--sl-color-text-muted);
+        line-height: 1.4;
+        max-width: 11rem;
+      }
+
+      .gateway-cli-arrow {
+        font-size: 1.2rem;
+        color: var(--sl-color-hairline);
+        flex-shrink: 0;
+        opacity: 0.35;
+        align-self: center;
+        margin-top: 0;
       }
 
       .gateway-intro-inner {
@@ -461,28 +575,18 @@ head:
 
 ---
 
+import { Code } from '@astrojs/starlight/components'
+import IconClaude from '~icons/simple-icons/claude'
+import IconCopilot from '~icons/simple-icons/githubcopilot'
+import IconCursor from '~icons/simple-icons/cursor'
+import IconCodex from '~icons/simple-icons/openai'
 import agentkitHero from '../../assets/pages/hero/agentkit.svg'
 import authForSaasHero from '../../assets/pages/hero/auth-for-saas.svg'
 
 
 
 <div class="gateway-shell not-content">
-  <section class="gateway-intro" aria-labelledby="gateway-intro-title">
-    <div class="gateway-intro-inner">
-      <h2 class="gateway-intro-title" id="gateway-intro-title">
-        What are you solving?
-      </h2>
-    <h1 class="sr-only">Choose your Scalekit documentation path</h1>
-    </div>
-  </section>
-
-  <div class="gateway-cli not-content">
-
-```sh frame="none" showLineNumbers=false
-npx @scalekit-inc/cli setup
-```
-
-  </div>
+  <h1 class="sr-only">Choose your Scalekit documentation path</h1>
 
   <div class="gateway">
     <a
@@ -533,5 +637,33 @@ npx @scalekit-inc/cli setup
         </div>
       </div>
     </a>
+  </div>
+
+  <div class="gateway-cli not-content">
+    <p class="gateway-section-label">Try it in 3 steps</p>
+    <div class="gateway-cli-steps">
+      <div class="gateway-cli-step">
+        <span class="gateway-cli-step-num">1</span>
+        <span class="gateway-cli-step-title">Run the CLI</span>
+        <Code code="npx @scalekit-inc/cli setup" lang="sh" frame="none" showLineNumbers={false} />
+      </div>
+      <span class="gateway-cli-arrow">→</span>
+      <div class="gateway-cli-step">
+        <span class="gateway-cli-step-num">2</span>
+        <span class="gateway-cli-step-title">Choose your coding agent</span>
+        <div class="gateway-cli-agent-icons">
+          <span class="gateway-cli-agent-icon" title="Claude Code"><IconClaude /></span>
+          <span class="gateway-cli-agent-icon" title="GitHub Copilot"><IconCopilot /></span>
+          <span class="gateway-cli-agent-icon" title="Cursor"><IconCursor /></span>
+          <span class="gateway-cli-agent-icon" title="Codex"><IconCodex /></span>
+        </div>
+      </div>
+      <span class="gateway-cli-arrow">→</span>
+      <div class="gateway-cli-step">
+        <span class="gateway-cli-step-num">3</span>
+        <span class="gateway-cli-step-title">Ask it:</span>
+        <span class="gateway-cli-step-prompt">"Analyse my project and tell me what problems Scalekit can solve for me?"</span>
+      </div>
+    </div>
   </div>
 </div>
