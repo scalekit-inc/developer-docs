@@ -21,18 +21,69 @@ head:
         display: none !important;
         margin-top: 0 !important;
       }
-      body:has(.gateway) button[aria-label="Menu"].sl-flex.md\:sl-hidden {
-        display: none !important;
+
+      /* Sticky footer: fill viewport under fixed nav so residual space
+         grows the gateway (not a white band below the footer). */
+      body:has(.gateway) .page {
+        min-height: 100dvh;
+      }
+      body:has(.gateway) .main-frame {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        box-sizing: border-box;
+      }
+      body:has(.gateway) .main-frame > .lg\:sl-flex,
+      body:has(.gateway) .main-pane,
+      body:has(.gateway) main {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+      /* Drop Starlight bottom padding that left a white strip under the footer */
+      body:has(.gateway) main {
+        padding-bottom: 0 !important;
       }
       body:has(.gateway) .content-panel:has(.gateway-shell) {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
         padding-top: 0 !important;
+        padding-bottom: 0 !important;
         border-top: 0 !important;
       }
       body:has(.gateway) .content-panel:has(.gateway-shell) > .sl-container {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
         max-width: none !important;
+        width: 100%;
       }
-      body:has(.gateway) .content-panel:has(.gateway-shell) > .sl-container > .sl-markdown-content {
+      /* VideosMarkdownContent nests a second .sl-markdown-content — both must flex */
+      body:has(.gateway) .content-panel:has(.gateway-shell) .sl-markdown-content {
+        flex: 1 1 auto;
+        display: flex !important;
+        flex-direction: column;
+        min-height: 0;
         margin-top: 0 !important;
+      }
+
+      body:has(.gateway) .footer {
+        margin-top: 0.5rem !important;
+        margin-bottom: 0.5rem !important;
+        flex-shrink: 0;
+      }
+      body:has(.gateway) .footer-fold-separator {
+        margin-top: auto !important;
+        flex-shrink: 0;
+      }
+
+      body:has(.gateway) button[aria-label="Menu"].sl-flex.md\:sl-hidden {
+        display: none !important;
       }
       body:has(.gateway) starlight-image-zoom-zoomable {
         display: contents !important;
@@ -62,7 +113,9 @@ head:
         z-index: 1;
         display: flex;
         flex-direction: column;
-        min-height: calc(100dvh - var(--sl-nav-height, 6.3rem));
+        /* Grow into residual viewport height; footer stays at bottom */
+        flex: 1 1 auto;
+        min-height: 0;
       }
 
       .gateway-section-label {
@@ -72,7 +125,7 @@ head:
         text-transform: uppercase;
         color: var(--sl-color-text-muted);
         text-align: center;
-        margin: 0 0 1rem;
+        margin: 0 0 0.65rem;
         padding: 0;
       }
 
@@ -82,7 +135,8 @@ head:
       .gateway {
         display: flex;
         flex-direction: row;
-        flex: 1;
+        /* Absorb leftover height so the footer sits at the viewport bottom */
+        flex: 1 1 auto;
         min-height: 0;
         margin-top: 0;
         padding-top: 0;
@@ -96,8 +150,8 @@ head:
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 1rem;
-        padding: 2rem 2.5rem;
+        gap: 0.65rem;
+        padding: 1.35rem 2rem;
         text-align: center;
         text-decoration: none;
         color: inherit;
@@ -240,30 +294,29 @@ head:
       }
 
       .panel-label {
-        font-size: clamp(1.625rem, 1.2rem + 1vw, 2.2rem);
+        font-size: clamp(1.35rem, 1.05rem + 0.85vw, 1.85rem);
         font-weight: 500;
         color: var(--sl-color-text-heading);
-        line-height: 1.15;
+        line-height: 1.2;
         letter-spacing: -0.03em;
-        max-width: 30rem;
+        max-width: 28rem;
         margin: 0;
       }
 
       /* SaaS headline: keep to two lines — wider measure + slightly smaller type than agents */
       .panel-saas .panel-label {
-        max-width: 34rem;
-        font-size: clamp(1.45rem, 1.05rem + 1vw, 2.05rem);
+        max-width: 32rem;
+        font-size: clamp(1.25rem, 0.95rem + 0.8vw, 1.7rem);
         text-wrap: pretty;
       }
 
       .panel-desc {
-        font-size: 1rem;
+        font-size: 0.9375rem;
         color: var(--sl-color-text-muted);
-        line-height: 1.6;
+        line-height: 1.5;
         max-width: 24rem;
         margin: 0;
       }
-
 
       .panel-visual {
         width: min(100%, 36rem);
@@ -417,9 +470,9 @@ head:
       }
 
       .panel-cta {
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         font-weight: 600;
-        margin-top: 0.25rem;
+        margin-top: 0.1rem;
         color: var(--sl-color-accent);
       }
 
@@ -458,7 +511,7 @@ head:
         }
         .panel {
           flex: 1;
-          padding: 2rem 1.5rem;
+          padding: 1.25rem 1.25rem;
         }
         .panel-label {
           max-width: 100%;
@@ -474,7 +527,7 @@ head:
         }
       }
 
-      /* Desktop: hide illustrations so panels + CLI strip fill the viewport */
+      /* Desktop: hide illustrations so panels stay compact and footer stays in view */
       @media (min-width: 1024px) {
         .panel-visual {
           display: none;
@@ -483,7 +536,7 @@ head:
 
       .gateway-cli {
         text-align: center;
-        padding: 1.5rem 1.5rem 1.75rem;
+        padding: 1rem 1.25rem 1.15rem;
         margin: 0;
         background: var(--sl-color-bg);
         border-top: 1px solid var(--sl-color-hairline);
@@ -510,7 +563,7 @@ head:
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.4rem;
         flex: 1 1 12rem;
         min-width: 11rem;
         max-width: 18rem;
@@ -518,7 +571,7 @@ head:
         background: var(--sl-color-bg-card);
         border: 1px solid var(--sl-color-hairline);
         border-radius: var(--sk-radius-xl, 0.75rem);
-        padding: 1rem 1.1rem;
+        padding: 0.75rem 0.9rem;
         overflow: hidden;
         box-shadow: var(--sk-shadow-menu, 0 1px 2px rgba(10, 10, 10, 0.04));
       }

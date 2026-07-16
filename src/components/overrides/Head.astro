@@ -9,14 +9,120 @@ import { ClientRouter } from 'astro:transitions'
 
 <!--
   Smooth docs navigation (Starlight + Astro utilities):
-  - ClientRouter: soft navigations keep chrome stable (secondary nav does not
-    hard-flash). Pair with transition:persist on the header top row.
-  - Starlight hover prefetch (astro.config) warms the next page.
-  - Scalar API pages MUST use <ScalarComponent renderMode="client" /> so the
-    reference remounts on astro:page-load (see @scalar/astro docs — static
-    mode only runs on hard refresh under ClientRouter).
+  - ClientRouter: soft navigations keep chrome stable.
+  - Prefetch: viewport (astro.config) + eager secondary-nav/product destinations.
+  - Scalar: renderMode="client" so API reference remounts after soft nav.
+  - Optimistic chrome updates run in capture phase so UI reacts before fetch.
 -->
 <ClientRouter />
+
+<!-- Prefetch + navigation UX: cut ~1s secondary-nav/product-switch lag -->
+<script is:inline>
+  ;(() => {
+    const prefetched = new Set()
+
+    const prefetchDocument = (href) => {
+      try {
+        const url = new URL(href, location.origin)
+        if (url.origin !== location.origin) return
+        // Include search so /path?mode=a and /path?mode=b stay distinct
+        const pathname = url.pathname.replace(/\/+$/, '') || '/'
+        const key = pathname + url.search
+        if (prefetched.has(key)) return
+        prefetched.add(key)
+        // Prefer native document prefetch for ClientRouter HTML payloads
+        const link = document.createElement('link')
+        link.rel = 'prefetch'
+        link.as = 'document'
+        link.href = url.pathname + url.search
+        link.dataset.skPrefetch = key
+        document.head.appendChild(link)
+      } catch {
+        // ignore invalid hrefs
+      }
+    }
+
+    const prefetchChromeDestinations = () => {
+      document
+        .querySelectorAll(
+          '.secondary-nav a[href], #dropdown-portal a[href], [data-product-switch][href]',
+        )
+        .forEach((a) => prefetchDocument(a.getAttribute('href')))
+      // Product homes — always warm both
+      prefetchDocument('/agentkit/quickstart/')
+      prefetchDocument('/authenticate/fsa/quickstart/')
+    }
+
+    // Optimistic current-state so secondary nav feels instant before HTML arrives
+    document.addEventListener(
+      'click',
+      (event) => {
+        if (event.defaultPrevented) return
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+          return
+        const target = event.target
+        if (!(target instanceof Element)) return
+        const anchor = target.closest(
+          'a.nav-item[href], a.dropdown-item[href], a[data-product-switch][href]',
+        )
+        if (!(anchor instanceof HTMLAnchorElement)) return
+        try {
+          const next = new URL(anchor.href, location.origin)
+          if (next.origin !== location.origin) return
+          if (next.pathname === location.pathname && next.search === location.search) return
+        } catch {
+          return
+        }
+
+        prefetchDocument(anchor.href)
+
+        if (anchor.classList.contains('nav-item')) {
+          document.querySelectorAll('.secondary-nav .nav-item.current').forEach((el) => {
+            el.classList.remove('current')
+            el.removeAttribute('aria-current')
+          })
+          anchor.classList.add('current')
+          anchor.setAttribute('aria-current', 'page')
+        }
+
+        if (anchor.classList.contains('dropdown-item')) {
+          document.querySelectorAll('.dropdown-item.current').forEach((el) => {
+            el.classList.remove('current')
+            el.removeAttribute('aria-current')
+          })
+          anchor.classList.add('current')
+          anchor.setAttribute('aria-current', 'page')
+          const menu = anchor.closest('[data-dropdown]')
+          const navKey = menu?.getAttribute('data-nav-key')
+          if (navKey) {
+            const parent = document.querySelector(
+              `.nav-item-wrapper.has-dropdown .nav-item[data-nav-key="${navKey}"]`,
+            )
+            if (parent) {
+              document.querySelectorAll('.secondary-nav .nav-item.current').forEach((el) => {
+                el.classList.remove('current')
+                el.removeAttribute('aria-current')
+              })
+              parent.classList.add('current')
+              parent.setAttribute('aria-current', 'page')
+            }
+          }
+        }
+      },
+      true,
+    )
+
+    document.addEventListener('astro:page-load', () => {
+      prefetchChromeDestinations()
+    })
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', prefetchChromeDestinations, { once: true })
+    } else {
+      prefetchChromeDestinations()
+    }
+  })()
+</script>
 
 <!-- WebMCP: expose site tools to AI agents via the browser -->
 <script src="/js/webmcp.js" defer></script>
