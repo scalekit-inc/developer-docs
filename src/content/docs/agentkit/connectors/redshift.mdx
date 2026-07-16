@@ -58,12 +58,13 @@ Supports authentication: <Badge text="Trusted IDP" />
 
 ## How it works
 
-Scalekit acts as an OIDC identity provider that AWS IAM trusts. No long-lived AWS access key is ever stored. On every tool call:
+Scalekit acts as an OIDC identity provider that AWS IAM trusts. No long-lived AWS access key is ever stored. When a tool call needs credentials — on the first call, on a cache miss, or when the cached credentials are near expiry — Scalekit runs this exchange:
 
 1. Scalekit mints a short-lived JWT signed with your environment's OIDC signing key.
 2. Scalekit calls AWS STS `AssumeRoleWithWebIdentity` with that JWT. AWS validates the signature against Scalekit's public JWKS and issues temporary credentials (about a 1-hour lifetime).
 3. Scalekit uses those temporary credentials to call the Redshift Data API on your behalf.
-4. Credentials are cached and proactively refreshed near expiry.
+
+Between exchanges, Scalekit reuses the cached temporary credentials and refreshes them proactively before they expire, so most tool calls skip the STS round-trip.
 
 You keep the IAM role and trust policy in your own AWS account. Scalekit never sees a long-lived AWS access key.
 
@@ -92,7 +93,7 @@ Before you touch AWS, collect two values from the Scalekit dashboard. You paste 
 </Aside>
 
 <Aside type="caution" title="Local development issuers must be publicly reachable">
-  Your issuer must be reachable from AWS. `*.localhost` won't work. Use the staging environment URL or an ngrok-tunneled public domain.
+  The issuer AWS validates is your Scalekit environment URL, and AWS must be able to reach its JWKS endpoint. A `*.localhost` domain won't work. For local development, use your staging Scalekit environment URL. A tunnel such as ngrok only works if it fronts your Scalekit issuer domain — an arbitrary tunnel hostname can't stand in for the issuer, because AWS matches the JWT `iss` against the registered OIDC provider.
 </Aside>
 
 ## Part 1 — Set up AWS
@@ -124,7 +125,7 @@ arn:aws:iam::<AWS_ACCOUNT_ID>:oidc-provider/<YOUR_ENV_DOMAIN>
 ```
 
 <Aside type="note" title="Adding a second Connection ID later">
-  If you add another Redshift connection in the same Scalekit environment, don't create a new OIDC provider. Add the new Connection ID to this provider's audience list instead.
+  If you add another Redshift connection in the same Scalekit environment, don't create a new OIDC provider — add the new Connection ID to this provider's audience list. Updating the OIDC provider alone isn't enough if you reuse the same IAM role: its trust policy `aud` condition still accepts only the original Connection ID. Either add the new ID to that condition (`"<YOUR_ENV_DOMAIN>:aud": ["<CONNECTION_ID_1>", "<CONNECTION_ID_2>"]`) or create a separate role for the new audience.
 </Aside>
 
 ### Create the IAM role
@@ -194,7 +195,7 @@ By default the trust policy lets **any** connected account backed by this connec
 }
 ```
 
-`<CONNECTED_ACCOUNT_IDENTIFIER>` is the value you set as the connected account's identifier (typically your organization's external ID or an email). It must match exactly.
+`<CONNECTED_ACCOUNT_IDENTIFIER>` is the value you set as the connected account's identifier. It must match exactly. This value becomes the JWT `sub` claim and is exposed through AWS federation and CloudTrail, so use an opaque identifier such as an organization ID — avoid personal data like an email address.
 
 ### Attach the permission policy
 
@@ -270,20 +271,30 @@ The trust policy lets Scalekit **assume** the role. The permission policy contro
 | --- | --- |
 | `<REGION>` | `us-east-1` |
 | `<AWS_ACCOUNT_ID>` | `166424725243` |
-| `<WORKGROUP_ID>` (serverless) | `93725977-d43f-423a-8908-d5a64caff6ba` |
+| `<WORKGROUP_ID>` (serverless) | `93725977-d43f-423a-8908-d5a64caff6ba` — the workgroup UUID, not its name |
 | `<CLUSTER_ID>` (provisioned) | `prod-analytics` |
 | `<DATABASE>` | `analytics` |
 | `<DB_USER>` (provisioned) | `analytics_reader` |
 
 <Aside type="caution" title="Scope the serverless action to a workgroup ARN">
-  Scope `redshift-serverless:GetCredentials` to a specific workgroup ARN. A wildcard `*` is documented but not reliable in practice — use the exact workgroup ARN, including its UUID.
+  Scope `redshift-serverless:GetCredentials` to a specific workgroup ARN. A wildcard `*` is documented but not reliable in practice — use the exact workgroup ARN, including its UUID. `<WORKGROUP_ID>` is the workgroup's ID (a UUID), not its name. Copy the workgroup ARN from the AWS console (**Amazon Redshift Serverless > Workgroup configuration**), or read `workgroupId` from `aws redshift-serverless get-workgroup`, and use its final segment.
 </Aside>
 
 ## Part 2 — Set up your Redshift database
 
 ### Serverless workgroup (recommended)
 
-Serverless workgroups authenticate the IAM identity directly, so you don't need to create a database user. AWS resolves the IAM role to an `IAMR:<role-name>` database role automatically.
+Serverless workgroups authenticate the IAM identity directly, so you don't need to create a database user. On the first IAM connection, AWS resolves the IAM role to an `IAMR:<role-name>` database role automatically.
+
+That database role still needs privileges. Authentication can succeed while queries fail with authorization errors if you skip this step. Connect as an admin and grant the role the access the agent needs:
+
+```sql
+-- Grant the access the agent needs to the auto-created IAM database role.
+-- The role name is IAMR: followed by your IAM role name.
+GRANT USAGE ON SCHEMA public TO "IAMR:ScalekitRedshiftAccess";
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO "IAMR:ScalekitRedshiftAccess";
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO "IAMR:ScalekitRedshiftAccess";
+```
 
 ### Provisioned cluster
 
@@ -305,20 +316,20 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO analytics_re
 
 ## Part 3 — Create a connection and connected account in Scalekit
 
-A **connected account** binds one organization (or tenant) in your app to one AWS Redshift target.
+A **connected account** binds one organization (or tenant) in your app to one AWS Redshift target. You already created the connection itself in [Gather your Scalekit details first](#gather-your-scalekit-details-first) — its Connection ID is what you registered in AWS. Here you reopen that connection to add a connected account.
 
 <Steps>
 
 1. In the Scalekit dashboard, go to **AgentKit > Connectors** and click **AWS Redshift**.
-2. If you haven't created a connection yet, click **Create connection** and save it. This is the Connection ID you used in the trust policy.
-3. From the connection, click **Add connected account** and fill in the fields below.
+2. Open the connection you created earlier (the one whose Connection ID you used in the trust policy).
+3. Click **Add connected account** and fill in the fields below.
 4. Save. Scalekit creates the connected account in `ACTIVE` status. The first STS exchange happens lazily on the first tool call.
 
 </Steps>
 
 | Field | Required | Notes |
 | --- | --- | --- |
-| **Identifier** | <Badge text="Required" /> | Becomes the JWT `sub` claim. Use your organization's external ID, an email, or any stable string. If you used the `sub` condition in the trust policy, this must match exactly. |
+| **Identifier** | <Badge text="Required" /> | Becomes the JWT `sub` claim, which is exposed through AWS federation and CloudTrail. Use an opaque, stable value such as your organization's ID — avoid personal data like an email address. If you used the `sub` condition in the trust policy, this must match exactly. |
 | **Role ARN** | <Badge text="Required" /> | The IAM role ARN you created in Part 1. |
 | **Region** | <Badge text="Required" /> | AWS region, for example `us-east-1`. |
 | **Database** | <Badge text="Required" /> | Redshift database name. |
@@ -333,11 +344,39 @@ A **connected account** binds one organization (or tenant) in your app to one AW
 
 ### API equivalent (optional)
 
-To create the connected account programmatically instead of using the dashboard:
+To create the connected account programmatically instead of using the dashboard, read your API token from an environment variable. The payload shape differs slightly between serverless and provisioned targets.
 
+<Aside type="caution" title="Never inline the API token">
+  The API token grants access to connected-account credentials. Read it from an environment variable so it doesn't leak into shell history or source control. Never paste it as a literal.
+</Aside>
+
+<Tabs>
+  <TabItem label="Serverless workgroup">
 ```bash frame="terminal"
-curl -X POST 'https://<YOUR_ENV_DOMAIN>/api/v1/connected_accounts' \
-  -H 'Authorization: Bearer <YOUR_SCALEKIT_API_TOKEN>' \
+# Export the token first: export SCALEKIT_API_TOKEN=...
+curl -X POST "https://<YOUR_ENV_DOMAIN>/api/v1/connected_accounts" \
+  -H "Authorization: Bearer $SCALEKIT_API_TOKEN" \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "identifier": "acme-org-id",
+    "connector": "redshift-<CONNECTOR_KEY>",
+    "connected_account": {
+      "api_config": {
+        "role_arn": "arn:aws:iam::166424725243:role/ScalekitRedshiftAccess",
+        "region": "us-east-1",
+        "database": "analytics",
+        "workgroup_name": "analytics-wg",
+        "namespace_name": "analytics-ns"
+      }
+    }
+  }'
+```
+  </TabItem>
+  <TabItem label="Provisioned cluster">
+```bash frame="terminal"
+# Export the token first: export SCALEKIT_API_TOKEN=...
+curl -X POST "https://<YOUR_ENV_DOMAIN>/api/v1/connected_accounts" \
+  -H "Authorization: Bearer $SCALEKIT_API_TOKEN" \
   -H 'Content-Type: application/json' \
   -d '{
     "identifier": "acme-org-id",
@@ -350,14 +389,15 @@ curl -X POST 'https://<YOUR_ENV_DOMAIN>/api/v1/connected_accounts' \
         "role_arn": "arn:aws:iam::166424725243:role/ScalekitRedshiftAccess",
         "region": "us-east-1",
         "database": "analytics",
-        "workgroup_name": "analytics-wg",
-        "namespace_name": "analytics-ns"
+        "cluster_identifier": "prod-analytics"
       }
     }
   }'
 ```
+  </TabItem>
+</Tabs>
 
-For a provisioned cluster, replace `workgroup_name` and `namespace_name` with `cluster_identifier`.
+The serverless payload omits `trusted_idp.db_user` (serverless resolves the IAM identity directly), while the provisioned payload includes it and uses `cluster_identifier` instead of `workgroup_name` / `namespace_name`.
 
 ## What you can do
 
@@ -373,6 +413,8 @@ Connect this agent connector to let your agent:
 
 Use `execute_tool` / `executeTool` to run a named Redshift tool for a specific user. Scalekit selects the connected account from the user `identifier` plus the connection, or from a `connected_account_id`.
 
+Redshift runs statements asynchronously: `redshift_execute_sql` returns a `statement_id`, and you poll `redshift_get_query_result` until the statement reaches a terminal state. Poll in a bounded loop and handle the `FAILED` and `ABORTED` states as errors so a stuck query can't loop forever.
+
 <Tabs syncKey="tech-stack">
   <TabItem label="Node.js">
 ```typescript
@@ -385,19 +427,34 @@ const submit = await scalekit.actions.executeTool({
 });
 const statementId = submit.data.statement_id;
 
-// Poll for results. status is "FINISHED" when the query completes.
-const result = await scalekit.actions.executeTool({
-  toolName: 'redshift_get_query_result',
-  identifier: 'acme-org-id',
-  connector: 'redshift',
-  toolInput: { statement_id: statementId },
-});
-console.log(result.data.status); // "FINISHED"
-console.log(result.data.rows);   // [[12345]]
+// Poll until the statement reaches a terminal state, with a bounded number of attempts.
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+let result;
+for (let attempt = 0; attempt < 30; attempt++) {
+  result = await scalekit.actions.executeTool({
+    toolName: 'redshift_get_query_result',
+    identifier: 'acme-org-id',
+    connector: 'redshift',
+    toolInput: { statement_id: statementId },
+  });
+  const status = result.data.status;
+  if (status === 'FINISHED') break;
+  // Treat FAILED and ABORTED as errors rather than retrying forever.
+  if (status === 'FAILED' || status === 'ABORTED') {
+    throw new Error(`Statement ${statementId} ended as ${status}`);
+  }
+  await sleep(1000); // still SUBMITTED / PICKED / STARTED — wait and re-check.
+}
+if (result.data.status !== 'FINISHED') {
+  throw new Error(`Statement ${statementId} did not finish in time`);
+}
+console.log(result.data.rows); // [[12345]]
 ```
   </TabItem>
   <TabItem label="Python">
 ```python
+import time
+
 # Submit a SQL statement. Returns a statement ID you poll for results.
 submit = actions.execute_tool(
     tool_name="redshift_execute_sql",
@@ -407,15 +464,26 @@ submit = actions.execute_tool(
 )
 statement_id = submit.data["statement_id"]
 
-# Poll for results. status is "FINISHED" when the query completes.
-result = actions.execute_tool(
-    tool_name="redshift_get_query_result",
-    identifier="acme-org-id",
-    connection_name="redshift",
-    tool_input={"statement_id": statement_id},
-)
-print(result.data["status"])  # "FINISHED"
-print(result.data["rows"])    # [[12345]]
+# Poll until the statement reaches a terminal state, with a bounded number of attempts.
+result = None
+for _ in range(30):
+    result = actions.execute_tool(
+        tool_name="redshift_get_query_result",
+        identifier="acme-org-id",
+        connection_name="redshift",
+        tool_input={"statement_id": statement_id},
+    )
+    status = result.data["status"]
+    if status == "FINISHED":
+        break
+    # Treat FAILED and ABORTED as errors rather than retrying forever.
+    if status in ("FAILED", "ABORTED"):
+        raise RuntimeError(f"Statement {statement_id} ended as {status}")
+    time.sleep(1)  # still SUBMITTED / PICKED / STARTED — wait and re-check.
+
+if not result or result.data["status"] != "FINISHED":
+    raise TimeoutError(f"Statement {statement_id} did not finish in time")
+print(result.data["rows"])  # [[12345]]
 ```
   </TabItem>
 </Tabs>
@@ -424,7 +492,7 @@ print(result.data["rows"])    # [[12345]]
 
 | Error | Cause | Fix |
 | --- | --- | --- |
-| `InvalidIdentityToken` | AWS can't reach your Scalekit issuer URL (likely a `*.localhost` domain). | Use a publicly reachable environment URL, or set up an ngrok tunnel. |
+| `InvalidIdentityToken` | AWS can't reach your Scalekit issuer URL (likely a `*.localhost` domain). | Use a publicly reachable Scalekit environment URL, such as your staging environment, as the issuer. |
 | `Not authorized to perform sts:AssumeRoleWithWebIdentity` | The trust policy `aud` doesn't match the Scalekit Connection ID. | Verify `<CONNECTION_ID>` in the trust policy matches the dashboard exactly. |
 | `not authorized to perform: redshift-serverless:GetCredentials` | Permission policy is missing the serverless auth action or is scoped to the wrong workgroup. | Check the workgroup ARN in the policy — it must be exact, including the UUID. |
 | `db_user is required for provisioned Redshift clusters` | Cluster identifier is set but `db_user` is empty on the connected account. | Add `db_user` matching the Redshift user you created in Part 2. |
@@ -433,10 +501,10 @@ print(result.data["rows"])    # [[12345]]
 
 ### Verify the round-trip in CloudTrail
 
-For each tool call, AWS CloudTrail records two events:
+A tool call typically produces two kinds of CloudTrail events, though the exact event names and counts vary by which tool ran:
 
-1. An `AssumeRoleWithWebIdentity` event from a `userIdentity` of type `WebIdentityUser`, with your Scalekit environment as the issuer.
-2. A `redshift-data:ExecuteStatement` (or related) event from the assumed role.
+1. An `AssumeRoleWithWebIdentity` event (`eventSource: sts.amazonaws.com`) from a `userIdentity` of type `WebIdentityUser`, with your Scalekit environment as the issuer. This appears only when Scalekit exchanges credentials — a cached-credential call skips it.
+2. A Redshift Data API event (`eventSource: redshift-data.amazonaws.com`, `eventName: ExecuteStatement` for a query, or the corresponding name for other tools) from the assumed role.
 
 The `RoleSessionName` matches the connected account's identifier (sanitized — `+` becomes `-`, and so on), so CloudTrail attributes activity per organization out of the box.
 
@@ -484,13 +552,17 @@ No long-lived AWS credentials are ever stored. Temporary STS credentials are cac
 
 ### Revoke access
 
-To immediately cut off Scalekit's access to your Redshift, do any one of the following:
+To block Scalekit from obtaining **new** credentials, do any one of the following:
 
 - Delete the IAM role, or
 - Remove the `Federated` principal from the trust policy, or
 - Remove the OIDC provider entry in AWS IAM.
 
 Any of these causes the next `AssumeRoleWithWebIdentity` call to fail with `AccessDenied`.
+
+<Aside type="caution" title="Blocking new sessions doesn't revoke active ones">
+  These changes stop future credential exchanges, but temporary credentials Scalekit already holds stay valid until they expire (up to about an hour). For an immediate cut-off, also revoke active sessions: attach AWS's [`AWSRevokeOlderSessions` deny policy](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_revoke-sessions.html) to the role (it denies all actions for sessions issued before a cutoff time), or delete the role, which invalidates its active sessions.
+</Aside>
 
 ## Tool list
 
