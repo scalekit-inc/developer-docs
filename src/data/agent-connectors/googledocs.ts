@@ -2,6 +2,133 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'googledocs_apply_text_style',
+    description: `Apply character formatting (bold, italic, underline, strikethrough, font size) to a range of text in a Google Doc. Only the attributes you set are changed.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'end_index',
+        type: 'integer',
+        required: true,
+        description: `End index of the range to format (exclusive)`,
+      },
+      {
+        name: 'start_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based start index of the range to format (inclusive)`,
+      },
+      {
+        name: 'bold',
+        type: 'boolean',
+        required: false,
+        description: `Set text to bold (true) or non-bold (false)`,
+      },
+      { name: 'font_size_pt', type: 'number', required: false, description: `Font size in points` },
+      {
+        name: 'italic',
+        type: 'boolean',
+        required: false,
+        description: `Set text to italic (true) or non-italic (false)`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'strikethrough',
+        type: 'boolean',
+        required: false,
+        description: `Set text to struck through (true) or not (false)`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+      {
+        name: 'underline',
+        type: 'boolean',
+        required: false,
+        description: `Set text to underlined (true) or not (false)`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_copy_document',
+    description: `Duplicate a Google Doc. Optionally rename the copy or place it in a specific Drive folder. Uses the Drive API and returns the new document's metadata.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to copy`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Name for the copied document. If omitted, the copy is named 'Copy of <original name>'.`,
+      },
+      {
+        name: 'parent_folder_id',
+        type: 'string',
+        required: false,
+        description: `ID of the destination folder for the copy. If omitted, the copy is placed in the same folder as the original.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_create_comment',
+    description: `Add a comment to a Google Doc. Comments are managed through the Drive API. Optionally anchor the comment to a quoted section of the document.`,
+    params: [
+      {
+        name: 'content',
+        type: 'string',
+        required: true,
+        description: `The plain-text content of the comment`,
+      },
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to comment on`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
     name: 'googledocs_create_document',
     description: `Create a new blank Google Doc with an optional title. Returns the new document's ID and metadata.`,
     params: [
@@ -12,6 +139,442 @@ export const tools: Tool[] = [
         description: `Optional schema version to use for tool execution`,
       },
       { name: 'title', type: 'string', required: false, description: `Title of the new document` },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_create_named_range',
+    description: `Create a named range over a span of content in a Google Doc. Named ranges let you reference and update a region of the document later by name.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'end_index',
+        type: 'integer',
+        required: true,
+        description: `End index of the range (exclusive)`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Name for the range. Multiple ranges can share the same name.`,
+      },
+      {
+        name: 'start_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based start index of the range (inclusive)`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_create_paragraph_bullets',
+    description: `Turn the paragraphs in a range into a bulleted or numbered list using a preset glyph pattern.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'end_index',
+        type: 'integer',
+        required: true,
+        description: `End index of the paragraph range (exclusive)`,
+      },
+      {
+        name: 'start_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based start index of the paragraph range (inclusive)`,
+      },
+      {
+        name: 'bullet_preset',
+        type: 'string',
+        required: false,
+        description: `The bullet glyph preset. Use a BULLET_* preset for unordered lists or a NUMBERED_* preset for ordered lists.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_delete_comment',
+    description: `Permanently delete a comment from a Google Doc. Comments are managed through the Drive API. This cannot be undone.`,
+    params: [
+      {
+        name: 'comment_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the comment to delete`,
+      },
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc that holds the comment`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_delete_content_range',
+    description: `Delete content between two character indexes in a Google Doc. The start index is inclusive and the end index is exclusive.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'end_index',
+        type: 'integer',
+        required: true,
+        description: `End index of the range to delete (exclusive)`,
+      },
+      {
+        name: 'start_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based start index of the range to delete (inclusive)`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_delete_named_range',
+    description: `Delete named ranges from a Google Doc. Provide a named range ID to remove one specific range, or a name to remove all ranges sharing that name. The underlying document content is not deleted.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `The name of the range(s) to delete. All named ranges with this name are removed.`,
+      },
+      {
+        name: 'named_range_id',
+        type: 'string',
+        required: false,
+        description: `The ID of a specific named range to delete. Takes precedence over name when both are provided.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_delete_paragraph_bullets',
+    description: `Remove list bullets or numbering from the paragraphs in a range, converting them back to normal paragraphs.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'end_index',
+        type: 'integer',
+        required: true,
+        description: `End index of the paragraph range (exclusive)`,
+      },
+      {
+        name: 'start_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based start index of the paragraph range (inclusive)`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_export_document',
+    description: `Export a Google Doc to another format such as PDF, plain text, HTML, Word (.docx), RTF, or EPUB. Uses the Drive API export endpoint. Exported files are limited to 10 MB.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to export`,
+      },
+      {
+        name: 'mime_type',
+        type: 'string',
+        required: true,
+        description: `The MIME type of the target export format`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_insert_inline_image',
+    description: `Insert an inline image from a publicly accessible URL into a Google Doc. Optionally set the image width and height in points. Provide an index to insert at that position, or omit it to append at the end of the document body.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'image_uri',
+        type: 'string',
+        required: true,
+        description: `Publicly accessible URL of the image to insert (PNG, JPEG, or GIF, max 50 MB / 25 megapixels)`,
+      },
+      { name: 'height_pt', type: 'number', required: false, description: `Image height in points` },
+      {
+        name: 'index',
+        type: 'integer',
+        required: false,
+        description: `Zero-based character index at which to insert the image. Omit to append at the end of the document body.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+      { name: 'width_pt', type: 'number', required: false, description: `Image width in points` },
+    ],
+  },
+  {
+    name: 'googledocs_insert_page_break',
+    description: `Insert a page break into a Google Doc. Provide an index to insert at that position, or omit it to append at the end of the document body.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'index',
+        type: 'integer',
+        required: false,
+        description: `Zero-based character index at which to insert the page break. Omit to append at the end of the document body.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_insert_table',
+    description: `Insert an empty table with the given number of rows and columns into a Google Doc. Provide an index to insert at that position, or omit it to append at the end of the document body.`,
+    params: [
+      {
+        name: 'columns',
+        type: 'integer',
+        required: true,
+        description: `Number of columns in the table`,
+      },
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      { name: 'rows', type: 'integer', required: true, description: `Number of rows in the table` },
+      {
+        name: 'index',
+        type: 'integer',
+        required: false,
+        description: `Zero-based character index at which to insert the table. Omit to append at the end of the document body.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_insert_text',
+    description: `Insert text into a Google Doc at a specific location. Provide an index to insert at that position, or omit it to append at the end of the document body.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      { name: 'text', type: 'string', required: true, description: `The text to insert` },
+      {
+        name: 'index',
+        type: 'integer',
+        required: false,
+        description: `Zero-based character index at which to insert the text. Omit to append at the end of the document body.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_list_comments',
+    description: `List the comments on a Google Doc, including their replies and resolved status. Comments are managed through the Drive API. Supports pagination.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc whose comments to list`,
+      },
+      {
+        name: 'include_deleted',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include deleted comments. Deleted comments have their content and author stripped. Defaults to false.`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of comments to return per page (1-100, default 20)`,
+      },
+      {
+        name: 'page_token',
+        type: 'string',
+        required: false,
+        description: `Token for retrieving the next page of results. Use the nextPageToken from a previous response.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'start_modified_time',
+        type: 'string',
+        required: false,
+        description: `Only return comments modified after this RFC 3339 timestamp`,
+      },
       {
         name: 'tool_version',
         type: 'string',
@@ -81,6 +644,120 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googledocs_replace_all_text',
+    description: `Find every occurrence of a text string in a Google Doc and replace it with new text. Useful for templating and bulk edits.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'find_text',
+        type: 'string',
+        required: true,
+        description: `The exact text to search for`,
+      },
+      {
+        name: 'replace_text',
+        type: 'string',
+        required: true,
+        description: `The text to substitute for each match`,
+      },
+      {
+        name: 'match_case',
+        type: 'boolean',
+        required: false,
+        description: `Whether the search is case-sensitive. Defaults to false.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_reply_to_comment',
+    description: `Post a reply to an existing comment on a Google Doc. Comments and replies are managed through the Drive API.`,
+    params: [
+      {
+        name: 'comment_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the comment to reply to`,
+      },
+      {
+        name: 'content',
+        type: 'string',
+        required: true,
+        description: `The plain-text content of the reply`,
+      },
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc that holds the comment`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_resolve_comment',
+    description: `Resolve an open comment on a Google Doc by posting a resolving reply. Comments are managed through the Drive API. Optionally include reply text alongside the resolution.`,
+    params: [
+      {
+        name: 'comment_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the comment to resolve`,
+      },
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc that holds the comment`,
+      },
+      {
+        name: 'content',
+        type: 'string',
+        required: false,
+        description: `Optional reply text to post along with the resolution`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
     name: 'googledocs_update_document',
     description: `Update the content of an existing Google Doc using batch update requests. Supports inserting and deleting text, formatting, tables, and other document elements.`,
     params: [
@@ -113,6 +790,49 @@ export const tools: Tool[] = [
         type: 'object',
         required: false,
         description: `Optional write control for revision management`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_update_paragraph_style',
+    description: `Apply paragraph-level formatting to a range: set a named style such as a heading or title, and/or set text alignment. Use this to turn text into a heading.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'end_index',
+        type: 'integer',
+        required: true,
+        description: `End index of the paragraph range (exclusive)`,
+      },
+      {
+        name: 'start_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based start index of the paragraph range (inclusive)`,
+      },
+      { name: 'alignment', type: 'string', required: false, description: `Paragraph alignment` },
+      {
+        name: 'named_style_type',
+        type: 'string',
+        required: false,
+        description: `Named paragraph style to apply (e.g. a heading level, title, or normal text)`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
       },
     ],
   },

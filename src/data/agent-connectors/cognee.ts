@@ -180,8 +180,46 @@ export const tools: Tool[] = [
       },
     ],
   },
-  // cognee_remember is intentionally omitted: visibility is "internal" (coming soon).
-  // Cognee's ingest endpoint requires multipart/form-data, which the Scalekit tool
-  // proxy doesn't support yet (JSON bodies only). Tracked in SK-1178. See the
-  // "Remember is coming soon" note on the connector page for the workaround.
+  {
+    name: 'cognee_remember',
+    description: `Save data to Cognee memory. Ingests the provided content into a dataset and builds a knowledge graph from it in a single operation, so it can be recalled later with semantic search. Creates the dataset if it does not already exist. NOTE: Coming soon — Cognee's ingest endpoint (POST /api/v1/remember) uses multipart/form-data, which the Scalekit tool proxy does not yet support (JSON bodies only). Kept internal until multipart proxy support lands; see backend feature request. Until then, use Improve with the data field to add text into a dataset.`,
+    params: [
+      {
+        name: 'data',
+        type: 'string',
+        required: true,
+        description: `The content to remember. Free-form text that Cognee ingests and turns into knowledge-graph memory.`,
+      },
+      {
+        name: 'custom_prompt',
+        type: 'string',
+        required: false,
+        description: `Overrides the default entity-extraction prompt used during graph building. Use it to steer which entities and relationships get extracted. Leave empty for the default.`,
+      },
+      {
+        name: 'datasetName',
+        type: 'string',
+        required: false,
+        description: `Name of the target dataset. Created automatically if it does not exist. Defaults to 'main_dataset'.`,
+      },
+      {
+        name: 'node_set',
+        type: 'array',
+        required: false,
+        description: `JSON array of named node-set tags to attach to the ingested data (e.g. per-agent or per-project groups). Recall can later be restricted to these tags. Leave empty to skip tagging.`,
+      },
+      {
+        name: 'run_in_background',
+        type: 'boolean',
+        required: false,
+        description: `If true, the request returns immediately while ingestion and graph building continue server-side. If false (default), the request blocks until the knowledge graph is fully built, which can take minutes for large inputs.`,
+      },
+      {
+        name: 'session_id',
+        type: 'string',
+        required: false,
+        description: `Optional session to attribute this memory to (e.g. agent-run-1718000000). When set, the data is stored in the session cache and bridged into the permanent graph in the background. Leave empty for a direct add and build.`,
+      },
+    ],
+  },
 ]
