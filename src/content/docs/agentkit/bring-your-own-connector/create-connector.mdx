@@ -72,7 +72,7 @@ Build the connector payload using the reference and examples that follow, then c
 
 Supported auth types are `OAUTH`, `BASIC`, `BEARER`, and `API_KEY`. Use `OAUTH` when the upstream API or MCP server requires a user authorization flow and token exchange. Use `BASIC`, `BEARER`, or `API_KEY` when it accepts static credentials or long-lived tokens.
 
-MCP providers use the same four auth types as REST API providers, with `is_mcp: true` set in each `auth_patterns[]` entry. OAuth MCP connectors use a simplified `oauth_config: {"pkce_enabled": true}` — the MCP server handles authorization via Dynamic Client Registration. Non-OAuth MCP connectors omit `oauth_config` entirely. MCP connectors can also use `NO_AUTH` for public servers that require no credentials — set `is_mcp: true`, use an empty `fields: []`, and omit `oauth_config`.
+MCP providers use the same four auth types as REST API providers, with `is_mcp: true` set in each `auth_patterns[]` entry. OAuth MCP connectors use a simplified `oauth_config: {"pkce_enabled": true}` — the MCP server handles authorization via Dynamic Client Registration. Non-OAuth MCP connectors omit `oauth_config` entirely. MCP connectors can also use `NO_AUTH` for public servers that require no credentials — set `is_mcp: true`, use an empty `fields: []`, and omit `oauth_config`. Use `NO_AUTH` only when the upstream intentionally allows unauthenticated public access and exposes no user-specific data or privileged operations; every user of the connector shares the same anonymous access.
 
 The connector payload uses these common top-level fields:
 
@@ -382,6 +382,10 @@ Scalekit connects to **stateless MCP servers** only. Stateful MCP servers that r
 }
 ```
 
+<Aside type="caution" title="Only for intentionally public upstreams">
+`NO_AUTH` sends no credentials, so every user of the connector shares the same anonymous access. Use it only when the MCP server is meant to be publicly accessible and exposes no user-specific data or privileged operations.
+</Aside>
+
 </TabItem>
 </Tabs>
 
@@ -419,8 +423,10 @@ Use the payload for your auth type as the request body in the create request:
 <Tabs syncKey="tech-stack">
 <TabItem label="cURL">
 
-```bash
-curl --location "$SCALEKIT_ENVIRONMENT_URL/api/v1/custom-providers" \
+```bash title="Terminal"
+# $env_access_token and $SCALEKIT_CLIENT_SECRET are secrets — keep them server-side and out of source control.
+# --fail-with-body makes curl exit non-zero and print the error body on a non-2xx response.
+curl --fail-with-body --location "$SCALEKIT_ENVIRONMENT_URL/api/v1/custom-providers" \
   --header "Authorization: Bearer $env_access_token" \
   --header "Content-Type: application/json" \
   --data '{...}'
@@ -431,39 +437,46 @@ curl --location "$SCALEKIT_ENVIRONMENT_URL/api/v1/custom-providers" \
 
 The Python SDK builds the payload with typed request objects and authenticates using your client credentials — no separate access token step is needed. It covers MCP connector auth types: OAuth (via Dynamic Client Registration), Bearer, API key, and No Auth. The example below creates an OAuth MCP connector; swap the `AuthPattern` for the auth type you need.
 
-```python
+```python title="create_connector.py"
 import scalekit.client, os
 from dotenv import load_dotenv
 from scalekit.actions.types import AuthPattern, OAuthConfig, CreateCustomProviderRequest
+from scalekit.common.exceptions import ScalekitException
 load_dotenv()
 
-# Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+# Load credentials from the environment. Keep SCALEKIT_CLIENT_SECRET server-side —
+# never commit it or expose it in client-side code.
 scalekit_client = scalekit.client.ScalekitClient(
     client_id=os.getenv("SCALEKIT_CLIENT_ID"),
     client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
     env_url=os.getenv("SCALEKIT_ENV_URL"),
 )
 
-response = scalekit_client.actions.providers.create_custom_provider(
-    CreateCustomProviderRequest(
-        display_name="Github MCP",
-        description="Connect to Github MCP",
-        proxy_url="https://api.githubcopilot.com/mcp/",
-        proxy_enabled=True,
-        auth_patterns=[
-            AuthPattern(
-                type="OAUTH",
-                display_name="OAuth 2.1/DCR",
-                description="Authenticate with Github MCP using browser OAuth.",
-                is_mcp=True,
-                oauth_config=OAuthConfig(),  # pkce_enabled=True by default
-            )
-        ],
-        # Optional: icon_src="https://cdn.example.com/icon.svg",
-        # Optional: metadata={"team": "platform"},
+try:
+    response = scalekit_client.actions.providers.create_custom_provider(
+        CreateCustomProviderRequest(
+            display_name="Github MCP",
+            description="Connect to Github MCP",
+            proxy_url="https://api.githubcopilot.com/mcp/",
+            proxy_enabled=True,
+            auth_patterns=[
+                AuthPattern(
+                    type="OAUTH",
+                    display_name="OAuth 2.1/DCR",
+                    description="Authenticate with Github MCP using browser OAuth.",
+                    is_mcp=True,
+                    oauth_config=OAuthConfig(),  # pkce_enabled=True by default
+                )
+            ],
+            # Optional: icon_src="https://cdn.example.com/icon.svg",
+            # Optional: metadata={"team": "platform"},
+        )
     )
-)
-print(response.provider.identifier)
+    print("Created connector:", response.provider.identifier)
+except ScalekitException as err:
+    # Handle validation errors, conflicts (duplicate name), auth failures, etc.
+    print("Failed to create connector:", err)
+    raise
 ```
 
 </TabItem>
@@ -478,32 +491,39 @@ List existing connectors before you create one, to confirm whether a connector f
 <Tabs syncKey="tech-stack">
 <TabItem label="cURL">
 
-```bash
-curl --location "$SCALEKIT_ENVIRONMENT_URL/api/v1/providers?filter.provider_type=CUSTOM&page_size=1000" \
+```bash title="Terminal"
+# $env_access_token is a secret — keep it server-side and out of source control.
+curl --fail-with-body --location "$SCALEKIT_ENVIRONMENT_URL/api/v1/providers?filter.provider_type=CUSTOM&page_size=1000" \
   --header "Authorization: Bearer $env_access_token"
 ```
 
 </TabItem>
 <TabItem label="Python">
 
-```python
+```python title="list_connectors.py"
 import scalekit.client, os
 from dotenv import load_dotenv
 from scalekit.actions.types import ListProvidersRequest
 from scalekit.v1.providers.providers_pb2 import ProviderType
+from scalekit.common.exceptions import ScalekitException
 load_dotenv()
 
+# Keep SCALEKIT_CLIENT_SECRET server-side — never commit it or expose it client-side.
 scalekit_client = scalekit.client.ScalekitClient(
     client_id=os.getenv("SCALEKIT_CLIENT_ID"),
     client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
     env_url=os.getenv("SCALEKIT_ENV_URL"),
 )
 
-response = scalekit_client.actions.providers.list_providers(
-    ListProvidersRequest(provider_type=ProviderType.CUSTOM, page_size=1000)
-)
-for provider in response.providers:
-    print(provider.identifier, provider.display_name)
+try:
+    response = scalekit_client.actions.providers.list_providers(
+        ListProvidersRequest(provider_type=ProviderType.CUSTOM, page_size=1000)
+    )
+    for provider in response.providers:
+        print(provider.identifier, provider.display_name)
+except ScalekitException as err:
+    print("Failed to list connectors:", err)
+    raise
 ```
 
 </TabItem>
@@ -511,17 +531,14 @@ for provider in response.providers:
 
 ## Update a connector
 
-Use the [List connectors](#list-connectors) API to get the connector `identifier`, then send the updated payload.
-
-<Aside type="caution" title="Update is PUT-style, not PATCH">
-The server replaces the entire connector with what you send. Read the current state first, then echo back every field you want to keep alongside the fields you want to change. Omitting a field wipes its value.
-</Aside>
+Use the [List connectors](#list-connectors) API to get the connector `identifier`, then send the updated payload. Include `display_name`, `proxy_url`, and `auth_patterns` on every update, and echo back any other fields you want to keep — omitted fields are not preserved, so read the current connector first and change only what you need.
 
 <Tabs syncKey="tech-stack">
 <TabItem label="cURL">
 
-```bash
-curl --location --request PUT "$SCALEKIT_ENVIRONMENT_URL/api/v1/custom-providers/$PROVIDER_IDENTIFIER" \
+```bash title="Terminal"
+# $env_access_token and $SCALEKIT_CLIENT_SECRET are secrets — keep them server-side and out of source control.
+curl --fail-with-body --location --request PUT "$SCALEKIT_ENVIRONMENT_URL/api/v1/custom-providers/$PROVIDER_IDENTIFIER" \
   --header "Authorization: Bearer $env_access_token" \
   --header "Content-Type: application/json" \
   --data '{...}'
@@ -530,12 +547,14 @@ curl --location --request PUT "$SCALEKIT_ENVIRONMENT_URL/api/v1/custom-providers
 </TabItem>
 <TabItem label="Python">
 
-```python
+```python title="update_connector.py"
 import scalekit.client, os
 from dotenv import load_dotenv
 from scalekit.actions.types import ListProvidersRequest, UpdateCustomProviderRequest
+from scalekit.common.exceptions import ScalekitException
 load_dotenv()
 
+# Keep SCALEKIT_CLIENT_SECRET server-side — never commit it or expose it client-side.
 scalekit_client = scalekit.client.ScalekitClient(
     client_id=os.getenv("SCALEKIT_CLIENT_ID"),
     client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
@@ -544,22 +563,26 @@ scalekit_client = scalekit.client.ScalekitClient(
 
 provider_identifier = "prov_..."  # from list_providers
 
-# Read the current state, then echo back the fields you want to keep.
-current = scalekit_client.actions.providers.list_providers(
-    ListProvidersRequest(identifier=provider_identifier)
-).providers[0]
+try:
+    # Read the current state, then echo back every field you want to keep.
+    current = scalekit_client.actions.providers.list_providers(
+        ListProvidersRequest(identifier=provider_identifier)
+    ).providers[0]
 
-response = scalekit_client.actions.providers.update_custom_provider(
-    UpdateCustomProviderRequest(
-        identifier=current.identifier,
-        display_name=current.display_name,
-        proxy_url=current.proxy_url,
-        description="Updated description",
-        auth_patterns=current.auth_patterns,
-        metadata=dict(current.metadata),
+    response = scalekit_client.actions.providers.update_custom_provider(
+        UpdateCustomProviderRequest(
+            identifier=current.identifier,
+            display_name=current.display_name,
+            proxy_url=current.proxy_url,
+            description="Updated description",
+            auth_patterns=current.auth_patterns,
+            metadata=dict(current.metadata),
+        )
     )
-)
-print(response.provider.identifier)
+    print("Updated connector:", response.provider.identifier)
+except ScalekitException as err:
+    print("Failed to update connector:", err)
+    raise
 ```
 
 </TabItem>
@@ -572,29 +595,38 @@ Use the [List connectors](#list-connectors) API to get the connector `identifier
 <Tabs syncKey="tech-stack">
 <TabItem label="cURL">
 
-```bash
-curl --location --request DELETE "$SCALEKIT_ENVIRONMENT_URL/api/v1/custom-providers/$PROVIDER_IDENTIFIER" \
+```bash title="Terminal"
+# $env_access_token is a secret — keep it server-side and out of source control.
+curl --fail-with-body --location --request DELETE "$SCALEKIT_ENVIRONMENT_URL/api/v1/custom-providers/$PROVIDER_IDENTIFIER" \
   --header "Authorization: Bearer $env_access_token"
 ```
 
 </TabItem>
 <TabItem label="Python">
 
-```python
+```python title="delete_connector.py"
 import scalekit.client, os
 from dotenv import load_dotenv
 from scalekit.actions.types import DeleteCustomProviderRequest
+from scalekit.common.exceptions import ScalekitException
 load_dotenv()
 
+# Keep SCALEKIT_CLIENT_SECRET server-side — never commit it or expose it client-side.
 scalekit_client = scalekit.client.ScalekitClient(
     client_id=os.getenv("SCALEKIT_CLIENT_ID"),
     client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
     env_url=os.getenv("SCALEKIT_ENV_URL"),
 )
 
-scalekit_client.actions.providers.delete_custom_provider(
-    DeleteCustomProviderRequest(identifier="prov_...")
-)
+try:
+    scalekit_client.actions.providers.delete_custom_provider(
+        DeleteCustomProviderRequest(identifier="prov_...")
+    )
+    print("Connector deleted.")
+except ScalekitException as err:
+    # e.g. not found, or forbidden if the connector is still in use.
+    print("Failed to delete connector:", err)
+    raise
 ```
 
 </TabItem>
