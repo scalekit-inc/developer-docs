@@ -42,6 +42,17 @@ Deploy preview after a PR:
 
 `https://deploy-preview-{PR_NUMBER}--scalekit-starlight.netlify.app/hackathon/`
 
-## Current state
+## Sections in the page
 
-Placeholder **coming soon** page. Full hub content ships in a follow-up PR (SK-1256).
+| Anchor       | Content                             |
+| ------------ | ----------------------------------- |
+| `#hero`      | Quick start CLI + AgentKit overview |
+| `#faq`       | Common questions                    |
+| `#steps`     | Get started in 3 steps              |
+| `#stuck`     | Common first-call failures          |
+| `#resources` | Docs, examples, advanced links      |
+| `#build`     | What you can build                  |
+| `#start`     | Manual SDK setup (tabs)             |
+| `#support`   | Learn & get help                    |
+| `#after`     | After the hackathon                 |
+| `#more`      | Related Scalekit products           |
