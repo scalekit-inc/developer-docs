@@ -157,6 +157,17 @@
       opacity 0.15s ease;
   }
 
+  /*
+   * Explicit secondary outline — Starlight uses border-color: inherit, which
+   * becomes invisible when ClientRouter restacks color inheritance after
+   * visiting pages with aggressive overflow/color chrome (e.g. SDKs splash).
+   */
+  .sk-secondary {
+    border: 1px solid var(--sl-color-gray-5);
+    background-color: transparent;
+    color: var(--sl-color-text);
+  }
+
   .sk-primary:hover {
     background: var(--sl-color-gray-5);
     box-shadow: var(--sk-shadow-button);
@@ -659,6 +670,45 @@ body {
 .sl-markdown-content :is(h1, h2, h3, h4, h5, h6) {
   line-height: var(--sl-line-height-headings);
   font-weight: 600;
+}
+
+/*
+ * Resilient chrome after ClientRouter soft navigations.
+ * Unlayered so these win over page CSS chunks that stick in <head> after
+ * visiting SDKs / fold landings (overflow clipping + lost inherit borders).
+ */
+.header .sl-link-button.sk-secondary,
+.header .sl-link-button.secondary {
+  border: 1px solid var(--sl-color-gray-5);
+  border-color: var(--sl-color-gray-5);
+  color: var(--sl-color-text);
+  background-color: transparent;
+}
+
+/*
+ * Nova code frames: border lives on [data-nova-code-container], not the inner
+ * pre (Nova zeros pre borders on purpose). Reassert the container edge so soft
+ * nav + leftover page CSS cannot wash out the left hairline.
+ */
+.sl-markdown-content [data-nova-code-container] {
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.5rem;
+  box-sizing: border-box;
+}
+
+/* Standalone shiki blocks (no nova wrapper) keep a full edge + scroll */
+.sl-markdown-content pre.astro-code {
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.5rem;
+  overflow-x: auto;
+}
+
+/* Nova zeros inner pre borders — keep that (border is on the container) */
+.sl-markdown-content [data-nova-code-container] pre.astro-code,
+.sl-markdown-content [data-nova-code-container] pre.astro-code code {
+  border-width: 0;
+  border-color: transparent;
+  border-radius: 0;
 }
 
 /* =============================================================================
