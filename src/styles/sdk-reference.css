@@ -112,14 +112,23 @@ body:has(.sdk-client-page) .right-sidebar-panel nav a:focus-visible {
   border-block-end: 1px solid var(--sl-color-hairline, var(--sl-color-gray-6));
 }
 
-/* Kill ClassBrowser default 1.5rem top margin under the method H3 */
+/*
+ * Under the method H3:
+ * - Always drop ClassBrowser's large outer top margin (1.5rem)
+ * - When CLASS header is visible, keep body padding so ASYNC does not touch CLASS
+ * - When header is hidden (later methods), collapse body — see rules below
+ */
 .sdk-client-page .sl-heading-wrapper.level-h3 + .sdk-method-section .cb-browser {
   margin-block-start: 0;
 }
-.sdk-client-page .sl-heading-wrapper.level-h3 + .sdk-method-section .cb-body {
-  padding-block-start: 0;
+
+/* CLASS header present: restore air between header bar and first method row */
+.sdk-client-page .sdk-method-section .cb-header + .cb-body {
+  padding-block-start: 0.65rem;
+  padding-block-end: 0.65rem;
+  padding-inline: 0.75rem;
 }
-.sdk-client-page .sl-heading-wrapper.level-h3 + .sdk-method-section .cb-method {
+.sdk-client-page .sdk-method-section .cb-header + .cb-body > .cb-method:first-child {
   margin-block-start: 0;
 }
 
@@ -192,11 +201,16 @@ body:has(.sdk-client-page) .right-sidebar-panel nav a:focus-visible {
   background: transparent;
   margin-block-start: 0;
 }
+/* Header gone: sit the ASYNC row tight under the method H3 */
 .sdk-client-page .sdk-method-section ~ .sdk-method-section .cb-body {
   padding: 0;
 }
 .sdk-client-page .sdk-method-section ~ .sdk-method-section .cb-method {
   margin-block-start: 0;
+}
+/* Adjacent-sibling body padding rule must not re-inflate hidden-header sections */
+.sdk-client-page .sdk-method-section ~ .sdk-method-section .cb-header + .cb-body {
+  padding: 0;
 }
 
 /* Dedicated empty chrome — keep header only */
