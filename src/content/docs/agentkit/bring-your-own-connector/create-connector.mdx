@@ -14,18 +14,20 @@ next:
   link: "/agentkit/bring-your-own-connector/making-tool-calls"
 ---
 
-import { Tabs, TabItem, Aside, Steps } from '@astrojs/starlight/components';
+import { Tabs, TabItem, Aside, Steps, LinkButton } from '@astrojs/starlight/components';
 
-Create a custom connector to bring an unsupported API or MCP server into Scalekit's secure access model. This guide walks you through building the connector payload, creating the connector, and managing it over its lifecycle — list, update, and delete — with the management API.
+Create a custom connector to bring an unsupported API or MCP server into Scalekit's secure access model. This guide walks you through building the connector payload, creating the connector, and managing it over its lifecycle - list, update, and delete - with the management API.
+
+<LinkButton href="https://github.com/scalekit-inc/python-connect-demos/tree/main/custom-connectors" target="_blank" rel="noopener" variant="secondary" class="sk-secondary" icon="github">Check out the examples</LinkButton>
 
 <details>
 <summary>Prerequisites</summary>
 
 You need three credentials from your Scalekit environment:
 
-- `SCALEKIT_ENVIRONMENT_URL` — the base URL of your Scalekit environment
-- `SCALEKIT_CLIENT_ID` — your environment's client ID
-- `SCALEKIT_CLIENT_SECRET` — your environment's client secret
+- `SCALEKIT_ENVIRONMENT_URL` - the base URL of your Scalekit environment
+- `SCALEKIT_CLIENT_ID` - your environment's client ID
+- `SCALEKIT_CLIENT_SECRET` - your environment's client secret
 
 Find these in the Scalekit Dashboard under **Developers → Settings → API Credentials**.
 
@@ -37,7 +39,7 @@ Create a connector in the Scalekit Dashboard or with the management API. The das
 
 ### Create an MCP connector in the dashboard
 
-Add an MCP connector through a guided form — no payload required.
+Add an MCP connector through a guided form - no payload required.
 
 <Steps>
 1. In the Scalekit Dashboard, switch to **AgentKit**.
@@ -73,7 +75,7 @@ Build the connector payload using the reference and examples that follow, then c
 
 Supported auth types are `OAUTH`, `BASIC`, `BEARER`, and `API_KEY`. Use `OAUTH` when the upstream API or MCP server requires a user authorization flow and token exchange. Use `BASIC`, `BEARER`, or `API_KEY` when it accepts static credentials or long-lived tokens.
 
-MCP providers use the same four auth types as REST API providers, with `is_mcp: true` set in each `auth_patterns[]` entry. OAuth MCP connectors use a simplified `oauth_config: {"pkce_enabled": true}` — the MCP server handles authorization via Dynamic Client Registration. Non-OAuth MCP connectors omit `oauth_config` entirely. MCP connectors can also use `NO_AUTH` for public servers that require no credentials — set `is_mcp: true`, use an empty `fields: []`, and omit `oauth_config`. Use `NO_AUTH` only when the upstream intentionally allows unauthenticated public access and exposes no user-specific data or privileged operations; every user of the connector shares the same anonymous access.
+MCP providers use the same four auth types as REST API providers, with `is_mcp: true` set in each `auth_patterns[]` entry. OAuth MCP connectors use a simplified `oauth_config: {"pkce_enabled": true}` - the MCP server handles authorization via Dynamic Client Registration. Non-OAuth MCP connectors omit `oauth_config` entirely. MCP connectors can also use `NO_AUTH` for public servers that require no credentials - set `is_mcp: true`, use an empty `fields: []`, and omit `oauth_config`. Use `NO_AUTH` only when the upstream intentionally allows unauthenticated public access and exposes no user-specific data or privileged operations; every user of the connector shares the same anonymous access.
 
 The connector payload uses these common top-level fields:
 
@@ -373,7 +375,7 @@ Scalekit connects to **stateless MCP servers** only. Stateful MCP servers that r
     {
       "type": "NO_AUTH",
       "display_name": "No Auth",
-      "description": "Public server — no credentials required.",
+      "description": "Public server - no credentials required.",
       "is_mcp": true,
       "fields": []
     }
@@ -421,7 +423,7 @@ Use the payload for your auth type as the request body in the create request:
 <TabItem label="cURL">
 
 ```bash title="Terminal"
-# $env_access_token and $SCALEKIT_CLIENT_SECRET are secrets — keep them server-side and out of source control.
+# $env_access_token and $SCALEKIT_CLIENT_SECRET are secrets - keep them server-side and out of source control.
 # --fail-with-body makes curl exit non-zero and print the error body on a non-2xx response.
 curl --fail-with-body --location "$SCALEKIT_ENVIRONMENT_URL/api/v1/custom-providers" \
   --header "Authorization: Bearer $env_access_token" \
@@ -432,7 +434,7 @@ curl --fail-with-body --location "$SCALEKIT_ENVIRONMENT_URL/api/v1/custom-provid
 </TabItem>
 <TabItem label="Python">
 
-The Python SDK builds the payload with typed request objects and authenticates using your client credentials — no separate access token step is needed. It covers MCP connector auth types: OAuth (via Dynamic Client Registration), Bearer, API key, and No Auth. The example below creates an OAuth MCP connector; swap the `AuthPattern` for the auth type you need.
+The Python SDK builds the payload with typed request objects and authenticates using your client credentials - no separate access token step is needed. It covers MCP connector auth types: OAuth (via Dynamic Client Registration), Bearer, API key, and No Auth. The example below creates an OAuth MCP connector; swap the `AuthPattern` for the auth type you need.
 
 ```python title="create_connector.py"
 import scalekit.client, os
@@ -441,7 +443,7 @@ from scalekit.actions.types import AuthPattern, OAuthConfig, CreateCustomProvide
 from scalekit.common.exceptions import ScalekitException
 load_dotenv()
 
-# Load credentials from the environment. Keep SCALEKIT_CLIENT_SECRET server-side —
+# Load credentials from the environment. Keep SCALEKIT_CLIENT_SECRET server-side -
 # never commit it or expose it in client-side code.
 scalekit_client = scalekit.client.ScalekitClient(
     client_id=os.getenv("SCALEKIT_CLIENT_ID"),
@@ -489,7 +491,7 @@ List existing connectors before you create one, to confirm whether a connector f
 <TabItem label="cURL">
 
 ```bash title="Terminal"
-# $env_access_token is a secret — keep it server-side and out of source control.
+# $env_access_token is a secret - keep it server-side and out of source control.
 curl --fail-with-body --location "$SCALEKIT_ENVIRONMENT_URL/api/v1/providers?filter.provider_type=CUSTOM&page_size=1000" \
   --header "Authorization: Bearer $env_access_token"
 ```
@@ -505,7 +507,7 @@ from scalekit.v1.providers.providers_pb2 import ProviderType
 from scalekit.common.exceptions import ScalekitException
 load_dotenv()
 
-# Keep SCALEKIT_CLIENT_SECRET server-side — never commit it or expose it client-side.
+# Keep SCALEKIT_CLIENT_SECRET server-side - never commit it or expose it client-side.
 scalekit_client = scalekit.client.ScalekitClient(
     client_id=os.getenv("SCALEKIT_CLIENT_ID"),
     client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
@@ -528,13 +530,13 @@ except ScalekitException as err:
 
 ## Update a connector
 
-Use the [List connectors](#list-connectors) API to get the connector `identifier`, then send the updated payload. Include `display_name`, `proxy_url`, and `auth_patterns` on every update, and echo back any other fields you want to keep — omitted fields are not preserved, so read the current connector first and change only what you need.
+Use the [List connectors](#list-connectors) API to get the connector `identifier`, then send the updated payload. Include `display_name`, `proxy_url`, and `auth_patterns` on every update, and echo back any other fields you want to keep - omitted fields are not preserved, so read the current connector first and change only what you need.
 
 <Tabs syncKey="tech-stack">
 <TabItem label="cURL">
 
 ```bash title="Terminal"
-# $env_access_token and $SCALEKIT_CLIENT_SECRET are secrets — keep them server-side and out of source control.
+# $env_access_token and $SCALEKIT_CLIENT_SECRET are secrets - keep them server-side and out of source control.
 curl --fail-with-body --location --request PUT "$SCALEKIT_ENVIRONMENT_URL/api/v1/custom-providers/$PROVIDER_IDENTIFIER" \
   --header "Authorization: Bearer $env_access_token" \
   --header "Content-Type: application/json" \
@@ -551,7 +553,7 @@ from scalekit.actions.types import ListProvidersRequest, UpdateCustomProviderReq
 from scalekit.common.exceptions import ScalekitException
 load_dotenv()
 
-# Keep SCALEKIT_CLIENT_SECRET server-side — never commit it or expose it client-side.
+# Keep SCALEKIT_CLIENT_SECRET server-side - never commit it or expose it client-side.
 scalekit_client = scalekit.client.ScalekitClient(
     client_id=os.getenv("SCALEKIT_CLIENT_ID"),
     client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
@@ -593,7 +595,7 @@ Use the [List connectors](#list-connectors) API to get the connector `identifier
 <TabItem label="cURL">
 
 ```bash title="Terminal"
-# $env_access_token is a secret — keep it server-side and out of source control.
+# $env_access_token is a secret - keep it server-side and out of source control.
 curl --fail-with-body --location --request DELETE "$SCALEKIT_ENVIRONMENT_URL/api/v1/custom-providers/$PROVIDER_IDENTIFIER" \
   --header "Authorization: Bearer $env_access_token"
 ```
@@ -608,7 +610,7 @@ from scalekit.actions.types import DeleteCustomProviderRequest
 from scalekit.common.exceptions import ScalekitException
 load_dotenv()
 
-# Keep SCALEKIT_CLIENT_SECRET server-side — never commit it or expose it client-side.
+# Keep SCALEKIT_CLIENT_SECRET server-side - never commit it or expose it client-side.
 scalekit_client = scalekit.client.ScalekitClient(
     client_id=os.getenv("SCALEKIT_CLIENT_ID"),
     client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
@@ -633,4 +635,4 @@ except ScalekitException as err:
 
 With the connector created and a connection in place, authorize a user and start calling the upstream:
 
-- [Making tool calls](/agentkit/bring-your-own-connector/making-tool-calls) — call the upstream API or MCP server through your connector.
+- [Making tool calls](/agentkit/bring-your-own-connector/making-tool-calls) - call the upstream API or MCP server through your connector.
