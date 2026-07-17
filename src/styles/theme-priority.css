@@ -3,8 +3,20 @@
  * and centralizes Tailwind/Starlight base imports to avoid duplication.
  */
 
-/* Use Nova's defaults; ensure Tailwind utilities are available but don't override Nova layout */
-@layer base, nova, starlight, theme, components, utilities, scalekit.tokens, scalekit.layout, scalekit.components, scalekit.overrides;
+/*
+ * Pin cascade layer order in the always-loaded entry stylesheet.
+ * ClientRouter can drop Starlight's layers.css mid-session (splash routes like
+ * SDKs); without this pin, nested starlight.* order can invert so
+ * starlight.reset (* { margin: 0 }) beats starlight.content and the docs look
+ * crammed after soft-nav away from SDKs.
+ * Mirrors: @astrojs/starlight/style/layers.css + starlight-theme-nova/lib/layer.css
+ * Docs: https://starlight-theme-nova.pages.dev/guide/css-and-styling/
+ */
+@layer base, starlight, nova, theme, components, utilities, scalekit.tokens, scalekit.layout,
+  scalekit.components, scalekit.overrides;
+@layer starlight.base, starlight.reset, starlight.core, starlight.content, starlight.components,
+  starlight.utils;
+
 @import '@astrojs/starlight-tailwind';
 @import 'starlight-theme-nova/tailwind.css';
 @import 'tailwindcss/theme.css' layer(theme);

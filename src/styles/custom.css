@@ -3,8 +3,11 @@
 * https://github.com/withastro/starlight/blob/main/packages/starlight/style/props.css
 */
 
-/* Layer declarations */
-@layer nova, starlight, scalekit.tokens, scalekit.layout, scalekit.components, scalekit.overrides;
+/*
+ * Layer order is pinned in theme-priority.css (always-loaded entry).
+ * Nested starlight.* order must stay: base < reset < core < content < components < utils
+ * so content spacing beats reset's * { margin: 0 } after ClientRouter soft-nav.
+ */
 
 /* =============================================================================
    TOKENS LAYER - Design system tokens and theme variables
@@ -155,6 +158,17 @@
       color 0.15s ease,
       box-shadow 0.15s ease,
       opacity 0.15s ease;
+  }
+
+  /*
+   * Explicit secondary outline — Starlight uses border-color: inherit, which
+   * becomes invisible when ClientRouter restacks color inheritance after
+   * visiting pages with aggressive overflow/color chrome (e.g. SDKs splash).
+   */
+  .sk-secondary {
+    border: 1px solid var(--sl-color-gray-5);
+    background-color: transparent;
+    color: var(--sl-color-text);
   }
 
   .sk-primary:hover {
@@ -659,6 +673,65 @@ body {
 .sl-markdown-content :is(h1, h2, h3, h4, h5, h6) {
   line-height: var(--sl-line-height-headings);
   font-weight: 600;
+}
+
+/*
+ * Resilient chrome after ClientRouter soft navigations.
+ * Unlayered so these win even if nested starlight.* layer order is corrupted
+ * (see layer pin at top of this file) or page CSS chunks stick in <head>.
+ * Unlayered overrides layered starlight/nova per Nova cascade docs:
+ * https://starlight-theme-nova.pages.dev/guide/css-and-styling/
+ */
+
+/* Restore vertical rhythm when starlight.content loses to starlight.reset */
+.sl-markdown-content :not(h1, h2, h3, h4, h5, h6, .sl-heading-wrapper) + .sl-heading-wrapper {
+  margin-top: 1.5em;
+}
+
+.sl-markdown-content
+  :not(a, strong, em, del, span, input, code, br)
+  + :not(a, strong, em, del, span, input, code, br, :where(.not-content *)) {
+  margin-top: var(--sl-content-gap-y, 1rem);
+}
+
+.sl-markdown-content
+  :not(h1, h2, h3, h4, h5, h6)
+  + :is(h1, h2, h3, h4, h5, h6):not(:where(.not-content *)) {
+  margin-top: 1.5em;
+}
+
+.header .sl-link-button.sk-secondary,
+.header .sl-link-button.secondary {
+  border: 1px solid var(--sl-color-gray-5);
+  border-color: var(--sl-color-gray-5);
+  color: var(--sl-color-text);
+  background-color: transparent;
+}
+
+/*
+ * Nova code frames: border lives on [data-nova-code-container], not the inner
+ * pre (Nova zeros pre borders on purpose). Reassert the container edge so soft
+ * nav + leftover page CSS cannot wash out the left hairline.
+ */
+.sl-markdown-content [data-nova-code-container] {
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.5rem;
+  box-sizing: border-box;
+}
+
+/* Standalone shiki blocks (no nova wrapper) keep a full edge + scroll */
+.sl-markdown-content pre.astro-code {
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.5rem;
+  overflow-x: auto;
+}
+
+/* Nova zeros inner pre borders — keep that (border is on the container) */
+.sl-markdown-content [data-nova-code-container] pre.astro-code,
+.sl-markdown-content [data-nova-code-container] pre.astro-code code {
+  border-width: 0;
+  border-color: transparent;
+  border-radius: 0;
 }
 
 /* =============================================================================

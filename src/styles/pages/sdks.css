@@ -1,10 +1,18 @@
-/* SDKs Page Styles */
+/* SDKs Page Styles
+ *
+ * ClientRouter keeps stylesheets from visited pages in the document head.
+ * Never target bare `main` / `body` / `.hero` here — those leak site-wide and
+ * clip borders (code frames, header CTAs) and collapse spacing after you leave.
+ * Scope page-only chrome hacks under body:has(.sdk-section-layout).
+ */
 
-right-sidebar-panel {
+/* Page-only: hide right sidebar + hero on SDK splash pages */
+body:has(.sdk-section-layout) .right-sidebar-panel,
+body:has(.sdk-section-layout) right-sidebar-panel {
   display: none !important;
 }
 
-.hero {
+body:has(.sdk-section-layout) .hero {
   display: none !important;
 }
 
@@ -76,11 +84,12 @@ body:has(.sdk-section-layout) .content-panel {
   z-index: 1;
 }
 
-main {
+/* Clip full-bleed fold sections on this page only — not site-wide */
+body:has(.sdk-section-layout) {
   overflow-x: hidden;
 }
 
-body {
+body:has(.sdk-section-layout) main {
   overflow-x: hidden;
 }
 
@@ -285,72 +294,16 @@ body {
   gap: 0.5rem;
 }
 
-/* Scope to SDK page only — prevents this from leaking to other pages via Astro's shared CSS chunks */
-.sl-markdown-content:has(.sdk-section-layout)
-  :not(
-    a,
-    strong,
-    em,
-    del,
-    span,
-    code,
-    kbd,
-    samp,
-    var,
-    pre,
-    abbr,
-    acronym,
-    b,
-    bdi,
-    bdo,
-    big,
-    cite,
-    dfn,
-    i,
-    mark,
-    q,
-    rp,
-    rt,
-    ruby,
-    s,
-    small,
-    sub,
-    sup,
-    time,
-    tt,
-    u,
-    wbr,
-    img,
-    video,
-    audio,
-    canvas,
-    svg,
-    iframe,
-    embed,
-    object,
-    picture,
-    source,
-    track,
-    map,
-    area,
-    input,
-    button,
-    select,
-    textarea,
-    label,
-    output,
-    progress,
-    meter,
-    details,
-    summary,
-    dialog,
-    script,
-    noscript,
-    template,
-    slot,
-    content *
-  ) {
-  margin-top: 0 !important;
+/*
+ * Do NOT use unlayered `margin-top: 0 !important` on .sl-markdown-content
+ * descendants. That rule is a ClientRouter footgun: even when scoped with
+ * :has(.sdk-section-layout), loading it mid-session contributes to cascade
+ * thrash, and any broader match zeros Starlight content spacing site-wide.
+ * Zero margins only on the SDK layout root itself.
+ */
+body:has(.sdk-section-layout) .sdk-section-layout,
+body:has(.sdk-section-layout) .sdk-section-layout > * {
+  margin-top: 0;
 }
 
 /* Full Stack Auth Layout */
@@ -397,9 +350,8 @@ body {
   }
 }
 
-/* Hide mobile menu button on this page */
-
-button[aria-label='Menu'].sl-flex.md\:sl-hidden {
+/* Hide mobile menu button on this page only */
+body:has(.sdk-section-layout) button[aria-label='Menu'].sl-flex.md\:sl-hidden {
   display: none !important;
 }
 
