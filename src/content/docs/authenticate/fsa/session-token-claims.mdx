@@ -99,7 +99,7 @@ The **Token preview** panel on the Token Claims page resolves every claim, defau
 
 ![Token Claims page with a user and an organization selected, showing the resolved JWT payload in the preview panel.](@/assets/docs/session-token-claims/token-claims-page.png)
 
-For a true end-to-end check, sign in through your OIDC flow and decode the access token you receive. Decoding only shows you what a token contains, it doesn't validate it: your API must still verify the signature and check `iss`, `aud`, and the expiry before trusting any claim on it. A custom claim also only reflects the data at the time the token was issued, so an existing token keeps its old value until the user logs in again or the token refreshes.
+For a true end-to-end check, sign in through your OIDC flow and decode the access token you receive. A custom claim only reflects the data at the time the token was issued, so an existing token keeps its old value until the user logs in again or the token refreshes.
 
 <Aside type="note" title="A claim can resolve to nothing">
 If an expression's field is missing for a given user (no `metadata.department` set, for example), Scalekit leaves that claim out of the token rather than adding an empty one. A login never fails because of a claim expression; worst case, the claim just isn't there. Preview against a few different users to catch this before you depend on the claim in production.
@@ -159,3 +159,5 @@ A few more patterns:
 | A default two levels below a field that might be missing | `organization.metadata.billing?.tier ?? "free"` |
 
 A few string and array helpers are also available (`split`, `trim`, `len`, `filter`, and more) for anything more involved than a plain lookup.
+
+Once your claims are in place, see [Manage user sessions](/authenticate/fsa/manage-session/) for how your application stores, validates, and refreshes the token they're attached to.
