@@ -38,7 +38,7 @@ Create a Scalekit client with your environment URL and credentials.
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-authURL, err := client.GetAuthorizationUrl(
+authURL, err := scalekitClient.GetAuthorizationUrl(
   "https://yourapp.com/auth/callback",
   scalekit.AuthorizationUrlOptions{
     State:          "random-state-value",
@@ -82,7 +82,7 @@ if err != nil {
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-resp, err := client.AuthenticateWithCode(
+resp, err := scalekitClient.AuthenticateWithCode(
   ctx,
   code,
   "https://yourapp.com/auth/callback",
@@ -122,7 +122,7 @@ _ = user
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-claims, err := client.GetIdpInitiatedLoginClaims(ctx, idpInitiatedLoginToken)
+claims, err := scalekitClient.GetIdpInitiatedLoginClaims(ctx, idpInitiatedLoginToken)
 if err != nil {
   // handle
 }
@@ -155,7 +155,7 @@ _ = claims
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-claims, err := client.GetAccessTokenClaims(ctx, accessToken)
+claims, err := scalekitClient.GetAccessTokenClaims(ctx, accessToken)
 if err != nil {
   // handle
 }
@@ -186,7 +186,7 @@ _ = claims
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-ok, err := client.ValidateAccessToken(ctx, accessToken)
+ok, err := scalekitClient.ValidateAccessToken(ctx, accessToken)
 if err != nil {
   // invalid
 }
@@ -217,7 +217,7 @@ _ = ok
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-tokens, err := client.RefreshAccessToken(ctx, refreshToken)
+tokens, err := scalekitClient.RefreshAccessToken(ctx, refreshToken)
 if err != nil {
   // handle
 }
@@ -245,7 +245,7 @@ _ = tokens.AccessToken
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-logoutURL, err := client.GetLogoutUrl(scalekit.LogoutUrlOptions{
+logoutURL, err := scalekitClient.GetLogoutUrl(scalekit.LogoutUrlOptions{
   IdTokenHint:           idToken,
   PostLogoutRedirectUri: "https://yourapp.com/",
   State:                "state",
@@ -283,7 +283,7 @@ _ = logoutURL
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-valid, err := client.VerifyWebhookPayload(
+valid, err := scalekitClient.VerifyWebhookPayload(
   "whsec_...",
   map[string]string{
     "webhook-id":        "webhook_123",
@@ -325,7 +325,7 @@ _ = valid
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-valid, err := client.VerifyInterceptorPayload(secret, headers, payload)
+valid, err := scalekitClient.VerifyInterceptorPayload(secret, headers, payload)
 if err != nil {
   // handle
 }
@@ -580,7 +580,7 @@ _ = valid
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-valid, err := client.ValidateTokenWithOptions(ctx, accessToken, &scalekit.ValidateTokenOptions{
+valid, err := scalekitClient.ValidateTokenWithOptions(ctx, accessToken, &scalekit.ValidateTokenOptions{
   Audience: []string{"my-api"},
   Scopes:   []string{"read", "write"},
 })
@@ -614,7 +614,7 @@ _ = valid
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-claims, err := client.ValidateToken(ctx, idToken)
+claims, err := scalekitClient.ValidateToken(ctx, idToken)
 if err != nil {
   // handle
 }
@@ -642,7 +642,7 @@ _ = claims
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-clientWithNewSecret := client.WithSecret("new_client_secret")
+clientWithNewSecret := scalekitClient.WithSecret("new_client_secret")
 ```
 
     </CB.ClassMethod>
@@ -669,7 +669,7 @@ clientWithNewSecret := client.WithSecret("new_client_secret")
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-resp, err := client.GenerateClientToken(ctx, scalekit.GenerateClientTokenOptions{
+resp, err := scalekitClient.GenerateClientToken(ctx, scalekit.GenerateClientTokenOptions{
   ClientID:     "service_client_id",
   ClientSecret: "service_client_secret",
   Scopes:       []string{"read", "write"},
@@ -701,7 +701,7 @@ _ = resp.AccessToken
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-accessToken, err := client.GetClientAccessToken(ctx)
+accessToken, err := scalekitClient.GetClientAccessToken(ctx)
 if err != nil {
   // handle
 }

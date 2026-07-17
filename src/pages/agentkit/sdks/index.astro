@@ -1,10 +1,9 @@
 ---
 /**
- * AgentKit SDKs home — language cards + left sidebar.
+ * AgentKit SDKs home — language index + left sidebar.
  */
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
 import { getCollection } from 'astro:content'
-import FoldCard from '@components/ui/FoldCard.astro'
 import { Badge } from '@astrojs/starlight/components'
 import { getSDKConfigs, formatTimeAgo, type SDKConfig } from '@/utils/release-helpers'
 import '@/styles/pages/sdks.css'
@@ -13,10 +12,18 @@ import '@/styles/sdk-reference.css'
 const releases = await getCollection('github-releases')
 const allSdkConfigs = getSDKConfigs(releases)
 
-const sdkConfigs: Record<string, SDKConfig> = {
-  node: { ...allSdkConfigs.node, href: '/agentkit/sdks/node/' },
-  python: { ...allSdkConfigs.python, href: '/agentkit/sdks/python/' },
-}
+const sdkConfigs: SDKConfig[] = [
+  {
+    ...allSdkConfigs.node,
+    href: '/agentkit/sdks/node/',
+    description: 'AgentKit for Node.js — connected accounts, tools, and agent auth',
+  },
+  {
+    ...allSdkConfigs.python,
+    href: '/agentkit/sdks/python/',
+    description: 'AgentKit for Python — connected accounts, tools, MCP, and adapters',
+  },
+]
 
 const frontmatter = {
   title: 'AgentKit SDKs',
@@ -32,54 +39,35 @@ const frontmatter = {
 <StarlightPage frontmatter={frontmatter} hasSidebar={true}>
   <div class="sdk-hub-with-sidebar">
     <p>
-      Install a language SDK from the cards below, or use the left sidebar to open Installation and
+      Install a language SDK from the list below, or use the left sidebar to open Installation and
       client pages.
     </p>
-    <div class="sdk-cards-grid" style="grid-template-columns: repeat(2, 1fr);">
+    <ul class="sdk-index-list">
       {
-        (Object.values(sdkConfigs) as SDKConfig[]).map((sdk: SDKConfig) => (
-          <div class="sdk-card-wrapper">
-            <FoldCard
-              title={sdk.title}
-              iconKey={sdk.icon}
-              href={sdk.href}
-              showCta={true}
-              cta="Get Started →"
-              showTitle={false}
-              clickable={false}
-              ctaSmall={true}
-            >
-              <div class="sdk-card-header-meta">
-                {sdk.release && <Badge text={sdk.release.tagName} />}
-                {sdk.release && <span class="separator">•</span>}
-                {sdk.release && (
-                  <span class="sdk-card-meta">
-                    Updated {formatTimeAgo(sdk.release.publishedAt)}
-                  </span>
+        sdkConfigs.map((sdk) => (
+          <li>
+            <a class="sdk-index-row" href={sdk.href}>
+              <div class="sdk-index-main">
+                <div class="sdk-index-title-row">
+                  <span class="sdk-index-title">{sdk.title}</span>
+                  {sdk.release && <Badge text={sdk.release.tagName} />}
+                </div>
+                {sdk.packageName && <code class="sdk-index-package">{sdk.packageName}</code>}
+                <div class="sdk-index-desc">{sdk.description}</div>
+                {sdk.installCommand && (
+                  <code class="sdk-index-package">{sdk.installCommand}</code>
                 )}
               </div>
-
-              <div class="sdk-card-subtitle">{sdk.description}</div>
-
-              <div class="sdk-card-features">
-                {sdk.features.map((feature) => (
-                  <div class="sdk-feature">{feature}</div>
-                ))}
+              <div class="sdk-index-meta">
+                {sdk.release && (
+                  <span>Updated {formatTimeAgo(sdk.release.publishedAt)}</span>
+                )}
+                <span class="sdk-index-cta">Install</span>
               </div>
-
-              <div class="sdk-bottom-row">
-                <div class="sdk-meta-row">
-                  {sdk.release && sdk.release.repoStargazerCount > 50 && (
-                    <div class="meta-item" title="GitHub Stars">
-                      {sdk.release.repoStargazerCount} stars
-                    </div>
-                  )}
-                </div>
-              </div>
-            </FoldCard>
-          </div>
+            </a>
+          </li>
         ))
       }
-    </div>
+    </ul>
   </div>
 </StarlightPage>

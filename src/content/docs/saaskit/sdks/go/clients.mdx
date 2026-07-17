@@ -42,7 +42,7 @@ import (
   clients "github.com/scalekit-inc/scalekit-sdk-go/v2/pkg/grpc/scalekit/v1/clients"
 )
 
-created, err := client.Client().CreateClient(ctx, &clients.CreateClient{
+created, err := scalekitClient.Client().CreateClient(ctx, &clients.CreateClient{
   Name:                   "My Application",
   ClientType:             "WEB_APP",
   PostLoginUris:          []string{"https://myapp.com/callback"},
@@ -78,7 +78,7 @@ _ = created.Client
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-got, err := client.Client().GetClient(ctx, "client_123")
+got, err := scalekitClient.Client().GetClient(ctx, "client_123")
 if err != nil {
   // handle
 }
@@ -109,7 +109,7 @@ _ = got.Client
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-clients, err := client.Client().ListClients(ctx, &scalekit.ListClientsOptions{
+clients, err := scalekitClient.Client().ListClients(ctx, &scalekit.ListClientsOptions{
   PageSize:  10,
   PageToken: "",
 })
@@ -156,7 +156,7 @@ import (
   "google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
-updated, err := client.Client().UpdateClient(ctx, "client_123", &clients.UpdateClient{
+updated, err := scalekitClient.Client().UpdateClient(ctx, "client_123", &clients.UpdateClient{
   Name: "Updated Name",
 }, &fieldmaskpb.FieldMask{
   Paths: []string{"name"},
@@ -191,7 +191,7 @@ _ = updated.Client
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-if err := client.Client().DeleteClient(ctx, "client_123"); err != nil {
+if err := scalekitClient.Client().DeleteClient(ctx, "client_123"); err != nil {
   // handle
 }
 ```

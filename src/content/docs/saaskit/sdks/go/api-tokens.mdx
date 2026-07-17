@@ -42,7 +42,7 @@ Create and validate API tokens.
 
 ```go wrap showLineNumbers=false
 expiry := time.Now().Add(24 * time.Hour)
-resp, err := client.Token().CreateToken(ctx, "org_123", scalekit.CreateTokenOptions{
+resp, err := scalekitClient.Token().CreateToken(ctx, "org_123", scalekit.CreateTokenOptions{
   UserId:       "usr_123",
   Description:  "Service account token",
   CustomClaims: map[string]string{
@@ -80,7 +80,7 @@ _ = resp.Token
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-resp, err := client.Token().ValidateToken(ctx, "api_token_here")
+resp, err := scalekitClient.Token().ValidateToken(ctx, "api_token_here")
 if err != nil {
   // token is invalid or expired
 }
@@ -111,7 +111,7 @@ _ = resp.Token
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-if err := client.Token().InvalidateToken(ctx, "api_token_here"); err != nil {
+if err := scalekitClient.Token().InvalidateToken(ctx, "api_token_here"); err != nil {
   // handle
 }
 ```
@@ -143,7 +143,7 @@ if err := client.Token().InvalidateToken(ctx, "api_token_here"); err != nil {
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-tokens, err := client.Token().ListTokens(ctx, "org_123", scalekit.ListTokensOptions{})
+tokens, err := scalekitClient.Token().ListTokens(ctx, "org_123", scalekit.ListTokensOptions{})
 if err != nil {
   // handle
 }
@@ -152,7 +152,7 @@ for _, token := range tokens.Tokens {
 }
 
 // Filter by user ID
-userTokens, err := client.Token().ListTokens(ctx, "org_123", scalekit.ListTokensOptions{
+userTokens, err := scalekitClient.Token().ListTokens(ctx, "org_123", scalekit.ListTokensOptions{
   UserId: "usr_123",
 })
 ```

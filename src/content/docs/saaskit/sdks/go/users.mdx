@@ -38,7 +38,7 @@ Use the User client to provision users and manage memberships.
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-users, err := client.User().ListUsers(ctx, &scalekit.ListUsersOptions{
+users, err := scalekitClient.User().ListUsers(ctx, &scalekit.ListUsersOptions{
   PageSize:  50,
   PageToken: "",
 })
@@ -77,7 +77,7 @@ for _, u := range users.Users {
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-users, err := client.User().ListOrganizationUsers(ctx, "org_123", &scalekit.ListUsersOptions{
+users, err := scalekitClient.User().ListOrganizationUsers(ctx, "org_123", &scalekit.ListUsersOptions{
   PageSize:  10,
   PageToken: "",
 })
@@ -111,7 +111,7 @@ _ = users.Users
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-user, err := client.User().GetUser(ctx, "usr_123")
+user, err := scalekitClient.User().GetUser(ctx, "usr_123")
 if err != nil {
   // handle
 }
@@ -150,7 +150,7 @@ lastName := "User"
 name := "Test User"
 locale := "en-US"
 
-updated, err := client.User().UpdateUser(ctx, "usr_123", &users.UpdateUser{
+updated, err := scalekitClient.User().UpdateUser(ctx, "usr_123", &users.UpdateUser{
   UserProfile: &users.UpdateUserProfile{
     FirstName: &firstName,
     LastName:  &lastName,
@@ -194,7 +194,7 @@ _ = updated.User
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-created, err := client.User().CreateUserAndMembership(ctx, "org_123", &users.CreateUser{
+created, err := scalekitClient.User().CreateUserAndMembership(ctx, "org_123", &users.CreateUser{
   Email: "test.user@example.com",
   Metadata: map[string]string{
     "source": "test",
@@ -230,7 +230,7 @@ _ = created.User.Id
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-if err := client.User().DeleteUser(ctx, "usr_123"); err != nil {
+if err := scalekitClient.User().DeleteUser(ctx, "usr_123"); err != nil {
   // handle
 }
 ```
@@ -268,7 +268,7 @@ if err := client.User().DeleteUser(ctx, "usr_123"); err != nil {
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-resp, err := client.User().CreateMembership(ctx, "org_123", "usr_123", &users.CreateMembership{
+resp, err := scalekitClient.User().CreateMembership(ctx, "org_123", "usr_123", &users.CreateMembership{
   Roles: []*commons.Role{{Name: "admin"}},
   Metadata: map[string]string{
     "membership_type": "test",
@@ -310,7 +310,7 @@ _ = resp.User
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-resp, err := client.User().UpdateMembership(ctx, "org_123", "usr_123", &users.UpdateMembership{
+resp, err := scalekitClient.User().UpdateMembership(ctx, "org_123", "usr_123", &users.UpdateMembership{
   Roles: []*commons.Role{{Name: "member"}},
 })
 if err != nil {
@@ -349,7 +349,7 @@ _ = resp.User
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-if err := client.User().DeleteMembership(ctx, "org_123", "usr_123", false); err != nil {
+if err := scalekitClient.User().DeleteMembership(ctx, "org_123", "usr_123", false); err != nil {
   // handle
 }
 ```
@@ -381,7 +381,7 @@ if err := client.User().DeleteMembership(ctx, "org_123", "usr_123", false); err 
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-resp, err := client.User().ResendInvite(ctx, "org_123", "usr_123")
+resp, err := scalekitClient.User().ResendInvite(ctx, "org_123", "usr_123")
 if err != nil {
   // handle
 }

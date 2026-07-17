@@ -1,30 +1,56 @@
 /**
- * SDK client reference pages: the top ClassBrowser is chrome-only (no methods).
- * Wire its expand/collapse + copy-json tools to all methods on the page.
+ * SDK client reference pages: the top ClassBrowser is chrome-only (or first
+ * method browser). Wire its expand/collapse + copy-json tools to all methods
+ * on the page. Does not inject extra toolbar chrome.
  */
+function getPageMethods(page) {
+  return Array.from(
+    page.querySelectorAll(
+      '.sdk-method-section .cb-method, .sdk-method-browser .cb-method, .cb-method',
+    ),
+  )
+}
+
+function getChromeBrowser(page) {
+  return (
+    page.querySelector('.sdk-client-chrome .cb-browser') ||
+    page.querySelector('.sdk-method-section .cb-browser') ||
+    page.querySelector('.cb-browser')
+  )
+}
+
+function methodName(el) {
+  return (
+    el.querySelector('summary .cb-hl')?.textContent?.trim() ||
+    el.querySelector('summary')?.textContent?.trim() ||
+    ''
+  )
+}
+
 function initSdkClientPageChrome() {
   document.querySelectorAll('.sdk-client-page').forEach((page) => {
-    const chrome = page.querySelector('.sdk-client-chrome .cb-browser')
+    const chrome = getChromeBrowser(page)
     if (!chrome || chrome.dataset.sdkChromeBound === '1') return
     chrome.dataset.sdkChromeBound = '1'
 
+    const methods = () => getPageMethods(page)
+
     const toggle = chrome.querySelector('.cb-toggle-all')
     if (toggle) {
-      // Replace default handler (which only searches inside chrome browser)
+      // Replace default handler (which only searches inside one browser)
       const clone = toggle.cloneNode(true)
       toggle.replaceWith(clone)
       clone.addEventListener('click', (e) => {
         e.preventDefault()
         e.stopPropagation()
-        const methods = page.querySelectorAll(
-          '.sdk-method-browser .cb-method, .sdk-client-page .cb-method',
-        )
-        if (!methods.length) return
-        const anyOpen = Array.from(methods).some((m) => m.open)
-        methods.forEach((m) => {
+        const list = methods()
+        if (!list.length) return
+        const anyOpen = list.some((m) => m.open)
+        list.forEach((m) => {
           m.open = !anyOpen
         })
         clone.classList.toggle('cb-all-expanded', !anyOpen)
+        clone.setAttribute('aria-pressed', !anyOpen ? 'true' : 'false')
       })
     }
 
@@ -35,35 +61,63 @@ function initSdkClientPageChrome() {
       clone.addEventListener('click', async (e) => {
         e.preventDefault()
         e.stopPropagation()
-        const methods = page.querySelectorAll('.sdk-method-browser .cb-method')
+        const list = methods()
         const data = {
           name: chrome.querySelector('.cb-header-name')?.textContent?.trim(),
           language: chrome.dataset.language || undefined,
-          source: chrome.querySelector('.cb-header .cb-source')?.textContent?.trim() || undefined,
-          type: chrome.querySelector('.cb-header .cb-badge')?.textContent?.trim() || undefined,
-          methods: Array.from(methods).map((el) => ({
-            name: el.querySelector('summary .cb-hl')?.textContent?.trim(),
-          })),
+          source:
+            chrome.querySelector('.cb-header .cb-source')?.textContent?.trim() ||
+            undefined,
+          type: chrome.querySelector('.cb-header .cb-badge')?.textContent?.trim(),
+          methods: list.map((el) => methodName(el)).filter(Boolean),
         }
         try {
           await navigator.clipboard.writeText(JSON.stringify(data, null, 2))
           clone.classList.add('cb-copied')
-          setTimeout(() => clone.classList.remove('cb-copied'), 1500)
+          clone.setAttribute('aria-label', 'Copied')
+          setTimeout(() => {
+            clone.classList.remove('cb-copied')
+            clone.setAttribute('aria-label', 'Copy class data as JSON')
+          }, 1500)
         } catch {
-          /* ignore */
+          /* ignore — package control has no error surface */
         }
       })
     }
+
+    // TOC: truncated method names get a title tooltip
+    document
+      .querySelectorAll('starlight-toc a, .right-sidebar-panel nav a')
+      .forEach((a) => {
+        if (!a.title) {
+          const t = a.textContent?.trim()
+          if (t) a.title = t
+        }
+      })
   })
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initSdkClientPageChrome)
-} else {
+function boot() {
+  // Drop temporary A/B/C review chrome if a prior session left it in the DOM
+  document.querySelector('.sdk-method-title-picker')?.remove()
+  if (document.body.dataset.methodTitle) delete document.body.dataset.methodTitle
   initSdkClientPageChrome()
 }
-document.addEventListener('astro:after-swap', initSdkClientPageChrome)
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', boot)
+} else {
+  boot()
+}
+
+document.addEventListener('astro:after-swap', () => {
+  document.querySelectorAll('.cb-browser').forEach((b) => {
+    delete b.dataset.sdkChromeBound
+  })
+  boot()
+})
+document.addEventListener('astro:page-load', boot)
 // ClassBrowser inits on load; re-bind after it attaches its handlers
-document.addEventListener('astro:page-load', initSdkClientPageChrome)
-setTimeout(initSdkClientPageChrome, 0)
-setTimeout(initSdkClientPageChrome, 100)
+requestAnimationFrame(() => {
+  requestAnimationFrame(boot)
+})

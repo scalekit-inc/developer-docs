@@ -1,43 +1,186 @@
 /**
  * SDK client reference pages (ClassBrowser method docs).
- * Pattern: official @gesslar/starlight-class-browser usage —
- * one ClassBrowser per section with ClassMethod → Input/Output → example fence inside.
+ * Pattern: one ClassBrowser per method section; hide repeated headers after the first.
+ *
+ * Hallmark · component: method-heading + on-this-page · genre: modern-minimal
+ * tone: technical · restrained API-ref chrome (no code pills)
  */
+
+/* -------------------------------------------------------------------------- */
+/* On this page (TOC) — method index, not marketing nav                         */
+/* H3 headings still power the TOC; presentation is mono + hairline active.     */
+/* No enter animations: users jump the TOC tens of times per session (Emil).    */
+/* -------------------------------------------------------------------------- */
 
 /* Hide Starlight "Overview" on method-heavy pages */
 .sdk-client-page starlight-toc a[href='#_top'],
 .sdk-client-page .right-sidebar-panel a[href='#_top'],
-starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
+body:has(.sdk-client-page) starlight-toc a[href='#_top'],
+body:has(.sdk-client-page) starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
   display: none !important;
 }
-starlight-toc li:has(> a[href='#_top']) > ul {
+body:has(.sdk-client-page) starlight-toc li:has(> a[href='#_top']) > ul {
   padding-inline-start: 0 !important;
 }
 
-/* TOC: keep each entry on one line; trim with ellipsis */
-starlight-toc a,
-.right-sidebar-panel nav a {
+/* One line per method; mono so TOC matches method identity */
+body:has(.sdk-client-page) starlight-toc a,
+body:has(.sdk-client-page) .right-sidebar-panel nav a {
   display: block;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-family: var(--sl-font-mono, var(--__sl-font-mono, ui-monospace, monospace));
+  font-size: 0.8125rem;
+  font-weight: 450;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+  padding-block: 0.28rem;
+  padding-inline: 0.55rem 0.35rem;
+  margin-inline-start: 0;
+  border-inline-start: 2px solid transparent;
+  border-radius: 0;
+  color: var(--sl-color-gray-2, var(--sl-color-text-muted));
+  background: transparent;
+  transition:
+    color 140ms cubic-bezier(0.23, 1, 0.32, 1),
+    border-color 140ms cubic-bezier(0.23, 1, 0.32, 1),
+    background-color 140ms cubic-bezier(0.23, 1, 0.32, 1);
 }
-starlight-toc a span,
-.right-sidebar-panel nav a span {
+
+body:has(.sdk-client-page) starlight-toc a span,
+body:has(.sdk-client-page) .right-sidebar-panel nav a span {
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font: inherit;
 }
 
-/* Method section spacing */
-.sdk-client-page .sdk-method-section {
-  margin-block: 1.25rem 1.75rem;
+@media (hover: hover) and (pointer: fine) {
+  body:has(.sdk-client-page) starlight-toc a:hover,
+  body:has(.sdk-client-page) .right-sidebar-panel nav a:hover {
+    color: var(--sl-color-white, var(--sl-color-text));
+    background: transparent;
+    border-inline-start-color: var(--sl-color-gray-4);
+  }
 }
-.sdk-client-page .sdk-method-section > .sl-heading-wrapper,
+
+body:has(.sdk-client-page) starlight-toc a[aria-current='true'],
+body:has(.sdk-client-page) starlight-toc a[aria-current='location'],
+body:has(.sdk-client-page) .right-sidebar-panel nav a[aria-current='true'] {
+  color: var(--sl-color-white, var(--sl-color-text-heading));
+  font-weight: 550;
+  border-inline-start-color: var(--sl-color-accent);
+  background: transparent;
+}
+
+body:has(.sdk-client-page) starlight-toc a:focus-visible,
+body:has(.sdk-client-page) .right-sidebar-panel nav a:focus-visible {
+  outline: 2px solid var(--sl-color-accent);
+  outline-offset: 1px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Method titles (H3) — TOC anchors, no gray code chip                          */
+/* Hairline under title only (no left rail — avoids twinning ClassMethod rail). */
+/* Markdown: ### `methodName` → Starlight wraps <code>; strip pill chrome.      */
+/* -------------------------------------------------------------------------- */
+
+.sdk-client-page .sdk-method-section {
+  margin-block: 0 1.25rem;
+  padding-block-start: 0;
+}
+
+/* Scroll target for TOC jumps — clear sticky header */
+.sdk-client-page .sl-heading-wrapper.level-h3,
 .sdk-client-page h3 {
   scroll-margin-top: 6rem;
+}
+
+.sdk-client-page .sl-heading-wrapper.level-h3 {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  /* Tight under-title gap — signature block sits immediately below */
+  margin-block: 1.75rem 0.25rem;
+  padding-block: 0.05rem 0.35rem;
+  padding-inline-start: 0.65rem;
+  /* Quiet gray rail (not accent purple) so it doesn't twin the ClassMethod fence */
+  border-inline-start: 2px solid var(--sl-color-gray-5);
+  border-block-end: 1px solid var(--sl-color-hairline, var(--sl-color-gray-6));
+}
+
+/* Kill ClassBrowser default 1.5rem top margin under the method H3 */
+.sdk-client-page .sl-heading-wrapper.level-h3 + .sdk-method-section .cb-browser {
+  margin-block-start: 0;
+}
+.sdk-client-page .sl-heading-wrapper.level-h3 + .sdk-method-section .cb-body {
+  padding-block-start: 0;
+}
+.sdk-client-page .sl-heading-wrapper.level-h3 + .sdk-method-section .cb-method {
+  margin-block-start: 0;
+}
+
+.sdk-client-page > .sl-heading-wrapper.level-h3:first-of-type,
+.sdk-client-page > :where(p, div.sdk-client-chrome) + .sl-heading-wrapper.level-h3 {
+  margin-block-start: 1.25rem;
+}
+
+.sdk-client-page .sl-heading-wrapper.level-h3 h3,
+.sdk-client-page h3 {
+  margin: 0;
+  font-family: var(--sl-font-mono, var(--__sl-font-mono, ui-monospace, monospace));
+  font-size: 1.05rem;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  color: var(--sl-color-white, var(--sl-color-text-heading));
+}
+
+/* Kill the default Starlight code-pill on method titles only */
+.sdk-client-page .sl-heading-wrapper.level-h3 h3 code,
+.sdk-client-page h3 code {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  font-style: normal;
+  line-height: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  background: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Anchor link stays quiet until hover/focus */
+.sdk-client-page .sl-heading-wrapper.level-h3 .sl-anchor-link {
+  opacity: 0;
+  transition: opacity 140ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+@media (hover: hover) and (pointer: fine) {
+  .sdk-client-page .sl-heading-wrapper.level-h3:hover .sl-anchor-link,
+  .sdk-client-page .sl-heading-wrapper.level-h3:focus-within .sl-anchor-link {
+    opacity: 1;
+  }
+}
+.sdk-client-page .sl-heading-wrapper.level-h3 .sl-anchor-link:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--sl-color-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body:has(.sdk-client-page) starlight-toc a,
+  body:has(.sdk-client-page) .right-sidebar-panel nav a,
+  .sdk-client-page .sl-heading-wrapper.level-h3 .sl-anchor-link {
+    transition: none;
+  }
 }
 
 /* Hide repeated ClassBrowser chrome after the first method on a page */
@@ -47,9 +190,19 @@ starlight-toc a span,
 .sdk-client-page .sdk-method-section ~ .sdk-method-section .cb-browser {
   border: none;
   background: transparent;
+  margin-block-start: 0;
 }
 .sdk-client-page .sdk-method-section ~ .sdk-method-section .cb-body {
   padding: 0;
+}
+.sdk-client-page .sdk-method-section ~ .sdk-method-section .cb-method {
+  margin-block-start: 0;
+}
+
+/* Dedicated empty chrome — keep header only */
+.sdk-client-page .sdk-client-chrome .cb-body:empty,
+.sdk-client-page .sdk-client-chrome .cb-body:not(:has(.cb-method)) {
+  display: none;
 }
 
 /* Example fences sit inside method body — tighten spacing */
@@ -67,9 +220,7 @@ starlight-toc a span,
 
 /*
  * Param / return rows: keep name + type + description on one line when
- * there is space. A prior flex-basis:10rem + flex-wrap forced the desc
- * onto a second line even on wide layouts. MDX also wraps slot text in
- * <p>, which is block-level and blows out the flex item min-width.
+ * there is space. MDX wraps slot text in <p>, which is block-level.
  */
 .sdk-client-page .cb-param-row,
 .sdk-client-page .cb-returns-row {
@@ -91,7 +242,6 @@ starlight-toc a span,
   flex: 1 1 auto;
   min-width: 0;
   line-height: 1.45;
-  /* wrap text inside the desc only, not the whole flex item onto a new row */
   overflow-wrap: anywhere;
 }
 .sdk-client-page .cb-param-desc :is(p, div),
@@ -100,8 +250,8 @@ starlight-toc a span,
   margin: 0;
 }
 
-/* Only stack on very narrow method cards */
-@media (max-width: 28rem) {
+/* Stack on narrow method cards */
+@media (max-width: 40rem) {
   .sdk-client-page .cb-param-row,
   .sdk-client-page .cb-returns-row {
     flex-wrap: wrap;
@@ -112,6 +262,115 @@ starlight-toc a span,
   }
 }
 
-.sdk-hub-with-sidebar .sdk-cards-grid {
+.sdk-hub-with-sidebar .sdk-cards-grid,
+.sdk-hub-with-sidebar .sdk-index-list {
   margin-block-start: 1rem;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Hub language index (used by /sdks and product SDK homes)                     */
+/* -------------------------------------------------------------------------- */
+
+.sdk-index-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sdk-index-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  min-width: 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.5rem;
+  background: var(--sl-color-bg);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 150ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sdk-index-row:hover {
+    border-color: var(--sl-color-gray-4);
+    background: var(--sl-color-gray-7, var(--sl-color-bg));
+  }
+}
+
+.sdk-index-row:focus-visible {
+  outline: 2px solid var(--sl-color-accent);
+  outline-offset: 2px;
+}
+
+.sdk-index-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.sdk-index-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.6rem;
+}
+
+.sdk-index-title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--sl-color-white, var(--sl-color-text-heading));
+}
+
+.sdk-index-package {
+  font-family: var(--__sl-font-mono, ui-monospace, monospace);
+  font-size: 0.8rem;
+  color: var(--sl-color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.sdk-index-desc {
+  font-size: 0.875rem;
+  color: var(--sl-color-text-muted);
+  line-height: 1.4;
+}
+
+.sdk-index-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  text-align: right;
+  font-size: 0.75rem;
+  color: var(--sl-color-text-muted);
+}
+
+.sdk-index-cta {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--sl-color-accent);
+}
+
+@media (max-width: 40rem) {
+  .sdk-index-row {
+    grid-template-columns: 1fr;
+  }
+  .sdk-index-meta {
+    align-items: flex-start;
+    text-align: left;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
 }

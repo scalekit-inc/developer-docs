@@ -49,7 +49,7 @@ import (
 )
 
 ctx := context.Background()
-org, err := client.Organization().CreateOrganization(ctx, "Acme Corporation", scalekit.CreateOrganizationOptions{
+org, err := scalekitClient.Organization().CreateOrganization(ctx, "Acme Corporation", scalekit.CreateOrganizationOptions{
   ExternalId: "customer_12345",
   Metadata: map[string]string{
     "source": "signup",
@@ -86,7 +86,7 @@ fmt.Println("Organization ID:", org.Organization.Id)
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-orgs, err := client.Organization().ListOrganization(ctx, &scalekit.ListOrganizationOptions{
+orgs, err := scalekitClient.Organization().ListOrganization(ctx, &scalekit.ListOrganizationOptions{
   PageSize:  10,
   PageToken: "",
 })
@@ -98,7 +98,7 @@ for _, org := range orgs.Organizations {
 }
 
 // Use server defaults
-orgs, err = client.Organization().ListOrganization(ctx, nil)
+orgs, err = scalekitClient.Organization().ListOrganization(ctx, nil)
 ```
 
     </CB.ClassMethod>
@@ -125,7 +125,7 @@ orgs, err = client.Organization().ListOrganization(ctx, nil)
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-org, err := client.Organization().GetOrganization(ctx, "org_123")
+org, err := scalekitClient.Organization().GetOrganization(ctx, "org_123")
 if err != nil {
   // handle
 }
@@ -156,7 +156,7 @@ _ = org.Organization
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-org, err := client.Organization().GetOrganizationByExternalId(ctx, "customer_12345")
+org, err := scalekitClient.Organization().GetOrganizationByExternalId(ctx, "customer_12345")
 if err != nil {
   // handle
 }
@@ -191,7 +191,7 @@ _ = org.Organization
 
 ```go wrap showLineNumbers=false
 // DisplayName: Display name
-updated, err := client.Organization().UpdateOrganization(
+updated, err := scalekitClient.Organization().UpdateOrganization(
   ctx,
   "org_123",
   &organizations.UpdateOrganization{
@@ -232,7 +232,7 @@ _ = updated.Organization
 
 ```go wrap showLineNumbers=false
 // DisplayName: Display name
-updated, err := client.Organization().UpdateOrganizationByExternalId(
+updated, err := scalekitClient.Organization().UpdateOrganizationByExternalId(
   ctx,
   "customer_12345",
   &organizations.UpdateOrganization{
@@ -269,7 +269,7 @@ _ = updated.Organization
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-if err := client.Organization().DeleteOrganization(ctx, "org_123"); err != nil {
+if err := scalekitClient.Organization().DeleteOrganization(ctx, "org_123"); err != nil {
   // handle
 }
 ```
@@ -298,7 +298,7 @@ if err := client.Organization().DeleteOrganization(ctx, "org_123"); err != nil {
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-link, err := client.Organization().GeneratePortalLink(ctx, "org_123")
+link, err := scalekitClient.Organization().GeneratePortalLink(ctx, "org_123")
 if err != nil {
   // handle
 }
@@ -332,7 +332,7 @@ _ = link.Url
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-resp, err := client.Organization().UpdateOrganizationSettings(ctx, "org_123", scalekit.OrganizationSettings{
+resp, err := scalekitClient.Organization().UpdateOrganizationSettings(ctx, "org_123", scalekit.OrganizationSettings{
   Features: []scalekit.Feature{
     {Name: "sso", Enabled: true},
     {Name: "dir_sync", Enabled: true},
@@ -372,7 +372,7 @@ _ = resp.Organization.Settings
 
 ```go wrap showLineNumbers=false
 maxUsers := int32(150)
-settings, err := client.Organization().UpsertUserManagementSettings(
+settings, err := scalekitClient.Organization().UpsertUserManagementSettings(
   ctx,
   "org_123",
   scalekit.OrganizationUserManagementSettings{
@@ -409,7 +409,7 @@ _ = settings.MaxAllowedUsers
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
-policy, err := client.Organization().GetOrganizationSessionPolicy(ctx, "org_123")
+policy, err := scalekitClient.Organization().GetOrganizationSessionPolicy(ctx, "org_123")
 if err != nil {
   // handle
 }
@@ -448,7 +448,7 @@ if policy.PolicySource == scalekit.SessionPolicySourceCustom {
 timeout := int32(360)
 idleTimeout := int32(60)
 idleEnabled := true
-policy, err := client.Organization().UpdateOrganizationSessionPolicy(ctx, "org_123", scalekit.OrganizationSessionPolicy{
+policy, err := scalekitClient.Organization().UpdateOrganizationSessionPolicy(ctx, "org_123", scalekit.OrganizationSessionPolicy{
   PolicySource:               scalekit.SessionPolicySourceCustom,
   AbsoluteSessionTimeout:     &timeout,
   AbsoluteSessionTimeoutUnit: scalekit.TimeUnitMinutes,
@@ -462,7 +462,7 @@ if err != nil {
 _ = policy
 
 // Revert to application defaults
-reverted, err := client.Organization().UpdateOrganizationSessionPolicy(ctx, "org_123", scalekit.OrganizationSessionPolicy{
+reverted, err := scalekitClient.Organization().UpdateOrganizationSessionPolicy(ctx, "org_123", scalekit.OrganizationSessionPolicy{
   PolicySource: scalekit.SessionPolicySourceApplication,
 })
 if err != nil {
