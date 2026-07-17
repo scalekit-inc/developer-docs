@@ -15,8 +15,11 @@ import * as CB from '@gesslar/starlight-class-browser'
 ```java
 import com.scalekit.grpc.scalekit.v1.roles.CreatePermissionRequest;
 
-CreatePermissionRequest req = CreatePermissionRequest.newBuilder().build();
-client.permissions().createPermission(req);
+CreatePermissionRequest req = CreatePermissionRequest.newBuilder()
+  .setPermission("read:invoices")
+  .setDescription("Read invoice records")
+  .build();
+scalekitClient.permissions().createPermission(req);
 ```
 
   <CB.ClassMethod name="getPermission">
@@ -25,7 +28,7 @@ client.permissions().createPermission(req);
   </CB.ClassMethod>
 
 ```java
-client.permissions().getPermission("read:documents");
+scalekitClient.permissions().getPermission("read:documents");
 ```
 
   <CB.ClassMethod name="listPermissions">
@@ -34,7 +37,7 @@ client.permissions().getPermission("read:documents");
   </CB.ClassMethod>
 
 ```java
-client.permissions().listPermissions();
+scalekitClient.permissions().listPermissions();
 ```
 
   <CB.ClassMethod name="listPermissions">
@@ -43,7 +46,7 @@ client.permissions().listPermissions();
   </CB.ClassMethod>
 
 ```java
-client.permissions().listPermissions("next_page_token");
+scalekitClient.permissions().listPermissions("next_page_token");
 ```
 
   <CB.ClassMethod name="updatePermission">
@@ -54,8 +57,10 @@ client.permissions().listPermissions("next_page_token");
 ```java
 import com.scalekit.grpc.scalekit.v1.roles.UpdatePermissionRequest;
 
-UpdatePermissionRequest req = UpdatePermissionRequest.newBuilder().build();
-client.permissions().updatePermission("read:documents", req);
+UpdatePermissionRequest req = UpdatePermissionRequest.newBuilder()
+  .setDescription("Read invoice and billing records")
+  .build();
+scalekitClient.permissions().updatePermission("read:documents", req);
 ```
 
   <CB.ClassMethod name="deletePermission">
@@ -64,7 +69,7 @@ client.permissions().updatePermission("read:documents", req);
   </CB.ClassMethod>
 
 ```java
-client.permissions().deletePermission("read:documents");
+scalekitClient.permissions().deletePermission("read:documents");
 ```
 
   <CB.ClassMethod name="listRolePermissions">
@@ -73,7 +78,7 @@ client.permissions().deletePermission("read:documents");
   </CB.ClassMethod>
 
 ```java
-client.permissions().listRolePermissions("admin");
+scalekitClient.permissions().listRolePermissions("admin");
 ```
 
   <CB.ClassMethod name="addPermissionsToRole">
@@ -85,7 +90,7 @@ client.permissions().listRolePermissions("admin");
 import com.scalekit.grpc.scalekit.v1.roles.AddPermissionsToRoleRequest;
 
 AddPermissionsToRoleRequest req = AddPermissionsToRoleRequest.newBuilder().build();
-client.permissions().addPermissionsToRole("admin", req);
+scalekitClient.permissions().addPermissionsToRole("admin", req);
 ```
 
   <CB.ClassMethod name="removePermissionFromRole">
@@ -94,7 +99,7 @@ client.permissions().addPermissionsToRole("admin", req);
   </CB.ClassMethod>
 
 ```java
-client.permissions().removePermissionFromRole("admin", "read:documents");
+scalekitClient.permissions().removePermissionFromRole("admin", "read:documents");
 ```
 
   <CB.ClassMethod name="listEffectiveRolePermissions">
@@ -103,7 +108,7 @@ client.permissions().removePermissionFromRole("admin", "read:documents");
   </CB.ClassMethod>
 
 ```java
-client.permissions().listEffectiveRolePermissions("admin");
+scalekitClient.permissions().listEffectiveRolePermissions("admin");
 ```
 
 </CB.ClassBrowser>

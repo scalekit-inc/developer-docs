@@ -28,7 +28,7 @@ ScalekitClient client = new ScalekitClient(
   </CB.ClassMethod>
 
 ```java
-client.organizations().getById("org_123");
+scalekitClient.organizations().getById("org_123");
 ```
 
   <CB.ClassMethod name="connections">
@@ -37,7 +37,7 @@ client.organizations().getById("org_123");
   </CB.ClassMethod>
 
 ```java
-client.connections().listConnectionsByOrganization("org_123");
+scalekitClient.connections().listConnectionsByOrganization("org_123");
 ```
 
   <CB.ClassMethod name="users">
@@ -46,7 +46,7 @@ client.connections().listConnectionsByOrganization("org_123");
   </CB.ClassMethod>
 
 ```java
-client.users().getUser("user_123");
+scalekitClient.users().getUser("user_123");
 ```
 
   <CB.ClassMethod name="domains">
@@ -55,7 +55,7 @@ client.users().getUser("user_123");
   </CB.ClassMethod>
 
 ```java
-client.domains().listDomainsByOrganizationId("org_123");
+scalekitClient.domains().listDomainsByOrganizationId("org_123");
 ```
 
   <CB.ClassMethod name="directories">
@@ -64,7 +64,7 @@ client.domains().listDomainsByOrganizationId("org_123");
   </CB.ClassMethod>
 
 ```java
-client.directories().listDirectories("org_123");
+scalekitClient.directories().listDirectories("org_123");
 ```
 
   <CB.ClassMethod name="sessions">
@@ -73,7 +73,7 @@ client.directories().listDirectories("org_123");
   </CB.ClassMethod>
 
 ```java
-client.sessions().getSession("sess_123");
+scalekitClient.sessions().getSession("sess_123");
 ```
 
   <CB.ClassMethod name="roles">
@@ -82,7 +82,7 @@ client.sessions().getSession("sess_123");
   </CB.ClassMethod>
 
 ```java
-client.roles().listRoles();
+scalekitClient.roles().listRoles();
 ```
 
   <CB.ClassMethod name="permissions">
@@ -91,7 +91,7 @@ client.roles().listRoles();
   </CB.ClassMethod>
 
 ```java
-client.permissions().listPermissions();
+scalekitClient.permissions().listPermissions();
 ```
 
   <CB.ClassMethod name="passwordless">
@@ -100,7 +100,7 @@ client.permissions().listPermissions();
   </CB.ClassMethod>
 
 ```java
-client.passwordless().sendPasswordlessEmail("user@acme.com");
+scalekitClient.passwordless().sendPasswordlessEmail("user@acme.com");
 ```
 
   <CB.ClassMethod name="webAuthn">
@@ -109,7 +109,7 @@ client.passwordless().sendPasswordlessEmail("user@acme.com");
   </CB.ClassMethod>
 
 ```java
-client.webAuthn().listCredentials("user_123");
+scalekitClient.webAuthn().listCredentials("user_123");
 ```
 
   <CB.ClassMethod name="authentication">
@@ -118,7 +118,7 @@ client.webAuthn().listCredentials("user_123");
   </CB.ClassMethod>
 
 ```java
-client.authentication().getClientAccessToken();
+scalekitClient.authentication().getClientAccessToken();
 ```
 
   <CB.ClassMethod name="webhook">
@@ -129,11 +129,26 @@ client.authentication().getClientAccessToken();
 ```java
 import java.util.Map;
 
-boolean ok = client.webhook().verifyWebhookPayload(
-  "whsec_...",
+// Build from the incoming HTTP request
+Map<String, String> headers = new java.util.HashMap<>();
+headers.put("webhook-id", request.getHeader("webhook-id"));
+headers.put("webhook-timestamp", request.getHeader("webhook-timestamp"));
+headers.put("webhook-signature", request.getHeader("webhook-signature"));
+byte[] payloadBytes = request.getInputStream().readAllBytes();
+
+// Security: load the secret from configuration — never hard-code it.
+// Skipping signature verification accepts forged webhook payloads as legitimate.
+String secret = System.getenv("SCALEKIT_WEBHOOK_SECRET");
+
+boolean ok = scalekitClient.webhook().verifyWebhookPayload(
+  secret,
   headers,
   payloadBytes
 );
+if (!ok) {
+  // Reject forged or replayed webhooks
+  throw new SecurityException("Invalid webhook signature");
+}
 ```
 
   <CB.ClassMethod name="verifyWebhookPayload">
@@ -151,7 +166,7 @@ headers.put("webhook-signature", "v1,<base64sig>");
 
 byte[] payload = requestBodyBytes;
 
-boolean isValid = client.webhook().verifyWebhookPayload("whsec_...", headers, payload);
+boolean isValid = scalekitClient.webhook().verifyWebhookPayload("whsec_...", headers, payload);
 ```
 
   <CB.ClassMethod name="ScalekitInterceptor">
@@ -181,7 +196,7 @@ boolean isValid = interceptor.verifyInterceptorPayload("insec_...", headers, pay
   </CB.ClassMethod>
 
 ```java
-client.tokens().create("org_123");
+scalekitClient.tokens().create("org_123");
 ```
 
   <CB.ClassMethod name="m2m">
@@ -190,7 +205,7 @@ client.tokens().create("org_123");
   </CB.ClassMethod>
 
 ```java
-client.m2m().listOrganizationClients("org_123", 20, "");
+scalekitClient.m2m().listOrganizationClients("org_123", 20, "");
 ```
 
 </CB.ClassBrowser>

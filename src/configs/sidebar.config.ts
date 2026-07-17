@@ -270,10 +270,6 @@ export const sidebar = [
         items: [
           'dev-kit/sdks',
           {
-            label: 'TEMP: Class Browser playground',
-            link: 'dev-kit/class-browser-playground',
-          },
-          {
             label: 'APIs',
             link: '/apis/#description/overview',
             attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },

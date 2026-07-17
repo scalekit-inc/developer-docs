@@ -13,13 +13,17 @@ import * as CB from '@gesslar/starlight-class-browser'
   </CB.ClassMethod>
 
 ```python
-response = scalekit_client.organization.list_organizations(
-    page_size=50,
-    page_token='next_page_token'
-)
+response = scalekit_client.organization.list_organizations(page_size=50)
 
 for org in response[0].organizations:
     print(f"Organization: {org.display_name}")
+
+# Follow-up page using the returned cursor
+if response[0].next_page_token:
+    next_page = scalekit_client.organization.list_organizations(
+        page_size=50,
+        page_token=response[0].next_page_token,
+    )
 ```
 
   <CB.ClassMethod name="create_organization">

@@ -13,7 +13,7 @@ import * as CB from '@gesslar/starlight-class-browser'
   </CB.ClassMethod>
 
 ```typescript
-const authUrl = scalekitClient.getAuthorizationUrl(
+const authUrl = scalekit.getAuthorizationUrl(
   'https://yourapp.com/auth/callback',
   {
     state: 'random-state-value',
@@ -32,7 +32,7 @@ const authUrl = scalekitClient.getAuthorizationUrl(
 app.get('/auth/callback', async (req, res) => {
   const { code } = req.query;
 
-  const result = await scalekitClient.authenticateWithCode(
+  const result = await scalekit.authenticateWithCode(
     code,
     'https://yourapp.com/auth/callback'
   );
@@ -54,9 +54,9 @@ app.get('/auth/callback', async (req, res) => {
   const { idp_initiated_login } = req.query;
 
   if (idp_initiated_login) {
-    const claims = await scalekitClient.getIdpInitiatedLoginClaims(idp_initiated_login);
+    const claims = await scalekit.getIdpInitiatedLoginClaims(idp_initiated_login);
 
-    const authUrl = scalekitClient.getAuthorizationUrl(
+    const authUrl = scalekit.getAuthorizationUrl(
       'https://yourapp.com/auth/callback',
       {
         connectionId: claims.connection_id,
@@ -72,30 +72,6 @@ app.get('/auth/callback', async (req, res) => {
 ```
 
   <CB.ClassMethod name="validateAccessToken">
-    Validates the access token and returns a boolean result.
-
-  </CB.ClassMethod>
-
-```typescript
-const isValid = await scalekitClient.validateAccessToken(token);
-if (isValid) {
-  // Token is valid, proceed with request
-}
-```
-
-  <CB.ClassMethod name="getLogoutUrl">
-    Returns the logout URL that can be used to log out the user.
-
-  </CB.ClassMethod>
-
-```typescript
-const logoutUrl = scalekitClient.getLogoutUrl({
-  postLogoutRedirectUri: 'https://example.com',
-  state: 'some-state'
-});
-```
-
-  <CB.ClassMethod name="validateAccessToken">
     Validate an access token to ensure it's authentic and hasn't expired. This method performs signature verification and checks token validity against Scalekit's public keys.
 
     <CB.ClassMethodInput name="token" type="string">
@@ -107,7 +83,10 @@ const logoutUrl = scalekitClient.getLogoutUrl({
   </CB.ClassMethod>
 
 ```typescript
-const isValid = await scalekitClient.validateAccessToken(accessToken);
+const isValid = await scalekit.validateAccessToken(accessToken);
+if (isValid) {
+  // Token is valid, proceed with request
+}
 ```
 
   <CB.ClassMethod name="getLogoutUrl">
@@ -119,7 +98,7 @@ const isValid = await scalekitClient.validateAccessToken(accessToken);
   </CB.ClassMethod>
 
 ```typescript
-const logoutUrl = scalekitClient.getLogoutUrl({
+const logoutUrl = scalekit.getLogoutUrl({
   postLogoutRedirectUri: 'https://example.com',
   state: 'some-state'
 });
@@ -135,7 +114,7 @@ const logoutUrl = scalekitClient.getLogoutUrl({
   </CB.ClassMethod>
 
 ```typescript
-const result = await scalekitClient.refreshAccessToken(oldRefreshToken);
+const result = await scalekit.refreshAccessToken(oldRefreshToken);
 // Store the new tokens
 await storeTokens(userId, {
   accessToken: result.accessToken,
@@ -155,7 +134,7 @@ await storeTokens(userId, {
   </CB.ClassMethod>
 
 ```typescript
-const payload = await scalekitClient.validateToken(accessToken);
+const payload = await scalekit.validateToken(accessToken);
 ```
 
   <CB.ClassMethod name="verifyScopes">
@@ -170,7 +149,7 @@ const payload = await scalekitClient.validateToken(accessToken);
   </CB.ClassMethod>
 
 ```typescript
-const hasScopes = scalekitClient.verifyScopes(accessToken, ['read:user', 'write:user']);
+const hasScopes = scalekit.verifyScopes(accessToken, ['read:user', 'write:user']);
 ```
 
   <CB.ClassMethod name="verifyWebhookPayload">
@@ -184,22 +163,25 @@ app.post('/webhooks/scalekit', express.raw({ type: 'application/json' }), (req, 
   const headers = req.headers;
   const payload = req.body.toString();
 
-  const isValid = scalekitClient.verifyWebhookPayload(secret, headers, payload);
+  const isValid = scalekit.verifyWebhookPayload(secret, headers, payload);
 
-  if (isValid) {
-    const event = JSON.parse(payload);
-
-    switch (event.type) {
-      case 'user.created':
-        console.log('New user created:', event.data);
-        break;
-      case 'connection.enabled':
-        console.log('Connection enabled:', event.data);
-        break;
-    }
-
-    res.status(200).send('Webhook received');
+  if (!isValid) {
+    // Reject forged or replayed webhooks
+    return res.status(401).send('Invalid signature');
   }
+
+  const event = JSON.parse(payload);
+
+  switch (event.type) {
+    case 'user.created':
+      console.log('New user created:', event.data);
+      break;
+    case 'connection.enabled':
+      console.log('Connection enabled:', event.data);
+      break;
+  }
+
+  res.status(200).send('Webhook received');
 });
 ```
 
@@ -209,7 +191,7 @@ app.post('/webhooks/scalekit', express.raw({ type: 'application/json' }), (req, 
   </CB.ClassMethod>
 
 ```typescript
-const isValid = scalekitClient.verifyInterceptorPayload(secret, headers, payload);
+const isValid = scalekit.verifyInterceptorPayload(secret, headers, payload);
 ```
 
 </CB.ClassBrowser>

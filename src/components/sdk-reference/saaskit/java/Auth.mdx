@@ -16,11 +16,14 @@ import * as CB from '@gesslar/starlight-class-browser'
 import com.scalekit.internal.http.AuthorizationUrlOptions;
 import java.net.URL;
 
+// Security: generate a per-login OAuth state and store it in the session.
+// Comparing the returned state on callback prevents login CSRF.
 AuthorizationUrlOptions options = new AuthorizationUrlOptions();
 options.setOrganizationId("org_123");
-options.setState("random-state-value");
+options.setState(java.util.UUID.randomUUID().toString());
+// session.setAttribute("oauth_state", options.getState());
 
-URL authUrl = client.authentication().getAuthorizationUrl(
+URL authUrl = scalekitClient.authentication().getAuthorizationUrl(
   "https://yourapp.com/auth/callback",
   options
 );
@@ -40,7 +43,7 @@ options.setIdTokenHint(user.getIdToken());
 options.setPostLogoutRedirectUri("https://yourapp.com");
 options.setState("random-state-value");
 
-URL logoutUrl = client.authentication().getLogoutUrl(options);
+URL logoutUrl = scalekitClient.authentication().getLogoutUrl(options);
 ```
 
   <CB.ClassMethod name="authenticateWithCode">
@@ -52,7 +55,7 @@ URL logoutUrl = client.authentication().getLogoutUrl(options);
 import com.scalekit.internal.http.AuthenticationOptions;
 import com.scalekit.internal.http.AuthenticationResponse;
 
-AuthenticationResponse result = client.authentication().authenticateWithCode(
+AuthenticationResponse result = scalekitClient.authentication().authenticateWithCode(
   "<code>",
   "https://yourapp.com/auth/callback",
   new AuthenticationOptions()
@@ -69,7 +72,7 @@ String accessToken = result.getAccessToken();
 ```java
 import com.scalekit.internal.http.IdpInitiatedLoginClaims;
 
-IdpInitiatedLoginClaims claims = client.authentication().getIdpInitiatedLoginClaims("<idp_initiated_login_token>");
+IdpInitiatedLoginClaims claims = scalekitClient.authentication().getIdpInitiatedLoginClaims("<idp_initiated_login_token>");
 ```
 
   <CB.ClassMethod name="refreshAccessToken">
@@ -78,7 +81,7 @@ IdpInitiatedLoginClaims claims = client.authentication().getIdpInitiatedLoginCla
   </CB.ClassMethod>
 
 ```java
-client.authentication().refreshAccessToken("<refresh_token>");
+scalekitClient.authentication().refreshAccessToken("<refresh_token>");
 ```
 
   <CB.ClassMethod name="validateAccessToken">
@@ -87,7 +90,7 @@ client.authentication().refreshAccessToken("<refresh_token>");
   </CB.ClassMethod>
 
 ```java
-boolean ok = client.authentication().validateAccessToken("<access_token_jwt>");
+boolean ok = scalekitClient.authentication().validateAccessToken("<access_token_jwt>");
 ```
 
   <CB.ClassMethod name="validateAccessTokenAndGetClaims">
@@ -98,7 +101,7 @@ boolean ok = client.authentication().validateAccessToken("<access_token_jwt>");
 ```java
 import java.util.Map;
 
-Map<String, Object> claims = client.authentication().validateAccessTokenAndGetClaims("<access_token_jwt>");
+Map<String, Object> claims = scalekitClient.authentication().validateAccessTokenAndGetClaims("<access_token_jwt>");
 ```
 
   <CB.ClassMethod name="getClientAccessToken">
@@ -107,7 +110,7 @@ Map<String, Object> claims = client.authentication().validateAccessTokenAndGetCl
   </CB.ClassMethod>
 
 ```java
-String token = client.authentication().getClientAccessToken();
+String token = scalekitClient.authentication().getClientAccessToken();
 ```
 
 </CB.ClassBrowser>
