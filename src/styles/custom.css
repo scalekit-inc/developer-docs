@@ -3,8 +3,11 @@
 * https://github.com/withastro/starlight/blob/main/packages/starlight/style/props.css
 */
 
-/* Layer declarations */
-@layer nova, starlight, scalekit.tokens, scalekit.layout, scalekit.components, scalekit.overrides;
+/*
+ * Layer order is pinned in theme-priority.css (always-loaded entry).
+ * Nested starlight.* order must stay: base < reset < core < content < components < utils
+ * so content spacing beats reset's * { margin: 0 } after ClientRouter soft-nav.
+ */
 
 /* =============================================================================
    TOKENS LAYER - Design system tokens and theme variables
@@ -674,9 +677,29 @@ body {
 
 /*
  * Resilient chrome after ClientRouter soft navigations.
- * Unlayered so these win over page CSS chunks that stick in <head> after
- * visiting SDKs / fold landings (overflow clipping + lost inherit borders).
+ * Unlayered so these win even if nested starlight.* layer order is corrupted
+ * (see layer pin at top of this file) or page CSS chunks stick in <head>.
+ * Unlayered overrides layered starlight/nova per Nova cascade docs:
+ * https://starlight-theme-nova.pages.dev/guide/css-and-styling/
  */
+
+/* Restore vertical rhythm when starlight.content loses to starlight.reset */
+.sl-markdown-content :not(h1, h2, h3, h4, h5, h6, .sl-heading-wrapper) + .sl-heading-wrapper {
+  margin-top: 1.5em;
+}
+
+.sl-markdown-content
+  :not(a, strong, em, del, span, input, code, br)
+  + :not(a, strong, em, del, span, input, code, br, :where(.not-content *)) {
+  margin-top: var(--sl-content-gap-y, 1rem);
+}
+
+.sl-markdown-content
+  :not(h1, h2, h3, h4, h5, h6)
+  + :is(h1, h2, h3, h4, h5, h6):not(:where(.not-content *)) {
+  margin-top: 1.5em;
+}
+
 .header .sl-link-button.sk-secondary,
 .header .sl-link-button.secondary {
   border: 1px solid var(--sl-color-gray-5);

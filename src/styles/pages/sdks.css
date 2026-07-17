@@ -294,72 +294,16 @@ body:has(.sdk-section-layout) main {
   gap: 0.5rem;
 }
 
-/* Scope to SDK page only — prevents this from leaking to other pages via Astro's shared CSS chunks */
-.sl-markdown-content:has(.sdk-section-layout)
-  :not(
-    a,
-    strong,
-    em,
-    del,
-    span,
-    code,
-    kbd,
-    samp,
-    var,
-    pre,
-    abbr,
-    acronym,
-    b,
-    bdi,
-    bdo,
-    big,
-    cite,
-    dfn,
-    i,
-    mark,
-    q,
-    rp,
-    rt,
-    ruby,
-    s,
-    small,
-    sub,
-    sup,
-    time,
-    tt,
-    u,
-    wbr,
-    img,
-    video,
-    audio,
-    canvas,
-    svg,
-    iframe,
-    embed,
-    object,
-    picture,
-    source,
-    track,
-    map,
-    area,
-    input,
-    button,
-    select,
-    textarea,
-    label,
-    output,
-    progress,
-    meter,
-    details,
-    summary,
-    dialog,
-    script,
-    noscript,
-    template,
-    slot,
-    content *
-  ) {
-  margin-top: 0 !important;
+/*
+ * Do NOT use unlayered `margin-top: 0 !important` on .sl-markdown-content
+ * descendants. That rule is a ClientRouter footgun: even when scoped with
+ * :has(.sdk-section-layout), loading it mid-session contributes to cascade
+ * thrash, and any broader match zeros Starlight content spacing site-wide.
+ * Zero margins only on the SDK layout root itself.
+ */
+body:has(.sdk-section-layout) .sdk-section-layout,
+body:has(.sdk-section-layout) .sdk-section-layout > * {
+  margin-top: 0;
 }
 
 /* Full Stack Auth Layout */
