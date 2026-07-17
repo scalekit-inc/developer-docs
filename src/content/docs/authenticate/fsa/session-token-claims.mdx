@@ -28,13 +28,11 @@ seeAlso:
 
 import { Aside } from '@astrojs/starlight/components';
 
-Access tokens issued by Scalekit carry a working set of default claims that cover identity and authorization, such as `sub`, `roles`, and `permissions`. However, when your application needs additional context, such as a plan tier stored in your organization's metadata, you need more flexibility.
+A session token claim adds a field from a user's profile or their organization directly onto the JWT access token Scalekit issues at login and session refresh. Your API reads it straight off the token, instead of looking it up from your own database on every request.
 
-This guide shows how to add custom claims to the JWT access token through the Scalekit dashboard, and how to preview the exact payload a token will carry before you depend on it in production.
+## How it works
 
-## Default claims
-
-Review the default claims already present on every access token:
+Every access token Scalekit issues carries a working set of default claims, resolved fresh each time a session starts or refreshes:
 
 ```jsonc title="Default access token claims" showLineNumbers=false
 {
@@ -52,7 +50,7 @@ Review the default claims already present on every access token:
 }
 ```
 
-These claims are also listed in your Scalekit dashboard. Navigate to **Dashboard > Authentication > Token Claims** to see them.
+A custom claim works the same way. You define an expression once, against `user` or `organization`, and Scalekit resolves it for every session from then on, adding the result alongside the default claims above. These claims are also listed in your Scalekit dashboard, under **Dashboard > Authentication > Token Claims**.
 
 ## Add a custom claim
 
