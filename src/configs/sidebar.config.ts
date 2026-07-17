@@ -105,6 +105,7 @@ export const sidebar = [
           'guides/email-providers',
           'guides/dashboard/custom-email-templates',
           'authenticate/manage-users-orgs/custom-user-attributes',
+          'authenticate/fsa/session-token-claims',
           {
             label: 'Intercept auth flows',
             link: 'https://docs.scalekit.com/authenticate/interceptors/auth-flow-interceptors/',
