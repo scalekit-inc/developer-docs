@@ -16,7 +16,10 @@ import '@/styles/sdk-reference.css'
 
 <div class="sdk-client-page">
 
-`scalekit.tools` exposes raw tool schemas for custom adapters.
+
+`scalekit.tools` returns raw tool schemas so you can build custom agent adapters instead of using `scalekit.actions.executeTool` directly.
+
+Use this client when you need tool definitions (name, parameters, connector) for frameworks or your own executor. For connect + execute flows, prefer [Accounts & tools](/agentkit/sdks/node/actions/). See [Error handling](/agentkit/sdks/node/errors/) for exceptions.
 
 ### listTools
 <div class="sdk-method-section">
@@ -27,7 +30,7 @@ import '@/styles/sdk-reference.css'
       Lists tools available in your workspace with optional filtering and pagination.
 
       <CB.ClassMethodInput name="options" type="object" hint="filter, pageSize, pageToken">
-        Optional settings.
+        Optional fields: `filter`, `pageSize`, `pageToken`.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListToolsResponse">
         Paginated tools.
@@ -58,7 +61,7 @@ const res = await scalekit.tools.listTools({
         Connected account identifier to scope the tools list.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="object" hint="filter, pageSize, pageToken">
-        Optional settings.
+        Optional fields: `filter`, `pageSize`, `pageToken`.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListScopedToolsResponse">
         Paginated results.
@@ -91,7 +94,7 @@ const res = await scalekit.tools.listScopedTools('user@example.com', {
         Connected account identifier to scope the available tools.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="object" hint="pageSize, pageToken">
-        Optional settings.
+        Optional fields: `pageSize`, `pageToken`.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListAvailableToolsResponse">
         Paginated results.

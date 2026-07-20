@@ -16,7 +16,10 @@ import '@/styles/sdk-reference.css'
 
 <div class="sdk-client-page">
 
-Create a Scalekit client with your environment URL and credentials.
+
+Create a Scalekit client with your environment URL, client ID, and client secret. All other clients hang off this instance.
+
+Store credentials in environment variables. Never hard-code secrets. After you create the client, use [Sessions](/saaskit/sdks/go/sessions/) or domain clients such as [Organizations](/saaskit/sdks/go/organizations/) and [Users](/saaskit/sdks/go/users/).
 
 ### GetAuthorizationUrl
 <div class="sdk-method-section">
@@ -24,13 +27,13 @@ Create a Scalekit client with your environment URL and credentials.
     <CB.ClassMethod name="GetAuthorizationUrl" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `GetAuthorizationUrl`.
+      Runs `GetAuthorizationUrl` and returns the result.
 
       <CB.ClassMethodInput name="redirectUri" type="string">
         Redirect uri.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="AuthorizationUrlOptions">
-        Optional settings.
+        Optional request settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="url.URL">
         url.URL
@@ -61,7 +64,7 @@ if err != nil {
     <CB.ClassMethod name="AuthenticateWithCode" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `AuthenticateWithCode`.
+      Runs `AuthenticateWithCode` and returns the result.
 
       <CB.ClassMethodInput name="ctx" type="context.Context">
         Request context
@@ -73,7 +76,7 @@ if err != nil {
         Redirect uri.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="AuthenticationOptions">
-        Optional settings.
+        Optional request settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="AuthenticationResponse">
         Authentication.
@@ -106,7 +109,7 @@ _ = user
     <CB.ClassMethod name="GetIdpInitiatedLoginClaims" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `GetIdpInitiatedLoginClaims`.
+      Runs `GetIdpInitiatedLoginClaims` and returns the result.
 
       <CB.ClassMethodInput name="ctx" type="context.Context">
         Request context
@@ -115,7 +118,7 @@ _ = user
         Idp initiate login token.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="IdpInitiatedLoginClaims">
-        The resource.
+        The response payload for this operation.
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -138,7 +141,7 @@ _ = claims
     <CB.ClassMethod name="GetAccessTokenClaims" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `GetAccessTokenClaims`.
+      Runs `GetAccessTokenClaims` and returns the result.
 
       <CB.ClassMethodInput name="ctx" type="context.Context">
         Request context
@@ -147,7 +150,7 @@ _ = claims
         Access token.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="AccessTokenClaims">
-        The resource.
+        The response payload for this operation.
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -168,7 +171,7 @@ _ = claims
     <CB.ClassMethod name="ValidateAccessToken" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `ValidateAccessToken`.
+      Runs `ValidateAccessToken` and returns the result.
 
       <CB.ClassMethodInput name="ctx" type="context.Context">
         Request context
@@ -198,7 +201,7 @@ _ = ok
     <CB.ClassMethod name="RefreshAccessToken" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `RefreshAccessToken`.
+      Runs `RefreshAccessToken` and returns the result.
 
       <CB.ClassMethodInput name="ctx" type="context.Context">
         Request context
@@ -228,10 +231,10 @@ _ = tokens.AccessToken
     <CB.ClassMethod name="GetLogoutUrl" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `GetLogoutUrl`.
+      Runs `GetLogoutUrl` and returns the result.
 
       <CB.ClassMethodInput name="options" type="LogoutUrlOptions">
-        Optional settings.
+        Optional request settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="url.URL">
         url.URL
@@ -259,7 +262,7 @@ _ = logoutURL
     <CB.ClassMethod name="VerifyWebhookPayload" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `VerifyWebhookPayload`.
+      Runs `VerifyWebhookPayload` and returns the result.
 
       <CB.ClassMethodInput name="secret" type="string">
         Secret.
@@ -300,7 +303,7 @@ _ = valid
     <CB.ClassMethod name="VerifyInterceptorPayload" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `VerifyInterceptorPayload`.
+      Runs `VerifyInterceptorPayload` and returns the result.
 
       <CB.ClassMethodInput name="secret" type="string">
         Secret.
@@ -333,7 +336,7 @@ _ = valid
     <CB.ClassMethod name="Connection" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `Connection`.
+      Runs `Connection` and returns the result.
 
       <CB.ClassMethodOutput type="Connection">
         Connection.
@@ -349,7 +352,7 @@ _ = valid
     <CB.ClassMethod name="Organization" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `Organization`.
+      Runs `Organization` and returns the result.
 
       <CB.ClassMethodOutput type="Organization">
         Organization.
@@ -365,7 +368,7 @@ _ = valid
     <CB.ClassMethod name="User" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `User`.
+      Runs `User` and returns the result.
 
       <CB.ClassMethodOutput type="UserService">
         User service.
@@ -381,7 +384,7 @@ _ = valid
     <CB.ClassMethod name="Domain" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `Domain`.
+      Runs `Domain` and returns the result.
 
       <CB.ClassMethodOutput type="Domain">
         Domain.
@@ -397,7 +400,7 @@ _ = valid
     <CB.ClassMethod name="Directory" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `Directory`.
+      Runs `Directory` and returns the result.
 
       <CB.ClassMethodOutput type="Directory">
         Directory.
@@ -413,7 +416,7 @@ _ = valid
     <CB.ClassMethod name="Session" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `Session`.
+      Runs `Session` and returns the result.
 
       <CB.ClassMethodOutput type="SessionService">
         Session service.
@@ -429,7 +432,7 @@ _ = valid
     <CB.ClassMethod name="Role" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `Role`.
+      Runs `Role` and returns the result.
 
       <CB.ClassMethodOutput type="RoleService">
         Role service.
@@ -445,7 +448,7 @@ _ = valid
     <CB.ClassMethod name="Permission" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `Permission`.
+      Runs `Permission` and returns the result.
 
       <CB.ClassMethodOutput type="PermissionService">
         Permission service.
@@ -461,7 +464,7 @@ _ = valid
     <CB.ClassMethod name="Passwordless" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `Passwordless`.
+      Runs `Passwordless` and returns the result.
 
       <CB.ClassMethodOutput type="PasswordlessService">
         Passwordless service.
@@ -477,7 +480,7 @@ _ = valid
     <CB.ClassMethod name="WebAuthn" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `WebAuthn`.
+      Runs `WebAuthn` and returns the result.
 
       <CB.ClassMethodOutput type="WebAuthnService">
         Web authn service.
@@ -493,7 +496,7 @@ _ = valid
     <CB.ClassMethod name="Auth" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `Auth`.
+      Runs `Auth` and returns the result.
 
       <CB.ClassMethodOutput type="AuthService">
         Auth service.
@@ -509,7 +512,7 @@ _ = valid
     <CB.ClassMethod name="Client" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `Client`.
+      Runs `Client` and returns the result.
 
       <CB.ClassMethodOutput type="ClientService">
         Client service.
@@ -525,7 +528,7 @@ _ = valid
     <CB.ClassMethod name="Token" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `Token`.
+      Runs `Token` and returns the result.
 
       <CB.ClassMethodOutput type="TokenService">
         Token service.
@@ -550,7 +553,7 @@ _ = valid
         Token string.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="ValidateTokenOptions">
-        Optional settings.
+        Optional request settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="bool">
         bool
@@ -577,7 +580,7 @@ _ = valid
     <CB.ClassMethod name="ValidateToken" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `ValidateToken`.
+      Runs `ValidateToken` and returns the result.
 
       <CB.ClassMethodInput name="ctx" type="context.Context">
         Request context
@@ -607,7 +610,7 @@ _ = claims
     <CB.ClassMethod name="WithSecret" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `WithSecret`.
+      Runs `WithSecret` and returns the result.
 
       <CB.ClassMethodInput name="clientSecret" type="string">
         Client secret.
@@ -636,7 +639,7 @@ clientWithNewSecret := scalekitClient.WithSecret("new_client_secret")
         Request context
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="GenerateClientTokenOptions">
-        Optional settings.
+        Optional request settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ClientTokenResponse">
         Client token.
@@ -664,7 +667,7 @@ _ = resp.AccessToken
     <CB.ClassMethod name="GetClientAccessToken" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `GetClientAccessToken`.
+      Runs `GetClientAccessToken` and returns the result.
 
       <CB.ClassMethodInput name="ctx" type="context.Context">
         Request context
@@ -691,7 +694,7 @@ _ = accessToken
     <CB.ClassMethod name="UnmarshalJSON" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `UnmarshalJSON`.
+      Runs `UnmarshalJSON` and returns the result.
 
       <CB.ClassMethodInput name="data" type="[]byte">
         Data.
@@ -710,7 +713,7 @@ _ = accessToken
     <CB.ClassMethod name="M2M" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `M2M`.
+      Runs `M2M` and returns the result.
 
       <CB.ClassMethodOutput type="M2MService">
         M2mservice.
@@ -726,7 +729,7 @@ _ = accessToken
     <CB.ClassMethod name="VerifyPayloadSignature" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `VerifyPayloadSignature`.
+      Runs `VerifyPayloadSignature` and returns the result.
 
       <CB.ClassMethodInput name="secret" type="string">
         Secret.

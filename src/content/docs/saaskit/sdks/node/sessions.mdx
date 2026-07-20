@@ -16,7 +16,10 @@ import '@/styles/sdk-reference.css'
 
 <div class="sdk-client-page">
 
-Use the `session` client to inspect and revoke user sessions.
+
+Use the `session` client to inspect session metadata and revoke sessions when users sign out or you detect risk.
+
+Typical flows: load a session by ID after authentication, list a user's sessions for a security UI, and revoke one session or all of a user's sessions on logout.
 
 ### getSession
 <div class="sdk-method-section">
@@ -30,7 +33,7 @@ Use the `session` client to inspect and revoke user sessions.
         The session identifier to retrieve (format: "ses_...")
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="SessionDetails">
-        The session id.
+        Session metadata including status, user, device, and location.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
@@ -52,16 +55,16 @@ console.log('Location:', session.geoLocation);
     <CB.ClassMethod name="getUserSessions" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `getUserSessions`.
+      Runs `getUserSessions` and returns the result.
 
       <CB.ClassMethodInput name="userId" type="string">
-        User ID.
+        Scalekit user ID (`usr_...`).
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="object" hint="pageSize, pageToken, filter, status, startTime, endTime">
-        Optional settings.
+        Optional fields: `pageSize`, `pageToken`, `filter`, `status`, `startTime`, `endTime`.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="UserSessionDetails">
-        The resource.
+        The response payload for this operation.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
@@ -89,7 +92,7 @@ console.log(`User has ${response.totalSize} active sessions`);
     <CB.ClassMethod name="revokeSession" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `revokeSession`.
+      Runs `revokeSession` and returns the result.
 
       <CB.ClassMethodInput name="sessionId" type="string">
         Session ID.

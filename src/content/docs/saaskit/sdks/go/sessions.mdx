@@ -16,7 +16,10 @@ import '@/styles/sdk-reference.css'
 
 <div class="sdk-client-page">
 
-Use the Session client to inspect and revoke sessions.
+
+Use the Session client to inspect session metadata and revoke sessions when users sign out or you detect risk.
+
+Typical flows: load a session by ID after authentication, list a user's sessions for a security UI, and revoke one session or all of a user's sessions on logout.
 
 ### GetSession
 <div class="sdk-method-section">
@@ -33,7 +36,7 @@ Use the Session client to inspect and revoke sessions.
         Session ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="SessionDetails">
-        The resource.
+        The response payload for this operation.
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -60,7 +63,7 @@ _ = session
         Request context
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="userId" type="string">
-        User ID.
+        Scalekit user ID (`usr_...`).
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="pageSize" type="uint32">
         Page size.
@@ -72,7 +75,7 @@ _ = session
         Result filter.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="UserSessionDetails">
-        The resource.
+        The response payload for this operation.
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -129,7 +132,7 @@ _ = resp
         Request context
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="userId" type="string">
-        User ID.
+        Scalekit user ID (`usr_...`).
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="RevokeAllUserSessionsResponse">
         Empty on success.

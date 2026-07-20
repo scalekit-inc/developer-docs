@@ -16,7 +16,10 @@ import '@/styles/sdk-reference.css'
 
 <div class="sdk-client-page">
 
-Create a `ScalekitClient` with your environment URL and credentials.
+
+Create a `ScalekitClient` with your environment URL, client ID, and client secret. All other clients hang off this instance.
+
+Store credentials in environment variables. Never hard-code secrets. After you create the client, use [Sessions](/saaskit/sdks/node/sessions/) to validate tokens or open a domain client such as [Organizations](/saaskit/sdks/node/organizations/) or [Users](/saaskit/sdks/node/users/).
 
 ### validateAccessToken
 <div class="sdk-method-section">
@@ -30,7 +33,7 @@ Create a `ScalekitClient` with your environment URL and credentials.
         The token to be validated.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="TokenValidationOptions">
-        Optional settings.
+        Optional request settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="boolean">
         Returns true if the token is valid, false otherwise.
@@ -81,7 +84,7 @@ const isValid = await scalekit.validateAccessToken(accessToken);
         The same redirect URI used in getAuthorizationUrl().
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="AuthenticationOptions">
-        Optional settings.
+        Optional request settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="AuthenticationResponse">
         Tokens and user claims.
@@ -119,7 +122,7 @@ app.get('/auth/callback', async (req, res) => {
         The token received in the 'idp_initiated_login' query.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="TokenValidationOptions">
-        Optional settings.
+        Optional request settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="IdpInitiatedLoginClaims">
         The connection id.

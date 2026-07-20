@@ -16,7 +16,12 @@ import '@/styles/sdk-reference.css'
 
 <div class="sdk-client-page">
 
-`scalekit.actions` is the primary AgentKit interface for connected accounts and tool execution.
+
+`scalekit.actions` is the primary AgentKit client for connecting end-user accounts, starting OAuth, and executing tools on their behalf.
+
+**Common path:** create or look up a connected account → get an authorization link → verify the user after redirect → run tools with `executeTool`.
+
+For raw tool schemas used by custom adapters, see [Tool schemas](/agentkit/sdks/node/tools/). For exception types, see [Error handling](/agentkit/sdks/node/errors/).
 
 ### verifyConnectedAccountUser
 <div class="sdk-method-section">
@@ -27,7 +32,7 @@ import '@/styles/sdk-reference.css'
       Verify the connected account user after OAuth callback.
 
       <CB.ClassMethodInput name="params" type="object" hint="authRequestId, identifier">
-        Request parameters.
+        Required or common fields: `authRequestId`, `identifier`.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="VerifyConnectedAccountUserResponse">
         Post-verify redirect URL.
@@ -56,7 +61,7 @@ await scalekit.actions.verifyConnectedAccountUser({
       List connected accounts with optional filters.
 
       <CB.ClassMethodInput name="params" type="object" hint="connectionName, identifier, provider, organizationId, userId, pageSize, pageToken, query">
-        Request parameters.
+        Required or common fields: `connectionName`, `identifier`, `provider`, `organizationId`, `userId`, `pageSize`, `pageToken`, `query`.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListConnectedAccountsResponse">
         Paginated connected accounts.
@@ -86,7 +91,7 @@ const response = await scalekit.actions.listConnectedAccounts({
       Execute a tool on behalf of a connected account.
 
       <CB.ClassMethodInput name="params" type="object" hint="toolName, toolInput, identifier, connectedAccountId, connector, organizationId, userId">
-        Request parameters.
+        Required or common fields: `toolName`, `toolInput`, `identifier`, `connectedAccountId`, `connector`, `organizationId`, `userId`.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ExecuteToolResponse">
         Tool result and execution ID.
@@ -117,7 +122,7 @@ const response = await scalekit.actions.executeTool({
       Get an authorization magic link for a connected account.
 
       <CB.ClassMethodInput name="params" type="object" hint="connectionName, identifier, connectedAccountId, organizationId, userId, state, userVerifyUrl">
-        Request parameters.
+        Required or common fields: `connectionName`, `identifier`, `connectedAccountId`, `organizationId`, `userId`, `state`, `userVerifyUrl`.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="GetMagicLinkForConnectedAccountResponse">
         Authorization magic link.
@@ -151,7 +156,7 @@ const response = await scalekit.actions.getAuthorizationLink({
       List app-level connections with optional pagination and provider filtering.
 
       <CB.ClassMethodInput name="params" type="object" hint="pageSize, pageToken, provider">
-        Request parameters.
+        Required or common fields: `pageSize`, `pageToken`, `provider`.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListAppConnectionsResult">
         Paginated results.
@@ -184,7 +189,7 @@ for (const conn of connections) {
       Delete a connected account.
 
       <CB.ClassMethodInput name="params" type="object" hint="connectionName, identifier, connectedAccountId, organizationId, userId">
-        Request parameters.
+        Required or common fields: `connectionName`, `identifier`, `connectedAccountId`, `organizationId`, `userId`.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="DeleteConnectedAccountResponse">
         Empty on success.
@@ -212,10 +217,10 @@ await scalekit.actions.deleteConnectedAccount({
       Get connected account authorization details.
 
       <CB.ClassMethodInput name="params" type="object" hint="connectionName, identifier, connectedAccountId, organizationId, userId">
-        Request parameters.
+        Required or common fields: `connectionName`, `identifier`, `connectedAccountId`, `organizationId`, `userId`.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="GetConnectedAccountByIdentifierResponse">
-        The resource.
+        The response payload for this operation.
       </CB.ClassMethodOutput>
 
 
@@ -241,7 +246,7 @@ const response = await scalekit.actions.getConnectedAccount({
       Create a new connected account.
 
       <CB.ClassMethodInput name="params" type="object" hint="connectionName, identifier, authorizationDetails, organizationId, userId, apiConfig">
-        Request parameters.
+        Required or common fields: `connectionName`, `identifier`, `authorizationDetails`, `organizationId`, `userId`, `apiConfig`.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="CreateConnectedAccountResponse">
         The created resource.
@@ -280,10 +285,10 @@ const response = await scalekit.actions.createConnectedAccount({
       Get an existing connected account or create a new one if it doesn't exist.
 
       <CB.ClassMethodInput name="params" type="object" hint="connectionName, identifier, authorizationDetails, organizationId, userId, apiConfig">
-        Request parameters.
+        Required or common fields: `connectionName`, `identifier`, `authorizationDetails`, `organizationId`, `userId`, `apiConfig`.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="CreateConnectedAccountResponse">
-        The resource.
+        The response payload for this operation.
       </CB.ClassMethodOutput>
 
 
@@ -310,7 +315,7 @@ const response = await scalekit.actions.getOrCreateConnectedAccount({
       Update an existing connected account.
 
       <CB.ClassMethodInput name="params" type="object" hint="connectionName, identifier, authorizationDetails, organizationId, userId, connectedAccountId, apiConfig">
-        Request parameters.
+        Required or common fields: `connectionName`, `identifier`, `authorizationDetails`, `organizationId`, `userId`, `connectedAccountId`, `apiConfig`.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="UpdateConnectedAccountResponse">
         The updated resource.

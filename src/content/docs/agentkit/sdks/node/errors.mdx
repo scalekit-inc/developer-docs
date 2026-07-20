@@ -1,6 +1,6 @@
 ---
 title: Error handling
-description: Error types and how to handle AgentKit calls
+description: Catch Scalekit exceptions from AgentKit calls and handle not-found, auth, and server failures
 topic: agentkit-sdks
 tableOfContents:
   minHeadingLevel: 2
@@ -11,29 +11,52 @@ prev: false
 next: false
 ---
 
-```ts
+AgentKit methods on `scalekit.actions` and `scalekit.tools` throw typed exceptions when the API returns an error. Catch the specific type first, then fall back to the base server exception.
+
+## Catch exceptions
+
+```ts wrap showLineNumbers=false
 import {
   ScalekitNotFoundException,
+  ScalekitUnauthorizedException,
+  ScalekitForbiddenException,
   ScalekitServerException,
-} from '@scalekit-sdk/node';
+} from '@scalekit-sdk/node'
 
 try {
   const account = await scalekit.actions.getConnectedAccount({
     connectionName: 'gmail',
     identifier: 'user@example.com',
-  });
+  })
 } catch (err) {
   if (err instanceof ScalekitNotFoundException) {
-    // Account does not exist: create it or redirect to auth
+    // No connected account yet — create one or send the user through OAuth
+  } else if (err instanceof ScalekitUnauthorizedException) {
+    // Invalid or expired client credentials / tokens
+  } else if (err instanceof ScalekitForbiddenException) {
+    // Caller is authenticated but not allowed for this resource
   } else if (err instanceof ScalekitServerException) {
-    console.error(err);
+    // Unexpected API or platform error — log status and code
+    console.error(err.message)
+  } else {
+    throw err
   }
 }
 ```
 
-| Exception | When raised |
-|---|---|
-| `ScalekitNotFoundException` | Resource not found |
-| `ScalekitUnauthorizedException` | Invalid credentials |
-| `ScalekitForbiddenException` | Insufficient permissions |
-| `ScalekitServerException` | Base class for all server errors |
+## Exception types
+
+| Exception | When it is raised | Typical response |
+| --- | --- | --- |
+| `ScalekitNotFoundException` | Resource does not exist (connected account, tool, config) | Create the resource or return a clear not-found to the user |
+| `ScalekitUnauthorizedException` | Missing or invalid credentials | Refresh tokens or fix client ID/secret |
+| `ScalekitForbiddenException` | Authenticated but not permitted | Adjust scopes, org, or role |
+| `ScalekitServerException` | Base class for Scalekit HTTP/API failures | Log, retry when safe, surface a generic error |
+
+`ScalekitServerException` is the base type. Prefer checking subclasses first so not-found and auth failures get the right UX.
+
+## Related
+
+- [Accounts & tools](/agentkit/sdks/node/actions/) — connect accounts and execute tools  
+- [Tool schemas](/agentkit/sdks/node/tools/) — list tool definitions  
+- [Install](/agentkit/sdks/node/) — create the Scalekit client  

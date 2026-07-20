@@ -16,7 +16,10 @@ import '@/styles/sdk-reference.css'
 
 <div class="sdk-client-page">
 
-Use the `user` client to provision users and manage organization memberships.
+
+Use the `user` client to provision people, manage organization memberships, and assign roles.
+
+Common flows: invite or create a user, attach them to an organization, update profile fields, and look up users by Scalekit ID or your external ID.
 
 ### createUserAndMembership
 <div class="sdk-method-section">
@@ -30,7 +33,7 @@ Use the `user` client to provision users and manage organization memberships.
         The organization ID to add the user to
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="CreateUserRequest">
-        Optional settings.
+        Optional request settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="CreateUserAndMembershipResponse">
         The created resource.
@@ -68,7 +71,7 @@ console.log('User created:', response.user.id);
       Retrieves comprehensive details about a specific user including their profile and memberships.
 
       <CB.ClassMethodInput name="userId" type="string">
-        User ID.
+        Scalekit user ID (`usr_...`).
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="GetUserResponse">
         The user.
@@ -96,7 +99,7 @@ console.log('Organizations:', user.memberships?.length);
       Retrieves a paginated list of all users across your Scalekit environment.
 
       <CB.ClassMethodInput name="options" type="object" hint="pageSize, pageToken">
-        Optional settings.
+        Optional fields: `pageSize`, `pageToken`.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListUsersResponse">
         Paginated users.
@@ -162,7 +165,7 @@ const response = await scalekit.user.updateUser('usr_123456', {
       Permanently deletes a user from your Scalekit environment.
 
       <CB.ClassMethodInput name="userId" type="string">
-        User ID.
+        Scalekit user ID (`usr_...`).
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="object" hint="MessageShape(typeof EmptySchema)">
         Empty response on successful deletion
@@ -192,7 +195,7 @@ console.log('User deleted successfully');
         The user ID to add as a member (format: "usr_...")
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="object" hint="roles, metadata, sendInvitationEmail">
-        Optional settings.
+        Optional fields: `roles`, `metadata`, `sendInvitationEmail`.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="CreateMembershipResponse">
         The created resource.
@@ -254,10 +257,10 @@ console.log('User removed from organization');
         Organization ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="userId" type="string">
-        User ID.
+        Scalekit user ID (`usr_...`).
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="object" hint="roles, metadata">
-        Optional settings.
+        Optional fields: `roles`, `metadata`.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="UpdateMembershipResponse">
         The updated resource.
@@ -288,7 +291,7 @@ const response = await scalekit.user.updateMembership(
         Organization ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="object" hint="pageSize, pageToken">
-        Optional settings.
+        Optional fields: `pageSize`, `pageToken`.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListOrganizationUsersResponse">
         Paginated users.
@@ -321,7 +324,7 @@ console.log('Total members:', response.totalSize);
         The organization ID for which to resend the invite.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="userId" type="string">
-        User ID.
+        Scalekit user ID (`usr_...`).
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ResendInviteResponse">
         Resend invite.
@@ -370,7 +373,7 @@ console.log('Invitation resent:', response.invite);
         Organization ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="userId" type="string">
-        User ID.
+        Scalekit user ID (`usr_...`).
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListUserPermissionsResponse">
         Paginated permissions.
@@ -558,7 +561,7 @@ console.log('Invitation resent:', response.invite);
         The external identifier for the user
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="object" hint="roles, metadata, sendInvitationEmail">
-        Optional settings.
+        Optional fields: `roles`, `metadata`, `sendInvitationEmail`.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="CreateMembershipResponse">
         The created resource.
@@ -605,7 +608,7 @@ console.log('Invitation resent:', response.invite);
         The external identifier for the user
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="object" hint="roles, metadata">
-        Optional settings.
+        Optional fields: `roles`, `metadata`.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="UpdateMembershipResponse">
         The updated resource.

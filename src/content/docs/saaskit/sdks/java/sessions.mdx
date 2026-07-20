@@ -16,7 +16,10 @@ import '@/styles/sdk-reference.css'
 
 <div class="sdk-client-page">
 
-Use `scalekitClient.sessions()` to inspect and revoke sessions.
+
+Use `scalekitClient.sessions()` to inspect session metadata and revoke sessions when users sign out or you detect risk.
+
+Typical flows: load a session by ID after authentication, list a user's sessions for a security UI, and revoke one session or all of a user's sessions on logout.
 
 ### getSession
 <div class="sdk-method-section">
@@ -24,13 +27,13 @@ Use `scalekitClient.sessions()` to inspect and revoke sessions.
     <CB.ClassMethod name="getSession" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `getSession`.
+      Runs `getSession` and returns the result.
 
       <CB.ClassMethodInput name="sessionId" type="String">
         Session ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="SessionDetails">
-        The resource.
+        The response payload for this operation.
       </CB.ClassMethodOutput>
 
 ```java wrap showLineNumbers=false
@@ -47,10 +50,10 @@ scalekitClient.sessions().getSession("sess_123");
     <CB.ClassMethod name="getUserSessions" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `getUserSessions`.
+      Runs `getUserSessions` and returns the result.
 
       <CB.ClassMethodInput name="userId" type="String">
-        User ID.
+        Scalekit user ID (`usr_...`).
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="pageSize" type="Integer">
         Page size.
@@ -62,7 +65,7 @@ scalekitClient.sessions().getSession("sess_123");
         Result filter.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="UserSessionDetails">
-        The resource.
+        The response payload for this operation.
       </CB.ClassMethodOutput>
 
 ```java wrap showLineNumbers=false
@@ -83,7 +86,7 @@ scalekitClient.sessions().getUserSessions("user_123", 20, "", filter);
     <CB.ClassMethod name="revokeSession" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `revokeSession`.
+      Runs `revokeSession` and returns the result.
 
       <CB.ClassMethodInput name="sessionId" type="String">
         Session ID.
@@ -106,10 +109,10 @@ scalekitClient.sessions().revokeSession("sess_123");
     <CB.ClassMethod name="revokeAllUserSessions" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Call `revokeAllUserSessions`.
+      Runs `revokeAllUserSessions` and returns the result.
 
       <CB.ClassMethodInput name="userId" type="String">
-        User ID.
+        Scalekit user ID (`usr_...`).
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="RevokeAllUserSessionsResponse">
         Empty on success.

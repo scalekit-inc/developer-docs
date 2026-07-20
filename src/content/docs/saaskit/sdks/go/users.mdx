@@ -16,7 +16,10 @@ import '@/styles/sdk-reference.css'
 
 <div class="sdk-client-page">
 
-Use the User client to provision users and manage memberships.
+
+Use the User client to provision people, manage organization memberships, and assign roles.
+
+Common flows: invite or create a user, attach them to an organization, update profile fields, and look up users by Scalekit ID or your external ID.
 
 ### ListUsers
 <div class="sdk-method-section">
@@ -30,7 +33,7 @@ Use the User client to provision users and manage memberships.
         Request context
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="ListUsersOptions">
-        Optional settings.
+        Optional request settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListUsersResponse">
         Paginated results.
@@ -68,7 +71,7 @@ for _, u := range users.Users {
         Organization ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="ListUsersOptions">
-        Optional settings.
+        Optional request settings.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListOrganizationUsersResponse">
         Paginated results.
@@ -101,10 +104,10 @@ _ = users.Users
         Request context
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="userId" type="string">
-        User ID.
+        Scalekit user ID (`usr_...`).
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="GetUserResponse">
-        The resource.
+        The response payload for this operation.
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -131,7 +134,7 @@ _ = user.User
         Request context
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="userId" type="string">
-        User ID.
+        Scalekit user ID (`usr_...`).
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="updateUser" type="usersv1.UpdateUser">
         Update user.
@@ -217,7 +220,7 @@ _ = created.User.Id
         Request context
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="userId" type="string">
-        User ID.
+        Scalekit user ID (`usr_...`).
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="error">
         error
@@ -248,7 +251,7 @@ if err := scalekitClient.User().DeleteUser(ctx, "usr_123"); err != nil {
         Organization ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="userId" type="string">
-        User ID.
+        Scalekit user ID (`usr_...`).
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="membership" type="usersv1.CreateMembership">
         Membership.
@@ -292,7 +295,7 @@ _ = resp.User
         Organization ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="userId" type="string">
-        User ID.
+        Scalekit user ID (`usr_...`).
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="membership" type="usersv1.UpdateMembership">
         Membership.
@@ -330,7 +333,7 @@ _ = resp.User
         Organization ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="userId" type="string">
-        User ID.
+        Scalekit user ID (`usr_...`).
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="cascade" type="bool">
         Cascade.
@@ -364,7 +367,7 @@ if err := scalekitClient.User().DeleteMembership(ctx, "org_123", "usr_123", fals
         Organization ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="userId" type="string">
-        User ID.
+        Scalekit user ID (`usr_...`).
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="usersv1.ResendInviteResponse">
         usersv1.ResendInviteResponse
@@ -397,7 +400,7 @@ _ = resp.Invite
         External ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="GetUserResponse">
-        The resource.
+        The response payload for this operation.
       </CB.ClassMethodOutput>
 
     </CB.ClassMethod>
@@ -553,7 +556,7 @@ _ = resp.Invite
         Organization ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="userId" type="string">
-        User ID.
+        Scalekit user ID (`usr_...`).
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListUserRolesResponse">
         Paginated results.
@@ -578,7 +581,7 @@ _ = resp.Invite
         Organization ID.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="userId" type="string">
-        User ID.
+        Scalekit user ID (`usr_...`).
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListUserPermissionsResponse">
         Paginated results.
