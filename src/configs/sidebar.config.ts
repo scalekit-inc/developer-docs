@@ -1,5 +1,6 @@
 import { createSectionHeader, createSpacing } from './sidebar-utils'
 import { buildLanguageGroup } from './sdk-sidebar'
+/* sdk-nav-labels: journey-v1 */
 import saaskitNodeNav from '../components/sdk-reference/saaskit/node/_nav.json'
 import saaskitPythonNav from '../components/sdk-reference/saaskit/python/_nav.json'
 import saaskitGoNav from '../components/sdk-reference/saaskit/go/_nav.json'

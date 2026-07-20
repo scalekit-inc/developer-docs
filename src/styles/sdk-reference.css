@@ -83,13 +83,12 @@ body:has(.sdk-client-page) .right-sidebar-panel nav a:focus-visible {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Method titles (H3) — TOC anchors, no gray code chip                          */
-/* Hairline under title only (no left rail — avoids twinning ClassMethod rail). */
+/* Method titles (H3) — plain mono, no box / rail / code-pill chrome            */
 /* Markdown: ### `methodName` → Starlight wraps <code>; strip pill chrome.      */
 /* -------------------------------------------------------------------------- */
 
 .sdk-client-page .sdk-method-section {
-  margin-block: 0 1.25rem;
+  margin-block: 0 1.5rem;
   padding-block-start: 0;
 }
 
@@ -103,30 +102,25 @@ body:has(.sdk-client-page) .right-sidebar-panel nav a:focus-visible {
   display: flex;
   align-items: baseline;
   gap: 0.35rem;
-  /* Tight under-title gap — signature block sits immediately below */
-  margin-block: 1.75rem 0.25rem;
-  padding-block: 0.05rem 0.35rem;
-  padding-inline-start: 0.65rem;
-  /* Quiet gray rail (not accent purple) so it doesn't twin the ClassMethod fence */
-  border-inline-start: 2px solid var(--sl-color-gray-5);
-  border-block-end: 1px solid var(--sl-color-hairline, var(--sl-color-gray-6));
+  margin-block: 2rem 0.65rem;
+  padding: 0;
+  border: none;
+  background: transparent;
 }
 
 /*
  * Under the method H3:
- * - Always drop ClassBrowser's large outer top margin (1.5rem)
- * - When CLASS header is visible, keep body padding so ASYNC does not touch CLASS
+ * - Drop ClassBrowser outer margin
+ * - When CLASS header is visible, keep light air under it
  * - When header is hidden (later methods), collapse body — see rules below
  */
 .sdk-client-page .sl-heading-wrapper.level-h3 + .sdk-method-section .cb-browser {
   margin-block-start: 0;
 }
 
-/* CLASS header present: restore air between header bar and first method row */
 .sdk-client-page .sdk-method-section .cb-header + .cb-body {
-  padding-block-start: 0.65rem;
-  padding-block-end: 0.65rem;
-  padding-inline: 0.75rem;
+  padding-block: 0.5rem 0;
+  padding-inline: 0;
 }
 .sdk-client-page .sdk-method-section .cb-header + .cb-body > .cb-method:first-child {
   margin-block-start: 0;
@@ -134,32 +128,41 @@ body:has(.sdk-client-page) .right-sidebar-panel nav a:focus-visible {
 
 .sdk-client-page > .sl-heading-wrapper.level-h3:first-of-type,
 .sdk-client-page > :where(p, div.sdk-client-chrome) + .sl-heading-wrapper.level-h3 {
-  margin-block-start: 1.25rem;
+  margin-block-start: 1.5rem;
 }
 
 .sdk-client-page .sl-heading-wrapper.level-h3 h3,
 .sdk-client-page h3 {
   margin: 0;
   font-family: var(--sl-font-mono, var(--__sl-font-mono, ui-monospace, monospace));
-  font-size: 1.05rem;
+  font-size: 1.0625rem;
   font-style: normal;
   font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: -0.015em;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
   color: var(--sl-color-white, var(--sl-color-text-heading));
 }
 
-/* Kill the default Starlight code-pill on method titles only */
+/*
+ * Kill Starlight code-pill on method titles.
+ * DOM is usually .sl-markdown-content > .sdk-client-page > .sl-heading-wrapper > h3 > code
+ */
 .sdk-client-page .sl-heading-wrapper.level-h3 h3 code,
-.sdk-client-page h3 code {
-  font-family: inherit;
-  font-size: inherit;
-  font-weight: inherit;
-  font-style: normal;
-  line-height: inherit;
-  letter-spacing: inherit;
-  color: inherit;
+.sdk-client-page .sl-heading-wrapper.level-h3 code,
+.sdk-client-page h3 code,
+.sl-markdown-content .sdk-client-page h3 code,
+.sl-markdown-content .sdk-client-page .sl-heading-wrapper.level-h3 h3 code,
+body:has(.sdk-client-page) .sl-markdown-content h3 code,
+body:has(.sdk-client-page) .sl-markdown-content .sl-heading-wrapper.level-h3 code {
+  font-family: inherit !important;
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  font-style: normal !important;
+  line-height: inherit !important;
+  letter-spacing: inherit !important;
+  color: inherit !important;
   background: none !important;
+  background-color: transparent !important;
   border: none !important;
   border-radius: 0 !important;
   padding: 0 !important;
@@ -192,28 +195,171 @@ body:has(.sdk-client-page) .right-sidebar-panel nav a:focus-visible {
   }
 }
 
-/* Hide repeated ClassBrowser chrome after the first method on a page */
+/* -------------------------------------------------------------------------- */
+/* ClassBrowser theme bridge (@gesslar/starlight-class-browser)                 */
+/*                                                                              */
+/* Maintainability rules:                                                       */
+/* 1. Scope ONLY under .sdk-client-page — never restyle the plugin globally.    */
+/* 2. Prefer --cb-* tokens the plugin already reads (see class-browser.css).    */
+/* 3. Structural overrides exist only because we render one ClassBrowser per    */
+/*    method and hide repeated headers (package assumes one browser per class). */
+/* 4. Do not put ClassBrowser rules in custom.css layers — keep them here so    */
+/*    the theme lives next to the SDK reference layout it serves.               */
+/* -------------------------------------------------------------------------- */
+
+.sdk-client-page .cb-browser {
+  /* Retokenize first — package styles consume these. */
+  --cb-border: var(--sl-color-hairline, var(--sl-color-gray-6));
+  --cb-border-radius: 0;
+  --cb-bg: transparent;
+  --cb-header-bg: transparent;
+  --cb-method-bg: transparent;
+  --cb-badge-radius: 0.25rem;
+
+  border: none;
+  margin-block: 0 0.25rem;
+  overflow: visible;
+  background: transparent;
+  font-size: 0.875rem;
+}
+
+/* Class identity row (first method only — later headers are hidden below) */
+.sdk-client-page .cb-header {
+  gap: 0.5rem;
+  padding: 0 0 0.55rem;
+  margin-block-end: 0.35rem;
+  background: transparent;
+  border-bottom: 1px solid var(--cb-border);
+}
+
+.sdk-client-page .cb-header-name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--sl-color-white, var(--sl-color-text-heading));
+}
+
+.sdk-client-page .cb-source {
+  max-width: 14rem;
+  font-size: 0.6875rem;
+  opacity: 0.55;
+}
+
+@media (max-width: 48rem) {
+  .sdk-client-page .cb-header .cb-source {
+    display: none;
+  }
+}
+
+/*
+ * Badges: package paints solid fills per type. We want outline chips.
+ * !important is required — type selectors set background with equal weight.
+ */
+.sdk-client-page .cb-badge {
+  padding: 0.1rem 0.4rem;
+  border: 1px solid var(--sl-color-gray-5);
+  background: transparent !important;
+  color: var(--sl-color-text-muted) !important;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.sdk-client-page .cb-copy-json,
+.sdk-client-page .cb-toggle-all {
+  border-color: var(--sl-color-gray-5);
+  opacity: 0.45;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sdk-client-page .cb-copy-json:hover,
+  .sdk-client-page .cb-toggle-all:hover {
+    opacity: 0.9;
+  }
+}
+
+.sdk-client-page .cb-body {
+  padding: 0;
+  background: transparent;
+}
+
+/* Signature row — drop package card tint + colored left rail */
+.sdk-client-page .cb-method {
+  margin-block: 0;
+  background: transparent;
+}
+
+.sdk-client-page .cb-method > summary {
+  gap: 0.45rem;
+  padding: 0.35rem 0;
+  background: transparent;
+  border-inline-start: none;
+  border-radius: 0;
+}
+
+.sdk-client-page .cb-method > summary:hover {
+  background: transparent;
+}
+
+.sdk-client-page .cb-method:has(> summary > .cb-badge) > summary {
+  border-inline-start: none;
+}
+
+.sdk-client-page .cb-method > summary .cb-hl {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--sl-color-white, var(--sl-color-text-heading));
+}
+
+.sdk-client-page .cb-method > summary::after {
+  opacity: 0.35;
+}
+
+.sdk-client-page .cb-method-body {
+  padding: 0.35rem 0 0.25rem;
+}
+
+.sdk-client-page .cb-type-annotation {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.05rem 0.35rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: var(--cb-badge-radius);
+  background: transparent;
+  color: var(--sl-color-text-muted);
+}
+
+.sdk-client-page .cb-param + .cb-param,
+.sdk-client-page .cb-param + .cb-returns,
+.sdk-client-page .cb-returns + .cb-returns {
+  border-top-color: var(--cb-border);
+}
+
+/*
+ * One ClassBrowser per method: show CLASS header only on the first block.
+ * Expand/collapse is rebound in public/js/sdk-client-page.js to hit every
+ * method on the page (package toggle is scoped to a single .cb-browser).
+ */
 .sdk-client-page .sdk-method-section ~ .sdk-method-section .cb-header {
   display: none !important;
 }
+
 .sdk-client-page .sdk-method-section ~ .sdk-method-section .cb-browser {
   border: none;
   background: transparent;
   margin-block-start: 0;
 }
-/* Header gone: sit the ASYNC row tight under the method H3 */
-.sdk-client-page .sdk-method-section ~ .sdk-method-section .cb-body {
-  padding: 0;
-}
-.sdk-client-page .sdk-method-section ~ .sdk-method-section .cb-method {
-  margin-block-start: 0;
-}
-/* Adjacent-sibling body padding rule must not re-inflate hidden-header sections */
+
+.sdk-client-page .sdk-method-section ~ .sdk-method-section .cb-body,
 .sdk-client-page .sdk-method-section ~ .sdk-method-section .cb-header + .cb-body {
   padding: 0;
 }
 
-/* Dedicated empty chrome — keep header only */
+.sdk-client-page .sdk-method-section ~ .sdk-method-section .cb-method {
+  margin-block-start: 0;
+}
+
 .sdk-client-page .sdk-client-chrome .cb-body:empty,
 .sdk-client-page .sdk-client-chrome .cb-body:not(:has(.cb-method)) {
   display: none;
@@ -278,17 +424,27 @@ body:has(.sdk-client-page) .right-sidebar-panel nav a:focus-visible {
 
 .sdk-hub-with-sidebar .sdk-cards-grid,
 .sdk-hub-with-sidebar .sdk-index-list {
-  margin-block-start: 1rem;
+  margin-block-start: 1.25rem;
 }
 
 /* -------------------------------------------------------------------------- */
 /* Hub language index (used by /sdks and product SDK homes)                     */
+/* Escape Starlight prose with .not-content on the <ul>.                        */
 /* -------------------------------------------------------------------------- */
 
 .sdk-index-list {
+  --sdk-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.625rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Kill Starlight / UA list chrome (disc markers were leaking into hub rows). */
+.sdk-index-list > li {
+  display: block;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -296,19 +452,21 @@ body:has(.sdk-client-page) .right-sidebar-panel nav a:focus-visible {
 
 .sdk-index-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.5rem 1rem;
-  align-items: center;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.75rem 1rem;
+  align-items: start;
   min-width: 0;
-  padding: 0.85rem 1rem;
+  padding: 1rem 1.1rem;
   border: 1px solid var(--sl-color-gray-5);
-  border-radius: 0.5rem;
+  border-radius: 0.625rem;
   background: var(--sl-color-bg);
   color: inherit;
   text-decoration: none;
+  box-shadow: none;
   transition:
-    border-color 150ms cubic-bezier(0.16, 1, 0.3, 1),
-    background-color 150ms cubic-bezier(0.16, 1, 0.3, 1);
+    border-color 160ms var(--sdk-ease-out),
+    background-color 160ms var(--sdk-ease-out),
+    transform 140ms var(--sdk-ease-out);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -316,6 +474,14 @@ body:has(.sdk-client-page) .right-sidebar-panel nav a:focus-visible {
     border-color: var(--sl-color-gray-4);
     background: var(--sl-color-gray-7, var(--sl-color-bg));
   }
+
+  .sdk-index-row:hover .sdk-index-cta-arrow {
+    transform: translateX(2px);
+  }
+}
+
+.sdk-index-row:active {
+  transform: scale(0.99);
 }
 
 .sdk-index-row:focus-visible {
@@ -323,68 +489,364 @@ body:has(.sdk-client-page) .right-sidebar-panel nav a:focus-visible {
   outline-offset: 2px;
 }
 
+.sdk-index-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  border-radius: 0.5rem;
+  border: 1px solid var(--sl-color-gray-5);
+  background: var(--sl-color-gray-7, var(--sl-color-bg));
+  color: var(--sl-color-white, var(--sl-color-text-heading));
+}
+
+.sdk-index-icon :is(svg, img) {
+  width: 1.15rem;
+  height: 1.15rem;
+  display: block;
+}
+
 .sdk-index-main {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.3rem;
+  padding-block-start: 0.1rem;
 }
 
 .sdk-index-title-row {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.35rem 0.6rem;
+  align-items: center;
+  gap: 0.35rem 0.55rem;
 }
 
 .sdk-index-title {
   font-weight: 600;
   font-size: 1rem;
+  line-height: 1.3;
   color: var(--sl-color-white, var(--sl-color-text-heading));
+  letter-spacing: -0.01em;
 }
 
+/* Install line — mono, no Starlight <code> pill chrome */
+.sdk-index-install,
 .sdk-index-package {
-  font-family: var(--__sl-font-mono, ui-monospace, monospace);
-  font-size: 0.8rem;
-  color: var(--sl-color-text-muted);
+  display: block;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 100%;
+  font-family: var(--sl-font-mono, var(--__sl-font-mono, ui-monospace, monospace));
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  font-weight: 450;
+  letter-spacing: -0.01em;
+  color: var(--sl-color-text-muted);
+  background: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
 }
 
 .sdk-index-desc {
+  margin: 0;
   font-size: 0.875rem;
   color: var(--sl-color-text-muted);
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 .sdk-index-meta {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.25rem;
+  justify-content: flex-start;
+  gap: 0.35rem;
   flex-shrink: 0;
   text-align: right;
   font-size: 0.75rem;
+  line-height: 1.3;
   color: var(--sl-color-text-muted);
+  /* Match title baseline in the main column */
+  padding-block-start: 0.15rem;
 }
 
 .sdk-index-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
   font-size: 0.8125rem;
-  font-weight: 500;
+  font-weight: 550;
   color: var(--sl-color-accent);
+  white-space: nowrap;
+  line-height: 1.3;
+}
+
+.sdk-index-cta-arrow {
+  display: inline-block;
+  transition: transform 140ms var(--sdk-ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sdk-index-row,
+  .sdk-index-cta-arrow {
+    transition: none;
+  }
+
+  .sdk-index-row:active {
+    transform: none;
+  }
 }
 
 @media (max-width: 40rem) {
   .sdk-index-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      'icon main'
+      'icon meta';
   }
+
+  .sdk-index-icon {
+    grid-area: icon;
+  }
+
+  .sdk-index-main {
+    grid-area: main;
+  }
+
   .sdk-index-meta {
+    grid-area: meta;
     align-items: flex-start;
     text-align: left;
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    align-content: flex-start;
+    gap: 0.5rem 0.75rem;
+    min-height: 0;
+    padding-block-start: 0.15rem;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* SDK install language pages (hero + init + changelog)                         */
+/* -------------------------------------------------------------------------- */
+
+.sdk-install {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-block: 0.25rem 1.75rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.sdk-install__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.25rem;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.sdk-install__title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+  color: var(--sl-color-white, var(--sl-color-text-heading));
+}
+
+.sdk-install__note {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--sl-color-text-muted);
+}
+
+.sdk-install__note :where(p) {
+  margin: 0;
+}
+
+.sdk-install__note :where(code) {
+  font-size: 0.8125em;
+}
+
+/* Command block: full width, no nested card chrome fighting the page */
+.sdk-install__command {
+  min-width: 0;
+}
+
+.sdk-install__command :global(.expressive-code),
+.sdk-install__command :global(pre),
+.sdk-install__command :global(.astro-code) {
+  margin-block: 0 !important;
+}
+
+.sdk-install__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.5rem;
+  min-width: 0;
+}
+
+.sdk-install__updated {
+  margin-inline-start: 0.15rem;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  color: var(--sl-color-text-muted);
+  white-space: nowrap;
+}
+
+/* Init + following code sections on language install pages */
+.sdk-page-section {
+  margin-block: 0 2rem;
+}
+
+.sdk-page-section > :where(h2) {
+  margin: 0 0 0.85rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+  color: var(--sl-color-white, var(--sl-color-text-heading));
+  border: none;
+  padding: 0;
+}
+
+.sdk-page-section :global(.expressive-code) {
+  margin-block: 0;
+}
+
+/* Changelog — quieter than the old 1.875rem hero title */
+.sdk-changelog {
+  margin-block-start: 2.5rem;
+  padding-block-start: 1.75rem;
+  border-block-start: 1px solid var(--sl-color-hairline, var(--sl-color-gray-6));
+}
+
+.sdk-changelog__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  flex-wrap: wrap;
+  margin-block-end: 1.25rem;
+}
+
+.sdk-changelog__title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--sl-color-white, var(--sl-color-text-heading));
+}
+
+.sdk-changelog__all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--sl-color-accent);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 150ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sdk-changelog__all:hover {
+    color: var(--sl-color-accent-high, var(--sl-color-accent));
+  }
+}
+
+.sdk-changelog__list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sdk-changelog__item {
+  border: 1px solid var(--sl-color-hairline, var(--sl-color-gray-6));
+  border-radius: 0.625rem;
+  padding: 1.15rem 1.25rem;
+  background: var(--sl-color-bg);
+}
+
+.sdk-changelog__item-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-block-end: 0.75rem;
+}
+
+.sdk-changelog__date {
+  font-size: 0.8125rem;
+  color: var(--sl-color-text-muted);
+}
+
+.sdk-changelog__body {
+  color: var(--sl-color-text);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.sdk-changelog__body :where(h1, h2, h3, h4) {
+  margin-block: 1rem 0.5rem;
+  font-weight: 600;
+  color: var(--sl-color-text-heading);
+}
+
+.sdk-changelog__body :where(h1) {
+  font-size: 1.15rem;
+}
+.sdk-changelog__body :where(h2) {
+  font-size: 1.05rem;
+}
+.sdk-changelog__body :where(h3, h4) {
+  font-size: 1rem;
+}
+
+.sdk-changelog__body :where(p) {
+  margin-block: 0.5rem;
+}
+
+.sdk-changelog__body :where(ul, ol) {
+  margin-block: 0.5rem;
+  padding-inline-start: 1.25rem;
+}
+
+.sdk-changelog__body :where(li) {
+  margin-block: 0.25rem;
+}
+
+.sdk-changelog__body :where(a) {
+  color: var(--sl-color-accent);
+  text-decoration: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sdk-changelog__body :where(a):hover {
+    text-decoration: underline;
+  }
+}
+
+@media (max-width: 40rem) {
+  .sdk-install__head {
+    align-items: flex-start;
+  }
+
+  .sdk-changelog__item {
+    padding: 1rem;
   }
 }

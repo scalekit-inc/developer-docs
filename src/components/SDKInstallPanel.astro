@@ -1,0 +1,66 @@
+---
+/**
+ * Install hero for SDK language pages.
+ * Single-column: title + source link, command, quiet meta row.
+ */
+import { Badge } from '@astrojs/starlight/components'
+import GitHubSourceLink from '@components/GitHubSourceLink.astro'
+import { formatTimeAgo } from '@/utils/release-helpers'
+
+interface Props {
+  githubHref: string
+  /** Section heading. Default: Install */
+  title?: string
+  /** Heading id for in-page anchors */
+  titleId?: string
+  /** Latest release tag, e.g. v1.2.3 */
+  version?: string
+  /** Feature chips shown after the version */
+  badges?: string[]
+  /** ISO date for “Updated …” */
+  updatedAt?: string
+}
+
+const {
+  githubHref,
+  title = 'Install',
+  titleId = 'installation',
+  version,
+  badges = [],
+  updatedAt,
+} = Astro.props
+
+const hasMeta = Boolean(version || badges.length || updatedAt)
+const hasNote = Astro.slots.has('note')
+---
+
+<section class="sdk-install not-content" aria-labelledby={titleId}>
+  <div class="sdk-install__head">
+    <h2 class="sdk-install__title" id={titleId}>{title}</h2>
+    <GitHubSourceLink href={githubHref} compact />
+  </div>
+
+  {
+    hasNote && (
+      <div class="sdk-install__note">
+        <slot name="note" />
+      </div>
+    )
+  }
+
+  <div class="sdk-install__command">
+    <slot />
+  </div>
+
+  {
+    hasMeta && (
+      <div class="sdk-install__meta">
+        {version && <Badge text={version} variant="default" />}
+        {badges.map((text) => (
+          <Badge text={text} variant="tip" />
+        ))}
+        {updatedAt && <span class="sdk-install__updated">Updated {formatTimeAgo(updatedAt)}</span>}
+      </div>
+    )
+  }
+</section>

@@ -4,15 +4,15 @@
  */
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
 import { getCollection } from 'astro:content'
-import { Badge } from '@astrojs/starlight/components'
-import { getSDKConfigs, formatTimeAgo, type SDKConfig } from '@/utils/release-helpers'
+import SDKCards from '@components/SDKCards.astro'
+import { getSDKConfigs, type SDKConfig } from '@/utils/release-helpers'
 import '@/styles/pages/sdks.css'
 import '@/styles/sdk-reference.css'
 
 const releases = await getCollection('github-releases')
 const allSdkConfigs = getSDKConfigs(releases)
 
-const sdkConfigs: SDKConfig[] = [
+const sdks: SDKConfig[] = [
   {
     ...allSdkConfigs.node,
     href: '/agentkit/sdks/node/',
@@ -42,32 +42,6 @@ const frontmatter = {
       Install a language SDK from the list below, or use the left sidebar to open Installation and
       client pages.
     </p>
-    <ul class="sdk-index-list">
-      {
-        sdkConfigs.map((sdk) => (
-          <li>
-            <a class="sdk-index-row" href={sdk.href}>
-              <div class="sdk-index-main">
-                <div class="sdk-index-title-row">
-                  <span class="sdk-index-title">{sdk.title}</span>
-                  {sdk.release && <Badge text={sdk.release.tagName} />}
-                </div>
-                {sdk.packageName && <code class="sdk-index-package">{sdk.packageName}</code>}
-                <div class="sdk-index-desc">{sdk.description}</div>
-                {sdk.installCommand && (
-                  <code class="sdk-index-package">{sdk.installCommand}</code>
-                )}
-              </div>
-              <div class="sdk-index-meta">
-                {sdk.release && (
-                  <span>Updated {formatTimeAgo(sdk.release.publishedAt)}</span>
-                )}
-                <span class="sdk-index-cta">Install</span>
-              </div>
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+    <SDKCards sdks={sdks} />
   </div>
 </StarlightPage>

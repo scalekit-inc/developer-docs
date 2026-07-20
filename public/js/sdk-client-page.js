@@ -1,14 +1,16 @@
 /**
- * SDK client reference pages: the top ClassBrowser is chrome-only (or first
- * method browser). Wire its expand/collapse + copy-json tools to all methods
- * on the page. Does not inject extra toolbar chrome.
+ * SDK client reference pages.
+ *
+ * Layout: one ClassBrowser per method; CSS hides headers after the first.
+ * The package toggle only sees methods inside its own browser, so we rebind
+ * the first header's expand/collapse (+ copy JSON) to every method on the page.
+ *
+ * Important: the package also attaches click handlers on load / after-swap.
+ * We always clone the controls on boot so those listeners cannot stack and
+ * reverse our expand-all result (see toggle handler below).
  */
 function getPageMethods(page) {
-  return Array.from(
-    page.querySelectorAll(
-      '.sdk-method-section .cb-method, .sdk-method-browser .cb-method, .cb-method',
-    ),
-  )
+  return Array.from(page.querySelectorAll('.sdk-method-section .cb-method, .cb-method'))
 }
 
 function getChromeBrowser(page) {
@@ -27,65 +29,101 @@ function methodName(el) {
   )
 }
 
+function syncToggleUi(btn, methods) {
+  const fullyOpen = methods.length > 0 && methods.every((m) => m.open)
+  btn.classList.toggle('cb-all-expanded', fullyOpen)
+  btn.setAttribute('aria-expanded', fullyOpen ? 'true' : 'false')
+  btn.setAttribute('title', fullyOpen ? 'Collapse all methods' : 'Expand all methods')
+  btn.setAttribute(
+    'aria-label',
+    fullyOpen ? 'Collapse all methods' : 'Expand all methods',
+  )
+}
+
+function bindToggleAll(page, chrome) {
+  const toggle = chrome.querySelector('.cb-toggle-all')
+  if (!toggle) return
+
+  // Clone strips package listeners that would only toggle the first browser.
+  const btn = toggle.cloneNode(true)
+  toggle.replaceWith(btn)
+
+  const methods = () => getPageMethods(page)
+  syncToggleUi(btn, methods())
+
+  btn.addEventListener(
+    'click',
+    (e) => {
+      // Capture + stopImmediate: package bubble handlers never run.
+      e.preventDefault()
+      e.stopPropagation()
+      e.stopImmediatePropagation()
+
+      const list = methods()
+      if (!list.length) return
+
+      // Fully open → collapse all. Anything else → expand all.
+      // (anyOpen was wrong when the package closed only the first method.)
+      const fullyOpen = list.every((m) => m.open)
+      const nextOpen = !fullyOpen
+      list.forEach((m) => {
+        m.open = nextOpen
+      })
+      syncToggleUi(btn, list)
+    },
+    true,
+  )
+}
+
+function bindCopyJson(page, chrome) {
+  const copyBtn = chrome.querySelector('.cb-copy-json')
+  if (!copyBtn) return
+
+  const btn = copyBtn.cloneNode(true)
+  copyBtn.replaceWith(btn)
+
+  btn.addEventListener(
+    'click',
+    async (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      e.stopImmediatePropagation()
+
+      const list = getPageMethods(page)
+      const data = {
+        name: chrome.querySelector('.cb-header-name')?.textContent?.trim(),
+        language: chrome.dataset.language || undefined,
+        source:
+          chrome.querySelector('.cb-header .cb-source')?.textContent?.trim() ||
+          undefined,
+        type: chrome.querySelector('.cb-header .cb-badge')?.textContent?.trim(),
+        methods: list.map((el) => methodName(el)).filter(Boolean),
+      }
+      try {
+        await navigator.clipboard.writeText(JSON.stringify(data, null, 2))
+        btn.classList.add('cb-copied')
+        btn.setAttribute('aria-label', 'Copied')
+        setTimeout(() => {
+          btn.classList.remove('cb-copied')
+          btn.setAttribute('aria-label', 'Copy class data as JSON')
+        }, 1500)
+      } catch {
+        /* no error surface on package control */
+      }
+    },
+    true,
+  )
+}
+
 function initSdkClientPageChrome() {
   document.querySelectorAll('.sdk-client-page').forEach((page) => {
     const chrome = getChromeBrowser(page)
-    if (!chrome || chrome.dataset.sdkChromeBound === '1') return
-    chrome.dataset.sdkChromeBound = '1'
+    if (!chrome) return
 
-    const methods = () => getPageMethods(page)
+    // Always rebind — package re-inits on astro:after-swap and would stack handlers.
+    bindToggleAll(page, chrome)
+    bindCopyJson(page, chrome)
 
-    const toggle = chrome.querySelector('.cb-toggle-all')
-    if (toggle) {
-      // Replace default handler (which only searches inside one browser)
-      const clone = toggle.cloneNode(true)
-      toggle.replaceWith(clone)
-      clone.addEventListener('click', (e) => {
-        e.preventDefault()
-        e.stopPropagation()
-        const list = methods()
-        if (!list.length) return
-        const anyOpen = list.some((m) => m.open)
-        list.forEach((m) => {
-          m.open = !anyOpen
-        })
-        clone.classList.toggle('cb-all-expanded', !anyOpen)
-        clone.setAttribute('aria-pressed', !anyOpen ? 'true' : 'false')
-      })
-    }
-
-    const copyBtn = chrome.querySelector('.cb-copy-json')
-    if (copyBtn) {
-      const clone = copyBtn.cloneNode(true)
-      copyBtn.replaceWith(clone)
-      clone.addEventListener('click', async (e) => {
-        e.preventDefault()
-        e.stopPropagation()
-        const list = methods()
-        const data = {
-          name: chrome.querySelector('.cb-header-name')?.textContent?.trim(),
-          language: chrome.dataset.language || undefined,
-          source:
-            chrome.querySelector('.cb-header .cb-source')?.textContent?.trim() ||
-            undefined,
-          type: chrome.querySelector('.cb-header .cb-badge')?.textContent?.trim(),
-          methods: list.map((el) => methodName(el)).filter(Boolean),
-        }
-        try {
-          await navigator.clipboard.writeText(JSON.stringify(data, null, 2))
-          clone.classList.add('cb-copied')
-          clone.setAttribute('aria-label', 'Copied')
-          setTimeout(() => {
-            clone.classList.remove('cb-copied')
-            clone.setAttribute('aria-label', 'Copy class data as JSON')
-          }, 1500)
-        } catch {
-          /* ignore — package control has no error surface */
-        }
-      })
-    }
-
-    // TOC: truncated method names get a title tooltip
     document
       .querySelectorAll('starlight-toc a, .right-sidebar-panel nav a')
       .forEach((a) => {
@@ -98,7 +136,6 @@ function initSdkClientPageChrome() {
 }
 
 function boot() {
-  // Drop temporary A/B/C review chrome if a prior session left it in the DOM
   document.querySelector('.sdk-method-title-picker')?.remove()
   if (document.body.dataset.methodTitle) delete document.body.dataset.methodTitle
   initSdkClientPageChrome()
@@ -110,14 +147,10 @@ if (document.readyState === 'loading') {
   boot()
 }
 
-document.addEventListener('astro:after-swap', () => {
-  document.querySelectorAll('.cb-browser').forEach((b) => {
-    delete b.dataset.sdkChromeBound
-  })
-  boot()
-})
+document.addEventListener('astro:after-swap', boot)
 document.addEventListener('astro:page-load', boot)
-// ClassBrowser inits on load; re-bind after it attaches its handlers
+
+// ClassBrowser attaches its own handlers on load; rebind after it runs.
 requestAnimationFrame(() => {
   requestAnimationFrame(boot)
 })

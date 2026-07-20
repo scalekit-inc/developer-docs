@@ -2,39 +2,62 @@
 import { getCollection } from 'astro:content'
 import { Badge } from '@astrojs/starlight/components'
 import { getSDKConfigs, formatTimeAgo, type SDKConfig } from '@/utils/release-helpers'
+import { getIconComponent } from '@/utils/icon-map'
 
-const releases = await getCollection('github-releases')
-const sdkConfig = getSDKConfigs(releases)
-const sdkList = Object.values(sdkConfig) as SDKConfig[]
+interface Props {
+  /** Override the default full SDK list (e.g. AgentKit Node/Python only). */
+  sdks?: SDKConfig[]
+}
+
+const { sdks } = Astro.props
+
+let sdkList: SDKConfig[]
+if (sdks?.length) {
+  sdkList = sdks
+} else {
+  const releases = await getCollection('github-releases')
+  sdkList = Object.values(getSDKConfigs(releases)) as SDKConfig[]
+}
 ---
 
-<ul class="sdk-index-list">
+<ul class="sdk-index-list not-content">
   {
-    sdkList.map((sdk) => (
-      <li>
-        <a class="sdk-index-row" href={sdk.href}>
-          <div class="sdk-index-main">
-            <div class="sdk-index-title-row">
-              <span class="sdk-index-title">{sdk.title}</span>
-              {sdk.release && <Badge text={sdk.release.tagName} />}
+    sdkList.map((sdk) => {
+      const Icon = getIconComponent(sdk.icon)
+      const installLine = sdk.installCommand || sdk.packageName
+      return (
+        <li>
+          <a class="sdk-index-row" href={sdk.href}>
+            <span class="sdk-index-icon" aria-hidden="true">
+              <Icon />
+            </span>
+            <div class="sdk-index-main">
+              <div class="sdk-index-title-row">
+                <span class="sdk-index-title">{sdk.title}</span>
+                {sdk.release && <Badge text={sdk.release.tagName} />}
+              </div>
+              {installLine && <span class="sdk-index-install">{installLine}</span>}
+              <p class="sdk-index-desc">{sdk.description}</p>
             </div>
-            {sdk.packageName && <code class="sdk-index-package">{sdk.packageName}</code>}
-            <div class="sdk-index-desc">{sdk.description}</div>
-            {sdk.installCommand && (
-              <code class="sdk-index-package">{sdk.installCommand}</code>
-            )}
-          </div>
-          <div class="sdk-index-meta">
-            {sdk.release && (
-              <span>Updated {formatTimeAgo(sdk.release.publishedAt)}</span>
-            )}
-            {sdk.release && sdk.release.repoStargazerCount > 50 && (
-              <span>{sdk.release.repoStargazerCount} stars</span>
-            )}
-            <span class="sdk-index-cta">Install</span>
-          </div>
-        </a>
-      </li>
-    ))
+            <div class="sdk-index-meta">
+              {sdk.release && (
+                <span class="sdk-index-updated">
+                  Updated {formatTimeAgo(sdk.release.publishedAt)}
+                </span>
+              )}
+              {sdk.release && sdk.release.repoStargazerCount > 50 && (
+                <span class="sdk-index-stars">{sdk.release.repoStargazerCount} stars</span>
+              )}
+              <span class="sdk-index-cta">
+                Install
+                <span class="sdk-index-cta-arrow" aria-hidden="true">
+                  →
+                </span>
+              </span>
+            </div>
+          </a>
+        </li>
+      )
+    })
   }
 </ul>

@@ -508,6 +508,32 @@ All changes must pass:
 - Maintain compatibility with Tailwind CSS styling
 - Ensure Vue 3 and React component compatibility
 
+### SDK reference (ClassBrowser) — CSS and chrome
+
+SDK client pages (topic `saaskit-sdks` / `agentkit-sdks`) use `@gesslar/starlight-class-browser` with a **one ClassBrowser per method** layout. Treat these as hard constraints:
+
+**CSS ownership**
+
+- Scope **all** ClassBrowser visual overrides under `.sdk-client-page` only — never restyle the plugin globally
+- Prefer plugin tokens (`--cb-border`, `--cb-header-bg`, `--cb-method-bg`, `--cb-badge-radius`, …) before structural selectors
+- Keep ClassBrowser theme rules in `src/styles/sdk-reference.css` next to SDK reference layout
+- **Do not** scatter ClassBrowser rules into `custom.css` layers or page-local `<style>` blocks (exception: mono H3 font next to the global Outfit heading rule in `custom.css`)
+
+**Expand / collapse and copy JSON**
+
+- Package toggle only sees methods inside **one** `.cb-browser`
+- Rebind first-header tools in `public/js/sdk-client-page.js` so they control every method on the page
+- Always **clone** the control before binding (strips package listeners that re-attach on load / `astro:after-swap`)
+- Handle click in **capture** with `stopImmediatePropagation` so package handlers cannot reverse expand-all
+- Toggle on **fully open vs not** (not “any open”)
+
+**Content and nav**
+
+- Method headings: `### methodName` **without** backticks (no Starlight code pills)
+- Method H3s stay plain mono — no left rails, filled title boxes, or solid “AI slop” badge chrome
+- Left nav labels: `src/components/sdk-reference/**/_nav.json` + matching `sidebar.label` — outcome/object-focused, self-explanatory; never class names like `ScalekitClient` (use **Create client**, **Accounts & tools**, **Tool schemas**, **Error handling**)
+- Language install pages: shared `SDKInstallPanel` + `GitHubSourceLink` — do not reintroduce FoldCard install heroes or fat Nova “View on GitHub” `LinkButton`s
+
 ---
 
 ## Development Workflow
@@ -601,3 +627,25 @@ Before publishing documentation, verify:
 
 - MDX (Markdown + JSX), TypeScript 5.x + Astro + Starlight framework, Tailwind CSS
 - pnpm for package management
+
+<!-- dora-memory-principles:start -->
+## Project principles (from dora memory)
+
+Durable rules recorded via `dora memory`. Agents should treat weight ≥ 7 as hard constraints.
+
+- **Rebind ClassBrowser expand-all in sdk-client-page.js** (w8)
+  Layout uses one ClassBrowser per method. Always clone expand/collapse and copy-JSON controls to strip package listeners. Handle click in capture with stopImmediatePropagation. Toggle on fully-open vs not — package toggle only sees the first browser.
+
+- **Scope ClassBrowser CSS under .sdk-client-page only** (w8)
+  Prefer plugin --cb-* CSS variables before structural selectors. Keep ClassBrowser theme rules in src/styles/sdk-reference.css. Do not scatter ClassBrowser overrides across custom.css layers or page-local style blocks.
+
+- **SDK nav labels must be self-explanatory outcomes** (w8)
+  Labels come from src/components/sdk-reference/**/_nav.json and matching page sidebar.label. Prefer 1-3 word outcome- or object-focused labels. Never use class names like ScalekitClient as nav items — use Create client, Accounts & tools, Tool schemas, Error handling.
+
+- **SDK install pages use SDKInstallPanel shared chrome** (w7)
+  Use shared SDKInstallPanel + GitHubSourceLink on language install pages. Do not reintroduce FoldCard install heroes or fat Nova LinkButton View on GitHub CTAs.
+
+- **SDK method H3s: plain mono, no code pills** (w7)
+  Write ### methodName without backticks so Starlight does not wrap titles in code. No left rails, filled boxes, or solid badge chrome on method titles.
+
+<!-- dora-memory-principles:end -->
