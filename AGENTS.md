@@ -516,8 +516,10 @@ SDK client pages (topic `saaskit-sdks` / `agentkit-sdks`) use `@gesslar/starligh
 
 - Scope **all** ClassBrowser visual overrides under `.sdk-client-page` only — never restyle the plugin globally
 - Prefer plugin tokens (`--cb-border`, `--cb-header-bg`, `--cb-method-bg`, `--cb-badge-radius`, …) before structural selectors
-- Keep ClassBrowser theme rules in `src/styles/sdk-reference.css` next to SDK reference layout
+- Keep ClassBrowser theme rules in `src/styles/sdk-reference.css` (imported from `theme-priority.css`)
+- Use the project cascade pin: **`@layer scalekit.sdk-reference`** for TOC/hub/install chrome; **unlayered** only for ClassBrowser package + method example frames (must beat unlayered third-party CSS). Never use unlayered SDK rules without `.sdk-client-page`
 - **Do not** scatter ClassBrowser rules into `custom.css` layers or page-local `<style>` blocks (exception: mono H3 font next to the global Outfit heading rule in `custom.css`)
+- Method example fences: never set `overflow-x: visible` on `pre` (breaks rounded borders after expand/collapse)
 
 **Expand / collapse and copy JSON**
 

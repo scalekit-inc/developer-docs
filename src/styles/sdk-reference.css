@@ -1,199 +1,642 @@
 /**
- * SDK client reference pages (ClassBrowser method docs).
- * Pattern: one ClassBrowser per method section; hide repeated headers after the first.
+ * SDK reference styles (ClassBrowser method docs, hubs, install pages).
  *
- * Hallmark · component: method-heading + on-this-page · genre: modern-minimal
- * tone: technical · restrained API-ref chrome (no code pills)
+ * Cascade (pinned in theme-priority.css):
+ *   @layer scalekit.sdk-reference — TOC, method headings, hub, install, changelog
+ *   unlayered + .sdk-client-page  — ClassBrowser package bridge + method code frames
+ *
+ * Why unlayered for ClassBrowser / method fences?
+ *   @gesslar/starlight-class-browser and Expressive Code ship unlayered CSS.
+ *   Layered author rules lose to unlayered third-party even with higher specificity.
+ *   Keep those overrides unlayered but ALWAYS under .sdk-client-page so ClientRouter
+ *   cannot restyle the rest of the docs when this file stays in the document head.
+ *
+ * Pattern: one ClassBrowser per method; hide repeated headers after the first.
  */
 
-/* -------------------------------------------------------------------------- */
-/* On this page (TOC) — method index, not marketing nav                         */
-/* H3 headings still power the TOC; presentation is mono + hairline active.     */
-/* No enter animations: users jump the TOC tens of times per session (Emil).    */
-/* -------------------------------------------------------------------------- */
+/* ========================================================================== */
+/* @layer scalekit.sdk-reference — page chrome (cannot beat unlayered site CSS) */
+/* ========================================================================== */
 
-/* Hide Starlight "Overview" on method-heavy pages */
-.sdk-client-page starlight-toc a[href='#_top'],
-.sdk-client-page .right-sidebar-panel a[href='#_top'],
-body:has(.sdk-client-page) starlight-toc a[href='#_top'],
-body:has(.sdk-client-page) starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
-  display: none !important;
-}
-body:has(.sdk-client-page) starlight-toc li:has(> a[href='#_top']) > ul {
-  padding-inline-start: 0 !important;
-}
+@layer scalekit.sdk-reference {
+  /* -------------------------------------------------------------------------- */
+  /* On this page (TOC) — method index, not marketing nav                         */
+  /* H3 headings still power the TOC; presentation is mono + hairline active.     */
+  /* No enter animations: users jump the TOC tens of times per session (Emil).    */
+  /* -------------------------------------------------------------------------- */
 
-/* One line per method; mono so TOC matches method identity */
-body:has(.sdk-client-page) starlight-toc a,
-body:has(.sdk-client-page) .right-sidebar-panel nav a {
-  display: block;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-family: var(--sl-font-mono, var(--__sl-font-mono, ui-monospace, monospace));
-  font-size: 0.8125rem;
-  font-weight: 450;
-  letter-spacing: -0.01em;
-  line-height: 1.35;
-  padding-block: 0.28rem;
-  padding-inline: 0.55rem 0.35rem;
-  margin-inline-start: 0;
-  border-inline-start: 2px solid transparent;
-  border-radius: 0;
-  color: var(--sl-color-gray-2, var(--sl-color-text-muted));
-  background: transparent;
-  transition:
-    color 140ms cubic-bezier(0.23, 1, 0.32, 1),
-    border-color 140ms cubic-bezier(0.23, 1, 0.32, 1),
-    background-color 140ms cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-body:has(.sdk-client-page) starlight-toc a span,
-body:has(.sdk-client-page) .right-sidebar-panel nav a span {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font: inherit;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  body:has(.sdk-client-page) starlight-toc a:hover,
-  body:has(.sdk-client-page) .right-sidebar-panel nav a:hover {
-    color: var(--sl-color-white, var(--sl-color-text));
-    background: transparent;
-    border-inline-start-color: var(--sl-color-gray-4);
+  /* Hide Starlight "Overview" on method-heavy pages */
+  .sdk-client-page starlight-toc a[href='#_top'],
+  .sdk-client-page .right-sidebar-panel a[href='#_top'],
+  body:has(.sdk-client-page) starlight-toc a[href='#_top'],
+  body:has(.sdk-client-page) starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
+    display: none !important;
   }
-}
+  body:has(.sdk-client-page) starlight-toc li:has(> a[href='#_top']) > ul {
+    padding-inline-start: 0 !important;
+  }
 
-body:has(.sdk-client-page) starlight-toc a[aria-current='true'],
-body:has(.sdk-client-page) starlight-toc a[aria-current='location'],
-body:has(.sdk-client-page) .right-sidebar-panel nav a[aria-current='true'] {
-  color: var(--sl-color-white, var(--sl-color-text-heading));
-  font-weight: 550;
-  border-inline-start-color: var(--sl-color-accent);
-  background: transparent;
-}
+  /* One line per method; mono so TOC matches method identity */
+  body:has(.sdk-client-page) starlight-toc a,
+  body:has(.sdk-client-page) .right-sidebar-panel nav a {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--sl-font-mono, var(--__sl-font-mono, ui-monospace, monospace));
+    font-size: 0.8125rem;
+    font-weight: 450;
+    letter-spacing: -0.01em;
+    line-height: 1.35;
+    padding-block: 0.28rem;
+    padding-inline: 0.55rem 0.35rem;
+    margin-inline-start: 0;
+    border-inline-start: 2px solid transparent;
+    border-radius: 0;
+    color: var(--sl-color-gray-2, var(--sl-color-text-muted));
+    background: transparent;
+    transition:
+      color 140ms cubic-bezier(0.23, 1, 0.32, 1),
+      border-color 140ms cubic-bezier(0.23, 1, 0.32, 1),
+      background-color 140ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
 
-body:has(.sdk-client-page) starlight-toc a:focus-visible,
-body:has(.sdk-client-page) .right-sidebar-panel nav a:focus-visible {
-  outline: 2px solid var(--sl-color-accent);
-  outline-offset: 1px;
-}
+  body:has(.sdk-client-page) starlight-toc a span,
+  body:has(.sdk-client-page) .right-sidebar-panel nav a span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font: inherit;
+  }
 
-/* -------------------------------------------------------------------------- */
-/* Method titles (H3) — plain mono, no box / rail / code-pill chrome            */
-/* Markdown: ### `methodName` → Starlight wraps <code>; strip pill chrome.      */
-/* -------------------------------------------------------------------------- */
+  @media (hover: hover) and (pointer: fine) {
+    body:has(.sdk-client-page) starlight-toc a:hover,
+    body:has(.sdk-client-page) .right-sidebar-panel nav a:hover {
+      color: var(--sl-color-white, var(--sl-color-text));
+      background: transparent;
+      border-inline-start-color: var(--sl-color-gray-4);
+    }
+  }
 
-.sdk-client-page .sdk-method-section {
-  margin-block: 0 1.5rem;
-  padding-block-start: 0;
-}
+  body:has(.sdk-client-page) starlight-toc a[aria-current='true'],
+  body:has(.sdk-client-page) starlight-toc a[aria-current='location'],
+  body:has(.sdk-client-page) .right-sidebar-panel nav a[aria-current='true'] {
+    color: var(--sl-color-white, var(--sl-color-text-heading));
+    font-weight: 550;
+    border-inline-start-color: var(--sl-color-accent);
+    background: transparent;
+  }
 
-/* Scroll target for TOC jumps — clear sticky header */
-.sdk-client-page .sl-heading-wrapper.level-h3,
-.sdk-client-page h3 {
-  scroll-margin-top: 6rem;
-}
+  body:has(.sdk-client-page) starlight-toc a:focus-visible,
+  body:has(.sdk-client-page) .right-sidebar-panel nav a:focus-visible {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 1px;
+  }
 
-.sdk-client-page .sl-heading-wrapper.level-h3 {
-  display: flex;
-  align-items: baseline;
-  gap: 0.35rem;
-  margin-block: 2rem 0.65rem;
-  padding: 0;
-  border: none;
-  background: transparent;
-}
+  /* -------------------------------------------------------------------------- */
+  /* Method titles (H3) — plain mono, no box / rail / code-pill chrome            */
+  /* Markdown: ### `methodName` → Starlight wraps <code>; strip pill chrome.      */
+  /* -------------------------------------------------------------------------- */
 
-/*
+  .sdk-client-page .sdk-method-section {
+    margin-block: 0 1.5rem;
+    padding-block-start: 0;
+  }
+
+  /* Scroll target for TOC jumps — clear sticky header */
+  .sdk-client-page .sl-heading-wrapper.level-h3,
+  .sdk-client-page h3 {
+    scroll-margin-top: 6rem;
+  }
+
+  .sdk-client-page .sl-heading-wrapper.level-h3 {
+    display: flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    margin-block: 2rem 0.65rem;
+    padding: 0;
+    border: none;
+    background: transparent;
+  }
+
+  /*
  * Under the method H3:
  * - Drop ClassBrowser outer margin
  * - When CLASS header is visible, keep light air under it
  * - When header is hidden (later methods), collapse body — see rules below
  */
-.sdk-client-page .sl-heading-wrapper.level-h3 + .sdk-method-section .cb-browser {
-  margin-block-start: 0;
-}
+  .sdk-client-page .sl-heading-wrapper.level-h3 + .sdk-method-section .cb-browser {
+    margin-block-start: 0;
+  }
 
-.sdk-client-page .sdk-method-section .cb-header + .cb-body {
-  padding-block: 0.5rem 0;
-  padding-inline: 0;
-}
-.sdk-client-page .sdk-method-section .cb-header + .cb-body > .cb-method:first-child {
-  margin-block-start: 0;
-}
+  .sdk-client-page .sdk-method-section .cb-header + .cb-body {
+    padding-block: 0.5rem 0;
+    padding-inline: 0;
+  }
+  .sdk-client-page .sdk-method-section .cb-header + .cb-body > .cb-method:first-child {
+    margin-block-start: 0;
+  }
 
-.sdk-client-page > .sl-heading-wrapper.level-h3:first-of-type,
-.sdk-client-page > :where(p, div.sdk-client-chrome) + .sl-heading-wrapper.level-h3 {
-  margin-block-start: 1.5rem;
-}
+  .sdk-client-page > .sl-heading-wrapper.level-h3:first-of-type,
+  .sdk-client-page > :where(p, div.sdk-client-chrome) + .sl-heading-wrapper.level-h3 {
+    margin-block-start: 1.5rem;
+  }
 
-.sdk-client-page .sl-heading-wrapper.level-h3 h3,
-.sdk-client-page h3 {
-  margin: 0;
-  font-family: var(--sl-font-mono, var(--__sl-font-mono, ui-monospace, monospace));
-  font-size: 1.0625rem;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 1.35;
-  letter-spacing: -0.02em;
-  color: var(--sl-color-white, var(--sl-color-text-heading));
-}
+  .sdk-client-page .sl-heading-wrapper.level-h3 h3,
+  .sdk-client-page h3 {
+    margin: 0;
+    font-family: var(--sl-font-mono, var(--__sl-font-mono, ui-monospace, monospace));
+    font-size: 1.0625rem;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+    color: var(--sl-color-white, var(--sl-color-text-heading));
+  }
 
-/*
+  /*
  * Kill Starlight code-pill on method titles.
  * DOM is usually .sl-markdown-content > .sdk-client-page > .sl-heading-wrapper > h3 > code
  */
-.sdk-client-page .sl-heading-wrapper.level-h3 h3 code,
-.sdk-client-page .sl-heading-wrapper.level-h3 code,
-.sdk-client-page h3 code,
-.sl-markdown-content .sdk-client-page h3 code,
-.sl-markdown-content .sdk-client-page .sl-heading-wrapper.level-h3 h3 code,
-body:has(.sdk-client-page) .sl-markdown-content h3 code,
-body:has(.sdk-client-page) .sl-markdown-content .sl-heading-wrapper.level-h3 code {
-  font-family: inherit !important;
-  font-size: inherit !important;
-  font-weight: inherit !important;
-  font-style: normal !important;
-  line-height: inherit !important;
-  letter-spacing: inherit !important;
-  color: inherit !important;
-  background: none !important;
-  background-color: transparent !important;
-  border: none !important;
-  border-radius: 0 !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  box-shadow: none !important;
-}
-
-/* Anchor link stays quiet until hover/focus */
-.sdk-client-page .sl-heading-wrapper.level-h3 .sl-anchor-link {
-  opacity: 0;
-  transition: opacity 140ms cubic-bezier(0.23, 1, 0.32, 1);
-}
-@media (hover: hover) and (pointer: fine) {
-  .sdk-client-page .sl-heading-wrapper.level-h3:hover .sl-anchor-link,
-  .sdk-client-page .sl-heading-wrapper.level-h3:focus-within .sl-anchor-link {
-    opacity: 1;
+  .sdk-client-page .sl-heading-wrapper.level-h3 h3 code,
+  .sdk-client-page .sl-heading-wrapper.level-h3 code,
+  .sdk-client-page h3 code,
+  .sl-markdown-content .sdk-client-page h3 code,
+  .sl-markdown-content .sdk-client-page .sl-heading-wrapper.level-h3 h3 code,
+  body:has(.sdk-client-page) .sl-markdown-content h3 code,
+  body:has(.sdk-client-page) .sl-markdown-content .sl-heading-wrapper.level-h3 code {
+    font-family: inherit !important;
+    font-size: inherit !important;
+    font-weight: inherit !important;
+    font-style: normal !important;
+    line-height: inherit !important;
+    letter-spacing: inherit !important;
+    color: inherit !important;
+    background: none !important;
+    background-color: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
   }
-}
-.sdk-client-page .sl-heading-wrapper.level-h3 .sl-anchor-link:focus-visible {
-  opacity: 1;
-  outline: 2px solid var(--sl-color-accent);
-  outline-offset: 2px;
-}
 
-@media (prefers-reduced-motion: reduce) {
-  body:has(.sdk-client-page) starlight-toc a,
-  body:has(.sdk-client-page) .right-sidebar-panel nav a,
+  /* Anchor link stays quiet until hover/focus */
   .sdk-client-page .sl-heading-wrapper.level-h3 .sl-anchor-link {
-    transition: none;
+    opacity: 0;
+    transition: opacity 140ms cubic-bezier(0.23, 1, 0.32, 1);
   }
-}
+  @media (hover: hover) and (pointer: fine) {
+    .sdk-client-page .sl-heading-wrapper.level-h3:hover .sl-anchor-link,
+    .sdk-client-page .sl-heading-wrapper.level-h3:focus-within .sl-anchor-link {
+      opacity: 1;
+    }
+  }
+  .sdk-client-page .sl-heading-wrapper.level-h3 .sl-anchor-link:focus-visible {
+    opacity: 1;
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    body:has(.sdk-client-page) starlight-toc a,
+    body:has(.sdk-client-page) .right-sidebar-panel nav a,
+    .sdk-client-page .sl-heading-wrapper.level-h3 .sl-anchor-link {
+      transition: none;
+    }
+  }
+
+  /* -------------------------------------------------------------------------- */
+  /* Hub language index (used by /sdks and product SDK homes)                     */
+  /* Escape Starlight prose with .not-content on the <ul>.                        */
+  /* -------------------------------------------------------------------------- */
+
+  .sdk-index-list {
+    --sdk-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Kill Starlight / UA list chrome (disc markers were leaking into hub rows). */
+  .sdk-index-list > li {
+    display: block;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .sdk-index-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.75rem 1rem;
+    align-items: start;
+    min-width: 0;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.625rem;
+    background: var(--sl-color-bg);
+    color: inherit;
+    text-decoration: none;
+    box-shadow: none;
+    transition:
+      border-color 160ms var(--sdk-ease-out),
+      background-color 160ms var(--sdk-ease-out),
+      transform 140ms var(--sdk-ease-out);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .sdk-index-row:hover {
+      border-color: var(--sl-color-gray-4);
+      background: var(--sl-color-gray-7, var(--sl-color-bg));
+    }
+
+    .sdk-index-row:hover .sdk-index-cta-arrow {
+      transform: translateX(2px);
+    }
+  }
+
+  .sdk-index-row:active {
+    transform: scale(0.99);
+  }
+
+  .sdk-index-row:focus-visible {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 2px;
+  }
+
+  .sdk-index-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex-shrink: 0;
+    border-radius: 0.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+    background: var(--sl-color-gray-7, var(--sl-color-bg));
+    color: var(--sl-color-white, var(--sl-color-text-heading));
+  }
+
+  .sdk-index-icon :is(svg, img) {
+    width: 1.15rem;
+    height: 1.15rem;
+    display: block;
+  }
+
+  .sdk-index-main {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding-block-start: 0.1rem;
+  }
+
+  .sdk-index-title-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.55rem;
+  }
+
+  .sdk-index-title {
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.3;
+    color: var(--sl-color-white, var(--sl-color-text-heading));
+    letter-spacing: -0.01em;
+  }
+
+  /* Install line — mono, no Starlight <code> pill chrome */
+  .sdk-index-install,
+  .sdk-index-package {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--sl-font-mono, var(--__sl-font-mono, ui-monospace, monospace));
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    font-weight: 450;
+    letter-spacing: -0.01em;
+    color: var(--sl-color-text-muted);
+    background: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .sdk-index-desc {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--sl-color-text-muted);
+    line-height: 1.45;
+  }
+
+  .sdk-index-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: flex-start;
+    gap: 0.35rem;
+    flex-shrink: 0;
+    text-align: right;
+    font-size: 0.75rem;
+    line-height: 1.3;
+    color: var(--sl-color-text-muted);
+    /* Match title baseline in the main column */
+    padding-block-start: 0.15rem;
+  }
+
+  .sdk-index-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    font-size: 0.8125rem;
+    font-weight: 550;
+    color: var(--sl-color-accent);
+    white-space: nowrap;
+    line-height: 1.3;
+  }
+
+  .sdk-index-cta-arrow {
+    display: inline-block;
+    transition: transform 140ms var(--sdk-ease-out);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sdk-index-row,
+    .sdk-index-cta-arrow {
+      transition: none;
+    }
+
+    .sdk-index-row:active {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .sdk-index-row {
+      grid-template-columns: auto minmax(0, 1fr);
+      grid-template-areas:
+        'icon main'
+        'icon meta';
+    }
+
+    .sdk-index-icon {
+      grid-area: icon;
+    }
+
+    .sdk-index-main {
+      grid-area: main;
+    }
+
+    .sdk-index-meta {
+      grid-area: meta;
+      align-items: flex-start;
+      text-align: left;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      gap: 0.5rem 0.75rem;
+      min-height: 0;
+      padding-block-start: 0.15rem;
+    }
+  }
+
+  /* -------------------------------------------------------------------------- */
+  /* SDK install language pages (hero + init + changelog)                         */
+  /* -------------------------------------------------------------------------- */
+
+  .sdk-install {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    margin-block: 0.25rem 1.75rem;
+    padding: 0;
+    border: none;
+    background: transparent;
+  }
+
+  .sdk-install__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1.25rem;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+
+  .sdk-install__title {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.3;
+    color: var(--sl-color-white, var(--sl-color-text-heading));
+  }
+
+  .sdk-install__note {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--sl-color-text-muted);
+  }
+
+  .sdk-install__note :where(p) {
+    margin: 0;
+  }
+
+  .sdk-install__note :where(code) {
+    font-size: 0.8125em;
+  }
+
+  /* Command block: full width, no nested card chrome fighting the page */
+  .sdk-install__command {
+    min-width: 0;
+  }
+
+  .sdk-install__command :global(.expressive-code),
+  .sdk-install__command :global(pre),
+  .sdk-install__command :global(.astro-code) {
+    margin-block: 0 !important;
+  }
+
+  .sdk-install__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.5rem;
+    min-width: 0;
+  }
+
+  .sdk-install__updated {
+    margin-inline-start: 0.15rem;
+    font-size: 0.75rem;
+    line-height: 1.3;
+    color: var(--sl-color-text-muted);
+    white-space: nowrap;
+  }
+
+  /* Init + following code sections on language install pages */
+  .sdk-page-section {
+    margin-block: 0 2rem;
+  }
+
+  .sdk-page-section > :where(h2) {
+    margin: 0 0 0.85rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.3;
+    color: var(--sl-color-white, var(--sl-color-text-heading));
+    border: none;
+    padding: 0;
+  }
+
+  .sdk-page-section :global(.expressive-code) {
+    margin-block: 0;
+  }
+
+  /* Changelog — quieter than the old 1.875rem hero title */
+  .sdk-changelog {
+    margin-block-start: 2.5rem;
+    padding-block-start: 1.75rem;
+    border-block-start: 1px solid var(--sl-color-hairline, var(--sl-color-gray-6));
+  }
+
+  .sdk-changelog__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem 1rem;
+    flex-wrap: wrap;
+    margin-block-end: 1.25rem;
+  }
+
+  .sdk-changelog__title {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--sl-color-white, var(--sl-color-text-heading));
+  }
+
+  .sdk-changelog__all {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--sl-color-accent);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 150ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .sdk-changelog__all:hover {
+      color: var(--sl-color-accent-high, var(--sl-color-accent));
+    }
+  }
+
+  .sdk-changelog__list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .sdk-changelog__item {
+    border: 1px solid var(--sl-color-hairline, var(--sl-color-gray-6));
+    border-radius: 0.625rem;
+    padding: 1.15rem 1.25rem;
+    background: var(--sl-color-bg);
+  }
+
+  .sdk-changelog__item-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    margin-block-end: 0.75rem;
+  }
+
+  .sdk-changelog__date {
+    font-size: 0.8125rem;
+    color: var(--sl-color-text-muted);
+  }
+
+  .sdk-changelog__body {
+    color: var(--sl-color-text);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
+  .sdk-changelog__body :where(h1, h2, h3, h4) {
+    margin-block: 1rem 0.5rem;
+    font-weight: 600;
+    color: var(--sl-color-text-heading);
+  }
+
+  .sdk-changelog__body :where(h1) {
+    font-size: 1.15rem;
+  }
+  .sdk-changelog__body :where(h2) {
+    font-size: 1.05rem;
+  }
+  .sdk-changelog__body :where(h3, h4) {
+    font-size: 1rem;
+  }
+
+  .sdk-changelog__body :where(p) {
+    margin-block: 0.5rem;
+  }
+
+  .sdk-changelog__body :where(ul, ol) {
+    margin-block: 0.5rem;
+    padding-inline-start: 1.25rem;
+  }
+
+  .sdk-changelog__body :where(li) {
+    margin-block: 0.25rem;
+  }
+
+  .sdk-changelog__body :where(a) {
+    color: var(--sl-color-accent);
+    text-decoration: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .sdk-changelog__body :where(a):hover {
+      text-decoration: underline;
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .sdk-install__head {
+      align-items: flex-start;
+    }
+
+    .sdk-changelog__item {
+      padding: 1rem;
+    }
+  }
+} /* end @layer scalekit.sdk-reference */
+
+/* ========================================================================== */
+/* UNLAYERED — ClassBrowser package + method example frames                     */
+/* Must beat unlayered third-party. ALWAYS scoped to .sdk-client-page.          */
+/* ========================================================================== */
 
 /* -------------------------------------------------------------------------- */
 /* ClassBrowser theme bridge (@gesslar/starlight-class-browser)                 */
@@ -365,17 +808,29 @@ body:has(.sdk-client-page) .sl-markdown-content .sl-heading-wrapper.level-h3 cod
   display: none;
 }
 
-/* Example fences sit inside method body — tighten spacing */
+/*
+ * Example fences in ClassBrowser method bodies ONLY.
+ * Scope: .sdk-client-page .cb-method-body — never restyle site-wide fences.
+ * Do not use overflow-x: visible (breaks rounded frame borders after reflow).
+ */
 .sdk-client-page .cb-method-body .expressive-code {
   margin-block: 0.75rem 0.25rem;
+  min-width: 0;
+  max-width: 100%;
 }
-.sdk-client-page .expressive-code .ec-line .code {
+
+.sdk-client-page .cb-method-body .expressive-code .ec-line .code {
   white-space: pre-wrap;
   word-break: break-word;
   overflow-wrap: anywhere;
 }
-.sdk-client-page .expressive-code pre {
-  overflow-x: visible;
+
+.sdk-client-page .cb-method-body .expressive-code figure.frame,
+.sdk-client-page .cb-method-body .expressive-code pre {
+  overflow-x: auto;
+  overflow-y: hidden;
+  background-clip: padding-box;
+  box-sizing: border-box;
 }
 
 /*
@@ -425,428 +880,4 @@ body:has(.sdk-client-page) .sl-markdown-content .sl-heading-wrapper.level-h3 cod
 .sdk-hub-with-sidebar .sdk-cards-grid,
 .sdk-hub-with-sidebar .sdk-index-list {
   margin-block-start: 1.25rem;
-}
-
-/* -------------------------------------------------------------------------- */
-/* Hub language index (used by /sdks and product SDK homes)                     */
-/* Escape Starlight prose with .not-content on the <ul>.                        */
-/* -------------------------------------------------------------------------- */
-
-.sdk-index-list {
-  --sdk-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  display: flex;
-  flex-direction: column;
-  gap: 0.625rem;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-/* Kill Starlight / UA list chrome (disc markers were leaking into hub rows). */
-.sdk-index-list > li {
-  display: block;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.sdk-index-row {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 0.75rem 1rem;
-  align-items: start;
-  min-width: 0;
-  padding: 1rem 1.1rem;
-  border: 1px solid var(--sl-color-gray-5);
-  border-radius: 0.625rem;
-  background: var(--sl-color-bg);
-  color: inherit;
-  text-decoration: none;
-  box-shadow: none;
-  transition:
-    border-color 160ms var(--sdk-ease-out),
-    background-color 160ms var(--sdk-ease-out),
-    transform 140ms var(--sdk-ease-out);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .sdk-index-row:hover {
-    border-color: var(--sl-color-gray-4);
-    background: var(--sl-color-gray-7, var(--sl-color-bg));
-  }
-
-  .sdk-index-row:hover .sdk-index-cta-arrow {
-    transform: translateX(2px);
-  }
-}
-
-.sdk-index-row:active {
-  transform: scale(0.99);
-}
-
-.sdk-index-row:focus-visible {
-  outline: 2px solid var(--sl-color-accent);
-  outline-offset: 2px;
-}
-
-.sdk-index-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  flex-shrink: 0;
-  border-radius: 0.5rem;
-  border: 1px solid var(--sl-color-gray-5);
-  background: var(--sl-color-gray-7, var(--sl-color-bg));
-  color: var(--sl-color-white, var(--sl-color-text-heading));
-}
-
-.sdk-index-icon :is(svg, img) {
-  width: 1.15rem;
-  height: 1.15rem;
-  display: block;
-}
-
-.sdk-index-main {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  padding-block-start: 0.1rem;
-}
-
-.sdk-index-title-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.35rem 0.55rem;
-}
-
-.sdk-index-title {
-  font-weight: 600;
-  font-size: 1rem;
-  line-height: 1.3;
-  color: var(--sl-color-white, var(--sl-color-text-heading));
-  letter-spacing: -0.01em;
-}
-
-/* Install line — mono, no Starlight <code> pill chrome */
-.sdk-index-install,
-.sdk-index-package {
-  display: block;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-family: var(--sl-font-mono, var(--__sl-font-mono, ui-monospace, monospace));
-  font-size: 0.8125rem;
-  line-height: 1.4;
-  font-weight: 450;
-  letter-spacing: -0.01em;
-  color: var(--sl-color-text-muted);
-  background: none !important;
-  border: none !important;
-  border-radius: 0 !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  box-shadow: none !important;
-}
-
-.sdk-index-desc {
-  margin: 0;
-  font-size: 0.875rem;
-  color: var(--sl-color-text-muted);
-  line-height: 1.45;
-}
-
-.sdk-index-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: flex-start;
-  gap: 0.35rem;
-  flex-shrink: 0;
-  text-align: right;
-  font-size: 0.75rem;
-  line-height: 1.3;
-  color: var(--sl-color-text-muted);
-  /* Match title baseline in the main column */
-  padding-block-start: 0.15rem;
-}
-
-.sdk-index-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.2rem;
-  font-size: 0.8125rem;
-  font-weight: 550;
-  color: var(--sl-color-accent);
-  white-space: nowrap;
-  line-height: 1.3;
-}
-
-.sdk-index-cta-arrow {
-  display: inline-block;
-  transition: transform 140ms var(--sdk-ease-out);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sdk-index-row,
-  .sdk-index-cta-arrow {
-    transition: none;
-  }
-
-  .sdk-index-row:active {
-    transform: none;
-  }
-}
-
-@media (max-width: 40rem) {
-  .sdk-index-row {
-    grid-template-columns: auto minmax(0, 1fr);
-    grid-template-areas:
-      'icon main'
-      'icon meta';
-  }
-
-  .sdk-index-icon {
-    grid-area: icon;
-  }
-
-  .sdk-index-main {
-    grid-area: main;
-  }
-
-  .sdk-index-meta {
-    grid-area: meta;
-    align-items: flex-start;
-    text-align: left;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-content: flex-start;
-    gap: 0.5rem 0.75rem;
-    min-height: 0;
-    padding-block-start: 0.15rem;
-  }
-}
-
-/* -------------------------------------------------------------------------- */
-/* SDK install language pages (hero + init + changelog)                         */
-/* -------------------------------------------------------------------------- */
-
-.sdk-install {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-  margin-block: 0.25rem 1.75rem;
-  padding: 0;
-  border: none;
-  background: transparent;
-}
-
-.sdk-install__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem 1.25rem;
-  flex-wrap: wrap;
-  min-width: 0;
-}
-
-.sdk-install__title {
-  margin: 0;
-  font-size: 1.125rem;
-  font-weight: 600;
-  letter-spacing: -0.015em;
-  line-height: 1.3;
-  color: var(--sl-color-white, var(--sl-color-text-heading));
-}
-
-.sdk-install__note {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  color: var(--sl-color-text-muted);
-}
-
-.sdk-install__note :where(p) {
-  margin: 0;
-}
-
-.sdk-install__note :where(code) {
-  font-size: 0.8125em;
-}
-
-/* Command block: full width, no nested card chrome fighting the page */
-.sdk-install__command {
-  min-width: 0;
-}
-
-.sdk-install__command :global(.expressive-code),
-.sdk-install__command :global(pre),
-.sdk-install__command :global(.astro-code) {
-  margin-block: 0 !important;
-}
-
-.sdk-install__meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.4rem 0.5rem;
-  min-width: 0;
-}
-
-.sdk-install__updated {
-  margin-inline-start: 0.15rem;
-  font-size: 0.75rem;
-  line-height: 1.3;
-  color: var(--sl-color-text-muted);
-  white-space: nowrap;
-}
-
-/* Init + following code sections on language install pages */
-.sdk-page-section {
-  margin-block: 0 2rem;
-}
-
-.sdk-page-section > :where(h2) {
-  margin: 0 0 0.85rem;
-  font-size: 1.125rem;
-  font-weight: 600;
-  letter-spacing: -0.015em;
-  line-height: 1.3;
-  color: var(--sl-color-white, var(--sl-color-text-heading));
-  border: none;
-  padding: 0;
-}
-
-.sdk-page-section :global(.expressive-code) {
-  margin-block: 0;
-}
-
-/* Changelog — quieter than the old 1.875rem hero title */
-.sdk-changelog {
-  margin-block-start: 2.5rem;
-  padding-block-start: 1.75rem;
-  border-block-start: 1px solid var(--sl-color-hairline, var(--sl-color-gray-6));
-}
-
-.sdk-changelog__head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem 1rem;
-  flex-wrap: wrap;
-  margin-block-end: 1.25rem;
-}
-
-.sdk-changelog__title {
-  margin: 0;
-  font-size: 1.125rem;
-  font-weight: 600;
-  letter-spacing: -0.015em;
-  color: var(--sl-color-white, var(--sl-color-text-heading));
-}
-
-.sdk-changelog__all {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--sl-color-accent);
-  text-decoration: none;
-  white-space: nowrap;
-  transition: color 150ms cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .sdk-changelog__all:hover {
-    color: var(--sl-color-accent-high, var(--sl-color-accent));
-  }
-}
-
-.sdk-changelog__list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.sdk-changelog__item {
-  border: 1px solid var(--sl-color-hairline, var(--sl-color-gray-6));
-  border-radius: 0.625rem;
-  padding: 1.15rem 1.25rem;
-  background: var(--sl-color-bg);
-}
-
-.sdk-changelog__item-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem 0.75rem;
-  margin-block-end: 0.75rem;
-}
-
-.sdk-changelog__date {
-  font-size: 0.8125rem;
-  color: var(--sl-color-text-muted);
-}
-
-.sdk-changelog__body {
-  color: var(--sl-color-text);
-  font-size: 0.9375rem;
-  line-height: 1.6;
-}
-
-.sdk-changelog__body :where(h1, h2, h3, h4) {
-  margin-block: 1rem 0.5rem;
-  font-weight: 600;
-  color: var(--sl-color-text-heading);
-}
-
-.sdk-changelog__body :where(h1) {
-  font-size: 1.15rem;
-}
-.sdk-changelog__body :where(h2) {
-  font-size: 1.05rem;
-}
-.sdk-changelog__body :where(h3, h4) {
-  font-size: 1rem;
-}
-
-.sdk-changelog__body :where(p) {
-  margin-block: 0.5rem;
-}
-
-.sdk-changelog__body :where(ul, ol) {
-  margin-block: 0.5rem;
-  padding-inline-start: 1.25rem;
-}
-
-.sdk-changelog__body :where(li) {
-  margin-block: 0.25rem;
-}
-
-.sdk-changelog__body :where(a) {
-  color: var(--sl-color-accent);
-  text-decoration: none;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .sdk-changelog__body :where(a):hover {
-    text-decoration: underline;
-  }
-}
-
-@media (max-width: 40rem) {
-  .sdk-install__head {
-    align-items: flex-start;
-  }
-
-  .sdk-changelog__item {
-    padding: 1rem;
-  }
 }

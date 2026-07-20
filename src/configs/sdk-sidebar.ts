@@ -52,7 +52,8 @@ function productBase(product: SdkProduct, lang: SdkLang): string {
 }
 
 /**
- * Build a collapsed language group: Installation + primary clients / guide sections from _nav.json.
+ * Build a language group: Install + primary clients / guide sections from _nav.json.
+ * AgentKit groups stay expanded (short nav). SaaSKit stays collapsed (many clients).
  */
 export function buildLanguageGroup(
   product: SdkProduct,
@@ -64,7 +65,9 @@ export function buildLanguageGroup(
 
   return {
     label: nav.label,
-    collapsed: true,
+    // AgentKit Node/Python: few items — expand by default so the journey is visible.
+    // SaaSKit languages: many clients — keep collapsed until selected.
+    collapsed: product !== 'agentkit',
     items: [
       {
         label: nav.installation.label,
