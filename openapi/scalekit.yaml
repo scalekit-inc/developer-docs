@@ -10719,6 +10719,10 @@ components:
             - organization.created
             - organization.updated
             - organization.deleted
+            - organization.domain_created
+            - organization.domain_deleted
+            - organization.domain_dns_verification_success
+            - organization.domain_dns_verification_failed
             - organization.sso_created
             - organization.sso_deleted
             - organization.sso_enabled
@@ -11048,6 +11052,134 @@ webhooks:
                     - enabled: false
                       name: dir_sync
               display_name: Organization Deleted
+      responses:
+        '200':
+          description: Webhook received successfully
+  organization.domain_created:
+    post:
+      summary: Organization Domain Created
+      description: Triggered when a domain is added to an organization (organization domain or allowed email domain).
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_4567890123
+              type: organization.domain_created
+              object: Organization
+              occurred_at: 2024-01-15T11:00:00.123456789Z
+              environment_id: env_1234567890
+              organization_id: org_1234567890
+              data:
+                id: dom_1234567890
+                domain: acmecorp.com
+                domain_type: ORGANIZATION_DOMAIN
+                organization_id: org_1234567890
+                environment_id: env_1234567890
+                txt_record_key: scalekit-domain-verification
+                txt_record_secret: sk_dom_verify_abc123
+                verification_status: PENDING
+                verification_method: DNS
+                updated_at: 2024-01-15T11:00:00.123456789Z
+              display_name: Organization Domain Created
+      responses:
+        '200':
+          description: Webhook received successfully
+  organization.domain_deleted:
+    post:
+      summary: Organization Domain Deleted
+      description: Triggered when a domain is removed from an organization.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_4567890456
+              type: organization.domain_deleted
+              object: Organization
+              occurred_at: 2024-01-16T09:30:00.123456789Z
+              environment_id: env_1234567890
+              organization_id: org_1234567890
+              data:
+                id: dom_1234567890
+                domain: acmecorp.com
+                domain_type: ORGANIZATION_DOMAIN
+                organization_id: org_1234567890
+                environment_id: env_1234567890
+                txt_record_key: scalekit-domain-verification
+                txt_record_secret: sk_dom_verify_abc123
+                verification_status: VERIFIED
+                verification_method: DNS
+                updated_at: 2024-01-16T09:30:00.123456789Z
+              display_name: Organization Domain Deleted
+      responses:
+        '200':
+          description: Webhook received successfully
+  organization.domain_dns_verification_success:
+    post:
+      summary: Organization Domain DNS Verification Success
+      description: Triggered when DNS TXT record validation confirms ownership of an organization domain.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_4567890789
+              type: organization.domain_dns_verification_success
+              object: Organization
+              occurred_at: 2024-01-15T12:15:00.123456789Z
+              environment_id: env_1234567890
+              organization_id: org_1234567890
+              data:
+                id: dom_1234567890
+                domain: acmecorp.com
+                domain_type: ORGANIZATION_DOMAIN
+                organization_id: org_1234567890
+                environment_id: env_1234567890
+                txt_record_key: scalekit-domain-verification
+                txt_record_secret: sk_dom_verify_abc123
+                verification_status: VERIFIED
+                verification_method: DNS
+                updated_at: 2024-01-15T12:15:00.123456789Z
+              display_name: Organization Domain DNS Verification Success
+      responses:
+        '200':
+          description: Webhook received successfully
+  organization.domain_dns_verification_failed:
+    post:
+      summary: Organization Domain DNS Verification Failed
+      description: Triggered when the DNS verification window expires without a successful TXT record match.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScalekitEvent'
+            example:
+              spec_version: '1'
+              id: evt_4567891012
+              type: organization.domain_dns_verification_failed
+              object: Organization
+              occurred_at: 2024-01-16T11:00:00.123456789Z
+              environment_id: env_1234567890
+              organization_id: org_1234567890
+              data:
+                id: dom_1234567890
+                domain: acmecorp.com
+                domain_type: ORGANIZATION_DOMAIN
+                organization_id: org_1234567890
+                environment_id: env_1234567890
+                txt_record_key: scalekit-domain-verification
+                txt_record_secret: sk_dom_verify_abc123
+                verification_status: FAILED
+                verification_method: DNS
+                updated_at: 2024-01-16T11:00:00.123456789Z
+              display_name: Organization Domain DNS Verification Failed
       responses:
         '200':
           description: Webhook received successfully

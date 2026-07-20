@@ -57,7 +57,9 @@
     "/api/v1/connected_accounts": {
       "get": {
         "description": "Retrieves a paginated list of connected accounts for third-party integrations. Filter by organization, user, connector type, provider, or identifier. Returns OAuth tokens, API keys, and connection status for each account. Use pagination tokens to navigate through large result sets.",
-        "tags": ["Connected Accounts"],
+        "tags": [
+          "Connected Accounts"
+        ],
         "summary": "List connected accounts",
         "operationId": "ConnectedAccountService_ListConnectedAccounts",
         "parameters": [
@@ -172,18 +174,30 @@
           {
             "label": "Node.js SDK",
             "lang": "javascript",
-            "source": "// Coming soon — accurate SDK snippets for List connected accounts will be added via scalekit-code-doctor (SK-399)"
+            "source": "const response = await scalekit.connectedAccounts.listConnectedAccounts({\n  organizationId: 'org_123',\n  pageSize: 20,\n})\nconst connectedAccounts = response.connectedAccounts"
           },
           {
             "label": "Python SDK",
             "lang": "python",
-            "source": "# Coming soon — accurate SDK snippets for List connected accounts will be added via scalekit-code-doctor (SK-399)"
+            "source": "response = scalekit_client.connected_accounts.list_connected_accounts(\n    organization_id=\"org_123\",\n    page_size=20,\n)\n# with_call returns (response, call)\nconnected_accounts = response[0].connected_accounts"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "// Connected Accounts are not available in the Go SDK public API yet.\n// Use the REST API (GET /api/v1/connected_accounts) or the Node.js/Python SDKs."
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "// Connected Accounts are not part of the Java SDK public API yet.\n// Use the REST API (GET /api/v1/connected_accounts) or the Node.js/Python SDKs."
           }
         ]
       },
       "put": {
         "description": "Updates authentication credentials and configuration for an existing connected account. Modify OAuth tokens, refresh tokens, access scopes, or API configuration settings. Specify the account by ID, or by combination of organization/user, connector, and identifier. Returns the updated account with new token expiry and status information.",
-        "tags": ["Connected Accounts"],
+        "tags": [
+          "Connected Accounts"
+        ],
         "summary": "Update connected account credentials",
         "operationId": "ConnectedAccountService_UpdateConnectedAccount",
         "responses": {
@@ -235,7 +249,9 @@
       },
       "post": {
         "description": "Creates a new connected account with OAuth tokens or API credentials for third-party service integration. Supply authorization details including access tokens, refresh tokens, scopes, and optional API configuration. The account can be scoped to an organization or user. Returns the created account with its unique identifier and authentication status.",
-        "tags": ["Connected Accounts"],
+        "tags": [
+          "Connected Accounts"
+        ],
         "summary": "Create a connected account",
         "operationId": "ConnectedAccountService_CreateConnectedAccount",
         "responses": {
@@ -289,7 +305,9 @@
     "/api/v1/connected_accounts/auth": {
       "get": {
         "description": "Retrieves complete authentication details for a connected account including OAuth tokens, refresh tokens, scopes, and API configuration. Query by account ID or by combination of organization/user, connector, and identifier. Returns sensitive credential information - use appropriate access controls.",
-        "tags": ["Connected Accounts"],
+        "tags": [
+          "Connected Accounts"
+        ],
         "summary": "Get connected account auth credentials",
         "operationId": "ConnectedAccountService_GetConnectedAccountAuth",
         "parameters": [
@@ -375,7 +393,9 @@
     "/api/v1/connected_accounts/details": {
       "get": {
         "description": "Returns metadata for a connected account including status, connector type, provider, and configuration without exposing stored authorization credentials. Look up by account ID, or by a combination of organization (or user), connector, and external identifier.",
-        "tags": ["Connected Accounts"],
+        "tags": [
+          "Connected Accounts"
+        ],
         "summary": "Get connected account metadata",
         "operationId": "ConnectedAccountService_GetConnectedAccountDetails",
         "parameters": [
@@ -461,7 +481,9 @@
     "/api/v1/connected_accounts/magic_link": {
       "post": {
         "description": "Creates a time-limited magic link for connecting or re-authorizing a third-party account. The link directs users to the OAuth authorization flow for the specified connector. Returns the generated link URL and expiration timestamp. Links typically expire after a short duration for security.",
-        "tags": ["Connected Accounts"],
+        "tags": [
+          "Connected Accounts"
+        ],
         "summary": "Generate authentication magic link",
         "operationId": "ConnectedAccountService_GetMagicLinkForConnectedAccount",
         "responses": {
@@ -507,7 +529,9 @@
     "/api/v1/connected_accounts/user/verify": {
       "post": {
         "description": "Confirms the user assertion and activates the connected account after the user completes third-party OAuth. Called by the B2B app server with auth_request_id and identifier. Validates that the asserted identifier matches the one stored on the auth request and promotes pending tokens to live.",
-        "tags": ["Connected Accounts"],
+        "tags": [
+          "Connected Accounts"
+        ],
         "summary": "Verify connected account user",
         "operationId": "ConnectedAccountService_VerifyConnectedAccountUser",
         "responses": {
@@ -569,7 +593,9 @@
     "/api/v1/connected_accounts:delete": {
       "post": {
         "description": "Permanently removes a connected account and revokes all associated authentication credentials. Identify the account by ID, or by combination of organization/user, connector, and identifier. This action cannot be undone. All OAuth tokens and API keys for this account will be invalidated.",
-        "tags": ["Connected Accounts"],
+        "tags": [
+          "Connected Accounts"
+        ],
         "summary": "Delete a connected account",
         "operationId": "ConnectedAccountService_DeleteConnectedAccount",
         "responses": {
@@ -621,7 +647,9 @@
     "/api/v1/connected_accounts:search": {
       "get": {
         "description": "Search for connected accounts in your environment using a text query that matches against identifiers, providers, or connectors. The search performs case-insensitive matching across account details. Returns paginated results with account status and authentication type information.",
-        "tags": ["Connected Accounts"],
+        "tags": [
+          "Connected Accounts"
+        ],
         "summary": "Search connected accounts",
         "operationId": "ConnectedAccountService_SearchConnectedAccounts",
         "parameters": [
@@ -692,7 +720,9 @@
     "/api/v1/custom-providers": {
       "post": {
         "description": "Creates an environment-scoped custom provider (connector) with authentication patterns and optional proxy configuration. The returned identifier must be used for all subsequent update and delete operations on this provider.",
-        "tags": ["Connectors"],
+        "tags": [
+          "Connectors"
+        ],
         "summary": "Create a custom provider",
         "operationId": "ProviderService_CreateCustomProvider",
         "responses": {
@@ -731,7 +761,9 @@
     "/api/v1/custom-providers/{identifier}": {
       "put": {
         "description": "Updates an existing environment-scoped custom provider (connector) by its identifier. Only the fields provided in the request are modified.",
-        "tags": ["Connectors"],
+        "tags": [
+          "Connectors"
+        ],
         "summary": "Update a custom provider",
         "operationId": "ProviderService_UpdateCustomProvider",
         "parameters": [
@@ -787,7 +819,9 @@
       },
       "delete": {
         "description": "Deletes an environment-scoped custom provider (connector) by its identifier. This operation is permanent and removes the provider definition from the environment.",
-        "tags": ["Connectors"],
+        "tags": [
+          "Connectors"
+        ],
         "summary": "Delete a custom provider",
         "operationId": "ProviderService_DeleteCustomProvider",
         "parameters": [
@@ -825,7 +859,9 @@
     "/api/v1/execute_tool": {
       "post": {
         "description": "Executes a tool action using authentication credentials from a connected account. Specify the tool by name and provide required parameters as JSON. The connected account can be identified by ID, or by combination of organization/user, connector, and identifier. Returns the execution result data and a unique execution ID for tracking. Use this endpoint to perform actions like sending emails, creating calendar events, or managing resources in external services.",
-        "tags": ["Tool Calling"],
+        "tags": [
+          "Tool Calling"
+        ],
         "summary": "Execute a tool using a connected account",
         "operationId": "ToolService_ExecuteTool",
         "responses": {
@@ -886,12 +922,22 @@
           {
             "label": "Node.js SDK",
             "lang": "javascript",
-            "source": "// Coming soon — accurate SDK snippets for Execute tool (Tool Calling) will be added via scalekit-code-doctor (SK-399)"
+            "source": "const response = await scalekit.tools.executeTool({\n  toolName: 'gmail_send_email',\n  identifier: 'user@example.com',\n  params: {\n    to: 'team@example.com',\n    subject: 'Hello from Scalekit',\n    body: 'Tool execution succeeded.',\n  },\n})"
           },
           {
             "label": "Python SDK",
             "lang": "python",
-            "source": "# Coming soon — accurate SDK snippets for Execute tool (Tool Calling) will be added via scalekit-code-doctor (SK-399)"
+            "source": "response = scalekit_client.tools.execute_tool(\n    tool_name=\"gmail_send_email\",\n    identifier=\"user@example.com\",\n    params={\n        \"to\": \"team@example.com\",\n        \"subject\": \"Hello from Scalekit\",\n        \"body\": \"Tool execution succeeded.\",\n    },\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "// Tool calling (execute_tool) is not available in the Go SDK public API yet.\n// Use the REST API (POST /api/v1/execute_tool) or the Node.js/Python SDKs."
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "// Tool calling (execute_tool) is not part of the Java SDK public API yet.\n// Use the REST API (POST /api/v1/execute_tool) or the Node.js/Python SDKs."
           }
         ]
       }
@@ -899,7 +945,9 @@
     "/api/v1/mcp/configs": {
       "get": {
         "description": "Lists MCP configurations for the current environment with optional filters for id, name prefix, and provider.",
-        "tags": ["MCP Configurations"],
+        "tags": [
+          "MCP Configurations"
+        ],
         "summary": "List MCP configurations",
         "operationId": "McpService_ListMcpConfigs",
         "parameters": [
@@ -992,7 +1040,9 @@
       },
       "post": {
         "description": "Creates a new MCP configuration with a set of connections and tools.",
-        "tags": ["MCP Configurations"],
+        "tags": [
+          "MCP Configurations"
+        ],
         "summary": "Create a new MCP configuration",
         "operationId": "McpService_CreateMcpConfig",
         "responses": {
@@ -1039,7 +1089,9 @@
     "/api/v1/mcp/configs/{config_id}": {
       "get": {
         "description": "Returns a single MCP configuration for the current environment by ID.",
-        "tags": ["MCP Configurations"],
+        "tags": [
+          "MCP Configurations"
+        ],
         "summary": "Fetch an MCP configuration",
         "operationId": "McpService_GetMcpConfig",
         "parameters": [
@@ -1092,7 +1144,9 @@
       },
       "put": {
         "description": "Updates the description and connection-to-tool mappings for an existing MCP configuration. The configuration name cannot be changed after creation.",
-        "tags": ["MCP Configurations"],
+        "tags": [
+          "MCP Configurations"
+        ],
         "summary": "Update an existing MCP configuration",
         "operationId": "McpService_UpdateMcpConfig",
         "parameters": [
@@ -1155,7 +1209,9 @@
       },
       "delete": {
         "description": "Deletes the MCP configuration and any associated mappings and instances in the current environment.",
-        "tags": ["MCP Configurations"],
+        "tags": [
+          "MCP Configurations"
+        ],
         "summary": "Delete an MCP configuration",
         "operationId": "McpService_DeleteMcpConfig",
         "parameters": [
@@ -1208,7 +1264,9 @@
     "/api/v1/mcp/configs/{config_id}/connected_accounts": {
       "post": {
         "description": "Returns the connected account state for each connection in the MCP configuration for the given user identifier. When include_auth_link is true, creates connected accounts on the fly if they do not exist and returns a fresh authentication link per connection. When include_auth_link is false or omitted, returns the current status of existing connected accounts only — no accounts are created and authentication_link is always empty. Authentication links are only present when the connection has an associated key; if the connection has no key, authentication_link is empty regardless of include_auth_link.",
-        "tags": ["MCP Configurations"],
+        "tags": [
+          "MCP Configurations"
+        ],
         "summary": "List connected accounts for an MCP configuration",
         "operationId": "McpService_ListMcpConnectedAccounts",
         "parameters": [
@@ -1265,7 +1323,9 @@
     "/api/v1/mcp/configs/{mcp_config_id}/tokens": {
       "post": {
         "description": "Mints a short-lived JWT that represents a user identifier across the connected accounts associated with an MCP configuration. The supplied identifier becomes the token's `sub` claim; the token's `aud` claim is the MCP server URL bound to the configuration. Claims also carry the MCP configuration ID (`mcp_cfg`) and the list of resolved connected-account IDs (`ca_ids`). Use this operation to issue a single credential an MCP server can present on the user's behalf when calling provider tools. The mint fails if any connection mapped to the configuration has no active connected account for the identifier.",
-        "tags": ["MCP Configurations"],
+        "tags": [
+          "MCP Configurations"
+        ],
         "summary": "Create an MCP session token",
         "operationId": "McpService_CreateMcpSessionToken",
         "parameters": [
@@ -1661,30 +1721,40 @@
     "schemas": {
       "McpServiceCreateMcpSessionTokenBody": {
         "type": "object",
-        "required": ["identifier"],
+        "required": [
+          "identifier"
+        ],
         "properties": {
           "expiry": {
             "description": "Optional token lifetime. Must be between 60s and 24h. Defaults to 1h when omitted.",
             "type": "string",
-            "examples": ["3600s"]
+            "examples": [
+              "3600s"
+            ]
           },
           "identifier": {
             "description": "Upstream-provider identifier (typically the user's email or provider user-id) shared by the connected accounts the token represents. A single identifier can map to one connected account per connection in the MCP configuration.",
             "type": "string",
             "maxLength": 255,
             "minLength": 1,
-            "examples": ["alice@acme.com"]
+            "examples": [
+              "alice@acme.com"
+            ]
           }
         }
       },
       "McpServiceListMcpConnectedAccountsBody": {
         "type": "object",
-        "required": ["identifier"],
+        "required": [
+          "identifier"
+        ],
         "properties": {
           "identifier": {
             "description": "Identifier for the end user whose connected accounts to retrieve",
             "type": "string",
-            "examples": ["john.doe@example.com"]
+            "examples": [
+              "john.doe@example.com"
+            ]
           },
           "include_auth_link": {
             "description": "When true, generates a fresh authentication link for each connection and creates connected accounts if they do not exist. When false or omitted, returns existing connected account status without creating accounts or generating links.",
@@ -1706,7 +1776,9 @@
           "description": {
             "description": "Updated description for the MCP configuration",
             "type": "string",
-            "examples": ["Updated daily summarizer config"]
+            "examples": [
+              "Updated daily summarizer config"
+            ]
           }
         }
       },
@@ -1757,33 +1829,45 @@
           "connection_id": {
             "description": "Reference to the parent connection configuration. Links this account to a specific connector setup in your environment.",
             "type": "string",
-            "examples": ["conn_24834495392086178"]
+            "examples": [
+              "conn_24834495392086178"
+            ]
           },
           "connector": {
             "description": "Connector identifier (e.g., 'notion', 'slack', 'salesforce'). Indicates which third-party application this account connects to.",
             "type": "string",
-            "examples": ["notion"]
+            "examples": [
+              "notion"
+            ]
           },
           "id": {
             "description": "Unique Scalekit-generated identifier for this connected account. Always prefixed with 'ca_'.",
             "type": "string",
-            "examples": ["ca_24834495392086178"]
+            "examples": [
+              "ca_24834495392086178"
+            ]
           },
           "identifier": {
             "description": "The unique identifier for this account in the third-party service. Typically an email address, user ID, or workspace identifier.",
             "type": "string",
-            "examples": ["user@example.com"]
+            "examples": [
+              "user@example.com"
+            ]
           },
           "last_used_at": {
             "description": "Timestamp when this connected account was last used to make an API call. Useful for tracking active connections.",
             "type": "string",
             "format": "date-time",
-            "examples": ["2024-03-20T14:30:00Z"]
+            "examples": [
+              "2024-03-20T14:30:00Z"
+            ]
           },
           "provider": {
             "description": "OAuth provider name (e.g., 'google', 'microsoft', 'github'). Identifies which authentication service manages this connection.",
             "type": "string",
-            "examples": ["google"]
+            "examples": [
+              "google"
+            ]
           },
           "status": {
             "description": "Current status of the connected account. Indicates if the account is active, expired, pending authorization, or pending user identity verification.",
@@ -1793,13 +1877,17 @@
             "description": "Expiration timestamp for the access token. After this time, the token must be refreshed or re-authorized.",
             "type": "string",
             "format": "date-time",
-            "examples": ["2024-12-31T23:59:59Z"]
+            "examples": [
+              "2024-12-31T23:59:59Z"
+            ]
           },
           "updated_at": {
             "description": "Timestamp when this connected account was last modified. Updated whenever credentials or configuration changes.",
             "type": "string",
             "format": "date-time",
-            "examples": ["2024-03-20T15:04:05Z"]
+            "examples": [
+              "2024-03-20T15:04:05Z"
+            ]
           }
         }
       },
@@ -1814,33 +1902,45 @@
           "connection_id": {
             "description": "Parent connection configuration reference.",
             "type": "string",
-            "examples": ["conn_24834495392086178"]
+            "examples": [
+              "conn_24834495392086178"
+            ]
           },
           "connector": {
             "description": "Connector identifier.",
             "type": "string",
-            "examples": ["notion"]
+            "examples": [
+              "notion"
+            ]
           },
           "id": {
             "description": "Unique connected account identifier.",
             "type": "string",
-            "examples": ["ca_24834495392086178"]
+            "examples": [
+              "ca_24834495392086178"
+            ]
           },
           "identifier": {
             "description": "The unique identifier for this account in the third-party service.",
             "type": "string",
-            "examples": ["user@example.com"]
+            "examples": [
+              "user@example.com"
+            ]
           },
           "last_used_at": {
             "description": "Last usage timestamp.",
             "type": "string",
             "format": "date-time",
-            "examples": ["2024-03-20T14:30:00Z"]
+            "examples": [
+              "2024-03-20T14:30:00Z"
+            ]
           },
           "provider": {
             "description": "OAuth provider name (e.g., 'google', 'microsoft').",
             "type": "string",
-            "examples": ["google"]
+            "examples": [
+              "google"
+            ]
           },
           "status": {
             "description": "Current connection status.",
@@ -1850,13 +1950,17 @@
             "description": "Token expiration timestamp.",
             "type": "string",
             "format": "date-time",
-            "examples": ["2024-12-31T23:59:59Z"]
+            "examples": [
+              "2024-12-31T23:59:59Z"
+            ]
           },
           "updated_at": {
             "description": "Last modification timestamp.",
             "type": "string",
             "format": "date-time",
-            "examples": ["2024-03-20T15:04:05Z"]
+            "examples": [
+              "2024-03-20T15:04:05Z"
+            ]
           }
         }
       },
@@ -1864,7 +1968,13 @@
         "description": "- ACTIVE: Account is connected and credentials are valid\n - EXPIRED: Access token has expired and needs refresh\n - PENDING_AUTH: Account awaiting user authorization (re-auth initiated)\n - PENDING_VERIFICATION: OAuth complete; awaiting user identity verification\nbefore activation\n - DISCONNECTED: Account has been manually disconnected",
         "type": "string",
         "title": "Status of a connected account indicating its current state",
-        "enum": ["ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"]
+        "enum": [
+          "ACTIVE",
+          "EXPIRED",
+          "PENDING_AUTH",
+          "PENDING_VERIFICATION",
+          "DISCONNECTED"
+        ]
       },
       "connected_accountsConnectorType": {
         "description": "- OAUTH: OAuth 2.0 authorization with access and refresh tokens\n - API_KEY: Static API key authentication\n - BASIC_AUTH: HTTP Basic Authentication (username/password)\n - BEARER_TOKEN: Bearer token authentication\n - CUSTOM: Custom authentication mechanism\n - BASIC: Basic authentication (alias)\n - OAUTH_M2M: OAuth 2.0 client credentials (machine-to-machine)\n - TRELLO_OAUTH1: Trello token-based OAuth1-style browser authorization\n - GOOGLE_DWD: Google Domain-Wide Delegation\n - TRUSTED_IDP: Trusted Identity Provider federation (e.g. AWS STS AssumeRoleWithWebIdentity)\n - SMART_FHIR: SMART on FHIR (SMART App Launch) — OAuth 2.0 authorization\nfor FHIR servers",
@@ -1896,7 +2006,10 @@
                   "oauth_token": {
                     "access_token": "...",
                     "refresh_token": "...",
-                    "scopes": ["read", "write"]
+                    "scopes": [
+                      "read",
+                      "write"
+                    ]
                   }
                 },
                 "authorization_type": "OAUTH2"
@@ -1906,22 +2019,30 @@
           "connector": {
             "description": "Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.",
             "type": "string",
-            "examples": ["notion"]
+            "examples": [
+              "notion"
+            ]
           },
           "identifier": {
             "description": "The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).",
             "type": "string",
-            "examples": ["user@example.com"]
+            "examples": [
+              "user@example.com"
+            ]
           },
           "organization_id": {
             "description": "Organization ID for the connector",
             "type": "string",
-            "examples": ["org_121312434123312"]
+            "examples": [
+              "org_121312434123312"
+            ]
           },
           "user_id": {
             "description": "User ID for the connector",
             "type": "string",
-            "examples": ["user_121312434123312"]
+            "examples": [
+              "user_121312434123312"
+            ]
           }
         }
       },
@@ -1940,27 +2061,37 @@
           "connector": {
             "description": "Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.",
             "type": "string",
-            "examples": ["notion"]
+            "examples": [
+              "notion"
+            ]
           },
           "id": {
             "description": "Unique identifier for the connected account to delete",
             "type": "string",
-            "examples": ["ca_123"]
+            "examples": [
+              "ca_123"
+            ]
           },
           "identifier": {
             "description": "The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).",
             "type": "string",
-            "examples": ["user@example.com"]
+            "examples": [
+              "user@example.com"
+            ]
           },
           "organization_id": {
             "description": "Organization ID for the connector",
             "type": "string",
-            "examples": ["org_121312434123312"]
+            "examples": [
+              "org_121312434123312"
+            ]
           },
           "user_id": {
             "description": "User ID for the connector",
             "type": "string",
-            "examples": ["user_121312434123312"]
+            "examples": [
+              "user_121312434123312"
+            ]
           }
         }
       },
@@ -1979,37 +2110,51 @@
           "connector": {
             "description": "Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.",
             "type": "string",
-            "examples": ["notion"]
+            "examples": [
+              "notion"
+            ]
           },
           "id": {
             "description": "Unique identifier for the connected account",
             "type": "string",
-            "examples": ["ca_123"]
+            "examples": [
+              "ca_123"
+            ]
           },
           "identifier": {
             "description": "The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).",
             "type": "string",
-            "examples": ["user@example.com"]
+            "examples": [
+              "user@example.com"
+            ]
           },
           "organization_id": {
             "description": "Organization ID for the connector",
             "type": "string",
-            "examples": ["org_121312434123312"]
+            "examples": [
+              "org_121312434123312"
+            ]
           },
           "state": {
             "description": "Optional opaque state value. State added to the user verify redirect URL query params to validate the user verification",
             "type": "string",
-            "examples": ["QVNDSUFyY2hhYml0dGVyXzE2ODQ5NzIwNzI0NTY="]
+            "examples": [
+              "QVNDSUFyY2hhYml0dGVyXzE2ODQ5NzIwNzI0NTY="
+            ]
           },
           "user_id": {
             "description": "User ID for the connector",
             "type": "string",
-            "examples": ["user_121312434123312"]
+            "examples": [
+              "user_121312434123312"
+            ]
           },
           "user_verify_url": {
             "description": "B2B app's user verify redirect URL",
             "type": "string",
-            "examples": ["https://app.yourapp.com/user/verify/callback"]
+            "examples": [
+              "https://app.yourapp.com/user/verify/callback"
+            ]
           }
         }
       },
@@ -2020,12 +2165,16 @@
             "description": "Expiry timestamp for the authentication link",
             "type": "string",
             "format": "date-time",
-            "examples": ["2024-03-20T15:04:05Z"]
+            "examples": [
+              "2024-03-20T15:04:05Z"
+            ]
           },
           "link": {
             "description": "Authentication link for the connector",
             "type": "string",
-            "examples": ["https://notion.com/oauth/authorize?client_id=..."]
+            "examples": [
+              "https://notion.com/oauth/authorize?client_id=..."
+            ]
           }
         }
       },
@@ -2037,7 +2186,9 @@
             "description": "OAuth access token acquired via the jwt-bearer grant. Present in responses only.",
             "type": "string",
             "readOnly": true,
-            "examples": ["ya29.a0AfH6SMBx..."]
+            "examples": [
+              "ya29.a0AfH6SMBx..."
+            ]
           },
           "scopes": {
             "description": "OAuth scopes granted to this token. Present in responses only.",
@@ -2046,12 +2197,19 @@
               "type": "string"
             },
             "readOnly": true,
-            "examples": [["openid", "https://www.googleapis.com/auth/userinfo.email"]]
+            "examples": [
+              [
+                "openid",
+                "https://www.googleapis.com/auth/userinfo.email"
+              ]
+            ]
           },
           "subject": {
             "description": "Email address of the Google Workspace user to impersonate via Domain-Wide Delegation.",
             "type": "string",
-            "examples": ["user@example.com"]
+            "examples": [
+              "user@example.com"
+            ]
           },
           "token_expires_at": {
             "description": "When the access token expires. Present in responses only.",
@@ -2075,18 +2233,24 @@
           "next_page_token": {
             "description": "Pagination token for retrieving the next page. Empty if this is the last page. Pass this value to page_token in the next request.",
             "type": "string",
-            "examples": ["eyJvZmZzZXQiOjIwfQ=="]
+            "examples": [
+              "eyJvZmZzZXQiOjIwfQ=="
+            ]
           },
           "prev_page_token": {
             "description": "Pagination token for retrieving the previous page. Empty if this is the first page. Pass this value to page_token to go back.",
             "type": "string",
-            "examples": ["eyJvZmZzZXQiOjB9"]
+            "examples": [
+              "eyJvZmZzZXQiOjB9"
+            ]
           },
           "total_size": {
             "description": "Total count of connected accounts matching the filter criteria across all pages. Use for calculating pagination.",
             "type": "integer",
             "format": "int64",
-            "examples": [100]
+            "examples": [
+              100
+            ]
           }
         }
       },
@@ -2097,17 +2261,23 @@
           "access_token": {
             "description": "OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.",
             "type": "string",
-            "examples": ["ya29.a0AfH6SMBx..."]
+            "examples": [
+              "ya29.a0AfH6SMBx..."
+            ]
           },
           "domain": {
             "description": "Associated domain for workspace or organization-scoped OAuth connections (e.g., Google Workspace domain).",
             "type": "string",
-            "examples": ["example.com"]
+            "examples": [
+              "example.com"
+            ]
           },
           "refresh_token": {
             "description": "OAuth refresh token for obtaining new access tokens. Long-lived and used to maintain persistent authorization.",
             "type": "string",
-            "examples": ["1//0gHJxZ-Lb2..."]
+            "examples": [
+              "1//0gHJxZ-Lb2..."
+            ]
           },
           "scopes": {
             "description": "List of granted OAuth scopes defining the permissions and access levels for this connection.",
@@ -2138,18 +2308,24 @@
           "next_page_token": {
             "description": "Pagination token for the next page. Empty if this is the last page.",
             "type": "string",
-            "examples": ["eyJvZmZzZXQiOjMwfQ=="]
+            "examples": [
+              "eyJvZmZzZXQiOjMwfQ=="
+            ]
           },
           "prev_page_token": {
             "description": "Pagination token for the previous page. Empty if this is the first page.",
             "type": "string",
-            "examples": ["eyJvZmZzZXQiOjB9"]
+            "examples": [
+              "eyJvZmZzZXQiOjB9"
+            ]
           },
           "total_size": {
             "description": "Total count of accounts matching the search query across all pages.",
             "type": "integer",
             "format": "int64",
-            "examples": [100]
+            "examples": [
+              100
+            ]
           }
         }
       },
@@ -2177,12 +2353,16 @@
             "description": "Federated access key ID issued by the trusted identity provider. Present in responses only.",
             "type": "string",
             "readOnly": true,
-            "examples": ["ASIA..."]
+            "examples": [
+              "ASIA..."
+            ]
           },
           "db_user": {
             "description": "Target database user for the federated session (required for provisioned Redshift clusters; ignored for serverless workgroups).",
             "type": "string",
-            "examples": ["analytics_reader"]
+            "examples": [
+              "analytics_reader"
+            ]
           },
           "expiry": {
             "description": "When the federated credentials expire. Present in responses only.",
@@ -2214,7 +2394,10 @@
                   "oauth_token": {
                     "access_token": "...",
                     "refresh_token": "...",
-                    "scopes": ["read", "write"]
+                    "scopes": [
+                      "read",
+                      "write"
+                    ]
                   }
                 },
                 "authorization_type": "OAUTH2"
@@ -2224,27 +2407,37 @@
           "connector": {
             "description": "Connector identifier (e.g., 'notion', 'slack', 'google'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed.",
             "type": "string",
-            "examples": ["notion"]
+            "examples": [
+              "notion"
+            ]
           },
           "id": {
             "description": "Unique identifier for the connected account to update",
             "type": "string",
-            "examples": ["ca_123"]
+            "examples": [
+              "ca_123"
+            ]
           },
           "identifier": {
             "description": "The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).",
             "type": "string",
-            "examples": ["user@example.com"]
+            "examples": [
+              "user@example.com"
+            ]
           },
           "organization_id": {
             "description": "Organization ID for the connector",
             "type": "string",
-            "examples": ["org_121312434123312"]
+            "examples": [
+              "org_121312434123312"
+            ]
           },
           "user_id": {
             "description": "User ID for the connector",
             "type": "string",
-            "examples": ["user_121312434123312"]
+            "examples": [
+              "user_121312434123312"
+            ]
           }
         }
       },
@@ -2259,17 +2452,24 @@
       },
       "connected_accountsVerifyConnectedAccountUserRequest": {
         "type": "object",
-        "required": ["auth_request_id", "identifier"],
+        "required": [
+          "auth_request_id",
+          "identifier"
+        ],
         "properties": {
           "auth_request_id": {
             "description": "Auth request ID as base64url-encoded opaque token from the user verify redirect URL query params",
             "type": "string",
-            "examples": ["QVNDSUFyY2hhYml0dGVyXzE2ODQ5NzIwNzI0NTY="]
+            "examples": [
+              "QVNDSUFyY2hhYml0dGVyXzE2ODQ5NzIwNzI0NTY="
+            ]
           },
           "identifier": {
             "description": "Current logged in user's connected account identifier",
             "type": "string",
-            "examples": ["user@example.com"]
+            "examples": [
+              "user@example.com"
+            ]
           }
         }
       },
@@ -2279,7 +2479,9 @@
           "post_user_verify_redirect_url": {
             "description": "URL to redirect the user to after successful verification",
             "type": "string",
-            "examples": ["https://env1.example.com/connect/success"]
+            "examples": [
+              "https://env1.example.com/connect/success"
+            ]
           }
         }
       },
@@ -2373,13 +2575,17 @@
           "description": {
             "description": "Description of the MCP configuration",
             "type": "string",
-            "examples": ["Summarizes daily emails and posts to Slack"]
+            "examples": [
+              "Summarizes daily emails and posts to Slack"
+            ]
           },
           "id": {
             "description": "Unique ID of the MCP config",
             "type": "string",
             "readOnly": true,
-            "examples": ["cfg_85630864460904897"]
+            "examples": [
+              "cfg_85630864460904897"
+            ]
           },
           "mcp_server_url": {
             "description": "URL of the MCP server for this configuration. Empty when the MCP config server URL feature is not enabled for this environment.",
@@ -2394,7 +2600,9 @@
             "type": "string",
             "maxLength": 100,
             "minLength": 1,
-            "examples": ["daily-summarizer"]
+            "examples": [
+              "daily-summarizer"
+            ]
           }
         }
       },
@@ -2524,12 +2732,16 @@
           "is_custom": {
             "description": "Indicates whether the provider is environment-scoped (custom provider)",
             "type": "boolean",
-            "examples": [false]
+            "examples": [
+              false
+            ]
           },
           "is_custom_mcp": {
             "description": "Indicates whether this is an environment-scoped MCP-based custom provider",
             "type": "boolean",
-            "examples": [false]
+            "examples": [
+              false
+            ]
           },
           "metadata": {
             "description": "Custom key-value metadata stored for this provider. Returned for all providers; defaults to {} when no metadata has been set.",
@@ -2566,27 +2778,37 @@
           "agent_run_id": {
             "description": "Optional. Customer-supplied identifier grouping multiple tool calls into a single agent run. Useful for correlating logs across an agentic workflow.",
             "type": "string",
-            "examples": ["run_abc123"]
+            "examples": [
+              "run_abc123"
+            ]
           },
           "connected_account_id": {
             "description": "Optional. The unique ID of the connected account. Use this to directly identify the connected account instead of using identifier + connector combination.",
             "type": "string",
-            "examples": ["ca_123"]
+            "examples": [
+              "ca_123"
+            ]
           },
           "connector": {
             "description": "Optional. The name of the connector/provider (e.g., 'Google Workspace', 'Slack', 'Notion'). Alphanumeric characters, spaces, hyphens, underscores, and colons are allowed. Use this in combination with identifier to identify the connected account.",
             "type": "string",
-            "examples": ["Google Workspace"]
+            "examples": [
+              "Google Workspace"
+            ]
           },
           "identifier": {
             "description": "Optional. The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier). Use this in combination with connector to identify the connected account.",
             "type": "string",
-            "examples": ["user@example.com"]
+            "examples": [
+              "user@example.com"
+            ]
           },
           "organization_id": {
             "description": "Optional. The organization ID to scope the connected account lookup. Use this to narrow down the search when the same identifier exists across multiple organizations.",
             "type": "string",
-            "examples": ["org_123"]
+            "examples": [
+              "org_123"
+            ]
           },
           "params": {
             "description": "JSON object containing the parameters required for tool execution. The structure depends on the specific tool being executed.",
@@ -2602,12 +2824,16 @@
           "tool_name": {
             "description": "Name of the tool to execute",
             "type": "string",
-            "examples": ["send_email"]
+            "examples": [
+              "send_email"
+            ]
           },
           "user_id": {
             "description": "Optional. The user ID to scope the connected account lookup. Use this to narrow down the search when the same identifier exists across multiple users.",
             "type": "string",
-            "examples": ["user_123"]
+            "examples": [
+              "user_123"
+            ]
           }
         }
       },
@@ -2628,7 +2854,9 @@
           "execution_id": {
             "description": "Unique identifier for the tool execution",
             "type": "string",
-            "examples": ["123456789"]
+            "examples": [
+              "123456789"
+            ]
           }
         }
       },
@@ -2655,7 +2883,10 @@
                 "oauth_token": {
                   "access_token": "ya29.a0...",
                   "refresh_token": "1//0g...",
-                  "scopes": ["email", "profile"]
+                  "scopes": [
+                    "email",
+                    "profile"
+                  ]
                 }
               }
             ]
@@ -2684,7 +2915,11 @@
                 "oauth_token": {
                   "access_token": "ya29.new_token...",
                   "refresh_token": "1//0g...",
-                  "scopes": ["email", "profile", "calendar"]
+                  "scopes": [
+                    "email",
+                    "profile",
+                    "calendar"
+                  ]
                 }
               }
             ]
@@ -2704,17 +2939,23 @@
           "description": {
             "description": "Description of the connected app provider",
             "type": "string",
-            "examples": ["Connect to Google Workspace for email and calendar integration"]
+            "examples": [
+              "Connect to Google Workspace for email and calendar integration"
+            ]
           },
           "display_name": {
             "description": "Display name for the connected app provider",
             "type": "string",
-            "examples": ["Google Workspace"]
+            "examples": [
+              "Google Workspace"
+            ]
           },
           "icon_src": {
             "description": "URL for the provider icon. Should be an SVG image sized 800x800 pixels for best rendering experience.",
             "type": "string",
-            "examples": ["https://example.com/images/my-connector.svg"]
+            "examples": [
+              "https://example.com/images/my-connector.svg"
+            ]
           },
           "metadata": {
             "description": "Custom key-value metadata for this provider. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.",
@@ -2732,12 +2973,16 @@
           "proxy_enabled": {
             "description": "This flag indicates whether proxying is turned on for the connected app provider. When enabled, requests are routed through the provider proxy instead of being sent directly.",
             "type": "boolean",
-            "examples": [true]
+            "examples": [
+              true
+            ]
           },
           "proxy_url": {
             "description": "Proxy URL for the connected app provider. Must start with https://",
             "type": "string",
-            "examples": ["https://mcp.example.com/mcp"]
+            "examples": [
+              "https://mcp.example.com/mcp"
+            ]
           }
         }
       },
@@ -2754,17 +2999,23 @@
           "description": {
             "description": "Description of the connected app provider",
             "type": "string",
-            "examples": ["Connect to Google Workspace for email and calendar integration"]
+            "examples": [
+              "Connect to Google Workspace for email and calendar integration"
+            ]
           },
           "display_name": {
             "description": "Display name for the connected app provider",
             "type": "string",
-            "examples": ["Google Workspace"]
+            "examples": [
+              "Google Workspace"
+            ]
           },
           "icon_src": {
             "description": "URL for the provider icon. Should be an SVG image sized 800x800 pixels for best rendering experience.",
             "type": "string",
-            "examples": ["https://example.com/images/my-connector.svg"]
+            "examples": [
+              "https://example.com/images/my-connector.svg"
+            ]
           },
           "metadata": {
             "description": "Custom key-value metadata for this provider. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.",
@@ -2782,18 +3033,29 @@
           "proxy_enabled": {
             "description": "This flag indicates whether proxying is turned on for the connected app provider. When enabled, requests are routed through the provider proxy instead of being sent directly.",
             "type": "boolean",
-            "examples": [true]
+            "examples": [
+              true
+            ]
           },
           "proxy_url": {
             "description": "Proxy URL for the connected app provider. Must start with https://",
             "type": "string",
-            "examples": ["https://mcp.example.com/mcp"]
+            "examples": [
+              "https://mcp.example.com/mcp"
+            ]
           }
         }
       },
       "ScalekitEvent": {
         "type": "object",
-        "required": ["spec_version", "id", "type", "occurred_at", "environment_id", "object"],
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object"
+        ],
         "properties": {
           "spec_version": {
             "type": "string",
@@ -2817,6 +3079,10 @@
               "organization.created",
               "organization.updated",
               "organization.deleted",
+              "organization.domain_created",
+              "organization.domain_deleted",
+              "organization.domain_dns_verification_success",
+              "organization.domain_dns_verification_failed",
               "organization.sso_created",
               "organization.sso_deleted",
               "organization.sso_enabled",
@@ -2931,7 +3197,9 @@
           "type": {
             "type": "string",
             "description": "The event type",
-            "enum": ["connected_account.status_updated"],
+            "enum": [
+              "connected_account.status_updated"
+            ],
             "example": "connected_account.status_updated"
           },
           "occurred_at": {
@@ -2951,7 +3219,9 @@
           "object": {
             "type": "string",
             "description": "The type of object that triggered the webhook",
-            "enum": ["ConnectedAccount"],
+            "enum": [
+              "ConnectedAccount"
+            ],
             "example": "ConnectedAccount"
           },
           "data": {
@@ -3000,17 +3270,43 @@
             "description": "The provider of the connected account"
           },
           "authorization_type": {
-            "$ref": "#/components/schemas/connected_accountsConnectorType",
+            "type": "string",
+            "enum": [
+              "OAUTH",
+              "API_KEY",
+              "BASIC_AUTH",
+              "BEARER_TOKEN",
+              "BASIC",
+              "OAUTH_M2M",
+              "TRELLO_OAUTH1",
+              "GOOGLE_DWD",
+              "TRUSTED_IDP",
+              "SMART_FHIR"
+            ],
             "example": "OAUTH",
             "description": "The authorization type of the connected account"
           },
           "status": {
-            "$ref": "#/components/schemas/connected_accountsConnectorStatus",
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "EXPIRED",
+              "PENDING_AUTH",
+              "PENDING_VERIFICATION",
+              "DISCONNECTED"
+            ],
             "example": "EXPIRED",
             "description": "The new status of the connected account"
           },
           "old_status": {
-            "$ref": "#/components/schemas/connected_accountsConnectorStatus",
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "EXPIRED",
+              "PENDING_AUTH",
+              "PENDING_VERIFICATION",
+              "DISCONNECTED"
+            ],
             "example": "ACTIVE",
             "description": "The previous status of the connected account"
           }

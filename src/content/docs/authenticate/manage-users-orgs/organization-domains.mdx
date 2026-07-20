@@ -366,7 +366,7 @@ All four events share the same `data` shape:
 {
   "environment_id": "env_1234567890",
   "id": "evt_4567890123",
-  "object": "OrganizationDomain",
+  "object": "Organization",
   "occurred_at": "2024-01-15T11:00:00.123456789Z",
   "organization_id": "org_1234567890",
   "spec_version": "1",
@@ -375,10 +375,13 @@ All four events share the same `data` shape:
     "id": "dom_1234567890",
     "domain": "acmecorp.com",
     "domain_type": "ORGANIZATION_DOMAIN",
-    "verification_status": "VERIFIED",
-    "verification_method": "ADMIN",
-    "create_time": "2024-01-15T11:00:00.123456789Z",
-    "update_time": "2024-01-15T11:00:00.123456789Z"
+    "organization_id": "org_1234567890",
+    "environment_id": "env_1234567890",
+    "txt_record_key": "scalekit-domain-verification",
+    "txt_record_secret": "sk_dom_verify_abc123",
+    "verification_status": "PENDING",
+    "verification_method": "DNS",
+    "updated_at": "2024-01-15T11:00:00.123456789Z"
   }
 }
 ```
@@ -388,10 +391,13 @@ All four events share the same `data` shape:
 | `id` | string | Unique identifier for the domain (`dom_` prefix) |
 | `domain` | string | The domain name |
 | `domain_type` | string | `ORGANIZATION_DOMAIN` for SSO/SCIM domains; `ALLOWED_EMAIL_DOMAIN` for auto-join domains |
-| `verification_status` | string | `PENDING`, `VERIFIED`, or `FAILED` |
+| `organization_id` | string | Organization that owns the domain (`org_` prefix) |
+| `environment_id` | string | Environment where the domain is configured (`env_` prefix) |
+| `txt_record_key` | string | DNS TXT record host used for ownership verification |
+| `txt_record_secret` | string | DNS TXT record value Scalekit expects during verification |
+| `verification_status` | string | `PENDING`, `VERIFIED`, `FAILED`, or `AUTO_VERIFIED` |
 | `verification_method` | string | `DNS` (TXT record), `ADMIN` (added by the B2B app team), or `NOT_APPLICABLE` (allowed email domains) |
-| `create_time` | string | When the domain was added |
-| `update_time` | string | When the status last changed |
+| `updated_at` | string | When the domain status last changed |
 
 Configure handlers with the [webhooks guide](/authenticate/implement-workflows/implement-webhooks/).
 

@@ -185,10 +185,31 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: // Coming soon — accurate SDK snippets for List connected accounts will be added via scalekit-code-doctor (SK-399)
+          source: |-
+            const response = await scalekit.connectedAccounts.listConnectedAccounts({
+              organizationId: 'org_123',
+              pageSize: 20,
+            })
+            const connectedAccounts = response.connectedAccounts
         - label: Python SDK
           lang: python
-          source: '# Coming soon — accurate SDK snippets for List connected accounts will be added via scalekit-code-doctor (SK-399)'
+          source: |-
+            response = scalekit_client.connected_accounts.list_connected_accounts(
+                organization_id="org_123",
+                page_size=20,
+            )
+            # with_call returns (response, call)
+            connected_accounts = response[0].connected_accounts
+        - label: Go SDK
+          lang: go
+          source: |-
+            // Connected Accounts are not available in the Go SDK public API yet.
+            // Use the REST API (GET /api/v1/connected_accounts) or the Node.js/Python SDKs.
+        - label: Java SDK
+          lang: java
+          source: |-
+            // Connected Accounts are not part of the Java SDK public API yet.
+            // Use the REST API (GET /api/v1/connected_accounts) or the Node.js/Python SDKs.
     put:
       description: Updates authentication credentials and configuration for an existing connected account. Modify OAuth tokens, refresh tokens, access scopes, or API configuration settings. Specify the account by ID, or by combination of organization/user, connector, and identifier. Returns the updated account with new token expiry and status information.
       tags:
@@ -648,10 +669,38 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: // Coming soon — accurate SDK snippets for Execute tool (Tool Calling) will be added via scalekit-code-doctor (SK-399)
+          source: |-
+            const response = await scalekit.tools.executeTool({
+              toolName: 'gmail_send_email',
+              identifier: 'user@example.com',
+              params: {
+                to: 'team@example.com',
+                subject: 'Hello from Scalekit',
+                body: 'Tool execution succeeded.',
+              },
+            })
         - label: Python SDK
           lang: python
-          source: '# Coming soon — accurate SDK snippets for Execute tool (Tool Calling) will be added via scalekit-code-doctor (SK-399)'
+          source: |-
+            response = scalekit_client.tools.execute_tool(
+                tool_name="gmail_send_email",
+                identifier="user@example.com",
+                params={
+                    "to": "team@example.com",
+                    "subject": "Hello from Scalekit",
+                    "body": "Tool execution succeeded.",
+                },
+            )
+        - label: Go SDK
+          lang: go
+          source: |-
+            // Tool calling (execute_tool) is not available in the Go SDK public API yet.
+            // Use the REST API (POST /api/v1/execute_tool) or the Node.js/Python SDKs.
+        - label: Java SDK
+          lang: java
+          source: |-
+            // Tool calling (execute_tool) is not part of the Java SDK public API yet.
+            // Use the REST API (POST /api/v1/execute_tool) or the Node.js/Python SDKs.
   /api/v1/mcp/configs:
     get:
       description: Lists MCP configurations for the current environment with optional filters for id, name prefix, and provider.
@@ -2158,6 +2207,10 @@ components:
             - organization.created
             - organization.updated
             - organization.deleted
+            - organization.domain_created
+            - organization.domain_deleted
+            - organization.domain_dns_verification_success
+            - organization.domain_dns_verification_failed
             - organization.sso_created
             - organization.sso_deleted
             - organization.sso_enabled
@@ -2315,15 +2368,38 @@ components:
           example: GMAIL
           description: The provider of the connected account
         authorization_type:
-          $ref: '#/components/schemas/connected_accountsConnectorType'
+          type: string
+          enum:
+            - OAUTH
+            - API_KEY
+            - BASIC_AUTH
+            - BEARER_TOKEN
+            - BASIC
+            - OAUTH_M2M
+            - TRELLO_OAUTH1
+            - GOOGLE_DWD
+            - TRUSTED_IDP
+            - SMART_FHIR
           example: OAUTH
           description: The authorization type of the connected account
         status:
-          $ref: '#/components/schemas/connected_accountsConnectorStatus'
+          type: string
+          enum:
+            - ACTIVE
+            - EXPIRED
+            - PENDING_AUTH
+            - PENDING_VERIFICATION
+            - DISCONNECTED
           example: EXPIRED
           description: The new status of the connected account
         old_status:
-          $ref: '#/components/schemas/connected_accountsConnectorStatus'
+          type: string
+          enum:
+            - ACTIVE
+            - EXPIRED
+            - PENDING_AUTH
+            - PENDING_VERIFICATION
+            - DISCONNECTED
           example: ACTIVE
           description: The previous status of the connected account
   securitySchemes:
