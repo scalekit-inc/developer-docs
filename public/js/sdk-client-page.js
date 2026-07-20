@@ -34,10 +34,7 @@ function syncToggleUi(btn, methods) {
   btn.classList.toggle('cb-all-expanded', fullyOpen)
   btn.setAttribute('aria-expanded', fullyOpen ? 'true' : 'false')
   btn.setAttribute('title', fullyOpen ? 'Collapse all methods' : 'Expand all methods')
-  btn.setAttribute(
-    'aria-label',
-    fullyOpen ? 'Collapse all methods' : 'Expand all methods',
-  )
+  btn.setAttribute('aria-label', fullyOpen ? 'Collapse all methods' : 'Expand all methods')
 }
 
 function bindToggleAll(page, chrome) {
@@ -93,9 +90,7 @@ function bindCopyJson(page, chrome) {
       const data = {
         name: chrome.querySelector('.cb-header-name')?.textContent?.trim(),
         language: chrome.dataset.language || undefined,
-        source:
-          chrome.querySelector('.cb-header .cb-source')?.textContent?.trim() ||
-          undefined,
+        source: chrome.querySelector('.cb-header .cb-source')?.textContent?.trim() || undefined,
         type: chrome.querySelector('.cb-header .cb-badge')?.textContent?.trim(),
         methods: list.map((el) => methodName(el)).filter(Boolean),
       }
@@ -124,14 +119,12 @@ function initSdkClientPageChrome() {
     bindToggleAll(page, chrome)
     bindCopyJson(page, chrome)
 
-    document
-      .querySelectorAll('starlight-toc a, .right-sidebar-panel nav a')
-      .forEach((a) => {
-        if (!a.title) {
-          const t = a.textContent?.trim()
-          if (t) a.title = t
-        }
-      })
+    document.querySelectorAll('starlight-toc a, .right-sidebar-panel nav a').forEach((a) => {
+      if (!a.title) {
+        const t = a.textContent?.trim()
+        if (t) a.title = t
+      }
+    })
   })
 }
 

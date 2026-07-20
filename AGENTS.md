@@ -629,6 +629,7 @@ Before publishing documentation, verify:
 - pnpm for package management
 
 <!-- dora-memory-principles:start -->
+
 ## Project principles (from dora memory)
 
 Durable rules recorded via `dora memory`. Agents should treat weight ≥ 7 as hard constraints.
@@ -637,10 +638,10 @@ Durable rules recorded via `dora memory`. Agents should treat weight ≥ 7 as ha
   Layout uses one ClassBrowser per method. Always clone expand/collapse and copy-JSON controls to strip package listeners. Handle click in capture with stopImmediatePropagation. Toggle on fully-open vs not — package toggle only sees the first browser.
 
 - **Scope ClassBrowser CSS under .sdk-client-page only** (w8)
-  Prefer plugin --cb-* CSS variables before structural selectors. Keep ClassBrowser theme rules in src/styles/sdk-reference.css. Do not scatter ClassBrowser overrides across custom.css layers or page-local style blocks.
+  Prefer plugin --cb-\* CSS variables before structural selectors. Keep ClassBrowser theme rules in src/styles/sdk-reference.css. Do not scatter ClassBrowser overrides across custom.css layers or page-local style blocks.
 
 - **SDK nav labels must be self-explanatory outcomes** (w8)
-  Labels come from src/components/sdk-reference/**/_nav.json and matching page sidebar.label. Prefer 1-3 word outcome- or object-focused labels. Never use class names like ScalekitClient as nav items — use Create client, Accounts & tools, Tool schemas, Error handling.
+  Labels come from src/components/sdk-reference/\*\*/\_nav.json and matching page sidebar.label. Prefer 1-3 word outcome- or object-focused labels. Never use class names like ScalekitClient as nav items — use Create client, Accounts & tools, Tool schemas, Error handling.
 
 - **SDK install pages use SDKInstallPanel shared chrome** (w7)
   Use shared SDKInstallPanel + GitHubSourceLink on language install pages. Do not reintroduce FoldCard install heroes or fat Nova LinkButton View on GitHub CTAs.
