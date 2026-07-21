@@ -191,14 +191,16 @@ Log both parameters in development. Do not expose raw `error_description` text t
 <details>
 <summary>`failed_to_exchange_token` after consent</summary>
 
-Token exchange failed after the user approved access. See [Common scenarios on Configure connections](/agentkit/connections/#common-scenarios) for retry steps, status page checks, and what to send support.
+Token exchange failed after the user approved access. A common cause is a missing verification redirect: the error text `user_verify_url not configured for verification redirect` means the connection uses custom user verification, but the authorization link started without a `user_verify_url`. User verification is a required security step that prevents token-theft and consent-phishing, and it is enabled by default in production. See [Verify user identity](/agentkit/user-verification/#common-scenarios) to pass `user_verify_url` or switch verification mode.
+
+For other exchange failures, see [Common scenarios on Configure connections](/agentkit/connections/#common-scenarios) for retry steps, status page checks, and what to send support.
 
 </details>
 
 <details>
 <summary>Redirect URI mismatch</summary>
 
-The redirect URI in the provider's OAuth app must match the URI shown in Scalekit exactly — protocol, host, path, and trailing slashes included.
+The redirect URI in the provider's OAuth app must match the URI shown in Scalekit exactly, including protocol, host, path, and trailing slashes.
 
 <Steps>
 1. Open **AgentKit** > **Connections** and select the connection
@@ -389,6 +391,17 @@ OAuth credentials on the connection do not match the provider's console.
 </details>
 
 <details>
+<summary>Connection returns an account id but tokens are blank</summary>
+
+A new connection returns a connected account id (for example `ca_...`), but the access token and refresh token fields come back empty. The connection is valid.
+
+Scalekit does not return raw provider tokens in API responses by default. Exposing tokens in responses widens the surface for token theft, so token retrieval is not allowed, which keeps your connected accounts safe. Your agents should not need raw tokens: `execute_tool` / `executeTool` injects the auth context automatically during tool calling in a secure environment.
+
+If your use case genuinely requires raw token access, contact [support](mailto:support@scalekit.com).
+
+</details>
+
+<details>
 <summary>Authorization succeeds but tools fail on scope</summary>
 
 The connection is missing scopes your tools require. Update scopes in the connection form, then have users re-authenticate. Scopes on existing tokens do not expand automatically.
@@ -417,5 +430,5 @@ When you contact [support](mailto:support@scalekit.com), include:
 
 Related guides:
 
-- [Configure connections](/agentkit/connections/) — setup, scopes, and common OAuth errors
-- [Manage connected accounts](/agentkit/connected-accounts/) — per-user connection state and credentials
+- [Configure connections](/agentkit/connections/): setup, scopes, and common OAuth errors
+- [Manage connected accounts](/agentkit/connected-accounts/): per-user connection state and credentials
