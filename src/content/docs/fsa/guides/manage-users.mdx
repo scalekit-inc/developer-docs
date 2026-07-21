@@ -368,6 +368,103 @@ scalekitClient.users().deleteUser("<users.getUsers(0).getId()>");
 Instead of permanently deleting users, consider updating their status to inactive. This preserves audit trails, maintains data integrity, and allows you to reactivate accounts if needed. Permanent deletion should only be used for GDPR compliance or similar legal requirements.
 </Aside>
 
+## Manage users by external ID <Badge text="API" variant="tip" />
+
+Every user operation that accepts a Scalekit user ID has an `external_id` counterpart. Store your own identifier in a user's `external_id` field, then address that user by your system's ID instead of tracking Scalekit's generated `id`. This keeps your database and Scalekit in sync without a lookup table.
+
+The examples below retrieve, update, and delete a user by external ID. The membership methods (`createMembershipByExternalId`, `updateMembershipByExternalId`, and `deleteMembershipByExternalId`) accept an organization ID and an external ID and follow the same pattern.
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+
+```javascript title="Retrieve, update, and delete a user by external ID" frame="terminal"
+// Retrieve a user using the identifier from your own system
+const { user } = await scalekit.user.getUserByExternalId("ext_12345a67b89c");
+
+// Update that user's profile
+await scalekit.user.updateUserByExternalId("ext_12345a67b89c", {
+  userProfile: {
+    firstName: "John",
+    lastName: "Smith", // Updated last name
+  },
+});
+
+// Delete the user permanently
+await scalekit.user.deleteUserByExternalId("ext_12345a67b89c");
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Retrieve, update, and delete a user by external ID" frame="terminal"
+from scalekit.v1.users.users_pb2 import UpdateUser, UpdateUserProfile
+
+# Retrieve a user using the identifier from your own system
+response = scalekit_client.users.get_user_by_external_id("ext_12345a67b89c")
+
+# Update that user's profile
+update_user = UpdateUser(
+    user_profile=UpdateUserProfile(first_name="John", last_name="Smith")
+)
+scalekit_client.users.update_user_by_external_id("ext_12345a67b89c", update_user)
+
+# Delete the user permanently
+scalekit_client.users.delete_user_by_external_id("ext_12345a67b89c")
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Retrieve, update, and delete a user by external ID" frame="terminal"
+// Retrieve a user using the identifier from your own system
+user, err := scalekitClient.User().GetUserByExternalId(ctx, "ext_12345a67b89c")
+
+// Update that user's profile
+updateUser := &usersv1.UpdateUser{
+    UserProfile: &usersv1.UpdateUserProfile{
+        FirstName: "John",
+        LastName:  "Smith", // Updated last name
+    },
+}
+_, err = scalekitClient.User().UpdateUserByExternalId(ctx, "ext_12345a67b89c", updateUser)
+
+// Delete the user permanently
+err = scalekitClient.User().DeleteUserByExternalId(ctx, "ext_12345a67b89c")
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java title="Retrieve, update, and delete a user by external ID" frame="terminal"
+// Retrieve a user using the identifier from your own system
+GetUserResponse user = scalekitClient.users().getUserByExternalId("ext_12345a67b89c");
+
+// Update that user's profile
+UpdateUser updateUser = UpdateUser.newBuilder()
+    .setUserProfile(
+        UpdateUserProfile.newBuilder()
+            .setFirstName("John")
+            .setLastName("Smith") // Updated last name
+            .build())
+    .build();
+
+UpdateUserRequest updateReq = UpdateUserRequest.newBuilder()
+    .setUser(updateUser)
+    .build();
+
+scalekitClient.users().updateUserByExternalId("ext_12345a67b89c", updateReq);
+
+// Delete the user permanently
+scalekitClient.users().deleteUserByExternalId("ext_12345a67b89c");
+```
+
+</TabItem>
+</Tabs>
+
+<Aside type="note" title="Set an external ID before you look one up">
+These methods resolve a user only when you have stored an `external_id` for that user. To learn how to assign external IDs and metadata to users and organizations, see [Set external IDs & metadata](/fsa/guides/organization-identifiers/).
+</Aside>
+
 ## Manage user memberships in the Scalekit dashboard
 
 The Scalekit dashboard provides a fast, centralized way to manage users across organizations. Quickly view user lists, edit profile details, and update access controls—all from a single interface.
