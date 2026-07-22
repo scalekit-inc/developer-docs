@@ -36,13 +36,19 @@ This cookbook builds a three-agent email triage crew: one agent scans unread ema
 
 The complete source is available in the [crewai-scalekit-example](https://github.com/scalekit-developers/crewai-scalekit-example) repository.
 
-### 1. Set up a Gmail connection in Scalekit
+### 1. Set up Gmail and a Virtual MCP server
+
+New environments do not ship with a Virtual MCP server. Create the Gmail connection and the MCP config **before** you run the sample — otherwise `list_configs` returns an empty list.
 
 In the [Scalekit Dashboard](https://app.scalekit.com):
 
 1. Go to **AgentKit** → **Connections** → **Create Connection** and select **Gmail**.
-2. Note the **Connection name** — your code references it by this exact string.
-3. Go to **AgentKit** → **MCP Configs** and create a config (for example `gmail-user-tools`) that includes Gmail tools. This config name goes into your environment variables.
+2. Note the **Connection name** — your code references it by this exact string (for example `gmail`).
+3. Go to **AgentKit** → **MCP Configs** → **Create** and create a Virtual MCP config (for example `gmail-user-tools`).
+4. Attach the Gmail connection and include the tools the crew needs (at least `gmail_fetch_mails`).
+5. Copy the **config name** into `SCALEKIT_MCP_CONFIG_NAME` below.
+
+For the full API path (create config, mint session tokens, connect agents), see [Set up and connect a Virtual MCP server](/agentkit/mcp/configure-mcp-server/).
 
 ### 2. Install dependencies
 
@@ -67,7 +73,10 @@ SCALEKIT_CLIENT_SECRET=your-secret
 # User identifier from your application
 SCALEKIT_USER_IDENTIFIER=user_123
 
-# MCP config name — must match the config in the Scalekit Dashboard
+# Exact Connection name from AgentKit → Connections
+GMAIL_CONNECTION_NAME=gmail
+
+# MCP config name — must match the Virtual MCP config created in step 1
 SCALEKIT_MCP_CONFIG_NAME=gmail-user-tools
 
 # LLM — any OpenAI-compatible endpoint
@@ -83,10 +92,11 @@ from dotenv import find_dotenv, load_dotenv
 
 load_dotenv(find_dotenv())
 
+# Constructor: env_url, client_id, client_secret
 scalekit_client = ScalekitClient(
-    env_url=os.environ["SCALEKIT_ENV_URL"],
-    client_id=os.environ["SCALEKIT_CLIENT_ID"],
-    client_secret=os.environ["SCALEKIT_CLIENT_SECRET"],
+    os.environ["SCALEKIT_ENV_URL"],
+    os.environ["SCALEKIT_CLIENT_ID"],
+    os.environ["SCALEKIT_CLIENT_SECRET"],
 )
 actions = scalekit_client.actions
 
@@ -96,32 +106,59 @@ USER_ID = os.getenv("SCALEKIT_USER_IDENTIFIER", "user_123")
 Before calling any Gmail tool, check whether the user has an active connected account. If not, print an authorization link and wait for them to complete OAuth in the browser:
 
 ```python
+# Use the exact Connection name from AgentKit → Connections (not a guessed slug).
+CONNECTION_NAME = os.getenv("GMAIL_CONNECTION_NAME", "gmail")
+
 response = actions.get_or_create_connected_account(
-    connection_name="gmail",
+    connection_name=CONNECTION_NAME,
     identifier=USER_ID,
 )
-if response.connected_account.status != "ACTIVE":
+connected_account = response.connected_account
+
+# Do not start the crew until status is ACTIVE.
+if connected_account.status != "ACTIVE":
     link = actions.get_authorization_link(
-        connection_name="gmail",
+        connection_name=CONNECTION_NAME,
         identifier=USER_ID,
     )
-    print(f"\n[gmail] Authorization required.")
+    print(f"\n[{CONNECTION_NAME}] Authorization required.")
     print(f"Open this link:\n\n  {link.link}\n")
     input("Press Enter after authorizing...")
+    response = actions.get_or_create_connected_account(
+        connection_name=CONNECTION_NAME,
+        identifier=USER_ID,
+    )
+    connected_account = response.connected_account
+
+if connected_account.status != "ACTIVE":
+    raise RuntimeError(
+        f"{CONNECTION_NAME} is still not ACTIVE. Complete authorization and try again."
+    )
 ```
 
 After the first successful authorization, `get_or_create_connected_account` returns an active account on all subsequent runs. Scalekit refreshes expired tokens automatically.
 
 ### 5. Connect to Gmail tools via MCP
 
-Get the Virtual MCP Server URL and mint a session token, then pass both to `MCPServerAdapter`:
+Look up the Virtual MCP config you created in step 1, mint a session token, then pass both to `MCPServerAdapter`.
+
+If `list_configs` returns no results, stop and create the config first (dashboard or [configure-mcp-server](/agentkit/mcp/configure-mcp-server/)). Do not assume a default Virtual MCP server exists.
 
 ```python
 from crewai_tools import MCPServerAdapter
 from datetime import timedelta
 
+mcp_config_name = os.getenv("SCALEKIT_MCP_CONFIG_NAME", "gmail-user-tools")
+
 # Retrieve config_id by listing Virtual MCP Servers filtered by name
-list_response = actions.mcp.list_configs(filter_name=os.getenv("SCALEKIT_MCP_CONFIG_NAME", "gmail-user-tools"))
+list_response = actions.mcp.list_configs(filter_name=mcp_config_name)
+if not list_response.configs:
+    raise RuntimeError(
+        f"No Virtual MCP config named '{mcp_config_name}'. "
+        "Create one under AgentKit → MCP Configs (include Gmail tools), "
+        "or follow https://docs.scalekit.com/agentkit/mcp/configure-mcp-server/"
+    )
+
 mcp_server_url = list_response.configs[0].mcp_server_url
 mcp_id = list_response.configs[0].id
 
@@ -320,9 +357,9 @@ On subsequent runs, the authorization step is skipped entirely.
 <details>
 <summary>MCP config not found</summary>
 
-- **Symptom**: `list_configs` returns an empty list
-- **Cause**: `SCALEKIT_MCP_CONFIG_NAME` does not match any config in the dashboard
-- **Fix**: Go to **AgentKit → MCP Configs** and verify the config name. Create one if it doesn't exist — it needs to include the Gmail tools you want exposed.
+- **Symptom**: `list_configs` returns an empty list, or `configs[0]` raises `IndexError`
+- **Cause**: No Virtual MCP server exists yet, or `SCALEKIT_MCP_CONFIG_NAME` does not match the dashboard name
+- **Fix**: Create a config under **AgentKit → MCP Configs** that includes Gmail tools, then set `SCALEKIT_MCP_CONFIG_NAME` to that exact name. See [Set up and connect a Virtual MCP server](/agentkit/mcp/configure-mcp-server/).
 
 </details>
 
