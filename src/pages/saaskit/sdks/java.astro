@@ -1,0 +1,129 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
+import { Badge, Code } from '@astrojs/starlight/components'
+import { getCollection, render } from 'astro:content'
+import SDKInstallPanel from '@components/SDKInstallPanel.astro'
+import '@/styles/sdk-reference.css'
+
+const allReleases = await getCollection('github-releases', (entry) => {
+  const data = entry.data as any
+  return data.repoNameWithOwner === 'scalekit-inc/scalekit-sdk-java'
+})
+
+const releases = allReleases
+  .sort((a, b) => {
+    const dataA = a.data as any
+    const dataB = b.data as any
+    const dateA = dataA.publishedAt ? new Date(dataA.publishedAt).getTime() : 0
+    const dateB = dataB.publishedAt ? new Date(dataB.publishedAt).getTime() : 0
+    return dateB - dateA
+  })
+  .slice(0, 10)
+
+const latestRelease = releases.length > 0 ? (releases[0].data as any) : null
+const version = latestRelease?.tagName || '2.0.11'
+
+const frontmatter = {
+  title: 'Java SDK',
+  topic: 'saaskit-sdks',
+  template: 'doc' as const,
+  tableOfContents: false,
+  sidebar: {
+    label: 'Java',
+  },
+  prev: false,
+  next: false,
+}
+---
+
+<StarlightPage frontmatter={frontmatter} hasSidebar={true}>
+  <SDKInstallPanel
+    githubHref="https://github.com/scalekit-inc/scalekit-sdk-java"
+    version={latestRelease?.tagName}
+    badges={['Spring Boot', 'Maven Central']}
+    updatedAt={latestRelease?.publishedAt}
+  >
+    <Code
+      code={`// Gradle
+implementation "com.scalekit:scalekit-sdk-java:${version}"
+
+// Maven
+<dependency>
+  <groupId>com.scalekit</groupId>
+  <artifactId>scalekit-sdk-java</artifactId>
+  <version>${version}</version>
+</dependency>`}
+      lang="xml"
+      showLineNumbers={false}
+      frame="none"
+    />
+  </SDKInstallPanel>
+
+  <section class="sdk-page-section" aria-labelledby="initialize">
+    <h2 id="initialize">Initialize</h2>
+    <Code
+      code={`import com.scalekit.ScalekitClient;
+
+public class ScalekitConfig {
+    public ScalekitClient scalekitClient() {
+        return new ScalekitClient(
+            System.getenv("SCALEKIT_ENVIRONMENT_URL"),
+            System.getenv("SCALEKIT_CLIENT_ID"),
+            System.getenv("SCALEKIT_CLIENT_SECRET")
+        );
+    }
+}`}
+      lang="java"
+      frame="terminal"
+      title="Initialize the client"
+      showLineNumbers={false}
+    />
+  </section>
+
+  {
+    releases.length > 0 && (
+      <section class="sdk-changelog">
+        <div class="sdk-changelog__head">
+          <h2 class="sdk-changelog__title">Changelog</h2>
+          <a
+            href="https://github.com/scalekit-inc/scalekit-sdk-java/releases"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="sdk-changelog__all"
+          >
+            View all releases →
+          </a>
+        </div>
+        <div class="sdk-changelog__list">
+          {await Promise.all(
+            releases.map(async (release) => {
+              const { Content } = await render(release)
+              const data = release.data as any
+              return (
+                <article class="sdk-changelog__item">
+                  <div class="sdk-changelog__item-head">
+                    <Badge text={data.tagName} variant="default" />
+                    {data.isPrerelease && <Badge text="Pre-release" variant="note" />}
+                    {data.isDraft && <Badge text="Draft" variant="note" />}
+                    {data.publishedAt && (
+                      <time datetime={data.publishedAt} class="sdk-changelog__date">
+                        {new Date(data.publishedAt).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                        })}
+                      </time>
+                    )}
+                  </div>
+                  <div class="sdk-changelog__body">
+                    <Content />
+                  </div>
+                </article>
+              )
+            }),
+          )}
+        </div>
+      </section>
+    )
+  }
+</StarlightPage>

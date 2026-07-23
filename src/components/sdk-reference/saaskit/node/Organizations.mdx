@@ -1,0 +1,144 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="Organizations"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main"
+  language="typescript"
+>
+
+  <CB.ClassMethod name="createOrganization">
+    Creates a new organization (tenant) in your Scalekit application. Organizations represent your B2B customers. Each organization can have its own SSO connections, users, and configuration. Use the external ID to map Scalekit organizations to your internal system's identifiers.
+
+  </CB.ClassMethod>
+
+```typescript
+const org = await scalekit.organization.createOrganization(
+  'Acme Corporation',
+  { externalId: 'customer_12345' }
+);
+
+console.log('Organization ID:', org.organization.id);
+```
+
+  <CB.ClassMethod name="listOrganization">
+    Retrieves a paginated list of all organizations in your Scalekit environment. This method returns all organizations with support for pagination. Use this to display a list of your B2B customers, search for organizations, or perform bulk operations.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekit.organization.listOrganization({
+  pageSize: 20
+});
+
+console.log('Organizations:', response.organizations);
+console.log('Total:', response.totalSize);
+```
+
+  <CB.ClassMethod name="getOrganization">
+    Retrieves detailed information about a specific organization using its Scalekit ID. Use this method to fetch complete organization details including display name, region, metadata, settings, and configuration.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekit.organization.getOrganization('org_12345');
+const org = response.organization;
+
+console.log('Organization:', org.displayName);
+console.log('External ID:', org.externalId);
+```
+
+  <CB.ClassMethod name="getOrganizationByExternalId">
+    Retrieves detailed information about an organization using your system's external identifier. This is particularly useful when you need to look up an organization using your own internal identifiers rather than Scalekit's ID.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekit.organization.getOrganizationByExternalId('customer_12345');
+const org = response.organization;
+
+console.log('Scalekit ID:', org.id);
+console.log('Organization:', org.displayName);
+```
+
+  <CB.ClassMethod name="updateOrganization">
+    Updates an organization's properties using its Scalekit ID. Use this method to modify an organization's display name, external ID, or custom metadata. Only the fields you specify in the update object will be changed.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekit.organization.updateOrganization('org_12345', {
+  displayName: 'Acme Corporation (Updated)',
+  metadata: {
+    industry: 'Technology',
+    size: 'Enterprise'
+  }
+});
+```
+
+  <CB.ClassMethod name="updateOrganizationByExternalId">
+    Updates an organization's properties using your system's external identifier. This method provides the same functionality as updateOrganization but allows you to reference the organization using your own internal identifier.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekit.organization.updateOrganizationByExternalId(
+  'customer_12345',
+  { displayName: 'New Company Name' }
+);
+```
+
+  <CB.ClassMethod name="deleteOrganization">
+    Permanently deletes an organization from your Scalekit environment. This operation removes the organization and all associated data including SSO connections, users, and settings. This action cannot be undone, so use with caution.
+
+  </CB.ClassMethod>
+
+```typescript
+await scalekit.organization.deleteOrganization('org_12345');
+console.log('Organization deleted successfully');
+```
+
+  <CB.ClassMethod name="generatePortalLink">
+    Creates a single use Admin Portal URL valid for 1 minute. Once the generated admin portal URL is accessed or rendered, a temporary session of 6 hours is created to allow the admin to update SSO/SCIM configuration.
+
+  </CB.ClassMethod>
+
+```typescript
+app.get('/admin/sso-settings', async (req, res) => {
+  const organizationId = req.user.organizationId;
+
+  const link = await scalekit.organization.generatePortalLink(organizationId);
+
+  res.redirect(link.location);
+});
+```
+
+  <CB.ClassMethod name="updateOrganizationSettings">
+    Updates configuration settings and feature flags for an organization. Use this method to enable or disable organization-level features such as SSO configuration, directory synchronization, session management, and other organization-specific settings.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekit.organization.updateOrganizationSettings('org_12345', {
+  features: [
+    { name: 'sso', enabled: true },
+    { name: 'directory_sync', enabled: true }
+  ]
+});
+```
+
+  <CB.ClassMethod name="upsertUserManagementSettings">
+    Creates or updates user management settings for an organization. This method allows you to configure user-related constraints and policies at the organization level, such as setting a maximum number of allowed users.
+
+  </CB.ClassMethod>
+
+```typescript
+const settings = await scalekit.organization.upsertUserManagementSettings(
+  'org_12345',
+  { maxAllowedUsers: 100 }
+);
+
+console.log('Max users allowed:', settings?.maxAllowedUsers);
+```
+
+</CB.ClassBrowser>

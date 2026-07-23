@@ -1,0 +1,340 @@
+---
+title: Directory sync
+description: Sync users and groups via SCIM directories
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Directory sync
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+
+Use the directory client for SCIM directory sync—listing providers, users, and groups provisioned from an IdP.
+
+Use this after SSO is in place when the customer provisions users via SCIM.
+
+### CreateDirectory
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/directory.go">
+    <CB.ClassMethod name="CreateDirectory" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `CreateDirectory` and returns the result.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="directory" type="directoriesv1.CreateDirectory">
+        Directory.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateDirectoryResponse">
+        The created resource.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+import (
+  directoriesv1 "github.com/scalekit-inc/scalekit-sdk-go/v2/pkg/grpc/scalekit/v1/directories"
+)
+
+created, err := scalekitClient.Directory().CreateDirectory(ctx, "org_123", &directoriesv1.CreateDirectory{
+  DirectoryType:     directoriesv1.DirectoryType_SCIM,
+  DirectoryProvider: directoriesv1.DirectoryProvider_OKTA,
+})
+if err != nil {
+  // handle
+}
+_ = created.Directory
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### DeleteDirectory
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/directory.go">
+    <CB.ClassMethod name="DeleteDirectory" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `DeleteDirectory` and returns the result.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="directoryId" type="string">
+        Directory ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="error">
+        error
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+if err := scalekitClient.Directory().DeleteDirectory(ctx, "org_123", "dir_456"); err != nil {
+  // handle
+}
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### ListDirectories
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/directory.go">
+    <CB.ClassMethod name="ListDirectories" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `ListDirectories` and returns the result.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListDirectoriesResponse">
+        Paginated results.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+dirs, err := scalekitClient.Directory().ListDirectories(ctx, "org_123")
+if err != nil {
+  // handle
+}
+_ = dirs.Directories
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### GetDirectory
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/directory.go">
+    <CB.ClassMethod name="GetDirectory" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `GetDirectory` and returns the result.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="directoryId" type="string">
+        Directory ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetDirectoryResponse">
+        The response payload for this operation.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+dir, err := scalekitClient.Directory().GetDirectory(ctx, "org_123", "dir_123")
+if err != nil {
+  // handle
+}
+_ = dir.Directory
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### GetPrimaryDirectoryByOrganizationId
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/directory.go">
+    <CB.ClassMethod name="GetPrimaryDirectoryByOrganizationId" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `GetPrimaryDirectoryByOrganizationId` and returns the result.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetDirectoryResponse">
+        The response payload for this operation.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+dir, err := scalekitClient.Directory().GetPrimaryDirectoryByOrganizationId(ctx, "org_123")
+if err != nil {
+  // handle
+}
+_ = dir.Directory
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### ListDirectoryUsers
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/directory.go">
+    <CB.ClassMethod name="ListDirectoryUsers" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `ListDirectoryUsers` and returns the result.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="directoryId" type="string">
+        Directory ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="ListDirectoryUsersOptions">
+        Optional request settings.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListDirectoryUsersResponse">
+        Paginated results.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+includeDetail := true
+updatedAfter := time.Unix(1729851960, 0)
+
+resp, err := scalekitClient.Directory().ListDirectoryUsers(ctx, "org_123", "dir_123", &scalekit.ListDirectoryUsersOptions{
+  PageSize:      10,
+  PageToken:     "",
+  IncludeDetail: &includeDetail,
+  UpdatedAfter:  &updatedAfter,
+})
+if err != nil {
+  // handle
+}
+_ = resp.Users
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### ListDirectoryGroups
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/directory.go">
+    <CB.ClassMethod name="ListDirectoryGroups" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `ListDirectoryGroups` and returns the result.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="directoryId" type="string">
+        Directory ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="ListDirectoryGroupsOptions">
+        Optional request settings.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListDirectoryGroupsResponse">
+        Paginated results.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+includeDetail := true
+resp, err := scalekitClient.Directory().ListDirectoryGroups(ctx, "org_123", "dir_123", &scalekit.ListDirectoryGroupsOptions{
+  PageSize:      10,
+  PageToken:     "",
+  IncludeDetail: &includeDetail,
+})
+if err != nil {
+  // handle
+}
+_ = resp.Groups
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### EnableDirectory
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/directory.go">
+    <CB.ClassMethod name="EnableDirectory" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `EnableDirectory` and returns the result.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="directoryId" type="string">
+        Directory ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ToggleDirectoryResponse">
+        The updated resource.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+resp, err := scalekitClient.Directory().EnableDirectory(ctx, "org_123", "dir_123")
+if err != nil {
+  // handle
+}
+_ = resp.Enabled
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### DisableDirectory
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/directory.go">
+    <CB.ClassMethod name="DisableDirectory" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `DisableDirectory` and returns the result.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="directoryId" type="string">
+        Directory ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ToggleDirectoryResponse">
+        The updated resource.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+resp, err := scalekitClient.Directory().DisableDirectory(ctx, "org_123", "dir_123")
+if err != nil {
+  // handle
+}
+_ = resp.Enabled
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
+</div>

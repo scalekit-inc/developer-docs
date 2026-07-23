@@ -1,0 +1,61 @@
+---
+title: Authorization
+description: Authorization helpers for protected resources
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Authorization
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+
+Use auth helpers for authorization code exchange, token validation, and related login token flows on the Scalekit client.
+
+These methods sit next to session management—use them when implementing hosted login callbacks and token checks.
+
+### UpdateLoginUserDetails
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Auth" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/auth_service.go">
+    <CB.ClassMethod name="UpdateLoginUserDetails" open={true}>
+
+      Runs `UpdateLoginUserDetails` and returns the result.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="req" type="UpdateLoginUserDetailsRequest">
+        Req.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="error">
+        error
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+req := &scalekit.UpdateLoginUserDetailsRequest{
+  ConnectionId:   "conn_123",
+  LoginRequestId: "login_req_123",
+  User: &scalekit.LoggedInUserDetails{
+    Sub:   "sub",
+    Email: "user@example.com",
+  },
+}
+
+if err := scalekitClient.Auth().UpdateLoginUserDetails(ctx, req); err != nil {
+  // handle
+}
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
+</div>

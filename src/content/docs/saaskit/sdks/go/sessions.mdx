@@ -1,0 +1,154 @@
+---
+title: Sessions
+description: Validate tokens and manage user sessions
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Sessions
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+
+Use the Session client to inspect session metadata and revoke sessions when users sign out or you detect risk.
+
+Typical flows: load a session by ID after authentication, list a user's sessions for a security UI, and revoke one session or all of a user's sessions on logout.
+
+### GetSession
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Sessions" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/sessions.go">
+    <CB.ClassMethod name="GetSession" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      GetSession retrieves session details by session ID
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="sessionId" type="string">
+        Session ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="SessionDetails">
+        The response payload for this operation.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+session, err := scalekitClient.Session().GetSession(ctx, "ses_123")
+if err != nil {
+  // handle
+}
+_ = session
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### GetUserSessions
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Sessions" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/sessions.go">
+    <CB.ClassMethod name="GetUserSessions" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      GetUserSessions retrieves all session details for a user
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="userId" type="string">
+        Scalekit user ID (`usr_...`).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="pageSize" type="uint32">
+        Page size.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="pageToken" type="string">
+        Page token.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="filter" type="UserSessionFilter">
+        Result filter.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UserSessionDetails">
+        The response payload for this operation.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+resp, err := scalekitClient.Session().GetUserSessions(ctx, "usr_123", 10, "", nil)
+if err != nil {
+  // handle
+}
+_ = resp.Sessions
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### RevokeSession
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Sessions" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/sessions.go">
+    <CB.ClassMethod name="RevokeSession" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      RevokeSession revokes a session for a user
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="sessionId" type="string">
+        Session ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="RevokeSessionResponse">
+        Empty on success.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+resp, err := scalekitClient.Session().RevokeSession(ctx, "ses_123")
+if err != nil {
+  // handle
+}
+_ = resp
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### RevokeAllUserSessions
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Sessions" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/sessions.go">
+    <CB.ClassMethod name="RevokeAllUserSessions" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      RevokeAllUserSessions revokes all sessions for a user
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="userId" type="string">
+        Scalekit user ID (`usr_...`).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="RevokeAllUserSessionsResponse">
+        Empty on success.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+resp, err := scalekitClient.Session().RevokeAllUserSessions(ctx, "usr_123")
+if err != nil {
+  // handle
+}
+_ = resp
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
+</div>

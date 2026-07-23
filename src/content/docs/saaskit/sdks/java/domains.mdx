@@ -1,0 +1,135 @@
+---
+title: Domains
+description: Manage organization email domains
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Domains
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+
+Use `scalekitClient.domains()` to manage verified email domains for an organization (SSO routing and domain-based policies).
+
+Add a domain, complete verification, then use it with SSO and organization policies.
+
+### createDomain
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Domains" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/DomainClient.java">
+    <CB.ClassMethod name="createDomain" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      createDomain creates a new domain using a request object
+
+      <CB.ClassMethodInput name="request" type="CreateDomainRequest">
+        Request payload.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="Domain">
+        The created resource.
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+import com.scalekit.grpc.scalekit.v1.domains.CreateDomainRequest;
+
+CreateDomainRequest req = CreateDomainRequest.newBuilder()
+  .setOrganizationId("org_123")
+  .setDomain("acme.com")
+  .build();
+
+scalekitClient.domains().createDomain(req);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### getDomainById
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Domains" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/DomainClient.java">
+    <CB.ClassMethod name="getDomainById" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `getDomainById` and returns the result.
+
+      <CB.ClassMethodInput name="organizationId" type="String">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="domainId" type="String">
+        Domain id.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="Domain">
+        The response payload for this operation.
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+scalekitClient.domains().getDomainById("org_123", "dom_123");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### listDomainsByOrganizationId
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Domains" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/DomainClient.java">
+    <CB.ClassMethod name="listDomainsByOrganizationId" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `listDomainsByOrganizationId` and returns the result.
+
+      <CB.ClassMethodInput name="organizationId" type="String">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="domainType" type="DomainType">
+        Domain type.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="List(Domain)">
+        List(Domain)
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+import com.scalekit.grpc.scalekit.v1.domains.DomainType;
+
+scalekitClient.domains().listDomainsByOrganizationId("org_123", DomainType.DOMAIN_TYPE_PRIMARY);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### deleteDomain
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Domains" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/DomainClient.java">
+    <CB.ClassMethod name="deleteDomain" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      deleteDomain deletes a domain by its ID
+
+      <CB.ClassMethodInput name="organizationId" type="String">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="domainId" type="String">
+        Domain id.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="void">
+        No return value
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+scalekitClient.domains().deleteDomain("org_123", "dom_123");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
+</div>

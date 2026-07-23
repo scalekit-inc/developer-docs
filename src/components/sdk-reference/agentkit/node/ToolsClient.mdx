@@ -1,0 +1,103 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+`scalekit.tools` gives access to raw tool schemas. Use this when building a custom framework adapter or passing schemas directly to an LLM API.
+
+<CB.ClassBrowser
+  name="ToolsClient"
+  type="class"
+  source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/tools.ts"
+  language="typescript"
+>
+
+  <CB.ClassMethod name="listTools">
+    Lists all tools available in your workspace.
+
+    <CB.ClassMethodInput name="filter" type="Filter">
+        Filter by provider, identifier, or tool name
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="pageSize" type="number">
+        Maximum tools per page (server default if omitted)
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="pageToken" type="string">
+        Opaque cursor from a previous list response
+      </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="ListToolsResponse">
+        Paginated tools.
+      </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+  <CB.ClassMethod name="listScopedTools">
+    Lists tools scoped to a specific user. Use this for tool discovery because it returns pagination metadata such as `nextPageToken` and `totalSize`.
+
+    <CB.ClassMethodInput name="identifier" type="string">
+        User's connected account identifier **Required.**
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="filter" type="ScopedToolFilter">
+        Filter by providers, tool names, or connection names
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="pageSize" type="number">
+        Maximum tools per page.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="pageToken" type="string">
+        Opaque cursor from a previous list response
+      </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="ListScopedToolsResponse">
+        Paginated tools.
+      </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+```ts title="Example"
+const { tools } = await scalekit.tools.listScopedTools('user@example.com', {
+  filter: { connectionNames: ['gmail'] },
+  pageSize: 100,
+});
+// Pass tools to your LLM's tool call API
+```
+
+  <CB.ClassMethod name="listAvailableTools">
+    Lists tools available for a given identifier. These tools can be activated but may not yet be scoped to the user.
+
+    <CB.ClassMethodInput name="identifier" type="string">
+        User's connected account identifier **Required.**
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="pageSize" type="number">
+        Maximum tools per page (server default if omitted)
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="pageToken" type="string">
+        Opaque cursor from a previous list response
+      </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="ListAvailableToolsResponse">
+        Paginated tools.
+      </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+  <CB.ClassMethod name="executeTool">
+    Low-level tool execution. Prefer `scalekit.actions.executeTool` for most use cases.
+
+    <CB.ClassMethodInput name="toolName" type="string">
+        Registered tool name to execute **Required.**
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="identifier" type="string">
+        End-user or workspace identifier used to resolve.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="params" type="Record&lt;string, unknown&gt;">
+        Tool arguments matching the tool input schema
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="connectedAccountId" type="string">
+        Connected account ID (ca_...) when you already know it
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="connector" type="string">
+        Connector slug when the tool name exists on more than one.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="organizationId" type="string">
+        Organization tenant ID.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="userId" type="string">
+        Your app user ID.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="ExecuteToolResponse">
+        Tool execution result.
+      </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+</CB.ClassBrowser>

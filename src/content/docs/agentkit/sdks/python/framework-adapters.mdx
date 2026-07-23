@@ -1,0 +1,66 @@
+---
+title: Frameworks
+description: Adapters for agent frameworks
+topic: agentkit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Frameworks
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+
+Framework adapters map Scalekit tools into popular agent frameworks so you can register tools without hand-writing schema conversion.
+
+Pick the adapter for your stack, pass the Scalekit client, and register tools on the agent. See [Accounts & tools](/agentkit/sdks/python/actions/) for the underlying client and [Error handling](/agentkit/sdks/python/errors/) for exceptions.
+
+### actions.langchain.get_tools
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="LangChain" type="class" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/actions/frameworks/langchain.py">
+    <CB.ClassMethod name="get_tools" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      List scoped tools for an identifier and return LangChain `StructuredTool` objects.
+
+      <CB.ClassMethodInput name="identifier" type="str">
+        Connected-account identifier to scope tools. **Required.**
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="providers" type="Optional[List[str]]">
+        Filter by provider names.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="tool_names" type="Optional[List[str]]">
+        Filter by tool names.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="connection_names" type="Optional[List[str]]">
+        Filter by connection names.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="page_size" type="Optional[int]">
+        Maximum tools per page.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="page_token" type="Optional[str]">
+        Pagination token.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="List[StructuredTool]">
+        LangChain structured tools.
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+tools = scalekit_client.actions.langchain.get_tools(
+    identifier="user@example.com",
+    connection_names=["GMAIL"],
+    page_size=50,
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+</div>

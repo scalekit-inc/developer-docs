@@ -1,0 +1,255 @@
+---
+title: Directory sync
+description: Sync users and groups via SCIM directories
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Directory sync
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+
+Use the `directory` client for SCIM directory sync—listing providers, users, and groups provisioned from an IdP.
+
+Use this after SSO is in place when the customer provisions users via SCIM.
+
+### listDirectories
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/directory.ts">
+    <CB.ClassMethod name="listDirectories" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Retrieves all SCIM directories configured for an organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListDirectoriesResponse">
+        Directories for the org.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.directory.listDirectories('org_123456');
+
+console.log(`Found ${response.directories.length} directories`);
+response.directories.forEach(dir => {
+  console.log(`- ${dir.provider}: ${dir.enabled ? 'Active' : 'Inactive'}`);
+  console.log(`  Users: ${dir.userCount}, Groups: ${dir.groupCount}`);
+});
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### getDirectory
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/directory.ts">
+    <CB.ClassMethod name="getDirectory" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Retrieves comprehensive details about a specific SCIM directory.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="directoryId" type="string">
+        The directory identifier to retrieve (format: "dir_...")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetDirectoryResponse">
+        The directory.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.directory.getDirectory(
+  'org_123456',
+  'dir_abc123'
+);
+
+const dir = response.directory;
+console.log('Provider:', dir.provider);
+console.log('Status:', dir.enabled ? 'Active' : 'Inactive');
+console.log('Users:', dir.userCount);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### getPrimaryDirectoryByOrganizationId
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/directory.ts">
+    <CB.ClassMethod name="getPrimaryDirectoryByOrganizationId" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Retrieves the primary (first) directory for an organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="Directory">
+        The first directory object for the organization
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const directory = await scalekit.directory.getPrimaryDirectoryByOrganizationId('org_123456');
+
+console.log('Primary Directory:', directory.provider);
+console.log('Users:', directory.userCount);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### listDirectoryUsers
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/directory.ts">
+    <CB.ClassMethod name="listDirectoryUsers" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Lists users synchronized from an identity provider via SCIM directory sync.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        The organization ID
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="directoryId" type="string">
+        The directory ID
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="object" hint="pageSize, pageToken, includeDetail, directoryGroupId, updatedAfter">
+        Optional fields: `pageSize`, `pageToken`, `includeDetail`, `directoryGroupId`, `updatedAfter`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListDirectoryUsersResponse">
+        Directory users.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+// pageSize: Results per page (default 10, max 100)
+// pageToken: Token for the next page
+// includeDetail: include detail
+// directoryGroupId: directory group id
+// updatedAfter: Only resources updated after this time
+const response = await scalekit.directory.listDirectoryUsers(
+  'org_123456',
+  'dir_abc123',
+  { pageSize: 50 }
+);
+
+console.log(`Found ${response.totalSize} users`);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### listDirectoryGroups
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/directory.ts">
+    <CB.ClassMethod name="listDirectoryGroups" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Retrieves groups synchronized from an identity provider via SCIM directory sync.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        The organization ID (format: "org_...")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="directoryId" type="string">
+        The directory ID (format: "dir_...")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="object" hint="pageSize, pageToken, includeDetail, updatedAfter">
+        Optional fields: `pageSize`, `pageToken`, `includeDetail`, `updatedAfter`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListDirectoryGroupsResponse">
+        Directory groups.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+// pageSize: Results per page (default 10, max 100)
+// pageToken: Token for the next page
+// includeDetail: include detail
+// updatedAfter: Only resources updated after this time
+const response = await scalekit.directory.listDirectoryGroups(
+  'org_123456',
+  'dir_abc123',
+  { pageSize: 30 }
+);
+
+console.log(`Found ${response.totalSize} groups`);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### enableDirectory
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/directory.ts">
+    <CB.ClassMethod name="enableDirectory" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Enables SCIM directory synchronization for an organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        The organization ID (format: "org_...")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="directoryId" type="string">
+        The directory ID to enable (format: "dir_...")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ToggleDirectoryResponse">
+        The updated resource.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.directory.enableDirectory(
+  'org_123456',
+  'dir_abc123'
+);
+
+console.log('Directory enabled:', response.directory.enabled);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### disableDirectory
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/directory.ts">
+    <CB.ClassMethod name="disableDirectory" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Disables SCIM directory synchronization for an organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        The organization ID (format: "org_...")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="directoryId" type="string">
+        The directory ID to disable (format: "dir_...")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ToggleDirectoryResponse">
+        The updated resource.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.directory.disableDirectory(
+  'org_123456',
+  'dir_abc123'
+);
+
+console.log('Directory disabled:', !response.directory.enabled);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
+</div>

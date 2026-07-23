@@ -1,0 +1,485 @@
+---
+title: Accounts & tools
+description: Connect accounts, start auth, and execute tools with scalekit.actions
+topic: agentkit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Accounts & tools
+prev: false
+next: false
+head:
+  - tag: style
+    content: |
+      starlight-toc a[href='#_top'],
+      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
+        display: none !important;
+      }
+      starlight-toc li:has(> a[href='#_top']) > ul {
+        padding-inline-start: 0 !important;
+      }
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+
+`scalekit.actions` is the primary AgentKit client for connecting end-user accounts, starting OAuth, and executing tools on their behalf.
+
+**Common path:** create or look up a connected account → get an authorization link → verify the user after redirect → run tools.
+
+For raw tool schemas, see [Tool schemas](/agentkit/sdks/python/tools/). For exceptions, see [Error handling](/agentkit/sdks/python/errors/).
+
+### get_authorization_link
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="python">
+    <CB.ClassMethod name="get_authorization_link" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Generates a time-limited OAuth magic link to authorize a user's connection.
+
+      <CB.ClassMethodInput name="identifier" type="str">
+        User identifier (e.g. email)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="connection_name" type="str">
+        Connector slug (e.g. gmail)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="connected_account_id" type="str">
+        Direct connected account ID (ca_...)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="state" type="str">
+        Opaque value passed through to the redirect URL
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="user_verify_url" type="str">
+        App redirect URL for user verification
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="MagicLinkResponse">
+        The link.
+      </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+# connection_name + identifier (or connected_account_id)
+response = scalekit_client.actions.get_authorization_link(
+    connection_name="GMAIL",
+    identifier="user@example.com",
+)
+# response.link, response.expiry
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### verify_connected_account_user
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="python">
+    <CB.ClassMethod name="verify_connected_account_user" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Verifies the user after OAuth callback.
+
+      <CB.ClassMethodInput name="auth_request_id" type="str">
+        Token from the redirect URL query params **Required.**
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="identifier" type="str">
+        Current user identifier **Required.**
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="VerifyConnectedAccountUserResponse">
+        Post-verify redirect URL.
+      </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+response = scalekit_client.actions.verify_connected_account_user(
+    auth_request_id="opaque-auth-request-id",
+    identifier="user@example.com",
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### get_or_create_connected_account
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="python">
+    <CB.ClassMethod name="get_or_create_connected_account" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Fetches an existing connected account or creates one if none exists.
+
+      <CB.ClassMethodInput name="connection_name" type="str">
+        Connector slug **Required.**
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="identifier" type="str">
+        User\s identifier **Required.**
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="authorization_details" type="dict">
+        OAuth token or static auth details
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization tenant ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="user_id" type="str">
+        Your app user ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="api_config" type="dict">
+        Connector-specific options (for example scopes or static.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateConnectedAccountResponse">
+        The connected account.id.
+      </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+# authorization_details is optional
+response = scalekit_client.actions.get_or_create_connected_account(
+    connection_name="GMAIL",
+    identifier="user@example.com",
+)
+# response.connected_account
+# Alias: scalekit_client.actions.upsert_connected_account(...)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### get_connected_account
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="python">
+    <CB.ClassMethod name="get_connected_account" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Fetches auth details for a connected account.
+
+      <CB.ClassMethodInput name="connection_name" type="str">
+        Connector slug.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="identifier" type="str">
+        End-user or workspace identifier. Use with connection_name.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="connected_account_id" type="str">
+        Connected account ID (ca_...) when resolving by ID instead.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetConnectedAccountAuthResponse">
+        The connected account.id.
+      </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+# Includes auth credentials (sensitive)
+response = scalekit_client.actions.get_connected_account(
+    connection_name="GMAIL",
+    identifier="user@example.com",
+)
+# response.connected_account
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### get_connected_account_details
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="python">
+    <CB.ClassMethod name="get_connected_account_details" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Fetches connected account metadata **without** auth credentials.
+
+      <CB.ClassMethodInput name="connection_name" type="str">
+        Connector slug.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="identifier" type="str">
+        End-user or workspace identifier. Use with connection_name.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="connected_account_id" type="str">
+        Connected account ID (ca_...) when resolving by ID instead.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetConnectedAccountDetailsResponse">
+        The connected account.id.
+      </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+# Metadata only — no access/refresh tokens
+details = scalekit_client.actions.get_connected_account_details(
+    connection_name="gmail",
+    identifier="user@example.com",
+)
+print(details.connected_account.status)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### list_connected_accounts
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="python">
+    <CB.ClassMethod name="list_connected_accounts" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `list_connected_accounts` and returns the result.
+
+      <CB.ClassMethodInput name="connection_name" type="str">
+        Filter by a single connector slug
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="identifier" type="str">
+        Filter by user identifier
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="provider" type="str">
+        Filter by provider
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="connection_names" type="list">
+        Filter to accounts for any of these connector slugs (e.g.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListConnectedAccountsResponse">
+        Paginated connected accounts.
+      </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+result = scalekit_client.actions.list_connected_accounts(
+    connection_names=["GMAIL", "slack"],
+    identifier="user@example.com",
+)
+# result.connected_accounts, result.total_count, result.next_page_token
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### create_connected_account
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="python">
+    <CB.ClassMethod name="create_connected_account" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Creates a connected account with explicit auth details.
+
+      <CB.ClassMethodInput name="connection_name" type="str">
+        Connector slug.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="identifier" type="str">
+        End-user identifier.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="authorization_details" type="dict">
+        Authorization details.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization tenant ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="user_id" type="str">
+        Your app user ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="api_config" type="dict">
+        Connector-specific options (for example scopes or static.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateConnectedAccountResponse">
+        CreateConnectedAccountResponse.
+      </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+response = scalekit_client.actions.create_connected_account(
+    connection_name="GMAIL",
+    identifier="user@example.com",
+    authorization_details={
+        "oauth_token": {
+            "access_token": "",
+            "refresh_token": "",
+            "scopes": [],
+        }
+    },
+)
+# response.connected_account
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### update_connected_account
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="python">
+    <CB.ClassMethod name="update_connected_account" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Requires `connected_account_id` **or** `connection_name` + `identifier`.
+
+      <CB.ClassMethodInput name="connection_name" type="str">
+        Connector slug.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="identifier" type="str">
+        End-user or workspace identifier. Use with connection_name.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="connected_account_id" type="str">
+        Connected account ID (ca_...) when updating by ID instead.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="authorization_details" type="dict">
+        Replace or merge stored credentials (OAuth tokens, API.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization tenant ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="user_id" type="str">
+        Your app user ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="api_config" type="dict">
+        Connector-specific configuration to persist on the account
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateConnectedAccountResponse">
+        UpdateConnectedAccountResponse.
+      </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+response = scalekit_client.actions.update_connected_account(
+    connection_name="GMAIL",
+    identifier="user@example.com",
+    authorization_details={
+        "oauth_token": {
+            "access_token": "ya29...",
+            "refresh_token": "...",
+            "scopes": ["email"],
+        }
+    },
+)
+# response.connected_account
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### delete_connected_account
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="python">
+    <CB.ClassMethod name="delete_connected_account" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Deletes a connected account and revokes its credentials.
+
+      <CB.ClassMethodInput name="connection_name" type="str">
+        Connector slug.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="identifier" type="str">
+        End-user or workspace identifier. Use with connection_name.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="connected_account_id" type="str">
+        Connected account ID (ca_...) when deleting by ID instead.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="DeleteConnectedAccountResponse">
+        DeleteConnectedAccountResponse.
+      </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+scalekit_client.actions.delete_connected_account(
+    connection_name="GMAIL",
+    identifier="user@example.com",
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### execute_tool
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="python">
+    <CB.ClassMethod name="execute_tool" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Executes a named tool via Scalekit.
+
+      <CB.ClassMethodInput name="tool_name" type="str">
+        Tool name (e.g. gmail_fetch_emails) **Required.**
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="tool_input" type="dict">
+        Parameters the tool expects **Required.**
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="identifier" type="str">
+        User\s identifier
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="connected_account_id" type="str">
+        Direct connected account ID
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ExecuteToolResponse">
+        Tool result and execution ID.
+      </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+# ActionClient: tool_input first, then tool_name
+result = scalekit_client.actions.execute_tool(
+    tool_input={"max_results": 1},
+    tool_name="gmail_fetch_mails",
+    identifier="user@example.com",
+)
+# result.data, result.execution_id
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### request
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="python">
+    <CB.ClassMethod name="request" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Makes a REST API call on behalf of a connected account.
+
+      <CB.ClassMethodInput name="connection_name" type="str">
+        Connector slug **Required.**
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="identifier" type="str">
+        User\s identifier **Required.**
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="path" type="str">
+        API path (e.g. /gmail/v1/users/me/messages) **Required.**
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="method" type="str">
+        HTTP method. Default: GET
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="query_params" type="dict">
+        URL query parameters appended to path
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="body" type="any">
+        JSON-serializable body for POST, PUT, PATCH, or similar.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="form_data" type="dict">
+        Multipart form fields when the upstream API expects form.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="headers" type="dict">
+        Extra HTTP headers merged with Scalekit-injected auth.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="requests.Response">
+        See return type `requests.Response`.
+      </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+# Proxied HTTP via {env_url}/proxy{path}
+response = scalekit_client.actions.request(
+    connection_name="GMAIL",
+    identifier="user@example.com",
+    path="/gmail/v1/users/me/profile",
+    method="GET",
+)
+# requests.Response: response.status_code, response.json()
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+</div>

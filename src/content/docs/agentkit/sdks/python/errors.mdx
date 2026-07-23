@@ -1,0 +1,60 @@
+---
+title: Error handling
+description: Catch Scalekit exceptions from AgentKit calls and handle not-found, auth, and server failures
+topic: agentkit-sdks
+tableOfContents:
+  minHeadingLevel: 2
+  maxHeadingLevel: 3
+sidebar:
+  label: Error handling
+prev: false
+next: false
+---
+
+AgentKit methods throw typed exceptions when the API returns an error. Catch the specific type first, then fall back to the base server exception.
+
+## Catch exceptions
+
+```python wrap showLineNumbers=false
+from scalekit.common.exceptions import (
+    ScalekitNotFoundException,
+    ScalekitUnauthorizedException,
+    ScalekitForbiddenException,
+    ScalekitServerException,
+)
+
+try:
+    account = scalekit_client.actions.get_connected_account(
+        connection_name="gmail",
+        identifier="user@example.com",
+    )
+except ScalekitNotFoundException:
+    # No connected account yet — create one or send the user through OAuth
+    pass
+except ScalekitUnauthorizedException:
+    # Invalid or expired client credentials / tokens
+    pass
+except ScalekitForbiddenException:
+    # Caller is authenticated but not allowed for this resource
+    pass
+except ScalekitServerException as e:
+    # Unexpected API or platform error
+    print(e.error_code, e.http_status)
+```
+
+## Exception types
+
+| Exception | When it is raised | Typical response |
+| --- | --- | --- |
+| `ScalekitNotFoundException` | Resource does not exist (connected account, tool, config) | Create the resource or return a clear not-found to the user |
+| `ScalekitUnauthorizedException` | Missing or invalid credentials | Refresh tokens or fix client ID/secret |
+| `ScalekitForbiddenException` | Authenticated but not permitted | Adjust scopes, org, or role |
+| `ScalekitServerException` | Base class for Scalekit HTTP/API failures | Log, retry when safe, surface a generic error |
+
+`ScalekitServerException` is the base type. Prefer checking subclasses first so not-found and auth failures get the right UX.
+
+## Related
+
+- [Accounts & tools](/agentkit/sdks/python/actions/) — connect accounts and execute tools  
+- [Tool schemas](/agentkit/sdks/python/tools/) — list tool definitions  
+- [Install](/agentkit/sdks/python/) — create the Scalekit client  

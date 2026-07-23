@@ -1,0 +1,242 @@
+---
+title: MCP server
+description: Expose AgentKit tools over MCP.
+topic: agentkit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: MCP server
+prev: false
+next: false
+head:
+  - tag: style
+    content: |
+      starlight-toc a[href='#_top'],
+      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
+        display: none !important;
+      }
+      starlight-toc li:has(> a[href='#_top']) > ul {
+        padding-inline-start: 0 !important;
+      }
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+
+Expose AgentKit tools over MCP so hosts like Claude Desktop or Cursor can call connected-account tools through a standard protocol.
+
+Configure an MCP server, attach connected accounts, and issue tokens for clients. See [Error handling](/agentkit/sdks/python/errors/) for API exceptions.
+
+### scalekit_client.actions.mcp.create_config
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="McpClient" type="class" language="python">
+    <CB.ClassMethod name="actions.mcp.create_config" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `scalekit_client.actions.mcp.create_config` and returns the result.
+
+      <CB.ClassMethodInput name="name" type="str">
+        Config name **Required.**
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="description" type="str">
+        Human-readable summary of what this MCP config exposes
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="connection_tool_mappings" type="list">
+        List of McpConfigConnectionToolMapping objects
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateMcpConfigResponse">
+        Create mcp config.
+      </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+response = scalekit_client.actions.mcp.create_config(
+    name="My agent tools",
+    description="Connectors exposed to the agent",
+)
+# response.config
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### scalekit_client.actions.mcp.list_configs
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="McpClient" type="class" language="python">
+    <CB.ClassMethod name="actions.mcp.list_configs" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `scalekit_client.actions.mcp.list_configs` and returns the result.
+
+      <CB.ClassMethodInput name="page_size" type="int">
+        Maximum configs per page (server default if omitted)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="page_token" type="str">
+        Opaque cursor from a previous list response
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="filter_id" type="str">
+        Filter by config ID
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="filter_name" type="str">
+        Filter by exact name
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="filter_provider" type="str">
+        Filter by provider slug
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="filter_mcp_server_url" type="str">
+        Filter by MCP server URL
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="search" type="str">
+        Free-text search on name
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListMcpConfigsResponse">
+        ListMcpConfigsResponse.
+      </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+page1 = scalekit_client.actions.mcp.list_configs(page_size=10)
+for cfg in page1.configs:
+    print(cfg.name, cfg.mcp_server_url)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### scalekit_client.actions.mcp.update_config
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="McpClient" type="class" language="python">
+    <CB.ClassMethod name="actions.mcp.update_config" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `scalekit_client.actions.mcp.update_config` and returns the result.
+
+      <CB.ClassMethodInput name="config_id" type="str">
+        MCP config ID from create_config or list_configs.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="description" type="str">
+        New human-readable description for this config
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="connection_tool_mappings" type="list">
+        Replaces existing mappings
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateMcpConfigResponse">
+        UpdateMcpConfigResponse.
+      </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+response = scalekit_client.actions.mcp.update_config(
+    config_id="cfg_01abc123",
+    description="Updated description",
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### scalekit_client.actions.mcp.delete_config
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="McpClient" type="class" language="python">
+    <CB.ClassMethod name="actions.mcp.delete_config" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `scalekit_client.actions.mcp.delete_config` and returns the result.
+
+      <CB.ClassMethodInput name="config_id" type="str">
+        MCP config ID to delete **Required.**
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="DeleteMcpConfigResponse">
+        DeleteMcpConfigResponse.
+      </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+scalekit_client.actions.mcp.delete_config(config_id="cfg_01abc123")
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### scalekit_client.actions.mcp.list_mcp_connected_accounts
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="McpClient" type="class" language="python">
+    <CB.ClassMethod name="actions.mcp.list_mcp_connected_accounts" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `scalekit_client.actions.mcp.list_mcp_connected_accounts` and returns the result.
+
+      <CB.ClassMethodInput name="config_id" type="str">
+        Virtual MCP config ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="identifier" type="str">
+        User identifier **Required.**
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="include_auth_link" type="bool">
+        Include auth/re-auth URLs.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListMcpConnectedAccountsResponse">
+        List mcp connected accounts.
+      </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+state = scalekit_client.actions.mcp.list_mcp_connected_accounts(
+    config_id="cfg_01abc123",
+    identifier="alice@example.com",
+    include_auth_link=True,
+)
+for account in state.connected_accounts:
+    if account.connected_account_status != "active":
+        print(account.connection_name, account.authentication_link)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### scalekit_client.actions.mcp.create_session_token
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="McpClient" type="class" language="python">
+    <CB.ClassMethod name="actions.mcp.create_session_token" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Mints a short-lived session token scoped to a user and a Virtual MCP Server config.
+
+      <CB.ClassMethodInput name="mcp_config_id" type="str">
+        Virtual MCP Server config ID **Required.**
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="identifier" type="str">
+        User identifier **Required.**
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="expiry" type="timedelta">
+        Token lifetime (server default if omitted, typically 1 hour).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateMcpSessionTokenResponse">
+        Tokens and claims.
+      </CB.ClassMethodOutput>
+
+
+```python wrap showLineNumbers=false
+from datetime import timedelta
+
+resp = scalekit_client.actions.mcp.create_session_token(
+    mcp_config_id="cfg_01abc123",
+    identifier="alice@example.com",
+    expiry=timedelta(hours=1),
+)
+headers = {"Authorization": f"Bearer {resp.token}"}
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+</div>

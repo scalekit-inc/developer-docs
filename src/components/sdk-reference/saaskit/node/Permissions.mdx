@@ -1,0 +1,108 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="Permissions"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main"
+  language="typescript"
+>
+
+  <CB.ClassMethod name="createPermission">
+    Creates a new permission defining a specific action users can perform. Permissions represent granular access controls following the 'action:resource' format.
+
+  </CB.ClassMethod>
+
+```typescript
+await scalekit.permission.createPermission({
+  name: 'read:invoices',
+  description: 'View invoice details'
+});
+```
+
+  <CB.ClassMethod name="getPermission">
+    Retrieves complete information for a specific permission.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekit.permission.getPermission('read:invoices');
+console.log('Description:', response.permission.description);
+```
+
+  <CB.ClassMethod name="listPermissions">
+    Lists all permissions with pagination support. View all permission definitions for auditing, role management, or understanding available access controls.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekit.permission.listPermissions();
+response.permissions.forEach(perm => {
+  console.log(`${perm.name}: ${perm.description}`);
+});
+```
+
+  <CB.ClassMethod name="updatePermission">
+    Updates an existing permission's attributes. Note: The permission name itself cannot be changed as it serves as the immutable identifier.
+
+  </CB.ClassMethod>
+
+```typescript
+await scalekit.permission.updatePermission('read:invoices', {
+  name: 'read:invoices',
+  description: 'View invoice details and history (updated)'
+});
+```
+
+  <CB.ClassMethod name="deletePermission">
+    Permanently removes a permission. Ensure no active roles depend on the permission before deletion.
+
+  </CB.ClassMethod>
+
+```typescript
+await scalekit.permission.deletePermission('deprecated:feature');
+```
+
+  <CB.ClassMethod name="listRolePermissions">
+    Lists direct permissions assigned to a role (excluding inherited permissions). Use this to view explicit permission assignments without inheritance from base roles.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekit.permission.listRolePermissions('editor');
+console.log('Direct permissions:', response.permissions);
+```
+
+  <CB.ClassMethod name="addPermissionsToRole">
+    Grants additional permissions to a role without removing existing assignments. This is an incremental operation that adds new permissions while preserving existing ones.
+
+  </CB.ClassMethod>
+
+```typescript
+await scalekit.permission.addPermissionsToRole('editor', [
+  'read:documents',
+  'write:documents',
+  'edit:documents'
+]);
+```
+
+  <CB.ClassMethod name="removePermissionFromRole">
+    Revokes a specific permission from a role, restricting access for all assigned users. Only affects direct assignments; doesn't impact inherited permissions from base roles.
+
+  </CB.ClassMethod>
+
+```typescript
+await scalekit.permission.removePermissionFromRole('editor', 'delete:documents');
+```
+
+  <CB.ClassMethod name="listEffectiveRolePermissions">
+    Lists all effective permissions for a role including both direct and inherited permissions. This returns the complete set of capabilities available through the role hierarchy.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekit.permission.listEffectiveRolePermissions('senior_editor');
+
+console.log('Total effective permissions:', response.permissions.length);
+```
+
+</CB.ClassBrowser>

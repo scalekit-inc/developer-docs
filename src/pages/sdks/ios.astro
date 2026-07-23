@@ -1,27 +1,37 @@
 ---
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
 import { Badge, Code } from '@astrojs/starlight/components'
-import FoldCard from '@components/ui/FoldCard.astro'
-import { LinkButton } from 'starlight-theme-nova/components'
+import { getCollection } from 'astro:content'
+import SDKInstallPanel from '@components/SDKInstallPanel.astro'
+import '@/styles/sdk-reference.css'
 
-// iOS SDK uses git tags (no GitHub Releases) — fetch from tags API
-const tagsHeaders: Record<string, string> = { 'User-Agent': 'scalekit-docs' }
-if (import.meta.env.GITHUB_TOKEN)
-  tagsHeaders['Authorization'] = `Bearer ${import.meta.env.GITHUB_TOKEN}`
-let latestTag: string | null = null
-try {
-  const tagsRes = await fetch('https://api.github.com/repos/scalekit-inc/scalekit-sdk-ios/tags', {
-    headers: tagsHeaders,
+const allReleases = await getCollection('github-releases', (entry) => {
+  const data = entry.data as any
+  return data.repoNameWithOwner === 'scalekit-inc/scalekit-sdk-ios'
+})
+
+const releases = allReleases
+  .sort((a, b) => {
+    const dataA = a.data as any
+    const dataB = b.data as any
+    const dateA = dataA.publishedAt ? new Date(dataA.publishedAt).getTime() : 0
+    const dateB = dataB.publishedAt ? new Date(dataB.publishedAt).getTime() : 0
+    return dateB - dateA
   })
-  const tags: { name: string }[] = tagsRes.ok ? await tagsRes.json() : []
-  latestTag = tags[0]?.name ?? null
-} catch {
-  // network or parse failure — badge omitted, page still renders
-}
+  .slice(0, 10)
+
+const latestRelease = releases.length > 0 ? (releases[0].data as any) : null
+const latestTag = latestRelease?.tagName as string | undefined
+
+const headings = [
+  { depth: 2, slug: 'installation', text: 'Install' },
+  { depth: 2, slug: 'initialize', text: 'Initialize' },
+  { depth: 2, slug: 'auth-and-sessions', text: 'Auth and sessions' },
+]
 
 const frontmatter = {
   title: 'iOS SDK',
-  topic: 'sdks',
+  topic: 'saaskit-sdks',
   template: 'doc' as const,
   tableOfContents: false,
   sidebar: {
@@ -32,61 +42,32 @@ const frontmatter = {
 }
 ---
 
-<StarlightPage frontmatter={frontmatter} hasSidebar={true}>
-  <FoldCard
-    title="Installation"
-    iconKey="ios"
-    iconPosition="right"
-    showCta={false}
-    clickable={false}
-    showTitle={true}
+<StarlightPage frontmatter={frontmatter} hasSidebar={true} headings={headings}>
+  <SDKInstallPanel
+    githubHref="https://github.com/scalekit-inc/scalekit-sdk-ios"
+    version={latestTag}
+    badges={['Swift', 'SPM', 'iOS 15+']}
+    updatedAt={latestRelease?.publishedAt}
   >
-    <div class="sdk-overview-content">
-      <div class="sdk-header">
-        <div class="sdk-title-section">
-          <p class="install-note">
-            In Xcode: <strong>File → Add Package Dependencies</strong>, paste this URL:
-          </p>
-          <Code
-            code="https://github.com/scalekit-inc/scalekit-sdk-ios"
-            lang="text"
-            showLineNumbers={false}
-            frame="none"
-          />
-          <p class="install-note install-note--secondary">
-            Set version rule to <code>from: "0.3.0"</code>, select your app target, then click <strong
-              >Add Package</strong
-            >.
-          </p>
-          <div class="sdk-badges">
-            {latestTag && <Badge text={latestTag} variant="default" />}
-            <Badge text="Swift" variant="tip" />
-            <Badge text="SPM" variant="tip" />
-            <Badge text="iOS 15+" variant="note" />
-          </div>
-        </div>
-        <div class="sdk-stats"></div>
-      </div>
-      <div class="sdk-links">
-        <LinkButton
-          href="https://github.com/scalekit-inc/scalekit-sdk-ios"
-          target="_blank"
-          rel="noopener noreferrer"
-          variant="secondary"
-          class="github-button"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path
-              d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
-            ></path>
-          </svg>
-          View on GitHub
-        </LinkButton>
-      </div>
+    <div slot="note">
+      <p>
+        In Xcode: <strong>File → Add Package Dependencies</strong>, paste this URL:
+      </p>
     </div>
-  </FoldCard>
+    <Code
+      code="https://github.com/scalekit-inc/scalekit-sdk-ios"
+      lang="text"
+      showLineNumbers={false}
+      frame="none"
+    />
+  </SDKInstallPanel>
+  <p class="sdk-install-follow">
+    Set version rule to <code>from: "0.3.0"</code>, select your app target, then click
+    <strong>Add Package</strong>.
+  </p>
 
-  <div class="initialization-section">
+  <section class="sdk-page-section" aria-labelledby="initialize">
+    <h2 id="initialize">Initialize</h2>
     <Code
       code={`import ScalekitAuth
 
@@ -96,13 +77,13 @@ const frontmatter = {
     redirectScheme: "YOUR_BUNDLE_ID"     // e.g. com.example.myapp
 )`}
       lang="swift"
-      frame="terminal"
-      title="Initialize the client"
+      frame="none"
       showLineNumbers={false}
     />
-  </div>
+  </section>
 
-  <div class="initialization-section">
+  <section class="sdk-page-section" aria-labelledby="auth-and-sessions">
+    <h2 id="auth-and-sessions">Auth and sessions</h2>
     <Code
       code={`// Basic login
 try await client.login()
@@ -123,188 +104,21 @@ let accessToken = client.credentials?.accessToken
 // Logout
 await client.logout()`}
       lang="swift"
-      frame="terminal"
-      title="Authenticate and manage sessions"
+      frame="none"
       showLineNumbers={false}
     />
-  </div>
+  </section>
 </StarlightPage>
 
 <style>
-  /* SDK Overview Card Styles */
-  .sdk-overview-content {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .sdk-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-
-  .sdk-title-section h3 {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--sl-color-text-heading);
-  }
-
-  .install-note {
-    margin: 0 0 0.5rem 0;
+  .sdk-install-follow {
+    margin: -1rem 0 1.75rem;
     font-size: 0.875rem;
-    color: var(--sl-color-text);
+    line-height: 1.5;
+    color: var(--sl-color-text-muted);
   }
 
-  .install-note--secondary {
-    margin-top: 0.5rem;
-    color: var(--sl-color-text-2);
-  }
-
-  .install-note code {
-    font-size: 0.8rem;
-  }
-
-  .sdk-badges {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    margin-top: 0.75rem;
-  }
-
-  .sdk-stats {
-    display: flex;
-    gap: 1rem;
-    flex-direction: column;
-    align-items: flex-end;
-  }
-
-  .stat-item {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.25rem;
-  }
-
-  .stat-label {
-    font-size: 0.75rem;
-    color: var(--sl-color-text-2);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .stat-value {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--sl-color-text);
-  }
-
-  .sdk-description {
-    color: var(--sl-color-text);
-    line-height: 1.6;
-    font-size: 0.95rem;
-  }
-
-  .sdk-features h4 {
-    margin: 0 0 0.75rem 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--sl-color-text-heading);
-  }
-
-  .features-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 0.5rem;
-  }
-
-  .features-list li {
-    padding: 0.25rem 0;
-    color: var(--sl-color-text);
-    font-size: 0.875rem;
-  }
-
-  .sdk-links {
-    display: flex;
-    justify-content: flex-start;
-  }
-
-  .github-button {
-    display: inline-flex;
-    align-items: center;
-  }
-
-  /* Section Styles */
-  .install-section,
-  .initialization-section {
-    margin: 3rem 0;
-  }
-
-  .install-section h2,
-  .initialization-section h2 {
-    margin: 0 0 1.5rem 0;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--sl-color-text-heading);
-    border-bottom: 2px solid var(--sl-color-hairline);
-    padding-bottom: 0.5rem;
-  }
-
-  .prerequisites,
-  .env-setup,
-  .sdk-setup {
-    margin: 1.5rem 0;
-  }
-
-  .prerequisites h3,
-  .env-setup h3,
-  .sdk-setup h3 {
-    margin: 0 0 0.75rem 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--sl-color-text-heading);
-  }
-
-  .init-overview {
-    margin: 0 0 2rem 0;
-    padding: 1rem;
-    background-color: var(--sl-color-bg-code);
-    border-left: 4px solid var(--sl-color-accent);
-    border-radius: 0.25rem;
-  }
-
-  .init-overview p {
-    margin: 0;
-    color: var(--sl-color-text);
-  }
-
-  .env-setup p,
-  .sdk-setup p {
-    margin: 0.5rem 0 1rem 0;
-    color: var(--sl-color-text);
-  }
-
-  .verification {
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--sl-color-hairline);
-  }
-
-  .verification h4 {
-    margin: 0 0 0.75rem 0;
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--sl-color-text-heading);
-  }
-
-  @media (max-width: 768px) {
-    .initialization-section {
-      margin: 2rem 0;
-    }
+  .sdk-install-follow code {
+    font-size: 0.8125em;
   }
 </style>

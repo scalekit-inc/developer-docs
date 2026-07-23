@@ -1,0 +1,281 @@
+---
+title: Directory sync
+description: Sync users and groups via SCIM directories
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Directory sync
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+
+Use `scalekitClient.directories()` for SCIM directory sync—listing providers, users, and groups provisioned from an IdP.
+
+Use this after SSO is in place when the customer provisions users via SCIM.
+
+### getDirectory
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/DirectoryClient.java">
+    <CB.ClassMethod name="getDirectory" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `getDirectory` and returns the result.
+
+      <CB.ClassMethodInput name="directoryId" type="String">
+        Directory ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="String">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="Directory">
+        The response payload for this operation.
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+scalekitClient.directories().getDirectory("dir_123", "org_123");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### listDirectories
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/DirectoryClient.java">
+    <CB.ClassMethod name="listDirectories" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `listDirectories` and returns the result.
+
+      <CB.ClassMethodInput name="organizationId" type="String">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListDirectoriesResponse">
+        Paginated results.
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+scalekitClient.directories().listDirectories("org_123");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### listDirectoryUsers
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/DirectoryClient.java">
+    <CB.ClassMethod name="listDirectoryUsers" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `listDirectoryUsers` and returns the result.
+
+      <CB.ClassMethodInput name="directoryId" type="String">
+        Directory ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="String">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="ListDirectoryResourceOptions">
+        Optional request settings.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListDirectoryUserResponse">
+        Paginated results.
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+import com.scalekit.api.util.ListDirectoryResourceOptions;
+import com.scalekit.api.util.ListDirectoryUserResponse;
+
+ListDirectoryResourceOptions options = ListDirectoryResourceOptions.builder()
+  .pageSize(50)
+  .includeDetail(true)
+  .build();
+
+ListDirectoryUserResponse res = scalekitClient.directories().listDirectoryUsers("dir_123", "org_123", options);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### listDirectoryGroups
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/DirectoryClient.java">
+    <CB.ClassMethod name="listDirectoryGroups" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `listDirectoryGroups` and returns the result.
+
+      <CB.ClassMethodInput name="directoryId" type="String">
+        Directory ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="String">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="ListDirectoryResourceOptions">
+        Optional request settings.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListDirectoryGroupResponse">
+        Paginated results.
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+import com.scalekit.api.util.ListDirectoryGroupResponse;
+import com.scalekit.api.util.ListDirectoryResourceOptions;
+
+ListDirectoryResourceOptions options = ListDirectoryResourceOptions.builder()
+  .pageSize(50)
+  .includeDetail(true)
+  .build();
+
+ListDirectoryGroupResponse res = scalekitClient.directories().listDirectoryGroups("dir_123", "org_123", options);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### enableDirectory
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/DirectoryClient.java">
+    <CB.ClassMethod name="enableDirectory" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `enableDirectory` and returns the result.
+
+      <CB.ClassMethodInput name="directoryId" type="String">
+        Directory ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="String">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ToggleDirectoryResponse">
+        The updated resource.
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+scalekitClient.directories().enableDirectory("dir_123", "org_123");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### disableDirectory
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/DirectoryClient.java">
+    <CB.ClassMethod name="disableDirectory" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `disableDirectory` and returns the result.
+
+      <CB.ClassMethodInput name="directoryId" type="String">
+        Directory ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="String">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ToggleDirectoryResponse">
+        The updated resource.
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+scalekitClient.directories().disableDirectory("dir_123", "org_123");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### getPrimaryDirectoryByOrganizationId
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/DirectoryClient.java">
+    <CB.ClassMethod name="getPrimaryDirectoryByOrganizationId" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `getPrimaryDirectoryByOrganizationId` and returns the result.
+
+      <CB.ClassMethodInput name="organizationId" type="String">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="Directory">
+        The response payload for this operation.
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+scalekitClient.directories().getPrimaryDirectoryByOrganizationId("org_123");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### createDirectory
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/DirectoryClient.java">
+    <CB.ClassMethod name="createDirectory" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `createDirectory` and returns the result.
+
+      <CB.ClassMethodInput name="organizationId" type="String">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="directory" type="CreateDirectory">
+        Directory.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="Directory">
+        The created resource.
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+import com.scalekit.grpc.scalekit.v1.directories.CreateDirectory;
+
+CreateDirectory req = CreateDirectory.newBuilder()
+  .setDisplayName("Acme SCIM Directory")
+  .build();
+
+scalekitClient.directories().createDirectory("org_123", req);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### deleteDirectory
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Directories" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/DirectoryClient.java">
+    <CB.ClassMethod name="deleteDirectory" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `deleteDirectory` and returns the result.
+
+      <CB.ClassMethodInput name="directoryId" type="String">
+        Directory ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="String">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="void">
+        No return value
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+scalekitClient.directories().deleteDirectory("dir_123", "org_123");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
+</div>

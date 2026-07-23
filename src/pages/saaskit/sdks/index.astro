@@ -1,0 +1,37 @@
+---
+/**
+ * SaaSKit SDKs home — language index + left sidebar.
+ */
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
+import { getCollection } from 'astro:content'
+import SDKCards from '@components/SDKCards.astro'
+import { getSDKConfigs, type SDKConfig } from '@/utils/release-helpers'
+import '@/styles/pages/sdks.css'
+import '@/styles/sdk-reference.css'
+
+const releases = await getCollection('github-releases')
+const all = getSDKConfigs(releases)
+
+const sdks: SDKConfig[] = [all.node, all.python, all.go, all.java, all.expo, all.ios]
+
+const frontmatter = {
+  title: 'SaaSKit SDKs',
+  description:
+    'Install a language SDK and explore clients such as Organizations and Users from the left sidebar',
+  template: 'doc' as const,
+  topic: 'saaskit-sdks',
+  tableOfContents: false,
+  prev: false,
+  next: false,
+}
+---
+
+<StarlightPage frontmatter={frontmatter} hasSidebar={true}>
+  <div class="sdk-hub-with-sidebar">
+    <p>
+      Pick a language from the list below, open <strong>Installation</strong> in the left sidebar, then
+      browse primary clients (for example Organizations).
+    </p>
+    <SDKCards sdks={sdks} />
+  </div>
+</StarlightPage>

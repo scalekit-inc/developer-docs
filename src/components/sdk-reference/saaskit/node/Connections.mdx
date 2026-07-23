@@ -1,0 +1,84 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="Connections"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main"
+  language="typescript"
+>
+
+  <CB.ClassMethod name="getConnection">
+    Retrieves complete configuration and status details for a specific SSO connection. Use this method to fetch comprehensive information about an organization's SSO connection, including provider settings, protocol details (SAML/OIDC), enabled status, and configuration metadata.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekit.connection.getConnection(
+  'org_123456',
+  'conn_abc123'
+);
+
+const conn = response.connection;
+console.log('Provider:', conn.provider);
+console.log('Type:', conn.type);
+console.log('Status:', conn.enabled ? 'Enabled' : 'Disabled');
+```
+
+  <CB.ClassMethod name="listConnectionsByDomain">
+    Lists all SSO connections associated with a specific email domain. Use this method to discover which organizations have SSO configured for a particular domain. This is useful for implementing domain-based SSO routing where users are automatically directed to their organization's SSO based on their email domain.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekit.connection.listConnectionsByDomain('acme.com');
+
+if (response.connections.length > 0) {
+  console.log('SSO available for domain acme.com');
+  const connection = response.connections[0];
+  console.log('Organization:', connection.organizationId);
+}
+```
+
+  <CB.ClassMethod name="listConnections">
+    Lists all SSO connections configured for an organization. Retrieves all enterprise SSO connections (SAML, OIDC) that have been configured for the specified organization.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekit.connection.listConnections('org_123456');
+
+console.log(`Found ${response.connections.length} connections`);
+response.connections.forEach(conn => {
+  console.log(`- ${conn.provider} (${conn.type}): ${conn.enabled ? 'Enabled' : 'Disabled'}`);
+});
+```
+
+  <CB.ClassMethod name="enableConnection">
+    Enables an SSO connection for an organization. Activates a previously disabled or newly configured SSO connection, allowing users from the organization to authenticate using this identity provider.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekit.connection.enableConnection(
+  'org_123456',
+  'conn_abc123'
+);
+
+console.log('Connection enabled:', response.connection.enabled);
+```
+
+  <CB.ClassMethod name="disableConnection">
+    Disables an SSO connection for an organization. Deactivates an SSO connection, preventing users from authenticating via this identity provider. Existing user sessions remain valid.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekit.connection.disableConnection(
+  'org_123456',
+  'conn_abc123'
+);
+
+console.log('Connection disabled:', !response.connection.enabled);
+```
+
+</CB.ClassBrowser>

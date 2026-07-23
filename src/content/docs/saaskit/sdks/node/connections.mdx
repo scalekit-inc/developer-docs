@@ -1,0 +1,197 @@
+---
+title: SSO connections
+description: Configure enterprise SSO connections
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: SSO connections
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+
+Use the `connection` client to configure enterprise SSO (SAML/OIDC) for an organization.
+
+Enable SSO after the organization exists: create a connection, complete IdP setup, and test sign-in for that org.
+
+### getConnection
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connections" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/connection.ts">
+    <CB.ClassMethod name="getConnection" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Retrieves complete configuration and status details for a specific SSO connection.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="id" type="string">
+        The connection identifier to retrieve (format: "conn_...")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetConnectionResponse">
+        The connection.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.connection.getConnection(
+  'org_123456',
+  'conn_abc123'
+);
+
+const conn = response.connection;
+console.log('Provider:', conn.provider);
+console.log('Type:', conn.type);
+console.log('Status:', conn.enabled ? 'Enabled' : 'Disabled');
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### listConnectionsByDomain
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connections" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/connection.ts">
+    <CB.ClassMethod name="listConnectionsByDomain" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Lists all SSO connections associated with a specific email domain.
+
+      <CB.ClassMethodInput name="domain" type="string">
+        The email domain to search for (e.g., "acme.com")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListConnectionsResponse">
+        Paginated connections.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.connection.listConnectionsByDomain('acme.com');
+
+if (response.connections.length > 0) {
+  console.log('SSO available for domain acme.com');
+  const connection = response.connections[0];
+  console.log('Organization:', connection.organizationId);
+}
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### listConnections
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connections" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/connection.ts">
+    <CB.ClassMethod name="listConnections" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Lists all SSO connections configured for an organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        The organization ID
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListConnectionsResponse">
+        Paginated connections.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.connection.listConnections('org_123456');
+
+console.log(`Found ${response.connections.length} connections`);
+response.connections.forEach(conn => {
+  console.log(`- ${conn.provider} (${conn.type}): ${conn.enabled ? 'Enabled' : 'Disabled'}`);
+});
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### listAppConnections
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connections" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/connection.ts">
+    <CB.ClassMethod name="listAppConnections" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Lists app-level connections configured for the account (not scoped to an organization).
+
+      <CB.ClassMethodInput name="params" type="object" hint="pageSize, pageToken, provider">
+        Required or common fields: `pageSize`, `pageToken`, `provider`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListAppConnectionsResponse">
+        Paginated connections.
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### enableConnection
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connections" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/connection.ts">
+    <CB.ClassMethod name="enableConnection" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Enables an SSO connection for an organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        The organization ID
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="id" type="string">
+        The connection ID to enable
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ToggleConnectionResponse">
+        Response with updated connection status
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.connection.enableConnection(
+  'org_123456',
+  'conn_abc123'
+);
+
+console.log('Connection enabled:', response.connection.enabled);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### disableConnection
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connections" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/connection.ts">
+    <CB.ClassMethod name="disableConnection" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Disables an SSO connection for an organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        The organization ID
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="id" type="string">
+        The connection ID to disable
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ToggleConnectionResponse">
+        Response with updated connection status
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.connection.disableConnection(
+  'org_123456',
+  'conn_abc123'
+);
+
+console.log('Connection disabled:', !response.connection.enabled);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
+</div>

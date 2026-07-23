@@ -1,0 +1,275 @@
+---
+title: Permissions
+description: Manage fine-grained permissions
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Permissions
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+
+Use `scalekit_client.permissions` to define fine-grained permissions that roles can grant.
+
+Model permissions for resources in your app, then attach them to roles.
+
+### list_permissions
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Permission" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/permissions.py">
+    <CB.ClassMethod name="list_permissions" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to list all permissions
+
+      <CB.ClassMethodInput name="page_token" type="Optional[str]">
+        Optional. Token for pagination
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="page_size" type="Optional[int]">
+        Optional. Number of permissions per page
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListPermissionsResponse">
+        List Permissions Response
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+response = scalekit_client.permissions.list_permissions(
+    page_size=50
+)
+
+for permission in response[0].permissions:
+    print(f"Permission: {permission.name}")
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### get_permission
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Permission" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/permissions.py">
+    <CB.ClassMethod name="get_permission" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to get permission by name
+
+      <CB.ClassMethodInput name="permission_name" type="str">
+        Permission name to get permission details
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetPermissionResponse">
+        Get Permission Response
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+response = scalekit_client.permissions.get_permission('write:articles')
+permission = response[0].permission
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### create_permission
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Permission" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/permissions.py">
+    <CB.ClassMethod name="create_permission" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to create a new permission
+
+      <CB.ClassMethodInput name="permission" type="CreatePermission">
+        Permission create payload.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreatePermissionResponse">
+        Create Permission Response
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+from scalekit.v1.roles.roles_pb2 import CreatePermission
+
+permission = CreatePermission()
+permission.name = "write:articles"
+permission.description = "Permission to write articles"
+
+response = scalekit_client.permissions.create_permission(permission)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### update_permission
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Permission" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/permissions.py">
+    <CB.ClassMethod name="update_permission" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to update an existing permission by name
+
+      <CB.ClassMethodInput name="permission_name" type="str">
+        Permission name to update
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="permission" type="CreatePermission">
+        Permission create payload.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdatePermissionResponse">
+        Update Permission Response
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+from scalekit.v1.roles.roles_pb2 import CreatePermission
+
+permission = CreatePermission()
+permission.description = "Updated description"
+
+response = scalekit_client.permissions.update_permission(
+    'write:articles',
+    permission
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### delete_permission
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Permission" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/permissions.py">
+    <CB.ClassMethod name="delete_permission" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to delete permission by name
+
+      <CB.ClassMethodInput name="permission_name" type="str">
+        Permission name to be deleted
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="None">
+        Empty on success.
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+scalekit_client.permissions.delete_permission('write:articles')
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### list_role_permissions
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Permission" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/permissions.py">
+    <CB.ClassMethod name="list_role_permissions" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to list all permissions associated with a role
+
+      <CB.ClassMethodInput name="role_name" type="str">
+        Role name to get permissions for
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListRolePermissionsResponse">
+        List Role Permissions Response
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+response = scalekit_client.permissions.list_role_permissions('editor')
+
+for permission in response[0].permissions:
+    print(f"Permission: {permission.name}")
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### add_permissions_to_role
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Permission" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/permissions.py">
+    <CB.ClassMethod name="add_permissions_to_role" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to add permissions to a role
+
+      <CB.ClassMethodInput name="role_name" type="str">
+        Role name to add permissions to
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="permission_names" type="list[str]">
+        List of permission names to add
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="None">
+        The created resource.
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+scalekit_client.permissions.add_permissions_to_role(
+    'editor',
+    ['write:articles', 'edit:articles']
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### remove_permission_from_role
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Permission" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/permissions.py">
+    <CB.ClassMethod name="remove_permission_from_role" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to remove a permission from a role
+
+      <CB.ClassMethodInput name="role_name" type="str">
+        Role name to remove permission from
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="permission_name" type="str">
+        Permission name to remove
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="None">
+        Empty on success.
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+scalekit_client.permissions.remove_permission_from_role(
+    'editor',
+    'write:articles'
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### list_effective_role_permissions
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Permission" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/permissions.py">
+    <CB.ClassMethod name="list_effective_role_permissions" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to list all effective permissions for a role (including inherited permissions)
+
+      <CB.ClassMethodInput name="role_name" type="str">
+        Role name to get effective permissions for
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListEffectiveRolePermissionsResponse">
+        List Effective Role Permissions Response
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+response = scalekit_client.permissions.list_effective_role_permissions('senior_editor')
+
+print(f'Total effective permissions: {len(response[0].permissions)}')
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
+</div>

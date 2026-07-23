@@ -1,0 +1,197 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="ScalekitClient"
+  type="class"
+  source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/scalekit.ts"
+  language="typescript"
+>
+
+  <CB.ClassMethod name="getAuthorizationUrl">
+    Utility method to generate the OAuth 2.0 authorization URL to initiate the SSO authentication flow. This method doesn't make any network calls but instead generates a fully formed Authorization URL as a string that you can redirect your users to initiate authentication.
+
+  </CB.ClassMethod>
+
+```typescript
+const authUrl = scalekit.getAuthorizationUrl(
+  'https://yourapp.com/auth/callback',
+  {
+    state: 'random-state-value',
+    organizationId: 'org_123456'
+  }
+);
+// Redirect user to authUrl
+```
+
+  <CB.ClassMethod name="authenticateWithCode">
+    Exchanges an authorization code for access tokens and user information. This method completes the OAuth 2.0 authorization code flow by exchanging the code received in the callback for access tokens, ID tokens, and user profile information. Call this method in your redirect URI handler after receiving the authorization code.
+
+  </CB.ClassMethod>
+
+```typescript
+app.get('/auth/callback', async (req, res) => {
+  const { code } = req.query;
+
+  const result = await scalekit.authenticateWithCode(
+    code,
+    'https://yourapp.com/auth/callback'
+  );
+
+  req.session.accessToken = result.accessToken;
+  req.session.user = result.user;
+
+  res.redirect('/dashboard');
+});
+```
+
+  <CB.ClassMethod name="getIdpInitiatedLoginClaims">
+    Extracts and validates claims from an IdP-initiated login token. Use this method when handling IdP-initiated SSO flows, where the authentication is initiated from the identity provider's portal rather than your application. This validates the token and returns the necessary information to initiate a new SP Initiated SSO workflow.
+
+  </CB.ClassMethod>
+
+```typescript
+app.get('/auth/callback', async (req, res) => {
+  const { idp_initiated_login } = req.query;
+
+  if (idp_initiated_login) {
+    const claims = await scalekit.getIdpInitiatedLoginClaims(idp_initiated_login);
+
+    const authUrl = scalekit.getAuthorizationUrl(
+      'https://yourapp.com/auth/callback',
+      {
+        connectionId: claims.connection_id,
+        organizationId: claims.organization_id,
+        loginHint: claims.login_hint,
+        ...(claims.relay_state && { state: claims.relay_state })
+      }
+    );
+
+    return res.redirect(authUrl);
+  }
+});
+```
+
+  <CB.ClassMethod name="validateAccessToken">
+    Validate an access token to ensure it's authentic and hasn't expired. This method performs signature verification and checks token validity against Scalekit's public keys.
+
+    <CB.ClassMethodInput name="token" type="string">
+        The access token to validate **Required.**
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="options" type="TokenValidationOptions">
+        Optional validation options
+      </CB.ClassMethodInput>
+  </CB.ClassMethod>
+
+```typescript
+const isValid = await scalekit.validateAccessToken(accessToken);
+if (isValid) {
+  // Token is valid, proceed with request
+}
+```
+
+  <CB.ClassMethod name="getLogoutUrl">
+    Generate the OAuth 2.0 logout URL to end the user's session and redirect them after logout.
+
+    <CB.ClassMethodInput name="options" type="LogoutUrlOptions">
+        Optional logout options
+      </CB.ClassMethodInput>
+  </CB.ClassMethod>
+
+```typescript
+const logoutUrl = scalekit.getLogoutUrl({
+  postLogoutRedirectUri: 'https://example.com',
+  state: 'some-state'
+});
+// Redirect user to logoutUrl
+```
+
+  <CB.ClassMethod name="refreshAccessToken">
+    Refresh an expired access token using a valid refresh token. This exchanges the refresh token for a new access token and optionally a new refresh token.
+
+    <CB.ClassMethodInput name="refreshToken" type="string">
+        The refresh token to use for obtaining new tokens **Required.**
+      </CB.ClassMethodInput>
+  </CB.ClassMethod>
+
+```typescript
+const result = await scalekit.refreshAccessToken(oldRefreshToken);
+// Store the new tokens
+await storeTokens(userId, {
+  accessToken: result.accessToken,
+  refreshToken: result.refreshToken
+});
+```
+
+  <CB.ClassMethod name="validateToken">
+    Decode and validate a JWT token, returning the payload. This method verifies the token's signature and claims.
+
+    <CB.ClassMethodInput name="token" type="string">
+        The JWT token to validate **Required.**
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="options" type="TokenValidationOptions">
+        Optional validation options
+      </CB.ClassMethodInput>
+  </CB.ClassMethod>
+
+```typescript
+const payload = await scalekit.validateToken(accessToken);
+```
+
+  <CB.ClassMethod name="verifyScopes">
+    Verify that a token contains all required scopes. This checks if the token's scope claim includes the specified scopes.
+
+    <CB.ClassMethodInput name="token" type="string">
+        The JWT token to check **Required.**
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="requiredScopes" type="string[]">
+        Array of required scopes **Required.**
+      </CB.ClassMethodInput>
+  </CB.ClassMethod>
+
+```typescript
+const hasScopes = scalekit.verifyScopes(accessToken, ['read:user', 'write:user']);
+```
+
+  <CB.ClassMethod name="verifyWebhookPayload">
+    Verifies the authenticity and integrity of webhook payloads from Scalekit. Use this method to validate webhook requests from Scalekit by verifying the HMAC signature. This ensures the webhook was sent by Scalekit and hasn't been tampered with. The method checks the signature and timestamp to prevent replay attacks (5-minute tolerance window).
+
+  </CB.ClassMethod>
+
+```typescript
+app.post('/webhooks/scalekit', express.raw({ type: 'application/json' }), (req, res) => {
+  const secret = process.env.SCALEKIT_WEBHOOK_SECRET;
+  const headers = req.headers;
+  const payload = req.body.toString();
+
+  const isValid = scalekit.verifyWebhookPayload(secret, headers, payload);
+
+  if (!isValid) {
+    // Reject forged or replayed webhooks
+    return res.status(401).send('Invalid signature');
+  }
+
+  const event = JSON.parse(payload);
+
+  switch (event.type) {
+    case 'user.created':
+      console.log('New user created:', event.data);
+      break;
+    case 'connection.enabled':
+      console.log('Connection enabled:', event.data);
+      break;
+  }
+
+  res.status(200).send('Webhook received');
+});
+```
+
+  <CB.ClassMethod name="verifyInterceptorPayload">
+    Verifies the authenticity and integrity of interceptor payloads from Scalekit. Use this method to validate HTTP interceptor requests from Scalekit by verifying the HMAC signature. This ensures the interceptor payload was sent by Scalekit and hasn't been tampered with.
+
+  </CB.ClassMethod>
+
+```typescript
+const isValid = scalekit.verifyInterceptorPayload(secret, headers, payload);
+```
+
+</CB.ClassBrowser>

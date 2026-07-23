@@ -1,0 +1,164 @@
+---
+title: Authorization
+description: Authorization helpers for protected resources
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Authorization
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+
+Use auth helpers for authorization code exchange, token validation, and related login token flows on the Scalekit client.
+
+These methods sit next to session management—use them when implementing hosted login callbacks and token checks.
+
+### getAuthorizationUrl
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Auth" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/AuthClient.java">
+    <CB.ClassMethod name="getAuthorizationUrl" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `getAuthorizationUrl` and returns the result.
+
+      <CB.ClassMethodInput name="redirectUri" type="String">
+        Redirect uri.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="AuthorizationUrlOptions">
+        Optional request settings.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="URL">
+        The response payload for this operation.
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+import com.scalekit.internal.http.AuthorizationUrlOptions;
+import java.net.URL;
+
+AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+options.setOrganizationId("org_123");
+options.setState("random-state-value");
+
+URL authUrl = scalekitClient.authentication().getAuthorizationUrl(
+  "https://yourapp.com/auth/callback",
+  options
+);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### validateAccessToken
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Auth" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/AuthClient.java">
+    <CB.ClassMethod name="validateAccessToken" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `validateAccessToken` and returns the result.
+
+      <CB.ClassMethodInput name="jwt" type="String">
+        Jwt.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="boolean">
+        boolean
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+boolean ok = scalekitClient.authentication().validateAccessToken("<access_token_jwt>");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### generateClientToken
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Auth" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/AuthClient.java">
+    <CB.ClassMethod name="generateClientToken" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `generateClientToken` and returns the result.
+
+      <CB.ClassMethodInput name="clientId" type="String">
+        Client ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="clientSecret" type="String">
+        Client secret.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="String">
+        String.
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### getClientAccessToken
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Auth" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/AuthClient.java">
+    <CB.ClassMethod name="getClientAccessToken" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `getClientAccessToken` and returns the result.
+
+      <CB.ClassMethodOutput type="String">
+        The response payload for this operation.
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+String token = scalekitClient.authentication().getClientAccessToken();
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### authenticateWithCode
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Auth" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/AuthClient.java">
+    <CB.ClassMethod name="authenticateWithCode" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `authenticateWithCode` and returns the result.
+
+      <CB.ClassMethodInput name="code" type="String">
+        Authorization code.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="redirectUri" type="String">
+        Redirect uri.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="AuthenticationOptions">
+        Optional request settings.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="AuthenticationResponse">
+        Authentication.
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+import com.scalekit.internal.http.AuthenticationOptions;
+import com.scalekit.internal.http.AuthenticationResponse;
+
+AuthenticationResponse result = scalekitClient.authentication().authenticateWithCode(
+  "<code>",
+  "https://yourapp.com/auth/callback",
+  new AuthenticationOptions()
+);
+
+String accessToken = result.getAccessToken();
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
+</div>

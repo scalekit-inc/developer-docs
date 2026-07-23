@@ -1,0 +1,81 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="APITokens"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main"
+  language="go"
+>
+
+  <CB.ClassMethod name="CreateToken">
+    Creates a new API token for an organization with optional custom claims and expiration.
+
+  </CB.ClassMethod>
+
+```go
+expiry := time.Now().Add(24 * time.Hour)
+resp, err := client.Token().CreateToken(ctx, "org_123", scalekit.CreateTokenOptions{
+  UserId:       "usr_123",
+  Description:  "Service account token",
+  CustomClaims: map[string]string{
+    "source": "service",
+  },
+  Expiry:       &expiry,
+})
+if err != nil {
+  // handle
+}
+_ = resp.Token
+```
+
+  <CB.ClassMethod name="ValidateToken">
+    Validates an API token and returns token information if valid.
+
+  </CB.ClassMethod>
+
+```go
+resp, err := client.Token().ValidateToken(ctx, "api_token_here")
+if err != nil {
+  // token is invalid or expired
+}
+_ = resp.Token
+```
+
+  <CB.ClassMethod name="InvalidateToken">
+    Invalidates (revokes) an API token immediately.
+
+  </CB.ClassMethod>
+
+```go
+if err := client.Token().InvalidateToken(ctx, "api_token_here"); err != nil {
+  // handle
+}
+```
+
+  <CB.ClassMethod name="ListTokens">
+    Lists API tokens for an organization with optional filtering and pagination.
+
+  </CB.ClassMethod>
+
+```go
+tokens, err := client.Token().ListTokens(ctx, "org_123", scalekit.ListTokensOptions{})
+if err != nil {
+  // handle
+}
+for _, token := range tokens.Tokens {
+  _ = token
+}
+
+// Filter by user ID
+userTokens, err := client.Token().ListTokens(ctx, "org_123", scalekit.ListTokensOptions{
+  UserId: "usr_123",
+})
+if err != nil {
+  // handle
+}
+for _, token := range userTokens.Tokens {
+  _ = token
+}
+```
+
+</CB.ClassBrowser>

@@ -1,0 +1,207 @@
+---
+title: SSO connections
+description: Configure enterprise SSO connections
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: SSO connections
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+
+Use `scalekitClient.connections()` to configure enterprise SSO (SAML/OIDC) for an organization.
+
+Enable SSO after the organization exists: create a connection, complete IdP setup, and test sign-in for that org.
+
+### getConnectionById
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connections" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/ConnectionClient.java">
+    <CB.ClassMethod name="getConnectionById" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `getConnectionById` and returns the result.
+
+      <CB.ClassMethodInput name="connectionId" type="String">
+        Connection ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="String">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="Connection">
+        The response payload for this operation.
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+scalekitClient.connections().getConnectionById("conn_123", "org_123");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### listConnectionsByDomain
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connections" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/ConnectionClient.java">
+    <CB.ClassMethod name="listConnectionsByDomain" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `listConnectionsByDomain` and returns the result.
+
+      <CB.ClassMethodInput name="domain" type="String">
+        Domain name.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListConnectionsResponse">
+        Paginated connections.
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+scalekitClient.connections().listConnectionsByDomain("acme.com");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### listConnectionsByOrganization
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connections" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/ConnectionClient.java">
+    <CB.ClassMethod name="listConnectionsByOrganization" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `listConnectionsByOrganization` and returns the result.
+
+      <CB.ClassMethodInput name="organizationId" type="String">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListConnectionsResponse">
+        Paginated connections.
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+scalekitClient.connections().listConnectionsByOrganization("org_123");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### enableConnection
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connections" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/ConnectionClient.java">
+    <CB.ClassMethod name="enableConnection" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `enableConnection` and returns the result.
+
+      <CB.ClassMethodInput name="connectionId" type="String">
+        Connection ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="String">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ToggleConnectionResponse">
+        The updated resource.
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+scalekitClient.connections().enableConnection("conn_123", "org_123");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### disableConnection
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connections" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/ConnectionClient.java">
+    <CB.ClassMethod name="disableConnection" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `disableConnection` and returns the result.
+
+      <CB.ClassMethodInput name="connectionId" type="String">
+        Connection ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="String">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ToggleConnectionResponse">
+        The updated resource.
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+scalekitClient.connections().disableConnection("conn_123", "org_123");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### createConnection
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connections" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/ConnectionClient.java">
+    <CB.ClassMethod name="createConnection" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `createConnection` and returns the result.
+
+      <CB.ClassMethodInput name="organizationId" type="String">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="connection" type="CreateConnection">
+        Connection.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="Connection">
+        The created resource.
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+import com.scalekit.grpc.scalekit.v1.connections.CreateConnection;
+
+CreateConnection req = CreateConnection.newBuilder()
+  .setDisplayName("Acme Okta")
+  .build();
+
+scalekitClient.connections().createConnection("org_123", req);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### deleteConnection
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connections" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/ConnectionClient.java">
+    <CB.ClassMethod name="deleteConnection" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `deleteConnection` and returns the result.
+
+      <CB.ClassMethodInput name="connectionId" type="String">
+        Connection ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="String">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="void">
+        No return value
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+scalekitClient.connections().deleteConnection("conn_123", "org_123");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
+</div>

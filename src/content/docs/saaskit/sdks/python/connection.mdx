@@ -1,0 +1,395 @@
+---
+title: SSO connections
+description: Configure enterprise SSO connections
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: SSO connections
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+
+Use `scalekit_client.connection` to configure enterprise SSO (SAML/OIDC) for an organization.
+
+Enable SSO after the organization exists: create a connection, complete IdP setup, and test sign-in for that org.
+
+### list_connections
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
+    <CB.ClassMethod name="list_connections" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to list connections
+
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Client organization id to get connections
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="include" type="Optional[str]">
+        Optional. Return active connections or all, E.g. - 'all'
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListConnectionsResponse">
+        List Connections Response
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+response = scalekit_client.connection.list_connections(
+    'org_123456',
+    include='all'
+)
+
+for conn in response[0].connections:
+    print(f"Connection: {conn.id}")
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### list_connections_by_domain
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
+    <CB.ClassMethod name="list_connections_by_domain" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to get connection object by domain
+
+      <CB.ClassMethodInput name="domain" type="str">
+        Client domain id to get connections
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="include" type="Optional[str]">
+        Optional. Return active connections or all, E.g. - 'all'
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListConnectionsResponse">
+        List Connections Response
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+response = scalekit_client.connection.list_connections_by_domain(
+    'acme.com',
+    include='all'
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### get_connection
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
+    <CB.ClassMethod name="get_connection" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to get connection object
+
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Client organization id to get connection
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="conn_id" type="str">
+        Client connection id to get connection
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetConnectionResponse">
+        Connection Response
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+response = scalekit_client.connection.get_connection(
+    'org_123456',
+    'conn_123456'
+)
+connection = response[0].connection
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### create_connection
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
+    <CB.ClassMethod name="create_connection" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to create a new connection
+
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id to create connection for
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="connection" type="CreateConnection">
+        CreateConnection object with expected values for conn.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateConnectionResponse">
+        Create Connection Response
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+from scalekit.v1.connections.connections_pb2 import CreateConnection
+
+connection = CreateConnection()
+connection.type = "SAML"
+
+response = scalekit_client.connection.create_connection(
+    'org_123456',
+    connection
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### enable_connection
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
+    <CB.ClassMethod name="enable_connection" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to enable connection
+
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Client organization id to enable connection
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="conn_id" type="str">
+        Client connection id to enable connection
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ToggleConnectionResponse">
+        Enable Connection Response
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+scalekit_client.connection.enable_connection('org_123456', 'conn_123456')
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### disable_connection
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
+    <CB.ClassMethod name="disable_connection" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to disable connection
+
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Client organization id to disable connection
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="conn_id" type="str">
+        Client connection id to disable connection
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ToggleConnectionResponse">
+        Disable Connection Response
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+scalekit_client.connection.disable_connection('org_123456', 'conn_123456')
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### delete_connection
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
+    <CB.ClassMethod name="delete_connection" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to delete a connection based in given organization and connection id
+
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id to delete connection for
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="connection_id" type="str">
+        Connection id of connection to be deleted
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="None">
+        Empty on success.
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+scalekit_client.connection.delete_connection('org_123456', 'conn_123456')
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### list_app_connections
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
+    <CB.ClassMethod name="list_app_connections" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to list environment-level app connections
+
+      <CB.ClassMethodInput name="page_size" type="Optional[int]">
+        Results per page.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="page_token" type="Optional[str]">
+        Optional. Token for pagination
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="provider" type="Optional[str]">
+        Optional. Filter by provider (e.g. 'HUBSPOT')
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListAppConnectionsResponse">
+        List App Connections Response
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+response = scalekit_client.connection.list_app_connections()
+
+for conn in response[0].connections:
+    print(f"Connection: {conn.id}, Provider: {conn.provider_key}")
+
+# Filter by provider
+response = scalekit_client.connection.list_app_connections(provider='HUBSPOT', page_size=10)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### get_environment_connection
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
+    <CB.ClassMethod name="get_environment_connection" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to get an environment-level connection by its id
+
+      <CB.ClassMethodInput name="connection_id" type="str">
+        Connection id to retrieve
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetConnectionResponse">
+        Get Connection Response
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+response = scalekit_client.connection.get_environment_connection('conn_123456')
+conn = response[0].connection
+print(f"Provider: {conn.provider_key}, Type: {conn.type}")
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### create_environment_connection
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
+    <CB.ClassMethod name="create_environment_connection" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to create a new environment-level connection
+
+      <CB.ClassMethodInput name="connection" type="CreateConnection">
+        CreateConnection object with expected values for conn.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="flags" type="Optional[Flags]">
+        Optional. Optional Flags (is_login, is_app)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateConnectionResponse">
+        Create Connection Response
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+from scalekit.v1.connections.connections_pb2 import (
+    CreateConnection, ConnectionType, Flags
+)
+
+# Create an OAuth app connection (e.g., HubSpot)
+response = scalekit_client.connection.create_environment_connection(
+    connection=CreateConnection(
+        provider_key='HUBSPOT',
+        type=ConnectionType.OAUTH
+    ),
+    flags=Flags(is_app=True)
+)
+conn = response[0].connection
+print(f"Created: {conn.id}, Key: {conn.key_id}")
+
+# Create a Google Domain-Wide Delegation connection
+response = scalekit_client.connection.create_environment_connection(
+    connection=CreateConnection(
+        provider_key='GOOGLEDWD',
+        type=ConnectionType.GOOGLE_DWD,
+        key_id='my-gdwd-connection'
+    ),
+    flags=Flags(is_app=True)
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### update_environment_connection
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
+    <CB.ClassMethod name="update_environment_connection" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to update an environment-level connection
+
+      <CB.ClassMethodInput name="connection_id" type="str">
+        Connection id to update
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="connection" type="UpdateConnection">
+        UpdateConnection object with fields to update
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateConnectionResponse">
+        Update Connection Response
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+from scalekit.v1.connections.connections_pb2 import (
+    UpdateConnection, ConnectionType, OAuthConnectionConfig, GoogleDWDConfig
+)
+
+# Update OAuth connection credentials
+response = scalekit_client.connection.update_environment_connection(
+    connection_id='conn_123456',
+    connection=UpdateConnection(
+        provider_key='HUBSPOT',
+        key_id='hubspot-key',
+        type=ConnectionType.OAUTH,
+        oauth_config=OAuthConnectionConfig(
+            client_id={'value': 'my-client-id'},
+            client_secret={'value': 'my-client-secret'}
+        )
+    )
+)
+
+# Update Google DWD connection
+response = scalekit_client.connection.update_environment_connection(
+    connection_id='conn_123456',
+    connection=UpdateConnection(
+        provider_key='GOOGLEDWD',
+        key_id='my-gdwd-connection',
+        type=ConnectionType.GOOGLE_DWD,
+        google_dwd_config=GoogleDWDConfig(
+            service_account_json={'value': '{"type":"service_account",...}'},
+            scopes=['https://www.googleapis.com/auth/admin.directory.user.readonly'],
+            token_uri={'value': 'https://oauth2.googleapis.com/token'}
+        )
+    )
+)
+conn = response[0].connection
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
+</div>

@@ -1,0 +1,99 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="Organization"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main"
+  language="python"
+>
+
+  <CB.ClassMethod name="list_organizations">
+    Lists all organizations with pagination support.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.organization.list_organizations(page_size=50)
+
+for org in response[0].organizations:
+    print(f"Organization: {org.display_name}")
+
+# Follow-up page using the returned cursor
+if response[0].next_page_token:
+    next_page = scalekit_client.organization.list_organizations(
+        page_size=50,
+        page_token=response[0].next_page_token,
+    )
+```
+
+  <CB.ClassMethod name="create_organization">
+    Creates a new organization with the provided details.
+
+  </CB.ClassMethod>
+
+```python
+from scalekit.v1.organizations.organizations_pb2 import CreateOrganization
+
+org = CreateOrganization()
+org.display_name = "Acme Corp"
+org.external_id = "acme_123"
+
+response = scalekit_client.organization.create_organization(org)
+print(f"Created organization: {response[0].organization.id}")
+```
+
+  <CB.ClassMethod name="get_organization">
+    Retrieves organization details by organization ID.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.organization.get_organization('org_123456')
+organization = response[0].organization
+print(f"Organization: {organization.display_name}")
+```
+
+  <CB.ClassMethod name="get_organization_by_external_id">
+    Retrieves organization details by external ID.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.organization.get_organization_by_external_id('acme_123')
+organization = response[0].organization
+```
+
+  <CB.ClassMethod name="update_organization">
+    Updates an existing organization with new information.
+
+  </CB.ClassMethod>
+
+```python
+from scalekit.v1.organizations.organizations_pb2 import UpdateOrganization
+
+org = UpdateOrganization()
+org.display_name = "Acme Corporation"
+
+response = scalekit_client.organization.update_organization('org_123456', org)
+```
+
+  <CB.ClassMethod name="delete_organization">
+    Deletes an organization by organization ID.
+
+  </CB.ClassMethod>
+
+```python
+scalekit_client.organization.delete_organization('org_123456')
+```
+
+  <CB.ClassMethod name="generate_portal_link">
+    Generates a customer portal link for the organization.
+
+  </CB.ClassMethod>
+
+```python
+portal_link = scalekit_client.organization.generate_portal_link('org_123456')
+print(f"Portal Link: {portal_link}")
+```
+
+</CB.ClassBrowser>

@@ -1,0 +1,595 @@
+---
+title: Users
+description: Provision and manage users and memberships
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Users
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+
+Use the User client to provision people, manage organization memberships, and assign roles.
+
+Common flows: invite or create a user, attach them to an organization, update profile fields, and look up users by Scalekit ID or your external ID.
+
+### ListUsers
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/users.go">
+    <CB.ClassMethod name="ListUsers" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      ListUsers retrieves all users across the environment with optional pagination.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="ListUsersOptions">
+        Optional request settings.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListUsersResponse">
+        Paginated results.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+users, err := scalekitClient.User().ListUsers(ctx, &scalekit.ListUsersOptions{
+  PageSize:  50,
+  PageToken: "",
+})
+if err != nil {
+  // handle
+}
+for _, u := range users.Users {
+  _ = u
+}
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### ListOrganizationUsers
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/users.go">
+    <CB.ClassMethod name="ListOrganizationUsers" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      ListOrganizationUsers retrieves a list of users in the organization
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="ListUsersOptions">
+        Optional request settings.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListOrganizationUsersResponse">
+        Paginated results.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+users, err := scalekitClient.User().ListOrganizationUsers(ctx, "org_123", &scalekit.ListUsersOptions{
+  PageSize:  10,
+  PageToken: "",
+})
+if err != nil {
+  // handle
+}
+_ = users.Users
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### GetUser
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/users.go">
+    <CB.ClassMethod name="GetUser" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      GetUser retrieves a user by ID
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="userId" type="string">
+        Scalekit user ID (`usr_...`).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetUserResponse">
+        The response payload for this operation.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+user, err := scalekitClient.User().GetUser(ctx, "usr_123")
+if err != nil {
+  // handle
+}
+_ = user.User
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### UpdateUser
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/users.go">
+    <CB.ClassMethod name="UpdateUser" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      UpdateUser updates an existing user
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="userId" type="string">
+        Scalekit user ID (`usr_...`).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="updateUser" type="usersv1.UpdateUser">
+        Update user.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateUserResponse">
+        The updated resource.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+firstName := "Test"
+lastName := "User"
+name := "Test User"
+locale := "en-US"
+
+updated, err := scalekitClient.User().UpdateUser(ctx, "usr_123", &users.UpdateUser{
+  UserProfile: &users.UpdateUserProfile{
+    FirstName: &firstName,
+    LastName:  &lastName,
+    Name:      &name,
+    Locale:    &locale,
+  },
+})
+if err != nil {
+  // handle
+}
+_ = updated.User
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### CreateUserAndMembership
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/users.go">
+    <CB.ClassMethod name="CreateUserAndMembership" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      CreateUserAndMembership creates a new user with membership in the organization
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="user" type="usersv1.CreateUser">
+        User fields.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="sendInvitationEmail" type="bool">
+        Send invitation email.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateUserAndMembershipResponse">
+        The created resource.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+created, err := scalekitClient.User().CreateUserAndMembership(ctx, "org_123", &users.CreateUser{
+  Email: "test.user@example.com",
+  Metadata: map[string]string{
+    "source": "test",
+  },
+}, true)
+if err != nil {
+  // handle
+}
+_ = created.User.Id
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### DeleteUser
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/users.go">
+    <CB.ClassMethod name="DeleteUser" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      DeleteUser deletes a user
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="userId" type="string">
+        Scalekit user ID (`usr_...`).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="error">
+        error
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+if err := scalekitClient.User().DeleteUser(ctx, "usr_123"); err != nil {
+  // handle
+}
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### CreateMembership
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/users.go">
+    <CB.ClassMethod name="CreateMembership" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      CreateMembership creates a membership for a user in an organization
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="userId" type="string">
+        Scalekit user ID (`usr_...`).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="membership" type="usersv1.CreateMembership">
+        Membership.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="sendInvitationEmail" type="bool">
+        Send invitation email.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateMembershipResponse">
+        The created resource.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+resp, err := scalekitClient.User().CreateMembership(ctx, "org_123", "usr_123", &users.CreateMembership{
+  Roles: []*commons.Role{{Name: "admin"}},
+  Metadata: map[string]string{
+    "membership_type": "test",
+  },
+}, false)
+if err != nil {
+  // handle
+}
+_ = resp.User
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### UpdateMembership
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/users.go">
+    <CB.ClassMethod name="UpdateMembership" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      UpdateMembership updates a user's membership in an organization
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="userId" type="string">
+        Scalekit user ID (`usr_...`).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="membership" type="usersv1.UpdateMembership">
+        Membership.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateMembershipResponse">
+        The updated resource.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+resp, err := scalekitClient.User().UpdateMembership(ctx, "org_123", "usr_123", &users.UpdateMembership{
+  Roles: []*commons.Role{{Name: "member"}},
+})
+if err != nil {
+  // handle
+}
+_ = resp.User
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### DeleteMembership
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/users.go">
+    <CB.ClassMethod name="DeleteMembership" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      DeleteMembership deletes a user's membership from an organization.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="userId" type="string">
+        Scalekit user ID (`usr_...`).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="cascade" type="bool">
+        Cascade.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="error">
+        error
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+if err := scalekitClient.User().DeleteMembership(ctx, "org_123", "usr_123", false); err != nil {
+  // handle
+}
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### ResendInvite
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/users.go">
+    <CB.ClassMethod name="ResendInvite" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      ResendInvite resends an invitation email to a user who has a pending invitation
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="userId" type="string">
+        Scalekit user ID (`usr_...`).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="usersv1.ResendInviteResponse">
+        usersv1.ResendInviteResponse
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+resp, err := scalekitClient.User().ResendInvite(ctx, "org_123", "usr_123")
+if err != nil {
+  // handle
+}
+_ = resp.Invite
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### GetUserByExternalId
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/users.go">
+    <CB.ClassMethod name="GetUserByExternalId" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      GetUserByExternalId retrieves a user by their external ID
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="externalId" type="string">
+        External ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetUserResponse">
+        The response payload for this operation.
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### UpdateUserByExternalId
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/users.go">
+    <CB.ClassMethod name="UpdateUserByExternalId" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      UpdateUserByExternalId updates an existing user identified by their external ID
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="externalId" type="string">
+        External ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="updateUser" type="usersv1.UpdateUser">
+        Update user.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateUserResponse">
+        The updated resource.
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### DeleteUserByExternalId
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/users.go">
+    <CB.ClassMethod name="DeleteUserByExternalId" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      DeleteUserByExternalId deletes a user identified by their external ID
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="externalId" type="string">
+        External ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="error">
+        error
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### CreateMembershipByExternalId
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/users.go">
+    <CB.ClassMethod name="CreateMembershipByExternalId" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      CreateMembershipByExternalId creates a membership for a user (identified by external ID) in an organization
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="externalId" type="string">
+        External ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="membership" type="usersv1.CreateMembership">
+        Membership.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="sendInvitationEmail" type="bool">
+        Send invitation email.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateMembershipResponse">
+        The created resource.
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### UpdateMembershipByExternalId
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/users.go">
+    <CB.ClassMethod name="UpdateMembershipByExternalId" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      UpdateMembershipByExternalId updates a user's membership (identified by external ID) in an organization
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="externalId" type="string">
+        External ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="membership" type="usersv1.UpdateMembership">
+        Membership.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateMembershipResponse">
+        The updated resource.
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### DeleteMembershipByExternalId
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/users.go">
+    <CB.ClassMethod name="DeleteMembershipByExternalId" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      DeleteMembershipByExternalId deletes a user's membership (identified by external ID) from an organization.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="externalId" type="string">
+        External ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="cascade" type="bool">
+        Cascade.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="error">
+        error
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### ListUserRoles
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/users.go">
+    <CB.ClassMethod name="ListUserRoles" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      ListUserRoles returns all roles assigned to the specified user within the given organization
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="userId" type="string">
+        Scalekit user ID (`usr_...`).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListUserRolesResponse">
+        Paginated results.
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### ListUserPermissions
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/users.go">
+    <CB.ClassMethod name="ListUserPermissions" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      ListUserPermissions returns all permissions granted to the specified user within the given organization
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="userId" type="string">
+        Scalekit user ID (`usr_...`).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListUserPermissionsResponse">
+        Paginated results.
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
+</div>

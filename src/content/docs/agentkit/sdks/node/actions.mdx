@@ -1,0 +1,374 @@
+---
+title: Accounts & tools
+description: Connect accounts, start auth, and execute tools with scalekit.actions
+topic: agentkit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Accounts & tools
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+
+`scalekit.actions` is the primary AgentKit client for connecting end-user accounts, starting OAuth, and executing tools on their behalf.
+
+**Common path:** create or look up a connected account → get an authorization link → verify the user after redirect → run tools with `executeTool`.
+
+For raw tool schemas used by custom adapters, see [Tool schemas](/agentkit/sdks/node/tools/). For exception types, see [Error handling](/agentkit/sdks/node/errors/).
+
+### verifyConnectedAccountUser
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/actions.ts">
+    <CB.ClassMethod name="verifyConnectedAccountUser" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Verify the connected account user after OAuth callback.
+
+      <CB.ClassMethodInput name="params" type="object" hint="authRequestId, identifier">
+        Required or common fields: `authRequestId`, `identifier`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="VerifyConnectedAccountUserResponse">
+        Post-verify redirect URL.
+      </CB.ClassMethodOutput>
+
+
+```typescript wrap showLineNumbers=false
+// authRequestId: from the user-verify redirect query string
+// identifier: same user identifier used when starting connect
+await scalekit.actions.verifyConnectedAccountUser({
+  authRequestId: 'opaque-auth-request-id',
+  identifier: 'user@example.com',
+});
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### listConnectedAccounts
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/actions.ts">
+    <CB.ClassMethod name="listConnectedAccounts" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      List connected accounts with optional filters.
+
+      <CB.ClassMethodInput name="params" type="object" hint="connectionName, identifier, provider, organizationId, userId, pageSize, pageToken, query">
+        Required or common fields: `connectionName`, `identifier`, `provider`, `organizationId`, `userId`, `pageSize`, `pageToken`, `query`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListConnectedAccountsResponse">
+        Paginated connected accounts.
+      </CB.ClassMethodOutput>
+
+
+```typescript wrap showLineNumbers=false
+// Optional filters: connectionName, identifier, provider, pageSize, pageToken
+const response = await scalekit.actions.listConnectedAccounts({
+  connectionName: 'GMAIL',
+  identifier: 'user@example.com',
+  pageSize: 20,
+});
+// response.connectedAccounts, response.nextPageToken, response.totalSize
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### executeTool
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/actions.ts">
+    <CB.ClassMethod name="executeTool" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Execute a tool on behalf of a connected account.
+
+      <CB.ClassMethodInput name="params" type="object" hint="toolName, toolInput, identifier, connectedAccountId, connector, organizationId, userId">
+        Required or common fields: `toolName`, `toolInput`, `identifier`, `connectedAccountId`, `connector`, `organizationId`, `userId`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ExecuteToolResponse">
+        Tool result and execution ID.
+      </CB.ClassMethodOutput>
+
+
+```typescript wrap showLineNumbers=false
+// actions.executeTool maps toolInput -> tools.executeTool params
+const response = await scalekit.actions.executeTool({
+  toolName: 'gmail_fetch_mails',
+  toolInput: { max_results: 1 },
+  identifier: 'user@example.com',
+  connector: 'GMAIL',
+});
+// response.data, response.executionId
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### getAuthorizationLink
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/actions.ts">
+    <CB.ClassMethod name="getAuthorizationLink" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Get an authorization magic link for a connected account.
+
+      <CB.ClassMethodInput name="params" type="object" hint="connectionName, identifier, connectedAccountId, organizationId, userId, state, userVerifyUrl">
+        Required or common fields: `connectionName`, `identifier`, `connectedAccountId`, `organizationId`, `userId`, `state`, `userVerifyUrl`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetMagicLinkForConnectedAccountResponse">
+        Authorization magic link.
+      </CB.ClassMethodOutput>
+
+    
+
+
+```typescript wrap showLineNumbers=false
+// connectionName: app connection / connector name
+// identifier: end-user identifier for the connected account
+const response = await scalekit.actions.getAuthorizationLink({
+  connectionName: 'GMAIL',
+  identifier: 'user@example.com',
+  state: 'csrf-token-abc123',
+  userVerifyUrl: 'https://yourapp.com/auth/callback',
+});
+// response.link — redirect the user here
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### listConnections
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/actions.ts">
+    <CB.ClassMethod name="listConnections" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      List app-level connections with optional pagination and provider filtering.
+
+      <CB.ClassMethodInput name="params" type="object" hint="pageSize, pageToken, provider">
+        Required or common fields: `pageSize`, `pageToken`, `provider`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListAppConnectionsResult">
+        Paginated results.
+      </CB.ClassMethodOutput>
+
+
+```typescript wrap showLineNumbers=false
+// App-level AgentKit connections (not SSO org connections)
+const { connections, nextPageToken, totalSize } =
+  await scalekit.actions.listConnections({
+    pageSize: 30,
+    provider: 'GMAIL', // optional; case-sensitive provider key
+  });
+
+for (const conn of connections) {
+  console.log(conn.id, conn.connectionName, conn.status, conn.enabled);
+}
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### deleteConnectedAccount
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/actions.ts">
+    <CB.ClassMethod name="deleteConnectedAccount" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Delete a connected account.
+
+      <CB.ClassMethodInput name="params" type="object" hint="connectionName, identifier, connectedAccountId, organizationId, userId">
+        Required or common fields: `connectionName`, `identifier`, `connectedAccountId`, `organizationId`, `userId`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="DeleteConnectedAccountResponse">
+        Empty on success.
+      </CB.ClassMethodOutput>
+
+
+```typescript wrap showLineNumbers=false
+// Require connectedAccountId OR connectionName + identifier
+await scalekit.actions.deleteConnectedAccount({
+  connectionName: 'GMAIL',
+  identifier: 'user@example.com',
+});
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### getConnectedAccount
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/actions.ts">
+    <CB.ClassMethod name="getConnectedAccount" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Get connected account authorization details.
+
+      <CB.ClassMethodInput name="params" type="object" hint="connectionName, identifier, connectedAccountId, organizationId, userId">
+        Required or common fields: `connectionName`, `identifier`, `connectedAccountId`, `organizationId`, `userId`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetConnectedAccountByIdentifierResponse">
+        The response payload for this operation.
+      </CB.ClassMethodOutput>
+
+
+```typescript wrap showLineNumbers=false
+// Returns authorization details (sensitive). Prefer details-only APIs when available.
+const response = await scalekit.actions.getConnectedAccount({
+  connectionName: 'GMAIL',
+  identifier: 'user@example.com',
+});
+// response.connectedAccount
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### createConnectedAccount
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/actions.ts">
+    <CB.ClassMethod name="createConnectedAccount" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Create a new connected account.
+
+      <CB.ClassMethodInput name="params" type="object" hint="connectionName, identifier, authorizationDetails, organizationId, userId, apiConfig">
+        Required or common fields: `connectionName`, `identifier`, `authorizationDetails`, `organizationId`, `userId`, `apiConfig`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateConnectedAccountResponse">
+        The created resource.
+      </CB.ClassMethodOutput>
+
+
+```typescript wrap showLineNumbers=false
+// authorizationDetails required. Shape matches AuthorizationDetails (oauthToken | staticAuth).
+// Tests build it with @bufbuild/protobuf create() + AuthorizationDetailsSchema / OauthTokenSchema
+// from the generated connected_accounts protobuf module.
+const response = await scalekit.actions.createConnectedAccount({
+  connectionName: 'GMAIL',
+  identifier: 'user@example.com',
+  authorizationDetails: {
+    details: {
+      case: 'oauthToken',
+      value: {
+        accessToken: process.env.PROVIDER_ACCESS_TOKEN!,
+      },
+    },
+  },
+});
+// response.connectedAccount
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### getOrCreateConnectedAccount
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/actions.ts">
+    <CB.ClassMethod name="getOrCreateConnectedAccount" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Get an existing connected account or create a new one if it doesn't exist.
+
+      <CB.ClassMethodInput name="params" type="object" hint="connectionName, identifier, authorizationDetails, organizationId, userId, apiConfig">
+        Required or common fields: `connectionName`, `identifier`, `authorizationDetails`, `organizationId`, `userId`, `apiConfig`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateConnectedAccountResponse">
+        The response payload for this operation.
+      </CB.ClassMethodOutput>
+
+
+```typescript wrap showLineNumbers=false
+// Upsert: creates when missing; authorizationDetails optional
+const response = await scalekit.actions.getOrCreateConnectedAccount({
+  connectionName: 'GMAIL',
+  identifier: 'user@example.com',
+});
+// response.connectedAccount
+// Alias: scalekit.actions.upsertConnectedAccount(...)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### updateConnectedAccount
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/actions.ts">
+    <CB.ClassMethod name="updateConnectedAccount" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Update an existing connected account.
+
+      <CB.ClassMethodInput name="params" type="object" hint="connectionName, identifier, authorizationDetails, organizationId, userId, connectedAccountId, apiConfig">
+        Required or common fields: `connectionName`, `identifier`, `authorizationDetails`, `organizationId`, `userId`, `connectedAccountId`, `apiConfig`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateConnectedAccountResponse">
+        The updated resource.
+      </CB.ClassMethodOutput>
+
+
+```typescript wrap showLineNumbers=false
+// Require connectedAccountId OR connectionName + identifier
+const response = await scalekit.actions.updateConnectedAccount({
+  connectionName: 'GMAIL',
+  identifier: 'user@example.com',
+  apiConfig: {
+    version: 'v1.0',
+    domain: 'gmail.com',
+  },
+});
+// response.connectedAccount
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### request
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ActionsClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/actions.ts">
+    <CB.ClassMethod name="request" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Make a proxied REST API call on behalf of a connected account.
+
+      <CB.ClassMethodInput name="params" type="object" hint="connectionName, identifier, path, method, queryParams, body, formData, headers">
+        timeoutMs: Per-call request timeout in ms.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="object" hint="AxiosResponse(any)">
+        AxiosResponse(any)
+      </CB.ClassMethodOutput>
+
+
+```typescript wrap showLineNumbers=false
+// Proxied HTTP: {envUrl}/proxy{path} with connection_name + identifier headers
+const response = await scalekit.actions.request({
+  connectionName: 'GMAIL',
+  identifier: 'user@example.com',
+  path: '/gmail/v1/users/me/profile',
+  method: 'GET',
+});
+// AxiosResponse: response.status, response.data
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
+</div>

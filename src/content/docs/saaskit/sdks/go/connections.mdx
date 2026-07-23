@@ -1,0 +1,256 @@
+---
+title: SSO connections
+description: Configure enterprise SSO connections
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: SSO connections
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+
+Use the connection client to configure enterprise SSO (SAML/OIDC) for an organization.
+
+Enable SSO after the organization exists: create a connection, complete IdP setup, and test sign-in for that org.
+
+### CreateConnection
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connections" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/connection.go">
+    <CB.ClassMethod name="CreateConnection" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `CreateConnection` and returns the result.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="connection" type="connectionsv1.CreateConnection">
+        Connection.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateConnectionResponse">
+        The created resource.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+import (
+  connectionsv1 "github.com/scalekit-inc/scalekit-sdk-go/v2/pkg/grpc/scalekit/v1/connections"
+)
+
+created, err := scalekitClient.Connection().CreateConnection(ctx, "org_123", &connectionsv1.CreateConnection{
+  Provider:    connectionsv1.ConnectionProvider_OKTA,
+  Type:        connectionsv1.ConnectionType_SAML,
+  ProviderKey: "my-okta-connection",
+})
+if err != nil {
+  // handle
+}
+_ = created.Connection
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### DeleteConnection
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connections" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/connection.go">
+    <CB.ClassMethod name="DeleteConnection" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `DeleteConnection` and returns the result.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="id" type="string">
+        Resource ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="error">
+        error
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+if err := scalekitClient.Connection().DeleteConnection(ctx, "org_123", "conn_456"); err != nil {
+  // handle
+}
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### GetConnection
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connections" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/connection.go">
+    <CB.ClassMethod name="GetConnection" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `GetConnection` and returns the result.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="id" type="string">
+        Resource ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetConnectionResponse">
+        The response payload for this operation.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+conn, err := scalekitClient.Connection().GetConnection(ctx, "org_123", "conn_123")
+if err != nil {
+  // handle
+}
+_ = conn.Connection
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### ListConnectionsByDomain
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connections" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/connection.go">
+    <CB.ClassMethod name="ListConnectionsByDomain" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `ListConnectionsByDomain` and returns the result.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="domain" type="string">
+        Domain name.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListConnectionsResponse">
+        Paginated connections.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+conns, err := scalekitClient.Connection().ListConnectionsByDomain(ctx, "acme.com")
+if err != nil {
+  // handle
+}
+_ = conns.Connections
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### ListConnections
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connections" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/connection.go">
+    <CB.ClassMethod name="ListConnections" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `ListConnections` and returns the result.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListConnectionsResponse">
+        Paginated connections.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+conns, err := scalekitClient.Connection().ListConnections(ctx, "org_123")
+if err != nil {
+  // handle
+}
+_ = conns.Connections
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### EnableConnection
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connections" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/connection.go">
+    <CB.ClassMethod name="EnableConnection" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `EnableConnection` and returns the result.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="id" type="string">
+        Resource ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ToggleConnectionResponse">
+        The updated resource.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+resp, err := scalekitClient.Connection().EnableConnection(ctx, "org_123", "conn_123")
+if err != nil {
+  // handle
+}
+_ = resp.Enabled
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### DisableConnection
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connections" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/connection.go">
+    <CB.ClassMethod name="DisableConnection" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `DisableConnection` and returns the result.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="id" type="string">
+        Resource ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ToggleConnectionResponse">
+        The updated resource.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+resp, err := scalekitClient.Connection().DisableConnection(ctx, "org_123", "conn_123")
+if err != nil {
+  // handle
+}
+_ = resp.Enabled
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
+</div>

@@ -1,0 +1,91 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="Tokens"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main"
+  language="java"
+>
+
+  <CB.ClassMethod name="create">
+    Creates a new API token for an organization with default settings.
+
+  </CB.ClassMethod>
+
+```java
+scalekitClient.tokens().create("org_123");
+```
+
+  <CB.ClassMethod name="create">
+    Creates a new API token for an organization with custom options.
+
+  </CB.ClassMethod>
+
+```java
+import java.util.HashMap;
+import java.util.Map;
+import com.google.protobuf.Timestamp;
+
+Map<String, String> claims = new HashMap<>();
+claims.put("environment", "production");
+
+Timestamp expiry = Timestamp.newBuilder()
+  .setSeconds(System.currentTimeMillis() / 1000 + 86400)
+  .build();
+
+scalekitClient.tokens().create("org_123", "user_123", claims, expiry, "Production access token");
+```
+
+  <CB.ClassMethod name="validate">
+    Validates an API token and returns associated context.
+
+  </CB.ClassMethod>
+
+```java
+scalekitClient.tokens().validate("apit_xxxxx");
+```
+
+  <CB.ClassMethod name="invalidate">
+    Invalidates (soft deletes) an API token. This operation is idempotent - it succeeds even if the token was already invalidated.
+
+  </CB.ClassMethod>
+
+```java
+scalekitClient.tokens().invalidate("apit_xxxxx");
+```
+
+  <CB.ClassMethod name="update">
+    Updates custom claims and/or description of an existing API token. Custom claims are merged into the existing set. To remove a claim, set its value to an empty string.
+
+  </CB.ClassMethod>
+
+```java
+import java.util.HashMap;
+import java.util.Map;
+
+Map<String, String> newClaims = new HashMap<>();
+newClaims.put("environment", "staging");
+newClaims.put("old_claim", "");  // Remove this claim
+
+scalekitClient.tokens().update("apit_xxxxx", newClaims, "Updated description");
+```
+
+  <CB.ClassMethod name="list">
+    Lists API tokens for an organization with pagination.
+
+  </CB.ClassMethod>
+
+```java
+scalekitClient.tokens().list("org_123", 20, "");
+```
+
+  <CB.ClassMethod name="list">
+    Lists API tokens for an organization and user with pagination.
+
+  </CB.ClassMethod>
+
+```java
+scalekitClient.tokens().list("org_123", "user_123", 20, "");
+```
+
+</CB.ClassBrowser>
