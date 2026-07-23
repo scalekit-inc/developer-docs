@@ -811,7 +811,11 @@
 /*
  * Example fences in ClassBrowser method bodies ONLY.
  * Scope: .sdk-client-page .cb-method-body — never restyle site-wide fences.
- * Do not use overflow-x: visible (breaks rounded frame borders after reflow).
+ *
+ * Do not set overflow on figure.frame — non-visible overflow clips EC's frame
+ * box-shadow and, after expand/collapse reflow, can make the pre edge look like
+ * a missing left hairline. Keep scroll on the pre only; site-wide pre border is
+ * reasserted unlayered in custom.css (ClientRouter soft-nav recovery).
  */
 .sdk-client-page .cb-method-body .expressive-code {
   margin-block: 0.75rem 0.25rem;
@@ -825,11 +829,14 @@
   overflow-wrap: anywhere;
 }
 
-.sdk-client-page .cb-method-body .expressive-code figure.frame,
+.sdk-client-page .cb-method-body .expressive-code figure.frame {
+  overflow: visible;
+  box-sizing: border-box;
+}
+
 .sdk-client-page .cb-method-body .expressive-code pre {
+  /* Long unwrapped lines scroll; avoid overflow-x: visible (reflow glitch). */
   overflow-x: auto;
-  overflow-y: hidden;
-  background-clip: padding-box;
   box-sizing: border-box;
 }
 

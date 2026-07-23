@@ -738,6 +738,20 @@ body {
   border-radius: 0;
 }
 
+/*
+ * Expressive Code: the real edge is on `pre` (`border: var(--ec-brdWd) solid
+ * var(--ec-brdCol)` in starlight.components). ClientRouter soft-nav can drop
+ * or reorder that layered sheet, leaving only the frame's offset box-shadow
+ * (0.1rem 0.1rem …) — looks like a missing left/top border until hard refresh.
+ * Unlayered so this always wins after soft-nav (same class of bug as Nova above).
+ */
+.sl-markdown-content .expressive-code pre,
+.expressive-code pre {
+  border: var(--ec-brdWd, 1px) solid var(--ec-brdCol, var(--sl-color-gray-5));
+  border-radius: calc(var(--ec-brdRad, 0.375rem) + var(--ec-brdWd, 1px));
+  box-sizing: border-box;
+}
+
 /* =============================================================================
    VIEW TRANSITIONS — simple full-page fade only
    -----------------------------------------------------------------------------
