@@ -105,7 +105,7 @@ USER_ID = os.getenv("SCALEKIT_USER_IDENTIFIER", "user_123")
 
 Before calling any Gmail tool, check whether the user has an active connected account. If not, print an authorization link and wait for them to complete OAuth in the browser:
 
-```python
+```python title="agent.py"
 # Use the exact Connection name from AgentKit → Connections (not a guessed slug).
 CONNECTION_NAME = os.getenv("GMAIL_CONNECTION_NAME", "gmail")
 
@@ -144,7 +144,7 @@ Look up the Virtual MCP config you created in step 1, mint a session token, then
 
 If `list_configs` returns no results, stop and create the config first (dashboard or [configure-mcp-server](/agentkit/mcp/configure-mcp-server/)). Do not assume a default Virtual MCP server exists.
 
-```python
+```python title="agent.py"
 from crewai_tools import MCPServerAdapter
 from datetime import timedelta
 
@@ -357,7 +357,7 @@ On subsequent runs, the authorization step is skipped entirely.
 <details>
 <summary>MCP config not found</summary>
 
-- **Symptom**: `list_configs` returns an empty list, or `configs[0]` raises `IndexError`
+- **Symptom**: `list_configs` returns an empty list
 - **Cause**: No Virtual MCP server exists yet, or `SCALEKIT_MCP_CONFIG_NAME` does not match the dashboard name
 - **Fix**: Create a config under **AgentKit → MCP Configs** that includes Gmail tools, then set `SCALEKIT_MCP_CONFIG_NAME` to that exact name. See [Set up and connect a Virtual MCP server](/agentkit/mcp/configure-mcp-server/).
 

@@ -90,9 +90,9 @@ Complete these steps in the Scalekit dashboard before writing any code:
 
         # Constructor: env_url, client_id, client_secret
         scalekit_client = ScalekitClient(
-            os.getenv("SCALEKIT_ENV_URL"),
-            os.getenv("SCALEKIT_CLIENT_ID"),
-            os.getenv("SCALEKIT_CLIENT_SECRET"),
+            os.environ["SCALEKIT_ENV_URL"],
+            os.environ["SCALEKIT_CLIENT_ID"],
+            os.environ["SCALEKIT_CLIENT_SECRET"],
         )
         actions = scalekit_client.actions
         connection_name = os.getenv("GMAIL_CONNECTION_NAME")  # must match the Connection name in the dashboard exactly
@@ -171,6 +171,11 @@ Complete these steps in the Scalekit dashboard before writing any code:
             )
             connected_account = response.connected_account
             # In production, redirect the user to this URL and resume after the OAuth callback
+
+        if connected_account.status != "ACTIVE":
+            raise RuntimeError(
+                "Gmail is still not ACTIVE. Complete authorization and try again."
+            )
         ```
       </TabItem>
       <TabItem label="Node.js">
@@ -199,6 +204,10 @@ Complete these steps in the Scalekit dashboard before writing any code:
           });
           connectedAccount = refreshed.connectedAccount;
           // In production, redirect the user to this URL and resume after the OAuth callback
+        }
+
+        if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
+          throw new Error('Gmail is still not ACTIVE. Complete authorization and try again.');
         }
         ```
       </TabItem>
