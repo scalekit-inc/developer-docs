@@ -1656,4 +1656,9 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'OAuth 2.0',
     categories: ['CRM & Sales', 'AI', 'Analytics'],
   },
+  discordbot: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/discord.svg',
+    authType: 'API Key',
+    categories: ['Communication', 'Collaboration'],
+  },
 }
