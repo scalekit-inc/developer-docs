@@ -1,0 +1,40 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your Trello API key and application name with Scalekit so it can authenticate and manage the OAuth 1.0a flow on your behalf.
+
+<Steps>
+1. ### Copy the redirect URI from Scalekit
+
+   - In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **Trello** and click **Create**.
+
+     <Aside type="tip" title="Testing vs. production">
+       By default, Scalekit creates the connection using its own shared credentials. This works for testing. Before going to production, follow the steps below to use your own Trello app.
+     </Aside>
+
+   - Click **Use your own credentials** and copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+2. ### Create a Power-Up app in Trello
+
+   - Sign in to [trello.com/power-ups/admin](https://trello.com/power-ups/admin) and click **New** to create an app (or open an existing one, for example `Agent Auth`).
+
+     ![Trello Power-Ups admin Your Apps page showing an Agent Auth app](@/assets/docs/agent-connectors/trello/your-apps.png)
+
+3. ### Add the redirect URI and copy your API Key
+
+   - Open the app and go to the **API key** tab.
+   - Under **Allowed origins**, paste the redirect URI you copied from Scalekit and click **Add**.
+   - Copy the **API key** value — you'll use this as the `client_id` in Scalekit.
+
+     ![Trello app API key page showing the API key field, Allowed origins, and Secret](@/assets/docs/agent-connectors/trello/api-key.png)
+
+     <Aside type="note" title="Secret is optional for the proxy flow">
+       Trello's UI also shows a **Secret**, needed only if you implement OAuth 1.0a authorization yourself. Scalekit's Trello connection only requires the **API Key** and an **Application Name** — it handles the OAuth 1.0a signing for you.
+     </Aside>
+
+4. ### Add credentials in Scalekit
+
+   - Return to the connection you created in Scalekit and enter:
+     - **API Key** — the API key you copied from Trello (used as `client_id`)
+     - **Application Name** — the name shown to users on Trello's authorization page (for example, `Agent Auth`)
+   - Click **Save**.
+</Steps>

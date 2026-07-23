@@ -250,12 +250,6 @@ paths:
         - label: Node.js SDK
           lang: javascript
           source: |-
-            import { ScalekitClient } from '@scalekit-sdk/node'
-            const scalekit = new ScalekitClient(
-              process.env.SCALEKIT_ENV_URL,
-              process.env.SCALEKIT_CLIENT_ID,
-              process.env.SCALEKIT_CLIENT_SECRET,
-            )
             await scalekit.user.createMembership('org_123', 'usr_123', {
               roles: ['admin'],
               metadata: {
@@ -281,52 +275,41 @@ paths:
         - label: Go SDK
           lang: go
           source: |-
-            func main() {
-                scalekitClient := scalekit.NewScalekitClient(
-                    os.Getenv("SCALEKIT_ENV_URL"),
-                    os.Getenv("SCALEKIT_CLIENT_ID"),
-                    os.Getenv("SCALEKIT_CLIENT_SECRET"),
-                )
-                membership := &usersv1.CreateMembership{
-                    Roles: []*usersv1.Role{{Name: "admin"}},
-                    Metadata: map[string]string{
-                        "department": "engineering",
-                        "location":   "nyc-office",
-                    },
-                }
-                resp, 
-                  err := scalekitClient.User().CreateMembership(
-                    context.Background(), "org_123", 
-                      "usr_123", membership, false)
-                if err != nil {
-                    panic(err)
-                }
+            membership := &usersv1.CreateMembership{
+              Roles: []*usersv1.Role{{Name: "admin"}},
+              Metadata: map[string]string{
+                "department": "engineering",
+                "location":   "nyc-office",
+              },
             }
+            resp, err := scalekitClient.User().CreateMembership(
+              ctx,
+              "org_123",
+              "usr_123",
+              membership,
+              false,
+            )
+            if err != nil {
+              // handle error
+              return
+            }
+            _ = resp
         - label: Java SDK
           lang: java
           source: |-
-            import com.scalekit.ScalekitClient;
-            import com.scalekit.api.UserClient;
-            import com.scalekit.grpc.scalekit.v1.users.*;
-            ScalekitClient scalekitClient = new ScalekitClient(
-                System.getenv("SCALEKIT_ENV_URL"),
-                System.getenv("SCALEKIT_CLIENT_ID"),
-                System.getenv("SCALEKIT_CLIENT_SECRET")
+            CreateMembershipRequest membershipReq = CreateMembershipRequest.newBuilder()
+                .setMembership(
+                    CreateMembership.newBuilder()
+                        .addRoles(Role.newBuilder().setName("admin").build())
+                        .putMetadata("department", "engineering")
+                        .putMetadata("location", "nyc-office")
+                        .build())
+                .build();
+            CreateMembershipResponse res = scalekitClient.users().createMembership(
+                "org_123",
+                "usr_123",
+                membershipReq
             );
-            UserClient users = scalekitClient.users();
-            CreateMembershipRequest membershipReq = CreateMemb
-              ershipRequest.newBuilder()
-                    .setMembership(
-                      CreateMembership.newBuilder()
-                            .addRoles(Role.newBuilder(
-                              ).setName("admin").build())
-                            .putMetadata("department", "engineering")
-                            .putMetadata("location", "nyc-office")
-                            .build())
-                    .build();
-            CreateMembershipResponse res = users.
-              createMembership("org_123", "usr_123", 
-                membershipReq);
     delete:
       description: Removes a user from an organization by user ID. This action is irreversible and may also remove related group memberships.
       tags:
@@ -353,12 +336,32 @@ paths:
             application/json:
               schema: {}
       x-codeSamples:
+        - label: Node.js SDK
+          lang: javascript
+          source: await scalekit.user.deleteMembership('org_123', 'usr_123')
         - label: Python SDK
           lang: python
           source: |-
-            response = scalekit_client.users.delete_membership(
-              organization_id=org_id,user_id=user_id
+            scalekit_client.users.delete_membership(
+                organization_id="org_123",
+                user_id="usr_123",
             )
+        - label: Go SDK
+          lang: go
+          source: |-
+            err := scalekitClient.User().DeleteMembership(
+              ctx,
+              "org_123",
+              "usr_123",
+              false, // cascade: also remove from nested groups when true
+            )
+            if err != nil {
+              // handle error
+              return
+            }
+        - label: Java SDK
+          lang: java
+          source: scalekitClient.users().deleteMembership("org_123", "usr_123");
     patch:
       description: Updates a user's membership details within an organization by user ID. You can update roles and membership metadata.
       tags:
@@ -550,11 +553,11 @@ paths:
         - label: Go SDK
           lang: go
           source: |-
-            organizations, err := scalekitClient.Organization.ListOrganizations(
+            organizations, err := scalekitClient.Organization().ListOrganization(
               ctx,
               &scalekit.ListOrganizationOptions{
                 PageSize: 10,
-              }
+              },
             )
         - label: Java SDK
           lang: java
@@ -601,11 +604,11 @@ paths:
         - label: Go SDK
           lang: go
           source: |-
-            organization, err := ScalekitClient.Organization.CreateOrganization(
+            organization, err := scalekitClient.Organization().CreateOrganization(
               ctx,
               name,
               scalekit.CreateOrganizationOptions{
-                ExternalID: "externalId",
+                ExternalId: "externalId",
               },
             )
         - label: Java SDK
@@ -640,38 +643,16 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: |-
-            import { ScalekitClient } from '@scalekit-sdk/node'
-            const scalekit = new ScalekitClient(
-              process.env.SCALEKIT_ENV_URL,
-              process.env.SCALEKIT_CLIENT_ID,
-              process.env.SCALEKIT_CLIENT_SECRET,
-            )
-            const organization = await scalekit.organization.getOrganization(organization_id)
+          source: const organization = await scalekit.organization.getOrganization(organizationId)
         - label: Python SDK
           lang: python
-          source: |-
-            scalekit_client = ScalekitClient(
-              <SCALEKIT_ENVIRONMENT_URL>,
-              <SCALEKIT_CLIENT_ID>,
-              <SCALEKIT_CLIENT_SECRET>
-            )
-
-            organization = scalekit_client.organization.get_organization(
-              organization_id
-            )
+          source: organization = scalekit_client.organization.get_organization(organization_id)
         - label: Go SDK
           lang: go
           source: |-
-            scalekitClient := scalekit.NewScalekitClient(
-              <SCALEKIT_ENVIRONMENT_URL>,
-              <SCALEKIT_CLIENT_ID>,
-              <SCALEKIT_CLIENT_SECRET>
-            )
-
-            organization, err := scalekitClient.Organization.GetOrganization(
+            organization, err := scalekitClient.Organization().GetOrganization(
               ctx,
-              organizationId
+              organizationId,
             )
         - label: Java SDK
           lang: java
@@ -712,9 +693,9 @@ paths:
         - label: Go SDK
           lang: go
           source: |-
-            err := scalekitClient.Organization.DeleteOrganization(
+            err := scalekitClient.Organization().DeleteOrganization(
               ctx,
-              organizationId
+              organizationId,
             )
         - label: Java SDK
           lang: java
@@ -771,12 +752,12 @@ paths:
         - label: Go SDK
           lang: go
           source: |-
-            organization, err := scalekitClient.Organization.UpdateOrganization(
+            organization, err := scalekitClient.Organization().UpdateOrganization(
               ctx,
               organizationId,
               &scalekit.UpdateOrganization{
                 DisplayName: "displayName",
-                ExternalId: "externalId",
+                ExternalId:  "externalId",
               },
             )
         - label: Java SDK
@@ -843,9 +824,9 @@ paths:
         - label: Go SDK
           lang: go
           source: |-
-            link, err := scalekitClient.Organization.GeneratePortalLink(
+            link, err := scalekitClient.Organization().GeneratePortalLink(
               ctx,
-              organizationId
+              organizationId,
             )
         - label: Java SDK
           lang: java
@@ -967,7 +948,7 @@ paths:
           required: true
         - schema:
             type: string
-          description: "Include additional data in the response. Valid values: 'permissions' (direct permissions only), 'permissions:all' (includes inherited permissions)"
+          description: 'Include additional data in the response. Valid values: ''permissions'' (direct permissions only), ''permissions:all'' (includes inherited permissions)'
           name: include
           in: query
       responses:
@@ -1092,7 +1073,7 @@ paths:
           required: true
         - schema:
             type: string
-          description: "Include additional data in the response. Valid values: 'permissions' (direct permissions only), 'permissions:all' (includes inherited permissions)"
+          description: 'Include additional data in the response. Valid values: ''permissions'' (direct permissions only), ''permissions:all'' (includes inherited permissions)'
           name: include
           in: query
       responses:
@@ -1370,22 +1351,47 @@ paths:
               schema:
                 $ref: '#/components/schemas/clientsListOrganizationClientsResponse'
       x-codeSamples:
+        - label: Node.js SDK
+          lang: javascript
+          source: |-
+            const response = await scalekit.m2m.listOrganizationClients('org_123', {
+              pageSize: 30,
+            })
+            const clients = response.clients
         - label: Python SDK
           lang: python
           source: |-
             # List clients for a specific organization
-            org_id = 'SCALEKIT_ORGANIZATION_ID'
+            org_id = "org_123"
 
-            # Retrieve all clients with default pagination
             response = scalekit_client.m2m_client.list_organization_clients(
                 organization_id=org_id,
-                page_size=30
+                page_size=30,
             )
 
-            # Access the clients list
             clients = response.clients
             for client in clients:
-                print(f"Client ID: {scalekit_client.id}, Name: {scalekit_client.name}")
+                print(f"Client ID: {client.id}, Name: {client.name}")
+        - label: Go SDK
+          lang: go
+          source: |-
+            response, err := scalekitClient.M2M().ListOrganizationClients(
+              ctx,
+              "org_123",
+              scalekit.ListOrganizationClientsOptions{
+                PageSize: 30,
+              },
+            )
+            if err != nil {
+              // handle error
+              return
+            }
+            _ = response
+        - label: Java SDK
+          lang: java
+          source: |-
+            ListOrganizationClientsResponse response = scalekitClient.m2m()
+                .listOrganizationClients("org_123", 30, "");
     post:
       description: Creates a new API client for an organization. Returns the client details and a plain secret (available only once).
       tags:
@@ -1414,6 +1420,15 @@ paths:
               $ref: '#/components/schemas/clientsOrganizationClient'
         required: true
       x-codeSamples:
+        - label: Node.js SDK
+          lang: javascript
+          source: |-
+            const response = await scalekit.m2m.createOrganizationClient('org_123', {
+              name: 'GitHub Actions Deployment Service',
+              description: 'Service account for GitHub Actions to deploy applications to production',
+              scopes: ['deploy:applications', 'read:deployments'],
+              audience: ['deployment-api.acmecorp.com'],
+            })
         - label: Python SDK
           lang: python
           source: |-
@@ -1421,21 +1436,53 @@ paths:
 
             m2m_client = OrganizationClient(
                 name="GitHub Actions Deployment Service",
-                description="Service account for GitHub Actions to deploy applications
-            to production",
+                description="Service account for GitHub Actions to deploy applications to production",
                 custom_claims=[
                     {"key": "github_repository", "value": "acmecorp/inventory-service"},
-                    {"key": "environment", "value": "production_us"}
+                    {"key": "environment", "value": "production_us"},
                 ],
                 scopes=["deploy:applications", "read:deployments"],
                 audience=["deployment-api.acmecorp.com"],
-                expiry=3600
+                expiry=3600,
             )
 
             response = scalekit_client.m2m_client.create_organization_client(
-                organization_id="SCALEKIT_ORGANIZATION_ID",
-                m2m_client=m2m_client
+                organization_id="org_123",
+                m2m_client=m2m_client,
             )
+        - label: Go SDK
+          lang: go
+          source: |-
+            response, err := scalekitClient.M2M().CreateOrganizationClient(
+              ctx,
+              "org_123",
+              scalekit.CreateOrganizationClientOptions{
+                Name:        "GitHub Actions Deployment Service",
+                Description: "Service account for GitHub Actions to deploy applications to production",
+                Scopes:      []string{"deploy:applications", "read:deployments"},
+                Audience:    []string{"deployment-api.acmecorp.com"},
+              },
+            )
+            if err != nil {
+              // handle error
+              return
+            }
+            _ = response
+        - label: Java SDK
+          lang: java
+          source: |-
+            import com.scalekit.grpc.scalekit.v1.clients.OrganizationClient;
+
+            OrganizationClient orgClient = OrganizationClient.newBuilder()
+                .setName("GitHub Actions Deployment Service")
+                .setDescription("Service account for GitHub Actions to deploy applications to production")
+                .addScopes("deploy:applications")
+                .addScopes("read:deployments")
+                .addAudience("deployment-api.acmecorp.com")
+                .build();
+
+            CreateOrganizationClientResponse response = scalekitClient.m2m()
+                .createOrganizationClient("org_123", orgClient);
   /api/v1/organizations/{organization_id}/clients/{client_id}:
     get:
       description: Retrieves details of a specific API client in an organization.
@@ -1464,18 +1511,39 @@ paths:
               schema:
                 $ref: '#/components/schemas/clientsGetOrganizationClientResponse'
       x-codeSamples:
+        - label: Node.js SDK
+          lang: javascript
+          source: const response = await scalekit.m2m.getOrganizationClient('org_123', 'skc_xxxxx')
         - label: Python SDK
           lang: python
           source: |-
-            # Get client ID from environment variables
-            org_id = 'SCALEKIT_ORGANIZATION_ID'
-            client_id = os.environ['M2M_CLIENT_ID']
+            import os
 
-            # Fetch client details for the specified organization
+            org_id = "org_123"
+            client_id = os.environ["M2M_CLIENT_ID"]
+
             response = scalekit_client.m2m_client.get_organization_client(
                 organization_id=org_id,
-                client_id=client_id
+                client_id=client_id,
             )
+        - label: Go SDK
+          lang: go
+          source: |-
+            response, err := scalekitClient.M2M().GetOrganizationClient(
+              ctx,
+              "org_123",
+              "skc_xxxxx",
+            )
+            if err != nil {
+              // handle error
+              return
+            }
+            _ = response
+        - label: Java SDK
+          lang: java
+          source: |-
+            GetOrganizationClientResponse response = scalekitClient.m2m()
+                .getOrganizationClient("org_123", "skc_xxxxx");
     delete:
       description: Permanently deletes an API client from an organization. This operation cannot be undone and will revoke all access for the client. All associated secrets will also be invalidated. Use this endpoint to remove unused or compromised clients.
       tags:
@@ -1502,18 +1570,36 @@ paths:
             application/json:
               schema: {}
       x-codeSamples:
+        - label: Node.js SDK
+          lang: javascript
+          source: await scalekit.m2m.deleteOrganizationClient('org_123', 'skc_xxxxx')
         - label: Python SDK
           lang: python
           source: |-
-            # Get client ID from environment variables
-            org_id = '<SCALEKIT_ORGANIZATION_ID>'
-            client_id = os.environ['M2M_CLIENT_ID']
+            import os
 
-            # Delete the specified client from the organization
-            response = scalekit_client.m2m_client.delete_organization_client(
+            org_id = "org_123"
+            client_id = os.environ["M2M_CLIENT_ID"]
+
+            scalekit_client.m2m_client.delete_organization_client(
                 organization_id=org_id,
-                client_id=client_id
+                client_id=client_id,
             )
+        - label: Go SDK
+          lang: go
+          source: |-
+            err := scalekitClient.M2M().DeleteOrganizationClient(
+              ctx,
+              "org_123",
+              "skc_xxxxx",
+            )
+            if err != nil {
+              // handle error
+              return
+            }
+        - label: Java SDK
+          lang: java
+          source: scalekitClient.m2m().deleteOrganizationClient("org_123", "skc_xxxxx");
     patch:
       description: Updates an existing organization API client. Only specified fields are modified.
       tags:
@@ -1548,28 +1634,61 @@ paths:
               $ref: '#/components/schemas/clientsOrganizationClient'
         required: true
       x-codeSamples:
+        - label: Node.js SDK
+          lang: javascript
+          source: |-
+            const response = await scalekit.m2m.updateOrganizationClient('org_123', 'skc_xxxxx', {
+              description: 'Service account for GitHub Actions to deploy applications to production_eu',
+            })
         - label: Python SDK
           lang: python
           source: |-
+            import os
             from scalekit.v1.clients.clients_pb2 import OrganizationClient
 
-            org_id = '<SCALEKIT_ORGANIZATION_ID>'
-            client_id = os.environ['M2M_CLIENT_ID']
+            org_id = "org_123"
+            client_id = os.environ["M2M_CLIENT_ID"]
 
             update_m2m_client = OrganizationClient(
-                description="Service account for GitHub Actions to deploy applications
-            to production_eu",
+                description="Service account for GitHub Actions to deploy applications to production_eu",
                 custom_claims=[
                     {"key": "github_repository", "value": "acmecorp/inventory"},
-                    {"key": "environment", "value": "production_eu"}
-                ]
+                    {"key": "environment", "value": "production_eu"},
+                ],
             )
 
             response = scalekit_client.m2m_client.update_organization_client(
                 organization_id=org_id,
                 client_id=client_id,
-                m2m_client=update_m2m_client
+                m2m_client=update_m2m_client,
             )
+        - label: Go SDK
+          lang: go
+          source: |-
+            response, err := scalekitClient.M2M().UpdateOrganizationClient(
+              ctx,
+              "org_123",
+              "skc_xxxxx",
+              scalekit.UpdateOrganizationClientOptions{
+                Description: "Service account for GitHub Actions to deploy applications to production_eu",
+              },
+            )
+            if err != nil {
+              // handle error
+              return
+            }
+            _ = response
+        - label: Java SDK
+          lang: java
+          source: |-
+            import com.scalekit.grpc.scalekit.v1.clients.OrganizationClient;
+
+            OrganizationClient updates = OrganizationClient.newBuilder()
+                .setDescription("Service account for GitHub Actions to deploy applications to production_eu")
+                .build();
+
+            UpdateOrganizationClientResponse response = scalekitClient.m2m()
+                .updateOrganizationClient("org_123", "skc_xxxxx", updates);
   /api/v1/organizations/{organization_id}/clients/{client_id}/secrets:
     post:
       description: Creates a new secret for an organization API client. Returns the plain secret (available only once).
@@ -1598,21 +1717,44 @@ paths:
               schema:
                 $ref: '#/components/schemas/clientsCreateOrganizationClientSecretResponse'
       x-codeSamples:
+        - label: Node.js SDK
+          lang: javascript
+          source: |-
+            const response = await scalekit.m2m.addOrganizationClientSecret('org_123', 'skc_xxxxx')
+            const secretId = response.secret?.id
         - label: Python SDK
           lang: python
           source: |-
-            # Get client ID from environment variables
-            org_id = 'SCALEKIT_ORGANIZATION_ID'
-            client_id = os.environ['M2M_CLIENT_ID']
+            import os
 
-            # Add a new secret to the specified client
+            org_id = "org_123"
+            client_id = os.environ["M2M_CLIENT_ID"]
+
             response = scalekit_client.m2m_client.add_organization_client_secret(
                 organization_id=org_id,
-                client_id=client_id
+                client_id=client_id,
             )
 
-            # Extract the secret ID from the response
+            # with_call returns (response, call)
             secret_id = response[0].secret.id
+        - label: Go SDK
+          lang: go
+          source: |-
+            response, err := scalekitClient.M2M().CreateOrganizationClientSecret(
+              ctx,
+              "org_123",
+              "skc_xxxxx",
+            )
+            if err != nil {
+              // handle error
+              return
+            }
+            _ = response
+        - label: Java SDK
+          lang: java
+          source: |-
+            CreateOrganizationClientSecretResponse response = scalekitClient.m2m()
+                .createOrganizationClientSecret("org_123", "skc_xxxxx");
   /api/v1/organizations/{organization_id}/clients/{client_id}/secrets/{secret_id}:
     delete:
       description: Permanently deletes a secret from an organization API client. This operation cannot be undone.
@@ -1646,20 +1788,44 @@ paths:
             application/json:
               schema: {}
       x-codeSamples:
+        - label: Node.js SDK
+          lang: javascript
+          source: await scalekit.m2m.removeOrganizationClientSecret('org_123', 'skc_xxxxx', 'sks_xxxxx')
         - label: Python SDK
           lang: python
           source: |-
-            # Get client and secret IDs from environment variables
-            org_id = '<SCALEKIT_ORGANIZATION_ID>'
-            client_id = os.environ['M2M_CLIENT_ID']
-            secret_id = os.environ['M2M_SECRET_ID']
+            import os
 
-            # Remove the specified secret from the client
-            response = scalekit_client.m2m_client.remove_organization_client_secret(
+            org_id = "org_123"
+            client_id = os.environ["M2M_CLIENT_ID"]
+            secret_id = os.environ["M2M_SECRET_ID"]
+
+            scalekit_client.m2m_client.remove_organization_client_secret(
                 organization_id=org_id,
                 client_id=client_id,
-                secret_id=secret_id
+                secret_id=secret_id,
             )
+        - label: Go SDK
+          lang: go
+          source: |-
+            err := scalekitClient.M2M().DeleteOrganizationClientSecret(
+              ctx,
+              "org_123",
+              "skc_xxxxx",
+              "sks_xxxxx",
+            )
+            if err != nil {
+              // handle error
+              return
+            }
+        - label: Java SDK
+          lang: java
+          source: |-
+            scalekitClient.m2m().deleteOrganizationClientSecret(
+                "org_123",
+                "skc_xxxxx",
+                "sks_xxxxx"
+            );
   /api/v1/organizations/{organization_id}/connections/{id}:
     get:
       description: Retrieves the complete configuration and status details for a specific connection by its ID within an organization. Returns all connection properties including provider settings, protocols, and current status.
@@ -1701,7 +1867,7 @@ paths:
         - label: Go SDK
           lang: go
           source: |-
-            connection, err := scalekitClient.Connection.GetConnection(
+            connection, err := scalekitClient.Connection().GetConnection(
               ctx,
               organizationId,
               connectionId,
@@ -1748,7 +1914,7 @@ paths:
         - label: Go SDK
           lang: go
           source: |-
-            err := scalekitClient.Connection.DeleteConnection(
+            err := scalekitClient.Connection().DeleteConnection(
               ctx,
               organizationId,
               connectionId,
@@ -1797,7 +1963,7 @@ paths:
         - label: Go SDK
           lang: go
           source: |-
-            err := scalekitClient.Connection.DisableConnection(
+            err := scalekitClient.Connection().DisableConnection(
               ctx,
               organizationId,
               connectionId,
@@ -1846,7 +2012,7 @@ paths:
         - label: Go SDK
           lang: go
           source: |-
-            err := scalekitClient.Connection.EnableConnection(
+            err := scalekitClient.Connection().EnableConnection(
               ctx,
               organizationId,
               connectionId,
@@ -2563,7 +2729,11 @@ paths:
             console.log(response.users)
         - label: Python SDK
           lang: python
-          source: resp, _ = scalekit_client.users.list_users(organization_id="org_123", page_size=50)
+          source: |-
+            response = scalekit_client.users.list_organization_users(
+                organization_id="org_123",
+                page_size=50,
+            )
         - label: Go SDK
           lang: go
           source: |-
@@ -2930,7 +3100,9 @@ paths:
             }
         - label: Java SDK
           lang: java
-          source: SendPasswordlessResponse resendResponse = passwordlessClient.resendPasswordlessEmail(authRequestId);
+          source: |-
+            SendPasswordlessResponse resendResponse = scalekitClient.passwordless()
+                .resendPasswordlessEmail(authRequestId);
   /api/v1/passwordless/email/send:
     post:
       description: Send a verification email containing either a verification code (OTP), magic link, or both to a user's email address
@@ -2958,7 +3130,7 @@ paths:
             const response = await scalekit.passwordless.sendPasswordlessEmail('john.doe@example.com', {
               template: 'SIGNIN',
               expiresIn: 100,
-              magiclinkAuthUri: 'https://www.google.com',
+              magiclinkAuthUri: 'https://yourapp.com/auth/passwordless/callback',
               templateVariables: {
                 employeeID: 'EMP523',
                 teamName: 'Alpha Team',
@@ -2972,7 +3144,7 @@ paths:
                 email="john.doe@example.com",
                 template="SIGNIN",  # or "SIGNUP", "UNSPECIFIED"
                 expires_in=100,
-                magiclink_auth_uri="https://www.google.com",
+                magiclink_auth_uri="https://yourapp.com/auth/passwordless/callback",
                 template_variables={
                     "employeeID": "EMP523",
                     "teamName": "Alpha Team",
@@ -2980,32 +3152,30 @@ paths:
                 },
             )
 
-            # Extract auth request ID from response
+            # with_call returns (response, call)
             auth_request_id = response[0].auth_request_id
         - label: Go SDK
           lang: go
           source: |-
             templateType := scalekit.TemplateTypeSignin
             response, err := scalekitClient.Passwordless().SendPasswordlessEmail(
-                ctx,
-                "john.doe@example.com",
-                &scalekit.SendPasswordlessOptions{
-                    Template:         &templateType,
-                    ExpiresIn:        100,
-                    MagiclinkAuthUri: "https://www.google.com",
-                    TemplateVariables: map[string]string{
-                        "employeeID":    "EMP523",
-                        "teamName":      "Alpha Team",
-                        "supportEmail":  "support@yourcompany.com",
-                    },
+              ctx,
+              "john.doe@example.com",
+              &scalekit.SendPasswordlessOptions{
+                Template:         &templateType,
+                ExpiresIn:        100,
+                MagiclinkAuthUri: "https://yourapp.com/auth/passwordless/callback",
+                TemplateVariables: map[string]string{
+                  "employeeID":   "EMP523",
+                  "teamName":     "Alpha Team",
+                  "supportEmail": "support@yourcompany.com",
                 },
+              },
             )
-
             if err != nil {
-                // Handle error
-                return
+              // handle error
+              return
             }
-
             authRequestId := response.AuthRequestId
         - label: Java SDK
           lang: java
@@ -3019,10 +3189,10 @@ paths:
             SendPasswordlessOptions options = new SendPasswordlessOptions();
             options.setTemplate(templateType);
             options.setExpiresIn(100);
-            options.setMagiclinkAuthUri("https://www.example.com");
+            options.setMagiclinkAuthUri("https://yourapp.com/auth/passwordless/callback");
             options.setTemplateVariables(templateVariables);
 
-            SendPasswordlessResponse response = passwordlessClient.sendPasswordlessEmail(
+            SendPasswordlessResponse response = scalekitClient.passwordless().sendPasswordlessEmail(
                 "john.doe@example.com",
                 options
             );
@@ -3053,17 +3223,17 @@ paths:
           lang: javascript
           source: |-
             const { authRequestId } = sendResponse
+
+            // Verify with OTP code
             const verifyResponse = await scalekit.passwordless.verifyPasswordlessEmail(
-              // Verification Code (OTP)
-
               { code: '123456' },
-
-              // Magic Link Token
-
-              { linkToken: link_token },
-
               authRequestId,
             )
+
+            // Or verify with magic link token
+            const linkVerifyResponse = await scalekit.passwordless.verifyPasswordlessEmail({
+              linkToken: linkToken,
+            })
         - label: Python SDK
           lang: python
           source: |-
@@ -3120,19 +3290,20 @@ paths:
             verifyOptions.setCode("123456"); // OTP code
             verifyOptions.setAuthRequestId(authRequestId);
 
-            VerifyPasswordLessResponse verifyResponse = passwordlessClient.verifyPasswordlessEmail(verifyOptions);
+            VerifyPasswordLessResponse verifyResponse = scalekitClient.passwordless()
+                .verifyPasswordlessEmail(verifyOptions);
 
             // User verified successfully
             String userEmail = verifyResponse.getEmail();
 
             // Verify with magic link token
-            VerifyPasswordlessOptions verifyOptions = new VerifyPasswordlessOptions();
-            verifyOptions.setLinkToken(linkToken); // Magic link token
+            VerifyPasswordlessOptions linkVerifyOptions = new VerifyPasswordlessOptions();
+            linkVerifyOptions.setLinkToken(linkToken); // Magic link token
 
-            VerifyPasswordLessResponse verifyResponse = passwordlessClient.verifyPasswordlessEmail(verifyOptions);
+            VerifyPasswordLessResponse linkVerifyResponse = scalekitClient.passwordless()
+                .verifyPasswordlessEmail(linkVerifyOptions);
 
-            // User verified successfully
-            String userEmail = verifyResponse.getEmail();
+            String verifiedEmail = linkVerifyResponse.getEmail();
   /api/v1/permissions:
     get:
       description: Retrieves a comprehensive, paginated list of all permissions available within the environment. Use this endpoint to view all permission definitions for auditing, role management, or understanding the complete set of available access controls. The response includes pagination tokens to navigate through large sets of permissions efficiently. Each permission object contains the permission name, description, creation time, and last update time. This operation is useful for building permission selection interfaces, auditing permission usage, or understanding the scope of available access controls in your RBAC system.
@@ -3393,7 +3564,7 @@ paths:
       parameters:
         - schema:
             type: string
-          description: "Include additional data in the response. Valid values: 'permissions' (direct permissions only), 'permissions:all' (includes inherited permissions from role hierarchy)"
+          description: 'Include additional data in the response. Valid values: ''permissions'' (direct permissions only), ''permissions:all'' (includes inherited permissions from role hierarchy)'
           name: include
           in: query
       responses:
@@ -3526,7 +3697,7 @@ paths:
           required: true
         - schema:
             type: string
-          description: "Include additional data in the response. Valid values: 'permissions' (direct permissions only), 'permissions:all' (includes inherited permissions from role hierarchy)"
+          description: 'Include additional data in the response. Valid values: ''permissions'' (direct permissions only), ''permissions:all'' (includes inherited permissions from role hierarchy)'
           name: include
           in: query
       responses:
@@ -4076,17 +4247,18 @@ paths:
         - label: Python SDK
           lang: python
           source: |-
-            # pass empty org to fetch all users in environment
-            resp,_ = scalekit_client.users.list_users(organization_id="", page_size=100)
+            # List all users in the environment
+            response = scalekit_client.users.list_users(page_size=100)
         - label: Go SDK
           lang: go
           source: 'all, err := scalekitClient.User().ListUsers(ctx, &scalekit.ListUsersOptions{PageSize: 100})'
         - label: Java SDK
           lang: java
           source: |-
-            ListUsersRequest lur = ListUsersRequest.
-              newBuilder().setPageSize(100).build();
-            ListUsersResponse allUsers = users.listUsers(lur);
+            ListUsersRequest lur = ListUsersRequest.newBuilder()
+                .setPageSize(100)
+                .build();
+            ListUsersResponse allUsers = scalekitClient.users().listUsers(lur);
   /api/v1/users/{id}:
     get:
       description: Retrieves all details for a user by system-generated user ID. The response includes organization memberships and user metadata.
@@ -4155,9 +4327,7 @@ paths:
           source: await scalekit.user.deleteUser('usr_123')
         - label: Python SDK
           lang: python
-          source: |-
-            scalekit_client.users.delete_user(organization_id="org_123", 
-              user_id="usr_123")
+          source: scalekit_client.users.delete_user("usr_123")
         - label: Go SDK
           lang: go
           source: |-
@@ -4167,7 +4337,7 @@ paths:
             }
         - label: Java SDK
           lang: java
-          source: users.deleteUser("usr_123");
+          source: scalekitClient.users().deleteUser("usr_123");
     patch:
       description: Modifies user account information including profile details, metadata, and external ID. Use this endpoint to update a user's personal information, contact details, or custom metadata. You can update the user's profile, phone number, and metadata fields. Note that fields like user ID, email address, environment ID, and creation time cannot be modified.
       tags:
@@ -4214,24 +4384,17 @@ paths:
         - label: Python SDK
           lang: python
           source: |-
-            import os
-            from scalekit import ScalekitClient
             from scalekit.v1.users.users_pb2 import UpdateUser
             from scalekit.v1.commons.commons_pb2 import UserProfile
-            scalekit_client = ScalekitClient(
-                env_url=os.getenv("SCALEKIT_ENV_URL"),
-                client_id=os.getenv("SCALEKIT_CLIENT_ID"),
-                client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
-            )
+
             update_user = UpdateUser(
                 user_profile=UserProfile(
                     first_name="John",
-                    last_name="Smith"
+                    last_name="Smith",
                 ),
-                metadata={"department": "sales"}
+                metadata={"department": "sales"},
             )
-            scalekit_client.users.update_user(organization_id="org_123", 
-              user=update_user)
+            response = scalekit_client.users.update_user("usr_123", update_user)
         - label: Go SDK
           lang: go
           source: |-
@@ -4249,16 +4412,17 @@ paths:
           lang: java
           source: |-
             UpdateUser upd = UpdateUser.newBuilder()
-                    .setUserProfile(
-                      UpdateUserProfile.newBuilder()
-                            .setFirstName("John")
-                            .setLastName("Smith")
-                            .build())
-                    .putMetadata("department", "sales")
-                    .build();
-            UpdateUserRequest updReq = UpdateUserRequest.
-              newBuilder().setUser(upd).build();
-            users.updateUser("usr_123", updReq);
+                .setUserProfile(
+                    UpdateUserProfile.newBuilder()
+                        .setFirstName("John")
+                        .setLastName("Smith")
+                        .build())
+                .putMetadata("department", "sales")
+                .build();
+            UpdateUserRequest updReq = UpdateUserRequest.newBuilder()
+                .setUser(upd)
+                .build();
+            scalekitClient.users().updateUser("usr_123", updReq);
   /api/v1/users/{user_id}/sessions:
     get:
       description: Retrieves a paginated list of all sessions associated with a specific user across all devices and browsers. Use this endpoint to audit user activity, display all active sessions in account management interfaces, or verify user authentication status across devices. Supports filtering by session status (active, expired, revoked, logout) and time range (creation date). Returns session details for each session including device information, IP address, geolocation, and current status. The response includes pagination metadata (page tokens and total count) to handle large session lists efficiently.
@@ -4290,7 +4454,7 @@ paths:
               type: string
           style: form
           explode: true
-          description: "Filter sessions by one or more status values. Possible values: 'active', 'expired', 'revoked', 'logout'. Leave empty to include all statuses. Multiple values use OR logic (e.g., status=['active', 'expired'] returns sessions that are either active OR expired)."
+          description: 'Filter sessions by one or more status values. Possible values: ''active'', ''expired'', ''revoked'', ''logout''. Leave empty to include all statuses. Multiple values use OR logic (e.g., status=[''active'', ''expired''] returns sessions that are either active OR expired).'
           name: filter.status
           in: query
         - schema:
@@ -4565,7 +4729,7 @@ paths:
             _ = resp
         - label: Java SDK
           lang: java
-          source: ListCredentialsResponse res = scalekitClient.webauthn().listCredentials("user_123");
+          source: ListCredentialsResponse res = scalekitClient.webAuthn().listCredentials("user_123");
   /api/v1/webauthn/credentials/{credential_id}:
     delete:
       description: Deletes a specific passkey credential for the current user. After removal, the authenticator can no longer be used for authentication.
@@ -4602,7 +4766,7 @@ paths:
             _ = resp
         - label: Java SDK
           lang: java
-          source: DeleteCredentialResponse res = scalekitClient.webauthn().deleteCredential("wac_123");
+          source: DeleteCredentialResponse res = scalekitClient.webAuthn().deleteCredential("wac_123");
     patch:
       description: Updates the display name of a passkey credential to help users identify their authenticators. Only the display name can be modified.
       tags:
@@ -4653,7 +4817,7 @@ paths:
         - label: Java SDK
           lang: java
           source: |-
-            UpdateCredentialResponse res = scalekitClient.webauthn()
+            UpdateCredentialResponse res = scalekitClient.webAuthn()
                 .updateCredential("wac_123", "Work Laptop Passkey");
 webhooks:
   organization.created:
@@ -4664,7 +4828,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/OrganizationCreatedEvent'
             example:
               spec_version: '1'
               id: evt_1234567890
@@ -4699,7 +4863,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/OrganizationUpdatedEvent'
             example:
               spec_version: '1'
               id: evt_2345678901
@@ -4734,7 +4898,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/OrganizationDeletedEvent'
             example:
               spec_version: '1'
               id: evt_3456789012
@@ -4762,6 +4926,134 @@ webhooks:
       responses:
         '200':
           description: Webhook received successfully
+  organization.domain_created:
+    post:
+      summary: Organization Domain Created
+      description: Triggered when a domain is added to an organization (organization domain or allowed email domain). The data payload may include txt_record_secret for DNS verification — treat that value as sensitive and do not log it.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationDomainCreatedEvent'
+            example:
+              spec_version: '1'
+              id: evt_4567890123
+              type: organization.domain_created
+              object: Organization
+              occurred_at: '2024-01-15T11:00:00.123456789Z'
+              environment_id: env_1234567890
+              organization_id: org_1234567890
+              data:
+                id: dom_1234567890
+                domain: acmecorp.com
+                domain_type: ORGANIZATION_DOMAIN
+                organization_id: org_1234567890
+                environment_id: env_1234567890
+                txt_record_key: scalekit-domain-verification
+                txt_record_secret: sk_dom_verify_abc123
+                verification_status: PENDING
+                verification_method: DNS
+                updated_at: '2024-01-15T11:00:00.123456789Z'
+              display_name: Organization Domain Created
+      responses:
+        '200':
+          description: Webhook received successfully
+  organization.domain_deleted:
+    post:
+      summary: Organization Domain Deleted
+      description: Triggered when a domain is removed from an organization. The payload may still include txt_record_secret from the deleted domain record — treat it as sensitive.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationDomainDeletedEvent'
+            example:
+              spec_version: '1'
+              id: evt_4567890456
+              type: organization.domain_deleted
+              object: Organization
+              occurred_at: '2024-01-16T09:30:00.123456789Z'
+              environment_id: env_1234567890
+              organization_id: org_1234567890
+              data:
+                id: dom_1234567890
+                domain: acmecorp.com
+                domain_type: ORGANIZATION_DOMAIN
+                organization_id: org_1234567890
+                environment_id: env_1234567890
+                txt_record_key: scalekit-domain-verification
+                txt_record_secret: sk_dom_verify_abc123
+                verification_status: VERIFIED
+                verification_method: DNS
+                updated_at: '2024-01-16T09:30:00.123456789Z'
+              display_name: Organization Domain Deleted
+      responses:
+        '200':
+          description: Webhook received successfully
+  organization.domain_dns_verification_success:
+    post:
+      summary: Organization Domain DNS Verification Success
+      description: Triggered when DNS TXT record validation confirms ownership of an organization domain. Handle txt_record_secret as sensitive if present.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationDomainDnsVerificationSuccessEvent'
+            example:
+              spec_version: '1'
+              id: evt_4567890789
+              type: organization.domain_dns_verification_success
+              object: Organization
+              occurred_at: '2024-01-15T12:15:00.123456789Z'
+              environment_id: env_1234567890
+              organization_id: org_1234567890
+              data:
+                id: dom_1234567890
+                domain: acmecorp.com
+                domain_type: ORGANIZATION_DOMAIN
+                organization_id: org_1234567890
+                environment_id: env_1234567890
+                txt_record_key: scalekit-domain-verification
+                txt_record_secret: sk_dom_verify_abc123
+                verification_status: VERIFIED
+                verification_method: DNS
+                updated_at: '2024-01-15T12:15:00.123456789Z'
+              display_name: Organization Domain DNS Verification Success
+      responses:
+        '200':
+          description: Webhook received successfully
+  organization.domain_dns_verification_failed:
+    post:
+      summary: Organization Domain DNS Verification Failed
+      description: Triggered when the DNS verification window expires without a successful TXT record match. Handle txt_record_secret as sensitive if present.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationDomainDnsVerificationFailedEvent'
+            example:
+              spec_version: '1'
+              id: evt_4567891012
+              type: organization.domain_dns_verification_failed
+              object: Organization
+              occurred_at: '2024-01-16T11:00:00.123456789Z'
+              environment_id: env_1234567890
+              organization_id: org_1234567890
+              data:
+                id: dom_1234567890
+                domain: acmecorp.com
+                domain_type: ORGANIZATION_DOMAIN
+                organization_id: org_1234567890
+                environment_id: env_1234567890
+                txt_record_key: scalekit-domain-verification
+                txt_record_secret: sk_dom_verify_abc123
+                verification_status: FAILED
+                verification_method: DNS
+                updated_at: '2024-01-16T11:00:00.123456789Z'
+              display_name: Organization Domain DNS Verification Failed
+      responses:
+        '200':
+          description: Webhook received successfully
   user.signup:
     post:
       summary: User Signup
@@ -4770,7 +5062,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/UserSignupEvent'
             example:
               spec_version: '1'
               id: evt_1234567890
@@ -4829,7 +5121,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/UserLoginEvent'
             example:
               spec_version: '1'
               id: evt_102701193859432713
@@ -4911,7 +5203,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/UserLogoutEvent'
             example:
               spec_version: '1'
               id: evt_102708230123160586
@@ -4993,7 +5285,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/UserOrganizationInvitationEvent'
             example:
               spec_version: '1'
               id: evt_4567890123
@@ -5060,7 +5352,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/UserOrganizationMembershipCreatedEvent'
             example:
               spec_version: '1'
               id: evt_5678901234
@@ -5127,7 +5419,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/UserOrganizationMembershipDeletedEvent'
             example:
               spec_version: '1'
               id: evt_9012345678
@@ -5194,7 +5486,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/UserOrganizationMembershipUpdatedEvent'
             example:
               spec_version: '1'
               id: evt_6789012345
@@ -5261,7 +5553,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/OrganizationDirectoryEnabledEvent'
             example:
               spec_version: '1'
               id: evt_55136848686613000
@@ -5289,7 +5581,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/OrganizationDirectoryDisabledEvent'
             example:
               spec_version: '1'
               id: evt_53891640779079756
@@ -5317,7 +5609,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/DirectoryUserCreatedEvent'
             example:
               spec_version: '1'
               id: evt_53891546994442316
@@ -5369,7 +5661,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/DirectoryUserUpdatedEvent'
             example:
               spec_version: '1'
               id: evt_53891546994442317
@@ -5416,7 +5708,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/DirectoryUserDeletedEvent'
             example:
               spec_version: '1'
               id: evt_53891546994442318
@@ -5442,7 +5734,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/DirectoryGroupCreatedEvent'
             example:
               spec_version: '1'
               id: evt_38862741515010639
@@ -5470,7 +5762,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/DirectoryGroupUpdatedEvent'
             example:
               spec_version: '1'
               id: evt_38864948910162368
@@ -5498,7 +5790,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/DirectoryGroupDeletedEvent'
             example:
               spec_version: '1'
               id: evt_40650399597723966
@@ -5526,7 +5818,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/OrganizationSsoCreatedEvent'
             example:
               spec_version: '1'
               id: evt_94567862441607493
@@ -5552,7 +5844,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/OrganizationSsoEnabledEvent'
             example:
               spec_version: '1'
               id: evt_94568078213382471
@@ -5580,7 +5872,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/OrganizationSsoDisabledEvent'
             example:
               spec_version: '1'
               id: evt_94557976165089560
@@ -5608,7 +5900,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/OrganizationSsoDeletedEvent'
             example:
               spec_version: '1'
               id: evt_94557997639926040
@@ -5634,7 +5926,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/RoleCreatedEvent'
             example:
               spec_version: '1'
               id: evt_1234567890
@@ -5660,7 +5952,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/RoleUpdatedEvent'
             example:
               spec_version: '1'
               id: evt_2345678901
@@ -5686,7 +5978,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/RoleDeletedEvent'
             example:
               spec_version: '1'
               id: evt_3456789012
@@ -5712,7 +6004,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/PermissionCreatedEvent'
             example:
               spec_version: '1'
               id: evt_1234567890
@@ -5736,7 +6028,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/PermissionUpdatedEvent'
             example:
               spec_version: '1'
               id: evt_2345678901
@@ -5760,7 +6052,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScalekitEvent'
+              $ref: '#/components/schemas/PermissionDeletedEvent'
             example:
               spec_version: '1'
               id: evt_3456789012
@@ -5798,7 +6090,7 @@ components:
           examples:
             - 360
         absolute_session_timeout_unit:
-          description: "Unit for absolute_session_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES."
+          description: 'Unit for absolute_session_timeout. Accepted values: ''MINUTES'', ''HOURS'', ''DAYS''. Defaults to MINUTES.'
           $ref: '#/components/schemas/commonsTimeUnit'
           examples:
             - MINUTES
@@ -5814,7 +6106,7 @@ components:
           examples:
             - true
         idle_session_timeout_unit:
-          description: "Unit for idle_session_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES."
+          description: 'Unit for idle_session_timeout. Accepted values: ''MINUTES'', ''HOURS'', ''DAYS''. Defaults to MINUTES.'
           $ref: '#/components/schemas/commonsTimeUnit'
           examples:
             - MINUTES
@@ -5892,7 +6184,7 @@ components:
           type: array
           items:
             type: string
-            default: "['ATTESTATION_KEY_COMPROMISE', 'USER_VERIFICATION_BYPASS', 'USER_KEY_REMOTE_COMPROMISE', 'USER_KEY_PHYSICAL_COMPROMISE', 'REVOKED']"
+            default: '[''ATTESTATION_KEY_COMPROMISE'', ''USER_VERIFICATION_BYPASS'', ''USER_KEY_REMOTE_COMPROMISE'', ''USER_KEY_PHYSICAL_COMPROMISE'', ''REVOKED'']'
         validate_anchors:
           description: when set to true enables the validation of the attestation statement against the trust anchor from the metadata statement.
           type: boolean
@@ -6622,7 +6914,7 @@ components:
       type: object
       properties:
         attribute_mapping:
-          description: "Maps identity provider attributes to user profile fields. For example, {'email': 'user.mail', 'name': 'user.displayName'}."
+          description: 'Maps identity provider attributes to user profile fields. For example, {''email'': ''user.mail'', ''name'': ''user.displayName''}.'
           type: object
           additionalProperties:
             type: string
@@ -8068,7 +8360,7 @@ components:
           examples:
             - 360
         absolute_session_timeout_unit:
-          description: "Unit for absolute_session_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'."
+          description: 'Unit for absolute_session_timeout. Accepted values: ''minutes'', ''hours'', ''days''. Responses always return ''minutes''.'
           $ref: '#/components/schemas/commonsTimeUnit'
           examples:
             - minutes
@@ -8084,7 +8376,7 @@ components:
           examples:
             - true
         idle_session_timeout_unit:
-          description: "Unit for idle_session_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'."
+          description: 'Unit for idle_session_timeout. Accepted values: ''minutes'', ''hours'', ''days''. Responses always return ''minutes''.'
           $ref: '#/components/schemas/commonsTimeUnit'
           examples:
             - minutes
@@ -8590,7 +8882,7 @@ components:
           examples:
             - 120.0.0.0
         device_type:
-          description: "Categorized device type classification. Possible values: 'desktop' (traditional computers), 'mobile' (smartphones and small tablets), 'tablet' (large tablets), 'other'. Useful for displaying session information by device category."
+          description: 'Categorized device type classification. Possible values: ''desktop'' (traditional computers), ''mobile'' (smartphones and small tablets), ''tablet'' (large tablets), ''other''. Useful for displaying session information by device category.'
           type: string
           examples:
             - desktop
@@ -8600,7 +8892,7 @@ components:
           examples:
             - 192.0.2.1
         location:
-          description: "Geographic location information derived from IP address geolocation. Includes country, region, city, and coordinates. Note: Based on IP location data and may not represent the user's exact physical location."
+          description: 'Geographic location information derived from IP address geolocation. Includes country, region, city, and coordinates. Note: Based on IP location data and may not represent the user''s exact physical location.'
           $ref: '#/components/schemas/v1sessionsLocation'
         os:
           description: 'Operating system name extracted from the user agent and device headers. Examples: macOS, Windows, Linux, iOS, Android.'
@@ -8765,7 +9057,7 @@ components:
           examples:
             - ses_1234567890123456
         status:
-          description: "Current operational status of the session. Possible values: 'active' (session is valid and requests are allowed), 'expired' (session terminated due to idle or absolute timeout), 'revoked' (session was administratively revoked), 'logout' (user explicitly logged out). Use this to determine if the session can be used for new requests."
+          description: 'Current operational status of the session. Possible values: ''active'' (session is valid and requests are allowed), ''expired'' (session terminated due to idle or absolute timeout), ''revoked'' (session was administratively revoked), ''logout'' (user explicitly logged out). Use this to determine if the session can be used for new requests.'
           type: string
           examples:
             - active
@@ -9132,7 +9424,7 @@ components:
           examples:
             - Doe
         first_name:
-          description: "[DEPRECATED] Use given_name instead. User's given name. Maximum 200 characters."
+          description: '[DEPRECATED] Use given_name instead. User''s given name. Maximum 200 characters.'
           type: string
           examples:
             - John
@@ -9155,7 +9447,7 @@ components:
             - - engineering
               - managers
         last_name:
-          description: "[DEPRECATED] Use family_name instead. User's family name. Maximum 200 characters."
+          description: '[DEPRECATED] Use family_name instead. User''s family name. Maximum 200 characters.'
           type: string
           examples:
             - Doe
@@ -9510,12 +9802,12 @@ components:
           examples:
             - San Francisco
         latitude:
-          description: "Latitude coordinate of the estimated location. Decimal format (e.g., '37.7749'). Note: Represents IP geolocation center and may not be precise."
+          description: 'Latitude coordinate of the estimated location. Decimal format (e.g., ''37.7749''). Note: Represents IP geolocation center and may not be precise.'
           type: string
           examples:
             - '37.7749'
         longitude:
-          description: "Longitude coordinate of the estimated location. Decimal format (e.g., '-122.4194'). Note: Represents IP geolocation center and may not be precise."
+          description: 'Longitude coordinate of the estimated location. Decimal format (e.g., ''-122.4194''). Note: Represents IP geolocation center and may not be precise.'
           type: string
           examples:
             - '-122.4194'
@@ -9707,8 +9999,76 @@ components:
           type: string
           examples:
             - user_xyz789
-    ScalekitEvent:
+    OrganizationDomainEventData:
       type: object
+      description: Domain payload shared by organization domain lifecycle webhook events. Field names match the backend DomainDataEvent model (not the REST domainsDomain resource).
+      required:
+        - id
+        - domain
+        - domain_type
+        - organization_id
+        - environment_id
+        - verification_status
+      properties:
+        id:
+          type: string
+          pattern: ^dom_
+          example: dom_1234567890
+          description: Unique identifier for the domain (prefixed with "dom_")
+        domain:
+          type: string
+          example: acmecorp.com
+          description: The domain name
+        domain_type:
+          type: string
+          enum:
+            - ORGANIZATION_DOMAIN
+            - ALLOWED_EMAIL_DOMAIN
+          example: ORGANIZATION_DOMAIN
+          description: ORGANIZATION_DOMAIN for SSO/SCIM routing domains; ALLOWED_EMAIL_DOMAIN for auto-join email domains
+        organization_id:
+          type: string
+          pattern: ^org_
+          example: org_1234567890
+          description: Organization that owns the domain
+        environment_id:
+          type: string
+          pattern: ^env_
+          example: env_1234567890
+          description: Environment where the domain is configured
+        txt_record_key:
+          type: string
+          example: scalekit-domain-verification
+          description: DNS TXT record host used for ownership verification
+        txt_record_secret:
+          type: string
+          example: sk_dom_verify_abc123
+          description: 'DNS TXT record value Scalekit expects during verification. Treat as sensitive: do not log, display in client UIs, or store in shared channels. Present on domain lifecycle events including after verification or deletion.'
+        verification_status:
+          type: string
+          enum:
+            - PENDING
+            - VERIFIED
+            - FAILED
+            - AUTO_VERIFIED
+          example: PENDING
+          description: Verification status of the domain
+        verification_method:
+          type: string
+          enum:
+            - ADMIN
+            - DNS
+            - NOT_APPLICABLE
+          example: DNS
+          description: 'How ownership is verified: DNS (TXT record), ADMIN (dashboard or API without DNS), or NOT_APPLICABLE (allowed email domains)'
+        updated_at:
+          type: string
+          format: date-time
+          example: '2024-01-15T11:00:00.123456789Z'
+          description: When the domain status last changed
+    OrganizationDomainCreatedEvent:
+      type: object
+      description: Payload delivered for the organization.domain_created webhook event.
       required:
         - spec_version
         - id
@@ -9716,6 +10076,7 @@ components:
         - occurred_at
         - environment_id
         - object
+        - data
       properties:
         spec_version:
           type: string
@@ -9725,90 +10086,2079 @@ components:
         id:
           type: string
           pattern: ^evt_
-          example: evt_1234567890abcdef
+          example: evt_4567890123
           description: Unique identifier for the webhook event (must be prefixed with "evt_")
-          minLength: 1
-          maxLength: 32
         type:
           type: string
-          example: organization.created
           description: The event type
           enum:
-            - organization.created
-            - organization.updated
-            - organization.deleted
-            - organization.sso_created
-            - organization.sso_deleted
-            - organization.sso_enabled
-            - organization.sso_disabled
-            - user.signup
-            - user.login
-            - user.logout
-            - user.organization_invitation
-            - user.organization_membership_created
-            - user.organization_membership_updated
-            - user.organization_membership_deleted
-            - organization.directory.user_created
-            - organization.directory.user_updated
-            - organization.directory.user_deleted
-            - organization.directory.group_created
-            - organization.directory.group_updated
-            - organization.directory.group_deleted
-            - organization.directory_enabled
-            - organization.directory_disabled
-            - role.created
-            - role.updated
-            - role.deleted
-            - permission.created
-            - permission.updated
-            - permission.deleted
+            - organization.domain_created
+          example: organization.domain_created
         occurred_at:
           type: string
           format: date-time
           description: When the event occurred (ISO 8601 format)
-          example: '2024-01-01T00:00:00Z'
+          example: '2024-01-15T11:00:00.123456789Z'
         environment_id:
           type: string
           pattern: ^env_
-          example: env_1234567890abcdef
+          example: env_1234567890
           description: The environment ID where the event occurred
-          minLength: 1
-          maxLength: 32
         organization_id:
           type: string
           pattern: ^org_
-          example: org_1234567890abcdef
-          description: The organization ID (if applicable)
-          minLength: 1
-          maxLength: 32
+          example: org_1234567890
+          description: The organization ID
         object:
           type: string
           description: The type of object that triggered the webhook
           enum:
             - Organization
-            - Connection
-            - Role
-            - Directory
-            - DirectoryUser
-            - DirectoryGroup
-            - Permission
-            - OrgMembership
-            - User
           example: Organization
         data:
+          $ref: '#/components/schemas/OrganizationDomainEventData'
+        display_name:
+          type: string
+          example: Organization Domain Created
+          description: Human-readable display name for the event
+    OrganizationDomainDeletedEvent:
+      type: object
+      description: Payload delivered for the organization.domain_deleted webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          example: evt_4567890456
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - organization.domain_deleted
+          example: organization.domain_deleted
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+          example: '2024-01-16T09:30:00.123456789Z'
+        environment_id:
+          type: string
+          pattern: ^env_
+          example: env_1234567890
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          example: org_1234567890
+          description: The organization ID
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - Organization
+          example: Organization
+        data:
+          $ref: '#/components/schemas/OrganizationDomainEventData'
+        display_name:
+          type: string
+          example: Organization Domain Deleted
+          description: Human-readable display name for the event
+    OrganizationDomainDnsVerificationSuccessEvent:
+      type: object
+      description: Payload delivered for the organization.domain_dns_verification_success webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          example: evt_4567890789
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - organization.domain_dns_verification_success
+          example: organization.domain_dns_verification_success
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+          example: '2024-01-15T12:15:00.123456789Z'
+        environment_id:
+          type: string
+          pattern: ^env_
+          example: env_1234567890
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          example: org_1234567890
+          description: The organization ID
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - Organization
+          example: Organization
+        data:
+          $ref: '#/components/schemas/OrganizationDomainEventData'
+        display_name:
+          type: string
+          example: Organization Domain DNS Verification Success
+          description: Human-readable display name for the event
+    OrganizationDomainDnsVerificationFailedEvent:
+      type: object
+      description: Payload delivered for the organization.domain_dns_verification_failed webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          example: evt_4567891012
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - organization.domain_dns_verification_failed
+          example: organization.domain_dns_verification_failed
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+          example: '2024-01-16T11:00:00.123456789Z'
+        environment_id:
+          type: string
+          pattern: ^env_
+          example: env_1234567890
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          example: org_1234567890
+          description: The organization ID
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - Organization
+          example: Organization
+        data:
+          $ref: '#/components/schemas/OrganizationDomainEventData'
+        display_name:
+          type: string
+          example: Organization Domain DNS Verification Failed
+          description: Human-readable display name for the event
+    OrganizationEventData:
+      type: object
+      description: Organization payload for organization.created and related lifecycle events.
+      required:
+        - id
+        - display_name
+      properties:
+        id:
+          type: string
+          pattern: ^org_
+          example: org_1234567890
+          description: Scalekit organization identifier
+        display_name:
+          type: string
+          example: AcmeCorp
+          description: Organization display name
+        external_id:
+          type: string
+          example: org_external_123
+          description: Your system's unique ID for this organization
+        region_code:
+          type: string
+          example: US
+          description: Region code for the organization
+        create_time:
+          type: string
+          format: date-time
+          example: '2025-12-09T09:25:02.02Z'
+          description: When the organization was created
+        update_time:
+          type: string
+          format: date-time
+          example: '2025-12-09T09:25:02.025330364Z'
+          description: When the organization was last updated
+        deleted_at:
+          type: string
+          format: date-time
+          description: When the organization was deleted (deleted events only)
+        metadata:
           type: object
-          description: The event payload (structure varies by event type)
           additionalProperties: true
-          example:
-            id: org_1234567890abcdef
-            name: Example Organization
-            created_at: '2024-01-01T00:00:00Z'
+          nullable: true
+          description: Organization metadata map
+        settings:
+          type: object
+          description: Organization feature settings
+          additionalProperties: true
+          properties:
+            features:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  enabled:
+                    type: boolean
+    OrganizationCreatedEvent:
+      type: object
+      description: Payload delivered for the organization.created webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          example: evt_1234567890
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - organization.created
+          example: organization.created
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+          example: '2024-01-15T10:30:00.123456789Z'
+        environment_id:
+          type: string
+          pattern: ^env_
+          example: env_1234567890
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          example: org_1234567890
+          description: The organization ID
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - Organization
+          example: Organization
+        data:
+          $ref: '#/components/schemas/OrganizationEventData'
+        display_name:
+          type: string
+          example: Organization Created
+          description: Human-readable display name for the event
+    DirectoryUserEventData:
+      type: object
+      description: Directory user payload for organization.directory.user_* webhook events.
+      required:
+        - id
+        - organization_id
+      properties:
+        id:
+          type: string
+          pattern: ^diruser_
+          example: diruser_53891546960887884
+          description: Unique identifier for the directory user
+        organization_id:
+          type: string
+          pattern: ^org_
+          example: org_53879494091473415
+          description: Organization that owns the directory
+        active:
+          type: boolean
+          example: true
+          description: Whether the directory user is active
+        email:
+          type: string
+          format: email
+          example: flavio@runolfsdottir.co.duk
+          description: Primary email address
+        given_name:
+          type: string
+          example: Dayton
+          description: Given (first) name
+        family_name:
+          type: string
+          example: Jaquelin
+          description: Family (last) name
+        name:
+          type: string
+          example: QDRGUZZDYMFU
+          description: Full name from the directory provider
+        preferred_username:
+          type: string
+          example: kuntala1233a
+          description: Preferred username from the IdP
+        dp_id:
+          type: string
+          example: <id from IDP>
+          description: Directory provider external identifier
+        employee_id:
+          type: string
+          example: AWNEDTILGaIZN
+          description: Employee ID from the directory provider
+        department:
+          type: string
+          example: HNXJPGISMIFN
+          description: Department attribute
+        cost_center:
+          type: string
+          example: QAUZJUHSTYCN
+          description: Cost center attribute
+        division:
+          type: string
+          example: MJFUEYJOKICN
+          description: Division attribute
+        title:
+          type: string
+          example: FKQBHCWJXZSC
+          description: Job title
+        user_type:
+          type: string
+          example: RBQFJSQEFAEH
+          description: User type from the directory provider
+        phone_number:
+          type: string
+          example: 1-579-4072
+          description: Phone number
+        language:
+          type: string
+          example: se
+          description: Preferred language
+        locale:
+          type: string
+          example: LLWLEWESPLDC
+          description: Locale
+        zoneinfo:
+          type: string
+          example: America/Araguaina
+          description: Time zone
+        organization:
+          type: string
+          example: AUIITQVUQGVH
+          description: Organization attribute from the IdP
+        nickname:
+          type: string
+          example: DTUODYKGFPPC
+          description: Nickname
+        profile:
+          type: string
+          example: YMIUQUHKGVAX
+          description: Profile URL or identifier
+        groups:
+          type: array
+          description: Directory groups the user belongs to
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+        roles:
+          type: array
+          description: Roles assigned from directory mapping
+          items:
+            type: object
+            properties:
+              role_name:
+                type: string
+        custom_attributes:
+          type: object
+          additionalProperties: true
+          description: Custom attributes from the directory provider
+        raw_attributes:
+          type: object
+          additionalProperties: true
+          description: Raw attributes as received from the directory provider
+        picture:
+          type: string
+          description: Profile picture URL from the directory provider
+        address:
+          type: object
+          additionalProperties: true
+          description: Address attributes from the directory provider
+    DirectoryUserCreatedEvent:
+      type: object
+      description: Payload delivered for the organization.directory.user_created webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          example: evt_53891546994442316
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - organization.directory.user_created
+          example: organization.directory.user_created
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+          example: '2025-01-06T18:44:25.153954Z'
+        environment_id:
+          type: string
+          pattern: ^env_
+          example: env_53814739859406915
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          example: org_53879494091473415
+          description: The organization ID
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - DirectoryUser
+          example: DirectoryUser
+        data:
+          $ref: '#/components/schemas/DirectoryUserEventData'
+        display_name:
+          type: string
+          example: Directory User Created
+          description: Human-readable display name for the event
+    OrgMembershipEventData:
+      type: object
+      description: Membership payload for user.signup, invitation, and organization membership lifecycle webhook events.
+      required:
+        - organization
+        - user
+      properties:
+        organization:
+          type: object
+          description: Organization associated with the membership event
+          additionalProperties: true
+          properties:
+            id:
+              type: string
+              pattern: ^org_
+            display_name:
+              type: string
+            external_id:
+              type: string
+              nullable: true
+            region_code:
+              type: string
+            create_time:
+              type: string
+              format: date-time
+            update_time:
+              type: string
+              format: date-time
+            metadata:
+              type: object
+              nullable: true
+              additionalProperties: true
+            settings:
+              type: object
+              additionalProperties: true
+        user:
+          type: object
+          description: User associated with the membership event
+          additionalProperties: true
+          properties:
+            id:
+              type: string
+              pattern: ^usr_
+            email:
+              type: string
+              format: email
+            external_id:
+              type: string
+            create_time:
+              type: string
+              format: date-time
+            update_time:
+              type: string
+              format: date-time
+            last_login_time:
+              type: string
+              format: date-time
+            metadata:
+              type: object
+              additionalProperties: true
+            user_profile:
+              type: object
+              additionalProperties: true
+              description: Profile attributes for the user
+    UserAuthEventData:
+      type: object
+      description: Payload for user.login and user.logout webhook events.
+      required:
+        - user
+        - user_session
+      properties:
+        user:
+          type: object
+          description: Authenticated user
+          additionalProperties: true
+          properties:
+            id:
+              type: string
+              pattern: ^usr_
+            email:
+              type: string
+              format: email
+            external_id:
+              type: string
+            create_time:
+              type: string
+              format: date-time
+            update_time:
+              type: string
+              format: date-time
+            last_login_time:
+              type: string
+              format: date-time
+            metadata:
+              type: object
+              additionalProperties: true
+            user_profile:
+              type: object
+              additionalProperties: true
+        user_session:
+          type: object
+          description: Session associated with the authentication event
+          additionalProperties: true
+          properties:
+            session_id:
+              type: string
+              pattern: ^ses_
+            user_id:
+              type: string
+              pattern: ^usr_
+            organization_id:
+              type: string
+              pattern: ^org_
+            status:
+              type: string
+              example: ACTIVE
+            created_at:
+              type: string
+              format: date-time
+            updated_at:
+              type: string
+              format: date-time
+            last_active_at:
+              type: string
+              format: date-time
+            absolute_expires_at:
+              type: string
+              format: date-time
+            idle_expires_at:
+              type: string
+              format: date-time
+            expired_at:
+              type: string
+              format: date-time
+              nullable: true
+            logout_at:
+              type: string
+              format: date-time
+              nullable: true
+            authenticated_organizations:
+              type: array
+              items:
+                type: string
+            device:
+              type: object
+              additionalProperties: true
+              description: Device and client metadata for the session
+    DirectoryEventData:
+      type: object
+      description: Directory payload for directory enabled/disabled webhook events.
+      required:
+        - id
+        - organization_id
+      properties:
+        id:
+          type: string
+          pattern: ^dir_
+          description: Directory identifier
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: Organization that owns the directory
+        directory_type:
+          type: string
+          example: SCIM
+          description: Directory protocol type
+        provider:
+          type: string
+          example: OKTA
+          description: Directory provider
+        enabled:
+          type: boolean
+          description: Whether directory sync is enabled
+        updated_at:
+          type: string
+          format: date-time
+          description: When the directory was last updated
+    DirectoryGroupEventData:
+      type: object
+      description: Directory group payload for organization.directory.group_* events.
+      required:
+        - id
+        - organization_id
+      properties:
+        id:
+          type: string
+          pattern: ^dirgroup_
+          description: Directory group identifier
+        organization_id:
+          type: string
+          pattern: ^org_
+        directory_id:
+          type: string
+          pattern: ^dir_
+          description: Parent directory identifier
+        display_name:
+          type: string
+          description: Group display name
+        external_id:
+          type: string
+          description: External group identifier from the provider
+        dp_id:
+          type: string
+          description: Directory provider group identifier
+        raw_attributes:
+          type: object
+          additionalProperties: true
+          description: Raw attributes from the directory provider
+    ConnectionEventData:
+      type: object
+      description: SSO connection payload for organization.sso_* webhook events.
+      required:
+        - id
+        - organization_id
+      properties:
+        id:
+          type: string
+          pattern: ^conn_
+          description: Connection identifier
+        organization_id:
+          type: string
+          pattern: ^org_
+        connection_type:
+          type: string
+          example: OIDC
+          description: Connection protocol type
+        provider:
+          type: string
+          example: OKTA
+          description: Identity provider
+        enabled:
+          type: boolean
+          description: Whether the connection is enabled
+        status:
+          type: string
+          example: COMPLETED
+          description: Connection configuration status
+    RoleEventData:
+      type: object
+      description: Role payload for role.* webhook events.
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+          description: Role identifier
+        name:
+          type: string
+          description: Role name
+        display_name:
+          type: string
+          description: Human-readable role name
+        description:
+          type: string
+          description: Role description
+        extends:
+          type: string
+          description: Parent role this role extends, if any
+    PermissionEventData:
+      type: object
+      description: Permission payload for permission.* webhook events.
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+          description: Permission identifier
+        name:
+          type: string
+          description: Permission name
+        description:
+          type: string
+          description: Permission description
+    OrganizationUpdatedEvent:
+      type: object
+      description: Payload delivered for the organization.updated webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - organization.updated
+          example: organization.updated
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+        environment_id:
+          type: string
+          pattern: ^env_
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: The organization ID (if applicable)
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - Organization
+          example: Organization
+        data:
+          $ref: '#/components/schemas/OrganizationEventData'
         display_name:
           type: string
           description: Human-readable display name for the event
-          example: Organization Created
-          minLength: 1
-          maxLength: 200
+    OrganizationDeletedEvent:
+      type: object
+      description: Payload delivered for the organization.deleted webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - organization.deleted
+          example: organization.deleted
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+        environment_id:
+          type: string
+          pattern: ^env_
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: The organization ID (if applicable)
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - Organization
+          example: Organization
+        data:
+          $ref: '#/components/schemas/OrganizationEventData'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
+    UserSignupEvent:
+      type: object
+      description: Payload delivered for the user.signup webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - user.signup
+          example: user.signup
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+        environment_id:
+          type: string
+          pattern: ^env_
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: The organization ID (if applicable)
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - OrgMembership
+          example: OrgMembership
+        data:
+          $ref: '#/components/schemas/OrgMembershipEventData'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
+    UserLoginEvent:
+      type: object
+      description: Payload delivered for the user.login webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - user.login
+          example: user.login
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+        environment_id:
+          type: string
+          pattern: ^env_
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: The organization ID (if applicable)
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - User
+          example: User
+        data:
+          $ref: '#/components/schemas/UserAuthEventData'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
+    UserLogoutEvent:
+      type: object
+      description: Payload delivered for the user.logout webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - user.logout
+          example: user.logout
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+        environment_id:
+          type: string
+          pattern: ^env_
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: The organization ID (if applicable)
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - User
+          example: User
+        data:
+          $ref: '#/components/schemas/UserAuthEventData'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
+    UserOrganizationInvitationEvent:
+      type: object
+      description: Payload delivered for the user.organization_invitation webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - user.organization_invitation
+          example: user.organization_invitation
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+        environment_id:
+          type: string
+          pattern: ^env_
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: The organization ID (if applicable)
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - OrgMembership
+          example: OrgMembership
+        data:
+          $ref: '#/components/schemas/OrgMembershipEventData'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
+    UserOrganizationMembershipCreatedEvent:
+      type: object
+      description: Payload delivered for the user.organization_membership_created webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - user.organization_membership_created
+          example: user.organization_membership_created
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+        environment_id:
+          type: string
+          pattern: ^env_
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: The organization ID (if applicable)
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - OrgMembership
+          example: OrgMembership
+        data:
+          $ref: '#/components/schemas/OrgMembershipEventData'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
+    UserOrganizationMembershipDeletedEvent:
+      type: object
+      description: Payload delivered for the user.organization_membership_deleted webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - user.organization_membership_deleted
+          example: user.organization_membership_deleted
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+        environment_id:
+          type: string
+          pattern: ^env_
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: The organization ID (if applicable)
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - OrgMembership
+          example: OrgMembership
+        data:
+          $ref: '#/components/schemas/OrgMembershipEventData'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
+    UserOrganizationMembershipUpdatedEvent:
+      type: object
+      description: Payload delivered for the user.organization_membership_updated webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - user.organization_membership_updated
+          example: user.organization_membership_updated
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+        environment_id:
+          type: string
+          pattern: ^env_
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: The organization ID (if applicable)
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - OrgMembership
+          example: OrgMembership
+        data:
+          $ref: '#/components/schemas/OrgMembershipEventData'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
+    OrganizationDirectoryEnabledEvent:
+      type: object
+      description: Payload delivered for the organization.directory_enabled webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - organization.directory_enabled
+          example: organization.directory_enabled
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+        environment_id:
+          type: string
+          pattern: ^env_
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: The organization ID (if applicable)
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - Directory
+          example: Directory
+        data:
+          $ref: '#/components/schemas/DirectoryEventData'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
+    OrganizationDirectoryDisabledEvent:
+      type: object
+      description: Payload delivered for the organization.directory_disabled webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - organization.directory_disabled
+          example: organization.directory_disabled
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+        environment_id:
+          type: string
+          pattern: ^env_
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: The organization ID (if applicable)
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - Directory
+          example: Directory
+        data:
+          $ref: '#/components/schemas/DirectoryEventData'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
+    DirectoryUserUpdatedEvent:
+      type: object
+      description: Payload delivered for the organization.directory.user_updated webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - organization.directory.user_updated
+          example: organization.directory.user_updated
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+        environment_id:
+          type: string
+          pattern: ^env_
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: The organization ID (if applicable)
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - DirectoryUser
+          example: DirectoryUser
+        data:
+          $ref: '#/components/schemas/DirectoryUserEventData'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
+    DirectoryUserDeletedEvent:
+      type: object
+      description: Payload delivered for the organization.directory.user_deleted webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - organization.directory.user_deleted
+          example: organization.directory.user_deleted
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+        environment_id:
+          type: string
+          pattern: ^env_
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: The organization ID (if applicable)
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - DirectoryUser
+          example: DirectoryUser
+        data:
+          $ref: '#/components/schemas/DirectoryUserEventData'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
+    DirectoryGroupCreatedEvent:
+      type: object
+      description: Payload delivered for the organization.directory.group_created webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - organization.directory.group_created
+          example: organization.directory.group_created
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+        environment_id:
+          type: string
+          pattern: ^env_
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: The organization ID (if applicable)
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - DirectoryGroup
+          example: DirectoryGroup
+        data:
+          $ref: '#/components/schemas/DirectoryGroupEventData'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
+    DirectoryGroupUpdatedEvent:
+      type: object
+      description: Payload delivered for the organization.directory.group_updated webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - organization.directory.group_updated
+          example: organization.directory.group_updated
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+        environment_id:
+          type: string
+          pattern: ^env_
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: The organization ID (if applicable)
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - DirectoryGroup
+          example: DirectoryGroup
+        data:
+          $ref: '#/components/schemas/DirectoryGroupEventData'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
+    DirectoryGroupDeletedEvent:
+      type: object
+      description: Payload delivered for the organization.directory.group_deleted webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - organization.directory.group_deleted
+          example: organization.directory.group_deleted
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+        environment_id:
+          type: string
+          pattern: ^env_
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: The organization ID (if applicable)
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - DirectoryGroup
+          example: DirectoryGroup
+        data:
+          $ref: '#/components/schemas/DirectoryGroupEventData'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
+    OrganizationSsoCreatedEvent:
+      type: object
+      description: Payload delivered for the organization.sso_created webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - organization.sso_created
+          example: organization.sso_created
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+        environment_id:
+          type: string
+          pattern: ^env_
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: The organization ID (if applicable)
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - Connection
+          example: Connection
+        data:
+          $ref: '#/components/schemas/ConnectionEventData'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
+    OrganizationSsoEnabledEvent:
+      type: object
+      description: Payload delivered for the organization.sso_enabled webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - organization.sso_enabled
+          example: organization.sso_enabled
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+        environment_id:
+          type: string
+          pattern: ^env_
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: The organization ID (if applicable)
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - Connection
+          example: Connection
+        data:
+          $ref: '#/components/schemas/ConnectionEventData'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
+    OrganizationSsoDisabledEvent:
+      type: object
+      description: Payload delivered for the organization.sso_disabled webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - organization.sso_disabled
+          example: organization.sso_disabled
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+        environment_id:
+          type: string
+          pattern: ^env_
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: The organization ID (if applicable)
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - Connection
+          example: Connection
+        data:
+          $ref: '#/components/schemas/ConnectionEventData'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
+    OrganizationSsoDeletedEvent:
+      type: object
+      description: Payload delivered for the organization.sso_deleted webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - organization.sso_deleted
+          example: organization.sso_deleted
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+        environment_id:
+          type: string
+          pattern: ^env_
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: The organization ID (if applicable)
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - Connection
+          example: Connection
+        data:
+          $ref: '#/components/schemas/ConnectionEventData'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
+    RoleCreatedEvent:
+      type: object
+      description: Payload delivered for the role.created webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - role.created
+          example: role.created
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+        environment_id:
+          type: string
+          pattern: ^env_
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: The organization ID (if applicable)
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - Role
+          example: Role
+        data:
+          $ref: '#/components/schemas/RoleEventData'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
+    RoleUpdatedEvent:
+      type: object
+      description: Payload delivered for the role.updated webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - role.updated
+          example: role.updated
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+        environment_id:
+          type: string
+          pattern: ^env_
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: The organization ID (if applicable)
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - Role
+          example: Role
+        data:
+          $ref: '#/components/schemas/RoleEventData'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
+    RoleDeletedEvent:
+      type: object
+      description: Payload delivered for the role.deleted webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - role.deleted
+          example: role.deleted
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+        environment_id:
+          type: string
+          pattern: ^env_
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: The organization ID (if applicable)
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - Role
+          example: Role
+        data:
+          $ref: '#/components/schemas/RoleEventData'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
+    PermissionCreatedEvent:
+      type: object
+      description: Payload delivered for the permission.created webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - permission.created
+          example: permission.created
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+        environment_id:
+          type: string
+          pattern: ^env_
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: The organization ID (if applicable)
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - Permission
+          example: Permission
+        data:
+          $ref: '#/components/schemas/PermissionEventData'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
+    PermissionUpdatedEvent:
+      type: object
+      description: Payload delivered for the permission.updated webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - permission.updated
+          example: permission.updated
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+        environment_id:
+          type: string
+          pattern: ^env_
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: The organization ID (if applicable)
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - Permission
+          example: Permission
+        data:
+          $ref: '#/components/schemas/PermissionEventData'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
+    PermissionDeletedEvent:
+      type: object
+      description: Payload delivered for the permission.deleted webhook event.
+      required:
+        - spec_version
+        - id
+        - type
+        - occurred_at
+        - environment_id
+        - object
+        - data
+      properties:
+        spec_version:
+          type: string
+          example: '1'
+          description: The webhook specification version
+          pattern: ^[0-9]+$
+        id:
+          type: string
+          pattern: ^evt_
+          description: Unique identifier for the webhook event (must be prefixed with "evt_")
+        type:
+          type: string
+          description: The event type
+          enum:
+            - permission.deleted
+          example: permission.deleted
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the event occurred (ISO 8601 format)
+        environment_id:
+          type: string
+          pattern: ^env_
+          description: The environment ID where the event occurred
+        organization_id:
+          type: string
+          pattern: ^org_
+          description: The organization ID (if applicable)
+        object:
+          type: string
+          description: The type of object that triggered the webhook
+          enum:
+            - Permission
+          example: Permission
+        data:
+          $ref: '#/components/schemas/PermissionEventData'
+        display_name:
+          type: string
+          description: Human-readable display name for the event
   securitySchemes:
     oauth2:
       type: oauth2

@@ -152,19 +152,24 @@ const frontmatter = {
       tagsSorter: (a, b) => {
         // Logical order for the AgentKit API reference in Scalar (per SK-399 split).
         // Matches the clean tags produced by the backend (Connectors, Tool Calling, MCP groups).
+        // Keep in sync with openapi/extensions/agentkit.yaml tags order.
         const tagOrder = ['Connected Accounts', 'Connectors', 'Tool Calling', 'MCP Configurations']
+        // Scalar may pass tag name strings or { name } objects depending on version.
+        const tagName = (tag) => (typeof tag === 'string' ? tag : (tag?.name ?? ''))
         const getTagRank = (name) => {
           const rank = tagOrder.indexOf(name ?? '')
           return rank === -1 ? Number.POSITIVE_INFINITY : rank
         }
-        const rankA = getTagRank(a?.name)
-        const rankB = getTagRank(b?.name)
+        const nameA = tagName(a)
+        const nameB = tagName(b)
+        const rankA = getTagRank(nameA)
+        const rankB = getTagRank(nameB)
 
         if (rankA !== rankB) {
           return rankA - rankB
         }
 
-        return (a?.name ?? '').localeCompare(b?.name ?? '')
+        return nameA.localeCompare(nameB)
       },
       operationsSorter: (a, b) => {
         const methodOrder = ['get', 'post', 'put', 'patch', 'delete']

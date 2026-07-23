@@ -180,6 +180,7 @@ const frontmatter = {
       proxyUrl: 'https://proxy.scalar.com',
       defaultOpenAllTags: false,
       tagsSorter: (a, b) => {
+        // Keep in sync with openapi/extensions/all.yaml tags order.
         const tagOrder = [
           'Organizations',
           'Permissions',
@@ -197,18 +198,22 @@ const frontmatter = {
           'Tool Calling',
           'MCP Configurations',
         ]
+        // Scalar may pass tag name strings or { name } objects depending on version.
+        const tagName = (tag) => (typeof tag === 'string' ? tag : (tag?.name ?? ''))
         const getTagRank = (name) => {
           const rank = tagOrder.indexOf(name ?? '')
           return rank === -1 ? Number.POSITIVE_INFINITY : rank
         }
-        const rankA = getTagRank(a?.name)
-        const rankB = getTagRank(b?.name)
+        const nameA = tagName(a)
+        const nameB = tagName(b)
+        const rankA = getTagRank(nameA)
+        const rankB = getTagRank(nameB)
 
         if (rankA !== rankB) {
           return rankA - rankB
         }
 
-        return (a?.name ?? '').localeCompare(b?.name ?? '')
+        return nameA.localeCompare(nameB)
       },
       operationsSorter,
       servers: [
