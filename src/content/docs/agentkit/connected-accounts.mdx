@@ -97,6 +97,62 @@ if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
   By default, hosted pages use Scalekit's branding. You can configure your own logo, colors, and custom domain so the pages look like part of your product. See [Custom domain](/agentkit/advanced/custom-domain/).
 </Aside>
 
+## Detect when re-authentication is needed
+
+A connected account can leave the `ACTIVE` state on its own, with no action from you or the user. When that happens, the next tool call fails until the user re-authorizes. To catch it early, subscribe to the `connected_account.status_updated` webhook instead of waiting for a failed call.
+
+### Common causes
+
+OAuth connected accounts most often move to `EXPIRED` for reasons outside Scalekit's control:
+
+- **The provider revoked the refresh token.** A password change, an admin-initiated token revocation, or a provider security policy invalidates the refresh token, so Scalekit can no longer obtain new access tokens.
+- **The refresh token expired.** Providers cap refresh-token lifetimes (for example, 30 or 180 days), and the expiry is rarely surfaced in advance.
+- **No refresh token was issued.** When the connection's scopes don't request offline access, the provider returns only a short-lived access token and no refresh token to renew it.
+- **The provider hit a per-user token limit.** Some providers keep only a fixed number of refresh tokens per user and app, and silently drop the oldest ones when a user reconnects repeatedly.
+
+The first two cases require the user to re-authenticate; there is no server-side workaround. The last two are configuration issues you fix on the connection by requesting offline access scopes.
+
+### Subscribe to status changes
+
+The `connected_account.status_updated` event fires on every status transition and carries both the new and previous status:
+
+```json title="connected_account.status_updated"
+{
+  "spec_version": "1",
+  "id": "evt_101652975398683158",
+  "type": "connected_account.status_updated",
+  "occurred_at": "2025-12-02T06:31:34.895815554Z",
+  "environment_id": "env_88640229614813449",
+  "object": "ConnectedAccount",
+  "data": {
+    "id": "ca_133400349586228019",
+    "identifier": "john@acmecorp.com",
+    "connection_id": "conn_133400101014995480",
+    "connection_name": "gmail",
+    "provider": "GMAIL",
+    "authorization_type": "OAUTH",
+    "status": "EXPIRED",
+    "old_status": "ACTIVE"
+  }
+}
+```
+
+Because the event covers every transition, filter on the change you care about. To alert users only when an active account needs re-authorization, act on `old_status` `ACTIVE` moving to `status` `EXPIRED`:
+
+```js
+// The event fires for all transitions (for example, PENDING_AUTH to ACTIVE).
+// Filter to the one that requires user action, or you will notify on noise.
+if (event.data.old_status === 'ACTIVE' && event.data.status === 'EXPIRED') {
+  // Generate a fresh authorization link and notify the user
+}
+```
+
+When you receive this event, [generate a new authorization link](#handle-inactive-accounts) and prompt the user to reconnect. See the full payload for the [`connected_account.status_updated` event](/apis/#webhook/connectedaccountstatusupdated) in the API reference.
+
+<Aside type="note" title="Verify webhook signatures">
+  Scalekit signs every webhook. Verify the signature before you trust a payload, so a forged request cannot trigger a re-authorization prompt for the wrong user. See [Verify webhook signatures](/guides/webhooks-best-practices/#verify-webhook-signatures).
+</Aside>
+
 ## List connected accounts
 
 <Aside type="note" title="Node.js only">

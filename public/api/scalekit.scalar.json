@@ -33,16 +33,64 @@
   ],
   "tags": [
     {
-      "name": "MCP Configurations",
-      "description": "Create and manage reusable MCP configurations. A configuration defines which connections and tools are available to an MCP server instance."
+      "name": "Organizations",
+      "description": "Manage organizations (tenants), settings, and organization-scoped resources."
+    },
+    {
+      "name": "Permissions",
+      "description": "Define and manage permissions for role-based access control."
+    },
+    {
+      "name": "Users",
+      "description": "User lifecycle, memberships, invitations, and profile management."
+    },
+    {
+      "name": "Connections",
+      "description": "Enterprise SSO connections (SAML/OIDC) for organizations."
+    },
+    {
+      "name": "Directory",
+      "description": "Directory sync (SCIM) for provisioning users and groups."
+    },
+    {
+      "name": "Roles",
+      "description": "Organization and environment roles for RBAC."
+    },
+    {
+      "name": "Sessions",
+      "description": "Session policies and session management."
+    },
+    {
+      "name": "Domains",
+      "description": "Organization domains and domain verification."
+    },
+    {
+      "name": "API Auth",
+      "description": "Machine-to-machine clients, API keys, and client credentials."
+    },
+    {
+      "name": "Magic link & OTP",
+      "description": "Passwordless authentication with magic links and one-time codes."
+    },
+    {
+      "name": "Passkeys",
+      "description": "WebAuthn / passkey authentication."
+    },
+    {
+      "name": "Connected Accounts",
+      "description": "Authenticated third-party accounts for AI agents and tool calling."
     },
     {
       "name": "Connectors",
-      "description": "Manage connectors (also called providers) that your agents can use to authenticate with third-party services. This includes both built-in connectors and environment-scoped custom connectors."
+      "description": "Built-in and custom connectors (providers) for third-party services."
     },
     {
       "name": "Tool Calling",
-      "description": "Execute tools on behalf of a connected account. This is the primary public surface for running actions like sending emails, creating calendar events, or managing resources in external services."
+      "description": "Execute tools on behalf of a connected account."
+    },
+    {
+      "name": "MCP Configurations",
+      "description": "Reusable MCP configurations that map connections and tools to an MCP server."
     }
   ],
   "externalDocs": {
@@ -168,12 +216,22 @@
           {
             "label": "Node.js SDK",
             "lang": "javascript",
-            "source": "// Coming soon — accurate SDK snippets for List connected accounts will be added via scalekit-code-doctor (SK-399)"
+            "source": "const response = await scalekit.connectedAccounts.listConnectedAccounts({\n  organizationId: 'org_123',\n  pageSize: 20,\n})\nconst connectedAccounts = response.connectedAccounts"
           },
           {
             "label": "Python SDK",
             "lang": "python",
-            "source": "# Coming soon — accurate SDK snippets for List connected accounts will be added via scalekit-code-doctor (SK-399)"
+            "source": "response = scalekit_client.connected_accounts.list_connected_accounts(\n    organization_id=\"org_123\",\n    page_size=20,\n)\n# with_call returns (response, call)\nconnected_accounts = response[0].connected_accounts"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "// Connected Accounts are not available in the Go SDK public API yet.\n// Use the REST API (GET /api/v1/connected_accounts) or the Node.js/Python SDKs."
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "// Connected Accounts are not part of the Java SDK public API yet.\n// Use the REST API (GET /api/v1/connected_accounts) or the Node.js/Python SDKs."
           }
         ]
       },
@@ -950,12 +1008,22 @@
           {
             "label": "Node.js SDK",
             "lang": "javascript",
-            "source": "// Coming soon — accurate SDK snippets for Execute tool (Tool Calling) will be added via scalekit-code-doctor (SK-399)"
+            "source": "const response = await scalekit.tools.executeTool({\n  toolName: 'gmail_send_email',\n  identifier: 'user@example.com',\n  params: {\n    to: 'team@example.com',\n    subject: 'Hello from Scalekit',\n    body: 'Tool execution succeeded.',\n  },\n})"
           },
           {
             "label": "Python SDK",
             "lang": "python",
-            "source": "# Coming soon — accurate SDK snippets for Execute tool (Tool Calling) will be added via scalekit-code-doctor (SK-399)"
+            "source": "response = scalekit_client.tools.execute_tool(\n    tool_name=\"gmail_send_email\",\n    identifier=\"user@example.com\",\n    params={\n        \"to\": \"team@example.com\",\n        \"subject\": \"Hello from Scalekit\",\n        \"body\": \"Tool execution succeeded.\",\n    },\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "// Tool calling (execute_tool) is not available in the Go SDK public API yet.\n// Use the REST API (POST /api/v1/execute_tool) or the Node.js/Python SDKs."
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "// Tool calling (execute_tool) is not part of the Java SDK public API yet.\n// Use the REST API (POST /api/v1/execute_tool) or the Node.js/Python SDKs."
           }
         ]
       }
@@ -1525,7 +1593,7 @@
           {
             "label": "Node.js SDK",
             "lang": "javascript",
-            "source": "import { ScalekitClient } from '@scalekit-sdk/node'\nconst scalekit = new ScalekitClient(\n  process.env.SCALEKIT_ENV_URL,\n  process.env.SCALEKIT_CLIENT_ID,\n  process.env.SCALEKIT_CLIENT_SECRET,\n)\nawait scalekit.user.createMembership('org_123', 'usr_123', {\n  roles: ['admin'],\n  metadata: {\n    department: 'engineering',\n    location: 'nyc-office',\n  },\n})"
+            "source": "await scalekit.user.createMembership('org_123', 'usr_123', {\n  roles: ['admin'],\n  metadata: {\n    department: 'engineering',\n    location: 'nyc-office',\n  },\n})"
           },
           {
             "label": "Python SDK",
@@ -1535,12 +1603,12 @@
           {
             "label": "Go SDK",
             "lang": "go",
-            "source": "func main() {\n    scalekitClient := scalekit.NewScalekitClient(\n        os.Getenv(\"SCALEKIT_ENV_URL\"),\n        os.Getenv(\"SCALEKIT_CLIENT_ID\"),\n        os.Getenv(\"SCALEKIT_CLIENT_SECRET\"),\n    )\n    membership := &usersv1.CreateMembership{\n        Roles: []*usersv1.Role{{Name: \"admin\"}},\n        Metadata: map[string]string{\n            \"department\": \"engineering\",\n            \"location\":   \"nyc-office\",\n        },\n    }\n    resp, \n      err := scalekitClient.User().CreateMembership(\n        context.Background(), \"org_123\", \n          \"usr_123\", membership, false)\n    if err != nil {\n        panic(err)\n    }\n}"
+            "source": "membership := &usersv1.CreateMembership{\n  Roles: []*usersv1.Role{{Name: \"admin\"}},\n  Metadata: map[string]string{\n    \"department\": \"engineering\",\n    \"location\":   \"nyc-office\",\n  },\n}\nresp, err := scalekitClient.User().CreateMembership(\n  ctx,\n  \"org_123\",\n  \"usr_123\",\n  membership,\n  false,\n)\nif err != nil {\n  // handle error\n  return\n}\n_ = resp"
           },
           {
             "label": "Java SDK",
             "lang": "java",
-            "source": "import com.scalekit.ScalekitClient;\nimport com.scalekit.api.UserClient;\nimport com.scalekit.grpc.scalekit.v1.users.*;\nScalekitClient scalekitClient = new ScalekitClient(\n    System.getenv(\"SCALEKIT_ENV_URL\"),\n    System.getenv(\"SCALEKIT_CLIENT_ID\"),\n    System.getenv(\"SCALEKIT_CLIENT_SECRET\")\n);\nUserClient users = scalekitClient.users();\nCreateMembershipRequest membershipReq = CreateMemb\n  ershipRequest.newBuilder()\n        .setMembership(\n          CreateMembership.newBuilder()\n                .addRoles(Role.newBuilder(\n                  ).setName(\"admin\").build())\n                .putMetadata(\"department\", \"engineering\")\n                .putMetadata(\"location\", \"nyc-office\")\n                .build())\n        .build();\nCreateMembershipResponse res = users.\n  createMembership(\"org_123\", \"usr_123\", \n    membershipReq);"
+            "source": "CreateMembershipRequest membershipReq = CreateMembershipRequest.newBuilder()\n    .setMembership(\n        CreateMembership.newBuilder()\n            .addRoles(Role.newBuilder().setName(\"admin\").build())\n            .putMetadata(\"department\", \"engineering\")\n            .putMetadata(\"location\", \"nyc-office\")\n            .build())\n    .build();\nCreateMembershipResponse res = scalekitClient.users().createMembership(\n    \"org_123\",\n    \"usr_123\",\n    membershipReq\n);"
           }
         ]
       },
@@ -1581,9 +1649,24 @@
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "await scalekit.user.deleteMembership('org_123', 'usr_123')"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "response = scalekit_client.users.delete_membership(\n  organization_id=org_id,user_id=user_id\n)"
+            "source": "scalekit_client.users.delete_membership(\n    organization_id=\"org_123\",\n    user_id=\"usr_123\",\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "err := scalekitClient.User().DeleteMembership(\n  ctx,\n  \"org_123\",\n  \"usr_123\",\n  false, // cascade: also remove from nested groups when true\n)\nif err != nil {\n  // handle error\n  return\n}"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "scalekitClient.users().deleteMembership(\"org_123\", \"usr_123\");"
           }
         ]
       },
@@ -1859,7 +1942,7 @@
           {
             "label": "Go SDK",
             "lang": "go",
-            "source": "organizations, err := scalekitClient.Organization.ListOrganizations(\n  ctx,\n  &scalekit.ListOrganizationOptions{\n    PageSize: 10,\n  }\n)"
+            "source": "organizations, err := scalekitClient.Organization().ListOrganization(\n  ctx,\n  &scalekit.ListOrganizationOptions{\n    PageSize: 10,\n  },\n)"
           },
           {
             "label": "Java SDK",
@@ -1916,7 +1999,7 @@
           {
             "label": "Go SDK",
             "lang": "go",
-            "source": "organization, err := ScalekitClient.Organization.CreateOrganization(\n  ctx,\n  name,\n  scalekit.CreateOrganizationOptions{\n    ExternalID: \"externalId\",\n  },\n)"
+            "source": "organization, err := scalekitClient.Organization().CreateOrganization(\n  ctx,\n  name,\n  scalekit.CreateOrganizationOptions{\n    ExternalId: \"externalId\",\n  },\n)"
           },
           {
             "label": "Java SDK",
@@ -1959,17 +2042,17 @@
           {
             "label": "Node.js SDK",
             "lang": "javascript",
-            "source": "import { ScalekitClient } from '@scalekit-sdk/node'\nconst scalekit = new ScalekitClient(\n  process.env.SCALEKIT_ENV_URL,\n  process.env.SCALEKIT_CLIENT_ID,\n  process.env.SCALEKIT_CLIENT_SECRET,\n)\nconst organization = await scalekit.organization.getOrganization(organization_id)"
+            "source": "const organization = await scalekit.organization.getOrganization(organizationId)"
           },
           {
             "label": "Python SDK",
             "lang": "python",
-            "source": "scalekit_client = ScalekitClient(\n  <SCALEKIT_ENVIRONMENT_URL>,\n  <SCALEKIT_CLIENT_ID>,\n  <SCALEKIT_CLIENT_SECRET>\n)\n\norganization = scalekit_client.organization.get_organization(\n  organization_id\n)"
+            "source": "organization = scalekit_client.organization.get_organization(organization_id)"
           },
           {
             "label": "Go SDK",
             "lang": "go",
-            "source": "scalekitClient := scalekit.NewScalekitClient(\n  <SCALEKIT_ENVIRONMENT_URL>,\n  <SCALEKIT_CLIENT_ID>,\n  <SCALEKIT_CLIENT_SECRET>\n)\n\norganization, err := scalekitClient.Organization.GetOrganization(\n  ctx,\n  organizationId\n)"
+            "source": "organization, err := scalekitClient.Organization().GetOrganization(\n  ctx,\n  organizationId,\n)"
           },
           {
             "label": "Java SDK",
@@ -2018,7 +2101,7 @@
           {
             "label": "Go SDK",
             "lang": "go",
-            "source": "err := scalekitClient.Organization.DeleteOrganization(\n  ctx,\n  organizationId\n)"
+            "source": "err := scalekitClient.Organization().DeleteOrganization(\n  ctx,\n  organizationId,\n)"
           },
           {
             "label": "Java SDK",
@@ -2080,7 +2163,7 @@
           {
             "label": "Go SDK",
             "lang": "go",
-            "source": "organization, err := scalekitClient.Organization.UpdateOrganization(\n  ctx,\n  organizationId,\n  &scalekit.UpdateOrganization{\n    DisplayName: \"displayName\",\n    ExternalId: \"externalId\",\n  },\n)"
+            "source": "organization, err := scalekitClient.Organization().UpdateOrganization(\n  ctx,\n  organizationId,\n  &scalekit.UpdateOrganization{\n    DisplayName: \"displayName\",\n    ExternalId:  \"externalId\",\n  },\n)"
           },
           {
             "label": "Java SDK",
@@ -2147,7 +2230,7 @@
           {
             "label": "Go SDK",
             "lang": "go",
-            "source": "link, err := scalekitClient.Organization.GeneratePortalLink(\n  ctx,\n  organizationId\n)"
+            "source": "link, err := scalekitClient.Organization().GeneratePortalLink(\n  ctx,\n  organizationId,\n)"
           },
           {
             "label": "Java SDK",
@@ -2692,9 +2775,24 @@
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const response = await scalekit.m2m.listOrganizationClients('org_123', {\n  pageSize: 30,\n})\nconst clients = response.clients"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "# List clients for a specific organization\norg_id = 'SCALEKIT_ORGANIZATION_ID'\n\n# Retrieve all clients with default pagination\nresponse = scalekit_client.m2m_client.list_organization_clients(\n    organization_id=org_id,\n    page_size=30\n)\n\n# Access the clients list\nclients = response.clients\nfor client in clients:\n    print(f\"Client ID: {scalekit_client.id}, Name: {scalekit_client.name}\")"
+            "source": "# List clients for a specific organization\norg_id = \"org_123\"\n\nresponse = scalekit_client.m2m_client.list_organization_clients(\n    organization_id=org_id,\n    page_size=30,\n)\n\nclients = response.clients\nfor client in clients:\n    print(f\"Client ID: {client.id}, Name: {client.name}\")"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "response, err := scalekitClient.M2M().ListOrganizationClients(\n  ctx,\n  \"org_123\",\n  scalekit.ListOrganizationClientsOptions{\n    PageSize: 30,\n  },\n)\nif err != nil {\n  // handle error\n  return\n}\n_ = response"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "ListOrganizationClientsResponse response = scalekitClient.m2m()\n    .listOrganizationClients(\"org_123\", 30, \"\");"
           }
         ]
       },
@@ -2739,9 +2837,24 @@
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const response = await scalekit.m2m.createOrganizationClient('org_123', {\n  name: 'GitHub Actions Deployment Service',\n  description: 'Service account for GitHub Actions to deploy applications to production',\n  scopes: ['deploy:applications', 'read:deployments'],\n  audience: ['deployment-api.acmecorp.com'],\n})"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "from scalekit.v1.clients.clients_pb2 import OrganizationClient\n\nm2m_client = OrganizationClient(\n    name=\"GitHub Actions Deployment Service\",\n    description=\"Service account for GitHub Actions to deploy applications\nto production\",\n    custom_claims=[\n        {\"key\": \"github_repository\", \"value\": \"acmecorp/inventory-service\"},\n        {\"key\": \"environment\", \"value\": \"production_us\"}\n    ],\n    scopes=[\"deploy:applications\", \"read:deployments\"],\n    audience=[\"deployment-api.acmecorp.com\"],\n    expiry=3600\n)\n\nresponse = scalekit_client.m2m_client.create_organization_client(\n    organization_id=\"SCALEKIT_ORGANIZATION_ID\",\n    m2m_client=m2m_client\n)"
+            "source": "from scalekit.v1.clients.clients_pb2 import OrganizationClient\n\nm2m_client = OrganizationClient(\n    name=\"GitHub Actions Deployment Service\",\n    description=\"Service account for GitHub Actions to deploy applications to production\",\n    custom_claims=[\n        {\"key\": \"github_repository\", \"value\": \"acmecorp/inventory-service\"},\n        {\"key\": \"environment\", \"value\": \"production_us\"},\n    ],\n    scopes=[\"deploy:applications\", \"read:deployments\"],\n    audience=[\"deployment-api.acmecorp.com\"],\n    expiry=3600,\n)\n\nresponse = scalekit_client.m2m_client.create_organization_client(\n    organization_id=\"org_123\",\n    m2m_client=m2m_client,\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "response, err := scalekitClient.M2M().CreateOrganizationClient(\n  ctx,\n  \"org_123\",\n  scalekit.CreateOrganizationClientOptions{\n    Name:        \"GitHub Actions Deployment Service\",\n    Description: \"Service account for GitHub Actions to deploy applications to production\",\n    Scopes:      []string{\"deploy:applications\", \"read:deployments\"},\n    Audience:    []string{\"deployment-api.acmecorp.com\"},\n  },\n)\nif err != nil {\n  // handle error\n  return\n}\n_ = response"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "import com.scalekit.grpc.scalekit.v1.clients.OrganizationClient;\n\nOrganizationClient orgClient = OrganizationClient.newBuilder()\n    .setName(\"GitHub Actions Deployment Service\")\n    .setDescription(\"Service account for GitHub Actions to deploy applications to production\")\n    .addScopes(\"deploy:applications\")\n    .addScopes(\"read:deployments\")\n    .addAudience(\"deployment-api.acmecorp.com\")\n    .build();\n\nCreateOrganizationClientResponse response = scalekitClient.m2m()\n    .createOrganizationClient(\"org_123\", orgClient);"
           }
         ]
       }
@@ -2786,9 +2899,24 @@
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const response = await scalekit.m2m.getOrganizationClient('org_123', 'skc_xxxxx')"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "# Get client ID from environment variables\norg_id = 'SCALEKIT_ORGANIZATION_ID'\nclient_id = os.environ['M2M_CLIENT_ID']\n\n# Fetch client details for the specified organization\nresponse = scalekit_client.m2m_client.get_organization_client(\n    organization_id=org_id,\n    client_id=client_id\n)"
+            "source": "import os\n\norg_id = \"org_123\"\nclient_id = os.environ[\"M2M_CLIENT_ID\"]\n\nresponse = scalekit_client.m2m_client.get_organization_client(\n    organization_id=org_id,\n    client_id=client_id,\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "response, err := scalekitClient.M2M().GetOrganizationClient(\n  ctx,\n  \"org_123\",\n  \"skc_xxxxx\",\n)\nif err != nil {\n  // handle error\n  return\n}\n_ = response"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "GetOrganizationClientResponse response = scalekitClient.m2m()\n    .getOrganizationClient(\"org_123\", \"skc_xxxxx\");"
           }
         ]
       },
@@ -2829,9 +2957,24 @@
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "await scalekit.m2m.deleteOrganizationClient('org_123', 'skc_xxxxx')"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "# Get client ID from environment variables\norg_id = '<SCALEKIT_ORGANIZATION_ID>'\nclient_id = os.environ['M2M_CLIENT_ID']\n\n# Delete the specified client from the organization\nresponse = scalekit_client.m2m_client.delete_organization_client(\n    organization_id=org_id,\n    client_id=client_id\n)"
+            "source": "import os\n\norg_id = \"org_123\"\nclient_id = os.environ[\"M2M_CLIENT_ID\"]\n\nscalekit_client.m2m_client.delete_organization_client(\n    organization_id=org_id,\n    client_id=client_id,\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "err := scalekitClient.M2M().DeleteOrganizationClient(\n  ctx,\n  \"org_123\",\n  \"skc_xxxxx\",\n)\nif err != nil {\n  // handle error\n  return\n}"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "scalekitClient.m2m().deleteOrganizationClient(\"org_123\", \"skc_xxxxx\");"
           }
         ]
       },
@@ -2885,9 +3028,24 @@
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const response = await scalekit.m2m.updateOrganizationClient('org_123', 'skc_xxxxx', {\n  description: 'Service account for GitHub Actions to deploy applications to production_eu',\n})"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "from scalekit.v1.clients.clients_pb2 import OrganizationClient\n\norg_id = '<SCALEKIT_ORGANIZATION_ID>'\nclient_id = os.environ['M2M_CLIENT_ID']\n\nupdate_m2m_client = OrganizationClient(\n    description=\"Service account for GitHub Actions to deploy applications\nto production_eu\",\n    custom_claims=[\n        {\"key\": \"github_repository\", \"value\": \"acmecorp/inventory\"},\n        {\"key\": \"environment\", \"value\": \"production_eu\"}\n    ]\n)\n\nresponse = scalekit_client.m2m_client.update_organization_client(\n    organization_id=org_id,\n    client_id=client_id,\n    m2m_client=update_m2m_client\n)"
+            "source": "import os\nfrom scalekit.v1.clients.clients_pb2 import OrganizationClient\n\norg_id = \"org_123\"\nclient_id = os.environ[\"M2M_CLIENT_ID\"]\n\nupdate_m2m_client = OrganizationClient(\n    description=\"Service account for GitHub Actions to deploy applications to production_eu\",\n    custom_claims=[\n        {\"key\": \"github_repository\", \"value\": \"acmecorp/inventory\"},\n        {\"key\": \"environment\", \"value\": \"production_eu\"},\n    ],\n)\n\nresponse = scalekit_client.m2m_client.update_organization_client(\n    organization_id=org_id,\n    client_id=client_id,\n    m2m_client=update_m2m_client,\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "response, err := scalekitClient.M2M().UpdateOrganizationClient(\n  ctx,\n  \"org_123\",\n  \"skc_xxxxx\",\n  scalekit.UpdateOrganizationClientOptions{\n    Description: \"Service account for GitHub Actions to deploy applications to production_eu\",\n  },\n)\nif err != nil {\n  // handle error\n  return\n}\n_ = response"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "import com.scalekit.grpc.scalekit.v1.clients.OrganizationClient;\n\nOrganizationClient updates = OrganizationClient.newBuilder()\n    .setDescription(\"Service account for GitHub Actions to deploy applications to production_eu\")\n    .build();\n\nUpdateOrganizationClientResponse response = scalekitClient.m2m()\n    .updateOrganizationClient(\"org_123\", \"skc_xxxxx\", updates);"
           }
         ]
       }
@@ -2932,9 +3090,24 @@
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const response = await scalekit.m2m.addOrganizationClientSecret('org_123', 'skc_xxxxx')\nconst secretId = response.secret?.id"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "# Get client ID from environment variables\norg_id = 'SCALEKIT_ORGANIZATION_ID'\nclient_id = os.environ['M2M_CLIENT_ID']\n\n# Add a new secret to the specified client\nresponse = scalekit_client.m2m_client.add_organization_client_secret(\n    organization_id=org_id,\n    client_id=client_id\n)\n\n# Extract the secret ID from the response\nsecret_id = response[0].secret.id"
+            "source": "import os\n\norg_id = \"org_123\"\nclient_id = os.environ[\"M2M_CLIENT_ID\"]\n\nresponse = scalekit_client.m2m_client.add_organization_client_secret(\n    organization_id=org_id,\n    client_id=client_id,\n)\n\n# with_call returns (response, call)\nsecret_id = response[0].secret.id"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "response, err := scalekitClient.M2M().CreateOrganizationClientSecret(\n  ctx,\n  \"org_123\",\n  \"skc_xxxxx\",\n)\nif err != nil {\n  // handle error\n  return\n}\n_ = response"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "CreateOrganizationClientSecretResponse response = scalekitClient.m2m()\n    .createOrganizationClientSecret(\"org_123\", \"skc_xxxxx\");"
           }
         ]
       }
@@ -2986,9 +3159,24 @@
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "await scalekit.m2m.removeOrganizationClientSecret('org_123', 'skc_xxxxx', 'sks_xxxxx')"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "# Get client and secret IDs from environment variables\norg_id = '<SCALEKIT_ORGANIZATION_ID>'\nclient_id = os.environ['M2M_CLIENT_ID']\nsecret_id = os.environ['M2M_SECRET_ID']\n\n# Remove the specified secret from the client\nresponse = scalekit_client.m2m_client.remove_organization_client_secret(\n    organization_id=org_id,\n    client_id=client_id,\n    secret_id=secret_id\n)"
+            "source": "import os\n\norg_id = \"org_123\"\nclient_id = os.environ[\"M2M_CLIENT_ID\"]\nsecret_id = os.environ[\"M2M_SECRET_ID\"]\n\nscalekit_client.m2m_client.remove_organization_client_secret(\n    organization_id=org_id,\n    client_id=client_id,\n    secret_id=secret_id,\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "err := scalekitClient.M2M().DeleteOrganizationClientSecret(\n  ctx,\n  \"org_123\",\n  \"skc_xxxxx\",\n  \"sks_xxxxx\",\n)\nif err != nil {\n  // handle error\n  return\n}"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "scalekitClient.m2m().deleteOrganizationClientSecret(\n    \"org_123\",\n    \"skc_xxxxx\",\n    \"sks_xxxxx\"\n);"
           }
         ]
       }
@@ -3045,7 +3233,7 @@
           {
             "label": "Go SDK",
             "lang": "go",
-            "source": "connection, err := scalekitClient.Connection.GetConnection(\n  ctx,\n  organizationId,\n  connectionId,\n)"
+            "source": "connection, err := scalekitClient.Connection().GetConnection(\n  ctx,\n  organizationId,\n  connectionId,\n)"
           },
           {
             "label": "Java SDK",
@@ -3103,7 +3291,7 @@
           {
             "label": "Go SDK",
             "lang": "go",
-            "source": "err := scalekitClient.Connection.DeleteConnection(\n  ctx,\n  organizationId,\n  connectionId,\n)"
+            "source": "err := scalekitClient.Connection().DeleteConnection(\n  ctx,\n  organizationId,\n  connectionId,\n)"
           },
           {
             "label": "Java SDK",
@@ -3165,7 +3353,7 @@
           {
             "label": "Go SDK",
             "lang": "go",
-            "source": "err := scalekitClient.Connection.DisableConnection(\n  ctx,\n  organizationId,\n  connectionId,\n)"
+            "source": "err := scalekitClient.Connection().DisableConnection(\n  ctx,\n  organizationId,\n  connectionId,\n)"
           },
           {
             "label": "Java SDK",
@@ -3227,7 +3415,7 @@
           {
             "label": "Go SDK",
             "lang": "go",
-            "source": "err := scalekitClient.Connection.EnableConnection(\n  ctx,\n  organizationId,\n  connectionId,\n)"
+            "source": "err := scalekitClient.Connection().EnableConnection(\n  ctx,\n  organizationId,\n  connectionId,\n)"
           },
           {
             "label": "Java SDK",
@@ -4145,7 +4333,7 @@
           {
             "label": "Python SDK",
             "lang": "python",
-            "source": "resp, _ = scalekit_client.users.list_users(organization_id=\"org_123\", page_size=50)"
+            "source": "response = scalekit_client.users.list_organization_users(\n    organization_id=\"org_123\",\n    page_size=50,\n)"
           },
           {
             "label": "Go SDK",
@@ -4531,7 +4719,7 @@
           {
             "label": "Java SDK",
             "lang": "java",
-            "source": "SendPasswordlessResponse resendResponse = passwordlessClient.resendPasswordlessEmail(authRequestId);"
+            "source": "SendPasswordlessResponse resendResponse = scalekitClient.passwordless()\n    .resendPasswordlessEmail(authRequestId);"
           }
         ]
       }
@@ -4568,22 +4756,22 @@
           {
             "label": "Node.js SDK",
             "lang": "javascript",
-            "source": "const response = await scalekit.passwordless.sendPasswordlessEmail('john.doe@example.com', {\n  template: 'SIGNIN',\n  expiresIn: 100,\n  magiclinkAuthUri: 'https://www.google.com',\n  templateVariables: {\n    employeeID: 'EMP523',\n    teamName: 'Alpha Team',\n    supportEmail: 'support@yourcompany.com',\n  },\n})"
+            "source": "const response = await scalekit.passwordless.sendPasswordlessEmail('john.doe@example.com', {\n  template: 'SIGNIN',\n  expiresIn: 100,\n  magiclinkAuthUri: 'https://yourapp.com/auth/passwordless/callback',\n  templateVariables: {\n    employeeID: 'EMP523',\n    teamName: 'Alpha Team',\n    supportEmail: 'support@yourcompany.com',\n  },\n})"
           },
           {
             "label": "Python SDK",
             "lang": "python",
-            "source": "response = scalekit_client.passwordless.send_passwordless_email(\n    email=\"john.doe@example.com\",\n    template=\"SIGNIN\",  # or \"SIGNUP\", \"UNSPECIFIED\"\n    expires_in=100,\n    magiclink_auth_uri=\"https://www.google.com\",\n    template_variables={\n        \"employeeID\": \"EMP523\",\n        \"teamName\": \"Alpha Team\",\n        \"supportEmail\": \"support@yourcompany.com\",\n    },\n)\n\n# Extract auth request ID from response\nauth_request_id = response[0].auth_request_id"
+            "source": "response = scalekit_client.passwordless.send_passwordless_email(\n    email=\"john.doe@example.com\",\n    template=\"SIGNIN\",  # or \"SIGNUP\", \"UNSPECIFIED\"\n    expires_in=100,\n    magiclink_auth_uri=\"https://yourapp.com/auth/passwordless/callback\",\n    template_variables={\n        \"employeeID\": \"EMP523\",\n        \"teamName\": \"Alpha Team\",\n        \"supportEmail\": \"support@yourcompany.com\",\n    },\n)\n\n# with_call returns (response, call)\nauth_request_id = response[0].auth_request_id"
           },
           {
             "label": "Go SDK",
             "lang": "go",
-            "source": "templateType := scalekit.TemplateTypeSignin\nresponse, err := scalekitClient.Passwordless().SendPasswordlessEmail(\n    ctx,\n    \"john.doe@example.com\",\n    &scalekit.SendPasswordlessOptions{\n        Template:         &templateType,\n        ExpiresIn:        100,\n        MagiclinkAuthUri: \"https://www.google.com\",\n        TemplateVariables: map[string]string{\n            \"employeeID\":    \"EMP523\",\n            \"teamName\":      \"Alpha Team\",\n            \"supportEmail\":  \"support@yourcompany.com\",\n        },\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\nauthRequestId := response.AuthRequestId"
+            "source": "templateType := scalekit.TemplateTypeSignin\nresponse, err := scalekitClient.Passwordless().SendPasswordlessEmail(\n  ctx,\n  \"john.doe@example.com\",\n  &scalekit.SendPasswordlessOptions{\n    Template:         &templateType,\n    ExpiresIn:        100,\n    MagiclinkAuthUri: \"https://yourapp.com/auth/passwordless/callback\",\n    TemplateVariables: map[string]string{\n      \"employeeID\":   \"EMP523\",\n      \"teamName\":     \"Alpha Team\",\n      \"supportEmail\": \"support@yourcompany.com\",\n    },\n  },\n)\nif err != nil {\n  // handle error\n  return\n}\nauthRequestId := response.AuthRequestId"
           },
           {
             "label": "Java SDK",
             "lang": "java",
-            "source": "TemplateType templateType = TemplateType.SIGNIN;\nMap<String, String> templateVariables = new HashMap<>();\ntemplateVariables.put(\"employeeID\", \"EMP523\");\ntemplateVariables.put(\"teamName\", \"Alpha Team\");\ntemplateVariables.put(\"supportEmail\", \"support@yourcompany.com\");\n\nSendPasswordlessOptions options = new SendPasswordlessOptions();\noptions.setTemplate(templateType);\noptions.setExpiresIn(100);\noptions.setMagiclinkAuthUri(\"https://www.example.com\");\noptions.setTemplateVariables(templateVariables);\n\nSendPasswordlessResponse response = passwordlessClient.sendPasswordlessEmail(\n    \"john.doe@example.com\",\n    options\n);\n\nString authRequestId = response.getAuthRequestId();"
+            "source": "TemplateType templateType = TemplateType.SIGNIN;\nMap<String, String> templateVariables = new HashMap<>();\ntemplateVariables.put(\"employeeID\", \"EMP523\");\ntemplateVariables.put(\"teamName\", \"Alpha Team\");\ntemplateVariables.put(\"supportEmail\", \"support@yourcompany.com\");\n\nSendPasswordlessOptions options = new SendPasswordlessOptions();\noptions.setTemplate(templateType);\noptions.setExpiresIn(100);\noptions.setMagiclinkAuthUri(\"https://yourapp.com/auth/passwordless/callback\");\noptions.setTemplateVariables(templateVariables);\n\nSendPasswordlessResponse response = scalekitClient.passwordless().sendPasswordlessEmail(\n    \"john.doe@example.com\",\n    options\n);\n\nString authRequestId = response.getAuthRequestId();"
           }
         ]
       }
@@ -4620,7 +4808,7 @@
           {
             "label": "Node.js SDK",
             "lang": "javascript",
-            "source": "const { authRequestId } = sendResponse\nconst verifyResponse = await scalekit.passwordless.verifyPasswordlessEmail(\n  // Verification Code (OTP)\n\n  { code: '123456' },\n\n  // Magic Link Token\n\n  { linkToken: link_token },\n\n  authRequestId,\n)"
+            "source": "const { authRequestId } = sendResponse\n\n// Verify with OTP code\nconst verifyResponse = await scalekit.passwordless.verifyPasswordlessEmail(\n  { code: '123456' },\n  authRequestId,\n)\n\n// Or verify with magic link token\nconst linkVerifyResponse = await scalekit.passwordless.verifyPasswordlessEmail({\n  linkToken: linkToken,\n})"
           },
           {
             "label": "Python SDK",
@@ -4635,7 +4823,7 @@
           {
             "label": "Java SDK",
             "lang": "java",
-            "source": "// Verify with OTP code\nVerifyPasswordlessOptions verifyOptions = new VerifyPasswordlessOptions();\nverifyOptions.setCode(\"123456\"); // OTP code\nverifyOptions.setAuthRequestId(authRequestId);\n\nVerifyPasswordLessResponse verifyResponse = passwordlessClient.verifyPasswordlessEmail(verifyOptions);\n\n// User verified successfully\nString userEmail = verifyResponse.getEmail();\n\n// Verify with magic link token\nVerifyPasswordlessOptions verifyOptions = new VerifyPasswordlessOptions();\nverifyOptions.setLinkToken(linkToken); // Magic link token\n\nVerifyPasswordLessResponse verifyResponse = passwordlessClient.verifyPasswordlessEmail(verifyOptions);\n\n// User verified successfully\nString userEmail = verifyResponse.getEmail();"
+            "source": "// Verify with OTP code\nVerifyPasswordlessOptions verifyOptions = new VerifyPasswordlessOptions();\nverifyOptions.setCode(\"123456\"); // OTP code\nverifyOptions.setAuthRequestId(authRequestId);\n\nVerifyPasswordLessResponse verifyResponse = scalekitClient.passwordless()\n    .verifyPasswordlessEmail(verifyOptions);\n\n// User verified successfully\nString userEmail = verifyResponse.getEmail();\n\n// Verify with magic link token\nVerifyPasswordlessOptions linkVerifyOptions = new VerifyPasswordlessOptions();\nlinkVerifyOptions.setLinkToken(linkToken); // Magic link token\n\nVerifyPasswordLessResponse linkVerifyResponse = scalekitClient.passwordless()\n    .verifyPasswordlessEmail(linkVerifyOptions);\n\nString verifiedEmail = linkVerifyResponse.getEmail();"
           }
         ]
       }
@@ -5773,7 +5961,7 @@
           {
             "label": "Python SDK",
             "lang": "python",
-            "source": "# pass empty org to fetch all users in environment\nresp,_ = scalekit_client.users.list_users(organization_id=\"\", page_size=100)"
+            "source": "# List all users in the environment\nresponse = scalekit_client.users.list_users(page_size=100)"
           },
           {
             "label": "Go SDK",
@@ -5783,7 +5971,7 @@
           {
             "label": "Java SDK",
             "lang": "java",
-            "source": "ListUsersRequest lur = ListUsersRequest.\n  newBuilder().setPageSize(100).build();\nListUsersResponse allUsers = users.listUsers(lur);"
+            "source": "ListUsersRequest lur = ListUsersRequest.newBuilder()\n    .setPageSize(100)\n    .build();\nListUsersResponse allUsers = scalekitClient.users().listUsers(lur);"
           }
         ]
       }
@@ -5875,7 +6063,7 @@
           {
             "label": "Python SDK",
             "lang": "python",
-            "source": "scalekit_client.users.delete_user(organization_id=\"org_123\", \n  user_id=\"usr_123\")"
+            "source": "scalekit_client.users.delete_user(\"usr_123\")"
           },
           {
             "label": "Go SDK",
@@ -5885,7 +6073,7 @@
           {
             "label": "Java SDK",
             "lang": "java",
-            "source": "users.deleteUser(\"usr_123\");"
+            "source": "scalekitClient.users().deleteUser(\"usr_123\");"
           }
         ]
       },
@@ -5943,7 +6131,7 @@
           {
             "label": "Python SDK",
             "lang": "python",
-            "source": "import os\nfrom scalekit import ScalekitClient\nfrom scalekit.v1.users.users_pb2 import UpdateUser\nfrom scalekit.v1.commons.commons_pb2 import UserProfile\nscalekit_client = ScalekitClient(\n    env_url=os.getenv(\"SCALEKIT_ENV_URL\"),\n    client_id=os.getenv(\"SCALEKIT_CLIENT_ID\"),\n    client_secret=os.getenv(\"SCALEKIT_CLIENT_SECRET\"),\n)\nupdate_user = UpdateUser(\n    user_profile=UserProfile(\n        first_name=\"John\",\n        last_name=\"Smith\"\n    ),\n    metadata={\"department\": \"sales\"}\n)\nscalekit_client.users.update_user(organization_id=\"org_123\", \n  user=update_user)"
+            "source": "from scalekit.v1.users.users_pb2 import UpdateUser\nfrom scalekit.v1.commons.commons_pb2 import UserProfile\n\nupdate_user = UpdateUser(\n    user_profile=UserProfile(\n        first_name=\"John\",\n        last_name=\"Smith\",\n    ),\n    metadata={\"department\": \"sales\"},\n)\nresponse = scalekit_client.users.update_user(\"usr_123\", update_user)"
           },
           {
             "label": "Go SDK",
@@ -5953,7 +6141,7 @@
           {
             "label": "Java SDK",
             "lang": "java",
-            "source": "UpdateUser upd = UpdateUser.newBuilder()\n        .setUserProfile(\n          UpdateUserProfile.newBuilder()\n                .setFirstName(\"John\")\n                .setLastName(\"Smith\")\n                .build())\n        .putMetadata(\"department\", \"sales\")\n        .build();\nUpdateUserRequest updReq = UpdateUserRequest.\n  newBuilder().setUser(upd).build();\nusers.updateUser(\"usr_123\", updReq);"
+            "source": "UpdateUser upd = UpdateUser.newBuilder()\n    .setUserProfile(\n        UpdateUserProfile.newBuilder()\n            .setFirstName(\"John\")\n            .setLastName(\"Smith\")\n            .build())\n    .putMetadata(\"department\", \"sales\")\n    .build();\nUpdateUserRequest updReq = UpdateUserRequest.newBuilder()\n    .setUser(upd)\n    .build();\nscalekitClient.users().updateUser(\"usr_123\", updReq);"
           }
         ]
       }
@@ -6323,7 +6511,7 @@
           {
             "label": "Java SDK",
             "lang": "java",
-            "source": "ListCredentialsResponse res = scalekitClient.webauthn().listCredentials(\"user_123\");"
+            "source": "ListCredentialsResponse res = scalekitClient.webAuthn().listCredentials(\"user_123\");"
           }
         ]
       }
@@ -6376,7 +6564,7 @@
           {
             "label": "Java SDK",
             "lang": "java",
-            "source": "DeleteCredentialResponse res = scalekitClient.webauthn().deleteCredential(\"wac_123\");"
+            "source": "DeleteCredentialResponse res = scalekitClient.webAuthn().deleteCredential(\"wac_123\");"
           }
         ]
       },
@@ -6437,7 +6625,7 @@
           {
             "label": "Java SDK",
             "lang": "java",
-            "source": "UpdateCredentialResponse res = scalekitClient.webauthn()\n    .updateCredential(\"wac_123\", \"Work Laptop Passkey\");"
+            "source": "UpdateCredentialResponse res = scalekitClient.webAuthn()\n    .updateCredential(\"wac_123\", \"Work Laptop Passkey\");"
           }
         ]
       }
@@ -6452,7 +6640,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/OrganizationCreatedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -6503,7 +6691,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/OrganizationUpdatedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -6554,7 +6742,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/OrganizationDeletedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -6598,6 +6786,174 @@
         }
       }
     },
+    "organization.domain_created": {
+      "post": {
+        "summary": "Organization Domain Created",
+        "description": "Triggered when a domain is added to an organization (organization domain or allowed email domain). The data payload may include txt_record_secret for DNS verification — treat that value as sensitive and do not log it.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrganizationDomainCreatedEvent"
+              },
+              "example": {
+                "spec_version": "1",
+                "id": "evt_4567890123",
+                "type": "organization.domain_created",
+                "object": "Organization",
+                "occurred_at": "2024-01-15T11:00:00.123456789Z",
+                "environment_id": "env_1234567890",
+                "organization_id": "org_1234567890",
+                "data": {
+                  "id": "dom_1234567890",
+                  "domain": "acmecorp.com",
+                  "domain_type": "ORGANIZATION_DOMAIN",
+                  "organization_id": "org_1234567890",
+                  "environment_id": "env_1234567890",
+                  "txt_record_key": "scalekit-domain-verification",
+                  "txt_record_secret": "sk_dom_verify_abc123",
+                  "verification_status": "PENDING",
+                  "verification_method": "DNS",
+                  "updated_at": "2024-01-15T11:00:00.123456789Z"
+                },
+                "display_name": "Organization Domain Created"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
+    "organization.domain_deleted": {
+      "post": {
+        "summary": "Organization Domain Deleted",
+        "description": "Triggered when a domain is removed from an organization. The payload may still include txt_record_secret from the deleted domain record — treat it as sensitive.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrganizationDomainDeletedEvent"
+              },
+              "example": {
+                "spec_version": "1",
+                "id": "evt_4567890456",
+                "type": "organization.domain_deleted",
+                "object": "Organization",
+                "occurred_at": "2024-01-16T09:30:00.123456789Z",
+                "environment_id": "env_1234567890",
+                "organization_id": "org_1234567890",
+                "data": {
+                  "id": "dom_1234567890",
+                  "domain": "acmecorp.com",
+                  "domain_type": "ORGANIZATION_DOMAIN",
+                  "organization_id": "org_1234567890",
+                  "environment_id": "env_1234567890",
+                  "txt_record_key": "scalekit-domain-verification",
+                  "txt_record_secret": "sk_dom_verify_abc123",
+                  "verification_status": "VERIFIED",
+                  "verification_method": "DNS",
+                  "updated_at": "2024-01-16T09:30:00.123456789Z"
+                },
+                "display_name": "Organization Domain Deleted"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
+    "organization.domain_dns_verification_success": {
+      "post": {
+        "summary": "Organization Domain DNS Verification Success",
+        "description": "Triggered when DNS TXT record validation confirms ownership of an organization domain. Handle txt_record_secret as sensitive if present.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrganizationDomainDnsVerificationSuccessEvent"
+              },
+              "example": {
+                "spec_version": "1",
+                "id": "evt_4567890789",
+                "type": "organization.domain_dns_verification_success",
+                "object": "Organization",
+                "occurred_at": "2024-01-15T12:15:00.123456789Z",
+                "environment_id": "env_1234567890",
+                "organization_id": "org_1234567890",
+                "data": {
+                  "id": "dom_1234567890",
+                  "domain": "acmecorp.com",
+                  "domain_type": "ORGANIZATION_DOMAIN",
+                  "organization_id": "org_1234567890",
+                  "environment_id": "env_1234567890",
+                  "txt_record_key": "scalekit-domain-verification",
+                  "txt_record_secret": "sk_dom_verify_abc123",
+                  "verification_status": "VERIFIED",
+                  "verification_method": "DNS",
+                  "updated_at": "2024-01-15T12:15:00.123456789Z"
+                },
+                "display_name": "Organization Domain DNS Verification Success"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
+    "organization.domain_dns_verification_failed": {
+      "post": {
+        "summary": "Organization Domain DNS Verification Failed",
+        "description": "Triggered when the DNS verification window expires without a successful TXT record match. Handle txt_record_secret as sensitive if present.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrganizationDomainDnsVerificationFailedEvent"
+              },
+              "example": {
+                "spec_version": "1",
+                "id": "evt_4567891012",
+                "type": "organization.domain_dns_verification_failed",
+                "object": "Organization",
+                "occurred_at": "2024-01-16T11:00:00.123456789Z",
+                "environment_id": "env_1234567890",
+                "organization_id": "org_1234567890",
+                "data": {
+                  "id": "dom_1234567890",
+                  "domain": "acmecorp.com",
+                  "domain_type": "ORGANIZATION_DOMAIN",
+                  "organization_id": "org_1234567890",
+                  "environment_id": "env_1234567890",
+                  "txt_record_key": "scalekit-domain-verification",
+                  "txt_record_secret": "sk_dom_verify_abc123",
+                  "verification_status": "FAILED",
+                  "verification_method": "DNS",
+                  "updated_at": "2024-01-16T11:00:00.123456789Z"
+                },
+                "display_name": "Organization Domain DNS Verification Failed"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
     "user.signup": {
       "post": {
         "summary": "User Signup",
@@ -6606,7 +6962,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/UserSignupEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -6684,7 +7040,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/UserLoginEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -6783,7 +7139,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/UserLogoutEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -6882,7 +7238,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/UserOrganizationInvitationEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -6971,7 +7327,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/UserOrganizationMembershipCreatedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -7060,7 +7416,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/UserOrganizationMembershipDeletedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -7149,7 +7505,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/UserOrganizationMembershipUpdatedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -7238,7 +7594,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/OrganizationDirectoryEnabledEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -7276,7 +7632,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/OrganizationDirectoryDisabledEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -7314,7 +7670,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/DirectoryUserCreatedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -7383,7 +7739,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/DirectoryUserUpdatedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -7448,7 +7804,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/DirectoryUserDeletedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -7484,7 +7840,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/DirectoryGroupCreatedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -7522,7 +7878,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/DirectoryGroupUpdatedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -7560,7 +7916,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/DirectoryGroupDeletedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -7598,7 +7954,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/OrganizationSsoCreatedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -7634,7 +7990,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/OrganizationSsoEnabledEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -7672,7 +8028,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/OrganizationSsoDisabledEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -7710,7 +8066,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/OrganizationSsoDeletedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -7746,7 +8102,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/RoleCreatedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -7782,7 +8138,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/RoleUpdatedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -7818,7 +8174,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/RoleDeletedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -7854,7 +8210,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/PermissionCreatedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -7888,7 +8244,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/PermissionUpdatedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -7922,7 +8278,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/PermissionDeletedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -7956,7 +8312,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/ConnectedAccountCreatedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -7992,7 +8348,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/ConnectedAccountUpdatedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -8067,7 +8423,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/ConnectedAccountDeletedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -8106,7 +8462,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/ConnectedAccountMagicLinkGeneratedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -8142,7 +8498,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/ConnectedAccountOauthTokensFetchedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -8179,7 +8535,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/ConnectedAccountTokenRefreshSucceededEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -8217,7 +8573,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/ConnectedAccountTokenRefreshFailedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -8254,7 +8610,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/ConnectedAccountOauthSucceededEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -14016,116 +14372,6 @@
           }
         }
       },
-      "ScalekitEvent": {
-        "type": "object",
-        "required": ["spec_version", "id", "type", "occurred_at", "environment_id", "object"],
-        "properties": {
-          "spec_version": {
-            "type": "string",
-            "example": "1",
-            "description": "The webhook specification version",
-            "pattern": "^[0-9]+$"
-          },
-          "id": {
-            "type": "string",
-            "pattern": "^evt_",
-            "example": "evt_1234567890abcdef",
-            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")",
-            "minLength": 1,
-            "maxLength": 32
-          },
-          "type": {
-            "type": "string",
-            "example": "organization.created",
-            "description": "The event type",
-            "enum": [
-              "organization.created",
-              "organization.updated",
-              "organization.deleted",
-              "organization.sso_created",
-              "organization.sso_deleted",
-              "organization.sso_enabled",
-              "organization.sso_disabled",
-              "user.signup",
-              "user.login",
-              "user.logout",
-              "user.organization_invitation",
-              "user.organization_membership_created",
-              "user.organization_membership_updated",
-              "user.organization_membership_deleted",
-              "organization.directory.user_created",
-              "organization.directory.user_updated",
-              "organization.directory.user_deleted",
-              "organization.directory.group_created",
-              "organization.directory.group_updated",
-              "organization.directory.group_deleted",
-              "organization.directory_enabled",
-              "organization.directory_disabled",
-              "role.created",
-              "role.updated",
-              "role.deleted",
-              "permission.created",
-              "permission.updated",
-              "permission.deleted"
-            ]
-          },
-          "occurred_at": {
-            "type": "string",
-            "format": "date-time",
-            "description": "When the event occurred (ISO 8601 format)",
-            "example": "2024-01-01T00:00:00Z"
-          },
-          "environment_id": {
-            "type": "string",
-            "pattern": "^env_",
-            "example": "env_1234567890abcdef",
-            "description": "The environment ID where the event occurred",
-            "minLength": 1,
-            "maxLength": 32
-          },
-          "organization_id": {
-            "type": "string",
-            "pattern": "^org_",
-            "example": "org_1234567890abcdef",
-            "description": "The organization ID (if applicable)",
-            "minLength": 1,
-            "maxLength": 32
-          },
-          "object": {
-            "type": "string",
-            "description": "The type of object that triggered the webhook",
-            "enum": [
-              "Organization",
-              "Connection",
-              "Role",
-              "Directory",
-              "DirectoryUser",
-              "DirectoryGroup",
-              "Permission",
-              "OrgMembership",
-              "User"
-            ],
-            "example": "Organization"
-          },
-          "data": {
-            "type": "object",
-            "description": "The event payload (structure varies by event type)",
-            "additionalProperties": true,
-            "example": {
-              "id": "org_1234567890abcdef",
-              "name": "Example Organization",
-              "created_at": "2024-01-01T00:00:00Z"
-            }
-          },
-          "display_name": {
-            "type": "string",
-            "description": "Human-readable display name for the event",
-            "example": "Organization Created",
-            "minLength": 1,
-            "maxLength": 200
-          }
-        }
-      },
       "ConnectedAccountStatusUpdatedEvent": {
         "type": "object",
         "description": "Payload delivered for the connected_account.status_updated webhook event.",
@@ -14225,19 +14471,3180 @@
             "description": "The provider of the connected account"
           },
           "authorization_type": {
-            "$ref": "#/components/schemas/connected_accountsConnectorType",
+            "type": "string",
+            "enum": [
+              "OAUTH",
+              "API_KEY",
+              "BASIC_AUTH",
+              "BEARER_TOKEN",
+              "BASIC",
+              "OAUTH_M2M",
+              "TRELLO_OAUTH1",
+              "GOOGLE_DWD",
+              "TRUSTED_IDP",
+              "SMART_FHIR"
+            ],
             "example": "OAUTH",
             "description": "The authorization type of the connected account"
           },
           "status": {
-            "$ref": "#/components/schemas/connected_accountsConnectorStatus",
+            "type": "string",
+            "enum": ["ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"],
             "example": "EXPIRED",
             "description": "The new status of the connected account"
           },
           "old_status": {
-            "$ref": "#/components/schemas/connected_accountsConnectorStatus",
+            "type": "string",
+            "enum": ["ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"],
             "example": "ACTIVE",
             "description": "The previous status of the connected account"
+          }
+        }
+      },
+      "OrganizationDomainEventData": {
+        "type": "object",
+        "description": "Domain payload shared by organization domain lifecycle webhook events. Field names match the backend DomainDataEvent model (not the REST domainsDomain resource).",
+        "required": [
+          "id",
+          "domain",
+          "domain_type",
+          "organization_id",
+          "environment_id",
+          "verification_status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^dom_",
+            "example": "dom_1234567890",
+            "description": "Unique identifier for the domain (prefixed with \"dom_\")"
+          },
+          "domain": {
+            "type": "string",
+            "example": "acmecorp.com",
+            "description": "The domain name"
+          },
+          "domain_type": {
+            "type": "string",
+            "enum": ["ORGANIZATION_DOMAIN", "ALLOWED_EMAIL_DOMAIN"],
+            "example": "ORGANIZATION_DOMAIN",
+            "description": "ORGANIZATION_DOMAIN for SSO/SCIM routing domains; ALLOWED_EMAIL_DOMAIN for auto-join email domains"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "example": "org_1234567890",
+            "description": "Organization that owns the domain"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "example": "env_1234567890",
+            "description": "Environment where the domain is configured"
+          },
+          "txt_record_key": {
+            "type": "string",
+            "example": "scalekit-domain-verification",
+            "description": "DNS TXT record host used for ownership verification"
+          },
+          "txt_record_secret": {
+            "type": "string",
+            "example": "sk_dom_verify_abc123",
+            "description": "DNS TXT record value Scalekit expects during verification. Treat as sensitive: do not log, display in client UIs, or store in shared channels. Present on domain lifecycle events including after verification or deletion."
+          },
+          "verification_status": {
+            "type": "string",
+            "enum": ["PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"],
+            "example": "PENDING",
+            "description": "Verification status of the domain"
+          },
+          "verification_method": {
+            "type": "string",
+            "enum": ["ADMIN", "DNS", "NOT_APPLICABLE"],
+            "example": "DNS",
+            "description": "How ownership is verified: DNS (TXT record), ADMIN (dashboard or API without DNS), or NOT_APPLICABLE (allowed email domains)"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-15T11:00:00.123456789Z",
+            "description": "When the domain status last changed"
+          }
+        }
+      },
+      "OrganizationDomainCreatedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the organization.domain_created webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "example": "evt_4567890123",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["organization.domain_created"],
+            "example": "organization.domain_created"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)",
+            "example": "2024-01-15T11:00:00.123456789Z"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "example": "env_1234567890",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "example": "org_1234567890",
+            "description": "The organization ID"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["Organization"],
+            "example": "Organization"
+          },
+          "data": {
+            "$ref": "#/components/schemas/OrganizationDomainEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "example": "Organization Domain Created",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "OrganizationDomainDeletedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the organization.domain_deleted webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "example": "evt_4567890456",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["organization.domain_deleted"],
+            "example": "organization.domain_deleted"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)",
+            "example": "2024-01-16T09:30:00.123456789Z"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "example": "env_1234567890",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "example": "org_1234567890",
+            "description": "The organization ID"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["Organization"],
+            "example": "Organization"
+          },
+          "data": {
+            "$ref": "#/components/schemas/OrganizationDomainEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "example": "Organization Domain Deleted",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "OrganizationDomainDnsVerificationSuccessEvent": {
+        "type": "object",
+        "description": "Payload delivered for the organization.domain_dns_verification_success webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "example": "evt_4567890789",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["organization.domain_dns_verification_success"],
+            "example": "organization.domain_dns_verification_success"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)",
+            "example": "2024-01-15T12:15:00.123456789Z"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "example": "env_1234567890",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "example": "org_1234567890",
+            "description": "The organization ID"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["Organization"],
+            "example": "Organization"
+          },
+          "data": {
+            "$ref": "#/components/schemas/OrganizationDomainEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "example": "Organization Domain DNS Verification Success",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "OrganizationDomainDnsVerificationFailedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the organization.domain_dns_verification_failed webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "example": "evt_4567891012",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["organization.domain_dns_verification_failed"],
+            "example": "organization.domain_dns_verification_failed"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)",
+            "example": "2024-01-16T11:00:00.123456789Z"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "example": "env_1234567890",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "example": "org_1234567890",
+            "description": "The organization ID"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["Organization"],
+            "example": "Organization"
+          },
+          "data": {
+            "$ref": "#/components/schemas/OrganizationDomainEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "example": "Organization Domain DNS Verification Failed",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "OrganizationEventData": {
+        "type": "object",
+        "description": "Organization payload for organization.created and related lifecycle events.",
+        "required": ["id", "display_name"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^org_",
+            "example": "org_1234567890",
+            "description": "Scalekit organization identifier"
+          },
+          "display_name": {
+            "type": "string",
+            "example": "AcmeCorp",
+            "description": "Organization display name"
+          },
+          "external_id": {
+            "type": "string",
+            "example": "org_external_123",
+            "description": "Your system's unique ID for this organization"
+          },
+          "region_code": {
+            "type": "string",
+            "example": "US",
+            "description": "Region code for the organization"
+          },
+          "create_time": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-12-09T09:25:02.02Z",
+            "description": "When the organization was created"
+          },
+          "update_time": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-12-09T09:25:02.025330364Z",
+            "description": "When the organization was last updated"
+          },
+          "deleted_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the organization was deleted (deleted events only)"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true,
+            "description": "Organization metadata map"
+          },
+          "settings": {
+            "type": "object",
+            "description": "Organization feature settings",
+            "additionalProperties": true,
+            "properties": {
+              "features": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "OrganizationCreatedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the organization.created webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "example": "evt_1234567890",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["organization.created"],
+            "example": "organization.created"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)",
+            "example": "2024-01-15T10:30:00.123456789Z"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "example": "env_1234567890",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "example": "org_1234567890",
+            "description": "The organization ID"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["Organization"],
+            "example": "Organization"
+          },
+          "data": {
+            "$ref": "#/components/schemas/OrganizationEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "example": "Organization Created",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "DirectoryUserEventData": {
+        "type": "object",
+        "description": "Directory user payload for organization.directory.user_* webhook events.",
+        "required": ["id", "organization_id"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^diruser_",
+            "example": "diruser_53891546960887884",
+            "description": "Unique identifier for the directory user"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "example": "org_53879494091473415",
+            "description": "Organization that owns the directory"
+          },
+          "active": {
+            "type": "boolean",
+            "example": true,
+            "description": "Whether the directory user is active"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "flavio@runolfsdottir.co.duk",
+            "description": "Primary email address"
+          },
+          "given_name": {
+            "type": "string",
+            "example": "Dayton",
+            "description": "Given (first) name"
+          },
+          "family_name": {
+            "type": "string",
+            "example": "Jaquelin",
+            "description": "Family (last) name"
+          },
+          "name": {
+            "type": "string",
+            "example": "QDRGUZZDYMFU",
+            "description": "Full name from the directory provider"
+          },
+          "preferred_username": {
+            "type": "string",
+            "example": "kuntala1233a",
+            "description": "Preferred username from the IdP"
+          },
+          "dp_id": {
+            "type": "string",
+            "example": "<id from IDP>",
+            "description": "Directory provider external identifier"
+          },
+          "employee_id": {
+            "type": "string",
+            "example": "AWNEDTILGaIZN",
+            "description": "Employee ID from the directory provider"
+          },
+          "department": {
+            "type": "string",
+            "example": "HNXJPGISMIFN",
+            "description": "Department attribute"
+          },
+          "cost_center": {
+            "type": "string",
+            "example": "QAUZJUHSTYCN",
+            "description": "Cost center attribute"
+          },
+          "division": {
+            "type": "string",
+            "example": "MJFUEYJOKICN",
+            "description": "Division attribute"
+          },
+          "title": {
+            "type": "string",
+            "example": "FKQBHCWJXZSC",
+            "description": "Job title"
+          },
+          "user_type": {
+            "type": "string",
+            "example": "RBQFJSQEFAEH",
+            "description": "User type from the directory provider"
+          },
+          "phone_number": {
+            "type": "string",
+            "example": "1-579-4072",
+            "description": "Phone number"
+          },
+          "language": {
+            "type": "string",
+            "example": "se",
+            "description": "Preferred language"
+          },
+          "locale": {
+            "type": "string",
+            "example": "LLWLEWESPLDC",
+            "description": "Locale"
+          },
+          "zoneinfo": {
+            "type": "string",
+            "example": "America/Araguaina",
+            "description": "Time zone"
+          },
+          "organization": {
+            "type": "string",
+            "example": "AUIITQVUQGVH",
+            "description": "Organization attribute from the IdP"
+          },
+          "nickname": {
+            "type": "string",
+            "example": "DTUODYKGFPPC",
+            "description": "Nickname"
+          },
+          "profile": {
+            "type": "string",
+            "example": "YMIUQUHKGVAX",
+            "description": "Profile URL or identifier"
+          },
+          "groups": {
+            "type": "array",
+            "description": "Directory groups the user belongs to",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "roles": {
+            "type": "array",
+            "description": "Roles assigned from directory mapping",
+            "items": {
+              "type": "object",
+              "properties": {
+                "role_name": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "custom_attributes": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Custom attributes from the directory provider"
+          },
+          "raw_attributes": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Raw attributes as received from the directory provider"
+          },
+          "picture": {
+            "type": "string",
+            "description": "Profile picture URL from the directory provider"
+          },
+          "address": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Address attributes from the directory provider"
+          }
+        }
+      },
+      "DirectoryUserCreatedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the organization.directory.user_created webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "example": "evt_53891546994442316",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["organization.directory.user_created"],
+            "example": "organization.directory.user_created"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)",
+            "example": "2025-01-06T18:44:25.153954Z"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "example": "env_53814739859406915",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "example": "org_53879494091473415",
+            "description": "The organization ID"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["DirectoryUser"],
+            "example": "DirectoryUser"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DirectoryUserEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "example": "Directory User Created",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "OrgMembershipEventData": {
+        "type": "object",
+        "description": "Membership payload for user.signup, invitation, and organization membership lifecycle webhook events.",
+        "required": ["organization", "user"],
+        "properties": {
+          "organization": {
+            "type": "object",
+            "description": "Organization associated with the membership event",
+            "additionalProperties": true,
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^org_"
+              },
+              "display_name": {
+                "type": "string"
+              },
+              "external_id": {
+                "type": "string",
+                "nullable": true
+              },
+              "region_code": {
+                "type": "string"
+              },
+              "create_time": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "update_time": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "metadata": {
+                "type": "object",
+                "nullable": true,
+                "additionalProperties": true
+              },
+              "settings": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          },
+          "user": {
+            "type": "object",
+            "description": "User associated with the membership event",
+            "additionalProperties": true,
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^usr_"
+              },
+              "email": {
+                "type": "string",
+                "format": "email"
+              },
+              "external_id": {
+                "type": "string"
+              },
+              "create_time": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "update_time": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "last_login_time": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "metadata": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "user_profile": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Profile attributes for the user"
+              }
+            }
+          }
+        }
+      },
+      "UserAuthEventData": {
+        "type": "object",
+        "description": "Payload for user.login and user.logout webhook events.",
+        "required": ["user", "user_session"],
+        "properties": {
+          "user": {
+            "type": "object",
+            "description": "Authenticated user",
+            "additionalProperties": true,
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^usr_"
+              },
+              "email": {
+                "type": "string",
+                "format": "email"
+              },
+              "external_id": {
+                "type": "string"
+              },
+              "create_time": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "update_time": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "last_login_time": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "metadata": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "user_profile": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          },
+          "user_session": {
+            "type": "object",
+            "description": "Session associated with the authentication event",
+            "additionalProperties": true,
+            "properties": {
+              "session_id": {
+                "type": "string",
+                "pattern": "^ses_"
+              },
+              "user_id": {
+                "type": "string",
+                "pattern": "^usr_"
+              },
+              "organization_id": {
+                "type": "string",
+                "pattern": "^org_"
+              },
+              "status": {
+                "type": "string",
+                "example": "ACTIVE"
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "last_active_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "absolute_expires_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "idle_expires_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "expired_at": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              },
+              "logout_at": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              },
+              "authenticated_organizations": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "device": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Device and client metadata for the session"
+              }
+            }
+          }
+        }
+      },
+      "DirectoryEventData": {
+        "type": "object",
+        "description": "Directory payload for directory enabled/disabled webhook events.",
+        "required": ["id", "organization_id"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^dir_",
+            "description": "Directory identifier"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "Organization that owns the directory"
+          },
+          "directory_type": {
+            "type": "string",
+            "example": "SCIM",
+            "description": "Directory protocol type"
+          },
+          "provider": {
+            "type": "string",
+            "example": "OKTA",
+            "description": "Directory provider"
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Whether directory sync is enabled"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the directory was last updated"
+          }
+        }
+      },
+      "DirectoryGroupEventData": {
+        "type": "object",
+        "description": "Directory group payload for organization.directory.group_* events.",
+        "required": ["id", "organization_id"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^dirgroup_",
+            "description": "Directory group identifier"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_"
+          },
+          "directory_id": {
+            "type": "string",
+            "pattern": "^dir_",
+            "description": "Parent directory identifier"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Group display name"
+          },
+          "external_id": {
+            "type": "string",
+            "description": "External group identifier from the provider"
+          },
+          "dp_id": {
+            "type": "string",
+            "description": "Directory provider group identifier"
+          },
+          "raw_attributes": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Raw attributes from the directory provider"
+          }
+        }
+      },
+      "ConnectionEventData": {
+        "type": "object",
+        "description": "SSO connection payload for organization.sso_* webhook events.",
+        "required": ["id", "organization_id"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^conn_",
+            "description": "Connection identifier"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_"
+          },
+          "connection_type": {
+            "type": "string",
+            "example": "OIDC",
+            "description": "Connection protocol type"
+          },
+          "provider": {
+            "type": "string",
+            "example": "OKTA",
+            "description": "Identity provider"
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Whether the connection is enabled"
+          },
+          "status": {
+            "type": "string",
+            "example": "COMPLETED",
+            "description": "Connection configuration status"
+          }
+        }
+      },
+      "RoleEventData": {
+        "type": "object",
+        "description": "Role payload for role.* webhook events.",
+        "required": ["id", "name"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Role identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "Role name"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable role name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Role description"
+          },
+          "extends": {
+            "type": "string",
+            "description": "Parent role this role extends, if any"
+          }
+        }
+      },
+      "PermissionEventData": {
+        "type": "object",
+        "description": "Permission payload for permission.* webhook events.",
+        "required": ["id", "name"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Permission identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "Permission name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Permission description"
+          }
+        }
+      },
+      "ConnectedAccountEventData": {
+        "type": "object",
+        "description": "Connected account payload for connected_account.* lifecycle webhook events (except status_updated, which uses ConnectedAccountStatusUpdatedEventData).",
+        "required": ["id", "identifier", "connection_id", "provider", "status"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^ca_",
+            "description": "Connected account identifier"
+          },
+          "identifier": {
+            "type": "string",
+            "description": "End-user identifier for the connected account"
+          },
+          "connection_id": {
+            "type": "string",
+            "pattern": "^conn_",
+            "description": "Connection identifier"
+          },
+          "connection_name": {
+            "type": "string",
+            "description": "Connection key_id when available"
+          },
+          "provider": {
+            "type": "string",
+            "description": "Provider of the connected account"
+          },
+          "authorization_type": {
+            "type": "string",
+            "enum": [
+              "OAUTH",
+              "API_KEY",
+              "BASIC_AUTH",
+              "BEARER_TOKEN",
+              "BASIC",
+              "OAUTH_M2M",
+              "TRELLO_OAUTH1",
+              "GOOGLE_DWD",
+              "TRUSTED_IDP",
+              "SMART_FHIR"
+            ],
+            "description": "Authorization type of the connected account"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"],
+            "description": "Current connected account status"
+          },
+          "token_expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the access token expires, if known"
+          },
+          "last_used_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the connected account was last used"
+          }
+        }
+      },
+      "OrganizationUpdatedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the organization.updated webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["organization.updated"],
+            "example": "organization.updated"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["Organization"],
+            "example": "Organization"
+          },
+          "data": {
+            "$ref": "#/components/schemas/OrganizationEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "OrganizationDeletedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the organization.deleted webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["organization.deleted"],
+            "example": "organization.deleted"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["Organization"],
+            "example": "Organization"
+          },
+          "data": {
+            "$ref": "#/components/schemas/OrganizationEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "UserSignupEvent": {
+        "type": "object",
+        "description": "Payload delivered for the user.signup webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["user.signup"],
+            "example": "user.signup"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["OrgMembership"],
+            "example": "OrgMembership"
+          },
+          "data": {
+            "$ref": "#/components/schemas/OrgMembershipEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "UserLoginEvent": {
+        "type": "object",
+        "description": "Payload delivered for the user.login webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["user.login"],
+            "example": "user.login"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["User"],
+            "example": "User"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UserAuthEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "UserLogoutEvent": {
+        "type": "object",
+        "description": "Payload delivered for the user.logout webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["user.logout"],
+            "example": "user.logout"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["User"],
+            "example": "User"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UserAuthEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "UserOrganizationInvitationEvent": {
+        "type": "object",
+        "description": "Payload delivered for the user.organization_invitation webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["user.organization_invitation"],
+            "example": "user.organization_invitation"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["OrgMembership"],
+            "example": "OrgMembership"
+          },
+          "data": {
+            "$ref": "#/components/schemas/OrgMembershipEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "UserOrganizationMembershipCreatedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the user.organization_membership_created webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["user.organization_membership_created"],
+            "example": "user.organization_membership_created"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["OrgMembership"],
+            "example": "OrgMembership"
+          },
+          "data": {
+            "$ref": "#/components/schemas/OrgMembershipEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "UserOrganizationMembershipDeletedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the user.organization_membership_deleted webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["user.organization_membership_deleted"],
+            "example": "user.organization_membership_deleted"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["OrgMembership"],
+            "example": "OrgMembership"
+          },
+          "data": {
+            "$ref": "#/components/schemas/OrgMembershipEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "UserOrganizationMembershipUpdatedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the user.organization_membership_updated webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["user.organization_membership_updated"],
+            "example": "user.organization_membership_updated"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["OrgMembership"],
+            "example": "OrgMembership"
+          },
+          "data": {
+            "$ref": "#/components/schemas/OrgMembershipEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "OrganizationDirectoryEnabledEvent": {
+        "type": "object",
+        "description": "Payload delivered for the organization.directory_enabled webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["organization.directory_enabled"],
+            "example": "organization.directory_enabled"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["Directory"],
+            "example": "Directory"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DirectoryEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "OrganizationDirectoryDisabledEvent": {
+        "type": "object",
+        "description": "Payload delivered for the organization.directory_disabled webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["organization.directory_disabled"],
+            "example": "organization.directory_disabled"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["Directory"],
+            "example": "Directory"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DirectoryEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "DirectoryUserUpdatedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the organization.directory.user_updated webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["organization.directory.user_updated"],
+            "example": "organization.directory.user_updated"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["DirectoryUser"],
+            "example": "DirectoryUser"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DirectoryUserEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "DirectoryUserDeletedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the organization.directory.user_deleted webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["organization.directory.user_deleted"],
+            "example": "organization.directory.user_deleted"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["DirectoryUser"],
+            "example": "DirectoryUser"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DirectoryUserEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "DirectoryGroupCreatedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the organization.directory.group_created webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["organization.directory.group_created"],
+            "example": "organization.directory.group_created"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["DirectoryGroup"],
+            "example": "DirectoryGroup"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DirectoryGroupEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "DirectoryGroupUpdatedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the organization.directory.group_updated webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["organization.directory.group_updated"],
+            "example": "organization.directory.group_updated"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["DirectoryGroup"],
+            "example": "DirectoryGroup"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DirectoryGroupEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "DirectoryGroupDeletedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the organization.directory.group_deleted webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["organization.directory.group_deleted"],
+            "example": "organization.directory.group_deleted"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["DirectoryGroup"],
+            "example": "DirectoryGroup"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DirectoryGroupEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "OrganizationSsoCreatedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the organization.sso_created webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["organization.sso_created"],
+            "example": "organization.sso_created"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["Connection"],
+            "example": "Connection"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ConnectionEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "OrganizationSsoEnabledEvent": {
+        "type": "object",
+        "description": "Payload delivered for the organization.sso_enabled webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["organization.sso_enabled"],
+            "example": "organization.sso_enabled"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["Connection"],
+            "example": "Connection"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ConnectionEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "OrganizationSsoDisabledEvent": {
+        "type": "object",
+        "description": "Payload delivered for the organization.sso_disabled webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["organization.sso_disabled"],
+            "example": "organization.sso_disabled"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["Connection"],
+            "example": "Connection"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ConnectionEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "OrganizationSsoDeletedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the organization.sso_deleted webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["organization.sso_deleted"],
+            "example": "organization.sso_deleted"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["Connection"],
+            "example": "Connection"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ConnectionEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "RoleCreatedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the role.created webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["role.created"],
+            "example": "role.created"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["Role"],
+            "example": "Role"
+          },
+          "data": {
+            "$ref": "#/components/schemas/RoleEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "RoleUpdatedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the role.updated webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["role.updated"],
+            "example": "role.updated"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["Role"],
+            "example": "Role"
+          },
+          "data": {
+            "$ref": "#/components/schemas/RoleEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "RoleDeletedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the role.deleted webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["role.deleted"],
+            "example": "role.deleted"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["Role"],
+            "example": "Role"
+          },
+          "data": {
+            "$ref": "#/components/schemas/RoleEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "PermissionCreatedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the permission.created webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["permission.created"],
+            "example": "permission.created"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["Permission"],
+            "example": "Permission"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PermissionEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "PermissionUpdatedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the permission.updated webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["permission.updated"],
+            "example": "permission.updated"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["Permission"],
+            "example": "Permission"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PermissionEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "PermissionDeletedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the permission.deleted webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["permission.deleted"],
+            "example": "permission.deleted"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["Permission"],
+            "example": "Permission"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PermissionEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "ConnectedAccountCreatedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the connected_account.created webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["connected_account.created"],
+            "example": "connected_account.created"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["ConnectedAccount"],
+            "example": "ConnectedAccount"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ConnectedAccountEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "ConnectedAccountUpdatedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the connected_account.updated webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["connected_account.updated"],
+            "example": "connected_account.updated"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["ConnectedAccount"],
+            "example": "ConnectedAccount"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ConnectedAccountEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "ConnectedAccountDeletedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the connected_account.deleted webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["connected_account.deleted"],
+            "example": "connected_account.deleted"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["ConnectedAccount"],
+            "example": "ConnectedAccount"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ConnectedAccountEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "ConnectedAccountMagicLinkGeneratedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the connected_account.magic_link_generated webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["connected_account.magic_link_generated"],
+            "example": "connected_account.magic_link_generated"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["ConnectedAccount"],
+            "example": "ConnectedAccount"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ConnectedAccountEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "ConnectedAccountOauthTokensFetchedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the connected_account.oauth_tokens_fetched webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["connected_account.oauth_tokens_fetched"],
+            "example": "connected_account.oauth_tokens_fetched"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["ConnectedAccount"],
+            "example": "ConnectedAccount"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ConnectedAccountEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "ConnectedAccountTokenRefreshSucceededEvent": {
+        "type": "object",
+        "description": "Payload delivered for the connected_account.token_refresh_succeeded webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["connected_account.token_refresh_succeeded"],
+            "example": "connected_account.token_refresh_succeeded"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["ConnectedAccount"],
+            "example": "ConnectedAccount"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ConnectedAccountEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "ConnectedAccountTokenRefreshFailedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the connected_account.token_refresh_failed webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["connected_account.token_refresh_failed"],
+            "example": "connected_account.token_refresh_failed"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["ConnectedAccount"],
+            "example": "ConnectedAccount"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ConnectedAccountEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "ConnectedAccountOauthSucceededEvent": {
+        "type": "object",
+        "description": "Payload delivered for the connected_account.oauth_succeeded webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["connected_account.oauth_succeeded"],
+            "example": "connected_account.oauth_succeeded"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["ConnectedAccount"],
+            "example": "ConnectedAccount"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ConnectedAccountEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
           }
         }
       }

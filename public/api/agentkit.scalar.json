@@ -172,12 +172,22 @@
           {
             "label": "Node.js SDK",
             "lang": "javascript",
-            "source": "// Coming soon — accurate SDK snippets for List connected accounts will be added via scalekit-code-doctor (SK-399)"
+            "source": "const response = await scalekit.connectedAccounts.listConnectedAccounts({\n  organizationId: 'org_123',\n  pageSize: 20,\n})\nconst connectedAccounts = response.connectedAccounts"
           },
           {
             "label": "Python SDK",
             "lang": "python",
-            "source": "# Coming soon — accurate SDK snippets for List connected accounts will be added via scalekit-code-doctor (SK-399)"
+            "source": "response = scalekit_client.connected_accounts.list_connected_accounts(\n    organization_id=\"org_123\",\n    page_size=20,\n)\n# with_call returns (response, call)\nconnected_accounts = response[0].connected_accounts"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "// Connected Accounts are not available in the Go SDK public API yet.\n// Use the REST API (GET /api/v1/connected_accounts) or the Node.js/Python SDKs."
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "// Connected Accounts are not part of the Java SDK public API yet.\n// Use the REST API (GET /api/v1/connected_accounts) or the Node.js/Python SDKs."
           }
         ]
       },
@@ -886,12 +896,22 @@
           {
             "label": "Node.js SDK",
             "lang": "javascript",
-            "source": "// Coming soon — accurate SDK snippets for Execute tool (Tool Calling) will be added via scalekit-code-doctor (SK-399)"
+            "source": "const response = await scalekit.tools.executeTool({\n  toolName: 'gmail_send_email',\n  identifier: 'user@example.com',\n  params: {\n    to: 'team@example.com',\n    subject: 'Hello from Scalekit',\n    body: 'Tool execution succeeded.',\n  },\n})"
           },
           {
             "label": "Python SDK",
             "lang": "python",
-            "source": "# Coming soon — accurate SDK snippets for Execute tool (Tool Calling) will be added via scalekit-code-doctor (SK-399)"
+            "source": "response = scalekit_client.tools.execute_tool(\n    tool_name=\"gmail_send_email\",\n    identifier=\"user@example.com\",\n    params={\n        \"to\": \"team@example.com\",\n        \"subject\": \"Hello from Scalekit\",\n        \"body\": \"Tool execution succeeded.\",\n    },\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "// Tool calling (execute_tool) is not available in the Go SDK public API yet.\n// Use the REST API (POST /api/v1/execute_tool) or the Node.js/Python SDKs."
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "// Tool calling (execute_tool) is not part of the Java SDK public API yet.\n// Use the REST API (POST /api/v1/execute_tool) or the Node.js/Python SDKs."
           }
         ]
       }
@@ -1329,7 +1349,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/ConnectedAccountCreatedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -1365,7 +1385,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/ConnectedAccountUpdatedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -1440,7 +1460,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/ConnectedAccountDeletedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -1479,7 +1499,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/ConnectedAccountMagicLinkGeneratedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -1515,7 +1535,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/ConnectedAccountOauthTokensFetchedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -1552,7 +1572,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/ConnectedAccountTokenRefreshSucceededEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -1590,7 +1610,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/ConnectedAccountTokenRefreshFailedEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -1627,7 +1647,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScalekitEvent"
+                "$ref": "#/components/schemas/ConnectedAccountOauthSucceededEvent"
               },
               "example": {
                 "spec_version": "1",
@@ -2791,116 +2811,6 @@
           }
         }
       },
-      "ScalekitEvent": {
-        "type": "object",
-        "required": ["spec_version", "id", "type", "occurred_at", "environment_id", "object"],
-        "properties": {
-          "spec_version": {
-            "type": "string",
-            "example": "1",
-            "description": "The webhook specification version",
-            "pattern": "^[0-9]+$"
-          },
-          "id": {
-            "type": "string",
-            "pattern": "^evt_",
-            "example": "evt_1234567890abcdef",
-            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")",
-            "minLength": 1,
-            "maxLength": 32
-          },
-          "type": {
-            "type": "string",
-            "example": "organization.created",
-            "description": "The event type",
-            "enum": [
-              "organization.created",
-              "organization.updated",
-              "organization.deleted",
-              "organization.sso_created",
-              "organization.sso_deleted",
-              "organization.sso_enabled",
-              "organization.sso_disabled",
-              "user.signup",
-              "user.login",
-              "user.logout",
-              "user.organization_invitation",
-              "user.organization_membership_created",
-              "user.organization_membership_updated",
-              "user.organization_membership_deleted",
-              "organization.directory.user_created",
-              "organization.directory.user_updated",
-              "organization.directory.user_deleted",
-              "organization.directory.group_created",
-              "organization.directory.group_updated",
-              "organization.directory.group_deleted",
-              "organization.directory_enabled",
-              "organization.directory_disabled",
-              "role.created",
-              "role.updated",
-              "role.deleted",
-              "permission.created",
-              "permission.updated",
-              "permission.deleted"
-            ]
-          },
-          "occurred_at": {
-            "type": "string",
-            "format": "date-time",
-            "description": "When the event occurred (ISO 8601 format)",
-            "example": "2024-01-01T00:00:00Z"
-          },
-          "environment_id": {
-            "type": "string",
-            "pattern": "^env_",
-            "example": "env_1234567890abcdef",
-            "description": "The environment ID where the event occurred",
-            "minLength": 1,
-            "maxLength": 32
-          },
-          "organization_id": {
-            "type": "string",
-            "pattern": "^org_",
-            "example": "org_1234567890abcdef",
-            "description": "The organization ID (if applicable)",
-            "minLength": 1,
-            "maxLength": 32
-          },
-          "object": {
-            "type": "string",
-            "description": "The type of object that triggered the webhook",
-            "enum": [
-              "Organization",
-              "Connection",
-              "Role",
-              "Directory",
-              "DirectoryUser",
-              "DirectoryGroup",
-              "Permission",
-              "OrgMembership",
-              "User"
-            ],
-            "example": "Organization"
-          },
-          "data": {
-            "type": "object",
-            "description": "The event payload (structure varies by event type)",
-            "additionalProperties": true,
-            "example": {
-              "id": "org_1234567890abcdef",
-              "name": "Example Organization",
-              "created_at": "2024-01-01T00:00:00Z"
-            }
-          },
-          "display_name": {
-            "type": "string",
-            "description": "Human-readable display name for the event",
-            "example": "Organization Created",
-            "minLength": 1,
-            "maxLength": 200
-          }
-        }
-      },
       "ConnectedAccountStatusUpdatedEvent": {
         "type": "object",
         "description": "Payload delivered for the connected_account.status_updated webhook event.",
@@ -3000,19 +2910,573 @@
             "description": "The provider of the connected account"
           },
           "authorization_type": {
-            "$ref": "#/components/schemas/connected_accountsConnectorType",
+            "type": "string",
+            "enum": [
+              "OAUTH",
+              "API_KEY",
+              "BASIC_AUTH",
+              "BEARER_TOKEN",
+              "BASIC",
+              "OAUTH_M2M",
+              "TRELLO_OAUTH1",
+              "GOOGLE_DWD",
+              "TRUSTED_IDP",
+              "SMART_FHIR"
+            ],
             "example": "OAUTH",
             "description": "The authorization type of the connected account"
           },
           "status": {
-            "$ref": "#/components/schemas/connected_accountsConnectorStatus",
+            "type": "string",
+            "enum": ["ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"],
             "example": "EXPIRED",
             "description": "The new status of the connected account"
           },
           "old_status": {
-            "$ref": "#/components/schemas/connected_accountsConnectorStatus",
+            "type": "string",
+            "enum": ["ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"],
             "example": "ACTIVE",
             "description": "The previous status of the connected account"
+          }
+        }
+      },
+      "ConnectedAccountEventData": {
+        "type": "object",
+        "description": "Connected account payload for connected_account.* lifecycle webhook events (except status_updated, which uses ConnectedAccountStatusUpdatedEventData).",
+        "required": ["id", "identifier", "connection_id", "provider", "status"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^ca_",
+            "description": "Connected account identifier"
+          },
+          "identifier": {
+            "type": "string",
+            "description": "End-user identifier for the connected account"
+          },
+          "connection_id": {
+            "type": "string",
+            "pattern": "^conn_",
+            "description": "Connection identifier"
+          },
+          "connection_name": {
+            "type": "string",
+            "description": "Connection key_id when available"
+          },
+          "provider": {
+            "type": "string",
+            "description": "Provider of the connected account"
+          },
+          "authorization_type": {
+            "type": "string",
+            "enum": [
+              "OAUTH",
+              "API_KEY",
+              "BASIC_AUTH",
+              "BEARER_TOKEN",
+              "BASIC",
+              "OAUTH_M2M",
+              "TRELLO_OAUTH1",
+              "GOOGLE_DWD",
+              "TRUSTED_IDP",
+              "SMART_FHIR"
+            ],
+            "description": "Authorization type of the connected account"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"],
+            "description": "Current connected account status"
+          },
+          "token_expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the access token expires, if known"
+          },
+          "last_used_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the connected account was last used"
+          }
+        }
+      },
+      "ConnectedAccountCreatedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the connected_account.created webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["connected_account.created"],
+            "example": "connected_account.created"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["ConnectedAccount"],
+            "example": "ConnectedAccount"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ConnectedAccountEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "ConnectedAccountUpdatedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the connected_account.updated webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["connected_account.updated"],
+            "example": "connected_account.updated"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["ConnectedAccount"],
+            "example": "ConnectedAccount"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ConnectedAccountEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "ConnectedAccountDeletedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the connected_account.deleted webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["connected_account.deleted"],
+            "example": "connected_account.deleted"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["ConnectedAccount"],
+            "example": "ConnectedAccount"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ConnectedAccountEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "ConnectedAccountMagicLinkGeneratedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the connected_account.magic_link_generated webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["connected_account.magic_link_generated"],
+            "example": "connected_account.magic_link_generated"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["ConnectedAccount"],
+            "example": "ConnectedAccount"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ConnectedAccountEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "ConnectedAccountOauthTokensFetchedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the connected_account.oauth_tokens_fetched webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["connected_account.oauth_tokens_fetched"],
+            "example": "connected_account.oauth_tokens_fetched"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["ConnectedAccount"],
+            "example": "ConnectedAccount"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ConnectedAccountEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "ConnectedAccountTokenRefreshSucceededEvent": {
+        "type": "object",
+        "description": "Payload delivered for the connected_account.token_refresh_succeeded webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["connected_account.token_refresh_succeeded"],
+            "example": "connected_account.token_refresh_succeeded"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["ConnectedAccount"],
+            "example": "ConnectedAccount"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ConnectedAccountEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "ConnectedAccountTokenRefreshFailedEvent": {
+        "type": "object",
+        "description": "Payload delivered for the connected_account.token_refresh_failed webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["connected_account.token_refresh_failed"],
+            "example": "connected_account.token_refresh_failed"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["ConnectedAccount"],
+            "example": "ConnectedAccount"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ConnectedAccountEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
+          }
+        }
+      },
+      "ConnectedAccountOauthSucceededEvent": {
+        "type": "object",
+        "description": "Payload delivered for the connected_account.oauth_succeeded webhook event.",
+        "required": [
+          "spec_version",
+          "id",
+          "type",
+          "occurred_at",
+          "environment_id",
+          "object",
+          "data"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "example": "1",
+            "description": "The webhook specification version",
+            "pattern": "^[0-9]+$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^evt_",
+            "description": "Unique identifier for the webhook event (must be prefixed with \"evt_\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "The event type",
+            "enum": ["connected_account.oauth_succeeded"],
+            "example": "connected_account.oauth_succeeded"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred (ISO 8601 format)"
+          },
+          "environment_id": {
+            "type": "string",
+            "pattern": "^env_",
+            "description": "The environment ID where the event occurred"
+          },
+          "organization_id": {
+            "type": "string",
+            "pattern": "^org_",
+            "description": "The organization ID (if applicable)"
+          },
+          "object": {
+            "type": "string",
+            "description": "The type of object that triggered the webhook",
+            "enum": ["ConnectedAccount"],
+            "example": "ConnectedAccount"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ConnectedAccountEventData"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name for the event"
           }
         }
       }
