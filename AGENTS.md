@@ -533,7 +533,7 @@ SDK client pages (topic `saaskit-sdks` / `agentkit-sdks`) use `@gesslar/starligh
 
 - Method headings: `### methodName` **without** backticks (no Starlight code pills)
 - Method H3s stay plain mono — no left rails, filled title boxes, or solid “AI slop” badge chrome
-- Left nav labels: `src/components/sdk-reference/**/_nav.json` + matching `sidebar.label` — outcome/object-focused, self-explanatory; never class names like `ScalekitClient` (use **Create client**, **Accounts & tools**, **Tool schemas**, **Error handling**)
+- Left nav labels: `src/components/sdk-reference/**/_nav.json` + matching `sidebar.label` — outcome/object-focused, self-explanatory, and aligned with the matching API reference section names; never class names like `ScalekitClient` (use **Create client**, **Connected accounts**, **Tool calling**, **Error handling**)
 - Language install pages: shared `SDKInstallPanel` + `GitHubSourceLink` — do not reintroduce FoldCard install heroes or fat Nova “View on GitHub” `LinkButton`s
 
 ---
@@ -643,7 +643,7 @@ Durable rules recorded via `dora memory`. Agents should treat weight ≥ 7 as ha
   Prefer plugin --cb-\* CSS variables before structural selectors. Keep ClassBrowser theme rules in src/styles/sdk-reference.css. Do not scatter ClassBrowser overrides across custom.css layers or page-local style blocks.
 
 - **SDK nav labels must be self-explanatory outcomes** (w8)
-  Labels come from src/components/sdk-reference/\*\*/\_nav.json and matching page sidebar.label. Prefer 1-3 word outcome- or object-focused labels. Never use class names like ScalekitClient as nav items — use Create client, Accounts & tools, Tool schemas, Error handling.
+  Labels come from src/components/sdk-reference/\*\*/\_nav.json and matching page sidebar.label. Prefer 1-3 word outcome- or object-focused labels that align with the corresponding API reference section names. Never use class names like ScalekitClient as nav items — use Create client, Connected accounts, Tool calling, Error handling.
 
 - **SDK install pages use SDKInstallPanel shared chrome** (w7)
   Use shared SDKInstallPanel + GitHubSourceLink on language install pages. Do not reintroduce FoldCard install heroes or fat Nova LinkButton View on GitHub CTAs.
