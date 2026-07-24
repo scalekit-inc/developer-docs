@@ -3540,6 +3540,381 @@
     "description": "Update the details of an existing task belonging to your team's Apollo account by task ID. Which fields you can update depends on the task's current status: tasks with a scheduled status accept any of the fields below, while completed or skipped tasks only accept note, priority,…"
   },
   {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_activate_sequence",
+    "description": "Activate (start) an inactive Sequence in your team's Apollo account by ID. Once activated, the sequence begins sending emails to its contacts on the configured schedule. The sequence must have at least one step configured before it can be activated. Requires a master API key. Re…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_add_contacts_to_sequence",
+    "description": "Add contacts to an existing Sequence in your team's Apollo account, identified either by contact_ids or by label_names (at least one is required). Requires a sending email account (send_email_from_email_account_id). Supports overrides to allow adding contacts despite missing/unv…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_add_records_to_list",
+    "description": "Add existing contacts or accounts to one or more Apollo lists, referencing the lists by name. If a list name doesn't already exist for the given modality, Apollo creates it automatically. If no valid entity_ids or label_names are provided, no changes are made and a 200 confirmat…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_archive_sequence",
+    "description": "Archive a Sequence in your team's Apollo account by ID. Archiving marks the sequence as inactive and finishes all contacts currently in it; this cannot be trivially undone through normal sequence controls. You must be the owner of the sequence or have full access sharing permiss…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_bulk_create_accounts",
+    "description": "Create up to 100 accounts (companies) in your Apollo CRM in a single request. Supports intelligent deduplication by CRM ID (and optionally by domain, organization ID, and name) — accounts that already exist are returned unmodified in a separate existing_accounts array rather tha…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_bulk_create_contacts",
+    "description": "Create up to 100 contacts in your Apollo CRM in a single request. Supports intelligent deduplication and returns separate arrays for newly created and existing contacts. This endpoint only creates new contacts (except for placeholder contacts from email imports) — existing conta…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_bulk_create_tasks",
+    "description": "Create multiple tasks in a single request by supplying a list of contact IDs; a separate task is created for each contact using the same owner, type, due date, and other details. Returns a success boolean and the tasks array of created task objects. Apollo does not deduplicate t…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_bulk_enrich_organizations",
+    "description": "Enrich data for up to 10 companies in a single API call, matching each by domain, LinkedIn URL, name, and/or website. Returns industry, revenue, employee counts, funding, and corporate contact details. Consumes 1 Apollo credit per organization matched; 0 credits if no match is f…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_bulk_enrich_people",
+    "description": "Enrich data for up to 10 people in a single API call by matching on name, email, employer, LinkedIn URL, or Apollo person ID. Optionally reveal personal emails and phone numbers (phone reveal requires a webhook_url; results are delivered asynchronously). Consumes 1-9 Apollo cred…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_bulk_update_accounts",
+    "description": "Update up to 1,000 accounts in your Apollo CRM in a single request. Provide either account_ids with shared field values (name, owner_id, account_stage_id) to apply identical updates to every account, or account_attributes with per-account objects to apply different updates to ea…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_bulk_update_contacts",
+    "description": "Update multiple Apollo contacts in a single request. Provide either contact_ids (to apply the same field values to every listed contact) or contact_attributes (to apply different values per contact) — at least one is required. Up to 100 contacts are processed synchronously; 101-…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_check_email_send_status",
+    "description": "Check the current delivery status of an Apollo email message, typically after calling Send Email Now since emails are sent asynchronously. Returns the message id, current status, and a human-readable message; for completed sends this includes a completed_at timestamp, for failed…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_complete_task",
+    "description": "Mark an existing task in your team's Apollo account as completed by task ID. If the task no longer exists (for example, its sequence was paused and the task was removed), Apollo returns a 200 response with deleted: true on the task instead of an error. Use Skip Task instead if y…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_create_account",
+    "description": "Create a new account (company) record in your Apollo CRM. Accounts represent organizations and can be linked to contacts. Check for duplicates before creating to avoid double entries."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_create_call",
+    "description": "Log a call record in Apollo for a call that was made using an outside system (e.g. Orum, Nooks). Creates a call record only — it does not dial a prospect. Supports linking the call to a contact, an account, callers, timing, purpose/outcome, and a note. Requires a master API key.…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_create_contact",
+    "description": "Create a new contact record in your Apollo CRM. The contact will appear in your Apollo contacts list and can be enrolled in sequences. Check for duplicates before creating to avoid double entries."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_create_custom_field",
+    "description": "Create a new custom field on contacts, accounts, or deals (opportunities) in your Apollo account. Custom fields let your team capture unique details and can be used to personalize sequences. Returns the created field's ID and configuration."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_create_deal",
+    "description": "Create a new deal (sales opportunity) in your team's Apollo account. A deal can be linked to an existing Apollo account, assigned an owner, a monetary amount, and a deal stage. Returns the created deal object including its Apollo-assigned ID."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_create_email_draft",
+    "description": "Create a single, unsent email draft for an Apollo contact, or draft a reply within an existing email thread. The draft is created with a \\`drafted\\` status and is not sent — use Send Email Now with the returned \\`id\\` to send it. Returns the created emailer_message object (and a…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_create_list",
+    "description": "Create a new, empty contact or account list in your team's Apollo account. List names must be unique per modality within your team — creating a duplicate name for the same modality returns a 422 response. After creating a list, add records to it with Add Records to a List."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_create_sequence",
+    "description": "Create a new Sequence (emailer campaign) in your team's Apollo account, including its steps and email templates. Steps are provided via the emailer_steps array; each auto_email/manual_email step can include one or more emailer_touches. Set active to true to start sending immedia…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_create_task",
+    "description": "Create a single task in Apollo for a task owner to follow up on a contact, such as a call, email, or LinkedIn action. Returns the created task object. Apollo does not deduplicate tasks, so creating a task with the same owner/contact/details as an existing one creates a new task …"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_deactivate_sequence",
+    "description": "Deactivate (stop) an active Sequence in your team's Apollo account by ID. Once deactivated, the sequence pauses all contacts and stops sending emails, but the sequence and its contacts are preserved for later reactivation. Requires a master API key. Returns the updated sequence …"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_enrich_account",
+    "description": "Enrich a company/account record with Apollo firmographic data using the company's website domain or name. Returns verified employee count, revenue estimates, industry, tech stack, funding rounds, and social profiles. Consumes Apollo credits per match."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_enrich_contact",
+    "description": "Enrich a contact using Apollo's people matching engine. Provide an email address or name + company to retrieve a verified contact profile. Revealing personal emails or phone numbers consumes additional Apollo credits per successful match."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_export_conversations",
+    "description": "Kick off an asynchronous export of Apollo Conversations within a given time range. The export is processed in the background and delivered as a gzipped JSON file; a notification email is sent to the specified team member when it is ready. Use Get Conversation Export with the ret…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_get_account",
+    "description": "Retrieve the full profile of a company account from Apollo by its ID. Returns detailed firmographic data including employee count, revenue estimates, industry, tech stack, funding information, and social profiles."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_get_api_usage",
+    "description": "Retrieve your team's Apollo API usage and rate limits. Returns, per endpoint, the requests consumed and the per-minute, per-hour, and per-day rate limits allowed under your Apollo plan. Takes no parameters."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_get_contact",
+    "description": "Retrieve the full profile of a contact from Apollo by their ID. Returns detailed professional information including email, phone, LinkedIn URL, employment history, education, and social profiles."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_get_conversation",
+    "description": "Retrieve the full details of a single Apollo Conversation (a recorded prospect video meeting or dialer call) by its ID, including transcript and AI insights when available. Use Search Conversations to find the conversation_id first. Consumes 1 Apollo credit per conversation only…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_get_conversation_export",
+    "description": "Retrieve the status and download URL for a previously requested Conversations export, using the export ID returned by Export Conversations. Once the export finishes processing, the response includes a URL to download the gzipped JSON file. Does not consume Apollo credits."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_get_current_user",
+    "description": "Retrieve the authenticated user's profile — the person who owns the API key being used. Optionally include the user's and team's Apollo credit usage and remaining balances."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_get_deal",
+    "description": "Retrieve complete details about a single deal within your team's Apollo account, including deal owner, monetary value, deal stage, and associated account information."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_get_email_stats",
+    "description": "Retrieve the complete details for an email sent as part of an Apollo sequence, including the email contents, engagement stats (opens, clicks), and details about the recipient contact. Does not consume Apollo credits. Requires a master API key; without one this returns a 403 resp…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_get_organization",
+    "description": "Retrieve complete details about a company (organization) in the Apollo database by its ID, including industry, revenue, headcount, funding, and locations. Consumes 1 Apollo credit per company when a matching record is found; 0 credits if no match."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_get_person",
+    "description": "Retrieve complete details about a person in the Apollo database by their ID, including employment history, personal location, and full details of their current employer. Consumes Apollo credits per record when data is returned."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_get_task",
+    "description": "Retrieve the full details of a single task belonging to your team's Apollo account by task ID. Returns the task's associated account and contact (when attached), plus type-specific fields such as phone_call for call tasks, emailer_message for email tasks, or a LinkedIn message t…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_list_account_stages",
+    "description": "Retrieve every account stage configured in your team's Apollo account, used to track sales/marketing pipeline progress. Returns each stage's ID and name; stage IDs are used to update individual or bulk accounts. Requires a master API key and takes no parameters."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_list_contact_deals",
+    "description": "Retrieve the deals (sales opportunities) associated with a specific Apollo contact by contact ID. Returns the same deal details as the View Deal endpoint. If the contact has no associated deals or the ID isn't recognized, returns an empty array rather than an error."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_list_contact_stages",
+    "description": "Retrieve the IDs and names of all contact stages configured in your team's Apollo account. Contact stage IDs are used to update individual contacts or to bulk-update the stage for multiple contacts."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_list_custom_fields",
+    "description": "Retrieve all custom fields (typed custom fields) that have been created in your Apollo account. Takes no parameters. Note: Apollo has deprecated this endpoint in favor of List Fields with source set to custom; prefer that tool for new integrations."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_list_deal_stages",
+    "description": "Retrieve every deal stage available in your team's Apollo account. The returned stage IDs can be used to set or update a deal's stage when creating or updating a deal."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_list_deals",
+    "description": "Retrieve every deal (sales opportunity) that has been created for your team's Apollo account, with pagination and sort options. Returns deal records including name, amount, stage, owner, and account."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_list_email_accounts",
+    "description": "Retrieve the mailboxes your team has linked to Apollo for prospect outreach. Returns each linked email account's ID and details, which can be used as the sender for the Add Contacts to a Sequence endpoint. Takes no parameters."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_list_email_schedules",
+    "description": "Retrieve every sending schedule configured for your team's Apollo account, including each schedule's ID, time zone, and weekly sending windows. Use a schedule's id as the emailer_schedule_id when creating or updating a sequence to control when that sequence's emails are sent. Ta…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_list_fields",
+    "description": "Retrieve all fields configured in your Apollo account, including system fields, custom fields, and CRM-synced fields. Optionally filter by field source. Returns each field's ID, label, type, and modality."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_list_job_postings",
+    "description": "Retrieve the current job postings for a company in the Apollo database. Useful for identifying companies growing headcount in strategically important areas. Display limit of 10,000 records; consumes 1 Apollo credit per page returned."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_list_lists",
+    "description": "Retrieve every list (of contacts or accounts) that has been created in your Apollo account. Useful for checking available lists before adding records to one, or before creating a contact. Requires a master API key; without one this returns a 403 response."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_list_notes",
+    "description": "Retrieve notes attached to a contact, account, opportunity, calendar event, or conversation in Apollo. You must provide at least one relation filter (contact_id, account_id, contact_ids, opportunity_id, calendar_event_id, conversation_id, or conversation_ids). Supports date filt…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_list_sequences",
+    "description": "List available email sequences (Apollo Sequences / Emailer Campaigns) in your Apollo account. Supports filtering by name and pagination. Returns sequence ID, name, status, and step count."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_list_users",
+    "description": "Retrieve the IDs and details of all users (teammates) in your Apollo account. These IDs are used as owner/assignee references in other endpoints such as Create Deal, Create Account, and Create Task. Results are paginated."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_query_report",
+    "description": "Query Apollo's sales analytics engine to retrieve aggregated activity data for your team — the same data that powers Apollo's built-in Analytics dashboards. Supports flat totals, single-dimension grouping, or pivot cross-tab queries. Requires an API key with access to the report…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_remove_records_from_list",
+    "description": "Remove contacts or accounts from one or more Apollo lists, referencing the lists by name. This only removes the records from the specified lists — it does not delete the underlying contact/account records. If no valid entity_ids or label_names are provided, no changes are made a…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_search_accounts",
+    "description": "Search Apollo's company database using firmographic filters such as company name, industry, employee count range, revenue range, and location. Returns matching account records with company details."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_search_calls",
+    "description": "Search dialer call records that your team has made or received in Apollo. Filter by date range, call duration, inbound/outbound direction, users, contacts, call purpose, call outcome, and free-text keywords. Returns paginated call records. Requires a master API key."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_search_contacts",
+    "description": "Search contacts in your Apollo CRM using filters such as job title, company, and sort order. Returns matching contact records with professional details. Results are paginated."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_search_conversations",
+    "description": "Search Apollo Conversations (recorded prospect video meetings and dialer calls) with filters for conversation type, account, contacts, tags/labels, trackers, organizations, a date range, and scorecard rating. Each result includes a summary but not the full transcript or recordin…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_search_crm_accounts",
+    "description": "Search for accounts that have already been saved to your Apollo CRM, filtered by account name, account stage, or label, with sorting and pagination. This searches your Apollo CRM accounts only (up to 50,000 records across 500 pages) — to discover new companies from Apollo's glob…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_search_emails",
+    "description": "Search for emails your team has created and sent as part of Apollo sequences, filtering by status, reply sentiment, sender, sequence, date range, and keywords. Does not consume Apollo credits. Display is limited to 50,000 records (100 per page, up to 500 pages) — narrow the sear…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_search_news_articles",
+    "description": "Search for news articles related to specific companies in Apollo, such as funding, hires, or contract announcements. Requires at least one organization ID and supports filtering by category and publish date range. Results are paginated."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_search_people",
+    "description": "Search Apollo's full people database to find net-new prospects (not yet saved as contacts) using filters like job title, seniority, location, employer, employee headcount, revenue, technologies used, and active job postings. Does not return email addresses or phone numbers -- us…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_search_tasks",
+    "description": "Find tasks that your team has created in Apollo, with sorting and pagination. To protect performance, results are capped at 50,000 records (100 per page, up to 500 pages) — narrow the search with filters where possible. Returns matching task objects. Requires a master API key."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_send_email",
+    "description": "Immediately send an existing Apollo email message that is in a drafted, scheduled, or failed state. Apollo queues the send and processes it asynchronously, so a successful response means the email was queued, not necessarily delivered — poll Check Email Send Status to confirm de…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_skip_task",
+    "description": "Mark an existing task in your team's Apollo account as skipped, without completing it, by task ID. If the task no longer exists (for example, its sequence was paused and the task was removed), Apollo returns a 200 response with deleted: true on the task instead of an error. Use …"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_update_account",
+    "description": "Update fields on an existing account (company) in your team's Apollo CRM by account ID. Only the fields you provide are changed; omitted fields remain unchanged. Requires a master API key."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_update_account_owners",
+    "description": "Reassign multiple accounts to a different owner in a single request. Requires a master API key. To update other account fields such as domain or phone number, use Update Account instead."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_update_call",
+    "description": "Update an existing call record in Apollo by its call ID. Only the provided fields are changed; omitted fields remain unchanged. Use Search Calls to find the call_id. Requires a master API key."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_update_contact",
+    "description": "Update properties or CRM stage of an existing Apollo contact record by contact ID. Only the provided fields will be updated; omitted fields remain unchanged."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_update_contact_owners",
+    "description": "Assign multiple contacts to a different owner (user) in your team's Apollo account in a single request. Use this for bulk reassignment of contact ownership. To find user IDs, call the Get a List of Users endpoint. To update other fields on a contact, use Update Contact instead."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_update_contact_stages",
+    "description": "Update the CRM contact stage for multiple contacts in a single request. Use this to move a batch of contacts to a new pipeline stage (e.g. from 'Cold Outreach' to 'Engaged'). To find stage IDs, call List Contact Stages. To update other fields on a contact, use Update Contact ins…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_update_deal",
+    "description": "Update the details of an existing deal within your team's Apollo account, such as its owner, amount, stage, close date, or custom fields. Only the provided fields are changed; omitted fields remain unchanged."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_update_list",
+    "description": "Rename an existing Apollo list or toggle its Book of Business status. A list's modality (contacts vs accounts) cannot be changed after creation. Find list IDs via Get a List of All Lists."
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_update_sequence",
+    "description": "Update an existing Sequence (emailer campaign) in your team's Apollo account by ID. Update sequence-level settings such as name, active state, schedule, and sending limits, as well as the sequence's steps and email touches. Passing emailer_steps will create, update, reorder, or …"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_update_sequence_contact_status",
+    "description": "Update the sequence status of one or more contacts across one or more sequences (emailer campaigns) in your team's Apollo account. Use mode=mark_as_finished to mark contacts as having finished, mode=stop to halt their progress without removing them, or mode=remove to remove them…"
+  },
+  {
+    "slug": "apolloapikey",
+    "name": "apolloapikey_update_task",
+    "description": "Update the details of an existing task belonging to your team's Apollo account by task ID. Which fields you can update depends on the task's current status: tasks with a scheduled status accept any of the fields below, while completed or skipped tasks only accept note, priority,…"
+  },
+  {
     "slug": "apollomcp",
     "name": "apollomcp_apollo_accounts_bulk_create",
     "description": "Create multiple accounts (companies) in a single call by passing an array of account objects. No deduplication is applied — each object becomes a new record even if it matches an existing account by name or domain; review the array carefully before submitting."
@@ -18210,13 +18585,63 @@
   },
   {
     "slug": "discord",
+    "name": "discord_consume_entitlement",
+    "description": "For one-time purchase consumable SKUs, mark a given entitlement for the user as consumed. The entitlement will have consumed: true when listed afterward. This action cannot be undone. Returns 204 No Content on success. Per Discord's official OpenAPI spec, this endpoint also acce…"
+  },
+  {
+    "slug": "discord",
+    "name": "discord_create_lobby_channel_invite_for_self",
+    "description": "Create a single-use guild invite to a lobby's linked channel, targeted at the calling user. The lobby must have a linked channel and the caller must be a member of the lobby. The invite expires after one hour. Uses a Bearer token with the sdk.social_layer scope. Per Discord's of…"
+  },
+  {
+    "slug": "discord",
+    "name": "discord_create_or_join_lobby",
+    "description": "Create a new lobby identified by a secret, or join the calling user to the existing lobby with that secret if one already exists. Updates lobby metadata and the calling member's metadata on join. Uses a Bearer token with the sdk.social_layer scope. Per Discord's official OpenAPI…"
+  },
+  {
+    "slug": "discord",
+    "name": "discord_delete_current_user_application_role_connection",
+    "description": "Deletes the application role connection for the current user and the given application. Requires an OAuth2 access token with the role_connections.write scope for the application specified in the path."
+  },
+  {
+    "slug": "discord",
+    "name": "discord_delete_test_entitlement",
+    "description": "Delete a currently-active test entitlement. Discord will act as though that user or guild no longer has entitlement to your premium offering. Returns 204 No Content on success. Per Discord's official OpenAPI spec, this endpoint also accepts an OAuth2 Bearer token with the \\`appl…"
+  },
+  {
+    "slug": "discord",
+    "name": "discord_edit_application_command_permissions",
+    "description": "Edit the permissions for a specific application command in a guild. Requires OAuth2 bearer token with applications.commands.permissions.update scope. Returns a guild application command permissions object."
+  },
+  {
+    "slug": "discord",
+    "name": "discord_get_application_command_permissions",
+    "description": "Fetch permissions for a specific application command in a guild. Returns a guild application command permissions object."
+  },
+  {
+    "slug": "discord",
     "name": "discord_get_current_user_application_entitlements",
     "description": "Retrieves entitlements for the current user for a given application. Use when you need to check what premium offerings or subscriptions the authenticated user has access to. Requires the applications.entitlements OAuth2 scope."
   },
   {
     "slug": "discord",
+    "name": "discord_get_current_user_application_role_connection",
+    "description": "Returns the application role connection for the current user and the given application. Requires an OAuth2 access token with the role_connections.write scope for the application specified in the path."
+  },
+  {
+    "slug": "discord",
+    "name": "discord_get_entitlement",
+    "description": "Retrieve a single entitlement for an application by ID. Use to check whether a specific entitlement is active, its type, and its expiration window. Per Discord's official OpenAPI spec, this endpoint also accepts an OAuth2 Bearer token with the \\`applications.entitlements\\` scope…"
+  },
+  {
+    "slug": "discord",
     "name": "discord_get_gateway",
     "description": "Retrieves a valid WebSocket (wss) URL for establishing a Gateway connection to Discord. Use when you need to connect to the Discord Gateway for real-time events. No authentication required."
+  },
+  {
+    "slug": "discord",
+    "name": "discord_get_guild_application_command_permissions",
+    "description": "Fetch permissions for all commands in a guild. Returns an array of guild application command permissions objects. Per Discord's official OpenAPI spec, this endpoint also accepts an OAuth2 Bearer token with the \\`applications.commands.permissions.update\\` scope (in addition to Bo…"
   },
   {
     "slug": "discord",
@@ -18236,7 +18661,12 @@
   {
     "slug": "discord",
     "name": "discord_get_invite_deprecated",
-    "description": "DEPRECATED: Use discord_resolve_invite instead. Retrieves information about a specific invite code including guild and channel details. This endpoint is deprecated — prefer the Resolve Invite tool for new integrations."
+    "description": "Retrieves information about a specific invite code, including guild and channel details. Use discord_resolve_invite instead, which supports additional query parameters such as guild_scheduled_event_id."
+  },
+  {
+    "slug": "discord",
+    "name": "discord_get_lobby_messages",
+    "description": "Retrieve the most recent messages in a Discord lobby. The calling user must be a member of the lobby. Uses a Bearer token with the sdk.social_layer scope. Per Discord's official OpenAPI spec, this endpoint also accepts a Bot Token (in addition to OAuth2) — use this tool for user…"
   },
   {
     "slug": "discord",
@@ -18265,13 +18695,38 @@
   },
   {
     "slug": "discord",
+    "name": "discord_get_sku_subscription",
+    "description": "Retrieve a single subscription for a SKU by its ID. Returns a subscription object with its status, current billing period, and the entitlements it grants. Per Discord's official OpenAPI spec, this endpoint also accepts an OAuth2 Bearer token (in addition to Bot Token) — use this…"
+  },
+  {
+    "slug": "discord",
     "name": "discord_get_user",
     "description": "Retrieve information about a Discord user. With OAuth Bearer token, use '@me' as user_id to return the authenticated user's information. With a Bot token, you can query any user by their ID. Returns username, avatar, discriminator, locale, premium status, and email (if email sco…"
   },
   {
     "slug": "discord",
+    "name": "discord_leave_lobby",
+    "description": "Remove the calling user from the specified Discord lobby. Safe to call even if the user is no longer a member, but fails if the lobby does not exist. Uses a Bearer token for authorization. Per Discord's official OpenAPI spec, this endpoint also accepts a Bot Token (in addition t…"
+  },
+  {
+    "slug": "discord",
+    "name": "discord_link_channel_to_lobby",
+    "description": "Link an existing guild text channel to a Discord lobby, or unlink any currently linked channel by omitting channel_id. Uses a Bearer token for authorization; the caller must be a lobby member with the CanLinkLobby lobby member flag. Per Discord's official OpenAPI spec, this endp…"
+  },
+  {
+    "slug": "discord",
+    "name": "discord_list_guild_channels",
+    "description": "Retrieve all channels in a Discord guild (server). Returns a list of channel objects including text channels, voice channels, categories, and threads. Per Discord's official OpenAPI spec, this endpoint also accepts a plain OAuth2 Bearer token (no specific scope required beyond a…"
+  },
+  {
+    "slug": "discord",
     "name": "discord_list_my_guilds",
     "description": "Lists the current user's guilds, returning partial data (id, name, icon, owner, permissions, features) for each. Primarily used for displaying server lists or verifying guild memberships. Requires the 'guilds' OAuth2 scope."
+  },
+  {
+    "slug": "discord",
+    "name": "discord_list_sku_subscriptions",
+    "description": "Retrieve all subscriptions containing a given SKU, filtered by user. Returns a list of subscription objects representing recurring payments for that SKU. Per Discord's official OpenAPI spec, this endpoint also accepts an OAuth2 Bearer token (in addition to Bot Token) — use this …"
   },
   {
     "slug": "discord",
@@ -18287,6 +18742,1041 @@
     "slug": "discord",
     "name": "discord_retrieve_user_connections",
     "description": "Retrieves a list of the authenticated user's connected third-party accounts on Discord, such as Twitch, YouTube, GitHub, Steam, and others. Requires the 'connections' OAuth2 scope."
+  },
+  {
+    "slug": "discord",
+    "name": "discord_send_lobby_message",
+    "description": "Send a message to a Discord lobby. The calling user must be a member of the lobby. Uses a Bearer token with the sdk.social_layer scope. Per Discord's official OpenAPI spec, this endpoint also accepts a Bot Token (in addition to OAuth2) — use this tool for user-authorized OAuth c…"
+  },
+  {
+    "slug": "discord",
+    "name": "discord_update_current_user_application_role_connection",
+    "description": "Updates and returns the application role connection for the current user and the given application. Requires an OAuth2 access token with the role_connections.write scope for the application specified in the path."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_add_guild_member",
+    "description": "Add a user to a guild using their OAuth2 access token with the guilds.join scope. Returns 201 if the user was added, or 204 if already a member."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_add_guild_member_role",
+    "description": "Add a role to a guild member. Requires MANAGE_ROLES permission. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_add_lobby_member",
+    "description": "Add the specified user to a Discord lobby. If the user is already a member, updates their metadata and flags instead. Returns the lobby member object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_add_thread_member",
+    "description": "Add another user to a thread. Requires the thread to not be archived. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_begin_guild_prune",
+    "description": "Begin a prune operation to kick inactive members. Requires KICK_MEMBERS permission. Returns a pruned object with the count of kicked members (or null if compute_prune_count is false)."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_bulk_delete_messages",
+    "description": "Delete multiple messages in a Discord channel in a single request (2-100 messages). Messages older than 2 weeks cannot be deleted this way. Requires MANAGE_MESSAGES permission."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_bulk_guild_ban",
+    "description": "Ban up to 200 users from a guild and optionally delete their recent messages. Requires both BAN_MEMBERS and MANAGE_GUILD permissions. Returns object with banned_users and failed_users arrays."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_bulk_overwrite_global_application_commands",
+    "description": "Bulk overwrite all global application commands. Takes a full list of commands to replace existing ones. Any commands not included will be deleted. Returns an array of application command objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_bulk_overwrite_guild_application_commands",
+    "description": "Bulk overwrite all application commands registered in a guild. Commands not included will be deleted. Returns an array of application command objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_bulk_update_lobby_members",
+    "description": "Add, update, or remove up to 25 members from a Discord lobby in a single request. Members with remove_member false (the default) are upserted; members with remove_member true are removed. Users unknown to Discord return a 404 error. Users that fail permission checks, or that alr…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_consume_entitlement",
+    "description": "For one-time purchase consumable SKUs, mark a given entitlement for the user as consumed. The entitlement will have consumed: true when listed afterward. This action cannot be undone. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_application_emoji",
+    "description": "Create a new emoji owned by a Discord application (app emoji). Returns the new emoji object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_auto_moderation_rule",
+    "description": "Create a new Auto Moderation rule for a guild. Requires the MANAGE_GUILD permission. Fires an Auto Moderation Rule Create Gateway event. Returns the new auto moderation rule object on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_channel_invite",
+    "description": "Create a new invite for a Discord channel. Requires CREATE_INSTANT_INVITE permission. Returns an invite object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_dm",
+    "description": "Create a new DM channel with a user. Returns a DM channel object. If a DM channel already exists with the user, it is returned."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_global_application_command",
+    "description": "Create a new global application command. If a command with the same name already exists, it will be overwritten. Returns the created command object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_group_dm",
+    "description": "Create a new group DM channel with multiple users using their OAuth2 access tokens (granted the gdm.join scope). Returns a DM channel object. This endpoint was intended to be used with the now-deprecated GameBridge SDK and is limited to 10 active group DMs. Fires a Channel Creat…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_guild_application_command",
+    "description": "Create a new application command for a specific guild. Guild commands are only available in the guild they are created in. Returns the created command object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_guild_ban",
+    "description": "Ban a user from a Discord guild. Requires BAN_MEMBERS permission. Optionally delete recent messages from the banned user."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_guild_channel",
+    "description": "Create a new channel in a guild. Requires MANAGE_CHANNELS permission. Returns the new channel object. Each permission_overwrites entry may specify 'allow_names'/'deny_names' (arrays of named permission flags) instead of raw 'allow'/'deny' integers — the correct bitfield is compu…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_guild_emoji",
+    "description": "Create a new emoji for a guild. Requires CREATE_GUILD_EXPRESSIONS permission. Returns the new emoji object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_guild_role",
+    "description": "Create a new role for a guild. Requires MANAGE_ROLES permission. Returns the new role object. Full permission flag reference (name=decimal value, OR multiple together): CREATE_INSTANT_INVITE=1, KICK_MEMBERS=2, BAN_MEMBERS=4, ADMINISTRATOR=8, MANAGE_CHANNELS=16, MANAGE_GUILD=32, …"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_guild_scheduled_event",
+    "description": "Create a new scheduled event in a Discord guild. Entity type determines the event location: 1=STAGE_INSTANCE, 2=VOICE (requires channel_id), 3=EXTERNAL (requires entity_metadata with location and scheduled_end_time)."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_guild_soundboard_sound",
+    "description": "Create a new soundboard sound for the guild. Requires the CREATE_GUILD_EXPRESSIONS permission. Sounds have a max file size of 512kb and a max duration of 5.2 seconds. Fires a Guild Soundboard Sound Create Gateway event. Returns the new soundboard sound object on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_guild_template",
+    "description": "Create a template from a guild's current state. Requires the MANAGE_GUILD permission. Returns the created guild template object on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_interaction_response",
+    "description": "Respond to an interaction from Discord. Must be called within 3 seconds of receiving the interaction. Type determines the response kind: 1=PONG, 4=CHANNEL_MESSAGE_WITH_SOURCE, 5=DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE, 6=DEFERRED_UPDATE_MESSAGE, 7=UPDATE_MESSAGE, 8=APPLICATION_COMM…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_lobby",
+    "description": "Create a new Discord lobby for matchmaking, optionally adding members to it. Discord Social SDK clients cannot join or leave a lobby created via this API. Returns a lobby object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_lobby_channel_invite_for_self",
+    "description": "Create a single-use guild invite to a lobby's linked channel, targeted at the calling user. The lobby must have a linked channel and the caller must be a member of the lobby. The invite expires after one hour. Returns a lobby invite object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_lobby_channel_invite_for_user",
+    "description": "Create a single-use guild invite to a lobby's linked channel on behalf of an application, targeted at the specified user. The lobby must have a linked channel. The invite expires after one hour. Uses a Bot token for authorization. Returns a lobby invite object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_message",
+    "description": "Send a message to a Discord channel. At least one of content, embeds, sticker_ids, or components must be provided. Supports rich embeds, message references for replies, and components."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_or_join_lobby",
+    "description": "Create a new lobby identified by a secret, or join the calling user to the existing lobby with that secret if one already exists. Updates lobby metadata and the calling member's metadata on join. Returns a lobby object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_reaction",
+    "description": "Add a reaction to a message in a Discord channel. The emoji parameter should be URL-encoded (e.g., a Unicode emoji like %F0%9F%94%A5 for 🔥, or name:id for custom emojis)."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_stage_instance",
+    "description": "Create a new Stage instance associated with a Stage channel, making the channel go live. Requires the user to be a moderator of the Stage channel (MANAGE_CHANNELS, MUTE_MEMBERS, and MOVE_MEMBERS permissions). Fires a Stage Instance Create Gateway event. Returns the new Stage ins…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_test_entitlement",
+    "description": "Create a test entitlement to a given SKU for a given guild or user. Discord will act as though that user or guild has entitlement to your premium offering. After creating a test entitlement, reload your Discord client to see the server or user gain premium access. Returns a part…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_webhook",
+    "description": "Create a new webhook for a Discord channel. Requires MANAGE_WEBHOOKS permission. Returns the newly created webhook object with its token."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_crosspost_message",
+    "description": "Crosspost a message in an announcement channel to all following channels. Requires SEND_MESSAGES permission if the current user wrote the message, or MANAGE_MESSAGES if they did not."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_all_reactions",
+    "description": "Delete all reactions on a message. Requires MANAGE_MESSAGES permission. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_all_reactions_for_emoji",
+    "description": "Delete all reactions for a specific emoji on a message. Requires MANAGE_MESSAGES permission. Use URL-encoded emoji format. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_application_emoji",
+    "description": "Delete an emoji owned by a Discord application. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_auto_moderation_rule",
+    "description": "Delete an Auto Moderation rule for a guild. Requires the MANAGE_GUILD permission. Fires an Auto Moderation Rule Delete Gateway event. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_channel",
+    "description": "Delete a channel or close a private message. For guild channels, requires MANAGE_CHANNELS permission. Deleting a category does not delete its child channels. Returns the deleted channel object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_channel_invite",
+    "description": "Delete an invite by its code. Requires MANAGE_CHANNELS permission for guild channel invites or MANAGE_GUILD. Returns the deleted invite object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_channel_permission",
+    "description": "Delete a channel permission overwrite for a user or role in a channel. Requires MANAGE_ROLES permission. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_global_application_command",
+    "description": "Delete a global application command. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_guild_application_command",
+    "description": "Delete a guild application command. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_guild_emoji",
+    "description": "Delete a guild emoji. Requires MANAGE_GUILD_EXPRESSIONS permission. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_guild_integration",
+    "description": "Delete an attached integration for a guild. Deletes any associated webhooks and kicks the associated bot if there is one. Requires MANAGE_GUILD permission. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_guild_invite",
+    "description": "Delete an invite by its code. Requires the MANAGE_CHANNELS permission on the channel this invite belongs to, or MANAGE_GUILD to remove any invite across the guild. Discord's invite-deletion endpoint is not guild-scoped in the URL — the invite code alone identifies it. Returns th…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_guild_role",
+    "description": "Delete a guild role. Requires MANAGE_ROLES permission. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_guild_scheduled_event",
+    "description": "Delete a guild scheduled event. Requires MANAGE_EVENTS permission. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_guild_soundboard_sound",
+    "description": "Delete the given guild soundboard sound. For sounds created by the current user, requires either the CREATE_GUILD_EXPRESSIONS or MANAGE_GUILD_EXPRESSIONS permission. For other sounds, requires the MANAGE_GUILD_EXPRESSIONS permission. Fires a Guild Soundboard Sound Delete Gateway…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_guild_sticker",
+    "description": "Delete a guild sticker. Requires MANAGE_GUILD_EXPRESSIONS permission. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_guild_template",
+    "description": "Delete a guild template. Requires the MANAGE_GUILD permission. Returns the deleted guild template object on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_lobby",
+    "description": "Delete a Discord lobby if it exists. Safe to call even if the lobby is already deleted. Returns nothing."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_message",
+    "description": "Permanently delete a message from a Discord channel. This action is irreversible. Requires MANAGE_MESSAGES permission for messages sent by others."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_original_interaction_response",
+    "description": "Delete the initial response to an interaction. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_own_reaction",
+    "description": "Remove the current user's own reaction from a Discord message. The emoji parameter should be URL-encoded."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_stage_instance",
+    "description": "Delete the Stage instance for a Stage channel, ending the live Stage. Requires the user to be a moderator of the Stage channel (MANAGE_CHANNELS, MUTE_MEMBERS, and MOVE_MEMBERS permissions). Fires a Stage Instance Delete Gateway event. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_test_entitlement",
+    "description": "Delete a currently-active test entitlement. Discord will act as though that user or guild no longer has entitlement to your premium offering. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_user_reaction",
+    "description": "Delete a reaction made by a specific user on a message. Requires MANAGE_MESSAGES permission. Use URL-encoded emoji format (e.g., %F0%9F%94%A5 for fire emoji, or name:id for custom emoji)."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_webhook",
+    "description": "Permanently delete a Discord webhook. Requires MANAGE_WEBHOOKS permission. This action is irreversible."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_webhook_message",
+    "description": "Delete a previously sent webhook message. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_webhook_with_token",
+    "description": "Delete a webhook using its token instead of OAuth authentication. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_edit_channel_permissions",
+    "description": "Edit the channel permission overwrites for a user or role in a channel. Only usable for guild channels. Requires MANAGE_ROLES permission. Returns 204 No Content on success. Full permission flag reference (name=decimal value, OR multiple together): CREATE_INSTANT_INVITE=1, KICK_M…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_edit_current_application",
+    "description": "Edit properties of the app associated with the requesting bot user. Only properties that are passed are updated. Returns the updated application object on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_edit_global_application_command",
+    "description": "Edit a global application command. Returns the updated command object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_edit_guild_application_command",
+    "description": "Edit a guild application command. Returns the updated command object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_edit_message",
+    "description": "Edit a previously sent message in a Discord channel. Only the author of the message can edit it. Supports updating content, embeds, flags, allowed mentions, components, and attachments."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_edit_original_interaction_response",
+    "description": "Edit the initial response to an interaction. Returns the updated message object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_edit_webhook_message",
+    "description": "Edit a previously sent webhook message. Returns the updated message object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_end_poll",
+    "description": "Immediately end an active poll in a Discord message. You cannot end polls created by other users."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_execute_github_compatible_webhook",
+    "description": "Send a GitHub webhook event payload to a Discord webhook, for use as the Payload URL when configuring a GitHub repository webhook. Supports the commit_comment, create, delete, fork, issue_comment, issues, member, public, pull_request, pull_request_review, pull_request_review_com…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_execute_slack_compatible_webhook",
+    "description": "Send a message to a Discord webhook using a Slack-compatible payload format, so tools that only speak Slack's incoming webhook format can post into Discord. Discord does not support Slack's channel, icon_emoji, mrkdwn, or mrkdwn_in properties."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_execute_webhook",
+    "description": "Send a message via a Discord webhook. Supports custom username, avatar, embeds, and components. File attachments (multipart/form-data) are not supported by this tool. Use the wait query parameter to receive the created message object in the response."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_follow_announcement_channel",
+    "description": "Follow an announcement channel to send messages to a target channel. Requires MANAGE_WEBHOOKS permission in the target channel. Returns a followed channel object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_answer_voters",
+    "description": "Retrieve a list of users who voted for a specific answer in a Discord poll."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_application_activity_instance",
+    "description": "Retrieve a serialized activity instance for an application, if it exists. Useful for preventing unwanted activity sessions."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_application_emoji",
+    "description": "Retrieve a specific emoji owned by a Discord application by its emoji ID."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_application_role_connection_metadata",
+    "description": "Fetch the list of application role connection metadata records configured for an application. Returns an array of application role connection metadata objects, each describing a comparison type, dictionary key, name, and description used to verify a user's role connection."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_auto_moderation_rule",
+    "description": "Get a single Auto Moderation rule for a guild by its ID. Requires the MANAGE_GUILD permission. Returns an auto moderation rule object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_channel",
+    "description": "Retrieve a Discord channel by its ID. Returns channel information including type, name, topic, permissions, and other metadata."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_channel_invites",
+    "description": "Retrieve a list of invites for a Discord channel. Requires MANAGE_CHANNELS permission. Returns invite objects with metadata."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_channel_message",
+    "description": "Retrieve a specific message from a Discord channel by its message ID."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_channel_webhooks",
+    "description": "Retrieve all webhooks for a Discord channel. Requires MANAGE_WEBHOOKS permission."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_current_application",
+    "description": "Retrieve the full application object associated with the requesting bot user, including installation settings, integration type configuration, and webhook event configuration."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_current_bot_application",
+    "description": "Retrieve the bot's own application object, including its public Client ID, name, icon, and description. Per Discord's official OpenAPI spec, this endpoint is Bot Token only."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_current_user_voice_state",
+    "description": "Retrieve the current user's (the bot's) voice state in a guild, including the connected voice channel, mute and deafen status, and stage speaking request timestamp."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_entitlement",
+    "description": "Retrieve a single entitlement for an application by ID. Use to check whether a specific entitlement is active, its type, and its expiration window."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_global_application_command",
+    "description": "Fetch a specific global application command. Returns the application command object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_global_application_commands",
+    "description": "Fetch all global commands for an application. Returns an array of application command objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild",
+    "description": "Retrieve a Discord guild (server) by its ID. Optionally include approximate member and presence counts."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_application_command",
+    "description": "Fetch a specific application command registered in a guild. Returns the application command object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_application_command_permissions",
+    "description": "Fetch permissions for all commands in a guild. Returns an array of guild application command permissions objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_application_commands",
+    "description": "Fetch all application commands registered in a specific guild. Returns an array of application command objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_audit_log",
+    "description": "Retrieve the audit log for a Discord guild. Returns a list of audit log entries with details about administrative actions. Requires VIEW_AUDIT_LOG permission."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_ban",
+    "description": "Retrieve the ban record for a specific user in a Discord guild. Requires BAN_MEMBERS permission."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_bans",
+    "description": "Retrieve a list of ban objects for users banned from a Discord guild. Requires BAN_MEMBERS permission. Supports pagination via before and after."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_emoji",
+    "description": "Retrieve a specific custom emoji from a Discord guild by its emoji ID."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_integrations",
+    "description": "Retrieve a list of integration objects for a Discord guild. Requires MANAGE_GUILD permission. Returns a maximum of 50 integrations."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_invites",
+    "description": "Retrieve a list of all active invites for a Discord guild. Requires MANAGE_GUILD permission. Returns invite objects with metadata."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_member",
+    "description": "Retrieve a specific member of a Discord guild by their user ID. Returns the guild member object including roles, nickname, and join date."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_onboarding",
+    "description": "Get the onboarding configuration for a guild. Returns the guild onboarding object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_preview",
+    "description": "Retrieve a preview of a Discord guild. For public guilds this is accessible without being a member. Returns guild name, description, icon, emojis, stickers, and approximate counts."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_prune_count",
+    "description": "Get the number of members that would be removed by a prune operation. Requires KICK_MEMBERS permission."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_role",
+    "description": "Retrieve a specific role object from a Discord guild by its role ID."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_role_member_counts",
+    "description": "Retrieve a map of role IDs to the number of guild members with that role. Does not include the @everyone role."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_scheduled_event",
+    "description": "Retrieve a specific scheduled event in a Discord guild by its event ID."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_scheduled_event_users",
+    "description": "Get a list of users subscribed to a guild scheduled event. Returns a list of guild scheduled event user objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_soundboard_sound",
+    "description": "Retrieve a soundboard sound object for the given sound id in a guild. Includes the user field if the bot has the CREATE_GUILD_EXPRESSIONS or MANAGE_GUILD_EXPRESSIONS permission."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_sticker",
+    "description": "Retrieve a specific custom sticker from a Discord guild by its sticker ID."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_vanity_url",
+    "description": "Get the vanity URL for a guild. Requires MANAGE_GUILD permission. The guild must have the VANITY_URL feature enabled. Returns a partial invite object with code and uses."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_voice_regions",
+    "description": "Get a list of voice regions available for a guild. Returns optimal regions that can be used when updating a guild or voice channel's region."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_webhooks",
+    "description": "Retrieve all webhooks for a Discord guild. Requires MANAGE_WEBHOOKS permission."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_welcome_screen",
+    "description": "Retrieve the welcome screen for a Discord guild. The welcome screen is shown to new members when they join."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_widget_settings",
+    "description": "Get the widget settings for a guild. Requires MANAGE_GUILD permission. Returns the guild widget settings object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_invite_target_users",
+    "description": "Get the users allowed to see and accept an invite. Response is a CSV file with the header user_id and each user ID from the file originally passed to invite create, one per line. Requires the caller to be the inviter, or have MANAGE_GUILD permission, or have VIEW_AUDIT_LOG permi…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_invite_target_users_job_status",
+    "description": "Check the status of the asynchronous job that processes target users from a CSV when creating or updating an invite. Requires the caller to be the inviter, or have MANAGE_GUILD permission, or have VIEW_AUDIT_LOG permission. Status values: 0=UNSPECIFIED, 1=PROCESSING, 2=COMPLETED…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_lobby",
+    "description": "Retrieve a Discord lobby object for the specified lobby id, if it exists."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_lobby_messages",
+    "description": "Retrieve the most recent messages in a Discord lobby. The calling user must be a member of the lobby. Returns an array of lobby message objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_original_interaction_response",
+    "description": "Get the initial response to an interaction. Returns the message object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_pinned_messages",
+    "description": "Retrieve pinned messages in a Discord channel using Discord's current paginated pins endpoint (introduced June 2025, replacing the deprecated /channels/{channel.id}/pins). Returns pinned messages ordered most-recently-pinned first."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_reactions",
+    "description": "Retrieve a list of users who reacted to a Discord message with a specific emoji."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_sku_subscription",
+    "description": "Retrieve a single subscription for a SKU by its ID. Returns a subscription object with its status, current billing period, and the entitlements it grants."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_stage_instance",
+    "description": "Retrieve the Stage instance associated with a Stage channel, if one exists (the channel is currently live)."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_sticker",
+    "description": "Retrieve a Discord sticker by its ID. Returns sticker information including name, description, format type, and pack details."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_sticker_pack",
+    "description": "Retrieve a Discord standard sticker pack by its ID. Returns the sticker pack including its name, description, contained stickers, cover sticker, and banner asset."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_thread_member",
+    "description": "Get a member of a thread. Returns a thread member object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_user",
+    "description": "Retrieve information about any Discord user by ID. Pass '@me' as user_id to fetch the bot's own user profile. Returns username, avatar, discriminator, locale, and premium status."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_user_voice_state",
+    "description": "Retrieve the specified user's voice state in a guild, including the connected voice channel, mute and deafen status, and stage speaking request timestamp. If the user is connected to a voice channel, the bot must have permission to connect to that channel."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_webhook",
+    "description": "Retrieve a Discord webhook by its ID. Returns the webhook object including name, channel, guild, and token."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_webhook_message",
+    "description": "Get a previously sent webhook message. Returns the message object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_webhook_with_token",
+    "description": "Retrieve a Discord webhook using both its ID and token. Does not require bot authentication. Returns the webhook object without the user field."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_group_dm_add_recipient",
+    "description": "Add a recipient to a Group DM using their OAuth2 access token, which must have been granted the gdm.join scope. Returns 201 if the user was added, or 204 if already a recipient."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_group_dm_remove_recipient",
+    "description": "Remove a recipient from a Group DM. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_join_thread",
+    "description": "Add the current user to a thread. Requires the thread to not be archived. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_kick_guild_member",
+    "description": "Remove (kick) a member from a Discord guild. The user can rejoin via a new invite. Requires KICK_MEMBERS permission."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_leave_guild",
+    "description": "Remove the bot from a guild it belongs to. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_leave_lobby",
+    "description": "Remove the calling user from the specified Discord lobby. Safe to call even if the user is no longer a member, but fails if the lobby does not exist. Returns nothing."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_leave_thread",
+    "description": "Remove the current user from a thread. Requires the thread to not be archived. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_link_channel_to_lobby",
+    "description": "Link an existing guild text channel to a Discord lobby, or unlink any currently linked channel by omitting channel_id. The caller must be a lobby member with the CanLinkLobby lobby member flag. Returns the updated lobby object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_active_guild_threads",
+    "description": "List all active threads in a guild, including public and private threads. Returns a list of channel objects and thread member objects for the current user."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_application_emojis",
+    "description": "Retrieve all emojis owned by a Discord application (app emojis). Returns an object containing a list of emoji objects under the items key."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_auto_moderation_rules",
+    "description": "Get a list of all Auto Moderation rules currently configured for a guild. Requires the MANAGE_GUILD permission. Returns a list of auto moderation rule objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_channel_messages",
+    "description": "Retrieve a list of messages from a Discord channel. Supports pagination using around, before, and after message IDs with a configurable limit."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_default_soundboard_sounds",
+    "description": "Retrieve an array of default soundboard sound objects that can be used by all users."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_guild_channels",
+    "description": "Retrieve all channels in a Discord guild (server). Returns a list of channel objects including text channels, voice channels, categories, and threads."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_guild_emojis",
+    "description": "Retrieve all custom emojis for a Discord guild. Returns a list of emoji objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_guild_members",
+    "description": "Retrieve a list of members in a Discord guild. Requires the GUILD_MEMBERS privileged intent or appropriate bot permissions. Supports pagination via the after parameter."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_guild_roles",
+    "description": "Retrieve all roles in a Discord guild. Returns a list of role objects including permissions, color, and position."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_guild_scheduled_events",
+    "description": "Retrieve a list of scheduled events for a Discord guild. Optionally include user subscription counts."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_guild_soundboard_sounds",
+    "description": "Retrieve the guild's soundboard sounds. Includes user fields if the bot has the CREATE_GUILD_EXPRESSIONS or MANAGE_GUILD_EXPRESSIONS permission. Returns an object with an items array of soundboard sound objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_guild_stickers",
+    "description": "Retrieve all custom stickers for a Discord guild. Returns a list of sticker objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_guild_templates",
+    "description": "Retrieve all guild templates for a guild. Requires the MANAGE_GUILD permission. Returns a list of guild template objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_joined_private_archived_threads",
+    "description": "List private archived threads in a channel that the current user has joined. Returns threads in descending order of archive timestamp."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_private_archived_threads",
+    "description": "List all private archived threads in a channel. Requires MANAGE_THREADS permission and READ_MESSAGE_HISTORY permission. Returns threads in descending order of archive timestamp."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_public_archived_threads",
+    "description": "List all public archived threads in a channel. Returns threads in descending order of archive timestamp. Requires READ_MESSAGE_HISTORY permission."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_sku_subscriptions",
+    "description": "Retrieve all subscriptions containing a given SKU, filtered by user. Returns a list of subscription objects representing recurring payments for that SKU. With Bot Token auth, user_id is required since the bot has no implicit 'current user' context. Supports cursor-based paginati…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_skus",
+    "description": "Retrieve all SKUs (stock-keeping units) for a given Discord application. SKUs represent premium offerings, such as subscriptions, that can be made available to the application's users or guilds. Returns an array of SKU objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_thread_members",
+    "description": "List all members of a thread. Returns an array of thread member objects. When with_member is true, results are paginated using after and limit."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_threads",
+    "description": "Retrieve archived public threads in a Discord channel. Returns threads in descending order by archive timestamp. Requires READ_MESSAGE_HISTORY permission. Note: Discord has no single endpoint that lists every thread type at once — this tool calls the same public-archived-threads…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_voice_regions",
+    "description": "Retrieve a list of all available voice regions on Discord. Returns region IDs, names, and whether they are optimal or deprecated."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_application_emoji",
+    "description": "Modify the name of an emoji owned by a Discord application. Returns the updated emoji object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_auto_moderation_rule",
+    "description": "Modify an existing Auto Moderation rule for a guild. Requires the MANAGE_GUILD permission. All parameters are optional. Fires an Auto Moderation Rule Update Gateway event. Returns the updated auto moderation rule object on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_channel",
+    "description": "Modify a channel's settings. Supports text, voice, announcement, stage, and forum channels. Returns the updated channel object. Each permission_overwrites entry may specify 'allow_names'/'deny_names' (arrays of named permission flags) instead of raw 'allow'/'deny' integers — the…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_current_member",
+    "description": "Modify the current user's guild member attributes. Returns the updated guild member object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_current_user",
+    "description": "Modify the bot's own username, avatar, or banner. Returns the updated user object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_current_user_nick",
+    "description": "Deprecated in favor of Modify Current Member. Modifies the nickname of the current user in a guild. Requires CHANGE_NICKNAME permission. Returns a 200 with the nickname on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_current_user_voice_state",
+    "description": "Update the current user's (the bot's) voice state in a stage channel. Returns 204 No Content on success. channel_id must currently point to a stage channel the bot has already joined. MUTE_MEMBERS permission is required to unsuppress; REQUEST_TO_SPEAK permission is required to r…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild",
+    "description": "Modify a guild's settings. Requires MANAGE_GUILD permission. Returns the updated guild object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild_channel_positions",
+    "description": "Modify the positions of channels in a guild. Requires MANAGE_CHANNELS permission. Only channels to be modified need to be included. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild_emoji",
+    "description": "Modify a guild emoji. Requires MANAGE_GUILD_EXPRESSIONS permission. Returns the updated emoji object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild_incident_actions",
+    "description": "Modify the incident actions of a guild, used to temporarily disable invites or direct messages during a raid or spam incident. Requires MANAGE_GUILD permission. Both fields can be enabled for a maximum of 24 hours in the future; supplying null disables the action. Returns the up…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild_member",
+    "description": "Modify attributes of a guild member. Returns the updated guild member object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild_onboarding",
+    "description": "Modify the onboarding configuration of a guild. Requires MANAGE_GUILD and MANAGE_ROLES permissions. Onboarding enforces constraints when enabled: at least 7 default channels, at least 5 of which allow sending messages to @everyone. Returns the updated guild onboarding object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild_role",
+    "description": "Modify a guild role's settings. Requires MANAGE_ROLES permission. Returns the updated role object. Full permission flag reference (name=decimal value, OR multiple together): CREATE_INSTANT_INVITE=1, KICK_MEMBERS=2, BAN_MEMBERS=4, ADMINISTRATOR=8, MANAGE_CHANNELS=16, MANAGE_GUILD…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild_role_positions",
+    "description": "Modify the positions of roles in a guild. Requires MANAGE_ROLES permission. Returns a list of all guild role objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild_scheduled_event",
+    "description": "Modify a guild scheduled event. Requires MANAGE_EVENTS permission. To start or end an event, modify the status field. Returns the modified scheduled event object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild_soundboard_sound",
+    "description": "Modify the given guild soundboard sound. For sounds created by the current user, requires either the CREATE_GUILD_EXPRESSIONS or MANAGE_GUILD_EXPRESSIONS permission. For other sounds, requires the MANAGE_GUILD_EXPRESSIONS permission. All parameters are optional. Fires a Guild So…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild_sticker",
+    "description": "Modify a guild sticker's details. Requires MANAGE_GUILD_EXPRESSIONS permission. Returns the updated sticker object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild_template",
+    "description": "Modify a guild template's metadata. Requires the MANAGE_GUILD permission. Returns the guild template object on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild_welcome_screen",
+    "description": "Modify the welcome screen of a Community guild. Requires MANAGE_GUILD permission. Returns the updated welcome screen object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild_widget",
+    "description": "Modify the widget settings for a guild. Requires MANAGE_GUILD permission. Returns the updated guild widget settings object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_lobby",
+    "description": "Modify a Discord lobby with new values, if provided. When members is provided, it replaces the full member list — any current member not included is removed from the lobby. Returns the updated lobby object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_stage_instance",
+    "description": "Update fields of an existing Stage instance. Requires the user to be a moderator of the Stage channel (MANAGE_CHANNELS, MUTE_MEMBERS, and MOVE_MEMBERS permissions). Fires a Stage Instance Update Gateway event. Returns the updated Stage instance object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_user_voice_state",
+    "description": "Update another user's voice state in a stage channel. Returns 204 No Content on success. channel_id must currently point to a stage channel the user has already joined. Requires the MUTE_MEMBERS permission. When unsuppressed, non-bot users have their request_to_speak_timestamp s…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_webhook",
+    "description": "Modify a webhook. Requires MANAGE_WEBHOOKS permission. Returns the updated webhook object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_webhook_with_token",
+    "description": "Modify a webhook using its token instead of OAuth authentication. Does not support channel_id field. Returns the updated webhook object (without token)."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_pin_message",
+    "description": "Pin a message in a Discord channel using Discord's current pins endpoint (introduced June 2025, replacing the deprecated /channels/{channel.id}/pins/{message.id}). Requires PIN_MESSAGES permission. A channel can have up to 50 pinned messages."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_remove_guild_ban",
+    "description": "Remove a ban for a user in a Discord guild, allowing them to rejoin. Requires BAN_MEMBERS permission."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_remove_guild_member_role",
+    "description": "Remove a role from a guild member. Requires MANAGE_ROLES permission. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_remove_lobby_member",
+    "description": "Remove the specified user from a Discord lobby. Safe to call even if the user is no longer a member of the lobby, but fails if the lobby does not exist. Returns nothing."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_remove_thread_member",
+    "description": "Remove a user from a thread. Requires MANAGE_THREADS permission or that the current user is the creator of the thread. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_search_guild_members",
+    "description": "Search for guild members in a Discord guild whose username or nickname starts with the given query string."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_search_guild_messages",
+    "description": "Search for messages matching a query across a Discord guild. Returns matching messages without the reactions key. Requires the READ_MESSAGE_HISTORY permission and access is restricted according to whether the MESSAGE_CONTENT privileged intent is enabled for the application. If t…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_send_lobby_message",
+    "description": "Send a message to a Discord lobby. The calling user must be a member of the lobby. If the lobby has a linked channel, the message is also forwarded there; if forwarding fails (for example due to AutoMod), the lobby message is still delivered to other lobby members. Returns the c…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_send_soundboard_sound",
+    "description": "Send a soundboard sound to a voice channel the user is connected to. Requires the SPEAK and USE_SOUNDBOARD permissions, and also USE_EXTERNAL_SOUNDS if the sound is from a different guild. The user must be connected to the voice channel with a voice state that has deaf, self_dea…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_set_voice_channel_status",
+    "description": "Set a voice channel's status. Requires the SET_VOICE_CHANNEL_STATUS permission, and additionally the MANAGE_CHANNELS permission if the current user is not connected to the voice channel. Returns 204 No Content on success. Fires a Voice Channel Status Update Gateway event."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_start_thread_from_message",
+    "description": "Create a new thread from an existing message in a channel. The thread is a public thread by default. Requires CREATE_PUBLIC_THREADS permission. Returns the new thread channel object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_start_thread_in_forum_channel",
+    "description": "Create a new post (thread) in a forum or media channel, along with its first message. At least one of content, embeds, or sticker_ids must be provided for the message. The current user must have the SEND_MESSAGES permission. Returns the new thread channel object with a nested me…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_start_thread_without_message",
+    "description": "Create a new thread that is not attached to an existing message. Type 10=ANNOUNCEMENT_THREAD (in announcement channel), 11=PUBLIC_THREAD, 12=PRIVATE_THREAD. Returns the new thread channel object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_sync_guild_template",
+    "description": "Sync a template to the guild's current state. Requires the MANAGE_GUILD permission. Returns the guild template object on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_trigger_typing",
+    "description": "Post a typing indicator to a Discord channel. The typing indicator lasts for 10 seconds or until a message is sent. Useful for indicating that a bot is processing a request."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_unpin_message",
+    "description": "Unpin a previously pinned message from a Discord channel using Discord's current pins endpoint (introduced June 2025, replacing the deprecated /channels/{channel.id}/pins/{message.id}). Requires PIN_MESSAGES permission."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_update_application_role_connection_metadata",
+    "description": "Update and return the list of application role connection metadata records for an application. Takes a full list of metadata objects to replace the existing ones; any records not included are removed. An application can have a maximum of 5 metadata records."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_update_lobby_message_moderation_metadata",
+    "description": "Set the moderation metadata for a lobby message. The metadata is app-scoped and delivered to active game clients via the Social SDK as a realtime message update. Uses a Bot token for authorization. Returns HTTP 204 No Content on success."
   },
   {
     "slug": "docsautomatormcp",
@@ -38957,6 +40447,46 @@
     "description": "Search Mobbin for website sections (e.g. About, Pricing, Footer) using natural language. Returns section images from real websites."
   },
   {
+    "slug": "momentum",
+    "name": "momentum_ingest_meeting",
+    "description": "Ingest a meeting (and optional transcript) from any source into Momentum. Requires the meeting title, start_time, end_time, host_name, host_email, and process_imported_meeting. Optionally include attendees, a transcript (as ordered segments), Salesforce record IDs, and source UR…"
+  },
+  {
+    "slug": "momentum",
+    "name": "momentum_list_meetings",
+    "description": "Retrieve a paginated list of meetings from Momentum within a date range, including attendee and transcript details. The 'from' date is required. Optionally filter by Salesforce account/opportunity, attendee emails, or source type (e.g. ZOOM, GONG, MOMENTUM). Set include_download…"
+  },
+  {
+    "slug": "momentum",
+    "name": "momentum_list_signal_definitions",
+    "description": "Retrieve all signal v2 definitions configured for your Momentum organization, including each signal's name, context source type (call transcript), enabled status, and creation time. Use the returned signal definition id to fetch its executions via List Signal V2 Executions."
+  },
+  {
+    "slug": "momentum",
+    "name": "momentum_list_signal_executions",
+    "description": "Retrieve a paginated list of signal executions (triggered signals) for a specific AI signal prompt (v1) within a given time range. Requires the signal prompt id and an executionFrom date-time. Each execution can be triggered by a meeting or an email and includes the AI-generated…"
+  },
+  {
+    "slug": "momentum",
+    "name": "momentum_list_signal_prompts",
+    "description": "Retrieve all AI signal prompts (v1) configured for your Momentum organization, including each signal's name, context source type (call transcript or email body), enabled status, and creation time. Use the returned signal prompt id to fetch its executions via List Signal Executio…"
+  },
+  {
+    "slug": "momentum",
+    "name": "momentum_list_signal_v2_executions",
+    "description": "Retrieve a paginated list of signal executions (triggered signals) for a specific signal v2 definition within a given time range. Requires the signal definition id and an executionFrom date-time. Each execution is triggered by a meeting and includes the AI-generated reason, host…"
+  },
+  {
+    "slug": "momentum",
+    "name": "momentum_list_users",
+    "description": "Retrieve a paginated list of users in your Momentum organization, including their profile, role, license status, and Salesforce/Google Calendar authentication status. Optionally filter by license status or role."
+  },
+  {
+    "slug": "momentum",
+    "name": "momentum_remap_meeting",
+    "description": "Associate a meeting with new Salesforce objects (account, opportunity, and/or lead) and optionally trigger call summary generation and AI signals. You must identify the meeting in exactly one of two ways: (1) by external source — provide source_id and source_type; or (2) by meet…"
+  },
+  {
     "slug": "monday",
     "name": "monday_board_archive",
     "description": "Archive a board in Monday.com."
@@ -50175,6 +51705,541 @@
     "description": "Search technologies used by e-commerce stores. Filter by install count."
   },
   {
+    "slug": "stripe",
+    "name": "stripe_accept_quote_dahlia",
+    "description": "Accept a finalized Quote. Converts it into a subscription or invoice."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_attach_payment_method_dahlia",
+    "description": "Attach a PaymentMethod to a Customer."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_cancel_payment_intent_dahlia",
+    "description": "Cancels a PaymentIntent object when it's in a cancellable state. Depending on the payment method, it may be possible to cancel a PaymentIntent once it has been confirmed and is in requires_capture state."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_cancel_payout_dahlia",
+    "description": "Cancel a payout that has not yet been paid out. Only cancels payouts with status 'pending'."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_cancel_quote_dahlia",
+    "description": "Cancel a Quote that has been finalized but not yet accepted."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_cancel_setup_intent_dahlia",
+    "description": "Cancel a SetupIntent that has not been confirmed."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_cancel_subscription_dahlia",
+    "description": "Cancels a customer's subscription immediately. The customer will not be charged again for the subscription. By default the subscription is canceled immediately but if prorate is set, any remaining charges are refunded."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_close_dispute_dahlia",
+    "description": "Close a dispute and accept the chargeback. This cannot be undone."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_confirm_payment_intent_dahlia",
+    "description": "Confirm that your customer intends to pay with current or provided payment method. Upon confirmation, the PaymentIntent will attempt to initiate a payment. If the payment method requires action (3DS, redirect), the PaymentIntent will move to requires_action."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_confirm_setup_intent_dahlia",
+    "description": "Confirm a SetupIntent and attempt to collect a payment method for future use."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_checkout_session_dahlia",
+    "description": "Create a Checkout Session to accept one-time or subscription payments via Stripe-hosted page."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_coupon_dahlia",
+    "description": "Create a coupon that can be redeemed for a discount on subscriptions or one-time charges."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_customer_dahlia",
+    "description": "Creates a new customer object. Use this to store a customer's payment and billing details. The customer object allows you to perform recurring charges and track multiple charges associated with the same customer."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_customer_portal_session_dahlia",
+    "description": "Creates a session of the customer portal. A portal session describes the instantiation of the customer portal for a particular customer. By visiting the session's URL, the customer can manage their subscriptions and billing details. Portal sessions are short-lived and will expir…"
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_invoice_dahlia",
+    "description": "This endpoint creates a draft invoice for a given customer. The draft invoice created pulls in all pending invoice items on that customer, including prorations. The invoice remains a draft until you finalize the invoice, which allows you to pay, send, and delete the invoice."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_invoice_item_dahlia",
+    "description": "Create an invoice item to be added to a pending invoice."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_payment_intent_dahlia",
+    "description": "Creates a PaymentIntent object. After the PaymentIntent is created, attach a payment method and confirm to continue the payment. You can also create and confirm a PaymentIntent in a single step by using the confirm parameter."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_payment_method_dahlia",
+    "description": "Create a PaymentMethod object. Attach it to a Customer to enable reusable payment."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_payout_dahlia",
+    "description": "Create a payout to send funds to a bank account or debit card."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_plan_dahlia",
+    "description": "Create a Plan (legacy billing API). Consider using Prices instead for new integrations."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_price_dahlia",
+    "description": "Creates a new price for an existing product. Prices define how much and how often to charge for products. This includes one-time prices and recurring prices for subscriptions."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_product_dahlia",
+    "description": "Creates a new product object. Products describe the specific goods or services you offer to your customers. Products are used in conjunction with Prices to configure how much and how often you charge customers."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_promotion_code_dahlia",
+    "description": "Create a promotion code for a coupon that customers can redeem."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_quote_dahlia",
+    "description": "Create a Quote for a subscription or one-time payment, which can be sent to customers for approval."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_refund_dahlia",
+    "description": "Create a refund for a charge or payment intent. Refunds a charge that has previously been created, with optional partial amount."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_setup_intent_dahlia",
+    "description": "Create a SetupIntent to collect payment method details for future off-session payments."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_subscription_dahlia",
+    "description": "Creates a new subscription on an existing customer. Each customer can have multiple active subscriptions if needed."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_subscription_item_dahlia",
+    "description": "Add a new item to an existing subscription."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_tax_rate_dahlia",
+    "description": "Create a tax rate that can be applied to invoices and subscriptions."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_transfer_dahlia",
+    "description": "Create a transfer to send funds to a connected Stripe account (Connect platforms)."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_webhook_endpoint_dahlia",
+    "description": "Create a webhook endpoint to receive Stripe event notifications at your HTTPS URL. Supports subscribing to any number of event types (or use * to receive all events)."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_delete_coupon_dahlia",
+    "description": "Delete a coupon. Customers that have already applied this coupon are not affected."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_delete_customer_dahlia",
+    "description": "Permanently deletes a customer. It cannot be undone. Also immediately cancels any active subscriptions on the customer."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_delete_invoice_item_dahlia",
+    "description": "Delete an invoice item. Can only delete items that have not been finalized in an invoice."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_delete_plan_dahlia",
+    "description": "Delete a Plan. Customers subscribed to this plan are not affected."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_delete_subscription_item_dahlia",
+    "description": "Delete a subscription item, removing it from the subscription."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_delete_webhook_endpoint_dahlia",
+    "description": "Delete a webhook endpoint. Once deleted, the endpoint will no longer receive events from Stripe."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_detach_payment_method_dahlia",
+    "description": "Detach a PaymentMethod from a Customer, making it reusable for other customers."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_expire_checkout_session_dahlia",
+    "description": "Expire a Checkout Session before it has been completed. Can only expire sessions in 'open' status."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_finalize_invoice_dahlia",
+    "description": "Stripe automatically finalizes drafts before sending them. However, if you'd like to finalize a draft invoice manually, you can do so using this method. After an invoice is finalized, it can be paid or sent to customers."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_finalize_quote_dahlia",
+    "description": "Finalize a Quote to make it ready to be accepted by the customer."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_account_dahlia",
+    "description": "Retrieve the details of the current Stripe account."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_balance_dahlia",
+    "description": "Retrieve the current balance of the Stripe account, showing available and pending amounts by currency."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_balance_transaction_dahlia",
+    "description": "Retrieve a balance transaction by ID. Balance transactions represent funds moving through the Stripe account."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_charge_dahlia",
+    "description": "Retrieves the details of a charge that has previously been created. Supply the unique charge ID that was returned from your previous request, and Stripe will return the corresponding charge information."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_checkout_session_dahlia",
+    "description": "Retrieve a Checkout Session by ID."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_coupon_dahlia",
+    "description": "Retrieve a coupon by its ID."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_customer_dahlia",
+    "description": "Retrieves the details of an existing customer. You need only supply the unique customer identifier that was returned upon customer creation."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_dispute_dahlia",
+    "description": "Retrieve a dispute by ID. A dispute occurs when a customer questions a charge with their card issuer."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_event_dahlia",
+    "description": "Retrieve an event by ID. Events are Stripe's way of notifying your application about changes."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_invoice_dahlia",
+    "description": "Retrieves the invoice with the given ID. Supply the unique invoice identifier that was returned from your previous request, and Stripe will return the corresponding invoice information."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_invoice_item_dahlia",
+    "description": "Retrieves the invoice item with the given ID. Supply the unique invoice item identifier and Stripe will return the corresponding invoice item information."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_payment_intent_dahlia",
+    "description": "Retrieves the details of a PaymentIntent that was previously created. Supply the unique PaymentIntent ID and Stripe will return the corresponding PaymentIntent information."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_payment_method_dahlia",
+    "description": "Retrieve a PaymentMethod object."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_payout_dahlia",
+    "description": "Retrieve a payout by ID."
+  },
+  { "slug": "stripe", "name": "stripe_get_plan_dahlia", "description": "Retrieve a Plan by ID." },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_price_dahlia",
+    "description": "Retrieves the price with the given ID."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_product_dahlia",
+    "description": "Retrieves the details of an existing product. Supply the unique product ID from either a product creation request or the product list, and Stripe will return the corresponding product information."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_promotion_code_dahlia",
+    "description": "Retrieve a promotion code by ID."
+  },
+  { "slug": "stripe", "name": "stripe_get_quote_dahlia", "description": "Retrieve a Quote by ID." },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_refund_dahlia",
+    "description": "Retrieve the details of an existing refund."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_setup_intent_dahlia",
+    "description": "Retrieve a SetupIntent by ID."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_subscription_dahlia",
+    "description": "Retrieves the subscription with the given ID. Supply the unique subscription identifier that was returned from your previous request, and Stripe will return the corresponding subscription information."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_subscription_item_dahlia",
+    "description": "Retrieves the subscription item with the given ID. Supply the unique subscription item identifier and Stripe will return the corresponding subscription item information."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_tax_rate_dahlia",
+    "description": "Retrieve a tax rate by ID."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_transfer_dahlia",
+    "description": "Retrieve a transfer by ID."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_webhook_endpoint_dahlia",
+    "description": "Retrieve a webhook endpoint by ID."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_accounts_dahlia",
+    "description": "List all connected accounts on your platform (Connect platforms only)."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_balance_transactions_dahlia",
+    "description": "List all balance transactions, optionally filtered by currency, source, or type."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_charges_dahlia",
+    "description": "Returns a list of charges you've previously created. The charges are returned in sorted order, with the most recent charges appearing first."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_checkout_sessions_dahlia",
+    "description": "List all Checkout Sessions."
+  },
+  { "slug": "stripe", "name": "stripe_list_coupons_dahlia", "description": "List all coupons." },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_customer_payment_methods_dahlia",
+    "description": "List all PaymentMethods attached to a specific customer."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_customers_dahlia",
+    "description": "Returns a list of your customers. The customers are returned sorted by creation date, with the most recent customers appearing first. Supports filtering by email and pagination for large customer lists."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_disputes_dahlia",
+    "description": "List all disputes, optionally filtered by charge or payment intent."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_events_dahlia",
+    "description": "List all events. Events represent noteworthy activity on your Stripe account."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_invoice_items_dahlia",
+    "description": "Returns a list of your invoice items. Invoice items are returned sorted by creation date, with the most recent invoice items appearing first."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_invoice_line_items_dahlia",
+    "description": "When retrieving an invoice, you'll get a lines property containing the total count of line items and the first handful of those items. There is also a URL where you can retrieve the full (paginated) list of line items."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_invoices_dahlia",
+    "description": "Returns a list of your invoices. The invoices are returned sorted by creation date, with the most recent invoices appearing first."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_payment_intents_dahlia",
+    "description": "Returns a list of PaymentIntents. The PaymentIntents are returned sorted by creation date, with the most recent PaymentIntents appearing first."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_payment_methods_dahlia",
+    "description": "List PaymentMethods for a customer."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_payouts_dahlia",
+    "description": "List all payouts, with optional filters by status and arrival date."
+  },
+  { "slug": "stripe", "name": "stripe_list_plans_dahlia", "description": "List all Plans." },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_prices_dahlia",
+    "description": "Returns a list of your active prices, excluding inline prices. For the list of inactive prices, set active to false."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_products_dahlia",
+    "description": "Returns a list of your products. The products are returned sorted by creation date, with the most recent products appearing first."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_promotion_codes_dahlia",
+    "description": "List all promotion codes."
+  },
+  { "slug": "stripe", "name": "stripe_list_quotes_dahlia", "description": "List all Quotes." },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_refunds_dahlia",
+    "description": "List all refunds, optionally filtered by charge or payment intent."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_setup_intents_dahlia",
+    "description": "List all SetupIntents."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_subscription_items_dahlia",
+    "description": "Returns a list of subscription items for a given subscription. Subscription items represent the component lines of a subscription."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_subscriptions_dahlia",
+    "description": "Returns a list of your subscriptions. The subscriptions are returned sorted by creation date, with the most recent subscriptions appearing first."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_tax_rates_dahlia",
+    "description": "List all tax rates."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_transfers_dahlia",
+    "description": "List all transfers to connected accounts."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_webhook_endpoints_dahlia",
+    "description": "List all webhook endpoints."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_pay_invoice_dahlia",
+    "description": "Stripe automatically creates and then attempts to collect payment on invoices for customers on subscriptions according to your subscriptions settings. However, if you'd like to attempt payment on an invoice out of the normal collection schedule or for some other reason, you use …"
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_coupon_dahlia",
+    "description": "Update a coupon's name or metadata."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_customer_dahlia",
+    "description": "Updates the specified customer by setting the values of the parameters passed. Any parameters not provided will be left unchanged."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_dispute_dahlia",
+    "description": "Update a dispute to submit evidence to the card issuer and potentially win the chargeback."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_invoice_item_dahlia",
+    "description": "Update an invoice item's amount, description, or metadata."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_plan_dahlia",
+    "description": "Update a Plan's nickname, active status, or metadata."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_product_dahlia",
+    "description": "Updates the specific product by setting the values of the parameters passed. Any parameters not provided will be left unchanged."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_promotion_code_dahlia",
+    "description": "Update a promotion code's active status or metadata."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_quote_dahlia",
+    "description": "Update a draft Quote."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_refund_dahlia",
+    "description": "Update the metadata on a refund."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_subscription_dahlia",
+    "description": "Updates an existing subscription to match the specified parameters. When updating a subscription, any parameters not provided will be left unchanged."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_subscription_item_dahlia",
+    "description": "Update a subscription item, for example to change the price or quantity."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_tax_rate_dahlia",
+    "description": "Update a tax rate's display name, description, or active status."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_transfer_dahlia",
+    "description": "Update a transfer's metadata."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_webhook_endpoint_dahlia",
+    "description": "Update a webhook endpoint's URL, enabled events, or disabled status."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_void_invoice_dahlia",
+    "description": "Mark a finalized invoice as void. This cannot be undone. Voiding an invoice is similar to deletion, however it only applies to finalized invoices and maintains a papertrail where the invoice can still be found."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_zz_test_echo_probe_dahlia",
+    "description": "Temporary throwaway tool for verifying raw wire bytes against an echo service. Not for real use — delete after testing."
+  },
+  {
     "slug": "stripemcp",
     "name": "stripemcp_cancel_subscription",
     "description": "Immediately cancel an active Stripe subscription. The subscription ends at the current period and no further charges are made. This is irreversible — use Update Subscription to pause or downgrade instead."
@@ -56437,5 +58502,225 @@
     "slug": "zoominfo",
     "name": "zoominfo_upsert_settings",
     "description": "Create or update the customer settings singleton for the authenticated ZoomInfo account. Settings include company name, elevator pitch, description, and strategic priorities used by AI recommendations. At least one attribute must be provided. Updates are partial — only provided …"
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_add_conversation",
+    "description": "Add a Revenue Accelerator conversation by IQ file ID or third-party download URL, including participants and speech timeline."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_add_conversation_comment",
+    "description": "Add a new comment to a specific Revenue Accelerator conversation, optionally mentioning users or teams and anchoring it to a point in the recording."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_add_user_conversation",
+    "description": "Add a new Revenue Accelerator conversation for a user by meeting recording URL or meeting UUID."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_assign_team_managers",
+    "description": "Assign one or more Zoom users as managers of a Revenue Accelerator team. Requires that your account supports hierarchical structure teams."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_assign_team_members",
+    "description": "Add one or more users to a Revenue Accelerator team. Identify each user by user_id or email (up to 200 users per call)."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_create_team",
+    "description": "Create a new Revenue Accelerator team. Optionally specify a parent team ID to create a child team in a hierarchical structure. Create teams one at a time if your account has hierarchical teams enabled - concurrent hierarchical team creation is not supported."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_delete_conversation",
+    "description": "Delete a Revenue Accelerator conversation by conversation ID."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_delete_conversation_comment",
+    "description": "Delete a comment from a specific Revenue Accelerator conversation."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_delete_deal_activity",
+    "description": "Delete a specific activity from a Revenue Accelerator deal, identified by either conversation ID or message ID."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_delete_team",
+    "description": "Delete a Revenue Accelerator team. If the team is a flat team, ensure its team members list is empty first. Delete teams one at a time if your account has hierarchical teams enabled - concurrent hierarchical team deletion is not supported."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_get_conversation",
+    "description": "Get information for a specific Revenue Accelerator conversation by its conversation ID."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_get_conversation_analysis",
+    "description": "Get the content analysis for a specific conversation, such as topics, next steps, engaging questions, indicators, smart chapters, or deal memo analysis."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_get_conversation_interactions",
+    "description": "Get interactions (participant speaking activity and engagement metrics) for a specific conversation."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_get_conversation_scorecards",
+    "description": "Get coaching scorecards for a specific conversation."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_get_crm_registration",
+    "description": "Retrieve the current custom CRM API registration information for this Zoom account, including CRM type, currency, deal stages, and URL patterns."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_get_crm_task",
+    "description": "Poll the execution result of an asynchronous CRM task, such as a bulk import of accounts, contacts, deals, or leads. Use the task ID returned by the corresponding import call."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_get_deal",
+    "description": "Get information for a specific Revenue Accelerator deal by its deal ID."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_get_deal_activities",
+    "description": "Get activities for a specific Revenue Accelerator deal, with optional filters for conversation topic, callout type, and indicator/topic mentions."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_get_indicators_settings",
+    "description": "Get the account's Revenue Accelerator indicators settings, with optional filters for category and indicator type. Requires a paid account."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_get_team",
+    "description": "Get team detail for a specific Revenue Accelerator team, including team name, description, and team member size."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_get_user_playlists",
+    "description": "Get all conversation playlists for a user, optionally filtered by playlist type, following status, or self-created status."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_import_crm_accounts",
+    "description": "Bulk import CRM account objects into Zoom Revenue Accelerator asynchronously. We recommend importing in this order: account, then contact, then deal, since CRM account references are validated in advance when importing contacts and deals. Returns a task ID you can poll with Get …"
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_import_crm_contacts",
+    "description": "Bulk import CRM contact objects into Zoom Revenue Accelerator asynchronously. We recommend importing in this order: account, then contact, then deal. CRM account references are validated in advance when importing contacts and deals. Returns a task ID you can poll with Get CRM Ta…"
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_import_crm_deals",
+    "description": "Bulk import CRM deal objects into Zoom Revenue Accelerator asynchronously. We recommend importing in this order: account, then contact, then deal. CRM account references are validated in advance when importing contacts and deals. Returns a task ID you can poll with Get CRM Task."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_import_crm_leads",
+    "description": "Bulk import CRM lead objects into Zoom Revenue Accelerator asynchronously. Returns a task ID you can poll with Get CRM Task."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_list_conversation_comments",
+    "description": "Get comments for a specific conversation."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_list_conversations",
+    "description": "List Revenue Accelerator conversations, with optional filters for host, participant, team, deal, date range, and conversation type."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_list_crm_accounts",
+    "description": "Retrieve previously-imported CRM account objects by their CRM IDs. Use this after import_crm_accounts to verify or fetch the imported account records."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_list_crm_contacts",
+    "description": "Retrieve previously-imported CRM contact objects by their CRM IDs. Use this after import_crm_contacts to verify or fetch the imported contact records."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_list_crm_deals",
+    "description": "Retrieve previously-imported CRM deal objects by their CRM IDs. Use this after import_crm_deals to verify or fetch the imported deal records."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_list_crm_leads",
+    "description": "Retrieve previously-imported CRM lead objects by their CRM IDs. Use this after import_crm_leads to verify or fetch the imported lead records."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_list_deals",
+    "description": "List Revenue Accelerator deals, with optional filters for deal name, stage, owner, team, date range, and deal amount."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_list_scheduled_meetings",
+    "description": "List all Revenue Accelerator scheduled meetings for a user, with optional filters for meeting platform and date range."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_list_team_managers",
+    "description": "List the managers assigned to a specific Revenue Accelerator team, paginated."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_list_team_members",
+    "description": "List the members of a specific Revenue Accelerator team, paginated."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_list_teams",
+    "description": "List account teams in Revenue Accelerator, with optional filters for parent team ID and team name."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_list_unassigned_team_users",
+    "description": "List Revenue Accelerator ZRA users who are not yet assigned to any team, paginated."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_register_crm",
+    "description": "Register a new custom CRM API integration for this Zoom account, defining the CRM type, currency, deal stage pipeline, and optional deep-link URL patterns used before bulk importing CRM accounts, contacts, deals, and leads."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_unassign_team_managers",
+    "description": "Remove one or more managers from a Revenue Accelerator team. Requires that your account supports hierarchical structure teams."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_unassign_team_members",
+    "description": "Remove one or more members from a Revenue Accelerator team. Delete fewer than 30 users at a time."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_unregister_crm",
+    "description": "Unregister the current custom CRM API integration for this Zoom account. Optionally remove all previously imported CRM data in the background."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_update_conversation_comment",
+    "description": "Edit an existing comment on a specific Revenue Accelerator conversation."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_update_conversation_host",
+    "description": "Update a Revenue Accelerator conversation's host to a new host user ID or email address."
+  },
+  {
+    "slug": "zoomrevenueaccelerator",
+    "name": "zoomrevenueaccelerator_update_team",
+    "description": "Update the name of a specific Revenue Accelerator team."
   }
 ]

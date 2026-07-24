@@ -1635,4 +1635,30 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'OAuth 2.1/DCR',
     categories: ['AI'],
   },
+  apolloapikey: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/apollo.svg',
+    authType: 'API Key',
+    categories: ['CRM & Sales'],
+  },
+  momentum: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/momentum.svg',
+    authType: 'API Key',
+    categories: ['AI', 'CRM & Sales', 'Transcription'],
+  },
+  stripe: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/stripe.svg',
+    authType: 'Bearer Token',
+    categories: ['Accounting & Finance', 'Developer Tools', 'Automation'],
+  },
+  zoomrevenueaccelerator: {
+    iconUrl:
+      "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' fill='none'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M11 2c6.076 0 11 4.851 11 10.834 0 2.583-.937 4.935-2.476 6.787-.65.782-1.598 1.251-2.605 1.357l-.435.022H5.517c-1.164 0-2.299-.485-3.042-1.379C1.033 17.885.12 15.71.011 13.316L0 12.834C0 6.851 4.925 2 11 2zm2.175 4.718c-2.316-.795-4.991-.292-6.836 1.526a6.43 6.43 0 0 0 0 9.18.504.504 0 0 0 .355.146l.097-.009a.502.502 0 0 0 .258-.137.489.489 0 0 0 0-.699 5.45 5.45 0 0 1-.198-7.577l.002-.001.196-.204c1.28-1.262 3.132-1.75 4.857-1.486l1.269-.739zm3.604 1.322c.228-.607-.454-1.21-1.052-.86a3207.24 3207.24 0 0 0-6 3.502 3.04 3.04 0 0 0-.521.391 2.492 2.492 0 0 0 .001 3.524c.99.974 2.592.974 3.583 0a2.69 2.69 0 0 0 .382-.482c.368-.615 2.144-3.604 3.548-5.954l.059-.12z' fill='%230B5CFF'/%3E%3C/svg%3E",
+    authType: 'OAuth 2.0',
+    categories: ['CRM & Sales', 'AI', 'Analytics'],
+  },
+  discordbot: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/discord.svg',
+    authType: 'API Key',
+    categories: ['Communication', 'Collaboration'],
+  },
 }
