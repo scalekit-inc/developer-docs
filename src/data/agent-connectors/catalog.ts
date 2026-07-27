@@ -1662,7 +1662,7 @@ export const catalog: Record<string, ProviderMeta> = {
     categories: ['Communication', 'Collaboration'],
   },
   amplitudeanalytics: {
-    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/amplitude.svg',
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/Amplitude.svg',
     authType: 'API Key + Secret Key',
     categories: ['Analytics'],
   },
