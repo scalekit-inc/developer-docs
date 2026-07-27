@@ -3,6 +3,7 @@ export { default as SetupAdobemarketingagentmcpSection } from './_setup-adobemar
 export { default as SetupAdvancedmdSection } from './_setup-advancedmd.mdx'
 export { default as SetupAdzvisermcpSection } from './_setup-adzvisermcp.mdx'
 export { default as SetupAiropsmcpSection } from './_setup-airopsmcp.mdx'
+export { default as SetupAmplitudeanalyticsSection } from './_setup-amplitudeanalytics.mdx'
 export { default as SetupAirtableSection } from './_setup-airtable.mdx'
 export { default as SetupApifymcpSection } from './_setup-apifymcp.mdx'
 export { default as SetupApolloSection } from './_setup-apollo.mdx'

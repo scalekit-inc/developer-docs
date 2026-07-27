@@ -2965,6 +2965,296 @@
     "description": "Reads the contents of a file or directory from the paper's codebase repository. Returns repository structure for '/', directory listing for directories, or file contents for files."
   },
   {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_bulk_assign_annotation_category",
+    "description": "Assign an existing annotation category to multiple annotations at once."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_create_annotation",
+    "description": "Create a chart annotation marking a single date or a date range, either globally visible on all charts or scoped to one chart. CONFIRMED (live-tested): category and chart_id are both validated against real resources already known to Amplitude — an unrecognized category name or c…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_create_annotation_category",
+    "description": "Create a new category for organizing chart annotations in Amplitude."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_create_dsar_request",
+    "description": "Create a Data Subject Access Request (DSAR) job that collects all of a specific user's data from Amplitude for a given date range. Requires a connected account whose API Key/Secret Key fields hold Amplitude's ORGANIZATION-level credentials, not the project-level credentials most…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_create_event_category",
+    "description": "Create a new event category in Amplitude's taxonomy, used to group related event types."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_create_event_property",
+    "description": "Create a new event property in Amplitude's taxonomy. If event_type is set, this creates an event-specific property override for that event type; if omitted, this creates a shared property used across all events."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_create_event_type",
+    "description": "Create a new event type in Amplitude's taxonomy, optionally assigning it a category, description, tags, owner, and visibility flags."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_create_group_property",
+    "description": "Create a new group property in Amplitude's Taxonomy — a custom property scoped to a specific group type (e.g. 'org', 'company') rather than to users or events. Only group_property and group_type are explicitly confirmed by Amplitude's group-property docs; the remaining descripti…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_create_release",
+    "description": "Create a release annotation in Amplitude, marking a version rollout with a start (and optionally end) time. When chart_visibility is true (the default), the release appears as an annotation on charts. Amplitude's docs only document a 200 success response and a 400 bad-request re…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_create_user_property",
+    "description": "Create a new user property in Amplitude's taxonomy. Unlike event properties, user properties have no event_type or is_required field — they always apply globally to the user profile, not to a specific event."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_delete_annotation",
+    "description": "Permanently delete a chart annotation from Amplitude."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_delete_annotation_category",
+    "description": "Permanently delete a chart annotation category from Amplitude. This does not delete the annotations that used this category, only the category grouping itself."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_delete_event_category",
+    "description": "Permanently delete an event category from Amplitude's taxonomy."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_delete_event_property",
+    "description": "Delete an event property from Amplitude's taxonomy. amplitudeanalytics_restore_event_property can undo this, but CONFIRMED (live-tested) only for properties that were previously 'live' (actually seen on ingested events) — deleting a purely taxonomy-declared property that was nev…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_delete_event_type",
+    "description": "Delete an event type from Amplitude's taxonomy. Deletion is state-machine driven: a 'live' event type is marked deleted; an 'unexpected' event type is first added to the tracking plan then deleted; a 'planned' event type is simply removed from the plan; a 'transformed' event typ…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_delete_user_property",
+    "description": "Delete a custom user property from Amplitude's taxonomy. Amplitude-owned (built-in) user properties cannot be deleted through this API and will return an error. amplitudeanalytics_restore_user_property can undo this, but CONFIRMED (live-tested) only for properties that were prev…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_export_events",
+    "description": "Export raw event data uploaded to Amplitude within a date range as a zip archive of NDJSON files. The response is a binary zip file, not JSON — save it to disk rather than parsing it as JSON. start and end use the YYYYMMDDTHH format (e.g. 20220201T05), and the start-end range ca…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_annotation",
+    "description": "Retrieve a single chart annotation by its ID."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_annotation_category",
+    "description": "Retrieve a single chart annotation category by its ID."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_cohort_membership_file",
+    "description": "Download the completed cohort membership export started with amplitudeanalytics_request_cohort_membership, once amplitudeanalytics_get_cohort_membership_status reports it complete. Small cohorts return the gzip-compressed member data directly; large cohorts return an HTTP 302 re…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_cohort_membership_status",
+    "description": "Check the status of an asynchronous cohort membership export previously started with amplitudeanalytics_request_cohort_membership. Once the status reports completion, call amplitudeanalytics_get_cohort_membership_file to download the data. Note: Amplitude's documented async_stat…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_cohort_usage",
+    "description": "Check how much of the Behavioral Cohorts Download API's monthly quota has been used. Growth and Enterprise plans are limited to 500 download requests per month; this shows the current usage count and when it resets."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_dsar_output_file",
+    "description": "Download a single completed output file from a Data Subject Access Request (DSAR) job. Requires a connected account whose API Key/Secret Key fields hold Amplitude's ORGANIZATION-level credentials, not the project-level credentials most other tools in this connector use — use the…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_dsar_request_status",
+    "description": "Check the status of a Data Subject Access Request (DSAR) job previously created with amplitudeanalytics_create_dsar_request. Requires a connected account whose API Key/Secret Key fields hold Amplitude's ORGANIZATION-level credentials, not the project-level credentials most other…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_event_category",
+    "description": "Retrieve a single event category from Amplitude's taxonomy, looked up by its category_name. Unlike amplitudeanalytics_update_event_category and amplitudeanalytics_delete_event_category (which are keyed by category_id), this endpoint is keyed by category_name — this matches Ampli…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_event_segmentation",
+    "description": "Pull Event Segmentation chart data from the Amplitude Dashboard REST API: measure an event (uniques, totals, or another metric) over a date range, with optional segment filters and up to two group-by properties. Rate limits: 5 concurrent requests shared with other Amplitude Dash…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_event_streaming_metrics",
+    "description": "Get the delivery-metrics summary for an Amplitude Event Streaming sync over a time window. The response includes timePeriod, eventsDelivered, eventsNotDelivered, deliveryRate, latencyInSeconds (p95), successOnFirstAttempt, successAfterRetry, eventsExpired, and eventsDiscarded. A…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_event_type",
+    "description": "Retrieve a single event type from Amplitude's taxonomy by its event_type name. CONFIRMED (live-tested): if the event type has is_hidden_from_dropdowns set to true, this single-item lookup returns 'Not found' even though the event type still fully exists and appears in amplitudea…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_funnel_results",
+    "description": "Pull Funnel Analysis chart data from the Amplitude Dashboard REST API: step-by-step conversion and drop-off for an ordered (or unordered/sequential) sequence of two or more events over a date range. Rate limits: 5 concurrent requests shared with other Amplitude Dashboard/Cohort …"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_group_property",
+    "description": "Retrieve a single group property from Amplitude's Taxonomy by name."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_session_replay_files",
+    "description": "Get download links for a single Amplitude session replay's recorded event files. Returns a files array of presigned S3 URLs — these URLs expire after 15 minutes, so download the files promptly after calling this."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_user_mapping",
+    "description": "Look up user identity mappings (aliases) for one or more Amplitude user IDs. The response is an object keyed by each requested user_id, where each value has mapped_from[] and mapped_to[] arrays of {amplitude_id, user_id} pairs describing merged/aliased identities. This is the on…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_user_property",
+    "description": "Retrieve a single user property by name from Amplitude's taxonomy. CONFIRMED (live-tested): Amplitude auto-prepends 'gp:' to custom user property names on creation regardless of what name amplitudeanalytics_create_user_property was called with — use amplitudeanalytics_list_user_…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_list_annotation_categories",
+    "description": "List all chart annotation categories in the Amplitude project, or filter to a single category by name."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_list_annotations",
+    "description": "List chart annotations, optionally filtered by category, by chart, or by a date range. CONFIRMED (live-tested): category and chart_id do NOT combine as a logical AND, and Amplitude does NOT error if both are set — category silently wins and chart_id is dropped entirely, even whe…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_list_cohorts",
+    "description": "List all behavioral cohorts defined in the Amplitude project. Returns each cohort's id, name, description, size, published/archived state, owners, viewers, definition, and last-computed time. Use this to find a cohort's id before calling amplitudeanalytics_request_cohort_members…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_list_event_categories",
+    "description": "List all event categories defined in Amplitude's taxonomy."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_list_event_properties",
+    "description": "Get the event properties defined in Amplitude's taxonomy — either the shared properties used across all events, or (if event_type is set) the properties specific to one event type. Note: per Amplitude's documentation, this parameter is sent as a JSON request body on a GET reques…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_list_event_types",
+    "description": "List event types defined in Amplitude's taxonomy, optionally including deleted ones."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_list_group_properties",
+    "description": "List group properties defined in Amplitude's Taxonomy. Pass group_type to scope the list to that group type (e.g. 'org'); omit it to list properties shared across group types rather than any single type's properties."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_list_session_replays",
+    "description": "List Amplitude Session Replay recordings, optionally filtered by time range, Amplitude user ID, or an explicit set of replay IDs, with pagination and sort order control. amplitude_id and replay_id are mutually exclusive filters, and replay_id is also mutually exclusive with page…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_list_user_deletion_jobs",
+    "description": "List Amplitude user-deletion jobs submitted within a date range. The start_day-end_day range cannot exceed 6 months. Returns an array of job objects, each with day, status (Staging, Submitted, or Done), amplitude_ids (the Amplitude user IDs in that day's job), app, and active_sc…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_list_user_properties",
+    "description": "List user properties in Amplitude's taxonomy, optionally including previously deleted ones."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_remove_user_from_deletion",
+    "description": "Remove a single user from a pending Amplitude user-deletion job before it locks, preventing their data from being deleted. This is a protective/cancel action, not a destructive one. It only works while the job is still in Staging status (within the roughly 3-day window after amp…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_request_cohort_membership",
+    "description": "Start an asynchronous export of an Amplitude cohort's membership (the users/devices in the cohort). Returns a request_id — poll amplitudeanalytics_get_cohort_membership_status with that id until it reports completion, then call amplitudeanalytics_get_cohort_membership_file to do…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_restore_event_property",
+    "description": "Restore a previously deleted event property back to active status. CONFIRMED (live-tested): this only works for properties that were 'live' (actually seen on ingested events) before being soft-deleted. For a purely taxonomy-declared property that was never ingested, amplitudeana…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_restore_event_type",
+    "description": "Restore a previously deleted event type back to active/tracked status. CONFIRMED (live-tested): this only works for event types that were 'live' (actually ingested) before being soft-deleted. For a purely taxonomy-declared 'planned' event type that was deleted with amplitudeanal…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_restore_user_property",
+    "description": "Restore a previously deleted user property back to active status. CONFIRMED (live-tested): this only works for properties that were 'live' (actually seen on ingested events) before being soft-deleted. For a purely taxonomy-declared property that was never ingested, amplitudeanal…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_submit_user_deletion",
+    "description": "Submit a batch job to permanently delete users' data from Amplitude. Provide amplitude_ids, user_ids, or both — at least one is required; the API rejects a request with neither, which this input schema cannot enforce on its own. A single request accepts a maximum of 100 IDs comb…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_update_annotation",
+    "description": "Partially update an existing chart annotation. Only the fields you provide are changed; omitted fields keep their current value. Set chart_id to null to make a chart-scoped annotation global again. KNOWN AMPLITUDE API BUG (live-tested): setting end to null does NOT clear the end…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_update_annotation_category",
+    "description": "Rename an existing chart annotation category."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_update_cohort_membership",
+    "description": "Add or remove individual members from an existing Amplitude cohort, without replacing the whole membership list. To create a cohort or replace its full membership list, use amplitudeanalytics_upload_cohort instead. CONFIRMED (live-tested): routing, auth, and the memberships arra…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_update_event_category",
+    "description": "Rename an existing event category in Amplitude's taxonomy."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_update_event_property",
+    "description": "Partially update an existing event property in Amplitude's taxonomy. Only the fields you provide are changed; omitted fields keep their current value. Use overrideScope to control whether the update applies to an event-specific override or the shared property definition, and new…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_update_event_type",
+    "description": "Partially update an existing event type in Amplitude's taxonomy. Only the fields you provide are changed; omitted fields keep their current value. Set new_event_type to rename the event type."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_update_group_property",
+    "description": "Partially update an existing Amplitude Taxonomy group property. Amplitude's update-group-property docs list no body fields at all beyond the path variable, so every field below — including group_type — is inferred by analogy with the create endpoint and the sibling event/user pr…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_update_user_property",
+    "description": "Partially update an existing user property in Amplitude's taxonomy. Only the fields you provide are changed; omitted fields keep their current value. CONFIRMED BUG (live-tested, reproduced independently twice): new_event_property_value does NOT actually rename a user property — …"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_upload_cohort",
+    "description": "Create a new Amplitude behavioral cohort from an explicit list of user or Amplitude IDs, or update an existing cohort's membership list wholesale by passing existing_cohort_id. To add/remove individual members from an already-created cohort instead, use amplitudeanalytics_update…"
+  },
+  {
     "slug": "anakinmcp",
     "name": "anakinmcp_agentic_search",
     "description": "Run multi-source deep research. The pipeline searches the web, scrapes the most relevant citations, and uses an LLM to structure the combined data into a unified answer. Async — typically 1–5 minutes. Use this when one URL or a flat search result will not answer the question (co…"
