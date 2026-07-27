@@ -99,6 +99,8 @@ export const redirects = {
   // User and organization management files reorganized
   '/fsa/guides/create-organization': '/authenticate/manage-users-orgs/create-organization/',
   '/fsa/guides/custom-user-attributes': '/authenticate/manage-users-orgs/custom-user-attributes/',
+  // Orphan (not in sidebar); superseded by public manage-users-orgs journey pages
+  '/fsa/guides/manage-users': '/authenticate/manage-organizations/add-users-to-organization/',
   '/authenticate/manage-users-orgs/delete-users-orgs':
     '/authenticate/manage-users-orgs/delete-users-and-organizations/',
   'fsa/guides/app-roles': '/authenticate/authz/create-roles-permissions/',
