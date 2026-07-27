@@ -351,6 +351,50 @@ When you build MCP servers, multiple AI hosts may need to discover and use your 
    ```
 
    </TabItem>
+   <TabItem value="go" label="Go">
+
+   ```go title="Validate token"
+   // Security: validate the token's issuer and audience — confirms it was issued by
+   // your Scalekit environment for your specific MCP server.
+   ok, err := scalekitClient.ValidateTokenWithOptions(ctx, token, &scalekit.ValidateTokenOptions{
+       Issuer:   "<SCALEKIT_ENVIRONMENT_URL>",
+       Audience: []string{RESOURCE_ID},
+   })
+   if err != nil || !ok {
+       // reject the request with 401
+   }
+
+   // Prefer validating scopes per tool-call rather than in this global check, so each
+   // tool enforces only the scope it needs:
+   // ok, err = scalekitClient.ValidateTokenWithOptions(ctx, token, &scalekit.ValidateTokenOptions{
+   //     Audience: []string{RESOURCE_ID},
+   //     Scopes:   []string{"todo:write"},
+   // })
+   ```
+
+   </TabItem>
+   <TabItem value="java" label="Java">
+
+   ```java title="Validate token"
+   // Security: validate the token's issuer and audience — confirms it was issued by
+   // your Scalekit environment for your specific MCP server.
+   boolean isValid = scalekitClient.authentication().validateAccessToken(
+       token,
+       TokenValidationOptions.builder()
+           .issuer("<SCALEKIT_ENVIRONMENT_URL>")
+           .audience(List.of(RESOURCE_ID))
+           .build()
+   );
+   if (!isValid) {
+       // reject the request with 401
+   }
+
+   // Prefer enforcing scopes per tool-call rather than in this global check: read the
+   // token's "scope" claim via validateAccessTokenAndGetClaims(token, options) inside
+   // each tool and verify it contains the scope that tool needs.
+   ```
+
+   </TabItem>
    </Tabs>
 
    #### Complete middleware implementation
