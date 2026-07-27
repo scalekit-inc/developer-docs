@@ -95,7 +95,7 @@ scalekit_client = ScalekitClient(
 
 # Update login user details
 try:
-    response, _ = scalekit_client.auth.update_login_user_details(
+    response = scalekit_client.auth.update_login_user_details(
         connection_id="{{connection_id}}",
         login_request_id="{{login_request_id}}",
         user={
@@ -108,8 +108,8 @@ except Exception:
     # and stop — do NOT redirect back to Scalekit on a failed request.
     raise
 
-# The response carries the auth request ID (req_xxx).
-auth_request_id = response.auth_request_id
+# response is a (message, grpc.Call) tuple; the auth request ID (req_xxx) is on the first element.
+auth_request_id = response[0].auth_request_id
 # Optional: paste auth_request_id into Scalekit Dashboard > Auth Logs
 # to view the entire auth journey for this login.
 
@@ -220,6 +220,57 @@ func updateLoggedInUserDetails() error {
 	// Only if there is no error, perform the redirect to scalekit using the redirect url on your Scalekit Dashboard -> MCP Servers
 	return nil
 }
+```
+
+</TabItem>
+<TabItem label="Java">
+
+```xml title="pom.xml"
+<dependency>
+  <groupId>com.scalekit</groupId>
+  <artifactId>scalekit-sdk-java</artifactId>
+  <version>2.3.0</version>
+</dependency>
+```
+
+```java title="SendUserDetails.java"
+import com.scalekit.ScalekitClient;
+import com.scalekit.grpc.scalekit.v1.auth.User;
+import com.scalekit.internal.http.UpdateLoginUserDetailsResult;
+import com.scalekit.shaded.google.protobuf.Struct;
+import com.scalekit.shaded.google.protobuf.Value;
+
+ScalekitClient scalekitClient = new ScalekitClient(
+    System.getenv("SCALEKIT_ENVIRONMENT_URL"),
+    System.getenv("SCALEKIT_CLIENT_ID"),
+    System.getenv("SCALEKIT_CLIENT_SECRET")
+);
+
+Struct customAttributes = Struct.newBuilder()
+    .putFields("access_level", Value.newBuilder().setNumberValue(101).build())
+    .putFields("subscription_type", Value.newBuilder().setStringValue("PREMIUM").build())
+    .build();
+
+User user = User.newBuilder()
+    .setSub("user_123")
+    .setEmail("test@example.com")
+    .setName("Test User")
+    .addRoles("support")
+    .addRoles("developer")
+    .setCustomAttributes(customAttributes)
+    .build();
+
+UpdateLoginUserDetailsResult result =
+    scalekitClient.login().updateLoginUserDetails("{{connection_id}}", "{{login_request_id}}", user);
+
+// The response carries the auth request ID (req_xxx). Optionally store it to fetch
+// events for this auth request later, or paste it into Scalekit Dashboard > Auth Logs
+// to view the entire auth journey for this login.
+String authRequestId = result.getAuthRequestId();
+
+// To report a failed login instead, send loginFailed=true (sub/email not required):
+// User failedUser = User.newBuilder().setLoginFailed(true).build();
+// scalekitClient.login().updateLoginUserDetails("{{connection_id}}", "{{login_request_id}}", failedUser);
 ```
 
 </TabItem>
