@@ -125,81 +125,136 @@ const docsearchTranslations: DocSearchTranslationProps = {
 
 <script>
   import config from 'virtual:starlight/docsearch-config'
+  import type docsearch from '@docsearch/js'
+
+  type DocSearchProps = Parameters<typeof docsearch>[0]
+  type DocSearchInstance = ReturnType<typeof docsearch>
+
+  /**
+   * Single live DocSearch instance for the page.
+   * ClientRouter soft navigations replace the header (and therefore `sl-doc-search`)
+   * without firing DOMContentLoaded again — so we remount on connectedCallback and
+   * tear down the previous instance so the Search button and Cmd/Ctrl+K stay wired.
+   */
+  let activeInstance: DocSearchInstance | null = null
+  let activeContainer: HTMLElement | null = null
+  let mountQueue: Promise<void> = Promise.resolve()
+
+  function buildOptions(host: HTMLElement): DocSearchProps {
+    let translations
+    try {
+      translations = JSON.parse(host.dataset.translations || '{}')
+    } catch {
+      translations = undefined
+    }
+
+    // Extract the page language (e.g. <html lang="en">) and pass it to DocSearch
+    // as an Algolia facet filter so that the search results are scoped to the current
+    // language. If users already defined facet filters we preserve them while appending
+    // the new one.
+    let searchParameters: DocSearchProps['searchParameters']
+
+    // Rebuild the askAi prop as an object:
+    // If the askAi prop is a string, treat it as the assistantId and use
+    // the default indexName, apiKey and appId from the main options.
+    // If the askAi prop is an object, preserve its properties while filling
+    // missing defaults, including searchParameters.
+    const askAiProp = config.askAi
+    const isAskAiString = typeof askAiProp === 'string'
+
+    const askAi = askAiProp
+      ? isAskAiString
+        ? {
+            indexName: config.indexName,
+            apiKey: config.apiKey,
+            appId: config.appId,
+            assistantId: askAiProp,
+            searchParameters: {},
+          }
+        : {
+            ...askAiProp,
+            indexName: askAiProp.indexName ?? config.indexName,
+            apiKey: askAiProp.apiKey ?? config.apiKey,
+            appId: askAiProp.appId ?? config.appId,
+            assistantId: askAiProp.assistantId,
+            searchParameters: askAiProp.searchParameters ?? {},
+          }
+      : undefined
+
+    const pageLang = document.documentElement.getAttribute('lang')
+
+    // Initialize searchParameters unconditionally
+    searchParameters = config.searchParameters || {}
+
+    if (pageLang) {
+      const existingFilters = searchParameters?.facetFilters ?? []
+      // Ensure facetFilters is always an array of strings for simplicity.
+      searchParameters.facetFilters = Array.isArray(existingFilters)
+        ? [...existingFilters, `lang:${pageLang}`]
+        : [existingFilters, `lang:${pageLang}`].filter(Boolean)
+
+      if (askAi) {
+        // Re-use the merged facetFilters from the search parameters so that
+        // Ask AI uses the same language filtering as the regular search.
+        askAi.searchParameters = { facetFilters: searchParameters.facetFilters }
+      }
+    }
+
+    return {
+      ...config,
+      // Mount into this specific host element (not a tag selector). After soft
+      // navigation there can be a brief moment with zero or two hosts in the tree.
+      container: host,
+      translations,
+      searchParameters,
+      askAi,
+    } as DocSearchProps
+  }
+
+  async function mountDocSearch(host: HTMLElement) {
+    // Serialize mounts so rapid soft-navs cannot leave two live instances.
+    mountQueue = mountQueue.then(async () => {
+      if (!host.isConnected) return
+
+      // Already mounted on this exact host (e.g. reconnect without replacement).
+      if (activeContainer === host && activeInstance) return
+
+      if (activeInstance) {
+        try {
+          activeInstance.destroy()
+        } catch {
+          // DocSearch may throw if the previous container was already removed.
+        }
+        activeInstance = null
+        activeContainer = null
+      }
+
+      const { default: docsearch } = await import('@docsearch/js')
+      if (!host.isConnected) return
+
+      activeInstance = docsearch(buildOptions(host))
+      activeContainer = host
+    })
+    await mountQueue
+  }
 
   class StarlightDocSearch extends HTMLElement {
-    constructor() {
-      super()
-      window.addEventListener('DOMContentLoaded', async () => {
-        const { default: docsearch } = await import('@docsearch/js')
-        type DocSearchProps = Parameters<typeof docsearch>[0]
-
-        let translations
-        try {
-          translations = JSON.parse(this.dataset.translations || '{}')
-        } catch {}
-
-        // Extract the page language (e.g. <html lang="en">) and pass it to DocSearch
-        // as an Algolia facet filter so that the search results are scoped to the current
-        // language. If users already defined facet filters we preserve them while appending
-        // the new one.
-        let searchParameters: DocSearchProps['searchParameters']
-
-        // Rebuild the askAi prop as an object:
-        // If the askAi prop is a string, treat it as the assistantId and use
-        // the default indexName, apiKey and appId from the main options.
-        // If the askAi prop is an object, preserve its properties while filling
-        // missing defaults, including searchParameters.
-        const askAiProp = config.askAi
-        const isAskAiString = typeof askAiProp === 'string'
-
-        const askAi = askAiProp
-          ? isAskAiString
-            ? {
-                indexName: config.indexName,
-                apiKey: config.apiKey,
-                appId: config.appId,
-                assistantId: askAiProp,
-                searchParameters: {},
-              }
-            : {
-                ...askAiProp,
-                indexName: askAiProp.indexName ?? config.indexName,
-                apiKey: askAiProp.apiKey ?? config.apiKey,
-                appId: askAiProp.appId ?? config.appId,
-                assistantId: askAiProp.assistantId,
-                searchParameters: askAiProp.searchParameters ?? {},
-              }
-          : undefined
-
-        const pageLang = document.documentElement.getAttribute('lang')
-
-        // Initialize searchParameters unconditionally
-        searchParameters = config.searchParameters || {}
-
-        if (pageLang) {
-          const existingFilters = searchParameters?.facetFilters ?? []
-          // Ensure facetFilters is always an array of strings for simplicity.
-          searchParameters.facetFilters = Array.isArray(existingFilters)
-            ? [...existingFilters, `lang:${pageLang}`]
-            : [existingFilters, `lang:${pageLang}`].filter(Boolean)
-
-          if (askAi) {
-            // Re-use the merged facetFilters from the search parameters so that
-            // Ask AI uses the same language filtering as the regular search.
-            askAi.searchParameters = { facetFilters: searchParameters.facetFilters }
-          }
-        }
-
-        const options = {
-          ...config,
-          container: 'sl-doc-search',
-          translations,
-          searchParameters,
-          askAi,
-        }
-        docsearch(options as DocSearchProps)
-      })
+    connectedCallback() {
+      // DOMContentLoaded-only init breaks under ClientRouter: the event never
+      // re-fires, and the SSR placeholder button has no click handler.
+      // readyState covers the case where this module runs after the event.
+      const start = () => {
+        void mountDocSearch(this)
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', start, { once: true })
+      } else {
+        start()
+      }
     }
   }
-  customElements.define('sl-doc-search', StarlightDocSearch)
+
+  if (!customElements.get('sl-doc-search')) {
+    customElements.define('sl-doc-search', StarlightDocSearch)
+  }
 </script>
