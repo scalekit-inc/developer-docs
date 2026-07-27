@@ -353,7 +353,7 @@ When you build MCP servers, multiple AI hosts may need to discover and use your 
    </TabItem>
    <TabItem value="go" label="Go">
 
-   ```go title="Validate token"
+   ```go title="middleware/auth.go"
    // Security: validate the token's issuer and audience — confirms it was issued by
    // your Scalekit environment for your specific MCP server.
    ok, err := scalekitClient.ValidateTokenWithOptions(ctx, token, &scalekit.ValidateTokenOptions{
@@ -361,8 +361,12 @@ When you build MCP servers, multiple AI hosts may need to discover and use your 
        Audience: []string{RESOURCE_ID},
    })
    if err != nil || !ok {
-       // reject the request with 401
+       // Reject: return 401 with the WWW-Authenticate header and stop processing.
+       w.Header().Set("WWW-Authenticate", wwwAuthenticateHeader)
+       http.Error(w, "invalid token", http.StatusUnauthorized)
+       return
    }
+   // Token is valid — continue handling the request.
 
    // Prefer validating scopes per tool-call rather than in this global check, so each
    // tool enforces only the scope it needs:
@@ -375,7 +379,7 @@ When you build MCP servers, multiple AI hosts may need to discover and use your 
    </TabItem>
    <TabItem value="java" label="Java">
 
-   ```java title="Validate token"
+   ```java title="middleware/AuthMiddleware.java"
    // Security: validate the token's issuer and audience — confirms it was issued by
    // your Scalekit environment for your specific MCP server.
    boolean isValid = scalekitClient.authentication().validateAccessToken(
@@ -386,8 +390,12 @@ When you build MCP servers, multiple AI hosts may need to discover and use your 
            .build()
    );
    if (!isValid) {
-       // reject the request with 401
+       // Reject: return 401 with the WWW-Authenticate header and stop processing.
+       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+       response.setHeader("WWW-Authenticate", wwwAuthenticateHeader);
+       return;
    }
+   // Token is valid — continue handling the request.
 
    // Prefer enforcing scopes per tool-call rather than in this global check: read the
    // token's "scope" claim via validateAccessTokenAndGetClaims(token, options) inside
