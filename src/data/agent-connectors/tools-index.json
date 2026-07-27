@@ -41007,6 +41007,341 @@
     "description": "Query and inspect Mixmax email sequences. Supports actions: list_sequences, get_sequence, get_sequence_insights, find_contact_in_sequences, get_daily_send_count, validate_sequence."
   },
   {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_activity_stream",
+    "description": "Get the raw event stream (activity feed) for one or more specific users over a date range — every event each user did, in order. Useful for inspecting an individual user's journey rather than aggregate analytics. Rate limited to 60 queries/hour and 5 concurrent queries."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_cohorts_list",
+    "description": "List every saved cohort in a Mixpanel project, including each cohort's numeric id, name, member count, description, and creation date. Use the id with 'mixpanelanalytics_profiles_query' (filter_by_cohort) to fetch the profiles in a cohort."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_event_properties",
+    "description": "Get a time series broken down by the values of a single event property, e.g. purchase count per day segmented by product_category. Similar to segmentation, but focused on exploring one property's values rather than an arbitrary 'on' expression."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_event_top_properties",
+    "description": "List the property names most commonly sent with a given event, along with how many times each appears. Useful for discovering what properties are available before writing a segmentation query or property-values lookup."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_event_top_property_values",
+    "description": "List the most common values seen for a given event property, e.g. the top product_category values sent with the 'purchase' event. Useful for discovering what filter/segment values are available before writing a query."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_events_query",
+    "description": "Get aggregate counts for one or more events over time, without any property segmentation. Faster and simpler than 'mixpanelanalytics_segmentation_query' when you just need raw counts for a set of events, e.g. daily counts of 'login' and 'signup' side by side."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_events_top_names",
+    "description": "List the most common event names tracked in the project over its lifetime, ranked by the given analysis type. Useful for discovering what events exist before writing a segmentation or funnel query."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_events_top_today",
+    "description": "Get the top events for today, ranked by count, along with their percent change compared to the same time yesterday. Useful for a quick 'what's happening right now' snapshot."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_funnels_list_saved",
+    "description": "List all saved funnels in a Mixpanel project, returning each funnel's numeric funnel_id and name. Use the funnel_id with 'mixpanelanalytics_funnels_query' to fetch its conversion data."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_funnels_query",
+    "description": "Get conversion data for an existing saved funnel by its funnel_id, showing per-step counts and conversion ratios over time. Use 'mixpanelanalytics_funnels_list_saved' to find a funnel_id. Note: Mixpanel considers this endpoint in maintenance mode and recommends building the funn…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_insights_query",
+    "description": "Get the computed data for an existing saved Insights report by its bookmark_id. This is Mixpanel's recommended, actively maintained way to pull report data (in place of the older segmentation/funnels/retention query endpoints), but it can only run a report that already exists in…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_jql_query",
+    "description": "Run a custom JQL (JavaScript Query Language) script against raw Mixpanel event/profile data for analysis that the standard segmentation/funnel/retention/insights endpoints can't express, e.g. custom aggregations, joins across events and profiles, or arbitrary groupBy/reduce pipe…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_profiles_query",
+    "description": "Query Mixpanel user (or group) profiles and return a paginated list of profiles matching the given filters. Supports filtering by a specific list of distinct_ids, a free-form 'where' expression, or a saved cohort. Rate limited to 60 queries/hour and 5 concurrent queries."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_retention_frequency_query",
+    "description": "Measure how frequently users return to do an event within a period, broken into fine-grained buckets (e.g. how many of the hours in each day a user was active). Useful for engagement/'stickiness' analysis."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_retention_query",
+    "description": "Measure how many users who did a 'born' event came back to do a later event, bucketed into cohorts. Supports 'birth' retention (users grouped by when they first did the born event) or 'compounded' retention (users grouped by every time they did the born event)."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_schema_delete",
+    "description": "Permanently delete the Lexicon schema for a single event or profile property, identified by entity type and name. This removes only the Lexicon schema definition; the underlying event or profile property is not deleted and will show as un-schematized until a new schema is upload…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_schema_get",
+    "description": "Retrieve the Lexicon schema for a single event or profile property, identified by entity type and name. Returns the schema's description, JSON-schema-style property definitions, and Lexicon metadata such as display name, tags, and owners. Returns an error if no schema exists for…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_schema_upload",
+    "description": "Create or replace the Lexicon schema for a single event or profile property, identified by entity type and name. Any existing schema for this entity type and name is fully overwritten with the fields you provide. Use 'description' for a human-readable summary of the entity, 'pro…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_schemas_delete_all",
+    "description": "Permanently delete every schema in the project's Lexicon data dictionary, for both event and profile-property entity types. This removes only the Lexicon schema definitions (descriptions, JSON-schema property definitions, and metadata); the underlying events and profile properti…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_schemas_delete_by_entity",
+    "description": "Permanently delete every Lexicon schema for one entity type ('event' or 'profile') in a Mixpanel project, leaving schemas for the other entity type untouched. Pass 'entity_name' to narrow this to a single schema by name instead of deleting all schemas for the entity type. This r…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_schemas_list",
+    "description": "List all schemas (data dictionary entries) defined in a Mixpanel project's Lexicon, across both event and profile-property entity types. Each schema includes the entity's description, JSON-schema-style property definitions, and Lexicon metadata such as display name, tags, and ow…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_schemas_list_by_entity",
+    "description": "List the Lexicon schemas for one entity type ('event' or 'profile') in a Mixpanel project. Optionally pass 'entity_name' to filter the results down to a single schema by name. Only entities that already have an associated schema are returned. Use 'mixpanelanalytics_schemas_list'…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_schemas_upload_batch",
+    "description": "Create or replace multiple Lexicon schemas in a single call. Each object in 'entries' defines one event or profile property's schema (entity type, name, and JSON-schema definition) and is merged into the project's existing data dictionary. Set 'truncate' to true to first remove …"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_segmentation_average_query",
+    "description": "Get the average value of a numeric property expression per unit time for a single event, e.g. average order value per day. Note: in maintenance mode per Mixpanel — prefer 'mixpanelanalytics_insights_query' for new use cases where possible."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_segmentation_numeric_query",
+    "description": "Get event counts for a single event, bucketed by the numeric value of a property expression (e.g. distribution of purchase amounts). Note: in maintenance mode per Mixpanel — prefer 'mixpanelanalytics_insights_query' for new use cases where possible."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_segmentation_query",
+    "description": "Get event counts for a single event over time, optionally segmented and filtered by properties. Note: Mixpanel's Query API team considers this endpoint in maintenance mode and recommends 'mixpanelanalytics_insights_query' (against a saved Insights report) for new use cases, but …"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_segmentation_sum_query",
+    "description": "Get the sum of a numeric property expression per unit time for a single event, e.g. total revenue per day. Note: in maintenance mode per Mixpanel — prefer 'mixpanelanalytics_insights_query' for new use cases where possible."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_create_event_stream",
+    "description": "Create a new warehouse import that streams warehouse rows into Mixpanel as events. Maps a warehouse table to Mixpanel's Events dataset using 'table_params' to select the source table/columns and 'time_column_name' (plus 'event_name' or 'event_column_name') to derive each event's…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_create_groups",
+    "description": "Create a new warehouse import that syncs warehouse rows into Mixpanel as group profile updates, analogous to 'mixpanelanalytics_warehouse_import_create_people' but for group analytics (e.g. company/account-level profiles) instead of individual users. Maps a warehouse table using…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_create_lookup_table",
+    "description": "Create a new warehouse import that syncs a warehouse table into Mixpanel as a Lookup Table, joining additional properties onto events or user profiles by a shared key (similar in effect to 'mixpanelingestion_lookup_table_replace', but kept continuously in sync from the warehouse…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_create_people",
+    "description": "Create a new warehouse import that syncs warehouse rows into Mixpanel as user profile updates (equivalent to Engage '$set'). Maps a warehouse table to Mixpanel user profiles using 'table_params' to select the source table/columns and 'user_column_name' to identify which column h…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_delete",
+    "description": "Delete a warehouse import's sync configuration, stopping future syncs. By default this only removes the connector configuration — data already imported into Mixpanel is kept. Set 'delete_data' to true to also permanently delete the data previously imported by this connector. Use…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_get",
+    "description": "Get the full configuration and current status of a single warehouse import by id, including its sync schedule ('run_every'), pause state, and warehouse-specific parameters. Use 'mixpanelanalytics_warehouse_imports_list' first to find the import_id."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_history",
+    "description": "Get the history of past sync runs for a warehouse import, e.g. to check when it last ran, whether recent runs succeeded, and how long each run took. Use 'mixpanelanalytics_warehouse_imports_list' to find the import_id first."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_run_sync",
+    "description": "Manually trigger an immediate sync run for a warehouse import, outside its configured schedule ('run_every'). Use this to pull the latest warehouse data on demand instead of waiting for the next scheduled run, e.g. after fixing an upstream data issue. Use 'mixpanelanalytics_ware…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_update",
+    "description": "Pause, resume, or reschedule an existing warehouse import. Use this to stop a sync temporarily ('paused': true), resume it ('paused': false), change how often it runs ('run_every'), or update Databricks-specific cluster settings. Use 'mixpanelanalytics_warehouse_imports_list' or…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_imports_list",
+    "description": "List all warehouse import connectors configured for a Mixpanel project, across every warehouse source (Snowflake, BigQuery, Databricks, Redshift). Each entry includes its import id, import type (event stream, people, groups, or lookup table), warehouse source, and current sync s…"
+  },
+  {
+    "slug": "mixpanelcompliance",
+    "name": "mixpanelcompliance_gdpr_deletion_cancel",
+    "description": "Cancel a pending GDPR/CCPA data deletion request before Mixpanel begins permanently erasing the data. Returns no content on success. Cancellation can fail once the deletion has already progressed too far to stop — check 'mixpanelcompliance_gdpr_deletion_status' first if you're u…"
+  },
+  {
+    "slug": "mixpanelcompliance",
+    "name": "mixpanelcompliance_gdpr_deletion_create",
+    "description": "Permanently delete ALL data Mixpanel holds for the given distinct_ids — every event and profile property, across all time. This is irreversible once processing completes, and per Mixpanel's GDPR/CCPA documentation it can take up to 30 days to fully propagate through Mixpanel's s…"
+  },
+  {
+    "slug": "mixpanelcompliance",
+    "name": "mixpanelcompliance_gdpr_deletion_status",
+    "description": "Check the status of a GDPR/CCPA data deletion request previously created with 'mixpanelcompliance_gdpr_deletion_create'. The response's status field is one of: PENDING, STAGING, STARTED, SUCCESS, FAILURE, REVOKED, NOT_FOUND, or UNKNOWN. Deletions can take up to 30 days to reach …"
+  },
+  {
+    "slug": "mixpanelcompliance",
+    "name": "mixpanelcompliance_gdpr_retrieval_create",
+    "description": "Create a GDPR or CCPA Subject Access Request (SAR) for one or more Mixpanel distinct_ids. Mixpanel asynchronously compiles an export of every event and profile property it holds for the given distinct_ids so you can fulfill a data subject's access request. This call only queues …"
+  },
+  {
+    "slug": "mixpanelcompliance",
+    "name": "mixpanelcompliance_gdpr_retrieval_status",
+    "description": "Check the status of a GDPR/CCPA data retrieval (Subject Access Request) previously created with 'mixpanelcompliance_gdpr_retrieval_create'. The response's status field is one of: PENDING, STAGING, STARTED, SUCCESS, FAILURE, REVOKED, NOT_FOUND, or UNKNOWN. Poll this until the sta…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_feature_flags_definitions",
+    "description": "Get the full definitions of every feature flag/experiment configured in a Mixpanel project, including each flag's variants, rollout rules, and linked experiment. Provide either 'project_token' or 'project_id' to authenticate (project_id uses your Service Account credentials)."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_feature_flags_evaluate",
+    "description": "Evaluate all enabled Mixpanel feature flags and experiments for a given user, returning the variant each flag assigns them. Provide either 'project_token' or 'project_id' to authenticate (project_id uses your Service Account credentials)."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_group_batch_update",
+    "description": "Send a batch of mixed group-profile updates to Mixpanel in a single call, analogous to 'mixpanelingestion_profile_batch_update' for user profiles. Each item in 'updates' is a fully-formed update object with its own \"$token\", \"$group_key\", \"$group_id\", and one operation key ($set…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_group_delete",
+    "description": "Permanently delete a Mixpanel group profile and all of its properties, analogous to 'mixpanelingestion_profile_delete' for user profiles. This does not delete historical events associated with the group."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_group_remove",
+    "description": "Remove a specific value from a list-valued property on a Mixpanel group profile, analogous to 'mixpanelingestion_profile_remove' for user profiles. If the value is not present, no change is made."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_group_set",
+    "description": "Set (overwrite) properties on a Mixpanel group profile (e.g. a company or team account), analogous to 'mixpanelingestion_profile_set' for user profiles. Creates the group profile if it does not already exist. Requires Group Analytics to be enabled on your Mixpanel project."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_group_set_once",
+    "description": "Set properties on a Mixpanel group profile only if they are not already set — existing values are never overwritten, analogous to 'mixpanelingestion_profile_set_once' for user profiles. Creates the group profile if it does not already exist."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_group_union",
+    "description": "Add values to a list-valued property on a Mixpanel group profile, ensuring each value only appears once, analogous to 'mixpanelingestion_profile_union' for user profiles. Creates the group profile if it does not already exist."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_group_unset",
+    "description": "Permanently remove one or more named properties (and their values) from a Mixpanel group profile, analogous to 'mixpanelingestion_profile_unset' for user profiles."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_identity_create",
+    "description": "Link an anonymous distinct_id to a known, identified distinct_id by sending a Mixpanel $identify event via /track. Use this the first time you learn a user's real identifier (e.g. after login or signup) so that pre-login and post-login activity is merged onto one profile. Return…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_identity_create_alias",
+    "description": "Create a legacy alias linking a new distinct_id to an existing one by sending a Mixpanel $create_alias event via /track. This is the legacy identity-linking mechanism; for new integrations prefer 'mixpanelingestion_identity_create' ($identify) or 'mixpanelingestion_identity_merg…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_identity_merge",
+    "description": "Merge two distinct_ids into a single identity using Mixpanel's modern Identity Merge API (a $merge event sent through /import, authenticated with your Service Account). All historical events and profile data from both distinct_ids are combined under one identity. Use this instea…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_import_events",
+    "description": "Import a batch of up to 2000 events into Mixpanel via the modern, Service Account-authenticated /import endpoint. This is Mixpanel's recommended way to send events from a trusted server-side integration (unlike the classic /track endpoint). Each event needs an 'event' name and a…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_lookup_table_replace",
+    "description": "Replace the entire contents of a Mixpanel Lookup Table with new CSV data. This overwrites all existing rows in the table — use 'mixpanelingestion_lookup_tables_list' first to find the table's id. The first column of the CSV must be the table's key (matching the property it enric…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_lookup_tables_list",
+    "description": "List the Lookup Tables defined in a Mixpanel project. Returns each table's id and name. Use the id with 'mixpanelingestion_lookup_table_replace' to update a table's contents, or find it in Lexicon under the lookup table's details."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_append",
+    "description": "Append a value to a list-valued property on a Mixpanel user profile via Engage $append. If the property does not yet exist, it is created as a single-element list. Unlike $union, duplicate values are allowed. Useful for ordered logs like \"Recent Searches\"."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_batch_update",
+    "description": "Send a batch of mixed user-profile updates to Mixpanel Engage in a single call. Each item in 'updates' is a fully-formed update object with its own \"$token\", \"$distinct_id\", and one operation key ($set, $set_once, $add, $union, $append, $remove, $unset, or $delete) — the same sh…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_delete",
+    "description": "Permanently delete a Mixpanel user profile and all of its properties via Engage $delete. This does not delete the user's historical events, only their profile. If duplicate profiles exist due to identity merging, set 'ignore_alias' to true so you don't accidentally delete the or…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_increment",
+    "description": "Increment (or decrement, using a negative value) numeric properties on a Mixpanel user profile via Engage $add. The given amounts are added to the existing values; if a property is not yet present it is treated as 0. Useful for counters such as \"Number of Logins\" or \"Files Uploa…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_remove",
+    "description": "Remove a specific value from a list-valued property on a Mixpanel user profile via Engage $remove. If the value is not present, no change is made. The opposite of 'mixpanelingestion_profile_append'."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_set",
+    "description": "Set (overwrite) properties on a Mixpanel user profile via Engage $set. Creates the profile if it does not already exist. Use this for properties that should always reflect the latest value, such as \"Plan\" or \"Last Login\". For properties that should only be set the first time, us…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_set_once",
+    "description": "Set properties on a Mixpanel user profile via Engage $set_once, but only if they are not already set — existing values are never overwritten. Creates the profile if it does not already exist. Useful for properties like \"First Login Date\" that should be recorded once and never ch…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_union",
+    "description": "Add values to a list-valued property on a Mixpanel user profile via Engage $union, ensuring each value only appears once in the resulting list. Creates the profile if it does not already exist. Useful for properties like \"Purchased Categories\" that accumulate unique values over …"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_unset",
+    "description": "Permanently remove one or more named properties (and their values) from a Mixpanel user profile via Engage $unset. This deletes the properties themselves, not the profile — use 'mixpanelingestion_profile_delete' to delete the whole profile."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_track_event",
+    "description": "Send a single event to Mixpanel via the classic /track endpoint, authenticated with your Mixpanel Project Token (not your Service Account). Use this for lightweight, fire-and-forget event tracking. For reliable server-side ingestion with validation and duplicate protection, pref…"
+  },
+  {
     "slug": "mobbinmcp",
     "name": "mobbinmcp_search_flows",
     "description": "Search Mobbin for multi-step user flows (e.g. onboarding, checkout) using natural language. Returns flow screens with inline images."
