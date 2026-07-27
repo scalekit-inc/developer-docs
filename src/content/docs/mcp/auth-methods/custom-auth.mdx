@@ -87,7 +87,7 @@ pip install scalekit-sdk-python
 from scalekit import ScalekitClient
 import os
 
-scalekit = ScalekitClient(
+scalekit_client = ScalekitClient(
     os.environ.get('SCALEKIT_ENVIRONMENT_URL'),
     os.environ.get('SCALEKIT_CLIENT_ID'),
     os.environ.get('SCALEKIT_CLIENT_SECRET')
@@ -95,7 +95,7 @@ scalekit = ScalekitClient(
 
 # Update login user details
 try:
-    response, _ = scalekit.auth.update_login_user_details(
+    response, _ = scalekit_client.auth.update_login_user_details(
         connection_id="{{connection_id}}",
         login_request_id="{{login_request_id}}",
         user={
@@ -114,7 +114,7 @@ auth_request_id = response.auth_request_id
 # to view the entire auth journey for this login.
 
 # To report a failed login instead, send login_failed=True (sub/email not required):
-# scalekit.auth.update_login_user_details(
+# scalekit_client.auth.update_login_user_details(
 #     connection_id="{{connection_id}}",
 #     login_request_id="{{login_request_id}}",
 #     user={"login_failed": True},
@@ -187,12 +187,12 @@ import (
 // eg. https://example.scalekit.dev/api/v1/connections/conn_70982106544698372/auth-requests/{{login_request_id}}/user
 // Your connectionId is conn_70982106544698372 in this example
 func updateLoggedInUserDetails() error {
-	skClient := scalekit.NewScalekitClient(
+	scalekitClient := scalekit.NewScalekitClient(
 		os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
 		os.Getenv("SCALEKIT_CLIENT_ID"),
 		os.Getenv("SCALEKIT_CLIENT_SECRET"),
 	)
-	resp, err := skClient.Auth().UpdateLoginUserDetails(context.Background(), &scalekit.UpdateLoginUserDetailsRequest{
+	resp, err := scalekitClient.Auth().UpdateLoginUserDetails(context.Background(), &scalekit.UpdateLoginUserDetailsRequest{
 		ConnectionId:   "{{connection_id}}",
 		LoginRequestId: "{{login_request_id}}", // this value is dynamic per login
 		User: &scalekit.LoggedInUserDetails{
@@ -211,7 +211,7 @@ func updateLoggedInUserDetails() error {
 	// to view the entire auth journey for this login.
 
 	// To report a failed login instead, send LoginFailed: true (Sub/Email not required):
-	// _, err = skClient.Auth().UpdateLoginUserDetails(context.Background(), &scalekit.UpdateLoginUserDetailsRequest{
+	// _, err = scalekitClient.Auth().UpdateLoginUserDetails(context.Background(), &scalekit.UpdateLoginUserDetailsRequest{
 	// 	ConnectionId:   "{{connection_id}}",
 	// 	LoginRequestId: "{{login_request_id}}",
 	// 	User:           &scalekit.LoggedInUserDetails{LoginFailed: true},
@@ -227,8 +227,10 @@ func updateLoggedInUserDetails() error {
 
 Acquire an `access_token` before you could send user details by hitting the `/oauth/token` endpoint. You can get `env_url`, `sk_client_id` and `sk_client_secret` from _Scalekit Dashboard > Settings_
 
-```bash title="Terminal" frame="terminal"
-curl --location '{{env_url}}/oauth/token' \
+```bash title="get_access_token.sh" frame="terminal"
+# --fail-with-body makes curl exit non-zero on an HTTP error so a failed token
+# request is distinguishable from a successful one.
+curl --fail-with-body --location '{{env_url}}/oauth/token' \
 --header 'Content-Type: application/x-www-form-urlencoded' \
 --data-urlencode 'grant_type=client_credentials' \
 --data-urlencode 'client_id={{sk_client_id}}' \
@@ -247,7 +249,7 @@ Scalekit responds with a JSON payload similar to:
 
 Use the `access_token` in the `Authorization` header when making a machine-to-machine POST request to Scalekit with the user's details.
 
-```bash
+```bash title="send_user_details.sh"
 # --fail-with-body makes curl exit non-zero (and still print the body) on an HTTP
 # error, so a failed request is distinguishable from a successful one.
 curl --fail-with-body --location '{{env_url}}/api/v1/connections/{{connection_id}}/auth-requests/{{login_request_id}}/user' \
