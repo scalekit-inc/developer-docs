@@ -138,8 +138,22 @@ const docsearchTranslations: DocSearchTranslationProps = {
    */
   let activeInstance: DocSearchInstance | null = null
   let activeContainer: HTMLElement | null = null
+  /** Serializes remounts; always recovered to a resolved promise after each job. */
   let mountQueue: Promise<void> = Promise.resolve()
 
+  /**
+   * Build DocSearch client options for a specific host element.
+   *
+   * Clones config-owned search parameters so soft-nav remounts never mutate the
+   * shared virtual config (which would stack duplicate `lang:*` facet filters).
+   * When Ask AI is enabled, merges language facet filters into existing Ask AI
+   * search parameters instead of replacing them.
+   *
+   * @param host - Connected `sl-doc-search` element that owns the button and
+   *   `data-translations` payload. Used as the DocSearch `container`.
+   * @returns Options suitable for `docsearch(options)`. Does not throw on bad
+   *   translation JSON (falls back to undefined translations).
+   */
   function buildOptions(host: HTMLElement): DocSearchProps {
     let translations
     try {
@@ -147,12 +161,6 @@ const docsearchTranslations: DocSearchTranslationProps = {
     } catch {
       translations = undefined
     }
-
-    // Extract the page language (e.g. <html lang="en">) and pass it to DocSearch
-    // as an Algolia facet filter so that the search results are scoped to the current
-    // language. If users already defined facet filters we preserve them while appending
-    // the new one.
-    let searchParameters: DocSearchProps['searchParameters']
 
     // Rebuild the askAi prop as an object:
     // If the askAi prop is a string, treat it as the assistantId and use
@@ -177,26 +185,31 @@ const docsearchTranslations: DocSearchTranslationProps = {
             apiKey: askAiProp.apiKey ?? config.apiKey,
             appId: askAiProp.appId ?? config.appId,
             assistantId: askAiProp.assistantId,
-            searchParameters: askAiProp.searchParameters ?? {},
+            // Clone so remounts do not mutate the shared config object.
+            searchParameters: { ...(askAiProp.searchParameters ?? {}) },
           }
       : undefined
 
     const pageLang = document.documentElement.getAttribute('lang')
 
-    // Initialize searchParameters unconditionally
-    searchParameters = config.searchParameters || {}
+    // Clone config parameters — never mutate `config.searchParameters` in place.
+    const searchParameters: DocSearchProps['searchParameters'] = {
+      ...(config.searchParameters ?? {}),
+    }
 
     if (pageLang) {
-      const existingFilters = searchParameters?.facetFilters ?? []
+      const existingFilters = searchParameters.facetFilters ?? []
       // Ensure facetFilters is always an array of strings for simplicity.
       searchParameters.facetFilters = Array.isArray(existingFilters)
         ? [...existingFilters, `lang:${pageLang}`]
         : [existingFilters, `lang:${pageLang}`].filter(Boolean)
 
       if (askAi) {
-        // Re-use the merged facetFilters from the search parameters so that
-        // Ask AI uses the same language filtering as the regular search.
-        askAi.searchParameters = { facetFilters: searchParameters.facetFilters }
+        // Merge language filters into Ask AI params; keep any existing keys.
+        askAi.searchParameters = {
+          ...(askAi.searchParameters ?? {}),
+          facetFilters: searchParameters.facetFilters,
+        }
       }
     }
 
@@ -211,30 +224,50 @@ const docsearchTranslations: DocSearchTranslationProps = {
     } as DocSearchProps
   }
 
+  /**
+   * Destroy any previous DocSearch instance and mount a fresh one into `host`.
+   *
+   * Soft navigations create a new `sl-doc-search` node while the module-level
+   * DocSearch JS (and its keyboard listeners) would otherwise stay tied to a
+   * removed DOM node. Jobs are serialized on `mountQueue` so concurrent
+   * connect/disconnect pairs cannot leave two live instances.
+   *
+   * @param host - The custom element that just connected (or reconnected).
+   * @returns Resolves when this host's mount attempt finishes. Failures from
+   *   dynamic import or `docsearch()` are logged and do not poison later mounts.
+   */
   async function mountDocSearch(host: HTMLElement) {
-    // Serialize mounts so rapid soft-navs cannot leave two live instances.
-    mountQueue = mountQueue.then(async () => {
-      if (!host.isConnected) return
-
-      // Already mounted on this exact host (e.g. reconnect without replacement).
-      if (activeContainer === host && activeInstance) return
-
-      if (activeInstance) {
+    // Recover from a prior rejected job so the chain never permanently stalls.
+    mountQueue = mountQueue
+      .catch(() => undefined)
+      .then(async () => {
         try {
-          activeInstance.destroy()
-        } catch {
-          // DocSearch may throw if the previous container was already removed.
+          if (!host.isConnected) return
+
+          // Already mounted on this exact host (e.g. reconnect without replacement).
+          if (activeContainer === host && activeInstance) return
+
+          if (activeInstance) {
+            try {
+              activeInstance.destroy()
+            } catch {
+              // DocSearch may throw if the previous container was already removed.
+            }
+            activeInstance = null
+            activeContainer = null
+          }
+
+          const { default: docsearch } = await import('@docsearch/js')
+          if (!host.isConnected) return
+
+          activeInstance = docsearch(buildOptions(host))
+          activeContainer = host
+        } catch (error) {
+          console.error('[sl-doc-search] Failed to mount Algolia DocSearch', error)
+          activeInstance = null
+          activeContainer = null
         }
-        activeInstance = null
-        activeContainer = null
-      }
-
-      const { default: docsearch } = await import('@docsearch/js')
-      if (!host.isConnected) return
-
-      activeInstance = docsearch(buildOptions(host))
-      activeContainer = host
-    })
+      })
     await mountQueue
   }
 
