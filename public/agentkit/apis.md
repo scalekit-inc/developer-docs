@@ -6018,7 +6018,7 @@ Payload delivered for the connected\_account.status\_updated webhook event.
 
   - **`authorization_type` (required)**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — The authorization type of the connected account
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — The authorization type of the connected account
 
   - **`connection_id` (required)**
 
@@ -6103,7 +6103,7 @@ The connected account whose status changed, including its previous status.
 
 - **`authorization_type` (required)**
 
-  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — The authorization type of the connected account
+  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — The authorization type of the connected account
 
 - **`connection_id` (required)**
 
@@ -6176,7 +6176,7 @@ Connected account payload for connected\_account.\* lifecycle webhook events (ex
 
 - **`authorization_type`**
 
-  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
 
 - **`connection_name`**
 
@@ -6194,15 +6194,15 @@ Connected account payload for connected\_account.\* lifecycle webhook events (ex
 
 ```json
 {
-  "id": "",
-  "identifier": "",
-  "connection_id": "",
-  "connection_name": "",
-  "provider": "",
+  "id": "ca_101531404000559370",
+  "identifier": "john@acmecorp.com",
+  "connection_id": "conn_100668583155073286",
+  "connection_name": "gmail",
+  "provider": "GMAIL",
   "authorization_type": "OAUTH",
   "status": "ACTIVE",
-  "token_expires_at": "",
-  "last_used_at": ""
+  "token_expires_at": "2025-12-02T06:59:57.237447Z",
+  "last_used_at": "2025-12-02T06:00:01.374253Z"
 }
 ```
 
@@ -6238,7 +6238,7 @@ Payload delivered for the connected\_account.created webhook event.
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
 
   - **`connection_name`**
 
@@ -6296,15 +6296,15 @@ Payload delivered for the connected\_account.created webhook event.
   "organization_id": "",
   "object": "ConnectedAccount",
   "data": {
-    "id": "",
-    "identifier": "",
-    "connection_id": "",
-    "connection_name": "",
-    "provider": "",
+    "id": "ca_101531404000559370",
+    "identifier": "john@acmecorp.com",
+    "connection_id": "conn_100668583155073286",
+    "connection_name": "gmail",
+    "provider": "GMAIL",
     "authorization_type": "OAUTH",
     "status": "ACTIVE",
-    "token_expires_at": "",
-    "last_used_at": ""
+    "token_expires_at": "2025-12-02T06:59:57.237447Z",
+    "last_used_at": "2025-12-02T06:00:01.374253Z"
   },
   "display_name": ""
 }
@@ -6342,7 +6342,7 @@ Payload delivered for the connected\_account.updated webhook event.
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
 
   - **`connection_name`**
 
@@ -6400,15 +6400,15 @@ Payload delivered for the connected\_account.updated webhook event.
   "organization_id": "",
   "object": "ConnectedAccount",
   "data": {
-    "id": "",
-    "identifier": "",
-    "connection_id": "",
-    "connection_name": "",
-    "provider": "",
+    "id": "ca_101531404000559370",
+    "identifier": "john@acmecorp.com",
+    "connection_id": "conn_100668583155073286",
+    "connection_name": "gmail",
+    "provider": "GMAIL",
     "authorization_type": "OAUTH",
     "status": "ACTIVE",
-    "token_expires_at": "",
-    "last_used_at": ""
+    "token_expires_at": "2025-12-02T06:59:57.237447Z",
+    "last_used_at": "2025-12-02T06:00:01.374253Z"
   },
   "display_name": ""
 }
@@ -6446,7 +6446,7 @@ Payload delivered for the connected\_account.deleted webhook event.
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
 
   - **`connection_name`**
 
@@ -6504,15 +6504,15 @@ Payload delivered for the connected\_account.deleted webhook event.
   "organization_id": "",
   "object": "ConnectedAccount",
   "data": {
-    "id": "",
-    "identifier": "",
-    "connection_id": "",
-    "connection_name": "",
-    "provider": "",
+    "id": "ca_101531404000559370",
+    "identifier": "john@acmecorp.com",
+    "connection_id": "conn_100668583155073286",
+    "connection_name": "gmail",
+    "provider": "GMAIL",
     "authorization_type": "OAUTH",
     "status": "ACTIVE",
-    "token_expires_at": "",
-    "last_used_at": ""
+    "token_expires_at": "2025-12-02T06:59:57.237447Z",
+    "last_used_at": "2025-12-02T06:00:01.374253Z"
   },
   "display_name": ""
 }
@@ -6550,7 +6550,7 @@ Payload delivered for the connected\_account.magic\_link\_generated webhook even
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
 
   - **`connection_name`**
 
@@ -6608,15 +6608,15 @@ Payload delivered for the connected\_account.magic\_link\_generated webhook even
   "organization_id": "",
   "object": "ConnectedAccount",
   "data": {
-    "id": "",
-    "identifier": "",
-    "connection_id": "",
-    "connection_name": "",
-    "provider": "",
+    "id": "ca_101531404000559370",
+    "identifier": "john@acmecorp.com",
+    "connection_id": "conn_100668583155073286",
+    "connection_name": "gmail",
+    "provider": "GMAIL",
     "authorization_type": "OAUTH",
     "status": "ACTIVE",
-    "token_expires_at": "",
-    "last_used_at": ""
+    "token_expires_at": "2025-12-02T06:59:57.237447Z",
+    "last_used_at": "2025-12-02T06:00:01.374253Z"
   },
   "display_name": ""
 }
@@ -6654,7 +6654,7 @@ Payload delivered for the connected\_account.oauth\_tokens\_fetched webhook even
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
 
   - **`connection_name`**
 
@@ -6712,15 +6712,15 @@ Payload delivered for the connected\_account.oauth\_tokens\_fetched webhook even
   "organization_id": "",
   "object": "ConnectedAccount",
   "data": {
-    "id": "",
-    "identifier": "",
-    "connection_id": "",
-    "connection_name": "",
-    "provider": "",
+    "id": "ca_101531404000559370",
+    "identifier": "john@acmecorp.com",
+    "connection_id": "conn_100668583155073286",
+    "connection_name": "gmail",
+    "provider": "GMAIL",
     "authorization_type": "OAUTH",
     "status": "ACTIVE",
-    "token_expires_at": "",
-    "last_used_at": ""
+    "token_expires_at": "2025-12-02T06:59:57.237447Z",
+    "last_used_at": "2025-12-02T06:00:01.374253Z"
   },
   "display_name": ""
 }
@@ -6758,7 +6758,7 @@ Payload delivered for the connected\_account.token\_refresh\_succeeded webhook e
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
 
   - **`connection_name`**
 
@@ -6816,15 +6816,15 @@ Payload delivered for the connected\_account.token\_refresh\_succeeded webhook e
   "organization_id": "",
   "object": "ConnectedAccount",
   "data": {
-    "id": "",
-    "identifier": "",
-    "connection_id": "",
-    "connection_name": "",
-    "provider": "",
+    "id": "ca_101531404000559370",
+    "identifier": "john@acmecorp.com",
+    "connection_id": "conn_100668583155073286",
+    "connection_name": "gmail",
+    "provider": "GMAIL",
     "authorization_type": "OAUTH",
     "status": "ACTIVE",
-    "token_expires_at": "",
-    "last_used_at": ""
+    "token_expires_at": "2025-12-02T06:59:57.237447Z",
+    "last_used_at": "2025-12-02T06:00:01.374253Z"
   },
   "display_name": ""
 }
@@ -6862,7 +6862,7 @@ Payload delivered for the connected\_account.token\_refresh\_failed webhook even
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
 
   - **`connection_name`**
 
@@ -6920,15 +6920,15 @@ Payload delivered for the connected\_account.token\_refresh\_failed webhook even
   "organization_id": "",
   "object": "ConnectedAccount",
   "data": {
-    "id": "",
-    "identifier": "",
-    "connection_id": "",
-    "connection_name": "",
-    "provider": "",
+    "id": "ca_101531404000559370",
+    "identifier": "john@acmecorp.com",
+    "connection_id": "conn_100668583155073286",
+    "connection_name": "gmail",
+    "provider": "GMAIL",
     "authorization_type": "OAUTH",
     "status": "ACTIVE",
-    "token_expires_at": "",
-    "last_used_at": ""
+    "token_expires_at": "2025-12-02T06:59:57.237447Z",
+    "last_used_at": "2025-12-02T06:00:01.374253Z"
   },
   "display_name": ""
 }
@@ -6966,7 +6966,7 @@ Payload delivered for the connected\_account.oauth\_succeeded webhook event.
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
 
   - **`connection_name`**
 
@@ -7024,15 +7024,15 @@ Payload delivered for the connected\_account.oauth\_succeeded webhook event.
   "organization_id": "",
   "object": "ConnectedAccount",
   "data": {
-    "id": "",
-    "identifier": "",
-    "connection_id": "",
-    "connection_name": "",
-    "provider": "",
+    "id": "ca_101531404000559370",
+    "identifier": "john@acmecorp.com",
+    "connection_id": "conn_100668583155073286",
+    "connection_name": "gmail",
+    "provider": "GMAIL",
     "authorization_type": "OAUTH",
     "status": "ACTIVE",
-    "token_expires_at": "",
-    "last_used_at": ""
+    "token_expires_at": "2025-12-02T06:59:57.237447Z",
+    "last_used_at": "2025-12-02T06:00:01.374253Z"
   },
   "display_name": ""
 }

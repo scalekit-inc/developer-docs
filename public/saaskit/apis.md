@@ -4933,7 +4933,7 @@ Retrieves the complete configuration and status details for a specific connectio
 
   - **`type`**
 
-    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
+    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authentication protocol used by this connection. Possible values: OIDC (OpenID Connect), SAML, PASSWORD, OAUTH, PASSWORDLESS, BASIC, BEARER, API\_KEY, WEBAUTHN, OAUTH\_M2M, TRELLO\_OAUTH1, GOOGLE\_DWD, TRUSTED\_IDP, SMART\_FHIR, or NO\_AUTH (no credentials required).
 
   - **`webauthn_config`**
 
@@ -14916,7 +14916,7 @@ Response message containing a paginated list of API clients for the specified or
 
 * **`type`**
 
-  `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
+  `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authentication protocol used by this connection. Possible values: OIDC (OpenID Connect), SAML, PASSWORD, OAUTH, PASSWORDLESS, BASIC, BEARER, API\_KEY, WEBAUTHN, OAUTH\_M2M, TRELLO\_OAUTH1, GOOGLE\_DWD, TRUSTED\_IDP, SMART\_FHIR, or NO\_AUTH (no credentials required).
 
 * **`webauthn_config`**
 
@@ -15655,7 +15655,7 @@ Response message containing a paginated list of API clients for the specified or
 
   - **`type`**
 
-    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
+    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authentication protocol used by this connection. Possible values: OIDC (OpenID Connect), SAML, PASSWORD, OAUTH, PASSWORDLESS, BASIC, BEARER, API\_KEY, WEBAUTHN, OAUTH\_M2M, TRELLO\_OAUTH1, GOOGLE\_DWD, TRUSTED\_IDP, SMART\_FHIR, or NO\_AUTH (no credentials required).
 
   - **`webauthn_config`**
 
@@ -26054,7 +26054,7 @@ Domain payload shared by organization domain lifecycle webhook events. Field nam
   "organization_id": "org_1234567890",
   "environment_id": "env_1234567890",
   "txt_record_key": "scalekit-domain-verification",
-  "txt_record_secret": "sk_dom_verify_abc123",
+  "txt_record_secret": "<redacted>",
   "verification_status": "PENDING",
   "verification_method": "DNS",
   "updated_at": "2024-01-15T11:00:00.123456789Z"
@@ -26161,7 +26161,7 @@ Payload delivered for the organization.domain\_created webhook event.
     "organization_id": "org_1234567890",
     "environment_id": "env_1234567890",
     "txt_record_key": "scalekit-domain-verification",
-    "txt_record_secret": "sk_dom_verify_abc123",
+    "txt_record_secret": "<redacted>",
     "verification_status": "PENDING",
     "verification_method": "DNS",
     "updated_at": "2024-01-15T11:00:00.123456789Z"
@@ -26270,7 +26270,7 @@ Payload delivered for the organization.domain\_deleted webhook event.
     "organization_id": "org_1234567890",
     "environment_id": "env_1234567890",
     "txt_record_key": "scalekit-domain-verification",
-    "txt_record_secret": "sk_dom_verify_abc123",
+    "txt_record_secret": "<redacted>",
     "verification_status": "PENDING",
     "verification_method": "DNS",
     "updated_at": "2024-01-15T11:00:00.123456789Z"
@@ -26379,10 +26379,10 @@ Payload delivered for the organization.domain\_dns\_verification\_success webhoo
     "organization_id": "org_1234567890",
     "environment_id": "env_1234567890",
     "txt_record_key": "scalekit-domain-verification",
-    "txt_record_secret": "sk_dom_verify_abc123",
-    "verification_status": "PENDING",
+    "txt_record_secret": "<redacted>",
+    "verification_status": "VERIFIED",
     "verification_method": "DNS",
-    "updated_at": "2024-01-15T11:00:00.123456789Z"
+    "updated_at": "2024-01-15T12:15:00.123456789Z"
   },
   "display_name": "Organization Domain DNS Verification Success"
 }
@@ -26488,10 +26488,10 @@ Payload delivered for the organization.domain\_dns\_verification\_failed webhook
     "organization_id": "org_1234567890",
     "environment_id": "env_1234567890",
     "txt_record_key": "scalekit-domain-verification",
-    "txt_record_secret": "sk_dom_verify_abc123",
-    "verification_status": "PENDING",
+    "txt_record_secret": "<redacted>",
+    "verification_status": "FAILED",
     "verification_method": "DNS",
-    "updated_at": "2024-01-15T11:00:00.123456789Z"
+    "updated_at": "2024-01-16T11:00:00.123456789Z"
   },
   "display_name": "Organization Domain DNS Verification Failed"
 }

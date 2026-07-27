@@ -6811,7 +6811,7 @@
                   "organization_id": "org_1234567890",
                   "environment_id": "env_1234567890",
                   "txt_record_key": "scalekit-domain-verification",
-                  "txt_record_secret": "sk_dom_verify_abc123",
+                  "txt_record_secret": "<redacted>",
                   "verification_status": "PENDING",
                   "verification_method": "DNS",
                   "updated_at": "2024-01-15T11:00:00.123456789Z"
@@ -6853,7 +6853,7 @@
                   "organization_id": "org_1234567890",
                   "environment_id": "env_1234567890",
                   "txt_record_key": "scalekit-domain-verification",
-                  "txt_record_secret": "sk_dom_verify_abc123",
+                  "txt_record_secret": "<redacted>",
                   "verification_status": "VERIFIED",
                   "verification_method": "DNS",
                   "updated_at": "2024-01-16T09:30:00.123456789Z"
@@ -6895,7 +6895,7 @@
                   "organization_id": "org_1234567890",
                   "environment_id": "env_1234567890",
                   "txt_record_key": "scalekit-domain-verification",
-                  "txt_record_secret": "sk_dom_verify_abc123",
+                  "txt_record_secret": "<redacted>",
                   "verification_status": "VERIFIED",
                   "verification_method": "DNS",
                   "updated_at": "2024-01-15T12:15:00.123456789Z"
@@ -6937,7 +6937,7 @@
                   "organization_id": "org_1234567890",
                   "environment_id": "env_1234567890",
                   "txt_record_key": "scalekit-domain-verification",
-                  "txt_record_secret": "sk_dom_verify_abc123",
+                  "txt_record_secret": "<redacted>",
                   "verification_status": "FAILED",
                   "verification_method": "DNS",
                   "updated_at": "2024-01-16T11:00:00.123456789Z"
@@ -10339,7 +10339,7 @@
             "examples": ["https://auth.example.com/test-connection/conn_2123312131125533"]
           },
           "type": {
-            "description": "Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC_LINK.",
+            "description": "Authentication protocol used by this connection. Possible values: OIDC (OpenID Connect), SAML, PASSWORD, OAUTH, PASSWORDLESS, BASIC, BEARER, API_KEY, WEBAUTHN, OAUTH_M2M, TRELLO_OAUTH1, GOOGLE_DWD, TRUSTED_IDP, SMART_FHIR, or NO_AUTH (no credentials required).",
             "$ref": "#/components/schemas/connectionsConnectionType",
             "examples": ["OIDC"]
           },
@@ -14479,6 +14479,7 @@
               "API_KEY",
               "BASIC_AUTH",
               "BEARER_TOKEN",
+              "CUSTOM",
               "BASIC",
               "OAUTH_M2M",
               "TRELLO_OAUTH1",
@@ -14552,7 +14553,7 @@
           },
           "txt_record_secret": {
             "type": "string",
-            "example": "sk_dom_verify_abc123",
+            "example": "<redacted>",
             "description": "DNS TXT record value Scalekit expects during verification. Treat as sensitive: do not log, display in client UIs, or store in shared channels. Present on domain lifecycle events including after verification or deletion."
           },
           "verification_status": {
@@ -14761,7 +14762,19 @@
             "example": "Organization"
           },
           "data": {
-            "$ref": "#/components/schemas/OrganizationDomainEventData"
+            "$ref": "#/components/schemas/OrganizationDomainEventData",
+            "example": {
+              "id": "dom_1234567890",
+              "domain": "acmecorp.com",
+              "domain_type": "ORGANIZATION_DOMAIN",
+              "organization_id": "org_1234567890",
+              "environment_id": "env_1234567890",
+              "txt_record_key": "scalekit-domain-verification",
+              "txt_record_secret": "<redacted>",
+              "verification_status": "VERIFIED",
+              "verification_method": "DNS",
+              "updated_at": "2024-01-15T12:15:00.123456789Z"
+            }
           },
           "display_name": {
             "type": "string",
@@ -14826,7 +14839,19 @@
             "example": "Organization"
           },
           "data": {
-            "$ref": "#/components/schemas/OrganizationDomainEventData"
+            "$ref": "#/components/schemas/OrganizationDomainEventData",
+            "example": {
+              "id": "dom_1234567890",
+              "domain": "acmecorp.com",
+              "domain_type": "ORGANIZATION_DOMAIN",
+              "organization_id": "org_1234567890",
+              "environment_id": "env_1234567890",
+              "txt_record_key": "scalekit-domain-verification",
+              "txt_record_secret": "<redacted>",
+              "verification_status": "FAILED",
+              "verification_method": "DNS",
+              "updated_at": "2024-01-16T11:00:00.123456789Z"
+            }
           },
           "display_name": {
             "type": "string",
@@ -15559,23 +15584,28 @@
           "id": {
             "type": "string",
             "pattern": "^ca_",
+            "example": "ca_101531404000559370",
             "description": "Connected account identifier"
           },
           "identifier": {
             "type": "string",
+            "example": "john@acmecorp.com",
             "description": "End-user identifier for the connected account"
           },
           "connection_id": {
             "type": "string",
             "pattern": "^conn_",
+            "example": "conn_100668583155073286",
             "description": "Connection identifier"
           },
           "connection_name": {
             "type": "string",
+            "example": "gmail",
             "description": "Connection key_id when available"
           },
           "provider": {
             "type": "string",
+            "example": "GMAIL",
             "description": "Provider of the connected account"
           },
           "authorization_type": {
@@ -15585,6 +15615,7 @@
               "API_KEY",
               "BASIC_AUTH",
               "BEARER_TOKEN",
+              "CUSTOM",
               "BASIC",
               "OAUTH_M2M",
               "TRELLO_OAUTH1",
@@ -15593,21 +15624,25 @@
               "SMART_FHIR",
               "NO_AUTH"
             ],
+            "example": "OAUTH",
             "description": "Authorization type of the connected account"
           },
           "status": {
             "type": "string",
             "enum": ["ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"],
+            "example": "ACTIVE",
             "description": "Current connected account status"
           },
           "token_expires_at": {
             "type": "string",
             "format": "date-time",
+            "example": "2025-12-02T06:59:57.237447Z",
             "description": "When the access token expires, if known"
           },
           "last_used_at": {
             "type": "string",
             "format": "date-time",
+            "example": "2025-12-02T06:00:01.374253Z",
             "description": "When the connected account was last used"
           }
         }
