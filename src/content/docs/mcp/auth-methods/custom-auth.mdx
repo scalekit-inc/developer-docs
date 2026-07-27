@@ -240,37 +240,50 @@ import com.scalekit.internal.http.UpdateLoginUserDetailsResult;
 import com.scalekit.shaded.google.protobuf.Struct;
 import com.scalekit.shaded.google.protobuf.Value;
 
-ScalekitClient scalekitClient = new ScalekitClient(
-    System.getenv("SCALEKIT_ENVIRONMENT_URL"),
-    System.getenv("SCALEKIT_CLIENT_ID"),
-    System.getenv("SCALEKIT_CLIENT_SECRET")
-);
+public class SendUserDetails {
 
-Struct customAttributes = Struct.newBuilder()
-    .putFields("access_level", Value.newBuilder().setNumberValue(101).build())
-    .putFields("subscription_type", Value.newBuilder().setStringValue("PREMIUM").build())
-    .build();
+    // Returns the auth request ID (req_xxx) for the login request.
+    public String sendUserDetails(String connectionId, String loginRequestId, boolean loginSucceeded) {
+        ScalekitClient scalekitClient = new ScalekitClient(
+            System.getenv("SCALEKIT_ENVIRONMENT_URL"),
+            System.getenv("SCALEKIT_CLIENT_ID"),
+            System.getenv("SCALEKIT_CLIENT_SECRET")
+        );
 
-User user = User.newBuilder()
-    .setSub("user_123")
-    .setEmail("test@example.com")
-    .setName("Test User")
-    .addRoles("support")
-    .addRoles("developer")
-    .setCustomAttributes(customAttributes)
-    .build();
+        User user;
+        if (loginSucceeded) {
+            Struct customAttributes = Struct.newBuilder()
+                .putFields("access_level", Value.newBuilder().setNumberValue(101).build())
+                .putFields("subscription_type", Value.newBuilder().setStringValue("PREMIUM").build())
+                .build();
 
-UpdateLoginUserDetailsResult result =
-    scalekitClient.login().updateLoginUserDetails("{{connection_id}}", "{{login_request_id}}", user);
+            user = User.newBuilder()
+                .setSub("user_123")
+                .setEmail("test@example.com")
+                .setName("Test User")
+                .addRoles("support")
+                .addRoles("developer")
+                .setCustomAttributes(customAttributes)
+                .build();
+        } else {
+            // Report a failed login — sub/email are not required when loginFailed is true.
+            user = User.newBuilder().setLoginFailed(true).build();
+        }
 
-// The response carries the auth request ID (req_xxx). Optionally store it to fetch
-// events for this auth request later, or paste it into Scalekit Dashboard > Auth Logs
-// to view the entire auth journey for this login.
-String authRequestId = result.getAuthRequestId();
-
-// To report a failed login instead, send loginFailed=true (sub/email not required):
-// User failedUser = User.newBuilder().setLoginFailed(true).build();
-// scalekitClient.login().updateLoginUserDetails("{{connection_id}}", "{{login_request_id}}", failedUser);
+        try {
+            UpdateLoginUserDetailsResult result =
+                scalekitClient.login().updateLoginUserDetails(connectionId, loginRequestId, user);
+            // The auth request ID (req_xxx). Optionally store it to fetch events for this auth
+            // request later, or paste it into Scalekit Dashboard > Auth Logs to view the entire
+            // auth journey for this login.
+            return result.getAuthRequestId();
+        } catch (Exception e) {
+            // Handle the request/SDK failure (network error, invalid credentials, etc.) and
+            // stop — do NOT redirect back to Scalekit on a failed request.
+            throw new RuntimeException("Failed to update login user details", e);
+        }
+    }
+}
 ```
 
 </TabItem>
@@ -321,7 +334,7 @@ curl --fail-with-body --location '{{env_url}}/api/v1/connections/{{connection_id
 #   { "auth_request_id": "req_xxxxxxxxxxxx" }
 
 # To report a failed login instead, send login_failed: true (sub/email not required):
-# curl --location '{{env_url}}/api/v1/connections/{{connection_id}}/auth-requests/{{login_request_id}}/user' \
+# curl --fail-with-body --location '{{env_url}}/api/v1/connections/{{connection_id}}/auth-requests/{{login_request_id}}/user' \
 #   --header 'Content-Type: application/json' \
 #   --header 'Authorization: Bearer {{access_token}}' \
 #   --data-raw '{ "login_failed": true }'
