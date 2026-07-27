@@ -1,0 +1,70 @@
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components'
+
+Register your Discord bot token with Scalekit so it can authenticate and proxy requests on behalf of your users. Discord Bot uses Bearer Token authentication — there is no redirect URI or OAuth flow.
+
+<Steps>
+1. ### Create a Discord application and bot user
+
+   - Go to the [Discord Developer Portal](https://discord.com/developers/applications) and sign in with your Discord account.
+   - Click **New Application**, enter a name (for example, `Agent Auth`), accept the terms, and click **Create**.
+   - Open your application and go to **Bot** in the left sidebar.
+
+2. ### Get your bot token
+
+   - On the **Bot** page, under **Token**, click **Reset Token** to generate a new bot token and copy it immediately — Discord shows the full token only once.
+
+     ![Discord application Bot page showing the Username, Token, and Authorization Flow settings](@/assets/docs/agent-connectors/discordbot/bot-tab.png)
+
+   <Aside type="caution" title="Keep your bot token secret">
+     Anyone with your bot token can control your bot completely. If you suspect it has leaked, click **Reset Token** immediately to invalidate the old one.
+   </Aside>
+
+3. ### Invite the bot to a server
+
+   - Go to **OAuth2** > **URL Generator** in the left sidebar.
+   - Under **Scopes**, select **bot**.
+   - Under **Bot Permissions**, select the permissions your agent needs.
+
+     ![Discord Bot Permissions page showing General, Text, and Voice permission checkboxes](@/assets/docs/agent-connectors/discord/bot-permissions.png)
+
+   - Copy the generated URL at the bottom of the page, open it in a browser, and select a server to add the bot to.
+
+4. ### Create a connection in Scalekit
+
+   - In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** → **Connections** → **Create Connection**.
+   - Search for **Discord Bot** and click **Create**.
+   - Note the **Connection name** — use this as `connection_name` in your code (e.g., `discordbot`).
+
+5. ### Add a connected account
+
+   Connected accounts link a specific user identifier in your system to a Discord bot token. Add them via the dashboard for testing, or via the Scalekit API in production.
+
+   **Via dashboard (for testing)**
+
+   - Open the connection and click the **Connected Accounts** tab → **Add account**.
+   - Fill in **Your User's ID** and **Bot Token**, then click **Save**.
+
+   **Via API (for production)**
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```ts
+       await scalekit.connect.upsertConnectedAccount({
+         connectionName: 'discordbot',
+         identifier: 'user@example.com',
+         credentials: { apiKey: 'your-discord-bot-token' },
+       })
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```python
+       scalekit_client.connect.upsert_connected_account(
+           connection_name="discordbot",
+           identifier="user@example.com",
+           credentials={"api_key": "your-discord-bot-token"},
+       )
+       ```
+     </TabItem>
+   </Tabs>
+
+</Steps>
