@@ -3255,6 +3255,291 @@
     "description": "Create a new Amplitude behavioral cohort from an explicit list of user or Amplitude IDs, or update an existing cohort's membership list wholesale by passing existing_cohort_id. To add/remove individual members from an already-created cohort instead, use amplitudeanalytics_update…"
   },
   {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_add_experiment_variant_cohorts",
+    "description": "Add specific cohorts to this experiment variant's targeting inclusions. This adds to the variant's existing cohort inclusions; it does not replace them. CONFIRMED from Amplitude's docs: POST /api/1/experiments/{id}/variants/{variantKey}/cohorts with body {\"inclusions\": [...]}, a…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_add_experiment_variant_users",
+    "description": "Force-bucket specific users or devices into this experiment variant — identified by user ID, device ID, or an email-style identifier — bypassing the experiment's normal allocation. This adds to the variant's existing inclusions; it does not replace them. CONFIRMED from Amplitude…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_add_flag_variant_cohorts",
+    "description": "Add specific cohorts as inclusions on a variant of an Amplitude Experiment feature flag — explicitly assigning these cohorts to this variant regardless of the variant's rollout weight. UNCONFIRMED: unlike the users endpoint, Amplitude's docs don't mention any documented maximum …"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_add_flag_variant_users",
+    "description": "Add specific users, devices, or emails as individual inclusions on a variant of an Amplitude Experiment feature flag — explicitly assigning these identities to this variant regardless of the variant's rollout weight. Amplitude allows up to 2,000 total inclusions per variant; exc…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_bulk_delete_experiment_variant_cohorts",
+    "description": "Remove a specific set of cohorts (by ID) from an experiment variant's targeting, leaving other included cohorts untouched. Limited to 100 IDs per request — split larger lists across multiple calls.\n\nCONFIRMED from Amplitude's docs: despite being a DELETE request, cohort IDs are …"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_bulk_delete_experiment_variant_users",
+    "description": "Remove a specific set of users or devices (by ID) from an experiment variant's inclusion list, leaving all other included users untouched. This is distinct from the remove-all-users tool, which wipes the entire inclusion list regardless of which IDs exist. Limited to 100 user/de…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_bulk_delete_flag_variant_cohorts",
+    "description": "Remove a specific set of cohorts (by ID) from a flag variant's individual-inclusion list — the cohort analog of Bulk Delete Flag Variant Users.\n\nCONFIRMED from Amplitude's docs: despite being a DELETE request, cohort IDs are sent as a JSON body (not query params). The body field…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_bulk_delete_flag_variant_users",
+    "description": "Remove a specific SET of users (by user/device ID) from a flag variant's individual-inclusion list — distinct from Remove All Flag Variant Users, which unconditionally clears every user regardless of ID. Per Amplitude's official docs (verified via two independent doc fetches), t…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_create_deployment",
+    "description": "Create a new deployment in a project. Required fields per Amplitude's docs: projectId, label, and type. A deployment represents one SDK key / environment (for example \"Production\" or \"Development\") that flags and experiments get deployed to. A successful call returns a 200 OK wi…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_create_experiment",
+    "description": "Create a new Amplitude experiment. Required: project_id, key. name is technically optional per this tool (Amplitude's docs disagree), but supply it anyway — every documented example includes it.\n\ndeliveryMethod and rolloutPercentage are not create-time fields — only projectId, k…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_create_experiment_deployment",
+    "description": "Deploy an experiment to one or more deployments. CONFIRMED directly from Amplitude's official docs (exact JSON example: {\"deployments\": [\"<deploymentId>\"]}): the request body field is the plural array 'deployments', not a singular 'deploymentId' — pass a one-element array to dep…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_create_experiment_variant",
+    "description": "Add a new variant to an experiment. CONFIRMED from Amplitude's official docs (verified against the page's raw rendered source, not just its visible text): POST /api/1/experiments/{id}/variants with body {key, name, description, payload, rolloutWeight} — key is the only required …"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_create_flag",
+    "description": "Create a new Amplitude Experiment feature flag. Required: projectId, key. All other fields are optional at creation.\n\nCONFIRMED from Amplitude's docs: tags, rolloutPercentage, enabled, and archive are NOT settable here — set them afterward via update_flag. parentDependencies isn…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_create_flag_deployment",
+    "description": "Deploy a flag to one or more deployments. Per Amplitude's official docs, the request body takes a deployments array of deployment ID strings — {\"deployments\": [\"<deploymentId>\"]} — not a single deploymentId field, so this tool accepts deployment_ids as an array (pass one ID to d…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_create_flag_variant",
+    "description": "Create a new variant for an Amplitude Experiment feature flag. Only the variant key is required — name, description, payload, and rollout weight are all optional. CONFIRMED (live-tested): this org has Feature Experimentation entitlement. Per Amplitude's docs, a successful call r…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_create_holdout_group",
+    "description": "Create a new holdout group. Required: projectId, name, holdoutPercentage. \\`individualInclusion\\`/\\`individualExclusion\\` are named from the holdout's own point of view — inclusion in the holdout means exclusion from experiments, and vice versa.\n\nFIXED (confirmed live both regio…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_create_mutex_group",
+    "description": "Create a new mutex group. Required: projectId, name, slots (JSON-encoded string — see that field's description for shape).\n\nFIXED (confirmed live both regions): this field was previously sent as a raw string instead of a parsed array via body_json_mapping — now uses jsonnet_temp…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_delete_experiment_deployment",
+    "description": "Undeploy an experiment from a specific deployment — the experiment is removed from that deployment only; any other deployments it's on are unaffected. A successful call returns 200 OK with the literal text 'OK' (not a JSON body); this tool reports success from the status code, n…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_delete_experiment_variant",
+    "description": "Permanently remove a variant from an experiment. CONFIRMED from Amplitude's docs: DELETE /api/1/experiments/{id}/variants/{variantKey}, no request body. A successful call returns 200 OK with the literal text \"OK\" — Amplitude does not use 204 No Content here, unlike many REST API…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_delete_flag_deployment",
+    "description": "Undeploy a flag from a specific deployment, identified by deploymentId. This does not delete the deployment itself — a deployment is a shared target that other flags and experiments may also use — it only removes this one flag's association with that deployment. Use List Flag De…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_delete_flag_variant",
+    "description": "Permanently remove a variant from an Amplitude Experiment feature flag. This deletes the variant definition itself — its key, name, description, payload, and rollout weight — not just its user or cohort inclusions. This is irreversible; any experiment allocations or targeting ru…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_get_experiment",
+    "description": "Get complete details for a single Amplitude experiment by its ID. Returns the full experiment object — its shape is CONFIRMED via a live-tested list_experiments call against this org (list_experiments returns objects of this same type): id, projectId, deployments[], key, name, d…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_get_experiment_variant",
+    "description": "Get a single variant's details from an Amplitude experiment, by experiment ID and variant key (the variants[].key value, e.g. \"control\" or \"treatment\"). Use list_experiment_variants or the parent experiment's variants[] array to find valid keys. Amplitude's docs give no example …"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_get_experiment_variant_cohorts",
+    "description": "List the cohorts explicitly included in this experiment variant's targeting. CONFIRMED from Amplitude's docs: GET /api/1/experiments/{id}/variants/{variantKey}/cohorts, no query parameters documented (no pagination). Response is 200 OK with an array of cohort ID strings (not obj…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_get_experiment_variant_users",
+    "description": "List the users and devices explicitly force-bucketed into this experiment variant via inclusions — separate from, and in addition to, the experiment's normal allocation/targeting rules. CONFIRMED from Amplitude's docs: GET /api/1/experiments/{id}/variants/{variantKey}/users, no …"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_get_experiment_version",
+    "description": "Get a single historical version snapshot of an Amplitude experiment, by experiment ID and version ID. Use a version ID returned from list_experiment_versions. Amplitude's docs describe this endpoint only as returning \"details of a specific version of an experiment\" — no example …"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_get_flag",
+    "description": "Get the full configuration of a single Amplitude Experiment feature flag by its ID. Returns the flag's complete details as documented by Amplitude: id, projectId, deployments, key, name, description, enabled, evaluationMode, bucketingKey, bucketingSalt, bucketingUnit, variants, …"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_get_flag_variant",
+    "description": "Get a single variant's details from an Amplitude Experiment feature flag. Returns a JSON object with key (required), and optional payload, name, and description fields. Variant keys may contain letters, numbers, underscores, and hyphens (per Amplitude's docs). This org has confi…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_get_flag_variant_cohorts",
+    "description": "List the cohorts individually assigned (included) to a specific variant of an Amplitude Experiment feature flag. No query parameters, filters, or pagination are documented for this endpoint. Per Amplitude's docs, a successful call returns a 200 OK response with \"the variant's co…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_get_flag_variant_users",
+    "description": "List the users and devices individually assigned (included) to a specific variant of an Amplitude Experiment feature flag — the explicit targeting list, separate from the variant's percentage-based rollout weight. No query parameters, filters, or pagination are documented for th…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_get_flag_version",
+    "description": "Get a single version snapshot of an Amplitude Experiment feature flag. Returns a JSON object with createdAt, createdBy, version (a number), and flagConfig (the full flag configuration as it existed at that version — id, projectId, deployments, key, name, description, enabled, ev…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_get_holdout_group",
+    "description": "Retrieve a single holdout group's full configuration by ID — expected to mirror the shape accepted by Create Holdout Group (name, description, holdoutPercentage, evaluationMode, bucketingKey, experiments, individualInclusion, individualExclusion). UNCONFIRMED (doc gap): Amplitud…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_get_mutex_group",
+    "description": "Retrieve a single mutex group's full configuration by ID — expected to include its slots and which experiments, holdouts, or individuals occupy each one, mirroring the shape accepted by Create Mutex Group (name, description, evaluationMode, bucketingKey, bucketingSalt, and a slo…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_list_all_versions",
+    "description": "List version history across ALL flags and experiments the API key can access, in one global, paginated feed — distinct from amplitudeexperimentmanagement_list_flag_versions and amplitudeexperimentmanagement_list_experiment_versions, which return the version history for one speci…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_list_deployments",
+    "description": "List all deployments in the project. A deployment represents one SDK key / environment (for example \"Production\" or \"Development\") that flags and experiments get deployed to. CONFIRMED from Amplitude's docs: the response follows {\"deployments\": [{\"id\": ..., \"projectId\": ..., \"la…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_list_experiment_deployments",
+    "description": "List the deployments that an experiment is currently deployed to. Amplitude's docs for this endpoint describe the response only as a '200 OK response and an array of JSON objects with the experiment's deployment details', without a concrete field-level example on this specific p…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_list_experiment_variants",
+    "description": "List all variants defined on a single Amplitude experiment. Amplitude's docs document no query parameters and give no example response JSON for this endpoint — expect an array of variant objects matching the variants[] entries embedded in the experiment resource. A live-tested l…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_list_experiment_versions",
+    "description": "List the version history for a single Amplitude experiment — one entry per saved change. Amplitude's docs state versions are \"ordered by creation time, descending\" but document no query parameters for this endpoint (no limit/cursor/date-range filtering) and give no example respo…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_list_experiments",
+    "description": "List Amplitude experiments for the project. Supports cursor-based pagination — pass the response's nextCursor value back as cursor to get the next page — and optional filters. CONFIRMED (live-tested): the real response shape is {\"experiments\": [...], \"nextCursor\": ...} — Amplitu…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_list_flag_deployments",
+    "description": "List the deployments a flag is currently deployed to. Per Amplitude's official docs, a successful call returns 200 OK with an array of JSON objects describing each deployment. UNCONFIRMED: Amplitude's docs don't show a raw JSON response example for this specific flag-scoped endp…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_list_flag_variants",
+    "description": "List all variants defined on a single Amplitude Experiment feature flag. Returns a JSON array of variant objects, each with key (required), and optional payload, name, and description fields. CONFIRMED from Amplitude's docs: no cursor/limit pagination parameters are documented f…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_list_flag_versions",
+    "description": "List the version history for a single Amplitude Experiment feature flag. Returns a JSON array of version objects, each containing createdAt, createdBy, version (a number), and flagConfig (a full snapshot of the flag's configuration at that version, including id, projectId, deplo…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_list_flags",
+    "description": "List Amplitude Experiment feature flags for the project. Supports cursor-based pagination — pass the response's nextCursor value back as cursor to get the next page — and optional filters. CONFIRMED (live-tested): this org has Feature Experimentation entitlement — a real call re…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_list_holdout_groups",
+    "description": "List all holdout groups in the project. A holdout group excludes a fixed percentage of users from every experiment associated with it, so you can measure the overall product impact of those experiments against a clean control population. UNCONFIRMED (doc gap): Amplitude's own AP…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_list_mutex_groups",
+    "description": "List all mutex groups in the project. A mutex group defines a set of \"slots\" so that the experiments, flags, holdouts, and/or individuals assigned to the same slot never run simultaneously for the same user — useful for guaranteeing exclusivity between conflicting tests. UNCONFI…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_remove_all_experiment_variant_users",
+    "description": "Remove ALL users and devices from an experiment variant's inclusion list in a single call — this clears the entire list, not one entry. To remove only one specific user, use the single-user removal tool (DELETE .../users/{userIndex}) instead. To remove a specific named set of us…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_remove_all_flag_variant_users",
+    "description": "Remove ALL users from a flag variant's individual-inclusion list in a single call. This clears the ENTIRE user list for that variant unconditionally — every individually-included user is removed, not just one. There is no way to keep a subset with this endpoint. To remove only o…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_remove_experiment_variant_user",
+    "description": "Remove one specific user or device (by its zero-indexed position) from an experiment variant's inclusion list. Per Amplitude's docs, the userIndex value should come from the 'Get variant inclusions' endpoint's response (GET /api/1/experiments/{id}/variants/{variantKey}/users) — …"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_remove_flag_variant_user",
+    "description": "Remove one specific user from a flag variant's individual-inclusion list, identified by the user's zero-indexed position in that list — not by user ID. Per Amplitude's official docs (confirmed via direct doc fetch), userIndex is documented as type string (e.g. \"0\", \"1\", \"2\"); ge…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_update_deployment",
+    "description": "Edit an existing deployment's label, or archive/restore it. Only the provided fields are changed; omitted fields remain unchanged. CONFIRMED from Amplitude's docs: a successful call returns 200 OK with the literal text \"OK\" as the body, not a JSON object — this tool treats the r…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_update_experiment",
+    "description": "Update an existing Amplitude experiment — partial update; only provided fields change (except end_date, see below). Editable fields: name, description, bucketing_key, bucketing_salt, bucketing_unit, evaluation_mode (remote|local), rollout_percentage (0-100), target_segments (JSO…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_update_experiment_variant",
+    "description": "Edit an existing experiment variant — rename its key, or update name, description, payload, or rolloutWeight. All body fields are optional; omit a field to leave its current value unchanged. CONFIRMED FROM RAW PAGE SOURCE (not just visible rendered text): this endpoint is PATCH,…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_update_flag",
+    "description": "Edit an existing Amplitude Experiment feature flag — partial update, only provided fields change.\n\nCONFIRMED editable: name, description, bucketingKey, bucketingSalt, bucketingUnit, evaluationMode, rolloutPercentage, targetSegments, enabled, archive, tags. CONFIRMED NOT editable…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_update_flag_variant",
+    "description": "Edit an existing flag variant — partial update; a provided \\`payload\\` fully replaces the existing one rather than merging.\n\nAmplitude's docs are self-contradictory on the HTTP method: the endpoint heading says POST, but the runnable curl example uses PATCH against the same URL.…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_update_holdout_group",
+    "description": "Edit an existing holdout group — partial update, only provided fields change. \\`individualInclusion\\`/\\`individualExclusion\\` are named from the holdout's own point of view — inclusion in the holdout means exclusion from experiments, and vice versa. UNCONFIRMED whether array fie…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_update_mutex_group",
+    "description": "Edit an existing mutex group's name, description, or archived state. Only the provided fields are changed; omitted fields remain unchanged. This endpoint does NOT edit slots — to change which experiments, holdouts, or individuals occupy a slot, use amplitudeexperimentmanagement_…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_update_mutex_group_slot",
+    "description": "Edit which experiments, holdouts, and/or individuals occupy one slot in a mutex group, without touching the slot's percentage or any other slot. Complex fields are JSON-encoded strings, not native arrays. UNCONFIRMED whether omitting one of experiments/holdouts/individuals leave…"
+  },
+  {
     "slug": "anakinmcp",
     "name": "anakinmcp_agentic_search",
     "description": "Run multi-source deep research. The pipeline searches the web, scrapes the most relevant citations, and uses an LLM to structure the combined data into a unified answer. Async — typically 1–5 minutes. Use this when one URL or a flat search result will not answer the question (co…"
@@ -52523,11 +52808,6 @@
     "slug": "stripe",
     "name": "stripe_void_invoice_dahlia",
     "description": "Mark a finalized invoice as void. This cannot be undone. Voiding an invoice is similar to deletion, however it only applies to finalized invoices and maintains a papertrail where the invoice can still be found."
-  },
-  {
-    "slug": "stripe",
-    "name": "stripe_zz_test_echo_probe_dahlia",
-    "description": "Temporary throwaway tool for verifying raw wire bytes against an echo service. Not for real use — delete after testing."
   },
   {
     "slug": "stripemcp",

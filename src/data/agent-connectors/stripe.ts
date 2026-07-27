@@ -3458,18 +3458,4 @@ export const tools: Tool[] = [
       },
     ],
   },
-  {
-    name: 'stripe_zz_test_echo_probe_dahlia',
-    description: `Temporary throwaway tool for verifying raw wire bytes against an echo service. Not for real use — delete after testing.`,
-    params: [
-      {
-        name: 'big_id',
-        type: 'string',
-        required: false,
-        description: `Body-spread large ID field, typed as string to avoid protobuf Struct's double-precision ceiling on NumberValue.`,
-      },
-      { name: 'customer', type: 'string', required: false, description: `Body-spread field.` },
-      { name: 'expand', type: 'string', required: false, description: `Query-mapped field.` },
-    ],
-  },
 ]
