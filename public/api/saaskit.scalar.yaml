@@ -4950,7 +4950,7 @@ webhooks:
                 organization_id: org_1234567890
                 environment_id: env_1234567890
                 txt_record_key: scalekit-domain-verification
-                txt_record_secret: sk_dom_verify_abc123
+                txt_record_secret: <redacted>
                 verification_status: PENDING
                 verification_method: DNS
                 updated_at: '2024-01-15T11:00:00.123456789Z'
@@ -4982,7 +4982,7 @@ webhooks:
                 organization_id: org_1234567890
                 environment_id: env_1234567890
                 txt_record_key: scalekit-domain-verification
-                txt_record_secret: sk_dom_verify_abc123
+                txt_record_secret: <redacted>
                 verification_status: VERIFIED
                 verification_method: DNS
                 updated_at: '2024-01-16T09:30:00.123456789Z'
@@ -5014,7 +5014,7 @@ webhooks:
                 organization_id: org_1234567890
                 environment_id: env_1234567890
                 txt_record_key: scalekit-domain-verification
-                txt_record_secret: sk_dom_verify_abc123
+                txt_record_secret: <redacted>
                 verification_status: VERIFIED
                 verification_method: DNS
                 updated_at: '2024-01-15T12:15:00.123456789Z'
@@ -5046,7 +5046,7 @@ webhooks:
                 organization_id: org_1234567890
                 environment_id: env_1234567890
                 txt_record_key: scalekit-domain-verification
-                txt_record_secret: sk_dom_verify_abc123
+                txt_record_secret: <redacted>
                 verification_status: FAILED
                 verification_method: DNS
                 updated_at: '2024-01-16T11:00:00.123456789Z'
@@ -7000,7 +7000,7 @@ components:
           examples:
             - https://auth.example.com/test-connection/conn_2123312131125533
         type:
-          description: Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC_LINK.
+          description: 'Authentication protocol used by this connection. Possible values: OIDC (OpenID Connect), SAML, PASSWORD, OAUTH, PASSWORDLESS, BASIC, BEARER, API_KEY, WEBAUTHN, OAUTH_M2M, TRELLO_OAUTH1, GOOGLE_DWD, TRUSTED_IDP, SMART_FHIR, or NO_AUTH (no credentials required).'
           $ref: '#/components/schemas/connectionsConnectionType'
           examples:
             - OIDC
@@ -10043,7 +10043,7 @@ components:
           description: DNS TXT record host used for ownership verification
         txt_record_secret:
           type: string
-          example: sk_dom_verify_abc123
+          example: <redacted>
           description: 'DNS TXT record value Scalekit expects during verification. Treat as sensitive: do not log, display in client UIs, or store in shared channels. Present on domain lifecycle events including after verification or deletion.'
         verification_status:
           type: string
@@ -10228,6 +10228,17 @@ components:
           example: Organization
         data:
           $ref: '#/components/schemas/OrganizationDomainEventData'
+          example:
+            id: dom_1234567890
+            domain: acmecorp.com
+            domain_type: ORGANIZATION_DOMAIN
+            organization_id: org_1234567890
+            environment_id: env_1234567890
+            txt_record_key: scalekit-domain-verification
+            txt_record_secret: <redacted>
+            verification_status: VERIFIED
+            verification_method: DNS
+            updated_at: '2024-01-15T12:15:00.123456789Z'
         display_name:
           type: string
           example: Organization Domain DNS Verification Success
@@ -10283,6 +10294,17 @@ components:
           example: Organization
         data:
           $ref: '#/components/schemas/OrganizationDomainEventData'
+          example:
+            id: dom_1234567890
+            domain: acmecorp.com
+            domain_type: ORGANIZATION_DOMAIN
+            organization_id: org_1234567890
+            environment_id: env_1234567890
+            txt_record_key: scalekit-domain-verification
+            txt_record_secret: <redacted>
+            verification_status: FAILED
+            verification_method: DNS
+            updated_at: '2024-01-16T11:00:00.123456789Z'
         display_name:
           type: string
           example: Organization Domain DNS Verification Failed
@@ -12183,7 +12205,7 @@ x-scalar-active-environment: staging
 x-scalekit-docs-operation-rank:
   default: 0
   path-segments:
-    - match: ':external'
+    - match: :external
       rank: 1
-    - match: ':search'
+    - match: :search
       rank: 2

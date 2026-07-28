@@ -89,7 +89,7 @@ Retrieves a paginated list of connected accounts for third-party integrations. F
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authorization mechanism type.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization mechanism type.
 
   - **`connection_id`**
 
@@ -432,7 +432,7 @@ Updates authentication credentials and configuration for an existing connected a
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -769,7 +769,7 @@ Creates a new connected account with OAuth tokens or API credentials for third-p
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -970,7 +970,7 @@ Retrieves complete authentication details for a connected account including OAut
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -1171,7 +1171,7 @@ Returns metadata for a connected account including status, connector type, provi
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -1556,7 +1556,7 @@ Search for connected accounts in your environment using a text query that matche
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authorization mechanism type.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization mechanism type.
 
   - **`connection_id`**
 
@@ -3371,7 +3371,7 @@ Triggered when OAuth authentication succeeds
 
 * **`authorization_type`**
 
-  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
 * **`connection_id`**
 
@@ -3443,7 +3443,7 @@ Triggered when OAuth authentication succeeds
 
 * **`authorization_type`**
 
-  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authorization mechanism type.
+  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization mechanism type.
 
 * **`connection_id`**
 
@@ -3525,6 +3525,7 @@ Triggered when OAuth authentication succeeds
 * GOOGLE\_DWD: Google Domain-Wide Delegation
 * TRUSTED\_IDP: Trusted Identity Provider federation (e.g. AWS STS AssumeRoleWithWebIdentity)
 * SMART\_FHIR: SMART on FHIR (SMART App Launch) — OAuth 2.0 authorization for FHIR servers
+* NO\_AUTH: No authentication — connector requires no credentials (e.g. public docs MCP servers)
 
 **Example:**
 
@@ -3762,7 +3763,7 @@ Triggered when OAuth authentication succeeds
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -3959,7 +3960,7 @@ Triggered when OAuth authentication succeeds
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -4141,7 +4142,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authorization mechanism type.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization mechanism type.
 
   - **`connection_id`**
 
@@ -4265,7 +4266,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authorization mechanism type.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization mechanism type.
 
   - **`connection_id`**
 
@@ -4635,7 +4636,7 @@ Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g.
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -6005,66 +6006,6 @@ Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g.
 }
 ```
 
-### ScalekitEvent
-
-- **Type:**`object`
-
-* **`environment_id` (required)**
-
-  `string` — The environment ID where the event occurred
-
-* **`id` (required)**
-
-  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
-
-* **`object` (required)**
-
-  `string`, possible values: `"Organization", "Connection", "Role", "Directory", "DirectoryUser", "DirectoryGroup", "Permission", "OrgMembership", "User"` — The type of object that triggered the webhook
-
-* **`occurred_at` (required)**
-
-  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
-
-* **`spec_version` (required)**
-
-  `string` — The webhook specification version
-
-* **`type` (required)**
-
-  `string`, possible values: `"organization.created", "organization.updated", "organization.deleted", "organization.sso_created", "organization.sso_deleted", "organization.sso_enabled", "organization.sso_disabled", "user.signup", "user.login", "user.logout", "user.organization_invitation", "user.organization_membership_created", "user.organization_membership_updated", "user.organization_membership_deleted", "organization.directory.user_created", "organization.directory.user_updated", "organization.directory.user_deleted", "organization.directory.group_created", "organization.directory.group_updated", "organization.directory.group_deleted", "organization.directory_enabled", "organization.directory_disabled", "role.created", "role.updated", "role.deleted", "permission.created", "permission.updated", "permission.deleted"` — The event type
-
-* **`data`**
-
-  `object` — The event payload (structure varies by event type)
-
-* **`display_name`**
-
-  `string` — Human-readable display name for the event
-
-* **`organization_id`**
-
-  `string` — The organization ID (if applicable)
-
-**Example:**
-
-```json
-{
-  "spec_version": "1",
-  "id": "evt_1234567890abcdef",
-  "type": "organization.created",
-  "occurred_at": "2024-01-01T00:00:00Z",
-  "environment_id": "env_1234567890abcdef",
-  "organization_id": "org_1234567890abcdef",
-  "object": "Organization",
-  "data": {
-    "id": "org_1234567890abcdef",
-    "name": "Example Organization",
-    "created_at": "2024-01-01T00:00:00Z"
-  },
-  "display_name": "Organization Created"
-}
-```
-
 ### ConnectedAccountStatusUpdatedEvent
 
 - **Type:**`object`
@@ -6077,7 +6018,7 @@ Payload delivered for the connected\_account.status\_updated webhook event.
 
   - **`authorization_type` (required)**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — The authorization type of the connected account
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — The authorization type of the connected account
 
   - **`connection_id` (required)**
 
@@ -6162,7 +6103,7 @@ The connected account whose status changed, including its previous status.
 
 - **`authorization_type` (required)**
 
-  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — The authorization type of the connected account
+  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — The authorization type of the connected account
 
 - **`connection_id` (required)**
 
@@ -6204,5 +6145,895 @@ The connected account whose status changed, including its previous status.
   "authorization_type": "OAUTH",
   "status": "EXPIRED",
   "old_status": "ACTIVE"
+}
+```
+
+### ConnectedAccountEventData
+
+- **Type:**`object`
+
+Connected account payload for connected\_account.\* lifecycle webhook events (except status\_updated, which uses ConnectedAccountStatusUpdatedEventData).
+
+- **`connection_id` (required)**
+
+  `string` — Connection identifier
+
+- **`id` (required)**
+
+  `string` — Connected account identifier
+
+- **`identifier` (required)**
+
+  `string` — End-user identifier for the connected account
+
+- **`provider` (required)**
+
+  `string` — Provider of the connected account
+
+- **`status` (required)**
+
+  `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — Current connected account status
+
+- **`authorization_type`**
+
+  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+
+- **`connection_name`**
+
+  `string` — Connection key\_id when available
+
+- **`last_used_at`**
+
+  `string`, format: `date-time` — When the connected account was last used
+
+- **`token_expires_at`**
+
+  `string`, format: `date-time` — When the access token expires, if known
+
+**Example:**
+
+```json
+{
+  "id": "ca_101531404000559370",
+  "identifier": "john@acmecorp.com",
+  "connection_id": "conn_100668583155073286",
+  "connection_name": "gmail",
+  "provider": "GMAIL",
+  "authorization_type": "OAUTH",
+  "status": "ACTIVE",
+  "token_expires_at": "2025-12-02T06:59:57.237447Z",
+  "last_used_at": "2025-12-02T06:00:01.374253Z"
+}
+```
+
+### ConnectedAccountCreatedEvent
+
+- **Type:**`object`
+
+Payload delivered for the connected\_account.created webhook event.
+
+- **`data` (required)**
+
+  `object` — Connected account payload for connected\_account.\* lifecycle webhook events (except status\_updated, which uses ConnectedAccountStatusUpdatedEventData).
+
+  - **`connection_id` (required)**
+
+    `string` — Connection identifier
+
+  - **`id` (required)**
+
+    `string` — Connected account identifier
+
+  - **`identifier` (required)**
+
+    `string` — End-user identifier for the connected account
+
+  - **`provider` (required)**
+
+    `string` — Provider of the connected account
+
+  - **`status` (required)**
+
+    `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — Current connected account status
+
+  - **`authorization_type`**
+
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+
+  - **`connection_name`**
+
+    `string` — Connection key\_id when available
+
+  - **`last_used_at`**
+
+    `string`, format: `date-time` — When the connected account was last used
+
+  - **`token_expires_at`**
+
+    `string`, format: `date-time` — When the access token expires, if known
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"ConnectedAccount"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"connected_account.created"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "connected_account.created",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "ConnectedAccount",
+  "data": {
+    "id": "ca_101531404000559370",
+    "identifier": "john@acmecorp.com",
+    "connection_id": "conn_100668583155073286",
+    "connection_name": "gmail",
+    "provider": "GMAIL",
+    "authorization_type": "OAUTH",
+    "status": "ACTIVE",
+    "token_expires_at": "2025-12-02T06:59:57.237447Z",
+    "last_used_at": "2025-12-02T06:00:01.374253Z"
+  },
+  "display_name": ""
+}
+```
+
+### ConnectedAccountUpdatedEvent
+
+- **Type:**`object`
+
+Payload delivered for the connected\_account.updated webhook event.
+
+- **`data` (required)**
+
+  `object` — Connected account payload for connected\_account.\* lifecycle webhook events (except status\_updated, which uses ConnectedAccountStatusUpdatedEventData).
+
+  - **`connection_id` (required)**
+
+    `string` — Connection identifier
+
+  - **`id` (required)**
+
+    `string` — Connected account identifier
+
+  - **`identifier` (required)**
+
+    `string` — End-user identifier for the connected account
+
+  - **`provider` (required)**
+
+    `string` — Provider of the connected account
+
+  - **`status` (required)**
+
+    `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — Current connected account status
+
+  - **`authorization_type`**
+
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+
+  - **`connection_name`**
+
+    `string` — Connection key\_id when available
+
+  - **`last_used_at`**
+
+    `string`, format: `date-time` — When the connected account was last used
+
+  - **`token_expires_at`**
+
+    `string`, format: `date-time` — When the access token expires, if known
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"ConnectedAccount"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"connected_account.updated"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "connected_account.updated",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "ConnectedAccount",
+  "data": {
+    "id": "ca_101531404000559370",
+    "identifier": "john@acmecorp.com",
+    "connection_id": "conn_100668583155073286",
+    "connection_name": "gmail",
+    "provider": "GMAIL",
+    "authorization_type": "OAUTH",
+    "status": "ACTIVE",
+    "token_expires_at": "2025-12-02T06:59:57.237447Z",
+    "last_used_at": "2025-12-02T06:00:01.374253Z"
+  },
+  "display_name": ""
+}
+```
+
+### ConnectedAccountDeletedEvent
+
+- **Type:**`object`
+
+Payload delivered for the connected\_account.deleted webhook event.
+
+- **`data` (required)**
+
+  `object` — Connected account payload for connected\_account.\* lifecycle webhook events (except status\_updated, which uses ConnectedAccountStatusUpdatedEventData).
+
+  - **`connection_id` (required)**
+
+    `string` — Connection identifier
+
+  - **`id` (required)**
+
+    `string` — Connected account identifier
+
+  - **`identifier` (required)**
+
+    `string` — End-user identifier for the connected account
+
+  - **`provider` (required)**
+
+    `string` — Provider of the connected account
+
+  - **`status` (required)**
+
+    `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — Current connected account status
+
+  - **`authorization_type`**
+
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+
+  - **`connection_name`**
+
+    `string` — Connection key\_id when available
+
+  - **`last_used_at`**
+
+    `string`, format: `date-time` — When the connected account was last used
+
+  - **`token_expires_at`**
+
+    `string`, format: `date-time` — When the access token expires, if known
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"ConnectedAccount"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"connected_account.deleted"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "connected_account.deleted",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "ConnectedAccount",
+  "data": {
+    "id": "ca_101531404000559370",
+    "identifier": "john@acmecorp.com",
+    "connection_id": "conn_100668583155073286",
+    "connection_name": "gmail",
+    "provider": "GMAIL",
+    "authorization_type": "OAUTH",
+    "status": "ACTIVE",
+    "token_expires_at": "2025-12-02T06:59:57.237447Z",
+    "last_used_at": "2025-12-02T06:00:01.374253Z"
+  },
+  "display_name": ""
+}
+```
+
+### ConnectedAccountMagicLinkGeneratedEvent
+
+- **Type:**`object`
+
+Payload delivered for the connected\_account.magic\_link\_generated webhook event.
+
+- **`data` (required)**
+
+  `object` — Connected account payload for connected\_account.\* lifecycle webhook events (except status\_updated, which uses ConnectedAccountStatusUpdatedEventData).
+
+  - **`connection_id` (required)**
+
+    `string` — Connection identifier
+
+  - **`id` (required)**
+
+    `string` — Connected account identifier
+
+  - **`identifier` (required)**
+
+    `string` — End-user identifier for the connected account
+
+  - **`provider` (required)**
+
+    `string` — Provider of the connected account
+
+  - **`status` (required)**
+
+    `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — Current connected account status
+
+  - **`authorization_type`**
+
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+
+  - **`connection_name`**
+
+    `string` — Connection key\_id when available
+
+  - **`last_used_at`**
+
+    `string`, format: `date-time` — When the connected account was last used
+
+  - **`token_expires_at`**
+
+    `string`, format: `date-time` — When the access token expires, if known
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"ConnectedAccount"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"connected_account.magic_link_generated"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "connected_account.magic_link_generated",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "ConnectedAccount",
+  "data": {
+    "id": "ca_101531404000559370",
+    "identifier": "john@acmecorp.com",
+    "connection_id": "conn_100668583155073286",
+    "connection_name": "gmail",
+    "provider": "GMAIL",
+    "authorization_type": "OAUTH",
+    "status": "ACTIVE",
+    "token_expires_at": "2025-12-02T06:59:57.237447Z",
+    "last_used_at": "2025-12-02T06:00:01.374253Z"
+  },
+  "display_name": ""
+}
+```
+
+### ConnectedAccountOauthTokensFetchedEvent
+
+- **Type:**`object`
+
+Payload delivered for the connected\_account.oauth\_tokens\_fetched webhook event.
+
+- **`data` (required)**
+
+  `object` — Connected account payload for connected\_account.\* lifecycle webhook events (except status\_updated, which uses ConnectedAccountStatusUpdatedEventData).
+
+  - **`connection_id` (required)**
+
+    `string` — Connection identifier
+
+  - **`id` (required)**
+
+    `string` — Connected account identifier
+
+  - **`identifier` (required)**
+
+    `string` — End-user identifier for the connected account
+
+  - **`provider` (required)**
+
+    `string` — Provider of the connected account
+
+  - **`status` (required)**
+
+    `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — Current connected account status
+
+  - **`authorization_type`**
+
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+
+  - **`connection_name`**
+
+    `string` — Connection key\_id when available
+
+  - **`last_used_at`**
+
+    `string`, format: `date-time` — When the connected account was last used
+
+  - **`token_expires_at`**
+
+    `string`, format: `date-time` — When the access token expires, if known
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"ConnectedAccount"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"connected_account.oauth_tokens_fetched"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "connected_account.oauth_tokens_fetched",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "ConnectedAccount",
+  "data": {
+    "id": "ca_101531404000559370",
+    "identifier": "john@acmecorp.com",
+    "connection_id": "conn_100668583155073286",
+    "connection_name": "gmail",
+    "provider": "GMAIL",
+    "authorization_type": "OAUTH",
+    "status": "ACTIVE",
+    "token_expires_at": "2025-12-02T06:59:57.237447Z",
+    "last_used_at": "2025-12-02T06:00:01.374253Z"
+  },
+  "display_name": ""
+}
+```
+
+### ConnectedAccountTokenRefreshSucceededEvent
+
+- **Type:**`object`
+
+Payload delivered for the connected\_account.token\_refresh\_succeeded webhook event.
+
+- **`data` (required)**
+
+  `object` — Connected account payload for connected\_account.\* lifecycle webhook events (except status\_updated, which uses ConnectedAccountStatusUpdatedEventData).
+
+  - **`connection_id` (required)**
+
+    `string` — Connection identifier
+
+  - **`id` (required)**
+
+    `string` — Connected account identifier
+
+  - **`identifier` (required)**
+
+    `string` — End-user identifier for the connected account
+
+  - **`provider` (required)**
+
+    `string` — Provider of the connected account
+
+  - **`status` (required)**
+
+    `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — Current connected account status
+
+  - **`authorization_type`**
+
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+
+  - **`connection_name`**
+
+    `string` — Connection key\_id when available
+
+  - **`last_used_at`**
+
+    `string`, format: `date-time` — When the connected account was last used
+
+  - **`token_expires_at`**
+
+    `string`, format: `date-time` — When the access token expires, if known
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"ConnectedAccount"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"connected_account.token_refresh_succeeded"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "connected_account.token_refresh_succeeded",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "ConnectedAccount",
+  "data": {
+    "id": "ca_101531404000559370",
+    "identifier": "john@acmecorp.com",
+    "connection_id": "conn_100668583155073286",
+    "connection_name": "gmail",
+    "provider": "GMAIL",
+    "authorization_type": "OAUTH",
+    "status": "ACTIVE",
+    "token_expires_at": "2025-12-02T06:59:57.237447Z",
+    "last_used_at": "2025-12-02T06:00:01.374253Z"
+  },
+  "display_name": ""
+}
+```
+
+### ConnectedAccountTokenRefreshFailedEvent
+
+- **Type:**`object`
+
+Payload delivered for the connected\_account.token\_refresh\_failed webhook event.
+
+- **`data` (required)**
+
+  `object` — Connected account payload for connected\_account.\* lifecycle webhook events (except status\_updated, which uses ConnectedAccountStatusUpdatedEventData).
+
+  - **`connection_id` (required)**
+
+    `string` — Connection identifier
+
+  - **`id` (required)**
+
+    `string` — Connected account identifier
+
+  - **`identifier` (required)**
+
+    `string` — End-user identifier for the connected account
+
+  - **`provider` (required)**
+
+    `string` — Provider of the connected account
+
+  - **`status` (required)**
+
+    `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — Current connected account status
+
+  - **`authorization_type`**
+
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+
+  - **`connection_name`**
+
+    `string` — Connection key\_id when available
+
+  - **`last_used_at`**
+
+    `string`, format: `date-time` — When the connected account was last used
+
+  - **`token_expires_at`**
+
+    `string`, format: `date-time` — When the access token expires, if known
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"ConnectedAccount"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"connected_account.token_refresh_failed"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "connected_account.token_refresh_failed",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "ConnectedAccount",
+  "data": {
+    "id": "ca_101531404000559370",
+    "identifier": "john@acmecorp.com",
+    "connection_id": "conn_100668583155073286",
+    "connection_name": "gmail",
+    "provider": "GMAIL",
+    "authorization_type": "OAUTH",
+    "status": "ACTIVE",
+    "token_expires_at": "2025-12-02T06:59:57.237447Z",
+    "last_used_at": "2025-12-02T06:00:01.374253Z"
+  },
+  "display_name": ""
+}
+```
+
+### ConnectedAccountOauthSucceededEvent
+
+- **Type:**`object`
+
+Payload delivered for the connected\_account.oauth\_succeeded webhook event.
+
+- **`data` (required)**
+
+  `object` — Connected account payload for connected\_account.\* lifecycle webhook events (except status\_updated, which uses ConnectedAccountStatusUpdatedEventData).
+
+  - **`connection_id` (required)**
+
+    `string` — Connection identifier
+
+  - **`id` (required)**
+
+    `string` — Connected account identifier
+
+  - **`identifier` (required)**
+
+    `string` — End-user identifier for the connected account
+
+  - **`provider` (required)**
+
+    `string` — Provider of the connected account
+
+  - **`status` (required)**
+
+    `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — Current connected account status
+
+  - **`authorization_type`**
+
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+
+  - **`connection_name`**
+
+    `string` — Connection key\_id when available
+
+  - **`last_used_at`**
+
+    `string`, format: `date-time` — When the connected account was last used
+
+  - **`token_expires_at`**
+
+    `string`, format: `date-time` — When the access token expires, if known
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"ConnectedAccount"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"connected_account.oauth_succeeded"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "connected_account.oauth_succeeded",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "ConnectedAccount",
+  "data": {
+    "id": "ca_101531404000559370",
+    "identifier": "john@acmecorp.com",
+    "connection_id": "conn_100668583155073286",
+    "connection_name": "gmail",
+    "provider": "GMAIL",
+    "authorization_type": "OAUTH",
+    "status": "ACTIVE",
+    "token_expires_at": "2025-12-02T06:59:57.237447Z",
+    "last_used_at": "2025-12-02T06:00:01.374253Z"
+  },
+  "display_name": ""
 }
 ```
