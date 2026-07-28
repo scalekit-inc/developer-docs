@@ -60,7 +60,7 @@ Retrieves a paginated list of connected accounts for third-party integrations. F
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authorization mechanism type.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization mechanism type.
 
   - **`connection_id`**
 
@@ -403,7 +403,7 @@ Updates authentication credentials and configuration for an existing connected a
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -740,7 +740,7 @@ Creates a new connected account with OAuth tokens or API credentials for third-p
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -941,7 +941,7 @@ Retrieves complete authentication details for a connected account including OAut
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -1142,7 +1142,7 @@ Returns metadata for a connected account including status, connector type, provi
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -1527,7 +1527,7 @@ Search for connected accounts in your environment using a text query that matche
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authorization mechanism type.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization mechanism type.
 
   - **`connection_id`**
 
@@ -1687,7 +1687,7 @@ Retrieves a list of connections in the environment
 
   - **`type`**
 
-    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authentication protocol used by the connection
+    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authentication protocol used by the connection
 
 **Example:**
 
@@ -7702,7 +7702,7 @@ Retrieves the complete configuration and status details for a specific connectio
 
   - **`type`**
 
-    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
+    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authentication protocol used by this connection. Possible values: OIDC (OpenID Connect), SAML, PASSWORD, OAUTH, PASSWORDLESS, BASIC, BEARER, API\_KEY, WEBAUTHN, OAUTH\_M2M, TRELLO\_OAUTH1, GOOGLE\_DWD, TRUSTED\_IDP, SMART\_FHIR, or NO\_AUTH (no credentials required).
 
   - **`webauthn_config`**
 
@@ -15047,6 +15047,34 @@ Triggered when an organization is updated
 
 Triggered when an organization is deleted
 
+### Organization Domain Created
+
+- **Method:**`POST`
+- **Path:**`/webhooks/organization.domain_created`
+
+Triggered when a domain is added to an organization (organization domain or allowed email domain). The data payload may include txt\_record\_secret for DNS verification — treat that value as sensitive and do not log it.
+
+### Organization Domain Deleted
+
+- **Method:**`POST`
+- **Path:**`/webhooks/organization.domain_deleted`
+
+Triggered when a domain is removed from an organization. The payload may still include txt\_record\_secret from the deleted domain record — treat it as sensitive.
+
+### Organization Domain DNS Verification Success
+
+- **Method:**`POST`
+- **Path:**`/webhooks/organization.domain_dns_verification_success`
+
+Triggered when DNS TXT record validation confirms ownership of an organization domain. Handle txt\_record\_secret as sensitive if present.
+
+### Organization Domain DNS Verification Failed
+
+- **Method:**`POST`
+- **Path:**`/webhooks/organization.domain_dns_verification_failed`
+
+Triggered when the DNS verification window expires without a successful TXT record match. Handle txt\_record\_secret as sensitive if present.
+
 ### User Signup
 
 - **Method:**`POST`
@@ -17566,7 +17594,7 @@ Response message containing a paginated list of API clients for the specified or
 
 * **`authorization_type`**
 
-  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
 * **`connection_id`**
 
@@ -17638,7 +17666,7 @@ Response message containing a paginated list of API clients for the specified or
 
 * **`authorization_type`**
 
-  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authorization mechanism type.
+  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization mechanism type.
 
 * **`connection_id`**
 
@@ -17720,6 +17748,7 @@ Response message containing a paginated list of API clients for the specified or
 * GOOGLE\_DWD: Google Domain-Wide Delegation
 * TRUSTED\_IDP: Trusted Identity Provider federation (e.g. AWS STS AssumeRoleWithWebIdentity)
 * SMART\_FHIR: SMART on FHIR (SMART App Launch) — OAuth 2.0 authorization for FHIR servers
+* NO\_AUTH: No authentication — connector requires no credentials (e.g. public docs MCP servers)
 
 **Example:**
 
@@ -17957,7 +17986,7 @@ Response message containing a paginated list of API clients for the specified or
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -18154,7 +18183,7 @@ Response message containing a paginated list of API clients for the specified or
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -18336,7 +18365,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authorization mechanism type.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization mechanism type.
 
   - **`connection_id`**
 
@@ -18460,7 +18489,7 @@ Google Domain-Wide Delegation authentication — used for GOOGLE\_DWD connection
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authorization mechanism type.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization mechanism type.
 
   - **`connection_id`**
 
@@ -18830,7 +18859,7 @@ Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g.
 
   - **`authorization_type`**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.
 
   - **`connection_id`**
 
@@ -19404,7 +19433,7 @@ Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g.
 
 * **`type`**
 
-  `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
+  `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authentication protocol used by this connection. Possible values: OIDC (OpenID Connect), SAML, PASSWORD, OAUTH, PASSWORDLESS, BASIC, BEARER, API\_KEY, WEBAUTHN, OAUTH\_M2M, TRELLO\_OAUTH1, GOOGLE\_DWD, TRUSTED\_IDP, SMART\_FHIR, or NO\_AUTH (no credentials required).
 
 * **`webauthn_config`**
 
@@ -20143,7 +20172,7 @@ Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g.
 
   - **`type`**
 
-    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC\_LINK.
+    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authentication protocol used by this connection. Possible values: OIDC (OpenID Connect), SAML, PASSWORD, OAUTH, PASSWORDLESS, BASIC, BEARER, API\_KEY, WEBAUTHN, OAUTH\_M2M, TRELLO\_OAUTH1, GOOGLE\_DWD, TRUSTED\_IDP, SMART\_FHIR, or NO\_AUTH (no credentials required).
 
   - **`webauthn_config`**
 
@@ -20423,7 +20452,7 @@ Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g.
 
 * **`type`**
 
-  `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authentication protocol used by the connection
+  `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authentication protocol used by the connection
 
 **Example:**
 
@@ -20502,7 +20531,7 @@ Trusted IDP federated authentication — used for TRUSTED\_IDP connections (e.g.
 
   - **`type`**
 
-    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — Authentication protocol used by the connection
+    `string`, possible values: `"OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY", "WEBAUTHN", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authentication protocol used by the connection
 
 **Example:**
 
@@ -31756,66 +31785,6 @@ For update messages ensure the indexes are same as the base model itself.
 }
 ```
 
-### ScalekitEvent
-
-- **Type:**`object`
-
-* **`environment_id` (required)**
-
-  `string` — The environment ID where the event occurred
-
-* **`id` (required)**
-
-  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
-
-* **`object` (required)**
-
-  `string`, possible values: `"Organization", "Connection", "Role", "Directory", "DirectoryUser", "DirectoryGroup", "Permission", "OrgMembership", "User"` — The type of object that triggered the webhook
-
-* **`occurred_at` (required)**
-
-  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
-
-* **`spec_version` (required)**
-
-  `string` — The webhook specification version
-
-* **`type` (required)**
-
-  `string`, possible values: `"organization.created", "organization.updated", "organization.deleted", "organization.sso_created", "organization.sso_deleted", "organization.sso_enabled", "organization.sso_disabled", "user.signup", "user.login", "user.logout", "user.organization_invitation", "user.organization_membership_created", "user.organization_membership_updated", "user.organization_membership_deleted", "organization.directory.user_created", "organization.directory.user_updated", "organization.directory.user_deleted", "organization.directory.group_created", "organization.directory.group_updated", "organization.directory.group_deleted", "organization.directory_enabled", "organization.directory_disabled", "role.created", "role.updated", "role.deleted", "permission.created", "permission.updated", "permission.deleted"` — The event type
-
-* **`data`**
-
-  `object` — The event payload (structure varies by event type)
-
-* **`display_name`**
-
-  `string` — Human-readable display name for the event
-
-* **`organization_id`**
-
-  `string` — The organization ID (if applicable)
-
-**Example:**
-
-```json
-{
-  "spec_version": "1",
-  "id": "evt_1234567890abcdef",
-  "type": "organization.created",
-  "occurred_at": "2024-01-01T00:00:00Z",
-  "environment_id": "env_1234567890abcdef",
-  "organization_id": "org_1234567890abcdef",
-  "object": "Organization",
-  "data": {
-    "id": "org_1234567890abcdef",
-    "name": "Example Organization",
-    "created_at": "2024-01-01T00:00:00Z"
-  },
-  "display_name": "Organization Created"
-}
-```
-
 ### ConnectedAccountStatusUpdatedEvent
 
 - **Type:**`object`
@@ -31828,7 +31797,7 @@ Payload delivered for the connected\_account.status\_updated webhook event.
 
   - **`authorization_type` (required)**
 
-    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — The authorization type of the connected account
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — The authorization type of the connected account
 
   - **`connection_id` (required)**
 
@@ -31913,7 +31882,7 @@ The connected account whose status changed, including its previous status.
 
 - **`authorization_type` (required)**
 
-  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR"` — The authorization type of the connected account
+  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — The authorization type of the connected account
 
 - **`connection_id` (required)**
 
@@ -31955,5 +31924,5676 @@ The connected account whose status changed, including its previous status.
   "authorization_type": "OAUTH",
   "status": "EXPIRED",
   "old_status": "ACTIVE"
+}
+```
+
+### OrganizationDomainEventData
+
+- **Type:**`object`
+
+Domain payload shared by organization domain lifecycle webhook events. Field names match the backend DomainDataEvent model (not the REST domainsDomain resource).
+
+- **`domain` (required)**
+
+  `string` — The domain name
+
+- **`domain_type` (required)**
+
+  `string`, possible values: `"ORGANIZATION_DOMAIN", "ALLOWED_EMAIL_DOMAIN"` — ORGANIZATION\_DOMAIN for SSO/SCIM routing domains; ALLOWED\_EMAIL\_DOMAIN for auto-join email domains
+
+- **`environment_id` (required)**
+
+  `string` — Environment where the domain is configured
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the domain (prefixed with "dom\_")
+
+- **`organization_id` (required)**
+
+  `string` — Organization that owns the domain
+
+- **`verification_status` (required)**
+
+  `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain
+
+- **`txt_record_key`**
+
+  `string` — DNS TXT record host used for ownership verification
+
+- **`txt_record_secret`**
+
+  `string` — DNS TXT record value Scalekit expects during verification. Treat as sensitive: do not log, display in client UIs, or store in shared channels. Present on domain lifecycle events including after verification or deletion.
+
+- **`updated_at`**
+
+  `string`, format: `date-time` — When the domain status last changed
+
+- **`verification_method`**
+
+  `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — How ownership is verified: DNS (TXT record), ADMIN (dashboard or API without DNS), or NOT\_APPLICABLE (allowed email domains)
+
+**Example:**
+
+```json
+{
+  "id": "dom_1234567890",
+  "domain": "acmecorp.com",
+  "domain_type": "ORGANIZATION_DOMAIN",
+  "organization_id": "org_1234567890",
+  "environment_id": "env_1234567890",
+  "txt_record_key": "scalekit-domain-verification",
+  "txt_record_secret": "<redacted>",
+  "verification_status": "PENDING",
+  "verification_method": "DNS",
+  "updated_at": "2024-01-15T11:00:00.123456789Z"
+}
+```
+
+### OrganizationDomainCreatedEvent
+
+- **Type:**`object`
+
+Payload delivered for the organization.domain\_created webhook event.
+
+- **`data` (required)**
+
+  `object` — Domain payload shared by organization domain lifecycle webhook events. Field names match the backend DomainDataEvent model (not the REST domainsDomain resource).
+
+  - **`domain` (required)**
+
+    `string` — The domain name
+
+  - **`domain_type` (required)**
+
+    `string`, possible values: `"ORGANIZATION_DOMAIN", "ALLOWED_EMAIL_DOMAIN"` — ORGANIZATION\_DOMAIN for SSO/SCIM routing domains; ALLOWED\_EMAIL\_DOMAIN for auto-join email domains
+
+  - **`environment_id` (required)**
+
+    `string` — Environment where the domain is configured
+
+  - **`id` (required)**
+
+    `string` — Unique identifier for the domain (prefixed with "dom\_")
+
+  - **`organization_id` (required)**
+
+    `string` — Organization that owns the domain
+
+  - **`verification_status` (required)**
+
+    `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain
+
+  - **`txt_record_key`**
+
+    `string` — DNS TXT record host used for ownership verification
+
+  - **`txt_record_secret`**
+
+    `string` — DNS TXT record value Scalekit expects during verification. Treat as sensitive: do not log, display in client UIs, or store in shared channels. Present on domain lifecycle events including after verification or deletion.
+
+  - **`updated_at`**
+
+    `string`, format: `date-time` — When the domain status last changed
+
+  - **`verification_method`**
+
+    `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — How ownership is verified: DNS (TXT record), ADMIN (dashboard or API without DNS), or NOT\_APPLICABLE (allowed email domains)
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"Organization"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"organization.domain_created"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "evt_4567890123",
+  "type": "organization.domain_created",
+  "occurred_at": "2024-01-15T11:00:00.123456789Z",
+  "environment_id": "env_1234567890",
+  "organization_id": "org_1234567890",
+  "object": "Organization",
+  "data": {
+    "id": "dom_1234567890",
+    "domain": "acmecorp.com",
+    "domain_type": "ORGANIZATION_DOMAIN",
+    "organization_id": "org_1234567890",
+    "environment_id": "env_1234567890",
+    "txt_record_key": "scalekit-domain-verification",
+    "txt_record_secret": "<redacted>",
+    "verification_status": "PENDING",
+    "verification_method": "DNS",
+    "updated_at": "2024-01-15T11:00:00.123456789Z"
+  },
+  "display_name": "Organization Domain Created"
+}
+```
+
+### OrganizationDomainDeletedEvent
+
+- **Type:**`object`
+
+Payload delivered for the organization.domain\_deleted webhook event.
+
+- **`data` (required)**
+
+  `object` — Domain payload shared by organization domain lifecycle webhook events. Field names match the backend DomainDataEvent model (not the REST domainsDomain resource).
+
+  - **`domain` (required)**
+
+    `string` — The domain name
+
+  - **`domain_type` (required)**
+
+    `string`, possible values: `"ORGANIZATION_DOMAIN", "ALLOWED_EMAIL_DOMAIN"` — ORGANIZATION\_DOMAIN for SSO/SCIM routing domains; ALLOWED\_EMAIL\_DOMAIN for auto-join email domains
+
+  - **`environment_id` (required)**
+
+    `string` — Environment where the domain is configured
+
+  - **`id` (required)**
+
+    `string` — Unique identifier for the domain (prefixed with "dom\_")
+
+  - **`organization_id` (required)**
+
+    `string` — Organization that owns the domain
+
+  - **`verification_status` (required)**
+
+    `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain
+
+  - **`txt_record_key`**
+
+    `string` — DNS TXT record host used for ownership verification
+
+  - **`txt_record_secret`**
+
+    `string` — DNS TXT record value Scalekit expects during verification. Treat as sensitive: do not log, display in client UIs, or store in shared channels. Present on domain lifecycle events including after verification or deletion.
+
+  - **`updated_at`**
+
+    `string`, format: `date-time` — When the domain status last changed
+
+  - **`verification_method`**
+
+    `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — How ownership is verified: DNS (TXT record), ADMIN (dashboard or API without DNS), or NOT\_APPLICABLE (allowed email domains)
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"Organization"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"organization.domain_deleted"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "evt_4567890456",
+  "type": "organization.domain_deleted",
+  "occurred_at": "2024-01-16T09:30:00.123456789Z",
+  "environment_id": "env_1234567890",
+  "organization_id": "org_1234567890",
+  "object": "Organization",
+  "data": {
+    "id": "dom_1234567890",
+    "domain": "acmecorp.com",
+    "domain_type": "ORGANIZATION_DOMAIN",
+    "organization_id": "org_1234567890",
+    "environment_id": "env_1234567890",
+    "txt_record_key": "scalekit-domain-verification",
+    "txt_record_secret": "<redacted>",
+    "verification_status": "PENDING",
+    "verification_method": "DNS",
+    "updated_at": "2024-01-15T11:00:00.123456789Z"
+  },
+  "display_name": "Organization Domain Deleted"
+}
+```
+
+### OrganizationDomainDnsVerificationSuccessEvent
+
+- **Type:**`object`
+
+Payload delivered for the organization.domain\_dns\_verification\_success webhook event.
+
+- **`data` (required)**
+
+  `object` — Domain payload shared by organization domain lifecycle webhook events. Field names match the backend DomainDataEvent model (not the REST domainsDomain resource).
+
+  - **`domain` (required)**
+
+    `string` — The domain name
+
+  - **`domain_type` (required)**
+
+    `string`, possible values: `"ORGANIZATION_DOMAIN", "ALLOWED_EMAIL_DOMAIN"` — ORGANIZATION\_DOMAIN for SSO/SCIM routing domains; ALLOWED\_EMAIL\_DOMAIN for auto-join email domains
+
+  - **`environment_id` (required)**
+
+    `string` — Environment where the domain is configured
+
+  - **`id` (required)**
+
+    `string` — Unique identifier for the domain (prefixed with "dom\_")
+
+  - **`organization_id` (required)**
+
+    `string` — Organization that owns the domain
+
+  - **`verification_status` (required)**
+
+    `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain
+
+  - **`txt_record_key`**
+
+    `string` — DNS TXT record host used for ownership verification
+
+  - **`txt_record_secret`**
+
+    `string` — DNS TXT record value Scalekit expects during verification. Treat as sensitive: do not log, display in client UIs, or store in shared channels. Present on domain lifecycle events including after verification or deletion.
+
+  - **`updated_at`**
+
+    `string`, format: `date-time` — When the domain status last changed
+
+  - **`verification_method`**
+
+    `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — How ownership is verified: DNS (TXT record), ADMIN (dashboard or API without DNS), or NOT\_APPLICABLE (allowed email domains)
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"Organization"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"organization.domain_dns_verification_success"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "evt_4567890789",
+  "type": "organization.domain_dns_verification_success",
+  "occurred_at": "2024-01-15T12:15:00.123456789Z",
+  "environment_id": "env_1234567890",
+  "organization_id": "org_1234567890",
+  "object": "Organization",
+  "data": {
+    "id": "dom_1234567890",
+    "domain": "acmecorp.com",
+    "domain_type": "ORGANIZATION_DOMAIN",
+    "organization_id": "org_1234567890",
+    "environment_id": "env_1234567890",
+    "txt_record_key": "scalekit-domain-verification",
+    "txt_record_secret": "<redacted>",
+    "verification_status": "VERIFIED",
+    "verification_method": "DNS",
+    "updated_at": "2024-01-15T12:15:00.123456789Z"
+  },
+  "display_name": "Organization Domain DNS Verification Success"
+}
+```
+
+### OrganizationDomainDnsVerificationFailedEvent
+
+- **Type:**`object`
+
+Payload delivered for the organization.domain\_dns\_verification\_failed webhook event.
+
+- **`data` (required)**
+
+  `object` — Domain payload shared by organization domain lifecycle webhook events. Field names match the backend DomainDataEvent model (not the REST domainsDomain resource).
+
+  - **`domain` (required)**
+
+    `string` — The domain name
+
+  - **`domain_type` (required)**
+
+    `string`, possible values: `"ORGANIZATION_DOMAIN", "ALLOWED_EMAIL_DOMAIN"` — ORGANIZATION\_DOMAIN for SSO/SCIM routing domains; ALLOWED\_EMAIL\_DOMAIN for auto-join email domains
+
+  - **`environment_id` (required)**
+
+    `string` — Environment where the domain is configured
+
+  - **`id` (required)**
+
+    `string` — Unique identifier for the domain (prefixed with "dom\_")
+
+  - **`organization_id` (required)**
+
+    `string` — Organization that owns the domain
+
+  - **`verification_status` (required)**
+
+    `string`, possible values: `"PENDING", "VERIFIED", "FAILED", "AUTO_VERIFIED"` — Verification status of the domain
+
+  - **`txt_record_key`**
+
+    `string` — DNS TXT record host used for ownership verification
+
+  - **`txt_record_secret`**
+
+    `string` — DNS TXT record value Scalekit expects during verification. Treat as sensitive: do not log, display in client UIs, or store in shared channels. Present on domain lifecycle events including after verification or deletion.
+
+  - **`updated_at`**
+
+    `string`, format: `date-time` — When the domain status last changed
+
+  - **`verification_method`**
+
+    `string`, possible values: `"ADMIN", "DNS", "NOT_APPLICABLE"` — How ownership is verified: DNS (TXT record), ADMIN (dashboard or API without DNS), or NOT\_APPLICABLE (allowed email domains)
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"Organization"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"organization.domain_dns_verification_failed"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "evt_4567891012",
+  "type": "organization.domain_dns_verification_failed",
+  "occurred_at": "2024-01-16T11:00:00.123456789Z",
+  "environment_id": "env_1234567890",
+  "organization_id": "org_1234567890",
+  "object": "Organization",
+  "data": {
+    "id": "dom_1234567890",
+    "domain": "acmecorp.com",
+    "domain_type": "ORGANIZATION_DOMAIN",
+    "organization_id": "org_1234567890",
+    "environment_id": "env_1234567890",
+    "txt_record_key": "scalekit-domain-verification",
+    "txt_record_secret": "<redacted>",
+    "verification_status": "FAILED",
+    "verification_method": "DNS",
+    "updated_at": "2024-01-16T11:00:00.123456789Z"
+  },
+  "display_name": "Organization Domain DNS Verification Failed"
+}
+```
+
+### OrganizationEventData
+
+- **Type:**`object`
+
+Organization payload for organization.created and related lifecycle events.
+
+- **`display_name` (required)**
+
+  `string` — Organization display name
+
+- **`id` (required)**
+
+  `string` — Scalekit organization identifier
+
+- **`create_time`**
+
+  `string`, format: `date-time` — When the organization was created
+
+- **`deleted_at`**
+
+  `string`, format: `date-time` — When the organization was deleted (deleted events only)
+
+- **`external_id`**
+
+  `string` — Your system's unique ID for this organization
+
+- **`metadata`**
+
+  `object` — Organization metadata map
+
+- **`region_code`**
+
+  `string` — Region code for the organization
+
+- **`settings`**
+
+  `object` — Organization feature settings
+
+  - **`features`**
+
+    `array`
+
+    **Items:**
+
+    - **`enabled`**
+
+      `boolean`
+
+    - **`name`**
+
+      `string`
+
+- **`update_time`**
+
+  `string`, format: `date-time` — When the organization was last updated
+
+**Example:**
+
+```json
+{
+  "id": "org_1234567890",
+  "display_name": "AcmeCorp",
+  "external_id": "org_external_123",
+  "region_code": "US",
+  "create_time": "2025-12-09T09:25:02.02Z",
+  "update_time": "2025-12-09T09:25:02.025330364Z",
+  "deleted_at": "",
+  "metadata": {
+    "additionalProperty": "anything"
+  },
+  "settings": {
+    "features": [
+      {
+        "name": "",
+        "enabled": true
+      }
+    ],
+    "additionalProperty": "anything"
+  }
+}
+```
+
+### OrganizationCreatedEvent
+
+- **Type:**`object`
+
+Payload delivered for the organization.created webhook event.
+
+- **`data` (required)**
+
+  `object` — Organization payload for organization.created and related lifecycle events.
+
+  - **`display_name` (required)**
+
+    `string` — Organization display name
+
+  - **`id` (required)**
+
+    `string` — Scalekit organization identifier
+
+  - **`create_time`**
+
+    `string`, format: `date-time` — When the organization was created
+
+  - **`deleted_at`**
+
+    `string`, format: `date-time` — When the organization was deleted (deleted events only)
+
+  - **`external_id`**
+
+    `string` — Your system's unique ID for this organization
+
+  - **`metadata`**
+
+    `object` — Organization metadata map
+
+  - **`region_code`**
+
+    `string` — Region code for the organization
+
+  - **`settings`**
+
+    `object` — Organization feature settings
+
+    - **`features`**
+
+      `array`
+
+      **Items:**
+
+      - **`enabled`**
+
+        `boolean`
+
+      - **`name`**
+
+        `string`
+
+  - **`update_time`**
+
+    `string`, format: `date-time` — When the organization was last updated
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"Organization"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"organization.created"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "evt_1234567890",
+  "type": "organization.created",
+  "occurred_at": "2024-01-15T10:30:00.123456789Z",
+  "environment_id": "env_1234567890",
+  "organization_id": "org_1234567890",
+  "object": "Organization",
+  "data": {
+    "id": "org_1234567890",
+    "display_name": "AcmeCorp",
+    "external_id": "org_external_123",
+    "region_code": "US",
+    "create_time": "2025-12-09T09:25:02.02Z",
+    "update_time": "2025-12-09T09:25:02.025330364Z",
+    "deleted_at": "",
+    "metadata": {
+      "additionalProperty": "anything"
+    },
+    "settings": {
+      "features": [
+        {
+          "name": "",
+          "enabled": true
+        }
+      ],
+      "additionalProperty": "anything"
+    }
+  },
+  "display_name": "Organization Created"
+}
+```
+
+### DirectoryUserEventData
+
+- **Type:**`object`
+
+Directory user payload for organization.directory.user\_\* webhook events.
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the directory user
+
+- **`organization_id` (required)**
+
+  `string` — Organization that owns the directory
+
+- **`active`**
+
+  `boolean` — Whether the directory user is active
+
+- **`address`**
+
+  `object` — Address attributes from the directory provider
+
+- **`cost_center`**
+
+  `string` — Cost center attribute
+
+- **`custom_attributes`**
+
+  `object` — Custom attributes from the directory provider
+
+- **`department`**
+
+  `string` — Department attribute
+
+- **`division`**
+
+  `string` — Division attribute
+
+- **`dp_id`**
+
+  `string` — Directory provider external identifier
+
+- **`email`**
+
+  `string`, format: `email` — Primary email address
+
+- **`employee_id`**
+
+  `string` — Employee ID from the directory provider
+
+- **`family_name`**
+
+  `string` — Family (last) name
+
+- **`given_name`**
+
+  `string` — Given (first) name
+
+- **`groups`**
+
+  `array` — Directory groups the user belongs to
+
+  **Items:**
+
+  - **`id`**
+
+    `string`
+
+  - **`name`**
+
+    `string`
+
+- **`language`**
+
+  `string` — Preferred language
+
+- **`locale`**
+
+  `string` — Locale
+
+- **`name`**
+
+  `string` — Full name from the directory provider
+
+- **`nickname`**
+
+  `string` — Nickname
+
+- **`organization`**
+
+  `string` — Organization attribute from the IdP
+
+- **`phone_number`**
+
+  `string` — Phone number
+
+- **`picture`**
+
+  `string` — Profile picture URL from the directory provider
+
+- **`preferred_username`**
+
+  `string` — Preferred username from the IdP
+
+- **`profile`**
+
+  `string` — Profile URL or identifier
+
+- **`raw_attributes`**
+
+  `object` — Raw attributes as received from the directory provider
+
+- **`roles`**
+
+  `array` — Roles assigned from directory mapping
+
+  **Items:**
+
+  - **`role_name`**
+
+    `string`
+
+- **`title`**
+
+  `string` — Job title
+
+- **`user_type`**
+
+  `string` — User type from the directory provider
+
+- **`zoneinfo`**
+
+  `string` — Time zone
+
+**Example:**
+
+```json
+{
+  "id": "diruser_53891546960887884",
+  "organization_id": "org_53879494091473415",
+  "active": true,
+  "email": "flavio@runolfsdottir.co.duk",
+  "given_name": "Dayton",
+  "family_name": "Jaquelin",
+  "name": "QDRGUZZDYMFU",
+  "preferred_username": "kuntala1233a",
+  "dp_id": "<id from IDP>",
+  "employee_id": "AWNEDTILGaIZN",
+  "department": "HNXJPGISMIFN",
+  "cost_center": "QAUZJUHSTYCN",
+  "division": "MJFUEYJOKICN",
+  "title": "FKQBHCWJXZSC",
+  "user_type": "RBQFJSQEFAEH",
+  "phone_number": "1-579-4072",
+  "language": "se",
+  "locale": "LLWLEWESPLDC",
+  "zoneinfo": "America/Araguaina",
+  "organization": "AUIITQVUQGVH",
+  "nickname": "DTUODYKGFPPC",
+  "profile": "YMIUQUHKGVAX",
+  "groups": [
+    {
+      "id": "",
+      "name": ""
+    }
+  ],
+  "roles": [
+    {
+      "role_name": ""
+    }
+  ],
+  "custom_attributes": {
+    "additionalProperty": "anything"
+  },
+  "raw_attributes": {
+    "additionalProperty": "anything"
+  },
+  "picture": "",
+  "address": {
+    "additionalProperty": "anything"
+  }
+}
+```
+
+### DirectoryUserCreatedEvent
+
+- **Type:**`object`
+
+Payload delivered for the organization.directory.user\_created webhook event.
+
+- **`data` (required)**
+
+  `object` — Directory user payload for organization.directory.user\_\* webhook events.
+
+  - **`id` (required)**
+
+    `string` — Unique identifier for the directory user
+
+  - **`organization_id` (required)**
+
+    `string` — Organization that owns the directory
+
+  - **`active`**
+
+    `boolean` — Whether the directory user is active
+
+  - **`address`**
+
+    `object` — Address attributes from the directory provider
+
+  - **`cost_center`**
+
+    `string` — Cost center attribute
+
+  - **`custom_attributes`**
+
+    `object` — Custom attributes from the directory provider
+
+  - **`department`**
+
+    `string` — Department attribute
+
+  - **`division`**
+
+    `string` — Division attribute
+
+  - **`dp_id`**
+
+    `string` — Directory provider external identifier
+
+  - **`email`**
+
+    `string`, format: `email` — Primary email address
+
+  - **`employee_id`**
+
+    `string` — Employee ID from the directory provider
+
+  - **`family_name`**
+
+    `string` — Family (last) name
+
+  - **`given_name`**
+
+    `string` — Given (first) name
+
+  - **`groups`**
+
+    `array` — Directory groups the user belongs to
+
+    **Items:**
+
+    - **`id`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+  - **`language`**
+
+    `string` — Preferred language
+
+  - **`locale`**
+
+    `string` — Locale
+
+  - **`name`**
+
+    `string` — Full name from the directory provider
+
+  - **`nickname`**
+
+    `string` — Nickname
+
+  - **`organization`**
+
+    `string` — Organization attribute from the IdP
+
+  - **`phone_number`**
+
+    `string` — Phone number
+
+  - **`picture`**
+
+    `string` — Profile picture URL from the directory provider
+
+  - **`preferred_username`**
+
+    `string` — Preferred username from the IdP
+
+  - **`profile`**
+
+    `string` — Profile URL or identifier
+
+  - **`raw_attributes`**
+
+    `object` — Raw attributes as received from the directory provider
+
+  - **`roles`**
+
+    `array` — Roles assigned from directory mapping
+
+    **Items:**
+
+    - **`role_name`**
+
+      `string`
+
+  - **`title`**
+
+    `string` — Job title
+
+  - **`user_type`**
+
+    `string` — User type from the directory provider
+
+  - **`zoneinfo`**
+
+    `string` — Time zone
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"DirectoryUser"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"organization.directory.user_created"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "evt_53891546994442316",
+  "type": "organization.directory.user_created",
+  "occurred_at": "2025-01-06T18:44:25.153954Z",
+  "environment_id": "env_53814739859406915",
+  "organization_id": "org_53879494091473415",
+  "object": "DirectoryUser",
+  "data": {
+    "id": "diruser_53891546960887884",
+    "organization_id": "org_53879494091473415",
+    "active": true,
+    "email": "flavio@runolfsdottir.co.duk",
+    "given_name": "Dayton",
+    "family_name": "Jaquelin",
+    "name": "QDRGUZZDYMFU",
+    "preferred_username": "kuntala1233a",
+    "dp_id": "<id from IDP>",
+    "employee_id": "AWNEDTILGaIZN",
+    "department": "HNXJPGISMIFN",
+    "cost_center": "QAUZJUHSTYCN",
+    "division": "MJFUEYJOKICN",
+    "title": "FKQBHCWJXZSC",
+    "user_type": "RBQFJSQEFAEH",
+    "phone_number": "1-579-4072",
+    "language": "se",
+    "locale": "LLWLEWESPLDC",
+    "zoneinfo": "America/Araguaina",
+    "organization": "AUIITQVUQGVH",
+    "nickname": "DTUODYKGFPPC",
+    "profile": "YMIUQUHKGVAX",
+    "groups": [
+      {
+        "id": "",
+        "name": ""
+      }
+    ],
+    "roles": [
+      {
+        "role_name": ""
+      }
+    ],
+    "custom_attributes": {
+      "additionalProperty": "anything"
+    },
+    "raw_attributes": {
+      "additionalProperty": "anything"
+    },
+    "picture": "",
+    "address": {
+      "additionalProperty": "anything"
+    }
+  },
+  "display_name": "Directory User Created"
+}
+```
+
+### OrgMembershipEventData
+
+- **Type:**`object`
+
+Membership payload for user.signup, invitation, and organization membership lifecycle webhook events.
+
+- **`organization` (required)**
+
+  `object` — Organization associated with the membership event
+
+  - **`create_time`**
+
+    `string`, format: `date-time`
+
+  - **`display_name`**
+
+    `string`
+
+  - **`external_id`**
+
+    `string`
+
+  - **`id`**
+
+    `string`
+
+  - **`metadata`**
+
+    `object`
+
+  - **`region_code`**
+
+    `string`
+
+  - **`settings`**
+
+    `object`
+
+  - **`update_time`**
+
+    `string`, format: `date-time`
+
+- **`user` (required)**
+
+  `object` — User associated with the membership event
+
+  - **`create_time`**
+
+    `string`, format: `date-time`
+
+  - **`email`**
+
+    `string`, format: `email`
+
+  - **`external_id`**
+
+    `string`
+
+  - **`id`**
+
+    `string`
+
+  - **`last_login_time`**
+
+    `string`, format: `date-time`
+
+  - **`metadata`**
+
+    `object`
+
+  - **`update_time`**
+
+    `string`, format: `date-time`
+
+  - **`user_profile`**
+
+    `object` — Profile attributes for the user
+
+**Example:**
+
+```json
+{
+  "organization": {
+    "id": "",
+    "display_name": "",
+    "external_id": "",
+    "region_code": "",
+    "create_time": "",
+    "update_time": "",
+    "metadata": {
+      "additionalProperty": "anything"
+    },
+    "settings": {
+      "additionalProperty": "anything"
+    },
+    "additionalProperty": "anything"
+  },
+  "user": {
+    "id": "",
+    "email": "",
+    "external_id": "",
+    "create_time": "",
+    "update_time": "",
+    "last_login_time": "",
+    "metadata": {
+      "additionalProperty": "anything"
+    },
+    "user_profile": {
+      "additionalProperty": "anything"
+    },
+    "additionalProperty": "anything"
+  }
+}
+```
+
+### UserAuthEventData
+
+- **Type:**`object`
+
+Payload for user.login and user.logout webhook events.
+
+- **`user` (required)**
+
+  `object` — Authenticated user
+
+  - **`create_time`**
+
+    `string`, format: `date-time`
+
+  - **`email`**
+
+    `string`, format: `email`
+
+  - **`external_id`**
+
+    `string`
+
+  - **`id`**
+
+    `string`
+
+  - **`last_login_time`**
+
+    `string`, format: `date-time`
+
+  - **`metadata`**
+
+    `object`
+
+  - **`update_time`**
+
+    `string`, format: `date-time`
+
+  - **`user_profile`**
+
+    `object`
+
+- **`user_session` (required)**
+
+  `object` — Session associated with the authentication event
+
+  - **`absolute_expires_at`**
+
+    `string`, format: `date-time`
+
+  - **`authenticated_organizations`**
+
+    `array`
+
+    **Items:**
+
+    `string`
+
+  - **`created_at`**
+
+    `string`, format: `date-time`
+
+  - **`device`**
+
+    `object` — Device and client metadata for the session
+
+  - **`expired_at`**
+
+    `string`, format: `date-time`
+
+  - **`idle_expires_at`**
+
+    `string`, format: `date-time`
+
+  - **`last_active_at`**
+
+    `string`, format: `date-time`
+
+  - **`logout_at`**
+
+    `string`, format: `date-time`
+
+  - **`organization_id`**
+
+    `string`
+
+  - **`session_id`**
+
+    `string`
+
+  - **`status`**
+
+    `string`
+
+  - **`updated_at`**
+
+    `string`, format: `date-time`
+
+  - **`user_id`**
+
+    `string`
+
+**Example:**
+
+```json
+{
+  "user": {
+    "id": "",
+    "email": "",
+    "external_id": "",
+    "create_time": "",
+    "update_time": "",
+    "last_login_time": "",
+    "metadata": {
+      "additionalProperty": "anything"
+    },
+    "user_profile": {
+      "additionalProperty": "anything"
+    },
+    "additionalProperty": "anything"
+  },
+  "user_session": {
+    "session_id": "",
+    "user_id": "",
+    "organization_id": "",
+    "status": "ACTIVE",
+    "created_at": "",
+    "updated_at": "",
+    "last_active_at": "",
+    "absolute_expires_at": "",
+    "idle_expires_at": "",
+    "expired_at": "",
+    "logout_at": "",
+    "authenticated_organizations": [
+      ""
+    ],
+    "device": {
+      "additionalProperty": "anything"
+    },
+    "additionalProperty": "anything"
+  }
+}
+```
+
+### DirectoryEventData
+
+- **Type:**`object`
+
+Directory payload for directory enabled/disabled webhook events.
+
+- **`id` (required)**
+
+  `string` — Directory identifier
+
+- **`organization_id` (required)**
+
+  `string` — Organization that owns the directory
+
+- **`directory_type`**
+
+  `string` — Directory protocol type
+
+- **`enabled`**
+
+  `boolean` — Whether directory sync is enabled
+
+- **`provider`**
+
+  `string` — Directory provider
+
+- **`updated_at`**
+
+  `string`, format: `date-time` — When the directory was last updated
+
+**Example:**
+
+```json
+{
+  "id": "",
+  "organization_id": "",
+  "directory_type": "SCIM",
+  "provider": "OKTA",
+  "enabled": true,
+  "updated_at": ""
+}
+```
+
+### DirectoryGroupEventData
+
+- **Type:**`object`
+
+Directory group payload for organization.directory.group\_\* events.
+
+- **`id` (required)**
+
+  `string` — Directory group identifier
+
+- **`organization_id` (required)**
+
+  `string`
+
+- **`directory_id`**
+
+  `string` — Parent directory identifier
+
+- **`display_name`**
+
+  `string` — Group display name
+
+- **`dp_id`**
+
+  `string` — Directory provider group identifier
+
+- **`external_id`**
+
+  `string` — External group identifier from the provider
+
+- **`raw_attributes`**
+
+  `object` — Raw attributes from the directory provider
+
+**Example:**
+
+```json
+{
+  "id": "",
+  "organization_id": "",
+  "directory_id": "",
+  "display_name": "",
+  "external_id": "",
+  "dp_id": "",
+  "raw_attributes": {
+    "additionalProperty": "anything"
+  }
+}
+```
+
+### ConnectionEventData
+
+- **Type:**`object`
+
+SSO connection payload for organization.sso\_\* webhook events.
+
+- **`id` (required)**
+
+  `string` — Connection identifier
+
+- **`organization_id` (required)**
+
+  `string`
+
+- **`connection_type`**
+
+  `string` — Connection protocol type
+
+- **`enabled`**
+
+  `boolean` — Whether the connection is enabled
+
+- **`provider`**
+
+  `string` — Identity provider
+
+- **`status`**
+
+  `string` — Connection configuration status
+
+**Example:**
+
+```json
+{
+  "id": "",
+  "organization_id": "",
+  "connection_type": "OIDC",
+  "provider": "OKTA",
+  "enabled": true,
+  "status": "COMPLETED"
+}
+```
+
+### RoleEventData
+
+- **Type:**`object`
+
+Role payload for role.\* webhook events.
+
+- **`id` (required)**
+
+  `string` — Role identifier
+
+- **`name` (required)**
+
+  `string` — Role name
+
+- **`description`**
+
+  `string` — Role description
+
+- **`display_name`**
+
+  `string` — Human-readable role name
+
+- **`extends`**
+
+  `string` — Parent role this role extends, if any
+
+**Example:**
+
+```json
+{
+  "id": "",
+  "name": "",
+  "display_name": "",
+  "description": "",
+  "extends": ""
+}
+```
+
+### PermissionEventData
+
+- **Type:**`object`
+
+Permission payload for permission.\* webhook events.
+
+- **`id` (required)**
+
+  `string` — Permission identifier
+
+- **`name` (required)**
+
+  `string` — Permission name
+
+- **`description`**
+
+  `string` — Permission description
+
+**Example:**
+
+```json
+{
+  "id": "",
+  "name": "",
+  "description": ""
+}
+```
+
+### ConnectedAccountEventData
+
+- **Type:**`object`
+
+Connected account payload for connected\_account.\* lifecycle webhook events (except status\_updated, which uses ConnectedAccountStatusUpdatedEventData).
+
+- **`connection_id` (required)**
+
+  `string` — Connection identifier
+
+- **`id` (required)**
+
+  `string` — Connected account identifier
+
+- **`identifier` (required)**
+
+  `string` — End-user identifier for the connected account
+
+- **`provider` (required)**
+
+  `string` — Provider of the connected account
+
+- **`status` (required)**
+
+  `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — Current connected account status
+
+- **`authorization_type`**
+
+  `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+
+- **`connection_name`**
+
+  `string` — Connection key\_id when available
+
+- **`last_used_at`**
+
+  `string`, format: `date-time` — When the connected account was last used
+
+- **`token_expires_at`**
+
+  `string`, format: `date-time` — When the access token expires, if known
+
+**Example:**
+
+```json
+{
+  "id": "ca_101531404000559370",
+  "identifier": "john@acmecorp.com",
+  "connection_id": "conn_100668583155073286",
+  "connection_name": "gmail",
+  "provider": "GMAIL",
+  "authorization_type": "OAUTH",
+  "status": "ACTIVE",
+  "token_expires_at": "2025-12-02T06:59:57.237447Z",
+  "last_used_at": "2025-12-02T06:00:01.374253Z"
+}
+```
+
+### OrganizationUpdatedEvent
+
+- **Type:**`object`
+
+Payload delivered for the organization.updated webhook event.
+
+- **`data` (required)**
+
+  `object` — Organization payload for organization.created and related lifecycle events.
+
+  - **`display_name` (required)**
+
+    `string` — Organization display name
+
+  - **`id` (required)**
+
+    `string` — Scalekit organization identifier
+
+  - **`create_time`**
+
+    `string`, format: `date-time` — When the organization was created
+
+  - **`deleted_at`**
+
+    `string`, format: `date-time` — When the organization was deleted (deleted events only)
+
+  - **`external_id`**
+
+    `string` — Your system's unique ID for this organization
+
+  - **`metadata`**
+
+    `object` — Organization metadata map
+
+  - **`region_code`**
+
+    `string` — Region code for the organization
+
+  - **`settings`**
+
+    `object` — Organization feature settings
+
+    - **`features`**
+
+      `array`
+
+      **Items:**
+
+      - **`enabled`**
+
+        `boolean`
+
+      - **`name`**
+
+        `string`
+
+  - **`update_time`**
+
+    `string`, format: `date-time` — When the organization was last updated
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"Organization"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"organization.updated"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "organization.updated",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "Organization",
+  "data": {
+    "id": "org_1234567890",
+    "display_name": "AcmeCorp",
+    "external_id": "org_external_123",
+    "region_code": "US",
+    "create_time": "2025-12-09T09:25:02.02Z",
+    "update_time": "2025-12-09T09:25:02.025330364Z",
+    "deleted_at": "",
+    "metadata": {
+      "additionalProperty": "anything"
+    },
+    "settings": {
+      "features": [
+        {
+          "name": "",
+          "enabled": true
+        }
+      ],
+      "additionalProperty": "anything"
+    }
+  },
+  "display_name": ""
+}
+```
+
+### OrganizationDeletedEvent
+
+- **Type:**`object`
+
+Payload delivered for the organization.deleted webhook event.
+
+- **`data` (required)**
+
+  `object` — Organization payload for organization.created and related lifecycle events.
+
+  - **`display_name` (required)**
+
+    `string` — Organization display name
+
+  - **`id` (required)**
+
+    `string` — Scalekit organization identifier
+
+  - **`create_time`**
+
+    `string`, format: `date-time` — When the organization was created
+
+  - **`deleted_at`**
+
+    `string`, format: `date-time` — When the organization was deleted (deleted events only)
+
+  - **`external_id`**
+
+    `string` — Your system's unique ID for this organization
+
+  - **`metadata`**
+
+    `object` — Organization metadata map
+
+  - **`region_code`**
+
+    `string` — Region code for the organization
+
+  - **`settings`**
+
+    `object` — Organization feature settings
+
+    - **`features`**
+
+      `array`
+
+      **Items:**
+
+      - **`enabled`**
+
+        `boolean`
+
+      - **`name`**
+
+        `string`
+
+  - **`update_time`**
+
+    `string`, format: `date-time` — When the organization was last updated
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"Organization"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"organization.deleted"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "organization.deleted",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "Organization",
+  "data": {
+    "id": "org_1234567890",
+    "display_name": "AcmeCorp",
+    "external_id": "org_external_123",
+    "region_code": "US",
+    "create_time": "2025-12-09T09:25:02.02Z",
+    "update_time": "2025-12-09T09:25:02.025330364Z",
+    "deleted_at": "",
+    "metadata": {
+      "additionalProperty": "anything"
+    },
+    "settings": {
+      "features": [
+        {
+          "name": "",
+          "enabled": true
+        }
+      ],
+      "additionalProperty": "anything"
+    }
+  },
+  "display_name": ""
+}
+```
+
+### UserSignupEvent
+
+- **Type:**`object`
+
+Payload delivered for the user.signup webhook event.
+
+- **`data` (required)**
+
+  `object` — Membership payload for user.signup, invitation, and organization membership lifecycle webhook events.
+
+  - **`organization` (required)**
+
+    `object` — Organization associated with the membership event
+
+    - **`create_time`**
+
+      `string`, format: `date-time`
+
+    - **`display_name`**
+
+      `string`
+
+    - **`external_id`**
+
+      `string`
+
+    - **`id`**
+
+      `string`
+
+    - **`metadata`**
+
+      `object`
+
+    - **`region_code`**
+
+      `string`
+
+    - **`settings`**
+
+      `object`
+
+    - **`update_time`**
+
+      `string`, format: `date-time`
+
+  - **`user` (required)**
+
+    `object` — User associated with the membership event
+
+    - **`create_time`**
+
+      `string`, format: `date-time`
+
+    - **`email`**
+
+      `string`, format: `email`
+
+    - **`external_id`**
+
+      `string`
+
+    - **`id`**
+
+      `string`
+
+    - **`last_login_time`**
+
+      `string`, format: `date-time`
+
+    - **`metadata`**
+
+      `object`
+
+    - **`update_time`**
+
+      `string`, format: `date-time`
+
+    - **`user_profile`**
+
+      `object` — Profile attributes for the user
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"OrgMembership"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"user.signup"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "user.signup",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "OrgMembership",
+  "data": {
+    "organization": {
+      "id": "",
+      "display_name": "",
+      "external_id": "",
+      "region_code": "",
+      "create_time": "",
+      "update_time": "",
+      "metadata": {
+        "additionalProperty": "anything"
+      },
+      "settings": {
+        "additionalProperty": "anything"
+      },
+      "additionalProperty": "anything"
+    },
+    "user": {
+      "id": "",
+      "email": "",
+      "external_id": "",
+      "create_time": "",
+      "update_time": "",
+      "last_login_time": "",
+      "metadata": {
+        "additionalProperty": "anything"
+      },
+      "user_profile": {
+        "additionalProperty": "anything"
+      },
+      "additionalProperty": "anything"
+    }
+  },
+  "display_name": ""
+}
+```
+
+### UserLoginEvent
+
+- **Type:**`object`
+
+Payload delivered for the user.login webhook event.
+
+- **`data` (required)**
+
+  `object` — Payload for user.login and user.logout webhook events.
+
+  - **`user` (required)**
+
+    `object` — Authenticated user
+
+    - **`create_time`**
+
+      `string`, format: `date-time`
+
+    - **`email`**
+
+      `string`, format: `email`
+
+    - **`external_id`**
+
+      `string`
+
+    - **`id`**
+
+      `string`
+
+    - **`last_login_time`**
+
+      `string`, format: `date-time`
+
+    - **`metadata`**
+
+      `object`
+
+    - **`update_time`**
+
+      `string`, format: `date-time`
+
+    - **`user_profile`**
+
+      `object`
+
+  - **`user_session` (required)**
+
+    `object` — Session associated with the authentication event
+
+    - **`absolute_expires_at`**
+
+      `string`, format: `date-time`
+
+    - **`authenticated_organizations`**
+
+      `array`
+
+      **Items:**
+
+      `string`
+
+    - **`created_at`**
+
+      `string`, format: `date-time`
+
+    - **`device`**
+
+      `object` — Device and client metadata for the session
+
+    - **`expired_at`**
+
+      `string`, format: `date-time`
+
+    - **`idle_expires_at`**
+
+      `string`, format: `date-time`
+
+    - **`last_active_at`**
+
+      `string`, format: `date-time`
+
+    - **`logout_at`**
+
+      `string`, format: `date-time`
+
+    - **`organization_id`**
+
+      `string`
+
+    - **`session_id`**
+
+      `string`
+
+    - **`status`**
+
+      `string`
+
+    - **`updated_at`**
+
+      `string`, format: `date-time`
+
+    - **`user_id`**
+
+      `string`
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"User"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"user.login"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "user.login",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "User",
+  "data": {
+    "user": {
+      "id": "",
+      "email": "",
+      "external_id": "",
+      "create_time": "",
+      "update_time": "",
+      "last_login_time": "",
+      "metadata": {
+        "additionalProperty": "anything"
+      },
+      "user_profile": {
+        "additionalProperty": "anything"
+      },
+      "additionalProperty": "anything"
+    },
+    "user_session": {
+      "session_id": "",
+      "user_id": "",
+      "organization_id": "",
+      "status": "ACTIVE",
+      "created_at": "",
+      "updated_at": "",
+      "last_active_at": "",
+      "absolute_expires_at": "",
+      "idle_expires_at": "",
+      "expired_at": "",
+      "logout_at": "",
+      "authenticated_organizations": [
+        ""
+      ],
+      "device": {
+        "additionalProperty": "anything"
+      },
+      "additionalProperty": "anything"
+    }
+  },
+  "display_name": ""
+}
+```
+
+### UserLogoutEvent
+
+- **Type:**`object`
+
+Payload delivered for the user.logout webhook event.
+
+- **`data` (required)**
+
+  `object` — Payload for user.login and user.logout webhook events.
+
+  - **`user` (required)**
+
+    `object` — Authenticated user
+
+    - **`create_time`**
+
+      `string`, format: `date-time`
+
+    - **`email`**
+
+      `string`, format: `email`
+
+    - **`external_id`**
+
+      `string`
+
+    - **`id`**
+
+      `string`
+
+    - **`last_login_time`**
+
+      `string`, format: `date-time`
+
+    - **`metadata`**
+
+      `object`
+
+    - **`update_time`**
+
+      `string`, format: `date-time`
+
+    - **`user_profile`**
+
+      `object`
+
+  - **`user_session` (required)**
+
+    `object` — Session associated with the authentication event
+
+    - **`absolute_expires_at`**
+
+      `string`, format: `date-time`
+
+    - **`authenticated_organizations`**
+
+      `array`
+
+      **Items:**
+
+      `string`
+
+    - **`created_at`**
+
+      `string`, format: `date-time`
+
+    - **`device`**
+
+      `object` — Device and client metadata for the session
+
+    - **`expired_at`**
+
+      `string`, format: `date-time`
+
+    - **`idle_expires_at`**
+
+      `string`, format: `date-time`
+
+    - **`last_active_at`**
+
+      `string`, format: `date-time`
+
+    - **`logout_at`**
+
+      `string`, format: `date-time`
+
+    - **`organization_id`**
+
+      `string`
+
+    - **`session_id`**
+
+      `string`
+
+    - **`status`**
+
+      `string`
+
+    - **`updated_at`**
+
+      `string`, format: `date-time`
+
+    - **`user_id`**
+
+      `string`
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"User"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"user.logout"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "user.logout",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "User",
+  "data": {
+    "user": {
+      "id": "",
+      "email": "",
+      "external_id": "",
+      "create_time": "",
+      "update_time": "",
+      "last_login_time": "",
+      "metadata": {
+        "additionalProperty": "anything"
+      },
+      "user_profile": {
+        "additionalProperty": "anything"
+      },
+      "additionalProperty": "anything"
+    },
+    "user_session": {
+      "session_id": "",
+      "user_id": "",
+      "organization_id": "",
+      "status": "ACTIVE",
+      "created_at": "",
+      "updated_at": "",
+      "last_active_at": "",
+      "absolute_expires_at": "",
+      "idle_expires_at": "",
+      "expired_at": "",
+      "logout_at": "",
+      "authenticated_organizations": [
+        ""
+      ],
+      "device": {
+        "additionalProperty": "anything"
+      },
+      "additionalProperty": "anything"
+    }
+  },
+  "display_name": ""
+}
+```
+
+### UserOrganizationInvitationEvent
+
+- **Type:**`object`
+
+Payload delivered for the user.organization\_invitation webhook event.
+
+- **`data` (required)**
+
+  `object` — Membership payload for user.signup, invitation, and organization membership lifecycle webhook events.
+
+  - **`organization` (required)**
+
+    `object` — Organization associated with the membership event
+
+    - **`create_time`**
+
+      `string`, format: `date-time`
+
+    - **`display_name`**
+
+      `string`
+
+    - **`external_id`**
+
+      `string`
+
+    - **`id`**
+
+      `string`
+
+    - **`metadata`**
+
+      `object`
+
+    - **`region_code`**
+
+      `string`
+
+    - **`settings`**
+
+      `object`
+
+    - **`update_time`**
+
+      `string`, format: `date-time`
+
+  - **`user` (required)**
+
+    `object` — User associated with the membership event
+
+    - **`create_time`**
+
+      `string`, format: `date-time`
+
+    - **`email`**
+
+      `string`, format: `email`
+
+    - **`external_id`**
+
+      `string`
+
+    - **`id`**
+
+      `string`
+
+    - **`last_login_time`**
+
+      `string`, format: `date-time`
+
+    - **`metadata`**
+
+      `object`
+
+    - **`update_time`**
+
+      `string`, format: `date-time`
+
+    - **`user_profile`**
+
+      `object` — Profile attributes for the user
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"OrgMembership"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"user.organization_invitation"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "user.organization_invitation",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "OrgMembership",
+  "data": {
+    "organization": {
+      "id": "",
+      "display_name": "",
+      "external_id": "",
+      "region_code": "",
+      "create_time": "",
+      "update_time": "",
+      "metadata": {
+        "additionalProperty": "anything"
+      },
+      "settings": {
+        "additionalProperty": "anything"
+      },
+      "additionalProperty": "anything"
+    },
+    "user": {
+      "id": "",
+      "email": "",
+      "external_id": "",
+      "create_time": "",
+      "update_time": "",
+      "last_login_time": "",
+      "metadata": {
+        "additionalProperty": "anything"
+      },
+      "user_profile": {
+        "additionalProperty": "anything"
+      },
+      "additionalProperty": "anything"
+    }
+  },
+  "display_name": ""
+}
+```
+
+### UserOrganizationMembershipCreatedEvent
+
+- **Type:**`object`
+
+Payload delivered for the user.organization\_membership\_created webhook event.
+
+- **`data` (required)**
+
+  `object` — Membership payload for user.signup, invitation, and organization membership lifecycle webhook events.
+
+  - **`organization` (required)**
+
+    `object` — Organization associated with the membership event
+
+    - **`create_time`**
+
+      `string`, format: `date-time`
+
+    - **`display_name`**
+
+      `string`
+
+    - **`external_id`**
+
+      `string`
+
+    - **`id`**
+
+      `string`
+
+    - **`metadata`**
+
+      `object`
+
+    - **`region_code`**
+
+      `string`
+
+    - **`settings`**
+
+      `object`
+
+    - **`update_time`**
+
+      `string`, format: `date-time`
+
+  - **`user` (required)**
+
+    `object` — User associated with the membership event
+
+    - **`create_time`**
+
+      `string`, format: `date-time`
+
+    - **`email`**
+
+      `string`, format: `email`
+
+    - **`external_id`**
+
+      `string`
+
+    - **`id`**
+
+      `string`
+
+    - **`last_login_time`**
+
+      `string`, format: `date-time`
+
+    - **`metadata`**
+
+      `object`
+
+    - **`update_time`**
+
+      `string`, format: `date-time`
+
+    - **`user_profile`**
+
+      `object` — Profile attributes for the user
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"OrgMembership"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"user.organization_membership_created"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "user.organization_membership_created",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "OrgMembership",
+  "data": {
+    "organization": {
+      "id": "",
+      "display_name": "",
+      "external_id": "",
+      "region_code": "",
+      "create_time": "",
+      "update_time": "",
+      "metadata": {
+        "additionalProperty": "anything"
+      },
+      "settings": {
+        "additionalProperty": "anything"
+      },
+      "additionalProperty": "anything"
+    },
+    "user": {
+      "id": "",
+      "email": "",
+      "external_id": "",
+      "create_time": "",
+      "update_time": "",
+      "last_login_time": "",
+      "metadata": {
+        "additionalProperty": "anything"
+      },
+      "user_profile": {
+        "additionalProperty": "anything"
+      },
+      "additionalProperty": "anything"
+    }
+  },
+  "display_name": ""
+}
+```
+
+### UserOrganizationMembershipDeletedEvent
+
+- **Type:**`object`
+
+Payload delivered for the user.organization\_membership\_deleted webhook event.
+
+- **`data` (required)**
+
+  `object` — Membership payload for user.signup, invitation, and organization membership lifecycle webhook events.
+
+  - **`organization` (required)**
+
+    `object` — Organization associated with the membership event
+
+    - **`create_time`**
+
+      `string`, format: `date-time`
+
+    - **`display_name`**
+
+      `string`
+
+    - **`external_id`**
+
+      `string`
+
+    - **`id`**
+
+      `string`
+
+    - **`metadata`**
+
+      `object`
+
+    - **`region_code`**
+
+      `string`
+
+    - **`settings`**
+
+      `object`
+
+    - **`update_time`**
+
+      `string`, format: `date-time`
+
+  - **`user` (required)**
+
+    `object` — User associated with the membership event
+
+    - **`create_time`**
+
+      `string`, format: `date-time`
+
+    - **`email`**
+
+      `string`, format: `email`
+
+    - **`external_id`**
+
+      `string`
+
+    - **`id`**
+
+      `string`
+
+    - **`last_login_time`**
+
+      `string`, format: `date-time`
+
+    - **`metadata`**
+
+      `object`
+
+    - **`update_time`**
+
+      `string`, format: `date-time`
+
+    - **`user_profile`**
+
+      `object` — Profile attributes for the user
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"OrgMembership"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"user.organization_membership_deleted"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "user.organization_membership_deleted",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "OrgMembership",
+  "data": {
+    "organization": {
+      "id": "",
+      "display_name": "",
+      "external_id": "",
+      "region_code": "",
+      "create_time": "",
+      "update_time": "",
+      "metadata": {
+        "additionalProperty": "anything"
+      },
+      "settings": {
+        "additionalProperty": "anything"
+      },
+      "additionalProperty": "anything"
+    },
+    "user": {
+      "id": "",
+      "email": "",
+      "external_id": "",
+      "create_time": "",
+      "update_time": "",
+      "last_login_time": "",
+      "metadata": {
+        "additionalProperty": "anything"
+      },
+      "user_profile": {
+        "additionalProperty": "anything"
+      },
+      "additionalProperty": "anything"
+    }
+  },
+  "display_name": ""
+}
+```
+
+### UserOrganizationMembershipUpdatedEvent
+
+- **Type:**`object`
+
+Payload delivered for the user.organization\_membership\_updated webhook event.
+
+- **`data` (required)**
+
+  `object` — Membership payload for user.signup, invitation, and organization membership lifecycle webhook events.
+
+  - **`organization` (required)**
+
+    `object` — Organization associated with the membership event
+
+    - **`create_time`**
+
+      `string`, format: `date-time`
+
+    - **`display_name`**
+
+      `string`
+
+    - **`external_id`**
+
+      `string`
+
+    - **`id`**
+
+      `string`
+
+    - **`metadata`**
+
+      `object`
+
+    - **`region_code`**
+
+      `string`
+
+    - **`settings`**
+
+      `object`
+
+    - **`update_time`**
+
+      `string`, format: `date-time`
+
+  - **`user` (required)**
+
+    `object` — User associated with the membership event
+
+    - **`create_time`**
+
+      `string`, format: `date-time`
+
+    - **`email`**
+
+      `string`, format: `email`
+
+    - **`external_id`**
+
+      `string`
+
+    - **`id`**
+
+      `string`
+
+    - **`last_login_time`**
+
+      `string`, format: `date-time`
+
+    - **`metadata`**
+
+      `object`
+
+    - **`update_time`**
+
+      `string`, format: `date-time`
+
+    - **`user_profile`**
+
+      `object` — Profile attributes for the user
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"OrgMembership"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"user.organization_membership_updated"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "user.organization_membership_updated",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "OrgMembership",
+  "data": {
+    "organization": {
+      "id": "",
+      "display_name": "",
+      "external_id": "",
+      "region_code": "",
+      "create_time": "",
+      "update_time": "",
+      "metadata": {
+        "additionalProperty": "anything"
+      },
+      "settings": {
+        "additionalProperty": "anything"
+      },
+      "additionalProperty": "anything"
+    },
+    "user": {
+      "id": "",
+      "email": "",
+      "external_id": "",
+      "create_time": "",
+      "update_time": "",
+      "last_login_time": "",
+      "metadata": {
+        "additionalProperty": "anything"
+      },
+      "user_profile": {
+        "additionalProperty": "anything"
+      },
+      "additionalProperty": "anything"
+    }
+  },
+  "display_name": ""
+}
+```
+
+### OrganizationDirectoryEnabledEvent
+
+- **Type:**`object`
+
+Payload delivered for the organization.directory\_enabled webhook event.
+
+- **`data` (required)**
+
+  `object` — Directory payload for directory enabled/disabled webhook events.
+
+  - **`id` (required)**
+
+    `string` — Directory identifier
+
+  - **`organization_id` (required)**
+
+    `string` — Organization that owns the directory
+
+  - **`directory_type`**
+
+    `string` — Directory protocol type
+
+  - **`enabled`**
+
+    `boolean` — Whether directory sync is enabled
+
+  - **`provider`**
+
+    `string` — Directory provider
+
+  - **`updated_at`**
+
+    `string`, format: `date-time` — When the directory was last updated
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"Directory"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"organization.directory_enabled"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "organization.directory_enabled",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "Directory",
+  "data": {
+    "id": "",
+    "organization_id": "",
+    "directory_type": "SCIM",
+    "provider": "OKTA",
+    "enabled": true,
+    "updated_at": ""
+  },
+  "display_name": ""
+}
+```
+
+### OrganizationDirectoryDisabledEvent
+
+- **Type:**`object`
+
+Payload delivered for the organization.directory\_disabled webhook event.
+
+- **`data` (required)**
+
+  `object` — Directory payload for directory enabled/disabled webhook events.
+
+  - **`id` (required)**
+
+    `string` — Directory identifier
+
+  - **`organization_id` (required)**
+
+    `string` — Organization that owns the directory
+
+  - **`directory_type`**
+
+    `string` — Directory protocol type
+
+  - **`enabled`**
+
+    `boolean` — Whether directory sync is enabled
+
+  - **`provider`**
+
+    `string` — Directory provider
+
+  - **`updated_at`**
+
+    `string`, format: `date-time` — When the directory was last updated
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"Directory"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"organization.directory_disabled"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "organization.directory_disabled",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "Directory",
+  "data": {
+    "id": "",
+    "organization_id": "",
+    "directory_type": "SCIM",
+    "provider": "OKTA",
+    "enabled": true,
+    "updated_at": ""
+  },
+  "display_name": ""
+}
+```
+
+### DirectoryUserUpdatedEvent
+
+- **Type:**`object`
+
+Payload delivered for the organization.directory.user\_updated webhook event.
+
+- **`data` (required)**
+
+  `object` — Directory user payload for organization.directory.user\_\* webhook events.
+
+  - **`id` (required)**
+
+    `string` — Unique identifier for the directory user
+
+  - **`organization_id` (required)**
+
+    `string` — Organization that owns the directory
+
+  - **`active`**
+
+    `boolean` — Whether the directory user is active
+
+  - **`address`**
+
+    `object` — Address attributes from the directory provider
+
+  - **`cost_center`**
+
+    `string` — Cost center attribute
+
+  - **`custom_attributes`**
+
+    `object` — Custom attributes from the directory provider
+
+  - **`department`**
+
+    `string` — Department attribute
+
+  - **`division`**
+
+    `string` — Division attribute
+
+  - **`dp_id`**
+
+    `string` — Directory provider external identifier
+
+  - **`email`**
+
+    `string`, format: `email` — Primary email address
+
+  - **`employee_id`**
+
+    `string` — Employee ID from the directory provider
+
+  - **`family_name`**
+
+    `string` — Family (last) name
+
+  - **`given_name`**
+
+    `string` — Given (first) name
+
+  - **`groups`**
+
+    `array` — Directory groups the user belongs to
+
+    **Items:**
+
+    - **`id`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+  - **`language`**
+
+    `string` — Preferred language
+
+  - **`locale`**
+
+    `string` — Locale
+
+  - **`name`**
+
+    `string` — Full name from the directory provider
+
+  - **`nickname`**
+
+    `string` — Nickname
+
+  - **`organization`**
+
+    `string` — Organization attribute from the IdP
+
+  - **`phone_number`**
+
+    `string` — Phone number
+
+  - **`picture`**
+
+    `string` — Profile picture URL from the directory provider
+
+  - **`preferred_username`**
+
+    `string` — Preferred username from the IdP
+
+  - **`profile`**
+
+    `string` — Profile URL or identifier
+
+  - **`raw_attributes`**
+
+    `object` — Raw attributes as received from the directory provider
+
+  - **`roles`**
+
+    `array` — Roles assigned from directory mapping
+
+    **Items:**
+
+    - **`role_name`**
+
+      `string`
+
+  - **`title`**
+
+    `string` — Job title
+
+  - **`user_type`**
+
+    `string` — User type from the directory provider
+
+  - **`zoneinfo`**
+
+    `string` — Time zone
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"DirectoryUser"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"organization.directory.user_updated"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "organization.directory.user_updated",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "DirectoryUser",
+  "data": {
+    "id": "diruser_53891546960887884",
+    "organization_id": "org_53879494091473415",
+    "active": true,
+    "email": "flavio@runolfsdottir.co.duk",
+    "given_name": "Dayton",
+    "family_name": "Jaquelin",
+    "name": "QDRGUZZDYMFU",
+    "preferred_username": "kuntala1233a",
+    "dp_id": "<id from IDP>",
+    "employee_id": "AWNEDTILGaIZN",
+    "department": "HNXJPGISMIFN",
+    "cost_center": "QAUZJUHSTYCN",
+    "division": "MJFUEYJOKICN",
+    "title": "FKQBHCWJXZSC",
+    "user_type": "RBQFJSQEFAEH",
+    "phone_number": "1-579-4072",
+    "language": "se",
+    "locale": "LLWLEWESPLDC",
+    "zoneinfo": "America/Araguaina",
+    "organization": "AUIITQVUQGVH",
+    "nickname": "DTUODYKGFPPC",
+    "profile": "YMIUQUHKGVAX",
+    "groups": [
+      {
+        "id": "",
+        "name": ""
+      }
+    ],
+    "roles": [
+      {
+        "role_name": ""
+      }
+    ],
+    "custom_attributes": {
+      "additionalProperty": "anything"
+    },
+    "raw_attributes": {
+      "additionalProperty": "anything"
+    },
+    "picture": "",
+    "address": {
+      "additionalProperty": "anything"
+    }
+  },
+  "display_name": ""
+}
+```
+
+### DirectoryUserDeletedEvent
+
+- **Type:**`object`
+
+Payload delivered for the organization.directory.user\_deleted webhook event.
+
+- **`data` (required)**
+
+  `object` — Directory user payload for organization.directory.user\_\* webhook events.
+
+  - **`id` (required)**
+
+    `string` — Unique identifier for the directory user
+
+  - **`organization_id` (required)**
+
+    `string` — Organization that owns the directory
+
+  - **`active`**
+
+    `boolean` — Whether the directory user is active
+
+  - **`address`**
+
+    `object` — Address attributes from the directory provider
+
+  - **`cost_center`**
+
+    `string` — Cost center attribute
+
+  - **`custom_attributes`**
+
+    `object` — Custom attributes from the directory provider
+
+  - **`department`**
+
+    `string` — Department attribute
+
+  - **`division`**
+
+    `string` — Division attribute
+
+  - **`dp_id`**
+
+    `string` — Directory provider external identifier
+
+  - **`email`**
+
+    `string`, format: `email` — Primary email address
+
+  - **`employee_id`**
+
+    `string` — Employee ID from the directory provider
+
+  - **`family_name`**
+
+    `string` — Family (last) name
+
+  - **`given_name`**
+
+    `string` — Given (first) name
+
+  - **`groups`**
+
+    `array` — Directory groups the user belongs to
+
+    **Items:**
+
+    - **`id`**
+
+      `string`
+
+    - **`name`**
+
+      `string`
+
+  - **`language`**
+
+    `string` — Preferred language
+
+  - **`locale`**
+
+    `string` — Locale
+
+  - **`name`**
+
+    `string` — Full name from the directory provider
+
+  - **`nickname`**
+
+    `string` — Nickname
+
+  - **`organization`**
+
+    `string` — Organization attribute from the IdP
+
+  - **`phone_number`**
+
+    `string` — Phone number
+
+  - **`picture`**
+
+    `string` — Profile picture URL from the directory provider
+
+  - **`preferred_username`**
+
+    `string` — Preferred username from the IdP
+
+  - **`profile`**
+
+    `string` — Profile URL or identifier
+
+  - **`raw_attributes`**
+
+    `object` — Raw attributes as received from the directory provider
+
+  - **`roles`**
+
+    `array` — Roles assigned from directory mapping
+
+    **Items:**
+
+    - **`role_name`**
+
+      `string`
+
+  - **`title`**
+
+    `string` — Job title
+
+  - **`user_type`**
+
+    `string` — User type from the directory provider
+
+  - **`zoneinfo`**
+
+    `string` — Time zone
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"DirectoryUser"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"organization.directory.user_deleted"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "organization.directory.user_deleted",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "DirectoryUser",
+  "data": {
+    "id": "diruser_53891546960887884",
+    "organization_id": "org_53879494091473415",
+    "active": true,
+    "email": "flavio@runolfsdottir.co.duk",
+    "given_name": "Dayton",
+    "family_name": "Jaquelin",
+    "name": "QDRGUZZDYMFU",
+    "preferred_username": "kuntala1233a",
+    "dp_id": "<id from IDP>",
+    "employee_id": "AWNEDTILGaIZN",
+    "department": "HNXJPGISMIFN",
+    "cost_center": "QAUZJUHSTYCN",
+    "division": "MJFUEYJOKICN",
+    "title": "FKQBHCWJXZSC",
+    "user_type": "RBQFJSQEFAEH",
+    "phone_number": "1-579-4072",
+    "language": "se",
+    "locale": "LLWLEWESPLDC",
+    "zoneinfo": "America/Araguaina",
+    "organization": "AUIITQVUQGVH",
+    "nickname": "DTUODYKGFPPC",
+    "profile": "YMIUQUHKGVAX",
+    "groups": [
+      {
+        "id": "",
+        "name": ""
+      }
+    ],
+    "roles": [
+      {
+        "role_name": ""
+      }
+    ],
+    "custom_attributes": {
+      "additionalProperty": "anything"
+    },
+    "raw_attributes": {
+      "additionalProperty": "anything"
+    },
+    "picture": "",
+    "address": {
+      "additionalProperty": "anything"
+    }
+  },
+  "display_name": ""
+}
+```
+
+### DirectoryGroupCreatedEvent
+
+- **Type:**`object`
+
+Payload delivered for the organization.directory.group\_created webhook event.
+
+- **`data` (required)**
+
+  `object` — Directory group payload for organization.directory.group\_\* events.
+
+  - **`id` (required)**
+
+    `string` — Directory group identifier
+
+  - **`organization_id` (required)**
+
+    `string`
+
+  - **`directory_id`**
+
+    `string` — Parent directory identifier
+
+  - **`display_name`**
+
+    `string` — Group display name
+
+  - **`dp_id`**
+
+    `string` — Directory provider group identifier
+
+  - **`external_id`**
+
+    `string` — External group identifier from the provider
+
+  - **`raw_attributes`**
+
+    `object` — Raw attributes from the directory provider
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"DirectoryGroup"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"organization.directory.group_created"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "organization.directory.group_created",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "DirectoryGroup",
+  "data": {
+    "id": "",
+    "organization_id": "",
+    "directory_id": "",
+    "display_name": "",
+    "external_id": "",
+    "dp_id": "",
+    "raw_attributes": {
+      "additionalProperty": "anything"
+    }
+  },
+  "display_name": ""
+}
+```
+
+### DirectoryGroupUpdatedEvent
+
+- **Type:**`object`
+
+Payload delivered for the organization.directory.group\_updated webhook event.
+
+- **`data` (required)**
+
+  `object` — Directory group payload for organization.directory.group\_\* events.
+
+  - **`id` (required)**
+
+    `string` — Directory group identifier
+
+  - **`organization_id` (required)**
+
+    `string`
+
+  - **`directory_id`**
+
+    `string` — Parent directory identifier
+
+  - **`display_name`**
+
+    `string` — Group display name
+
+  - **`dp_id`**
+
+    `string` — Directory provider group identifier
+
+  - **`external_id`**
+
+    `string` — External group identifier from the provider
+
+  - **`raw_attributes`**
+
+    `object` — Raw attributes from the directory provider
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"DirectoryGroup"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"organization.directory.group_updated"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "organization.directory.group_updated",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "DirectoryGroup",
+  "data": {
+    "id": "",
+    "organization_id": "",
+    "directory_id": "",
+    "display_name": "",
+    "external_id": "",
+    "dp_id": "",
+    "raw_attributes": {
+      "additionalProperty": "anything"
+    }
+  },
+  "display_name": ""
+}
+```
+
+### DirectoryGroupDeletedEvent
+
+- **Type:**`object`
+
+Payload delivered for the organization.directory.group\_deleted webhook event.
+
+- **`data` (required)**
+
+  `object` — Directory group payload for organization.directory.group\_\* events.
+
+  - **`id` (required)**
+
+    `string` — Directory group identifier
+
+  - **`organization_id` (required)**
+
+    `string`
+
+  - **`directory_id`**
+
+    `string` — Parent directory identifier
+
+  - **`display_name`**
+
+    `string` — Group display name
+
+  - **`dp_id`**
+
+    `string` — Directory provider group identifier
+
+  - **`external_id`**
+
+    `string` — External group identifier from the provider
+
+  - **`raw_attributes`**
+
+    `object` — Raw attributes from the directory provider
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"DirectoryGroup"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"organization.directory.group_deleted"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "organization.directory.group_deleted",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "DirectoryGroup",
+  "data": {
+    "id": "",
+    "organization_id": "",
+    "directory_id": "",
+    "display_name": "",
+    "external_id": "",
+    "dp_id": "",
+    "raw_attributes": {
+      "additionalProperty": "anything"
+    }
+  },
+  "display_name": ""
+}
+```
+
+### OrganizationSsoCreatedEvent
+
+- **Type:**`object`
+
+Payload delivered for the organization.sso\_created webhook event.
+
+- **`data` (required)**
+
+  `object` — SSO connection payload for organization.sso\_\* webhook events.
+
+  - **`id` (required)**
+
+    `string` — Connection identifier
+
+  - **`organization_id` (required)**
+
+    `string`
+
+  - **`connection_type`**
+
+    `string` — Connection protocol type
+
+  - **`enabled`**
+
+    `boolean` — Whether the connection is enabled
+
+  - **`provider`**
+
+    `string` — Identity provider
+
+  - **`status`**
+
+    `string` — Connection configuration status
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"Connection"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"organization.sso_created"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "organization.sso_created",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "Connection",
+  "data": {
+    "id": "",
+    "organization_id": "",
+    "connection_type": "OIDC",
+    "provider": "OKTA",
+    "enabled": true,
+    "status": "COMPLETED"
+  },
+  "display_name": ""
+}
+```
+
+### OrganizationSsoEnabledEvent
+
+- **Type:**`object`
+
+Payload delivered for the organization.sso\_enabled webhook event.
+
+- **`data` (required)**
+
+  `object` — SSO connection payload for organization.sso\_\* webhook events.
+
+  - **`id` (required)**
+
+    `string` — Connection identifier
+
+  - **`organization_id` (required)**
+
+    `string`
+
+  - **`connection_type`**
+
+    `string` — Connection protocol type
+
+  - **`enabled`**
+
+    `boolean` — Whether the connection is enabled
+
+  - **`provider`**
+
+    `string` — Identity provider
+
+  - **`status`**
+
+    `string` — Connection configuration status
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"Connection"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"organization.sso_enabled"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "organization.sso_enabled",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "Connection",
+  "data": {
+    "id": "",
+    "organization_id": "",
+    "connection_type": "OIDC",
+    "provider": "OKTA",
+    "enabled": true,
+    "status": "COMPLETED"
+  },
+  "display_name": ""
+}
+```
+
+### OrganizationSsoDisabledEvent
+
+- **Type:**`object`
+
+Payload delivered for the organization.sso\_disabled webhook event.
+
+- **`data` (required)**
+
+  `object` — SSO connection payload for organization.sso\_\* webhook events.
+
+  - **`id` (required)**
+
+    `string` — Connection identifier
+
+  - **`organization_id` (required)**
+
+    `string`
+
+  - **`connection_type`**
+
+    `string` — Connection protocol type
+
+  - **`enabled`**
+
+    `boolean` — Whether the connection is enabled
+
+  - **`provider`**
+
+    `string` — Identity provider
+
+  - **`status`**
+
+    `string` — Connection configuration status
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"Connection"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"organization.sso_disabled"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "organization.sso_disabled",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "Connection",
+  "data": {
+    "id": "",
+    "organization_id": "",
+    "connection_type": "OIDC",
+    "provider": "OKTA",
+    "enabled": true,
+    "status": "COMPLETED"
+  },
+  "display_name": ""
+}
+```
+
+### OrganizationSsoDeletedEvent
+
+- **Type:**`object`
+
+Payload delivered for the organization.sso\_deleted webhook event.
+
+- **`data` (required)**
+
+  `object` — SSO connection payload for organization.sso\_\* webhook events.
+
+  - **`id` (required)**
+
+    `string` — Connection identifier
+
+  - **`organization_id` (required)**
+
+    `string`
+
+  - **`connection_type`**
+
+    `string` — Connection protocol type
+
+  - **`enabled`**
+
+    `boolean` — Whether the connection is enabled
+
+  - **`provider`**
+
+    `string` — Identity provider
+
+  - **`status`**
+
+    `string` — Connection configuration status
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"Connection"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"organization.sso_deleted"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "organization.sso_deleted",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "Connection",
+  "data": {
+    "id": "",
+    "organization_id": "",
+    "connection_type": "OIDC",
+    "provider": "OKTA",
+    "enabled": true,
+    "status": "COMPLETED"
+  },
+  "display_name": ""
+}
+```
+
+### RoleCreatedEvent
+
+- **Type:**`object`
+
+Payload delivered for the role.created webhook event.
+
+- **`data` (required)**
+
+  `object` — Role payload for role.\* webhook events.
+
+  - **`id` (required)**
+
+    `string` — Role identifier
+
+  - **`name` (required)**
+
+    `string` — Role name
+
+  - **`description`**
+
+    `string` — Role description
+
+  - **`display_name`**
+
+    `string` — Human-readable role name
+
+  - **`extends`**
+
+    `string` — Parent role this role extends, if any
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"Role"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"role.created"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "role.created",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "Role",
+  "data": {
+    "id": "",
+    "name": "",
+    "display_name": "",
+    "description": "",
+    "extends": ""
+  },
+  "display_name": ""
+}
+```
+
+### RoleUpdatedEvent
+
+- **Type:**`object`
+
+Payload delivered for the role.updated webhook event.
+
+- **`data` (required)**
+
+  `object` — Role payload for role.\* webhook events.
+
+  - **`id` (required)**
+
+    `string` — Role identifier
+
+  - **`name` (required)**
+
+    `string` — Role name
+
+  - **`description`**
+
+    `string` — Role description
+
+  - **`display_name`**
+
+    `string` — Human-readable role name
+
+  - **`extends`**
+
+    `string` — Parent role this role extends, if any
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"Role"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"role.updated"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "role.updated",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "Role",
+  "data": {
+    "id": "",
+    "name": "",
+    "display_name": "",
+    "description": "",
+    "extends": ""
+  },
+  "display_name": ""
+}
+```
+
+### RoleDeletedEvent
+
+- **Type:**`object`
+
+Payload delivered for the role.deleted webhook event.
+
+- **`data` (required)**
+
+  `object` — Role payload for role.\* webhook events.
+
+  - **`id` (required)**
+
+    `string` — Role identifier
+
+  - **`name` (required)**
+
+    `string` — Role name
+
+  - **`description`**
+
+    `string` — Role description
+
+  - **`display_name`**
+
+    `string` — Human-readable role name
+
+  - **`extends`**
+
+    `string` — Parent role this role extends, if any
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"Role"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"role.deleted"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "role.deleted",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "Role",
+  "data": {
+    "id": "",
+    "name": "",
+    "display_name": "",
+    "description": "",
+    "extends": ""
+  },
+  "display_name": ""
+}
+```
+
+### PermissionCreatedEvent
+
+- **Type:**`object`
+
+Payload delivered for the permission.created webhook event.
+
+- **`data` (required)**
+
+  `object` — Permission payload for permission.\* webhook events.
+
+  - **`id` (required)**
+
+    `string` — Permission identifier
+
+  - **`name` (required)**
+
+    `string` — Permission name
+
+  - **`description`**
+
+    `string` — Permission description
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"Permission"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"permission.created"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "permission.created",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "Permission",
+  "data": {
+    "id": "",
+    "name": "",
+    "description": ""
+  },
+  "display_name": ""
+}
+```
+
+### PermissionUpdatedEvent
+
+- **Type:**`object`
+
+Payload delivered for the permission.updated webhook event.
+
+- **`data` (required)**
+
+  `object` — Permission payload for permission.\* webhook events.
+
+  - **`id` (required)**
+
+    `string` — Permission identifier
+
+  - **`name` (required)**
+
+    `string` — Permission name
+
+  - **`description`**
+
+    `string` — Permission description
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"Permission"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"permission.updated"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "permission.updated",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "Permission",
+  "data": {
+    "id": "",
+    "name": "",
+    "description": ""
+  },
+  "display_name": ""
+}
+```
+
+### PermissionDeletedEvent
+
+- **Type:**`object`
+
+Payload delivered for the permission.deleted webhook event.
+
+- **`data` (required)**
+
+  `object` — Permission payload for permission.\* webhook events.
+
+  - **`id` (required)**
+
+    `string` — Permission identifier
+
+  - **`name` (required)**
+
+    `string` — Permission name
+
+  - **`description`**
+
+    `string` — Permission description
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"Permission"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"permission.deleted"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "permission.deleted",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "Permission",
+  "data": {
+    "id": "",
+    "name": "",
+    "description": ""
+  },
+  "display_name": ""
+}
+```
+
+### ConnectedAccountCreatedEvent
+
+- **Type:**`object`
+
+Payload delivered for the connected\_account.created webhook event.
+
+- **`data` (required)**
+
+  `object` — Connected account payload for connected\_account.\* lifecycle webhook events (except status\_updated, which uses ConnectedAccountStatusUpdatedEventData).
+
+  - **`connection_id` (required)**
+
+    `string` — Connection identifier
+
+  - **`id` (required)**
+
+    `string` — Connected account identifier
+
+  - **`identifier` (required)**
+
+    `string` — End-user identifier for the connected account
+
+  - **`provider` (required)**
+
+    `string` — Provider of the connected account
+
+  - **`status` (required)**
+
+    `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — Current connected account status
+
+  - **`authorization_type`**
+
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+
+  - **`connection_name`**
+
+    `string` — Connection key\_id when available
+
+  - **`last_used_at`**
+
+    `string`, format: `date-time` — When the connected account was last used
+
+  - **`token_expires_at`**
+
+    `string`, format: `date-time` — When the access token expires, if known
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"ConnectedAccount"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"connected_account.created"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "connected_account.created",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "ConnectedAccount",
+  "data": {
+    "id": "ca_101531404000559370",
+    "identifier": "john@acmecorp.com",
+    "connection_id": "conn_100668583155073286",
+    "connection_name": "gmail",
+    "provider": "GMAIL",
+    "authorization_type": "OAUTH",
+    "status": "ACTIVE",
+    "token_expires_at": "2025-12-02T06:59:57.237447Z",
+    "last_used_at": "2025-12-02T06:00:01.374253Z"
+  },
+  "display_name": ""
+}
+```
+
+### ConnectedAccountUpdatedEvent
+
+- **Type:**`object`
+
+Payload delivered for the connected\_account.updated webhook event.
+
+- **`data` (required)**
+
+  `object` — Connected account payload for connected\_account.\* lifecycle webhook events (except status\_updated, which uses ConnectedAccountStatusUpdatedEventData).
+
+  - **`connection_id` (required)**
+
+    `string` — Connection identifier
+
+  - **`id` (required)**
+
+    `string` — Connected account identifier
+
+  - **`identifier` (required)**
+
+    `string` — End-user identifier for the connected account
+
+  - **`provider` (required)**
+
+    `string` — Provider of the connected account
+
+  - **`status` (required)**
+
+    `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — Current connected account status
+
+  - **`authorization_type`**
+
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+
+  - **`connection_name`**
+
+    `string` — Connection key\_id when available
+
+  - **`last_used_at`**
+
+    `string`, format: `date-time` — When the connected account was last used
+
+  - **`token_expires_at`**
+
+    `string`, format: `date-time` — When the access token expires, if known
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"ConnectedAccount"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"connected_account.updated"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "connected_account.updated",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "ConnectedAccount",
+  "data": {
+    "id": "ca_101531404000559370",
+    "identifier": "john@acmecorp.com",
+    "connection_id": "conn_100668583155073286",
+    "connection_name": "gmail",
+    "provider": "GMAIL",
+    "authorization_type": "OAUTH",
+    "status": "ACTIVE",
+    "token_expires_at": "2025-12-02T06:59:57.237447Z",
+    "last_used_at": "2025-12-02T06:00:01.374253Z"
+  },
+  "display_name": ""
+}
+```
+
+### ConnectedAccountDeletedEvent
+
+- **Type:**`object`
+
+Payload delivered for the connected\_account.deleted webhook event.
+
+- **`data` (required)**
+
+  `object` — Connected account payload for connected\_account.\* lifecycle webhook events (except status\_updated, which uses ConnectedAccountStatusUpdatedEventData).
+
+  - **`connection_id` (required)**
+
+    `string` — Connection identifier
+
+  - **`id` (required)**
+
+    `string` — Connected account identifier
+
+  - **`identifier` (required)**
+
+    `string` — End-user identifier for the connected account
+
+  - **`provider` (required)**
+
+    `string` — Provider of the connected account
+
+  - **`status` (required)**
+
+    `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — Current connected account status
+
+  - **`authorization_type`**
+
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+
+  - **`connection_name`**
+
+    `string` — Connection key\_id when available
+
+  - **`last_used_at`**
+
+    `string`, format: `date-time` — When the connected account was last used
+
+  - **`token_expires_at`**
+
+    `string`, format: `date-time` — When the access token expires, if known
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"ConnectedAccount"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"connected_account.deleted"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "connected_account.deleted",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "ConnectedAccount",
+  "data": {
+    "id": "ca_101531404000559370",
+    "identifier": "john@acmecorp.com",
+    "connection_id": "conn_100668583155073286",
+    "connection_name": "gmail",
+    "provider": "GMAIL",
+    "authorization_type": "OAUTH",
+    "status": "ACTIVE",
+    "token_expires_at": "2025-12-02T06:59:57.237447Z",
+    "last_used_at": "2025-12-02T06:00:01.374253Z"
+  },
+  "display_name": ""
+}
+```
+
+### ConnectedAccountMagicLinkGeneratedEvent
+
+- **Type:**`object`
+
+Payload delivered for the connected\_account.magic\_link\_generated webhook event.
+
+- **`data` (required)**
+
+  `object` — Connected account payload for connected\_account.\* lifecycle webhook events (except status\_updated, which uses ConnectedAccountStatusUpdatedEventData).
+
+  - **`connection_id` (required)**
+
+    `string` — Connection identifier
+
+  - **`id` (required)**
+
+    `string` — Connected account identifier
+
+  - **`identifier` (required)**
+
+    `string` — End-user identifier for the connected account
+
+  - **`provider` (required)**
+
+    `string` — Provider of the connected account
+
+  - **`status` (required)**
+
+    `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — Current connected account status
+
+  - **`authorization_type`**
+
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+
+  - **`connection_name`**
+
+    `string` — Connection key\_id when available
+
+  - **`last_used_at`**
+
+    `string`, format: `date-time` — When the connected account was last used
+
+  - **`token_expires_at`**
+
+    `string`, format: `date-time` — When the access token expires, if known
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"ConnectedAccount"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"connected_account.magic_link_generated"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "connected_account.magic_link_generated",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "ConnectedAccount",
+  "data": {
+    "id": "ca_101531404000559370",
+    "identifier": "john@acmecorp.com",
+    "connection_id": "conn_100668583155073286",
+    "connection_name": "gmail",
+    "provider": "GMAIL",
+    "authorization_type": "OAUTH",
+    "status": "ACTIVE",
+    "token_expires_at": "2025-12-02T06:59:57.237447Z",
+    "last_used_at": "2025-12-02T06:00:01.374253Z"
+  },
+  "display_name": ""
+}
+```
+
+### ConnectedAccountOauthTokensFetchedEvent
+
+- **Type:**`object`
+
+Payload delivered for the connected\_account.oauth\_tokens\_fetched webhook event.
+
+- **`data` (required)**
+
+  `object` — Connected account payload for connected\_account.\* lifecycle webhook events (except status\_updated, which uses ConnectedAccountStatusUpdatedEventData).
+
+  - **`connection_id` (required)**
+
+    `string` — Connection identifier
+
+  - **`id` (required)**
+
+    `string` — Connected account identifier
+
+  - **`identifier` (required)**
+
+    `string` — End-user identifier for the connected account
+
+  - **`provider` (required)**
+
+    `string` — Provider of the connected account
+
+  - **`status` (required)**
+
+    `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — Current connected account status
+
+  - **`authorization_type`**
+
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+
+  - **`connection_name`**
+
+    `string` — Connection key\_id when available
+
+  - **`last_used_at`**
+
+    `string`, format: `date-time` — When the connected account was last used
+
+  - **`token_expires_at`**
+
+    `string`, format: `date-time` — When the access token expires, if known
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"ConnectedAccount"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"connected_account.oauth_tokens_fetched"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "connected_account.oauth_tokens_fetched",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "ConnectedAccount",
+  "data": {
+    "id": "ca_101531404000559370",
+    "identifier": "john@acmecorp.com",
+    "connection_id": "conn_100668583155073286",
+    "connection_name": "gmail",
+    "provider": "GMAIL",
+    "authorization_type": "OAUTH",
+    "status": "ACTIVE",
+    "token_expires_at": "2025-12-02T06:59:57.237447Z",
+    "last_used_at": "2025-12-02T06:00:01.374253Z"
+  },
+  "display_name": ""
+}
+```
+
+### ConnectedAccountTokenRefreshSucceededEvent
+
+- **Type:**`object`
+
+Payload delivered for the connected\_account.token\_refresh\_succeeded webhook event.
+
+- **`data` (required)**
+
+  `object` — Connected account payload for connected\_account.\* lifecycle webhook events (except status\_updated, which uses ConnectedAccountStatusUpdatedEventData).
+
+  - **`connection_id` (required)**
+
+    `string` — Connection identifier
+
+  - **`id` (required)**
+
+    `string` — Connected account identifier
+
+  - **`identifier` (required)**
+
+    `string` — End-user identifier for the connected account
+
+  - **`provider` (required)**
+
+    `string` — Provider of the connected account
+
+  - **`status` (required)**
+
+    `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — Current connected account status
+
+  - **`authorization_type`**
+
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+
+  - **`connection_name`**
+
+    `string` — Connection key\_id when available
+
+  - **`last_used_at`**
+
+    `string`, format: `date-time` — When the connected account was last used
+
+  - **`token_expires_at`**
+
+    `string`, format: `date-time` — When the access token expires, if known
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"ConnectedAccount"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"connected_account.token_refresh_succeeded"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "connected_account.token_refresh_succeeded",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "ConnectedAccount",
+  "data": {
+    "id": "ca_101531404000559370",
+    "identifier": "john@acmecorp.com",
+    "connection_id": "conn_100668583155073286",
+    "connection_name": "gmail",
+    "provider": "GMAIL",
+    "authorization_type": "OAUTH",
+    "status": "ACTIVE",
+    "token_expires_at": "2025-12-02T06:59:57.237447Z",
+    "last_used_at": "2025-12-02T06:00:01.374253Z"
+  },
+  "display_name": ""
+}
+```
+
+### ConnectedAccountTokenRefreshFailedEvent
+
+- **Type:**`object`
+
+Payload delivered for the connected\_account.token\_refresh\_failed webhook event.
+
+- **`data` (required)**
+
+  `object` — Connected account payload for connected\_account.\* lifecycle webhook events (except status\_updated, which uses ConnectedAccountStatusUpdatedEventData).
+
+  - **`connection_id` (required)**
+
+    `string` — Connection identifier
+
+  - **`id` (required)**
+
+    `string` — Connected account identifier
+
+  - **`identifier` (required)**
+
+    `string` — End-user identifier for the connected account
+
+  - **`provider` (required)**
+
+    `string` — Provider of the connected account
+
+  - **`status` (required)**
+
+    `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — Current connected account status
+
+  - **`authorization_type`**
+
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+
+  - **`connection_name`**
+
+    `string` — Connection key\_id when available
+
+  - **`last_used_at`**
+
+    `string`, format: `date-time` — When the connected account was last used
+
+  - **`token_expires_at`**
+
+    `string`, format: `date-time` — When the access token expires, if known
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"ConnectedAccount"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"connected_account.token_refresh_failed"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "connected_account.token_refresh_failed",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "ConnectedAccount",
+  "data": {
+    "id": "ca_101531404000559370",
+    "identifier": "john@acmecorp.com",
+    "connection_id": "conn_100668583155073286",
+    "connection_name": "gmail",
+    "provider": "GMAIL",
+    "authorization_type": "OAUTH",
+    "status": "ACTIVE",
+    "token_expires_at": "2025-12-02T06:59:57.237447Z",
+    "last_used_at": "2025-12-02T06:00:01.374253Z"
+  },
+  "display_name": ""
+}
+```
+
+### ConnectedAccountOauthSucceededEvent
+
+- **Type:**`object`
+
+Payload delivered for the connected\_account.oauth\_succeeded webhook event.
+
+- **`data` (required)**
+
+  `object` — Connected account payload for connected\_account.\* lifecycle webhook events (except status\_updated, which uses ConnectedAccountStatusUpdatedEventData).
+
+  - **`connection_id` (required)**
+
+    `string` — Connection identifier
+
+  - **`id` (required)**
+
+    `string` — Connected account identifier
+
+  - **`identifier` (required)**
+
+    `string` — End-user identifier for the connected account
+
+  - **`provider` (required)**
+
+    `string` — Provider of the connected account
+
+  - **`status` (required)**
+
+    `string`, possible values: `"ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION", "DISCONNECTED"` — Current connected account status
+
+  - **`authorization_type`**
+
+    `string`, possible values: `"OAUTH", "API_KEY", "BASIC_AUTH", "BEARER_TOKEN", "CUSTOM", "BASIC", "OAUTH_M2M", "TRELLO_OAUTH1", "GOOGLE_DWD", "TRUSTED_IDP", "SMART_FHIR", "NO_AUTH"` — Authorization type of the connected account
+
+  - **`connection_name`**
+
+    `string` — Connection key\_id when available
+
+  - **`last_used_at`**
+
+    `string`, format: `date-time` — When the connected account was last used
+
+  - **`token_expires_at`**
+
+    `string`, format: `date-time` — When the access token expires, if known
+
+- **`environment_id` (required)**
+
+  `string` — The environment ID where the event occurred
+
+- **`id` (required)**
+
+  `string` — Unique identifier for the webhook event (must be prefixed with "evt\_")
+
+- **`object` (required)**
+
+  `string`, possible values: `"ConnectedAccount"` — The type of object that triggered the webhook
+
+- **`occurred_at` (required)**
+
+  `string`, format: `date-time` — When the event occurred (ISO 8601 format)
+
+- **`spec_version` (required)**
+
+  `string` — The webhook specification version
+
+- **`type` (required)**
+
+  `string`, possible values: `"connected_account.oauth_succeeded"` — The event type
+
+- **`display_name`**
+
+  `string` — Human-readable display name for the event
+
+- **`organization_id`**
+
+  `string` — The organization ID (if applicable)
+
+**Example:**
+
+```json
+{
+  "spec_version": "1",
+  "id": "",
+  "type": "connected_account.oauth_succeeded",
+  "occurred_at": "",
+  "environment_id": "",
+  "organization_id": "",
+  "object": "ConnectedAccount",
+  "data": {
+    "id": "ca_101531404000559370",
+    "identifier": "john@acmecorp.com",
+    "connection_id": "conn_100668583155073286",
+    "connection_name": "gmail",
+    "provider": "GMAIL",
+    "authorization_type": "OAUTH",
+    "status": "ACTIVE",
+    "token_expires_at": "2025-12-02T06:59:57.237447Z",
+    "last_used_at": "2025-12-02T06:00:01.374253Z"
+  },
+  "display_name": ""
 }
 ```

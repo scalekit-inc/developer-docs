@@ -22,9 +22,13 @@ req := &scalekit.UpdateLoginUserDetailsRequest{
   },
 }
 
-if err := client.Auth().UpdateLoginUserDetails(ctx, req); err != nil {
-  // handle
+resp, err := scalekitClient.Auth().UpdateLoginUserDetails(ctx, req)
+if err != nil {
+  // handle the error, then stop
+  return
 }
+// resp is non-nil only on success
+_ = resp.GetAuthRequestId()
 ```
 
 </CB.ClassBrowser>
