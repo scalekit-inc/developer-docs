@@ -40632,6 +40632,341 @@
     "description": "Query and inspect Mixmax email sequences. Supports actions: list_sequences, get_sequence, get_sequence_insights, find_contact_in_sequences, get_daily_send_count, validate_sequence."
   },
   {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_activity_stream",
+    "description": "Get the raw event stream (activity feed) for one or more specific users over a date range — every event each user did, in order. Useful for inspecting an individual user's journey rather than aggregate analytics. Rate limited to 60 queries/hour and 5 concurrent queries."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_cohorts_list",
+    "description": "List every saved cohort in a Mixpanel project, including each cohort's numeric id, name, member count, description, and creation date. Use the id with 'mixpanelanalytics_profiles_query' (filter_by_cohort) to fetch the profiles in a cohort."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_event_properties",
+    "description": "Get a time series broken down by the values of a single event property, e.g. purchase count per day segmented by product_category. Similar to segmentation, but focused on exploring one property's values rather than an arbitrary 'on' expression."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_event_top_properties",
+    "description": "List the property names most commonly sent with a given event, along with how many times each appears. Useful for discovering what properties are available before writing a segmentation query or property-values lookup."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_event_top_property_values",
+    "description": "List the most common values seen for a given event property, e.g. the top product_category values sent with the 'purchase' event. Useful for discovering what filter/segment values are available before writing a query."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_events_query",
+    "description": "Get aggregate counts for one or more events over time, without any property segmentation. Faster and simpler than 'mixpanelanalytics_segmentation_query' when you just need raw counts for a set of events, e.g. daily counts of 'login' and 'signup' side by side."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_events_top_names",
+    "description": "List the most common event names tracked in the project over its lifetime, ranked by the given analysis type. Useful for discovering what events exist before writing a segmentation or funnel query."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_events_top_today",
+    "description": "Get the top events for today, ranked by count, along with their percent change compared to the same time yesterday. Useful for a quick 'what's happening right now' snapshot."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_funnels_list_saved",
+    "description": "List all saved funnels in a Mixpanel project, returning each funnel's numeric funnel_id and name. Use the funnel_id with 'mixpanelanalytics_funnels_query' to fetch its conversion data."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_funnels_query",
+    "description": "Get conversion data for an existing saved funnel by its funnel_id, showing per-step counts and conversion ratios over time. Use 'mixpanelanalytics_funnels_list_saved' to find a funnel_id. Note: Mixpanel considers this endpoint in maintenance mode and recommends building the funn…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_insights_query",
+    "description": "Get the computed data for an existing saved Insights report by its bookmark_id. This is Mixpanel's recommended, actively maintained way to pull report data (in place of the older segmentation/funnels/retention query endpoints), but it can only run a report that already exists in…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_jql_query",
+    "description": "Run a custom JQL (JavaScript Query Language) script against raw Mixpanel event/profile data for analysis that the standard segmentation/funnel/retention/insights endpoints can't express, e.g. custom aggregations, joins across events and profiles, or arbitrary groupBy/reduce pipe…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_profiles_query",
+    "description": "Query Mixpanel user (or group) profiles and return a paginated list of profiles matching the given filters. Supports filtering by a specific list of distinct_ids, a free-form 'where' expression, or a saved cohort. Rate limited to 60 queries/hour and 5 concurrent queries."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_retention_frequency_query",
+    "description": "Measure how frequently users return to do an event within a period, broken into fine-grained buckets (e.g. how many of the hours in each day a user was active). Useful for engagement/'stickiness' analysis."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_retention_query",
+    "description": "Measure how many users who did a 'born' event came back to do a later event, bucketed into cohorts. Supports 'birth' retention (users grouped by when they first did the born event) or 'compounded' retention (users grouped by every time they did the born event)."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_schema_delete",
+    "description": "Permanently delete the Lexicon schema for a single event or profile property, identified by entity type and name. This removes only the Lexicon schema definition; the underlying event or profile property is not deleted and will show as un-schematized until a new schema is upload…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_schema_get",
+    "description": "Retrieve the Lexicon schema for a single event or profile property, identified by entity type and name. Returns the schema's description, JSON-schema-style property definitions, and Lexicon metadata such as display name, tags, and owners. Returns an error if no schema exists for…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_schema_upload",
+    "description": "Create or replace the Lexicon schema for a single event or profile property, identified by entity type and name. Any existing schema for this entity type and name is fully overwritten with the fields you provide. Use 'description' for a human-readable summary of the entity, 'pro…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_schemas_delete_all",
+    "description": "Permanently delete every schema in the project's Lexicon data dictionary, for both event and profile-property entity types. This removes only the Lexicon schema definitions (descriptions, JSON-schema property definitions, and metadata); the underlying events and profile properti…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_schemas_delete_by_entity",
+    "description": "Permanently delete every Lexicon schema for one entity type ('event' or 'profile') in a Mixpanel project, leaving schemas for the other entity type untouched. Pass 'entity_name' to narrow this to a single schema by name instead of deleting all schemas for the entity type. This r…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_schemas_list",
+    "description": "List all schemas (data dictionary entries) defined in a Mixpanel project's Lexicon, across both event and profile-property entity types. Each schema includes the entity's description, JSON-schema-style property definitions, and Lexicon metadata such as display name, tags, and ow…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_schemas_list_by_entity",
+    "description": "List the Lexicon schemas for one entity type ('event' or 'profile') in a Mixpanel project. Optionally pass 'entity_name' to filter the results down to a single schema by name. Only entities that already have an associated schema are returned. Use 'mixpanelanalytics_schemas_list'…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_schemas_upload_batch",
+    "description": "Create or replace multiple Lexicon schemas in a single call. Each object in 'entries' defines one event or profile property's schema (entity type, name, and JSON-schema definition) and is merged into the project's existing data dictionary. Set 'truncate' to true to first remove …"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_segmentation_average_query",
+    "description": "Get the average value of a numeric property expression per unit time for a single event, e.g. average order value per day. Note: in maintenance mode per Mixpanel — prefer 'mixpanelanalytics_insights_query' for new use cases where possible."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_segmentation_numeric_query",
+    "description": "Get event counts for a single event, bucketed by the numeric value of a property expression (e.g. distribution of purchase amounts). Note: in maintenance mode per Mixpanel — prefer 'mixpanelanalytics_insights_query' for new use cases where possible."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_segmentation_query",
+    "description": "Get event counts for a single event over time, optionally segmented and filtered by properties. Note: Mixpanel's Query API team considers this endpoint in maintenance mode and recommends 'mixpanelanalytics_insights_query' (against a saved Insights report) for new use cases, but …"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_segmentation_sum_query",
+    "description": "Get the sum of a numeric property expression per unit time for a single event, e.g. total revenue per day. Note: in maintenance mode per Mixpanel — prefer 'mixpanelanalytics_insights_query' for new use cases where possible."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_create_event_stream",
+    "description": "Create a new warehouse import that streams warehouse rows into Mixpanel as events. Maps a warehouse table to Mixpanel's Events dataset using 'table_params' to select the source table/columns and 'time_column_name' (plus 'event_name' or 'event_column_name') to derive each event's…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_create_groups",
+    "description": "Create a new warehouse import that syncs warehouse rows into Mixpanel as group profile updates, analogous to 'mixpanelanalytics_warehouse_import_create_people' but for group analytics (e.g. company/account-level profiles) instead of individual users. Maps a warehouse table using…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_create_lookup_table",
+    "description": "Create a new warehouse import that syncs a warehouse table into Mixpanel as a Lookup Table, joining additional properties onto events or user profiles by a shared key (similar in effect to 'mixpanelingestion_lookup_table_replace', but kept continuously in sync from the warehouse…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_create_people",
+    "description": "Create a new warehouse import that syncs warehouse rows into Mixpanel as user profile updates (equivalent to Engage '$set'). Maps a warehouse table to Mixpanel user profiles using 'table_params' to select the source table/columns and 'user_column_name' to identify which column h…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_delete",
+    "description": "Delete a warehouse import's sync configuration, stopping future syncs. By default this only removes the connector configuration — data already imported into Mixpanel is kept. Set 'delete_data' to true to also permanently delete the data previously imported by this connector. Use…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_get",
+    "description": "Get the full configuration and current status of a single warehouse import by id, including its sync schedule ('run_every'), pause state, and warehouse-specific parameters. Use 'mixpanelanalytics_warehouse_imports_list' first to find the import_id."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_history",
+    "description": "Get the history of past sync runs for a warehouse import, e.g. to check when it last ran, whether recent runs succeeded, and how long each run took. Use 'mixpanelanalytics_warehouse_imports_list' to find the import_id first."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_run_sync",
+    "description": "Manually trigger an immediate sync run for a warehouse import, outside its configured schedule ('run_every'). Use this to pull the latest warehouse data on demand instead of waiting for the next scheduled run, e.g. after fixing an upstream data issue. Use 'mixpanelanalytics_ware…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_update",
+    "description": "Pause, resume, or reschedule an existing warehouse import. Use this to stop a sync temporarily ('paused': true), resume it ('paused': false), change how often it runs ('run_every'), or update Databricks-specific cluster settings. Use 'mixpanelanalytics_warehouse_imports_list' or…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_imports_list",
+    "description": "List all warehouse import connectors configured for a Mixpanel project, across every warehouse source (Snowflake, BigQuery, Databricks, Redshift). Each entry includes its import id, import type (event stream, people, groups, or lookup table), warehouse source, and current sync s…"
+  },
+  {
+    "slug": "mixpanelcompliance",
+    "name": "mixpanelcompliance_gdpr_deletion_cancel",
+    "description": "Cancel a pending GDPR/CCPA data deletion request before Mixpanel begins permanently erasing the data. Returns no content on success. Cancellation can fail once the deletion has already progressed too far to stop — check 'mixpanelcompliance_gdpr_deletion_status' first if you're u…"
+  },
+  {
+    "slug": "mixpanelcompliance",
+    "name": "mixpanelcompliance_gdpr_deletion_create",
+    "description": "Permanently delete ALL data Mixpanel holds for the given distinct_ids — every event and profile property, across all time. This is irreversible once processing completes, and per Mixpanel's GDPR/CCPA documentation it can take up to 30 days to fully propagate through Mixpanel's s…"
+  },
+  {
+    "slug": "mixpanelcompliance",
+    "name": "mixpanelcompliance_gdpr_deletion_status",
+    "description": "Check the status of a GDPR/CCPA data deletion request previously created with 'mixpanelcompliance_gdpr_deletion_create'. The response's status field is one of: PENDING, STAGING, STARTED, SUCCESS, FAILURE, REVOKED, NOT_FOUND, or UNKNOWN. Deletions can take up to 30 days to reach …"
+  },
+  {
+    "slug": "mixpanelcompliance",
+    "name": "mixpanelcompliance_gdpr_retrieval_create",
+    "description": "Create a GDPR or CCPA Subject Access Request (SAR) for one or more Mixpanel distinct_ids. Mixpanel asynchronously compiles an export of every event and profile property it holds for the given distinct_ids so you can fulfill a data subject's access request. This call only queues …"
+  },
+  {
+    "slug": "mixpanelcompliance",
+    "name": "mixpanelcompliance_gdpr_retrieval_status",
+    "description": "Check the status of a GDPR/CCPA data retrieval (Subject Access Request) previously created with 'mixpanelcompliance_gdpr_retrieval_create'. The response's status field is one of: PENDING, STAGING, STARTED, SUCCESS, FAILURE, REVOKED, NOT_FOUND, or UNKNOWN. Poll this until the sta…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_feature_flags_definitions",
+    "description": "Get the full definitions of every feature flag/experiment configured in a Mixpanel project, including each flag's variants, rollout rules, and linked experiment. Provide either 'project_token' or 'project_id' to authenticate (project_id uses your Service Account credentials)."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_feature_flags_evaluate",
+    "description": "Evaluate all enabled Mixpanel feature flags and experiments for a given user, returning the variant each flag assigns them. Provide either 'project_token' or 'project_id' to authenticate (project_id uses your Service Account credentials)."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_group_batch_update",
+    "description": "Send a batch of mixed group-profile updates to Mixpanel in a single call, analogous to 'mixpanelingestion_profile_batch_update' for user profiles. Each item in 'updates' is a fully-formed update object with its own \"$token\", \"$group_key\", \"$group_id\", and one operation key ($set…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_group_delete",
+    "description": "Permanently delete a Mixpanel group profile and all of its properties, analogous to 'mixpanelingestion_profile_delete' for user profiles. This does not delete historical events associated with the group."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_group_remove",
+    "description": "Remove a specific value from a list-valued property on a Mixpanel group profile, analogous to 'mixpanelingestion_profile_remove' for user profiles. If the value is not present, no change is made."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_group_set",
+    "description": "Set (overwrite) properties on a Mixpanel group profile (e.g. a company or team account), analogous to 'mixpanelingestion_profile_set' for user profiles. Creates the group profile if it does not already exist. Requires Group Analytics to be enabled on your Mixpanel project."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_group_set_once",
+    "description": "Set properties on a Mixpanel group profile only if they are not already set — existing values are never overwritten, analogous to 'mixpanelingestion_profile_set_once' for user profiles. Creates the group profile if it does not already exist."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_group_union",
+    "description": "Add values to a list-valued property on a Mixpanel group profile, ensuring each value only appears once, analogous to 'mixpanelingestion_profile_union' for user profiles. Creates the group profile if it does not already exist."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_group_unset",
+    "description": "Permanently remove one or more named properties (and their values) from a Mixpanel group profile, analogous to 'mixpanelingestion_profile_unset' for user profiles."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_identity_create",
+    "description": "Link an anonymous distinct_id to a known, identified distinct_id by sending a Mixpanel $identify event via /track. Use this the first time you learn a user's real identifier (e.g. after login or signup) so that pre-login and post-login activity is merged onto one profile. Return…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_identity_create_alias",
+    "description": "Create a legacy alias linking a new distinct_id to an existing one by sending a Mixpanel $create_alias event via /track. This is the legacy identity-linking mechanism; for new integrations prefer 'mixpanelingestion_identity_create' ($identify) or 'mixpanelingestion_identity_merg…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_identity_merge",
+    "description": "Merge two distinct_ids into a single identity using Mixpanel's modern Identity Merge API (a $merge event sent through /import, authenticated with your Service Account). All historical events and profile data from both distinct_ids are combined under one identity. Use this instea…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_import_events",
+    "description": "Import a batch of up to 2000 events into Mixpanel via the modern, Service Account-authenticated /import endpoint. This is Mixpanel's recommended way to send events from a trusted server-side integration (unlike the classic /track endpoint). Each event needs an 'event' name and a…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_lookup_table_replace",
+    "description": "Replace the entire contents of a Mixpanel Lookup Table with new CSV data. This overwrites all existing rows in the table — use 'mixpanelingestion_lookup_tables_list' first to find the table's id. The first column of the CSV must be the table's key (matching the property it enric…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_lookup_tables_list",
+    "description": "List the Lookup Tables defined in a Mixpanel project. Returns each table's id and name. Use the id with 'mixpanelingestion_lookup_table_replace' to update a table's contents, or find it in Lexicon under the lookup table's details."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_append",
+    "description": "Append a value to a list-valued property on a Mixpanel user profile via Engage $append. If the property does not yet exist, it is created as a single-element list. Unlike $union, duplicate values are allowed. Useful for ordered logs like \"Recent Searches\"."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_batch_update",
+    "description": "Send a batch of mixed user-profile updates to Mixpanel Engage in a single call. Each item in 'updates' is a fully-formed update object with its own \"$token\", \"$distinct_id\", and one operation key ($set, $set_once, $add, $union, $append, $remove, $unset, or $delete) — the same sh…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_delete",
+    "description": "Permanently delete a Mixpanel user profile and all of its properties via Engage $delete. This does not delete the user's historical events, only their profile. If duplicate profiles exist due to identity merging, set 'ignore_alias' to true so you don't accidentally delete the or…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_increment",
+    "description": "Increment (or decrement, using a negative value) numeric properties on a Mixpanel user profile via Engage $add. The given amounts are added to the existing values; if a property is not yet present it is treated as 0. Useful for counters such as \"Number of Logins\" or \"Files Uploa…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_remove",
+    "description": "Remove a specific value from a list-valued property on a Mixpanel user profile via Engage $remove. If the value is not present, no change is made. The opposite of 'mixpanelingestion_profile_append'."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_set",
+    "description": "Set (overwrite) properties on a Mixpanel user profile via Engage $set. Creates the profile if it does not already exist. Use this for properties that should always reflect the latest value, such as \"Plan\" or \"Last Login\". For properties that should only be set the first time, us…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_set_once",
+    "description": "Set properties on a Mixpanel user profile via Engage $set_once, but only if they are not already set — existing values are never overwritten. Creates the profile if it does not already exist. Useful for properties like \"First Login Date\" that should be recorded once and never ch…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_union",
+    "description": "Add values to a list-valued property on a Mixpanel user profile via Engage $union, ensuring each value only appears once in the resulting list. Creates the profile if it does not already exist. Useful for properties like \"Purchased Categories\" that accumulate unique values over …"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_unset",
+    "description": "Permanently remove one or more named properties (and their values) from a Mixpanel user profile via Engage $unset. This deletes the properties themselves, not the profile — use 'mixpanelingestion_profile_delete' to delete the whole profile."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_track_event",
+    "description": "Send a single event to Mixpanel via the classic /track endpoint, authenticated with your Mixpanel Project Token (not your Service Account). Use this for lightweight, fire-and-forget event tracking. For reliable server-side ingestion with validation and duplicate protection, pref…"
+  },
+  {
     "slug": "mobbinmcp",
     "name": "mobbinmcp_search_flows",
     "description": "Search Mobbin for multi-step user flows (e.g. onboarding, checkout) using natural language. Returns flow screens with inline images."
@@ -51863,6 +52198,536 @@
     "slug": "storeleadsmcp",
     "name": "storeleadsmcp_search_technologies",
     "description": "Search technologies used by e-commerce stores. Filter by install count."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_accept_quote_dahlia",
+    "description": "Accept a finalized Quote. Converts it into a subscription or invoice."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_attach_payment_method_dahlia",
+    "description": "Attach a PaymentMethod to a Customer."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_cancel_payment_intent_dahlia",
+    "description": "Cancels a PaymentIntent object when it's in a cancellable state. Depending on the payment method, it may be possible to cancel a PaymentIntent once it has been confirmed and is in requires_capture state."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_cancel_payout_dahlia",
+    "description": "Cancel a payout that has not yet been paid out. Only cancels payouts with status 'pending'."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_cancel_quote_dahlia",
+    "description": "Cancel a Quote that has been finalized but not yet accepted."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_cancel_setup_intent_dahlia",
+    "description": "Cancel a SetupIntent that has not been confirmed."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_cancel_subscription_dahlia",
+    "description": "Cancels a customer's subscription immediately. The customer will not be charged again for the subscription. By default the subscription is canceled immediately but if prorate is set, any remaining charges are refunded."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_close_dispute_dahlia",
+    "description": "Close a dispute and accept the chargeback. This cannot be undone."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_confirm_payment_intent_dahlia",
+    "description": "Confirm that your customer intends to pay with current or provided payment method. Upon confirmation, the PaymentIntent will attempt to initiate a payment. If the payment method requires action (3DS, redirect), the PaymentIntent will move to requires_action."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_confirm_setup_intent_dahlia",
+    "description": "Confirm a SetupIntent and attempt to collect a payment method for future use."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_checkout_session_dahlia",
+    "description": "Create a Checkout Session to accept one-time or subscription payments via Stripe-hosted page."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_coupon_dahlia",
+    "description": "Create a coupon that can be redeemed for a discount on subscriptions or one-time charges."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_customer_dahlia",
+    "description": "Creates a new customer object. Use this to store a customer's payment and billing details. The customer object allows you to perform recurring charges and track multiple charges associated with the same customer."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_customer_portal_session_dahlia",
+    "description": "Creates a session of the customer portal. A portal session describes the instantiation of the customer portal for a particular customer. By visiting the session's URL, the customer can manage their subscriptions and billing details. Portal sessions are short-lived and will expir…"
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_invoice_dahlia",
+    "description": "This endpoint creates a draft invoice for a given customer. The draft invoice created pulls in all pending invoice items on that customer, including prorations. The invoice remains a draft until you finalize the invoice, which allows you to pay, send, and delete the invoice."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_invoice_item_dahlia",
+    "description": "Create an invoice item to be added to a pending invoice."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_payment_intent_dahlia",
+    "description": "Creates a PaymentIntent object. After the PaymentIntent is created, attach a payment method and confirm to continue the payment. You can also create and confirm a PaymentIntent in a single step by using the confirm parameter."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_payment_method_dahlia",
+    "description": "Create a PaymentMethod object. Attach it to a Customer to enable reusable payment."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_payout_dahlia",
+    "description": "Create a payout to send funds to a bank account or debit card."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_plan_dahlia",
+    "description": "Create a Plan (legacy billing API). Consider using Prices instead for new integrations."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_price_dahlia",
+    "description": "Creates a new price for an existing product. Prices define how much and how often to charge for products. This includes one-time prices and recurring prices for subscriptions."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_product_dahlia",
+    "description": "Creates a new product object. Products describe the specific goods or services you offer to your customers. Products are used in conjunction with Prices to configure how much and how often you charge customers."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_promotion_code_dahlia",
+    "description": "Create a promotion code for a coupon that customers can redeem."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_quote_dahlia",
+    "description": "Create a Quote for a subscription or one-time payment, which can be sent to customers for approval."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_refund_dahlia",
+    "description": "Create a refund for a charge or payment intent. Refunds a charge that has previously been created, with optional partial amount."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_setup_intent_dahlia",
+    "description": "Create a SetupIntent to collect payment method details for future off-session payments."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_subscription_dahlia",
+    "description": "Creates a new subscription on an existing customer. Each customer can have multiple active subscriptions if needed."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_subscription_item_dahlia",
+    "description": "Add a new item to an existing subscription."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_tax_rate_dahlia",
+    "description": "Create a tax rate that can be applied to invoices and subscriptions."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_transfer_dahlia",
+    "description": "Create a transfer to send funds to a connected Stripe account (Connect platforms)."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_webhook_endpoint_dahlia",
+    "description": "Create a webhook endpoint to receive Stripe event notifications at your HTTPS URL. Supports subscribing to any number of event types (or use * to receive all events)."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_delete_coupon_dahlia",
+    "description": "Delete a coupon. Customers that have already applied this coupon are not affected."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_delete_customer_dahlia",
+    "description": "Permanently deletes a customer. It cannot be undone. Also immediately cancels any active subscriptions on the customer."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_delete_invoice_item_dahlia",
+    "description": "Delete an invoice item. Can only delete items that have not been finalized in an invoice."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_delete_plan_dahlia",
+    "description": "Delete a Plan. Customers subscribed to this plan are not affected."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_delete_subscription_item_dahlia",
+    "description": "Delete a subscription item, removing it from the subscription."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_delete_webhook_endpoint_dahlia",
+    "description": "Delete a webhook endpoint. Once deleted, the endpoint will no longer receive events from Stripe."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_detach_payment_method_dahlia",
+    "description": "Detach a PaymentMethod from a Customer, making it reusable for other customers."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_expire_checkout_session_dahlia",
+    "description": "Expire a Checkout Session before it has been completed. Can only expire sessions in 'open' status."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_finalize_invoice_dahlia",
+    "description": "Stripe automatically finalizes drafts before sending them. However, if you'd like to finalize a draft invoice manually, you can do so using this method. After an invoice is finalized, it can be paid or sent to customers."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_finalize_quote_dahlia",
+    "description": "Finalize a Quote to make it ready to be accepted by the customer."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_account_dahlia",
+    "description": "Retrieve the details of the current Stripe account."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_balance_dahlia",
+    "description": "Retrieve the current balance of the Stripe account, showing available and pending amounts by currency."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_balance_transaction_dahlia",
+    "description": "Retrieve a balance transaction by ID. Balance transactions represent funds moving through the Stripe account."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_charge_dahlia",
+    "description": "Retrieves the details of a charge that has previously been created. Supply the unique charge ID that was returned from your previous request, and Stripe will return the corresponding charge information."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_checkout_session_dahlia",
+    "description": "Retrieve a Checkout Session by ID."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_coupon_dahlia",
+    "description": "Retrieve a coupon by its ID."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_customer_dahlia",
+    "description": "Retrieves the details of an existing customer. You need only supply the unique customer identifier that was returned upon customer creation."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_dispute_dahlia",
+    "description": "Retrieve a dispute by ID. A dispute occurs when a customer questions a charge with their card issuer."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_event_dahlia",
+    "description": "Retrieve an event by ID. Events are Stripe's way of notifying your application about changes."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_invoice_dahlia",
+    "description": "Retrieves the invoice with the given ID. Supply the unique invoice identifier that was returned from your previous request, and Stripe will return the corresponding invoice information."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_invoice_item_dahlia",
+    "description": "Retrieves the invoice item with the given ID. Supply the unique invoice item identifier and Stripe will return the corresponding invoice item information."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_payment_intent_dahlia",
+    "description": "Retrieves the details of a PaymentIntent that was previously created. Supply the unique PaymentIntent ID and Stripe will return the corresponding PaymentIntent information."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_payment_method_dahlia",
+    "description": "Retrieve a PaymentMethod object."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_payout_dahlia",
+    "description": "Retrieve a payout by ID."
+  },
+  { "slug": "stripe", "name": "stripe_get_plan_dahlia", "description": "Retrieve a Plan by ID." },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_price_dahlia",
+    "description": "Retrieves the price with the given ID."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_product_dahlia",
+    "description": "Retrieves the details of an existing product. Supply the unique product ID from either a product creation request or the product list, and Stripe will return the corresponding product information."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_promotion_code_dahlia",
+    "description": "Retrieve a promotion code by ID."
+  },
+  { "slug": "stripe", "name": "stripe_get_quote_dahlia", "description": "Retrieve a Quote by ID." },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_refund_dahlia",
+    "description": "Retrieve the details of an existing refund."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_setup_intent_dahlia",
+    "description": "Retrieve a SetupIntent by ID."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_subscription_dahlia",
+    "description": "Retrieves the subscription with the given ID. Supply the unique subscription identifier that was returned from your previous request, and Stripe will return the corresponding subscription information."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_subscription_item_dahlia",
+    "description": "Retrieves the subscription item with the given ID. Supply the unique subscription item identifier and Stripe will return the corresponding subscription item information."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_tax_rate_dahlia",
+    "description": "Retrieve a tax rate by ID."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_transfer_dahlia",
+    "description": "Retrieve a transfer by ID."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_webhook_endpoint_dahlia",
+    "description": "Retrieve a webhook endpoint by ID."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_accounts_dahlia",
+    "description": "List all connected accounts on your platform (Connect platforms only)."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_balance_transactions_dahlia",
+    "description": "List all balance transactions, optionally filtered by currency, source, or type."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_charges_dahlia",
+    "description": "Returns a list of charges you've previously created. The charges are returned in sorted order, with the most recent charges appearing first."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_checkout_sessions_dahlia",
+    "description": "List all Checkout Sessions."
+  },
+  { "slug": "stripe", "name": "stripe_list_coupons_dahlia", "description": "List all coupons." },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_customer_payment_methods_dahlia",
+    "description": "List all PaymentMethods attached to a specific customer."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_customers_dahlia",
+    "description": "Returns a list of your customers. The customers are returned sorted by creation date, with the most recent customers appearing first. Supports filtering by email and pagination for large customer lists."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_disputes_dahlia",
+    "description": "List all disputes, optionally filtered by charge or payment intent."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_events_dahlia",
+    "description": "List all events. Events represent noteworthy activity on your Stripe account."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_invoice_items_dahlia",
+    "description": "Returns a list of your invoice items. Invoice items are returned sorted by creation date, with the most recent invoice items appearing first."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_invoice_line_items_dahlia",
+    "description": "When retrieving an invoice, you'll get a lines property containing the total count of line items and the first handful of those items. There is also a URL where you can retrieve the full (paginated) list of line items."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_invoices_dahlia",
+    "description": "Returns a list of your invoices. The invoices are returned sorted by creation date, with the most recent invoices appearing first."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_payment_intents_dahlia",
+    "description": "Returns a list of PaymentIntents. The PaymentIntents are returned sorted by creation date, with the most recent PaymentIntents appearing first."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_payment_methods_dahlia",
+    "description": "List PaymentMethods for a customer."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_payouts_dahlia",
+    "description": "List all payouts, with optional filters by status and arrival date."
+  },
+  { "slug": "stripe", "name": "stripe_list_plans_dahlia", "description": "List all Plans." },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_prices_dahlia",
+    "description": "Returns a list of your active prices, excluding inline prices. For the list of inactive prices, set active to false."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_products_dahlia",
+    "description": "Returns a list of your products. The products are returned sorted by creation date, with the most recent products appearing first."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_promotion_codes_dahlia",
+    "description": "List all promotion codes."
+  },
+  { "slug": "stripe", "name": "stripe_list_quotes_dahlia", "description": "List all Quotes." },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_refunds_dahlia",
+    "description": "List all refunds, optionally filtered by charge or payment intent."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_setup_intents_dahlia",
+    "description": "List all SetupIntents."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_subscription_items_dahlia",
+    "description": "Returns a list of subscription items for a given subscription. Subscription items represent the component lines of a subscription."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_subscriptions_dahlia",
+    "description": "Returns a list of your subscriptions. The subscriptions are returned sorted by creation date, with the most recent subscriptions appearing first."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_tax_rates_dahlia",
+    "description": "List all tax rates."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_transfers_dahlia",
+    "description": "List all transfers to connected accounts."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_webhook_endpoints_dahlia",
+    "description": "List all webhook endpoints."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_pay_invoice_dahlia",
+    "description": "Stripe automatically creates and then attempts to collect payment on invoices for customers on subscriptions according to your subscriptions settings. However, if you'd like to attempt payment on an invoice out of the normal collection schedule or for some other reason, you use …"
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_coupon_dahlia",
+    "description": "Update a coupon's name or metadata."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_customer_dahlia",
+    "description": "Updates the specified customer by setting the values of the parameters passed. Any parameters not provided will be left unchanged."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_dispute_dahlia",
+    "description": "Update a dispute to submit evidence to the card issuer and potentially win the chargeback."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_invoice_item_dahlia",
+    "description": "Update an invoice item's amount, description, or metadata."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_plan_dahlia",
+    "description": "Update a Plan's nickname, active status, or metadata."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_product_dahlia",
+    "description": "Updates the specific product by setting the values of the parameters passed. Any parameters not provided will be left unchanged."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_promotion_code_dahlia",
+    "description": "Update a promotion code's active status or metadata."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_quote_dahlia",
+    "description": "Update a draft Quote."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_refund_dahlia",
+    "description": "Update the metadata on a refund."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_subscription_dahlia",
+    "description": "Updates an existing subscription to match the specified parameters. When updating a subscription, any parameters not provided will be left unchanged."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_subscription_item_dahlia",
+    "description": "Update a subscription item, for example to change the price or quantity."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_tax_rate_dahlia",
+    "description": "Update a tax rate's display name, description, or active status."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_transfer_dahlia",
+    "description": "Update a transfer's metadata."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_webhook_endpoint_dahlia",
+    "description": "Update a webhook endpoint's URL, enabled events, or disabled status."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_void_invoice_dahlia",
+    "description": "Mark a finalized invoice as void. This cannot be undone. Voiding an invoice is similar to deletion, however it only applies to finalized invoices and maintains a papertrail where the invoice can still be found."
   },
   {
     "slug": "stripemcp",

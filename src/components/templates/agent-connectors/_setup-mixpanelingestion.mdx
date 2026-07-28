@@ -1,0 +1,107 @@
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components'
+
+Register your Mixpanel Service Account username and secret with Scalekit so it can authenticate and proxy requests on behalf of your users. Mixpanel uses HTTP Basic Auth — the Service Account username is the username and the secret is the password. There is no redirect URI or OAuth flow.
+
+<Steps>
+1. ### Find your Mixpanel data residency region
+
+   Mixpanel hosts projects in three separate data residency regions. Before generating a Service Account, confirm which region your project lives in:
+
+   | Region | API host |
+   |--------|----------|
+   | United States (default) | `mixpanel.com/api` |
+   | European Union | `eu.mixpanel.com/api` |
+   | India | `in.mixpanel.com/api` |
+
+   <Aside type="caution" title="Region must match your project">
+     A Service Account works only against the API host for the region your project was created in. Using the wrong region in Scalekit means every request fails to find your data.
+   </Aside>
+
+2. ### Create a Service Account
+
+   - Sign in to Mixpanel and go to **Settings** → **Project** → **Service Accounts**.
+   - Click **Add Service Account**, give it a name (for example, `Agent Auth`), and choose a role.
+   - Copy the generated **Username** and **Secret** immediately — Mixpanel shows the secret only once.
+
+     ![Mixpanel Add Service Account modal showing the generated Username and Secret fields](@/assets/docs/agent-connectors/mixpanelingestion/add-service-account.png)
+
+   <Aside type="tip" title="Legacy Project Secret also works">
+     If your project still uses a legacy Project Secret instead of a Service Account, enter the secret as the **Username** and leave **Secret** blank in Scalekit.
+   </Aside>
+
+3. ### Create a connection in Scalekit
+
+   - In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** → **Connections** → **Create Connection**.
+   - Search for **Mixpanel Ingestion** and click **Create**.
+   - Note the **Connection name** — use this as `connection_name` in your code (e.g., `mixpanelingestion`).
+
+4. ### Add a connected account
+
+   Connected accounts link a specific user identifier in your system to a Mixpanel Service Account and region. Add them via the dashboard for testing, or via the Scalekit API in production.
+
+   **Via dashboard (for testing)**
+
+   - Open the connection and click the **Connected Accounts** tab → **Add account**.
+   - Fill in **Your User's ID**, the **Username**, **Secret**, and select the matching **Data Residency**.
+   - Click **Save**.
+
+   **Via API (for production)**
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```ts
+       // US region (default) — omit `domain` or set it to 'mixpanel.com/api'
+       await scalekit.connect.upsertConnectedAccount({
+         connectionName: 'mixpanelingestion',
+         identifier: 'user@example.com',
+         credentials: {
+           username: 'your-service-account-username',
+           password: 'your-service-account-secret',
+           domain: 'mixpanel.com/api',
+         },
+       })
+
+       // EU region
+       await scalekit.connect.upsertConnectedAccount({
+         connectionName: 'mixpanelingestion',
+         identifier: 'eu-user@example.com',
+         credentials: {
+           username: 'your-eu-service-account-username',
+           password: 'your-eu-service-account-secret',
+           domain: 'eu.mixpanel.com/api',
+         },
+       })
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```python
+       # US region (default) — omit domain or set it to "mixpanel.com/api"
+       scalekit_client.connect.upsert_connected_account(
+           connection_name="mixpanelingestion",
+           identifier="user@example.com",
+           credentials={
+               "username": "your-service-account-username",
+               "password": "your-service-account-secret",
+               "domain": "mixpanel.com/api",
+           },
+       )
+
+       # EU region
+       scalekit_client.connect.upsert_connected_account(
+           connection_name="mixpanelingestion",
+           identifier="eu-user@example.com",
+           credentials={
+               "username": "your-eu-service-account-username",
+               "password": "your-eu-service-account-secret",
+               "domain": "eu.mixpanel.com/api",
+           },
+       )
+       ```
+     </TabItem>
+   </Tabs>
+
+   <Aside type="tip" title="Running multiple regions side by side">
+     If your organization has projects in more than one region, create a separate connected account per user (or per project) with the matching `domain` value. Scalekit routes each account's requests to the correct regional host automatically.
+   </Aside>
+
+</Steps>

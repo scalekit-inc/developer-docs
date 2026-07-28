@@ -1650,4 +1650,24 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'Bearer Token',
     categories: ['Analytics'],
   },
+  mixpanelanalytics: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/mixpanel.svg',
+    authType: 'Service Account',
+    categories: ['Analytics'],
+  },
+  mixpanelingestion: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/mixpanel.svg',
+    authType: 'Service Account',
+    categories: ['Analytics'],
+  },
+  mixpanelcompliance: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/mixpanel.svg',
+    authType: 'Bearer Token',
+    categories: ['Analytics'],
+  },
+  stripe: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/stripe.svg',
+    authType: 'Bearer Token',
+    categories: ['Accounting & Finance', 'Developer Tools', 'Automation'],
+  },
 }

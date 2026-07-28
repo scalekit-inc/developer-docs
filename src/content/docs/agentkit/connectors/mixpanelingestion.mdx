@@ -1,0 +1,79 @@
+---
+title: 'Mixpanel Ingestion connector'
+tableOfContents: true
+description: 'Connect to Mixpanel''s Ingestion API to track events, manage user and group profiles, resolve identities, replace lookup tables, and evaluate feature...'
+sidebar:
+  label: 'Mixpanel Ingestion'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/mixpanel.svg
+connectorAuthType: Service Account
+connectorCategories: [Analytics]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/mixpanelingestion'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupMixpanelingestionSection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Mixpanel Ingestion credentials with Scalekit so it can authenticate requests on your behalf. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupMixpanelingestionSection />
+
+   </details>
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Definitions feature flags** — Get the full definitions of every feature flag/experiment configured in a Mixpanel project, including each flag's variants, rollout rules, and linked experiment
+- **Evaluate feature flags** — Evaluate all enabled Mixpanel feature flags and experiments for a given user, returning the variant each flag assigns them
+- **Update group batch, profile batch** — Send a batch of mixed group-profile updates to Mixpanel in a single call, analogous to 'mixpanelingestion_profile_batch_update' for user profiles
+- **Delete group, profile** — Permanently delete a Mixpanel group profile and all of its properties, analogous to 'mixpanelingestion_profile_delete' for user profiles
+- **Remove group, profile** — Remove a specific value from a list-valued property on a Mixpanel group profile, analogous to 'mixpanelingestion_profile_remove' for user profiles
+- **Set group, profile** — Set (overwrite) properties on a Mixpanel group profile (e.g
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />
