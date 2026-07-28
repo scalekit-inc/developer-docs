@@ -4,6 +4,7 @@ import {
   getActiveProduct,
   getActiveSecondaryNavId,
   isCurrentPage,
+  isSelfHostedPath,
   getDisplayLabel,
   getDisplayIcon,
   type SecondaryNavProps,
@@ -21,7 +22,7 @@ const navItems = secondaryNavConfig[activeProduct]
 // Self-hosted deployment docs apply to both products and have no tab of their own
 // (see sidebar.config.ts) — showing either product's tab row here would misrepresent
 // the page, so the row disappears entirely instead of showing a half-relevant one.
-const isSelfHosted = Astro.url.pathname.startsWith('/self-hosted/')
+const isSelfHosted = isSelfHostedPath(Astro.url.pathname)
 ---
 
 {

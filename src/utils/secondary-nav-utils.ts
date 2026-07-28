@@ -20,6 +20,16 @@ export function getActiveProduct(
   return 'saaskit'
 }
 
+/**
+ * Self-hosted deployment docs apply to both products and have no secondary-nav
+ * tab or product context of their own (see sidebar.config.ts). Single source of
+ * truth for that path check — HeaderProductToggle and SecondaryNav both need it
+ * to agree on when to show the neutral "Self Hosted" state.
+ */
+export function isSelfHostedPath(pathname: string): boolean {
+  return pathname.startsWith('/self-hosted/')
+}
+
 // Props interface - entry is passed from Header.astro
 export interface SecondaryNavProps {
   entry?: {

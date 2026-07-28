@@ -2,6 +2,7 @@
 import {
   getActiveSecondaryNavId,
   getActiveProduct,
+  isSelfHostedPath,
   type SecondaryNavProps,
 } from '../../utils/secondary-nav-utils'
 import { IconLucideUsers, IconLucideBot } from '../../utils/icon-map'
@@ -23,7 +24,7 @@ const isSaaSKitActive = activeProduct === 'saaskit' && activeId !== null
 // Self-hosted deployment docs apply to both products, so neither AgentKit nor
 // Auth for SaaS is "active" there. Show a neutral "Self Hosted" label instead —
 // it isn't a selectable dropdown option (yet), just the current-page state.
-const isSelfHosted = Astro.url.pathname.startsWith('/self-hosted/')
+const isSelfHosted = isSelfHostedPath(Astro.url.pathname)
 const hasSelection = isAgentKitActive || isSaaSKitActive || isSelfHosted
 
 const activeLabel = isSelfHosted
