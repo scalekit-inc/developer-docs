@@ -15,19 +15,24 @@ const activeProduct = getActiveProduct(Astro.url.pathname, entry?.data?.topic, s
 
 // activeId !== null means the page is in the doc system with a known nav context.
 // Shared items (rest-apis, sdks, etc.) live in SaasKit nav, so activeProduct covers them.
+// (activeId is null on /self-hosted/** — it has no secondary-nav tab of its own —
+// so isSaaSKitActive is already false there without any extra guard.)
 const isAgentKitActive = activeProduct === 'agentkit'
 const isSaaSKitActive = activeProduct === 'saaskit' && activeId !== null
-const hasSelection = isAgentKitActive || isSaaSKitActive
 
-const activeLabel = isAgentKitActive ? 'AgentKit' : isSaaSKitActive ? 'Auth for SaaS' : null
+// Self-hosted deployment docs apply to both products, so neither AgentKit nor
+// Auth for SaaS is "active" there. Show a neutral "Self Hosted" label instead —
+// it isn't a selectable dropdown option (yet), just the current-page state.
+const isSelfHosted = Astro.url.pathname.startsWith('/self-hosted/')
+const hasSelection = isAgentKitActive || isSaaSKitActive || isSelfHosted
 
-// Self-hosted docs are shared by both products but statically prerendered, so this
-// component always renders the 'saaskit' default for them server-side (frontmatter
-// topic isn't reliably set, and a `?product=` search param wouldn't reach a static
-// build anyway). The client script restores the right product from sessionStorage
-// after hydration instead. Path-based, not topic-based: Starlight's sidebar link
-// normalizer strips query strings from `link:` values, so state can't ride the URL.
-const isAmbiguousTopic = Astro.url.pathname.startsWith('/self-hosted/')
+const activeLabel = isSelfHosted
+  ? 'Self Hosted'
+  : isAgentKitActive
+    ? 'AgentKit'
+    : isSaaSKitActive
+      ? 'Auth for SaaS'
+      : null
 
 const productLinks = [
   {
@@ -49,11 +54,7 @@ const productLinks = [
 ]
 ---
 
-<div
-  class="product-phrase sl-hidden md:sl-flex"
-  id="product-phrase"
-  data-ambiguous-topic={isAmbiguousTopic ? 'true' : 'false'}
->
+<div class="product-phrase sl-hidden md:sl-flex" id="product-phrase">
   <div class="product-dropdown" id="product-dropdown">
     <button
       class={`product-dropdown__trigger${!hasSelection ? ' is-placeholder' : ''}`}
@@ -122,52 +123,7 @@ const productLinks = [
 <script>
   let productToggleAbort: AbortController | null = null
 
-  const PRODUCT_STORAGE_KEY = 'sk-active-product'
-
-  // Self-hosted docs (and other shared/ambiguous topics) are statically prerendered,
-  // so the server always renders the 'saaskit' default for them. Restore the product
-  // the visitor actually came from: an explicit `?product=` wins, else fall back to
-  // whatever we last saw them on an unambiguous AgentKit/SaaSKit page in this session.
-  function restoreProductContext() {
-    const phrase = document.getElementById('product-phrase')
-    const trigger = document.getElementById('product-dropdown-trigger') as HTMLButtonElement | null
-    if (!phrase || !trigger) return
-
-    const isAmbiguous = phrase.getAttribute('data-ambiguous-topic') === 'true'
-    const paramProduct = new URLSearchParams(location.search).get('product')
-
-    let knownProduct: string | null = null
-    if (paramProduct === 'agentkit' || paramProduct === 'saaskit') {
-      knownProduct = paramProduct
-    } else if (location.pathname.startsWith('/agentkit/')) {
-      knownProduct = 'agentkit'
-    } else if (!isAmbiguous) {
-      knownProduct = 'saaskit'
-    }
-
-    if (knownProduct) {
-      sessionStorage.setItem(PRODUCT_STORAGE_KEY, knownProduct)
-    }
-
-    if (!isAmbiguous) return
-
-    const resolved = knownProduct || sessionStorage.getItem(PRODUCT_STORAGE_KEY)
-    if (resolved !== 'agentkit') return // server already rendered the 'saaskit' default
-
-    const labelEl = trigger.querySelector('.product-label')
-    if (labelEl) labelEl.textContent = 'AgentKit'
-    document
-      .querySelectorAll('#product-dropdown .product-dropdown__item[data-storage-value]')
-      .forEach((item) => {
-        const active = item.getAttribute('data-storage-value') === 'agentkit'
-        item.classList.toggle('is-active', active)
-        item.setAttribute('aria-selected', String(active))
-      })
-  }
-
   function initProductToggle() {
-    restoreProductContext()
-
     const trigger = document.getElementById('product-dropdown-trigger') as HTMLButtonElement | null
     const dropdown = document.getElementById('product-dropdown')
     if (!trigger || !dropdown) return
