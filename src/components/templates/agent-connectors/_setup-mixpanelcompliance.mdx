@@ -1,0 +1,106 @@
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components'
+
+Register your Mixpanel GDPR/CCPA compliance token with Scalekit so it can authenticate and proxy data deletion and retrieval requests on behalf of your users. This connector uses a Bearer token — there is no redirect URI or OAuth flow.
+
+<Steps>
+1. ### Find your Mixpanel data residency region
+
+   Mixpanel hosts projects in three separate data residency regions. Before generating a token, confirm which region your project lives in:
+
+   | Region | API host |
+   |--------|----------|
+   | United States (default) | `mixpanel.com/api` |
+   | European Union | `eu.mixpanel.com/api` |
+   | India | `in.mixpanel.com/api` |
+
+   <Aside type="caution" title="Region must match your project">
+     A compliance token works only against the API host for the region your project was created in. Using the wrong region in Scalekit means every request fails to find your data.
+   </Aside>
+
+   <Aside type="note" title="Separate from Service Account credentials">
+     This GDPR compliance token is a different credential from the Service Account username and secret used by the Mixpanel Analytics and Mixpanel Ingestion connectors. Generate it from your personal profile settings, not project settings.
+   </Aside>
+
+2. ### Get your GDPR compliance token
+
+   - Sign in to Mixpanel and go to **Settings** → **Profile** → **Data & Privacy**.
+   - Under **GDPR API**, copy the **OAuth Token for GDPR APIs**. If none exists yet, click **Reset** to generate one.
+
+     ![Mixpanel Data & Privacy settings page showing the GDPR API OAuth Token field](@/assets/docs/agent-connectors/mixpanelcompliance/gdpr-token.png)
+
+   <Aside type="caution" title="Resetting invalidates the old token">
+     Clicking **Reset** immediately invalidates any previously issued token. Update every connected account using the old token before resetting, or GDPR/CCPA requests using it will start failing.
+   </Aside>
+
+3. ### Create a connection in Scalekit
+
+   - In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** → **Connections** → **Create Connection**.
+   - Search for **Mixpanel Compliance** and click **Create**.
+   - Note the **Connection name** — use this as `connection_name` in your code (e.g., `mixpanelcompliance`).
+
+4. ### Add a connected account
+
+   Connected accounts link a specific user identifier in your system to a GDPR compliance token and region. Add them via the dashboard for testing, or via the Scalekit API in production.
+
+   **Via dashboard (for testing)**
+
+   - Open the connection and click the **Connected Accounts** tab → **Add account**.
+   - Fill in **Your User's ID**, the **GDPR Token**, and select the matching **Data Residency**.
+   - Click **Save**.
+
+   **Via API (for production)**
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```ts
+       // US region (default) — omit `domain` or set it to 'mixpanel.com/api'
+       await scalekit.connect.upsertConnectedAccount({
+         connectionName: 'mixpanelcompliance',
+         identifier: 'user@example.com',
+         credentials: {
+           token: 'your-gdpr-compliance-token',
+           domain: 'mixpanel.com/api',
+         },
+       })
+
+       // EU region
+       await scalekit.connect.upsertConnectedAccount({
+         connectionName: 'mixpanelcompliance',
+         identifier: 'eu-user@example.com',
+         credentials: {
+           token: 'your-eu-gdpr-compliance-token',
+           domain: 'eu.mixpanel.com/api',
+         },
+       })
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```python
+       # US region (default) — omit domain or set it to "mixpanel.com/api"
+       scalekit_client.connect.upsert_connected_account(
+           connection_name="mixpanelcompliance",
+           identifier="user@example.com",
+           credentials={
+               "token": "your-gdpr-compliance-token",
+               "domain": "mixpanel.com/api",
+           },
+       )
+
+       # EU region
+       scalekit_client.connect.upsert_connected_account(
+           connection_name="mixpanelcompliance",
+           identifier="eu-user@example.com",
+           credentials={
+               "token": "your-eu-gdpr-compliance-token",
+               "domain": "eu.mixpanel.com/api",
+           },
+       )
+       ```
+     </TabItem>
+   </Tabs>
+
+   <Aside type="tip" title="Running multiple regions side by side">
+     If your organization has projects in more than one region, create a separate connected account per user (or per project) with the matching `domain` value. Scalekit routes each account's requests to the correct regional host automatically.
+   </Aside>
+
+</Steps>

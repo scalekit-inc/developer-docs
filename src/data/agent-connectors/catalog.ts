@@ -1635,4 +1635,39 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'OAuth 2.1/DCR',
     categories: ['AI'],
   },
+  discordbot: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/discord.svg',
+    authType: 'API Key',
+    categories: ['Communication', 'Collaboration'],
+  },
+  amplitudeanalytics: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/amplitude.svg',
+    authType: 'API Key + Secret Key',
+    categories: ['Analytics'],
+  },
+  amplitudeexperimentmanagement: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/amplitude.svg',
+    authType: 'Bearer Token',
+    categories: ['Analytics'],
+  },
+  mixpanelanalytics: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/mixpanel.svg',
+    authType: 'Service Account',
+    categories: ['Analytics'],
+  },
+  mixpanelingestion: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/mixpanel.svg',
+    authType: 'Service Account',
+    categories: ['Analytics'],
+  },
+  mixpanelcompliance: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/mixpanel.svg',
+    authType: 'Bearer Token',
+    categories: ['Analytics'],
+  },
+  stripe: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/stripe.svg',
+    authType: 'Bearer Token',
+    categories: ['Accounting & Finance', 'Developer Tools', 'Automation'],
+  },
 }
