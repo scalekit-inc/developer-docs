@@ -34,8 +34,8 @@ These methods sit next to session management—use them when implementing hosted
       <CB.ClassMethodInput name="req" type="UpdateLoginUserDetailsRequest">
         Req.
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="error">
-        error
+      <CB.ClassMethodOutput type="(*UpdateLoginUserDetailsResponse, error)">
+        Response carrying the auth request ID (`resp.GetAuthRequestId()`), plus an error.
       </CB.ClassMethodOutput>
 
 ```go wrap showLineNumbers=false
@@ -48,9 +48,11 @@ req := &scalekit.UpdateLoginUserDetailsRequest{
   },
 }
 
-if err := scalekitClient.Auth().UpdateLoginUserDetails(ctx, req); err != nil {
+resp, err := scalekitClient.Auth().UpdateLoginUserDetails(ctx, req)
+if err != nil {
   // handle
 }
+_ = resp.GetAuthRequestId()
 ```
 
     </CB.ClassMethod>
