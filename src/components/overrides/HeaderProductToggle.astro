@@ -14,17 +14,17 @@ const searchParams = Astro.url.searchParams
 const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry, searchParams)
 const activeProduct = getActiveProduct(Astro.url.pathname, entry?.data?.topic, searchParams)
 
-// activeId !== null means the page is in the doc system with a known nav context.
-// Shared items (rest-apis, sdks, etc.) live in SaasKit nav, so activeProduct covers them.
-// (activeId is null on /self-hosted/** — it has no secondary-nav tab of its own —
-// so isSaaSKitActive is already false there without any extra guard.)
-const isAgentKitActive = activeProduct === 'agentkit'
-const isSaaSKitActive = activeProduct === 'saaskit' && activeId !== null
-
 // Self-hosted deployment docs apply to both products, so neither AgentKit nor
 // Auth for SaaS is "active" there. Show a neutral "Self Hosted" label instead —
 // it isn't a selectable dropdown option (yet), just the current-page state.
+// Keep product-active flags false on these routes even if topic or ?product=
+// would otherwise resolve to AgentKit/SaaSKit (label and dropdown must agree).
 const isSelfHosted = isSelfHostedPath(Astro.url.pathname)
+
+// activeId !== null means the page is in the doc system with a known nav context.
+// Shared items (rest-apis, sdks, etc.) live in SaasKit nav, so activeProduct covers them.
+const isAgentKitActive = !isSelfHosted && activeProduct === 'agentkit'
+const isSaaSKitActive = !isSelfHosted && activeProduct === 'saaskit' && activeId !== null
 const hasSelection = isAgentKitActive || isSaaSKitActive || isSelfHosted
 
 const activeLabel = isSelfHosted
