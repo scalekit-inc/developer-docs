@@ -160,5 +160,48 @@ String accessToken = result.getAccessToken();
   </CB.ClassBrowser>
 </div>
 
+### updateLoginUserDetails
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Auth" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/LoginClient.java">
+    <CB.ClassMethod name="updateLoginUserDetails" open={true}>
+
+      Updates the user details for an in-progress login request, for example after collecting additional profile information, or marking the login as failed with `User.newBuilder().setLoginFailed(true)`.
+
+      <CB.ClassMethodInput name="connectionId" type="String">
+        The connection ID the login request belongs to.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="loginRequestId" type="String">
+        The login request ID being updated.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="user" type="User">
+        The user details to apply to the login request.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateLoginUserDetailsResult">
+        Result carrying the auth request ID (`result.getAuthRequestId()`), which you can use to look up the user's authentication journey in the auth logs.
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+import com.scalekit.grpc.scalekit.v1.auth.User;
+import com.scalekit.internal.http.UpdateLoginUserDetailsResult;
+
+User user = User.newBuilder()
+  .setSub("unique_user_id_456")
+  .setEmail("john.doe@company.com")
+  .build();
+
+UpdateLoginUserDetailsResult result = scalekitClient.login().updateLoginUserDetails(
+  "conn_abc123",
+  "login_xyz789",
+  user
+);
+
+// The auth request ID can be used to look up the authentication journey via auth logs.
+String authRequestId = result.getAuthRequestId();
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
 
 </div>
