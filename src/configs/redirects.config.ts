@@ -6,6 +6,8 @@ export const redirects = {
   '/authenticate': '/',
   '/auth-for-saas': '/authenticate/fsa/quickstart/',
   '/home/auth-for-saas': '/home/saaskit/',
+  // Go live links use /self-hosted (not /overview/) so they do not steal sidebar isCurrent.
+  '/self-hosted': '/self-hosted/overview/',
 
   // =============================================================================
   // FULL STACK AUTH (FSA) REDIRECTS
@@ -99,6 +101,8 @@ export const redirects = {
   // User and organization management files reorganized
   '/fsa/guides/create-organization': '/authenticate/manage-users-orgs/create-organization/',
   '/fsa/guides/custom-user-attributes': '/authenticate/manage-users-orgs/custom-user-attributes/',
+  // Orphan (not in sidebar); superseded by public manage-users-orgs journey pages
+  '/fsa/guides/manage-users': '/authenticate/manage-organizations/add-users-to-organization/',
   '/authenticate/manage-users-orgs/delete-users-orgs':
     '/authenticate/manage-users-orgs/delete-users-and-organizations/',
   'fsa/guides/app-roles': '/authenticate/authz/create-roles-permissions/',
@@ -449,4 +453,17 @@ export const redirects = {
   // Additional API subpaths and variants seen in agent evals
   '/apis/connected-accounts': '/apis',
   '/apis/connected-accounts/*': '/apis',
+
+  // =============================================================================
+  // SDK PATHS → product-scoped SaaSKit SDKs (preserve public links)
+  // One entry per path (trailing-slash form) to avoid Astro redirect collisions.
+  // =============================================================================
+  '/sdks/node': '/saaskit/sdks/node/',
+  '/sdks/node/reference': '/saaskit/sdks/node/',
+  '/sdks/python': '/saaskit/sdks/python/',
+  '/sdks/python/reference': '/saaskit/sdks/python/',
+  '/sdks/go': '/saaskit/sdks/go/',
+  '/sdks/go/reference': '/saaskit/sdks/go/',
+  '/sdks/java': '/saaskit/sdks/java/',
+  '/sdks/java/reference': '/saaskit/sdks/java/',
 }

@@ -1,0 +1,472 @@
+---
+title: Roles
+description: Define and assign organization roles
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Roles
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+
+Use the `role` client to define organization roles and list role assignments.
+
+Create roles and permissions for authorization after you have organizations and users.
+
+### createRole
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Roles" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/role.ts">
+    <CB.ClassMethod name="createRole" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Creates a new environment-level role with specified permissions.
+
+      <CB.ClassMethodInput name="role" type="CreateRole">
+        Role creation object containing:
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateRoleResponse">
+        The created role with metadata
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.role.createRole({
+  name: 'content_editor',
+  displayName: 'Content Editor',
+  description: 'Can create and edit content',
+  permissions: ['content:read', 'content:write', 'content:edit']
+});
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### getRole
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Roles" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/role.ts">
+    <CB.ClassMethod name="getRole" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Retrieves complete information for a specific environment role.
+
+      <CB.ClassMethodInput name="roleName" type="string">
+        Unique role identifier (alphanumeric with underscores, hyphens allowed).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetRoleResponse">
+        Role details including permissions and inheritance
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.role.getRole('content_editor');
+console.log('Role:', response.role.displayName);
+console.log('Permissions:', response.role.permissions);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### listRoles
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Roles" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/role.ts">
+    <CB.ClassMethod name="listRoles" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Lists all environment-level roles available in your Scalekit environment.
+
+      <CB.ClassMethodOutput type="ListRolesResponse">
+        Array of all roles with their metadata
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.role.listRoles();
+response.roles.forEach(role => {
+  console.log(`${role.displayName}: ${role.permissions.length} permissions`);
+});
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### updateRole
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Roles" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/role.ts">
+    <CB.ClassMethod name="updateRole" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Updates an existing environment role's properties and permissions.
+
+      <CB.ClassMethodInput name="roleName" type="string">
+        Role to update
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="role" type="UpdateRole">
+        Updated role properties
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateRoleResponse">
+        Updated role details
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+await scalekit.role.updateRole('content_editor', {
+  displayName: 'Content Editor (Updated)',
+  permissions: ['content:read', 'content:write', 'content:edit', 'content:review']
+});
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### deleteRole
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Roles" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/role.ts">
+    <CB.ClassMethod name="deleteRole" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Deletes an environment role and reassigns its users to another role.
+
+      <CB.ClassMethodInput name="roleName" type="string">
+        Role to delete
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="reassignRoleName" type="string">
+        Optional. Target role for user migration
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="object" hint="MessageShape(typeof EmptySchema)">
+        Empty response on success
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+await scalekit.role.deleteRole('old_role', 'new_role');
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### deleteRoleBase
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Roles" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/role.ts">
+    <CB.ClassMethod name="deleteRoleBase" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Removes an environment role's inheritance relationship, eliminating inherited permissions from its base role.
+
+      <CB.ClassMethodInput name="roleName" type="string">
+        Role to remove inheritance from
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="object" hint="MessageShape(typeof EmptySchema)">
+        Empty response on success
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### getRoleUsersCount
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Roles" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/role.ts">
+    <CB.ClassMethod name="getRoleUsersCount" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Gets the number of users assigned to an environment role.
+
+      <CB.ClassMethodInput name="roleName" type="string">
+        Role to count users for
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetRoleUsersCountResponse">
+        Total user count (direct and inherited)
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.role.getRoleUsersCount('admin');
+console.log(`${response.count} users have admin role`);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### createOrganizationRole
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Roles" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/role.ts">
+    <CB.ClassMethod name="createOrganizationRole" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Creates a new organization-specific role with custom permissions.
+
+      <CB.ClassMethodInput name="orgId" type="string">
+        Organization identifier (format: "org_...")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="role" type="CreateOrganizationRole">
+        Role configuration containing:
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateOrganizationRoleResponse">
+        Created organization role
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+await scalekit.role.createOrganizationRole('org_123456', {
+  name: 'department_lead',
+  displayName: 'Department Lead',
+  description: 'Manages department members',
+  permissions: ['dept:members:read', 'dept:members:invite']
+});
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### getOrganizationRole
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Roles" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/role.ts">
+    <CB.ClassMethod name="getOrganizationRole" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Retrieves details for a specific organization role.
+
+      <CB.ClassMethodInput name="orgId" type="string">
+        Organization identifier
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="roleName" type="string">
+        Role name to retrieve
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetOrganizationRoleResponse">
+        Organization role details
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.role.getOrganizationRole(
+  'org_123456',
+  'department_lead'
+);
+
+console.log('Permissions:', response.role.permissions);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### listOrganizationRoles
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Roles" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/role.ts">
+    <CB.ClassMethod name="listOrganizationRoles" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Lists all roles available to an organization (environment + organization-specific).
+
+      <CB.ClassMethodInput name="orgId" type="string">
+        Organization identifier
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListOrganizationRolesResponse">
+        Array of available roles
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.role.listOrganizationRoles('org_123456');
+response.roles.forEach(role => {
+  console.log(`${role.displayName} (${role.scope})`);
+});
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### updateOrganizationRole
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Roles" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/role.ts">
+    <CB.ClassMethod name="updateOrganizationRole" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Updates an organization role's properties and permissions.
+
+      <CB.ClassMethodInput name="orgId" type="string">
+        Organization identifier
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="roleName" type="string">
+        Role to update
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="role" type="UpdateRole">
+        Updated role properties
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateOrganizationRoleResponse">
+        Updated role
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+await scalekit.role.updateOrganizationRole('org_123456', 'department_lead', {
+  permissions: ['dept:members:read', 'dept:members:invite', 'dept:members:remove']
+});
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### deleteOrganizationRole
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Roles" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/role.ts">
+    <CB.ClassMethod name="deleteOrganizationRole" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Deletes an organization role and reassigns its users.
+
+      <CB.ClassMethodInput name="orgId" type="string">
+        Organization identifier
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="roleName" type="string">
+        Role to delete
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="reassignRoleName" type="string">
+        Optional. Target role for user migration
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="object" hint="MessageShape(typeof EmptySchema)">
+        Empty response on success
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+await scalekit.role.deleteOrganizationRole(
+  'org_123456',
+  'old_role',
+  'new_role'
+);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### getOrganizationRoleUsersCount
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Roles" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/role.ts">
+    <CB.ClassMethod name="getOrganizationRoleUsersCount" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Gets the number of users assigned to an organization role.
+
+      <CB.ClassMethodInput name="orgId" type="string">
+        Organization identifier
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="roleName" type="string">
+        Role to count users for
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetOrganizationRoleUsersCountResponse">
+        User count
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.role.getOrganizationRoleUsersCount(
+  'org_123456',
+  'admin'
+);
+
+console.log(`${response.count} admins in this organization`);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### updateDefaultRoles
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Roles" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/role.ts">
+    <CB.ClassMethod name="updateDefaultRoles" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Sets the default creator and/or member roles for the environment.
+
+      <CB.ClassMethodInput name="options" type="object" hint="defaultCreatorRole, defaultMemberRole">
+        Optional fields: `defaultCreatorRole`, `defaultMemberRole`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateDefaultRolesResponse">
+        Updated default roles configuration
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### listDependentRoles
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Roles" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/role.ts">
+    <CB.ClassMethod name="listDependentRoles" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Lists all roles that extend (depend on) the specified role.
+
+      <CB.ClassMethodInput name="roleName" type="string">
+        Role to find dependents for
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListDependentRolesResponse">
+        Array of roles that depend on the given role
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### updateDefaultOrganizationRoles
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Roles" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/role.ts">
+    <CB.ClassMethod name="updateDefaultOrganizationRoles" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Sets the default role automatically assigned to new organization members.
+
+      <CB.ClassMethodInput name="orgId" type="string">
+        Organization identifier
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="defaultMemberRole" type="string">
+        Role name to assign by default
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateDefaultOrganizationRolesResponse">
+        Updated configuration
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+await scalekit.role.updateDefaultOrganizationRoles('org_123456', 'member');
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### deleteOrganizationRoleBase
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Roles" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/role.ts">
+    <CB.ClassMethod name="deleteOrganizationRoleBase" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Removes a role's inheritance relationship, eliminating inherited permissions from base role.
+
+      <CB.ClassMethodInput name="orgId" type="string">
+        Organization identifier
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="roleName" type="string">
+        Role to remove inheritance from
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="object" hint="MessageShape(typeof EmptySchema)">
+        Empty response on success
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+await scalekit.role.deleteOrganizationRoleBase('org_123456', 'custom_role');
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
+</div>

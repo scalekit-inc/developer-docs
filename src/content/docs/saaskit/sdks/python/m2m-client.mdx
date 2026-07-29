@@ -1,0 +1,252 @@
+---
+title: M2M clients
+description: Machine-to-machine clients and tokens
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: M2M clients
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+
+Use the M2M client on `scalekit_client` to create and manage machine-to-machine OAuth clients and secrets for service-to-service auth.
+
+Create an M2M client, store the secret securely, then obtain tokens with client credentials.
+
+### list_organization_clients
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="M2MClient" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/m2m_client.py">
+    <CB.ClassMethod name="list_organization_clients" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to list organization clients
+
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization id to list clients for
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="page_size" type="Optional[int]">
+        Optional. Page size for pagination (between 10 and 100)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="page_token" type="Optional[str]">
+        Optional. Page token for pagination
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListOrganizationClientsResponse">
+        List Organization Clients Response
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+response = scalekit_client.m2m_client.list_organization_clients(
+    'org_123456',
+    page_size=50
+)
+
+for client in response[0].clients:
+    print(f'Client: {client.id}')
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### get_organization_client
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="M2MClient" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/m2m_client.py">
+    <CB.ClassMethod name="get_organization_client" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to get organization client
+
+      <CB.ClassMethodInput name="organization_id" type="str">
+        organization id
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="client_id" type="str">
+        client id
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetOrganizationClientResponse">
+        The response payload for this operation.
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+response = scalekit_client.m2m_client.get_organization_client(
+    'org_123456',
+    'client_123456'
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### create_organization_client
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="M2MClient" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/m2m_client.py">
+    <CB.ClassMethod name="create_organization_client" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to create organization client
+
+      <CB.ClassMethodInput name="organization_id" type="str">
+        Organization Id to create client for
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="m2m_client" type="OrganizationClient">
+        OrganizationClient obj with desired client properties.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateOrganizationClientResponse">
+        Create Organization Client Response
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+from scalekit.v1.clients.clients_pb2 import OrganizationClient
+
+client = OrganizationClient()
+client.name = "My M2M Client"
+
+response = scalekit_client.m2m_client.create_organization_client(
+    'org_123456',
+    client
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### update_organization_client
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="M2MClient" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/m2m_client.py">
+    <CB.ClassMethod name="update_organization_client" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to update organization client
+
+      <CB.ClassMethodInput name="organization_id" type="str">
+        organization id
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="client_id" type="str">
+        client id
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="m2m_client" type="OrganizationClient">
+        Organization Client
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateOrganizationClientResponse">
+        Update Organization Client Response
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+from scalekit.v1.clients.clients_pb2 import OrganizationClient
+
+client = OrganizationClient()
+client.name = "Updated M2M Client"
+
+response = scalekit_client.m2m_client.update_organization_client(
+    'org_123456',
+    'client_123456',
+    client
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### delete_organization_client
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="M2MClient" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/m2m_client.py">
+    <CB.ClassMethod name="delete_organization_client" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to delete organization client
+
+      <CB.ClassMethodInput name="organization_id" type="str">
+        organization id
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="client_id" type="str">
+        client id
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="None">
+        Empty on success.
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+scalekit_client.m2m_client.delete_organization_client(
+    'org_123456',
+    'client_123456'
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### add_organization_client_secret
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="M2MClient" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/m2m_client.py">
+    <CB.ClassMethod name="add_organization_client_secret" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to add organization client secret
+
+      <CB.ClassMethodInput name="organization_id" type="str">
+        organization id
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="client_id" type="str">
+        client id
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateOrganizationClientSecretResponse">
+        Create Organization Client Secret Response
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+response = scalekit_client.m2m_client.add_organization_client_secret(
+    'org_123456',
+    'client_123456'
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### remove_organization_client_secret
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="M2MClient" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/m2m_client.py">
+    <CB.ClassMethod name="remove_organization_client_secret" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to remove organization client secret
+
+      <CB.ClassMethodInput name="organization_id" type="str">
+        organization id
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="client_id" type="str">
+        client id
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="secret_id" type="str">
+        secret id
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="None">
+        Empty on success.
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+scalekit_client.m2m_client.remove_organization_client_secret(
+    'org_123456',
+    'client_123456',
+    'secret_123456'
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
+</div>

@@ -1,0 +1,350 @@
+---
+title: Connected accounts
+description: Connected accounts for agent workflows
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Connected accounts
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+
+Manage connected accounts for agent tool access (AgentKit-style connections from the Python SaaSKit surface).
+
+Prefer the AgentKit SDK docs when building agent product flows; use these methods when integrating from the Python SaaS client.
+
+### list_connected_accounts
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ConnectedAccounts" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connected_accounts.py">
+    <CB.ClassMethod name="list_connected_accounts" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `list_connected_accounts` and returns the result.
+
+      <CB.ClassMethodInput name="organization_id" type="Optional[str]">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="user_id" type="Optional[str]">
+        Scalekit user ID (`usr_...`).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="connector" type="Optional[str]">
+        Connector slug.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="identifier" type="Optional[str]">
+        End-user identifier.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="provider" type="Optional[str]">
+        Identity provider.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="page_size" type="Optional[int]">
+        Results per page.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="page_token" type="Optional[str]">
+        Pagination token.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="connection_names" type="Optional[List[str]]">
+        Connector slug filter.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListConnectedAccountsResponse">
+        Paginated connected accounts.
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+response = scalekit_client.connected_accounts.list_connected_accounts(
+    organization_id='org_123456',
+    user_id='usr_123456',
+    page_size=50
+)
+
+for account in response[0].connected_accounts:
+    print(f'Account: {account.id}')
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### get_connected_account_by_identifier
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ConnectedAccounts" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connected_accounts.py">
+    <CB.ClassMethod name="get_connected_account_by_identifier" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to get connected account by identifier
+
+      <CB.ClassMethodInput name="connector" type="str">
+        Connector identifier
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="identifier" type="str">
+        Identifier for the connector
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organization_id" type="Optional[str]">
+        Optional. Organization ID
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="user_id" type="Optional[str]">
+        Optional. User ID
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="connected_account_id" type="Optional[str]">
+        Optional. ID of the connected account
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetConnectedAccountByIdentifierResponse">
+        Get Connected Account By Identifier Response
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+response = scalekit_client.connected_accounts.get_connected_account_by_identifier(
+    'slack',
+    'workspace_id',
+    organization_id='org_123456',
+    user_id='usr_123456'
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### create_connected_account
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ConnectedAccounts" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connected_accounts.py">
+    <CB.ClassMethod name="create_connected_account" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to create a connected account
+
+      <CB.ClassMethodInput name="connector" type="str">
+        Connector identifier
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="identifier" type="str">
+        Identifier for the connector
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="connected_account" type="CreateConnectedAccount">
+        Connected account details
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organization_id" type="Optional[str]">
+        Optional. Organization ID
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="user_id" type="Optional[str]">
+        Optional. User ID
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateConnectedAccountResponse">
+        Create Connected Account Response
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+from scalekit.v1.connected_accounts.connected_accounts_pb2 import CreateConnectedAccount
+
+account = CreateConnectedAccount()
+
+response = scalekit_client.connected_accounts.create_connected_account(
+    'slack',
+    'workspace_id',
+    account,
+    organization_id='org_123456',
+    user_id='usr_123456'
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### update_connected_account
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ConnectedAccounts" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connected_accounts.py">
+    <CB.ClassMethod name="update_connected_account" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to update a connected account
+
+      <CB.ClassMethodInput name="connector" type="str">
+        Connector identifier
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="identifier" type="str">
+        Identifier for the connector
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="connected_account" type="UpdateConnectedAccount">
+        Updated connected account details
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organization_id" type="Optional[str]">
+        Optional. Organization ID
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="user_id" type="Optional[str]">
+        Optional. User ID
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="connected_account_id" type="Optional[str]">
+        Optional. ID of the connected account to update
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateConnectedAccountResponse">
+        Update Connected Account Response
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+from scalekit.v1.connected_accounts.connected_accounts_pb2 import UpdateConnectedAccount
+
+account = UpdateConnectedAccount()
+
+response = scalekit_client.connected_accounts.update_connected_account(
+    'slack',
+    'workspace_id',
+    account,
+    organization_id='org_123456',
+    user_id='usr_123456'
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### delete_connected_account
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ConnectedAccounts" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connected_accounts.py">
+    <CB.ClassMethod name="delete_connected_account" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to delete a connected account
+
+      <CB.ClassMethodInput name="connector" type="str">
+        Connector identifier
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="identifier" type="str">
+        Identifier for the connector
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organization_id" type="Optional[str]">
+        Optional. Organization ID
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="user_id" type="Optional[str]">
+        Optional. User ID
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="connected_account_id" type="Optional[str]">
+        Optional. ID of the connected account to delete
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="DeleteConnectedAccountResponse">
+        Delete Connected Account Response
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+scalekit_client.connected_accounts.delete_connected_account(
+    'slack',
+    'workspace_id',
+    organization_id='org_123456',
+    user_id='usr_123456'
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### get_magic_link_for_connected_account
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ConnectedAccounts" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connected_accounts.py">
+    <CB.ClassMethod name="get_magic_link_for_connected_account" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `get_magic_link_for_connected_account` and returns the result.
+
+      <CB.ClassMethodInput name="connector" type="str">
+        Connector.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="identifier" type="str">
+        Identifier.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organization_id" type="Optional[str]">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="user_id" type="Optional[str]">
+        Scalekit user ID (`usr_...`).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="connected_account_id" type="Optional[str]">
+        Connected account ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="state" type="Optional[str]">
+        Opaque state string.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="user_verify_url" type="Optional[str]">
+        Post-auth verify URL.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetMagicLinkForConnectedAccountResponse">
+        Authorization magic link.
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+response = scalekit_client.connected_accounts.get_magic_link_for_connected_account(
+    'slack',
+    'workspace_id',
+    organization_id='org_123456',
+    user_id='usr_123456'
+)
+
+print(f'Magic Link: {response[0].magic_link}')
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### get_connected_account_details_by_identifier
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ConnectedAccounts" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connected_accounts.py">
+    <CB.ClassMethod name="get_connected_account_details_by_identifier" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to get connected account details (without auth credentials) by identifier
+
+      <CB.ClassMethodInput name="connector" type="str">
+        Connector identifier
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="identifier" type="str">
+        Identifier for the connector
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="organization_id" type="Optional[str]">
+        Optional. Organization ID
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="user_id" type="Optional[str]">
+        Optional. User ID
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="connected_account_id" type="Optional[str]">
+        Optional. ID of the connected account
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetConnectedAccountByIdentifierResponse">
+        The response payload for this operation.
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### verify_connected_account_user
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ConnectedAccounts" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connected_accounts.py">
+    <CB.ClassMethod name="verify_connected_account_user" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Method to verify a connected account user after OAuth callback
+
+      <CB.ClassMethodInput name="auth_request_id" type="str">
+        Auth request ID as base64url-encoded opaque token from the
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="identifier" type="str">
+        Current logged in user's connected account identifier
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="VerifyConnectedAccountUserResponse">
+        Verify Connected Account User Response
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
+</div>

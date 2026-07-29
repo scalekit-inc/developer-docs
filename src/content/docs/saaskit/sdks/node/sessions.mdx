@@ -1,0 +1,139 @@
+---
+title: Sessions
+description: Validate tokens and manage user sessions
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Sessions
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+
+Use the `session` client to inspect session metadata and revoke sessions when users sign out or you detect risk.
+
+Typical flows: load a session by ID after authentication, list a user's sessions for a security UI, and revoke one session or all of a user's sessions on logout.
+
+### getSession
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Sessions" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/session.ts">
+    <CB.ClassMethod name="getSession" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Retrieves comprehensive metadata and status for a specific user session.
+
+      <CB.ClassMethodInput name="sessionId" type="string">
+        The session identifier to retrieve (format: "ses_...")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="SessionDetails">
+        Session metadata including status, user, device, and location.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const session = await scalekit.session.getSession('ses_123456');
+
+console.log('Status:', session.status);
+console.log('User:', session.userId);
+console.log('Device:', session.deviceInfo);
+console.log('Location:', session.geoLocation);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### getUserSessions
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Sessions" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/session.ts">
+    <CB.ClassMethod name="getUserSessions" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `getUserSessions` and returns the result.
+
+      <CB.ClassMethodInput name="userId" type="string">
+        Scalekit user ID (`usr_...`).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="object" hint="pageSize, pageToken, filter, status, startTime, endTime">
+        Optional fields: `pageSize`, `pageToken`, `filter`, `status`, `startTime`, `endTime`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UserSessionDetails">
+        The response payload for this operation.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+// pageSize: Results per page (default 10, max 100)
+// pageToken: Token for the next page
+// filter: Scoped tool filter
+// status: status
+// startTime: start time
+// endTime: end time
+const response = await scalekit.session.getUserSessions('usr_123456', {
+  filter: { status: ['active'] },
+  pageSize: 20
+});
+
+console.log(`User has ${response.totalSize} active sessions`);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### revokeSession
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Sessions" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/session.ts">
+    <CB.ClassMethod name="revokeSession" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `revokeSession` and returns the result.
+
+      <CB.ClassMethodInput name="sessionId" type="string">
+        Session ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="RevokeSessionResponse">
+        Empty on success.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.session.revokeSession('ses_123456');
+console.log('Session revoked at:', response.revokedAt);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### revokeAllUserSessions
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Sessions" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/session.ts">
+    <CB.ClassMethod name="revokeAllUserSessions" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Immediately invalidates all active sessions for a user across all devices and browsers.
+
+      <CB.ClassMethodInput name="userId" type="string">
+        The user identifier whose sessions should be revoked.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="RevokeAllUserSessionsResponse">
+        Empty on success.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.session.revokeAllUserSessions('usr_123456');
+
+console.log(`Revoked ${response.totalCount} sessions`);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
+</div>

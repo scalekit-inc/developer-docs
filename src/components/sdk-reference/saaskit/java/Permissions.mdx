@@ -1,0 +1,114 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="Permissions"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main"
+  language="java"
+>
+
+  <CB.ClassMethod name="createPermission">
+    Creates a permission.
+
+  </CB.ClassMethod>
+
+```java
+import com.scalekit.grpc.scalekit.v1.roles.CreatePermissionRequest;
+
+CreatePermissionRequest req = CreatePermissionRequest.newBuilder()
+  .setPermission("read:invoices")
+  .setDescription("Read invoice records")
+  .build();
+scalekitClient.permissions().createPermission(req);
+```
+
+  <CB.ClassMethod name="getPermission">
+    Gets a permission by name.
+
+  </CB.ClassMethod>
+
+```java
+scalekitClient.permissions().getPermission("read:documents");
+```
+
+  <CB.ClassMethod name="listPermissions">
+    Lists permissions.
+
+  </CB.ClassMethod>
+
+```java
+scalekitClient.permissions().listPermissions();
+```
+
+  <CB.ClassMethod name="listPermissions">
+    Lists permissions using a pagination token.
+
+  </CB.ClassMethod>
+
+```java
+scalekitClient.permissions().listPermissions("next_page_token");
+```
+
+  <CB.ClassMethod name="updatePermission">
+    Updates a permission by name.
+
+  </CB.ClassMethod>
+
+```java
+import com.scalekit.grpc.scalekit.v1.roles.UpdatePermissionRequest;
+
+UpdatePermissionRequest req = UpdatePermissionRequest.newBuilder()
+  .setDescription("Read invoice and billing records")
+  .build();
+scalekitClient.permissions().updatePermission("read:documents", req);
+```
+
+  <CB.ClassMethod name="deletePermission">
+    Deletes a permission by name.
+
+  </CB.ClassMethod>
+
+```java
+scalekitClient.permissions().deletePermission("read:documents");
+```
+
+  <CB.ClassMethod name="listRolePermissions">
+    Lists permissions directly assigned to a role.
+
+  </CB.ClassMethod>
+
+```java
+scalekitClient.permissions().listRolePermissions("admin");
+```
+
+  <CB.ClassMethod name="addPermissionsToRole">
+    Adds permissions to a role.
+
+  </CB.ClassMethod>
+
+```java
+import com.scalekit.grpc.scalekit.v1.roles.AddPermissionsToRoleRequest;
+
+AddPermissionsToRoleRequest req = AddPermissionsToRoleRequest.newBuilder().build();
+scalekitClient.permissions().addPermissionsToRole("admin", req);
+```
+
+  <CB.ClassMethod name="removePermissionFromRole">
+    Removes a permission from a role.
+
+  </CB.ClassMethod>
+
+```java
+scalekitClient.permissions().removePermissionFromRole("admin", "read:documents");
+```
+
+  <CB.ClassMethod name="listEffectiveRolePermissions">
+    Lists effective permissions for a role, including inherited permissions.
+
+  </CB.ClassMethod>
+
+```java
+scalekitClient.permissions().listEffectiveRolePermissions("admin");
+```
+
+</CB.ClassBrowser>

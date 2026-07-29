@@ -1,0 +1,322 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="ScalekitClient"
+  type="class"
+  source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main"
+  language="go"
+>
+
+  <CB.ClassMethod name="method">
+    Creates a new Scalekit Go SDK client. The returned client provides high-level OAuth helpers (authorization URL, token exchange, token validation, webhook verification) and typed sub-clients for resource APIs (organizations, users, sessions, etc.).
+
+  </CB.ClassMethod>
+
+```go
+import "github.com/scalekit-inc/scalekit-sdk-go/v2"
+
+client := scalekit.NewScalekitClient(
+  "<SCALEKIT_ENV_URL>",
+  "<SCALEKIT_CLIENT_ID>",
+  "<SCALEKIT_CLIENT_SECRET>",
+)
+```
+
+  <CB.ClassMethod name="GetAuthorizationUrl">
+    Utility method to generate the OAuth 2.0 authorization URL to initiate the SSO authentication flow. This method doesn't make any network calls. It returns a fully formed authorization URL that you can redirect users to.
+
+  </CB.ClassMethod>
+
+```go
+authURL, err := client.GetAuthorizationUrl(
+  "https://yourapp.com/auth/callback",
+  scalekit.AuthorizationUrlOptions{
+    State:          "random-state-value",
+    OrganizationId: "org_123",
+  },
+)
+if err != nil {
+  // handle
+}
+
+// Redirect user to authURL.String()
+```
+
+  <CB.ClassMethod name="AuthenticateWithCode">
+    Exchanges an authorization code for tokens and user information. Call this in your redirect handler after receiving the `code` query parameter.
+
+  </CB.ClassMethod>
+
+```go
+resp, err := client.AuthenticateWithCode(
+  ctx,
+  code,
+  "https://yourapp.com/auth/callback",
+  scalekit.AuthenticationOptions{},
+)
+if err != nil {
+  // handle
+}
+
+accessToken := resp.AccessToken
+user := resp.User
+_ = accessToken
+_ = user
+```
+
+  <CB.ClassMethod name="GetIdpInitiatedLoginClaims">
+    Extracts and validates claims from an IdP-initiated login token. Use this method when handling IdP-initiated SSO flows, where authentication is initiated from the identity provider’s portal instead of your application.
+
+  </CB.ClassMethod>
+
+```go
+claims, err := client.GetIdpInitiatedLoginClaims(ctx, idpInitiatedLoginToken)
+if err != nil {
+  // handle
+}
+
+// claims.ConnectionID, claims.OrganizationID, claims.LoginHint, claims.RelayState
+_ = claims
+```
+
+  <CB.ClassMethod name="GetAccessTokenClaims">
+    Parses and validates an access token and returns its claims.
+
+  </CB.ClassMethod>
+
+```go
+claims, err := client.GetAccessTokenClaims(ctx, accessToken)
+if err != nil {
+  // handle
+}
+_ = claims
+```
+
+  <CB.ClassMethod name="ValidateAccessToken">
+    Validates an access token (including expiration checks) and returns whether it is valid.
+
+  </CB.ClassMethod>
+
+```go
+ok, err := client.ValidateAccessToken(ctx, accessToken)
+if err != nil {
+  // invalid
+}
+_ = ok
+```
+
+  <CB.ClassMethod name="RefreshAccessToken">
+    Exchanges a refresh token for a new access token (and optionally a new refresh token).
+
+  </CB.ClassMethod>
+
+```go
+tokens, err := client.RefreshAccessToken(ctx, refreshToken)
+if err != nil {
+  // handle
+}
+_ = tokens.AccessToken
+```
+
+  <CB.ClassMethod name="GetLogoutUrl">
+    Generates a logout URL for OIDC logout flows.
+
+  </CB.ClassMethod>
+
+```go
+logoutURL, err := client.GetLogoutUrl(scalekit.LogoutUrlOptions{
+  IdTokenHint:           idToken,
+  PostLogoutRedirectUri: "https://yourapp.com/",
+  State:                "state",
+})
+if err != nil {
+  // handle
+}
+_ = logoutURL
+```
+
+  <CB.ClassMethod name="VerifyWebhookPayload">
+    Verifies a Scalekit webhook payload signature using `webhook-id`, `webhook-timestamp`, and `webhook-signature` headers.
+
+  </CB.ClassMethod>
+
+```go
+valid, err := client.VerifyWebhookPayload(
+  "whsec_...",
+  map[string]string{
+    "webhook-id":        "webhook_123",
+    "webhook-timestamp": "1730000000",
+    "webhook-signature": "v1,base64sig",
+  },
+  []byte(`{"event":"user.created","data":{"id":"123"}}`),
+)
+if err != nil {
+  // handle
+}
+_ = valid
+```
+
+  <CB.ClassMethod name="VerifyInterceptorPayload">
+    Verifies an interceptor payload signature. Uses the same signature format as webhooks.
+
+  </CB.ClassMethod>
+
+```go
+valid, err := client.VerifyInterceptorPayload(secret, headers, payload)
+if err != nil {
+  // handle
+}
+_ = valid
+```
+
+  <CB.ClassMethod name="Connection">
+    Returns the Connections client (`client.Connection()`), used to manage and query SSO connections.
+
+  </CB.ClassMethod>
+
+  <CB.ClassMethod name="Organization">
+    Returns the Organizations client (`client.Organization()`), used to manage organizations (tenants).
+
+  </CB.ClassMethod>
+
+  <CB.ClassMethod name="User">
+    Returns the Users client (`client.User()`), used to manage users and memberships.
+
+  </CB.ClassMethod>
+
+  <CB.ClassMethod name="Domain">
+    Returns the Domains client (`client.Domain()`), used to manage and query domains for organizations.
+
+  </CB.ClassMethod>
+
+  <CB.ClassMethod name="Directory">
+    Returns the Directories client (`client.Directory()`), used to list directories and directory users/groups (SCIM/Directory Sync).
+
+  </CB.ClassMethod>
+
+  <CB.ClassMethod name="Session">
+    Returns the Sessions client (`client.Session()`), used to list and revoke sessions.
+
+  </CB.ClassMethod>
+
+  <CB.ClassMethod name="Role">
+    Returns the Roles client (`client.Role()`), used to manage roles and organization roles.
+
+  </CB.ClassMethod>
+
+  <CB.ClassMethod name="Permission">
+    Returns the Permissions client (`client.Permission()`), used to manage permissions and role-permission relationships.
+
+  </CB.ClassMethod>
+
+  <CB.ClassMethod name="Passwordless">
+    Returns the Passwordless client (`client.Passwordless()`), used for passwordless email flows (OTP / magic link).
+
+  </CB.ClassMethod>
+
+  <CB.ClassMethod name="WebAuthn">
+    Returns the WebAuthn client (`client.WebAuthn()`), used to manage passkey credentials.
+
+  </CB.ClassMethod>
+
+  <CB.ClassMethod name="Auth">
+    Returns the Auth client (`client.Auth()`), used for Auth gRPC helper methods (e.g. update login user details).
+
+  </CB.ClassMethod>
+
+  <CB.ClassMethod name="Client">
+    Returns the Client service (`client.Client()`), used to manage OIDC application clients and client secrets in the environment.
+
+  </CB.ClassMethod>
+
+  <CB.ClassMethod name="Token">
+    Returns the API token service (`client.Token()`), used to create, validate, list, and revoke organization API tokens.
+
+  </CB.ClassMethod>
+
+  <CB.ClassMethod name="ValidateTokenWithOptions">
+    Validates a signed JWT (access token or ID token) and enforces optional checks such as audience and scope validation.
+
+  </CB.ClassMethod>
+
+```go
+valid, err := client.ValidateTokenWithOptions(ctx, accessToken, &scalekit.ValidateTokenOptions{
+  Audience: []string{"my-api"},
+  Scopes:   []string{"read", "write"},
+})
+if err != nil {
+  // handle
+}
+_ = valid
+```
+
+  <CB.ClassMethod name="ValidateToken">
+    Validates the token signature and expiry, then returns all claims as a Claims map. For strongly-typed claim structs use the package-level generic `ValidateToken[T]` function directly.
+
+  </CB.ClassMethod>
+
+```go
+claims, err := client.ValidateToken(ctx, idToken)
+if err != nil {
+  // handle
+}
+_ = claims
+```
+
+  <CB.ClassMethod name="GeneratePKCEConfiguration">
+    Generates PKCE code verifier and challenge for OAuth authorization code flow.
+
+  </CB.ClassMethod>
+
+```go
+pkce, err := client.GeneratePKCEConfiguration(scalekit.PKCEOptions{
+  VerifierLength: 64,
+})
+if err != nil {
+  // handle
+}
+
+// Use pkce.CodeVerifier in token exchange
+// Use pkce.CodeChallenge and pkce.CodeChallengeMethod in authorization URL
+```
+
+  <CB.ClassMethod name="WithSecret">
+    Returns a new Scalekit client instance with a different client secret. Useful when you need to make calls with different credentials in the same application.
+
+  </CB.ClassMethod>
+
+```go
+clientWithNewSecret := client.WithSecret("new_client_secret")
+```
+
+  <CB.ClassMethod name="GenerateClientToken">
+    Creates a client-credentials access token using the OAuth client credentials grant type. Use this for service-to-service authentication without user context.
+
+  </CB.ClassMethod>
+
+```go
+resp, err := client.GenerateClientToken(ctx, scalekit.GenerateClientTokenOptions{
+  ClientID:     "service_client_id",
+  ClientSecret: "service_client_secret",
+  Scopes:       []string{"read", "write"},
+})
+if err != nil {
+  // handle
+}
+_ = resp.AccessToken
+```
+
+  <CB.ClassMethod name="GetClientAccessToken">
+    Generates an access token using the client credentials of the current client. Convenience method that calls `GenerateClientToken` with the client's configured credentials.
+
+  </CB.ClassMethod>
+
+```go
+accessToken, err := client.GetClientAccessToken(ctx)
+if err != nil {
+  // handle
+}
+_ = accessToken
+```
+
+</CB.ClassBrowser>

@@ -1,0 +1,622 @@
+---
+title: Users
+description: Provision and manage users and memberships
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Users
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+
+Use the `user` client to provision people, manage organization memberships, and assign roles.
+
+Common flows: invite or create a user, attach them to an organization, update profile fields, and look up users by Scalekit ID or your external ID.
+
+### createUserAndMembership
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/user.ts">
+    <CB.ClassMethod name="createUserAndMembership" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Creates a new user and adds them as a member of an organization in a single operation.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        The organization ID to add the user to
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="CreateUserRequest">
+        Optional request settings.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateUserAndMembershipResponse">
+        The created resource.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.user.createUserAndMembership(
+  'org_123456',
+  {
+    email: 'john.doe@company.com',
+    userProfile: {
+      firstName: 'John',
+      lastName: 'Doe'
+    },
+    sendInvitationEmail: true,
+    metadata: {
+      department: 'Engineering'
+    }
+  }
+);
+
+console.log('User created:', response.user.id);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### getUser
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/user.ts">
+    <CB.ClassMethod name="getUser" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Retrieves comprehensive details about a specific user including their profile and memberships.
+
+      <CB.ClassMethodInput name="userId" type="string">
+        Scalekit user ID (`usr_...`).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetUserResponse">
+        The user.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.user.getUser('usr_123456');
+const user = response.user;
+
+console.log('User:', user.email);
+console.log('Name:', user.userProfile?.firstName, user.userProfile?.lastName);
+console.log('Organizations:', user.memberships?.length);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### listUsers
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/user.ts">
+    <CB.ClassMethod name="listUsers" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Retrieves a paginated list of all users across your Scalekit environment.
+
+      <CB.ClassMethodInput name="options" type="object" hint="pageSize, pageToken">
+        Optional fields: `pageSize`, `pageToken`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListUsersResponse">
+        Paginated users.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+// pageSize: Results per page (default 10, max 100)
+// pageToken: Token for the next page
+const response = await scalekit.user.listUsers({
+  pageSize: 20
+});
+
+console.log('Users:', response.users.length);
+console.log('Total users:', response.totalSize);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### updateUser
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/user.ts">
+    <CB.ClassMethod name="updateUser" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Updates a user's profile information and custom metadata.
+
+      <CB.ClassMethodInput name="userId" type="string">
+        The Scalekit user identifier (format: "usr_...")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="UpdateUserRequestType">
+        Fields to update.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateUserResponse">
+        The updated user.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+// metadata: Custom key-value metadata
+const response = await scalekit.user.updateUser('usr_123456', {
+  userProfile: {
+    firstName: 'John',
+    lastName: 'Smith'
+  },
+  metadata: {
+    department: 'Engineering',
+    title: 'Senior Developer'
+  }
+});
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### deleteUser
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/user.ts">
+    <CB.ClassMethod name="deleteUser" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Permanently deletes a user from your Scalekit environment.
+
+      <CB.ClassMethodInput name="userId" type="string">
+        Scalekit user ID (`usr_...`).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="object" hint="MessageShape(typeof EmptySchema)">
+        Empty response on successful deletion
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+await scalekit.user.deleteUser('usr_123456');
+console.log('User deleted successfully');
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### createMembership
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/user.ts">
+    <CB.ClassMethod name="createMembership" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Adds an existing user as a member of a new organization with specified roles.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="userId" type="string">
+        The user ID to add as a member (format: "usr_...")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="object" hint="roles, metadata, sendInvitationEmail">
+        Optional fields: `roles`, `metadata`, `sendInvitationEmail`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateMembershipResponse">
+        The created resource.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+// roles: Assigned roles
+// sendInvitationEmail: send invitation email
+const response = await scalekit.user.createMembership(
+  'org_123456',
+  'usr_789012',
+  {
+    roles: ['admin'],
+    sendInvitationEmail: true
+  }
+);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### deleteMembership
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/user.ts">
+    <CB.ClassMethod name="deleteMembership" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Removes a user's membership from a specific organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="userId" type="string">
+        The user ID to remove (format: "usr_...")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="object" hint="MessageShape(typeof EmptySchema)">
+        Empty response on successful removal
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+await scalekit.user.deleteMembership('org_123456', 'usr_789012');
+console.log('User removed from organization');
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### updateMembership
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/user.ts">
+    <CB.ClassMethod name="updateMembership" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Updates a user's roles and metadata within a specific organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="userId" type="string">
+        Scalekit user ID (`usr_...`).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="object" hint="roles, metadata">
+        Optional fields: `roles`, `metadata`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateMembershipResponse">
+        The updated resource.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+// roles: Assigned roles
+const response = await scalekit.user.updateMembership(
+  'org_123456',
+  'usr_789012',
+  { roles: ['admin'] }
+);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### listOrganizationUsers
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/user.ts">
+    <CB.ClassMethod name="listOrganizationUsers" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Retrieves a paginated list of all users who are members of a specific organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="object" hint="pageSize, pageToken">
+        Optional fields: `pageSize`, `pageToken`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListOrganizationUsersResponse">
+        Paginated users.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+// pageSize: Results per page (default 10, max 100)
+// pageToken: Token for the next page
+const response = await scalekit.user.listOrganizationUsers('org_123456', {
+  pageSize: 25
+});
+
+console.log('Organization users:', response.users.length);
+console.log('Total members:', response.totalSize);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### resendInvite
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/user.ts">
+    <CB.ClassMethod name="resendInvite" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Resends an invitation email to a user for a specific organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        The organization ID for which to resend the invite.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="userId" type="string">
+        Scalekit user ID (`usr_...`).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ResendInviteResponse">
+        Resend invite.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const response = await scalekit.user.resendInvite('org_123456', 'usr_789012');
+console.log('Invitation resent:', response.invite);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### listUserRoles
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/user.ts">
+    <CB.ClassMethod name="listUserRoles" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Lists all roles assigned to a user within a specific organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="userId" type="string">
+        The user ID whose roles to list (format: "usr_...")
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListUserRolesResponse">
+        Paginated roles.
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### listUserPermissions
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/user.ts">
+    <CB.ClassMethod name="listUserPermissions" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Lists all effective permissions for a user within a specific organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        Organization ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="userId" type="string">
+        Scalekit user ID (`usr_...`).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListUserPermissionsResponse">
+        Paginated permissions.
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### searchUsers
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/user.ts">
+    <CB.ClassMethod name="searchUsers" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Searches for users matching a query string across the environment.
+
+      <CB.ClassMethodInput name="query" type="string">
+        Search query string
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="pageSize" type="number">
+        Optional. Number of results per page
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="pageToken" type="string">
+        Optional. Pagination token for the next page
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="SearchUsersResponse">
+        Paginated results.
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### searchOrganizationUsers
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/user.ts">
+    <CB.ClassMethod name="searchOrganizationUsers" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Searches for users matching a query string within a specific organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        The organization ID to search within
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="query" type="string">
+        Search query string
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="pageSize" type="number">
+        Optional. Number of results per page
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="pageToken" type="string">
+        Optional. Pagination token for the next page
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="SearchOrganizationUsersResponse">
+        Paginated results.
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### assignUserRoles
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/user.ts">
+    <CB.ClassMethod name="assignUserRoles" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Assigns roles to a user within a specific organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        The organization ID
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="userId" type="string">
+        The user ID to assign roles to
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="roles" type="string[]">
+        Array of role names to assign
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="AssignUserRolesResponse">
+        Assign user roles.
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### removeUserRole
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/user.ts">
+    <CB.ClassMethod name="removeUserRole" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Removes a specific role from a user within an organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        The organization ID
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="userId" type="string">
+        The user ID to remove the role from
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="roleName" type="string">
+        The name of the role to remove
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="object" hint="MessageShape(typeof EmptySchema)">
+        Empty response on success
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### getUserByExternalId
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/user.ts">
+    <CB.ClassMethod name="getUserByExternalId" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Retrieves a user by their external ID.
+
+      <CB.ClassMethodInput name="externalId" type="string">
+        The external identifier for the user
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetUserResponse">
+        The user.
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### updateUserByExternalId
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/user.ts">
+    <CB.ClassMethod name="updateUserByExternalId" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Updates a user identified by their external ID.
+
+      <CB.ClassMethodInput name="externalId" type="string">
+        The external identifier for the user
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="object" hint="Omit(UpdateUserRequestType, 'externalId')">
+        Fields to update.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateUserResponse">
+        The updated user.
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### deleteUserByExternalId
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/user.ts">
+    <CB.ClassMethod name="deleteUserByExternalId" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Permanently deletes a user identified by their external ID.
+
+      <CB.ClassMethodInput name="externalId" type="string">
+        The external identifier for the user
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="object" hint="MessageShape(typeof EmptySchema)">
+        Empty response on success
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### createMembershipByExternalId
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/user.ts">
+    <CB.ClassMethod name="createMembershipByExternalId" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Adds a user identified by external ID as a member of an organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        The organization ID to add the user to
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="externalId" type="string">
+        The external identifier for the user
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="object" hint="roles, metadata, sendInvitationEmail">
+        Optional fields: `roles`, `metadata`, `sendInvitationEmail`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateMembershipResponse">
+        The created resource.
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### deleteMembershipByExternalId
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/user.ts">
+    <CB.ClassMethod name="deleteMembershipByExternalId" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Removes the membership of a user identified by external ID from an organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        The organization ID to remove the user from
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="externalId" type="string">
+        The external identifier for the user
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="object" hint="MessageShape(typeof EmptySchema)">
+        Empty response on success
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### updateMembershipByExternalId
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Users" type="client" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/user.ts">
+    <CB.ClassMethod name="updateMembershipByExternalId" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Updates the membership of a user identified by external ID within an organization.
+
+      <CB.ClassMethodInput name="organizationId" type="string">
+        The organization ID where the membership exists
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="externalId" type="string">
+        The external identifier for the user
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="object" hint="roles, metadata">
+        Optional fields: `roles`, `metadata`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateMembershipResponse">
+        The updated resource.
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
+</div>

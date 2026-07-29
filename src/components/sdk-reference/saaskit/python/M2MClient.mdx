@@ -1,0 +1,109 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="M2MClient"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main"
+  language="python"
+>
+
+  <CB.ClassMethod name="list_organization_clients">
+    Lists all machine-to-machine clients for an organization.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.m2m_client.list_organization_clients(
+    'org_123456',
+    page_size=50
+)
+
+for client in response[0].clients:
+    print(f'Client: {client.id}')
+```
+
+  <CB.ClassMethod name="get_organization_client">
+    Retrieves an organization client by ID.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.m2m_client.get_organization_client(
+    'org_123456',
+    'client_123456'
+)
+```
+
+  <CB.ClassMethod name="create_organization_client">
+    Creates a new machine-to-machine client for an organization.
+
+  </CB.ClassMethod>
+
+```python
+from scalekit.v1.clients.clients_pb2 import OrganizationClient
+
+client = OrganizationClient()
+client.name = "My M2M Client"
+
+response = scalekit_client.m2m_client.create_organization_client(
+    'org_123456',
+    client
+)
+```
+
+  <CB.ClassMethod name="update_organization_client">
+    Updates an existing machine-to-machine client.
+
+  </CB.ClassMethod>
+
+```python
+from scalekit.v1.clients.clients_pb2 import OrganizationClient
+
+client = OrganizationClient()
+client.name = "Updated M2M Client"
+
+response = scalekit_client.m2m_client.update_organization_client(
+    'org_123456',
+    'client_123456',
+    client
+)
+```
+
+  <CB.ClassMethod name="delete_organization_client">
+    Deletes a machine-to-machine client from an organization.
+
+  </CB.ClassMethod>
+
+```python
+scalekit_client.m2m_client.delete_organization_client(
+    'org_123456',
+    'client_123456'
+)
+```
+
+  <CB.ClassMethod name="add_organization_client_secret">
+    Adds a new secret to an organization client.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.m2m_client.add_organization_client_secret(
+    'org_123456',
+    'client_123456'
+)
+```
+
+  <CB.ClassMethod name="remove_organization_client_secret">
+    Removes a secret from an organization client.
+
+  </CB.ClassMethod>
+
+```python
+scalekit_client.m2m_client.remove_organization_client_secret(
+    'org_123456',
+    'client_123456',
+    'secret_123456'
+)
+```
+
+</CB.ClassBrowser>

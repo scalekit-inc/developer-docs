@@ -1835,7 +1835,7 @@ paths:
           required: true
         - schema:
             type: string
-          description: 'Include additional data in the response. Valid values: ''permissions'' (direct permissions only), ''permissions:all'' (includes inherited permissions)'
+          description: "Include additional data in the response. Valid values: 'permissions' (direct permissions only), 'permissions:all' (includes inherited permissions)"
           name: include
           in: query
       responses:
@@ -1960,7 +1960,7 @@ paths:
           required: true
         - schema:
             type: string
-          description: 'Include additional data in the response. Valid values: ''permissions'' (direct permissions only), ''permissions:all'' (includes inherited permissions)'
+          description: "Include additional data in the response. Valid values: 'permissions' (direct permissions only), 'permissions:all' (includes inherited permissions)"
           name: include
           in: query
       responses:
@@ -4451,7 +4451,7 @@ paths:
       parameters:
         - schema:
             type: string
-          description: 'Include additional data in the response. Valid values: ''permissions'' (direct permissions only), ''permissions:all'' (includes inherited permissions from role hierarchy)'
+          description: "Include additional data in the response. Valid values: 'permissions' (direct permissions only), 'permissions:all' (includes inherited permissions from role hierarchy)"
           name: include
           in: query
       responses:
@@ -4584,7 +4584,7 @@ paths:
           required: true
         - schema:
             type: string
-          description: 'Include additional data in the response. Valid values: ''permissions'' (direct permissions only), ''permissions:all'' (includes inherited permissions from role hierarchy)'
+          description: "Include additional data in the response. Valid values: 'permissions' (direct permissions only), 'permissions:all' (includes inherited permissions from role hierarchy)"
           name: include
           in: query
       responses:
@@ -5341,7 +5341,7 @@ paths:
               type: string
           style: form
           explode: true
-          description: 'Filter sessions by one or more status values. Possible values: ''active'', ''expired'', ''revoked'', ''logout''. Leave empty to include all statuses. Multiple values use OR logic (e.g., status=[''active'', ''expired''] returns sessions that are either active OR expired).'
+          description: "Filter sessions by one or more status values. Possible values: 'active', 'expired', 'revoked', 'logout'. Leave empty to include all statuses. Multiple values use OR logic (e.g., status=['active', 'expired'] returns sessions that are either active OR expired)."
           name: filter.status
           in: query
         - schema:
@@ -5837,7 +5837,7 @@ webhooks:
                 organization_id: org_1234567890
                 environment_id: env_1234567890
                 txt_record_key: scalekit-domain-verification
-                txt_record_secret: sk_dom_verify_abc123
+                txt_record_secret: <redacted>
                 verification_status: PENDING
                 verification_method: DNS
                 updated_at: '2024-01-15T11:00:00.123456789Z'
@@ -5869,7 +5869,7 @@ webhooks:
                 organization_id: org_1234567890
                 environment_id: env_1234567890
                 txt_record_key: scalekit-domain-verification
-                txt_record_secret: sk_dom_verify_abc123
+                txt_record_secret: <redacted>
                 verification_status: VERIFIED
                 verification_method: DNS
                 updated_at: '2024-01-16T09:30:00.123456789Z'
@@ -5901,7 +5901,7 @@ webhooks:
                 organization_id: org_1234567890
                 environment_id: env_1234567890
                 txt_record_key: scalekit-domain-verification
-                txt_record_secret: sk_dom_verify_abc123
+                txt_record_secret: <redacted>
                 verification_status: VERIFIED
                 verification_method: DNS
                 updated_at: '2024-01-15T12:15:00.123456789Z'
@@ -5933,7 +5933,7 @@ webhooks:
                 organization_id: org_1234567890
                 environment_id: env_1234567890
                 txt_record_key: scalekit-domain-verification
-                txt_record_secret: sk_dom_verify_abc123
+                txt_record_secret: <redacted>
                 verification_status: FAILED
                 verification_method: DNS
                 updated_at: '2024-01-16T11:00:00.123456789Z'
@@ -7266,7 +7266,7 @@ components:
           examples:
             - 360
         absolute_session_timeout_unit:
-          description: 'Unit for absolute_session_timeout. Accepted values: ''MINUTES'', ''HOURS'', ''DAYS''. Defaults to MINUTES.'
+          description: "Unit for absolute_session_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES."
           $ref: '#/components/schemas/commonsTimeUnit'
           examples:
             - MINUTES
@@ -7282,7 +7282,7 @@ components:
           examples:
             - true
         idle_session_timeout_unit:
-          description: 'Unit for idle_session_timeout. Accepted values: ''MINUTES'', ''HOURS'', ''DAYS''. Defaults to MINUTES.'
+          description: "Unit for idle_session_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES."
           $ref: '#/components/schemas/commonsTimeUnit'
           examples:
             - MINUTES
@@ -7360,7 +7360,7 @@ components:
           type: array
           items:
             type: string
-            default: '[''ATTESTATION_KEY_COMPROMISE'', ''USER_VERIFICATION_BYPASS'', ''USER_KEY_REMOTE_COMPROMISE'', ''USER_KEY_PHYSICAL_COMPROMISE'', ''REVOKED'']'
+            default: "['ATTESTATION_KEY_COMPROMISE', 'USER_VERIFICATION_BYPASS', 'USER_KEY_REMOTE_COMPROMISE', 'USER_KEY_PHYSICAL_COMPROMISE', 'REVOKED']"
         validate_anchors:
           description: when set to true enables the validation of the attestation statement against the trust anchor from the metadata statement.
           type: boolean
@@ -8237,6 +8237,7 @@ components:
          - TRUSTED_IDP: Trusted Identity Provider federation (e.g. AWS STS AssumeRoleWithWebIdentity)
          - SMART_FHIR: SMART on FHIR (SMART App Launch) — OAuth 2.0 authorization
         for FHIR servers
+         - NO_AUTH: No authentication — connector requires no credentials (e.g. public docs MCP servers)
       type: string
       title: Type of authentication mechanism used for the connected account
       enum:
@@ -8251,6 +8252,7 @@ components:
         - GOOGLE_DWD
         - TRUSTED_IDP
         - SMART_FHIR
+        - NO_AUTH
     connected_accountsCreateConnectedAccountRequest:
       type: object
       properties:
@@ -8260,8 +8262,8 @@ components:
           examples:
             - authorization_details:
                 oauth_token:
-                  access_token: ...
-                  refresh_token: ...
+                  access_token: '...'
+                  refresh_token: '...'
                   scopes:
                     - read
                     - write
@@ -8495,7 +8497,7 @@ components:
           type: object
           examples:
             - api_key: sk_live_...
-              api_secret: ...
+              api_secret: '...'
     connected_accountsTrustedIDPAuth:
       description: |-
         Trusted IDP federated authentication — used for TRUSTED_IDP connections (e.g. AWS Redshift).
@@ -8537,8 +8539,8 @@ components:
           examples:
             - authorization_details:
                 oauth_token:
-                  access_token: ...
-                  refresh_token: ...
+                  access_token: '...'
+                  refresh_token: '...'
                   scopes:
                     - read
                     - write
@@ -8612,7 +8614,7 @@ components:
       type: object
       properties:
         attribute_mapping:
-          description: 'Maps identity provider attributes to user profile fields. For example, {''email'': ''user.mail'', ''name'': ''user.displayName''}.'
+          description: "Maps identity provider attributes to user profile fields. For example, {'email': 'user.mail', 'name': 'user.displayName'}."
           type: object
           additionalProperties:
             type: string
@@ -8698,7 +8700,7 @@ components:
           examples:
             - https://auth.example.com/test-connection/conn_2123312131125533
         type:
-          description: Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC_LINK.
+          description: 'Authentication protocol used by this connection. Possible values: OIDC (OpenID Connect), SAML, PASSWORD, OAUTH, PASSWORDLESS, BASIC, BEARER, API_KEY, WEBAUTHN, OAUTH_M2M, TRELLO_OAUTH1, GOOGLE_DWD, TRUSTED_IDP, SMART_FHIR, or NO_AUTH (no credentials required).'
           $ref: '#/components/schemas/connectionsConnectionType'
           examples:
             - OIDC
@@ -8747,6 +8749,7 @@ components:
         - GOOGLE_DWD
         - TRUSTED_IDP
         - SMART_FHIR
+        - NO_AUTH
     connectionsGetConnectionResponse:
       type: object
       properties:
@@ -10199,7 +10202,7 @@ components:
           examples:
             - 360
         absolute_session_timeout_unit:
-          description: 'Unit for absolute_session_timeout. Accepted values: ''minutes'', ''hours'', ''days''. Responses always return ''minutes''.'
+          description: "Unit for absolute_session_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'."
           $ref: '#/components/schemas/commonsTimeUnit'
           examples:
             - minutes
@@ -10215,7 +10218,7 @@ components:
           examples:
             - true
         idle_session_timeout_unit:
-          description: 'Unit for idle_session_timeout. Accepted values: ''minutes'', ''hours'', ''days''. Responses always return ''minutes''.'
+          description: "Unit for idle_session_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'."
           $ref: '#/components/schemas/commonsTimeUnit'
           examples:
             - minutes
@@ -10782,7 +10785,7 @@ components:
           examples:
             - 120.0.0.0
         device_type:
-          description: 'Categorized device type classification. Possible values: ''desktop'' (traditional computers), ''mobile'' (smartphones and small tablets), ''tablet'' (large tablets), ''other''. Useful for displaying session information by device category.'
+          description: "Categorized device type classification. Possible values: 'desktop' (traditional computers), 'mobile' (smartphones and small tablets), 'tablet' (large tablets), 'other'. Useful for displaying session information by device category."
           type: string
           examples:
             - desktop
@@ -10792,7 +10795,7 @@ components:
           examples:
             - 192.0.2.1
         location:
-          description: 'Geographic location information derived from IP address geolocation. Includes country, region, city, and coordinates. Note: Based on IP location data and may not represent the user''s exact physical location.'
+          description: "Geographic location information derived from IP address geolocation. Includes country, region, city, and coordinates. Note: Based on IP location data and may not represent the user's exact physical location."
           $ref: '#/components/schemas/v1sessionsLocation'
         os:
           description: 'Operating system name extracted from the user agent and device headers. Examples: macOS, Windows, Linux, iOS, Android.'
@@ -10957,7 +10960,7 @@ components:
           examples:
             - ses_1234567890123456
         status:
-          description: 'Current operational status of the session. Possible values: ''active'' (session is valid and requests are allowed), ''expired'' (session terminated due to idle or absolute timeout), ''revoked'' (session was administratively revoked), ''logout'' (user explicitly logged out). Use this to determine if the session can be used for new requests.'
+          description: "Current operational status of the session. Possible values: 'active' (session is valid and requests are allowed), 'expired' (session terminated due to idle or absolute timeout), 'revoked' (session was administratively revoked), 'logout' (user explicitly logged out). Use this to determine if the session can be used for new requests."
           type: string
           examples:
             - active
@@ -11384,7 +11387,7 @@ components:
           examples:
             - Doe
         first_name:
-          description: '[DEPRECATED] Use given_name instead. User''s given name. Maximum 200 characters.'
+          description: "[DEPRECATED] Use given_name instead. User's given name. Maximum 200 characters."
           type: string
           examples:
             - John
@@ -11407,7 +11410,7 @@ components:
             - - engineering
               - managers
         last_name:
-          description: '[DEPRECATED] Use family_name instead. User''s family name. Maximum 200 characters.'
+          description: "[DEPRECATED] Use family_name instead. User's family name. Maximum 200 characters."
           type: string
           examples:
             - Doe
@@ -11886,12 +11889,12 @@ components:
           examples:
             - San Francisco
         latitude:
-          description: 'Latitude coordinate of the estimated location. Decimal format (e.g., ''37.7749''). Note: Represents IP geolocation center and may not be precise.'
+          description: "Latitude coordinate of the estimated location. Decimal format (e.g., '37.7749'). Note: Represents IP geolocation center and may not be precise."
           type: string
           examples:
             - '37.7749'
         longitude:
-          description: 'Longitude coordinate of the estimated location. Decimal format (e.g., ''-122.4194''). Note: Represents IP geolocation center and may not be precise.'
+          description: "Longitude coordinate of the estimated location. Decimal format (e.g., '-122.4194'). Note: Represents IP geolocation center and may not be precise."
           type: string
           examples:
             - '-122.4194'
@@ -12174,12 +12177,14 @@ components:
             - API_KEY
             - BASIC_AUTH
             - BEARER_TOKEN
+            - CUSTOM
             - BASIC
             - OAUTH_M2M
             - TRELLO_OAUTH1
             - GOOGLE_DWD
             - TRUSTED_IDP
             - SMART_FHIR
+            - NO_AUTH
           example: OAUTH
           description: The authorization type of the connected account
         status:
@@ -12245,7 +12250,7 @@ components:
           description: DNS TXT record host used for ownership verification
         txt_record_secret:
           type: string
-          example: sk_dom_verify_abc123
+          example: <redacted>
           description: 'DNS TXT record value Scalekit expects during verification. Treat as sensitive: do not log, display in client UIs, or store in shared channels. Present on domain lifecycle events including after verification or deletion.'
         verification_status:
           type: string
@@ -12430,6 +12435,17 @@ components:
           example: Organization
         data:
           $ref: '#/components/schemas/OrganizationDomainEventData'
+          example:
+            id: dom_1234567890
+            domain: acmecorp.com
+            domain_type: ORGANIZATION_DOMAIN
+            organization_id: org_1234567890
+            environment_id: env_1234567890
+            txt_record_key: scalekit-domain-verification
+            txt_record_secret: <redacted>
+            verification_status: VERIFIED
+            verification_method: DNS
+            updated_at: '2024-01-15T12:15:00.123456789Z'
         display_name:
           type: string
           example: Organization Domain DNS Verification Success
@@ -12485,6 +12501,17 @@ components:
           example: Organization
         data:
           $ref: '#/components/schemas/OrganizationDomainEventData'
+          example:
+            id: dom_1234567890
+            domain: acmecorp.com
+            domain_type: ORGANIZATION_DOMAIN
+            organization_id: org_1234567890
+            environment_id: env_1234567890
+            txt_record_key: scalekit-domain-verification
+            txt_record_secret: <redacted>
+            verification_status: FAILED
+            verification_method: DNS
+            updated_at: '2024-01-16T11:00:00.123456789Z'
         display_name:
           type: string
           example: Organization Domain DNS Verification Failed
@@ -13075,19 +13102,24 @@ components:
         id:
           type: string
           pattern: ^ca_
+          example: ca_101531404000559370
           description: Connected account identifier
         identifier:
           type: string
+          example: john@acmecorp.com
           description: End-user identifier for the connected account
         connection_id:
           type: string
           pattern: ^conn_
+          example: conn_100668583155073286
           description: Connection identifier
         connection_name:
           type: string
+          example: gmail
           description: Connection key_id when available
         provider:
           type: string
+          example: GMAIL
           description: Provider of the connected account
         authorization_type:
           type: string
@@ -13096,12 +13128,15 @@ components:
             - API_KEY
             - BASIC_AUTH
             - BEARER_TOKEN
+            - CUSTOM
             - BASIC
             - OAUTH_M2M
             - TRELLO_OAUTH1
             - GOOGLE_DWD
             - TRUSTED_IDP
             - SMART_FHIR
+            - NO_AUTH
+          example: OAUTH
           description: Authorization type of the connected account
         status:
           type: string
@@ -13111,14 +13146,17 @@ components:
             - PENDING_AUTH
             - PENDING_VERIFICATION
             - DISCONNECTED
+          example: ACTIVE
           description: Current connected account status
         token_expires_at:
           type: string
           format: date-time
+          example: '2025-12-02T06:59:57.237447Z'
           description: When the access token expires, if known
         last_used_at:
           type: string
           format: date-time
+          example: '2025-12-02T06:00:01.374253Z'
           description: When the connected account was last used
     OrganizationUpdatedEvent:
       type: object
@@ -14843,7 +14881,7 @@ x-scalar-active-environment: staging
 x-scalekit-docs-operation-rank:
   default: 0
   path-segments:
-    - match: ':external'
+    - match: :external
       rank: 1
-    - match: ':search'
+    - match: :search
       rank: 2

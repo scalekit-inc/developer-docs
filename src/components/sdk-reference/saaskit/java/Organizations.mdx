@@ -1,0 +1,154 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="Organizations"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main"
+  language="java"
+>
+
+  <CB.ClassMethod name="create">
+    Creates a new organization (tenant).
+
+  </CB.ClassMethod>
+
+```java
+import com.scalekit.grpc.scalekit.v1.organizations.CreateOrganization;
+import com.scalekit.grpc.scalekit.v1.organizations.Organization;
+
+CreateOrganization req = CreateOrganization.newBuilder()
+  .setName("Acme Corporation")
+  .build();
+
+Organization org = scalekitClient.organizations().create(req);
+```
+
+  <CB.ClassMethod name="getById">
+    Fetches an organization by its Scalekit organization ID.
+
+  </CB.ClassMethod>
+
+```java
+scalekitClient.organizations().getById("org_123");
+```
+
+  <CB.ClassMethod name="getByExternalId">
+    Fetches an organization by its external ID.
+
+  </CB.ClassMethod>
+
+```java
+scalekitClient.organizations().getByExternalId("customer_123");
+```
+
+  <CB.ClassMethod name="updateById">
+    Updates an organization by its Scalekit organization ID.
+
+  </CB.ClassMethod>
+
+```java
+import com.scalekit.grpc.scalekit.v1.organizations.UpdateOrganization;
+
+UpdateOrganization req = UpdateOrganization.newBuilder()
+  .setName("Acme Corp (Updated)")
+  .build();
+
+scalekitClient.organizations().updateById("org_123", req);
+```
+
+  <CB.ClassMethod name="updateByExternalId">
+    Updates an organization by its external ID.
+
+  </CB.ClassMethod>
+
+```java
+import com.scalekit.grpc.scalekit.v1.organizations.UpdateOrganization;
+
+UpdateOrganization req = UpdateOrganization.newBuilder()
+  .setName("Acme Corp (Updated)")
+  .build();
+
+scalekitClient.organizations().updateByExternalId("customer_123", req);
+```
+
+  <CB.ClassMethod name="deleteById">
+    Deletes an organization by its Scalekit organization ID.
+
+  </CB.ClassMethod>
+
+```java
+scalekitClient.organizations().deleteById("org_123");
+```
+
+  <CB.ClassMethod name="deleteByExternalId">
+    Deletes an organization by its external ID.
+
+  </CB.ClassMethod>
+
+```java
+scalekitClient.organizations().deleteByExternalId("customer_123");
+```
+
+  <CB.ClassMethod name="listOrganizations">
+    Lists organizations with pagination.
+
+  </CB.ClassMethod>
+
+```java
+scalekitClient.organizations().listOrganizations(20, "");
+```
+
+  <CB.ClassMethod name="generatePortalLink">
+    Generates an admin portal link for an organization.
+
+  </CB.ClassMethod>
+
+```java
+scalekitClient.organizations().generatePortalLink("org_123");
+```
+
+  <CB.ClassMethod name="generatePortalLink">
+    Generates an admin portal link for an organization, optionally scoped to specific portal features.
+
+  </CB.ClassMethod>
+
+```java
+import java.util.Arrays;
+import com.scalekit.grpc.scalekit.v1.organizations.Feature;
+
+scalekitClient.organizations().generatePortalLink(
+  "org_123",
+  Arrays.asList(Feature.FEATURE_USERS, Feature.FEATURE_CONNECTIONS)
+);
+```
+
+  <CB.ClassMethod name="updateOrganizationSettings">
+    Updates organization settings features.
+
+  </CB.ClassMethod>
+
+```java
+import java.util.Collections;
+import com.scalekit.grpc.scalekit.v1.organizations.OrganizationSettingsFeature;
+
+scalekitClient.organizations().updateOrganizationSettings(
+  "org_123",
+  Collections.emptyList()
+);
+```
+
+  <CB.ClassMethod name="upsertUserManagementSettings">
+    Creates or updates user management settings for an organization.
+
+  </CB.ClassMethod>
+
+```java
+import com.scalekit.grpc.scalekit.v1.organizations.OrganizationUserManagementSettings;
+
+OrganizationUserManagementSettings settings =
+  OrganizationUserManagementSettings.newBuilder().build();
+
+scalekitClient.organizations().upsertUserManagementSettings("org_123", settings);
+```
+
+</CB.ClassBrowser>

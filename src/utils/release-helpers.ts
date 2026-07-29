@@ -56,6 +56,10 @@ export interface SDKConfig {
   repo: string
   description: string
   features: string[]
+  /** npm / PyPI / module path shown on the SDK hub index */
+  packageName?: string
+  /** One-line install command for the hub index */
+  installCommand?: string
   release?: any
 }
 
@@ -77,8 +81,10 @@ export function getSDKConfigs(releases: any[]): Record<string, SDKConfig> {
       title: 'Node.js',
       showTitle: false,
       icon: 'nodejs',
-      href: '/sdks/node/',
+      href: '/saaskit/sdks/node/',
       repo: 'scalekit-inc/scalekit-sdk-node',
+      packageName: '@scalekit-sdk/node',
+      installCommand: 'npm install @scalekit-sdk/node',
       description: 'Full-featured, TypeScript-friendly SDK for modern Node.js based applications',
       features: ['TypeScript & ESM ready', 'Express, NestJS, Next.js compatible'],
       release: nodeRelease,
@@ -86,8 +92,10 @@ export function getSDKConfigs(releases: any[]): Record<string, SDKConfig> {
     python: {
       title: 'Python',
       icon: 'python',
-      href: '/sdks/python/',
+      href: '/saaskit/sdks/python/',
       repo: 'scalekit-inc/scalekit-sdk-python',
+      packageName: 'scalekit-sdk-python',
+      installCommand: 'pip install scalekit-sdk-python',
       description: 'Async-first design with complete type hints and Pydantic validation',
       features: ['Pydantic v2 validated', 'FastAPI, Django, Flask compatible'],
       release: pythonRelease,
@@ -95,8 +103,10 @@ export function getSDKConfigs(releases: any[]): Record<string, SDKConfig> {
     go: {
       title: 'Go',
       icon: 'go',
-      href: '/sdks/go/',
+      href: '/saaskit/sdks/go/',
       repo: 'scalekit-inc/scalekit-sdk-go',
+      packageName: 'github.com/scalekit-inc/scalekit-sdk-go',
+      installCommand: 'go get github.com/scalekit-inc/scalekit-sdk-go',
       description: 'Zero-dependency, idiomatic Go SDK for high-performance services',
       features: ['Thread-safe & lightweight', 'Gin, Echo, Chi compatible'],
       release: goRelease,
@@ -104,8 +114,10 @@ export function getSDKConfigs(releases: any[]): Record<string, SDKConfig> {
     java: {
       title: 'Java',
       icon: 'java',
-      href: '/sdks/java/',
+      href: '/saaskit/sdks/java/',
       repo: 'scalekit-inc/scalekit-sdk-java',
+      packageName: 'com.scalekit:scalekit-sdk-java',
+      installCommand: 'Maven Central: com.scalekit:scalekit-sdk-java',
       description: 'Enterprise-ready SDK with seamless Spring Boot integration',
       features: ['Spring Boot integrated', 'Maven Central published'],
       release: javaRelease,
@@ -116,6 +128,8 @@ export function getSDKConfigs(releases: any[]): Record<string, SDKConfig> {
       icon: 'expo',
       href: '/sdks/expo/',
       repo: 'scalekit-inc/scalekit-expo-sdk',
+      packageName: '@scalekit-sdk/expo',
+      installCommand: 'npx expo install @scalekit-sdk/expo',
       description: 'Official Expo SDK with React Hooks for enterprise-ready mobile authentication',
       features: ['React Hooks & TypeScript', 'OAuth 2.0 with PKCE'],
       release: expoRelease,
@@ -126,6 +140,8 @@ export function getSDKConfigs(releases: any[]): Record<string, SDKConfig> {
       icon: 'ios',
       href: '/sdks/ios/',
       repo: 'scalekit-inc/scalekit-sdk-ios',
+      packageName: 'ScalekitSDK (SPM)',
+      installCommand: 'Swift Package Manager: ScalekitSDK',
       description: 'Native iOS SDK for enterprise-ready mobile authentication via AppAuth',
       features: ['Swift Package Manager', 'Keychain-backed sessions'],
       release: iosRelease,

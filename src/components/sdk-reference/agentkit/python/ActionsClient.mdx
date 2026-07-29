@@ -1,0 +1,309 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+Primary AgentKit interface on `scalekit_client.actions`. Handles connected account management, tool execution, and proxied API calls.
+
+<CB.ClassBrowser
+  name="ActionsClient"
+  type="class"
+  source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/actions/actions.py"
+  language="python"
+>
+
+  <CB.ClassMethod name="get_authorization_link">
+    Generates a time-limited OAuth magic link to authorize a user's connection.
+
+    <CB.ClassMethodInput name="identifier" type="str">
+        User identifier (e.g. email)
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="connection_name" type="str">
+        Connector slug (e.g. gmail)
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="connected_account_id" type="str">
+        Direct connected account ID (ca_...)
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="state" type="str">
+        Opaque value passed through to the redirect URL
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="user_verify_url" type="str">
+        App redirect URL for user verification
+      </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="MagicLinkResponse">
+        The link.
+      </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+```python title="Example"
+magic_link = actions.get_authorization_link(
+    identifier="user@example.com",
+    connection_name="gmail",
+    user_verify_url="https://your-app.com/verify",
+)
+# Redirect the user to magic_link.link
+```
+
+  <CB.ClassMethod name="verify_connected_account_user">
+    Verifies the user after OAuth callback. Call this from your redirect URL handler.
+
+    <CB.ClassMethodInput name="auth_request_id" type="str">
+        Token from the redirect URL query params **Required.**
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="identifier" type="str">
+        Current user identifier **Required.**
+      </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="VerifyConnectedAccountUserResponse">
+        Post-verify redirect URL.
+      </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+```python title="Example"
+result = actions.verify_connected_account_user(
+    auth_request_id=request.args["auth_request_id"],
+    identifier="user@example.com",
+)
+# Redirect to result.post_user_verify_redirect_url
+```
+
+  <CB.ClassMethod name="get_or_create_connected_account">
+    Fetches an existing connected account or creates one if none exists. Use this as the default when setting up a user.
+
+    <CB.ClassMethodInput name="connection_name" type="str">
+        Connector slug **Required.**
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="identifier" type="str">
+        User's identifier **Required.**
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="authorization_details" type="dict">
+        OAuth token or static auth details
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="organization_id" type="str">
+        Organization tenant ID.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="user_id" type="str">
+        Your app user ID.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="api_config" type="dict">
+        Connector-specific options.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="CreateConnectedAccountResponse">
+        The connected account.
+      </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+```python title="Example"
+account = actions.get_or_create_connected_account(
+    connection_name="gmail",
+    identifier="user@example.com",
+)
+print(account.connected_account.id)
+```
+
+  <CB.ClassMethod name="get_connected_account">
+    Fetches auth details for a connected account. Returns sensitive credentials. Protect access to this method.
+    
+    Use this when you know the connected account already exists and you need its credential payload. For first-time setup or general application flows, prefer `get_or_create_connected_account` so new users do not hit a not-found error.
+    
+    Requires `connected_account_id` **or** `connection_name` + `identifier`.
+
+    <CB.ClassMethodInput name="connection_name" type="str">
+        Connector slug.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="identifier" type="str">
+        End-user or workspace identifier. Use with connection_name.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="connected_account_id" type="str">
+        Connected account ID (ca_...) when resolving by ID instead.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="GetConnectedAccountAuthResponse">
+        The connected account.
+      </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+  <CB.ClassMethod name="get_connected_account_details">
+    Fetches connected account metadata **without** auth credentials. Use this when you need status, connector, or `api_config` and do not need access or refresh tokens.
+    
+    Requires `connected_account_id` **or** `connection_name` + `identifier`.
+
+    <CB.ClassMethodInput name="connection_name" type="str">
+        Connector slug.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="identifier" type="str">
+        End-user or workspace identifier. Use with connection_name.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="connected_account_id" type="str">
+        Connected account ID (ca_...) when resolving by ID instead.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="GetConnectedAccountDetailsResponse">
+        The connected account.
+      </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+```python title="Example"
+details = actions.get_connected_account_details(
+    connection_name="gmail",
+    identifier="user@example.com",
+)
+print(details.connected_account.status)
+```
+
+  <CB.ClassMethod name="list_connected_accounts">
+    <CB.ClassMethodInput name="connection_name" type="str">
+        Filter by a single connector slug
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="identifier" type="str">
+        Filter by user identifier
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="provider" type="str">
+        Filter by provider
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="connection_names" type="list">
+        Filter to accounts for any of these connector slugs.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="ListConnectedAccountsResponse">
+        Paginated connected accounts.
+      </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+  <CB.ClassMethod name="create_connected_account">
+    Creates a connected account with explicit auth details.
+
+    <CB.ClassMethodInput name="connection_name" type="str">
+        Connector slug.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="identifier" type="str">
+        Stable ID for this end user or workspace.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="authorization_details" type="dict">
+        OAuth token payload, API key, or other credentials for this.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="organization_id" type="str">
+        Organization tenant ID.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="user_id" type="str">
+        Your app user ID.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="api_config" type="dict">
+        Connector-specific options.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="CreateConnectedAccountResponse">
+        CreateConnectedAccountResponse.
+      </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+  <CB.ClassMethod name="update_connected_account">
+    Requires `connected_account_id` **or** `connection_name` + `identifier`.
+
+    <CB.ClassMethodInput name="connection_name" type="str">
+        Connector slug.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="identifier" type="str">
+        End-user or workspace identifier. Use with connection_name.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="connected_account_id" type="str">
+        Connected account ID (ca_...) when updating by ID instead.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="authorization_details" type="dict">
+        Replace or merge stored credentials.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="organization_id" type="str">
+        Organization tenant ID.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="user_id" type="str">
+        Your app user ID.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="api_config" type="dict">
+        Connector-specific configuration to persist on the account
+      </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="UpdateConnectedAccountResponse">
+        UpdateConnectedAccountResponse.
+      </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+  <CB.ClassMethod name="delete_connected_account">
+    Deletes a connected account and revokes its credentials. Requires `connected_account_id` **or** `connection_name` + `identifier`.
+
+    <CB.ClassMethodInput name="connection_name" type="str">
+        Connector slug.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="identifier" type="str">
+        End-user or workspace identifier. Use with connection_name.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="connected_account_id" type="str">
+        Connected account ID (ca_...) when deleting by ID instead.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="DeleteConnectedAccountResponse">
+        DeleteConnectedAccountResponse.
+      </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+  <CB.ClassMethod name="execute_tool">
+    Executes a named tool via Scalekit. Pre- and post-modifiers run automatically if registered.
+
+    <CB.ClassMethodInput name="tool_name" type="str">
+        Tool name (e.g. gmail_fetch_emails) **Required.**
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="tool_input" type="dict">
+        Parameters the tool expects **Required.**
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="identifier" type="str">
+        User's identifier
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="connected_account_id" type="str">
+        Direct connected account ID
+      </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="ExecuteToolResponse">
+        Tool result and execution ID.
+      </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+```python title="Example"
+result = actions.execute_tool(
+    tool_name="gmail_fetch_emails",
+    tool_input={"max_results": 5, "label": "UNREAD"},
+    identifier="user@example.com",
+)
+emails = result.data
+```
+
+  <CB.ClassMethod name="request">
+    Makes a REST API call on behalf of a connected account. Scalekit injects the user's OAuth token automatically.
+
+    <CB.ClassMethodInput name="connection_name" type="str">
+        Connector slug **Required.**
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="identifier" type="str">
+        User's identifier **Required.**
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="path" type="str">
+        API path (e.g. /gmail/v1/users/me/messages) **Required.**
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="method" type="str">
+        HTTP method. Default: GET
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="query_params" type="dict">
+        URL query parameters appended to path
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="body" type="any">
+        JSON-serializable body for POST, PUT, PATCH, or similar.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="form_data" type="dict">
+        Multipart form fields when the upstream API expects form.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="headers" type="dict">
+        Extra HTTP headers merged with Scalekit-injected auth.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="requests.Response">
+        See return type `requests.Response`.
+      </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+```python title="Example"
+response = actions.request(
+    connection_name="gmail",
+    identifier="user@example.com",
+    path="/gmail/v1/users/me/messages",
+    query_params={"maxResults": 5, "q": "is:unread"},
+)
+messages = response.json()["messages"]
+```
+
+</CB.ClassBrowser>

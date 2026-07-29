@@ -1,0 +1,193 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="Connection"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main"
+  language="python"
+>
+
+  <CB.ClassMethod name="list_connections">
+    Lists all SSO connections for an organization.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.connection.list_connections(
+    'org_123456',
+    include='all'
+)
+
+for conn in response[0].connections:
+    print(f"Connection: {conn.id}")
+```
+
+  <CB.ClassMethod name="list_connections_by_domain">
+    Lists all SSO connections for a domain.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.connection.list_connections_by_domain(
+    'acme.com',
+    include='all'
+)
+```
+
+  <CB.ClassMethod name="get_connection">
+    Retrieves a specific SSO connection by ID.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.connection.get_connection(
+    'org_123456',
+    'conn_123456'
+)
+connection = response[0].connection
+```
+
+  <CB.ClassMethod name="create_connection">
+    Creates a new SSO connection for an organization.
+
+  </CB.ClassMethod>
+
+```python
+from scalekit.v1.connections.connections_pb2 import CreateConnection
+
+connection = CreateConnection()
+connection.type = "SAML"
+
+response = scalekit_client.connection.create_connection(
+    'org_123456',
+    connection
+)
+```
+
+  <CB.ClassMethod name="enable_connection">
+    Enables an SSO connection for an organization.
+
+  </CB.ClassMethod>
+
+```python
+scalekit_client.connection.enable_connection('org_123456', 'conn_123456')
+```
+
+  <CB.ClassMethod name="disable_connection">
+    Disables an SSO connection for an organization.
+
+  </CB.ClassMethod>
+
+```python
+scalekit_client.connection.disable_connection('org_123456', 'conn_123456')
+```
+
+  <CB.ClassMethod name="delete_connection">
+    Deletes an SSO connection from an organization.
+
+  </CB.ClassMethod>
+
+```python
+scalekit_client.connection.delete_connection('org_123456', 'conn_123456')
+```
+
+  <CB.ClassMethod name="list_app_connections">
+    Lists all environment-level app connections. These are connections configured at the environment level (not tied to a specific organization), such as OAuth integrations (e.g., HubSpot) or Google Domain-Wide Delegation connections.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.connection.list_app_connections()
+
+for conn in response[0].connections:
+    print(f"Connection: {conn.id}, Provider: {conn.provider_key}")
+
+# Filter by provider
+response = scalekit_client.connection.list_app_connections(provider='HUBSPOT', page_size=10)
+```
+
+  <CB.ClassMethod name="get_environment_connection">
+    Retrieves an environment-level connection by its ID.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.connection.get_environment_connection('conn_123456')
+conn = response[0].connection
+print(f"Provider: {conn.provider_key}, Type: {conn.type}")
+```
+
+  <CB.ClassMethod name="create_environment_connection">
+    Creates a new environment-level connection. Supports OAuth connections (e.g., HubSpot) and Google Domain-Wide Delegation (GOOGLE_DWD) connections. Pass `Flags(is_app=True)` to mark the connection as an app-level integration.
+
+  </CB.ClassMethod>
+
+```python
+from scalekit.v1.connections.connections_pb2 import (
+    CreateConnection, ConnectionType, Flags
+)
+
+# Create an OAuth app connection (e.g., HubSpot)
+response = scalekit_client.connection.create_environment_connection(
+    connection=CreateConnection(
+        provider_key='HUBSPOT',
+        type=ConnectionType.OAUTH
+    ),
+    flags=Flags(is_app=True)
+)
+conn = response[0].connection
+print(f"Created: {conn.id}, Key: {conn.key_id}")
+
+# Create a Google Domain-Wide Delegation connection
+response = scalekit_client.connection.create_environment_connection(
+    connection=CreateConnection(
+        provider_key='GOOGLEDWD',
+        type=ConnectionType.GOOGLE_DWD,
+        key_id='my-gdwd-connection'
+    ),
+    flags=Flags(is_app=True)
+)
+```
+
+  <CB.ClassMethod name="update_environment_connection">
+    Updates an environment-level connection. This is a PATCH operation — only fields provided in the `UpdateConnection` object are changed; unspecified fields remain unchanged. Always include the `type` field to avoid server-side errors.
+
+  </CB.ClassMethod>
+
+```python
+from scalekit.v1.connections.connections_pb2 import (
+    UpdateConnection, ConnectionType, OAuthConnectionConfig, GoogleDWDConfig
+)
+
+# Update OAuth connection credentials
+response = scalekit_client.connection.update_environment_connection(
+    connection_id='conn_123456',
+    connection=UpdateConnection(
+        provider_key='HUBSPOT',
+        key_id='hubspot-key',
+        type=ConnectionType.OAUTH,
+        oauth_config=OAuthConnectionConfig(
+            client_id={'value': 'my-client-id'},
+            client_secret={'value': 'my-client-secret'}
+        )
+    )
+)
+
+# Update Google DWD connection
+response = scalekit_client.connection.update_environment_connection(
+    connection_id='conn_123456',
+    connection=UpdateConnection(
+        provider_key='GOOGLEDWD',
+        key_id='my-gdwd-connection',
+        type=ConnectionType.GOOGLE_DWD,
+        google_dwd_config=GoogleDWDConfig(
+            service_account_json={'value': '{"type":"service_account",...}'},
+            scopes=['https://www.googleapis.com/auth/admin.directory.user.readonly'],
+            token_uri={'value': 'https://oauth2.googleapis.com/token'}
+        )
+    )
+)
+conn = response[0].connection
+```
+
+</CB.ClassBrowser>

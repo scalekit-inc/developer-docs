@@ -2965,6 +2965,581 @@
     "description": "Reads the contents of a file or directory from the paper's codebase repository. Returns repository structure for '/', directory listing for directories, or file contents for files."
   },
   {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_bulk_assign_annotation_category",
+    "description": "Assign an existing annotation category to multiple annotations at once."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_create_annotation",
+    "description": "Create a chart annotation marking a single date or a date range, either globally visible on all charts or scoped to one chart. CONFIRMED (live-tested): category and chart_id are both validated against real resources already known to Amplitude — an unrecognized category name or c…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_create_annotation_category",
+    "description": "Create a new category for organizing chart annotations in Amplitude."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_create_dsar_request",
+    "description": "Create a Data Subject Access Request (DSAR) job that collects all of a specific user's data from Amplitude for a given date range. Requires a connected account whose API Key/Secret Key fields hold Amplitude's ORGANIZATION-level credentials, not the project-level credentials most…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_create_event_category",
+    "description": "Create a new event category in Amplitude's taxonomy, used to group related event types."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_create_event_property",
+    "description": "Create a new event property in Amplitude's taxonomy. If event_type is set, this creates an event-specific property override for that event type; if omitted, this creates a shared property used across all events."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_create_event_type",
+    "description": "Create a new event type in Amplitude's taxonomy, optionally assigning it a category, description, tags, owner, and visibility flags."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_create_group_property",
+    "description": "Create a new group property in Amplitude's Taxonomy — a custom property scoped to a specific group type (e.g. 'org', 'company') rather than to users or events. Only group_property and group_type are explicitly confirmed by Amplitude's group-property docs; the remaining descripti…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_create_release",
+    "description": "Create a release annotation in Amplitude, marking a version rollout with a start (and optionally end) time. When chart_visibility is true (the default), the release appears as an annotation on charts. Amplitude's docs only document a 200 success response and a 400 bad-request re…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_create_user_property",
+    "description": "Create a new user property in Amplitude's taxonomy. Unlike event properties, user properties have no event_type or is_required field — they always apply globally to the user profile, not to a specific event."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_delete_annotation",
+    "description": "Permanently delete a chart annotation from Amplitude."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_delete_annotation_category",
+    "description": "Permanently delete a chart annotation category from Amplitude. This does not delete the annotations that used this category, only the category grouping itself."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_delete_event_category",
+    "description": "Permanently delete an event category from Amplitude's taxonomy."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_delete_event_property",
+    "description": "Delete an event property from Amplitude's taxonomy. amplitudeanalytics_restore_event_property can undo this, but CONFIRMED (live-tested) only for properties that were previously 'live' (actually seen on ingested events) — deleting a purely taxonomy-declared property that was nev…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_delete_event_type",
+    "description": "Delete an event type from Amplitude's taxonomy. Deletion is state-machine driven: a 'live' event type is marked deleted; an 'unexpected' event type is first added to the tracking plan then deleted; a 'planned' event type is simply removed from the plan; a 'transformed' event typ…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_delete_user_property",
+    "description": "Delete a custom user property from Amplitude's taxonomy. Amplitude-owned (built-in) user properties cannot be deleted through this API and will return an error. amplitudeanalytics_restore_user_property can undo this, but CONFIRMED (live-tested) only for properties that were prev…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_export_events",
+    "description": "Export raw event data uploaded to Amplitude within a date range as a zip archive of NDJSON files. The response is a binary zip file, not JSON — save it to disk rather than parsing it as JSON. start and end use the YYYYMMDDTHH format (e.g. 20220201T05), and the start-end range ca…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_annotation",
+    "description": "Retrieve a single chart annotation by its ID."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_annotation_category",
+    "description": "Retrieve a single chart annotation category by its ID."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_cohort_membership_file",
+    "description": "Download the completed cohort membership export started with amplitudeanalytics_request_cohort_membership, once amplitudeanalytics_get_cohort_membership_status reports it complete. Small cohorts return the gzip-compressed member data directly; large cohorts return an HTTP 302 re…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_cohort_membership_status",
+    "description": "Check the status of an asynchronous cohort membership export previously started with amplitudeanalytics_request_cohort_membership. Once the status reports completion, call amplitudeanalytics_get_cohort_membership_file to download the data. Note: Amplitude's documented async_stat…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_cohort_usage",
+    "description": "Check how much of the Behavioral Cohorts Download API's monthly quota has been used. Growth and Enterprise plans are limited to 500 download requests per month; this shows the current usage count and when it resets."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_dsar_output_file",
+    "description": "Download a single completed output file from a Data Subject Access Request (DSAR) job. Requires a connected account whose API Key/Secret Key fields hold Amplitude's ORGANIZATION-level credentials, not the project-level credentials most other tools in this connector use — use the…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_dsar_request_status",
+    "description": "Check the status of a Data Subject Access Request (DSAR) job previously created with amplitudeanalytics_create_dsar_request. Requires a connected account whose API Key/Secret Key fields hold Amplitude's ORGANIZATION-level credentials, not the project-level credentials most other…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_event_category",
+    "description": "Retrieve a single event category from Amplitude's taxonomy, looked up by its category_name. Unlike amplitudeanalytics_update_event_category and amplitudeanalytics_delete_event_category (which are keyed by category_id), this endpoint is keyed by category_name — this matches Ampli…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_event_segmentation",
+    "description": "Pull Event Segmentation chart data from the Amplitude Dashboard REST API: measure an event (uniques, totals, or another metric) over a date range, with optional segment filters and up to two group-by properties. Rate limits: 5 concurrent requests shared with other Amplitude Dash…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_event_streaming_metrics",
+    "description": "Get the delivery-metrics summary for an Amplitude Event Streaming sync over a time window. The response includes timePeriod, eventsDelivered, eventsNotDelivered, deliveryRate, latencyInSeconds (p95), successOnFirstAttempt, successAfterRetry, eventsExpired, and eventsDiscarded. A…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_event_type",
+    "description": "Retrieve a single event type from Amplitude's taxonomy by its event_type name. CONFIRMED (live-tested): if the event type has is_hidden_from_dropdowns set to true, this single-item lookup returns 'Not found' even though the event type still fully exists and appears in amplitudea…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_funnel_results",
+    "description": "Pull Funnel Analysis chart data from the Amplitude Dashboard REST API: step-by-step conversion and drop-off for an ordered (or unordered/sequential) sequence of two or more events over a date range. Rate limits: 5 concurrent requests shared with other Amplitude Dashboard/Cohort …"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_group_property",
+    "description": "Retrieve a single group property from Amplitude's Taxonomy by name."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_session_replay_files",
+    "description": "Get download links for a single Amplitude session replay's recorded event files. Returns a files array of presigned S3 URLs — these URLs expire after 15 minutes, so download the files promptly after calling this."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_user_mapping",
+    "description": "Look up user identity mappings (aliases) for one or more Amplitude user IDs. The response is an object keyed by each requested user_id, where each value has mapped_from[] and mapped_to[] arrays of {amplitude_id, user_id} pairs describing merged/aliased identities. This is the on…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_get_user_property",
+    "description": "Retrieve a single user property by name from Amplitude's taxonomy. CONFIRMED (live-tested): Amplitude auto-prepends 'gp:' to custom user property names on creation regardless of what name amplitudeanalytics_create_user_property was called with — use amplitudeanalytics_list_user_…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_list_annotation_categories",
+    "description": "List all chart annotation categories in the Amplitude project, or filter to a single category by name."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_list_annotations",
+    "description": "List chart annotations, optionally filtered by category, by chart, or by a date range. CONFIRMED (live-tested): category and chart_id do NOT combine as a logical AND, and Amplitude does NOT error if both are set — category silently wins and chart_id is dropped entirely, even whe…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_list_cohorts",
+    "description": "List all behavioral cohorts defined in the Amplitude project. Returns each cohort's id, name, description, size, published/archived state, owners, viewers, definition, and last-computed time. Use this to find a cohort's id before calling amplitudeanalytics_request_cohort_members…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_list_event_categories",
+    "description": "List all event categories defined in Amplitude's taxonomy."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_list_event_properties",
+    "description": "Get the event properties defined in Amplitude's taxonomy — either the shared properties used across all events, or (if event_type is set) the properties specific to one event type. Note: per Amplitude's documentation, this parameter is sent as a JSON request body on a GET reques…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_list_event_types",
+    "description": "List event types defined in Amplitude's taxonomy, optionally including deleted ones."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_list_group_properties",
+    "description": "List group properties defined in Amplitude's Taxonomy. Pass group_type to scope the list to that group type (e.g. 'org'); omit it to list properties shared across group types rather than any single type's properties."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_list_session_replays",
+    "description": "List Amplitude Session Replay recordings, optionally filtered by time range, Amplitude user ID, or an explicit set of replay IDs, with pagination and sort order control. amplitude_id and replay_id are mutually exclusive filters, and replay_id is also mutually exclusive with page…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_list_user_deletion_jobs",
+    "description": "List Amplitude user-deletion jobs submitted within a date range. The start_day-end_day range cannot exceed 6 months. Returns an array of job objects, each with day, status (Staging, Submitted, or Done), amplitude_ids (the Amplitude user IDs in that day's job), app, and active_sc…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_list_user_properties",
+    "description": "List user properties in Amplitude's taxonomy, optionally including previously deleted ones."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_remove_user_from_deletion",
+    "description": "Remove a single user from a pending Amplitude user-deletion job before it locks, preventing their data from being deleted. This is a protective/cancel action, not a destructive one. It only works while the job is still in Staging status (within the roughly 3-day window after amp…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_request_cohort_membership",
+    "description": "Start an asynchronous export of an Amplitude cohort's membership (the users/devices in the cohort). Returns a request_id — poll amplitudeanalytics_get_cohort_membership_status with that id until it reports completion, then call amplitudeanalytics_get_cohort_membership_file to do…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_restore_event_property",
+    "description": "Restore a previously deleted event property back to active status. CONFIRMED (live-tested): this only works for properties that were 'live' (actually seen on ingested events) before being soft-deleted. For a purely taxonomy-declared property that was never ingested, amplitudeana…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_restore_event_type",
+    "description": "Restore a previously deleted event type back to active/tracked status. CONFIRMED (live-tested): this only works for event types that were 'live' (actually ingested) before being soft-deleted. For a purely taxonomy-declared 'planned' event type that was deleted with amplitudeanal…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_restore_user_property",
+    "description": "Restore a previously deleted user property back to active status. CONFIRMED (live-tested): this only works for properties that were 'live' (actually seen on ingested events) before being soft-deleted. For a purely taxonomy-declared property that was never ingested, amplitudeanal…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_submit_user_deletion",
+    "description": "Submit a batch job to permanently delete users' data from Amplitude. Provide amplitude_ids, user_ids, or both — at least one is required; the API rejects a request with neither, which this input schema cannot enforce on its own. A single request accepts a maximum of 100 IDs comb…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_update_annotation",
+    "description": "Partially update an existing chart annotation. Only the fields you provide are changed; omitted fields keep their current value. Set chart_id to null to make a chart-scoped annotation global again. KNOWN AMPLITUDE API BUG (live-tested): setting end to null does NOT clear the end…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_update_annotation_category",
+    "description": "Rename an existing chart annotation category."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_update_cohort_membership",
+    "description": "Add or remove individual members from an existing Amplitude cohort, without replacing the whole membership list. To create a cohort or replace its full membership list, use amplitudeanalytics_upload_cohort instead. CONFIRMED (live-tested): routing, auth, and the memberships arra…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_update_event_category",
+    "description": "Rename an existing event category in Amplitude's taxonomy."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_update_event_property",
+    "description": "Partially update an existing event property in Amplitude's taxonomy. Only the fields you provide are changed; omitted fields keep their current value. Use overrideScope to control whether the update applies to an event-specific override or the shared property definition, and new…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_update_event_type",
+    "description": "Partially update an existing event type in Amplitude's taxonomy. Only the fields you provide are changed; omitted fields keep their current value. Set new_event_type to rename the event type."
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_update_group_property",
+    "description": "Partially update an existing Amplitude Taxonomy group property. Amplitude's update-group-property docs list no body fields at all beyond the path variable, so every field below — including group_type — is inferred by analogy with the create endpoint and the sibling event/user pr…"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_update_user_property",
+    "description": "Partially update an existing user property in Amplitude's taxonomy. Only the fields you provide are changed; omitted fields keep their current value. CONFIRMED BUG (live-tested, reproduced independently twice): new_event_property_value does NOT actually rename a user property — …"
+  },
+  {
+    "slug": "amplitudeanalytics",
+    "name": "amplitudeanalytics_upload_cohort",
+    "description": "Create a new Amplitude behavioral cohort from an explicit list of user or Amplitude IDs, or update an existing cohort's membership list wholesale by passing existing_cohort_id. To add/remove individual members from an already-created cohort instead, use amplitudeanalytics_update…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_add_experiment_variant_cohorts",
+    "description": "Add specific cohorts to this experiment variant's targeting inclusions. This adds to the variant's existing cohort inclusions; it does not replace them. CONFIRMED from Amplitude's docs: POST /api/1/experiments/{id}/variants/{variantKey}/cohorts with body {\"inclusions\": [...]}, a…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_add_experiment_variant_users",
+    "description": "Force-bucket specific users or devices into this experiment variant — identified by user ID, device ID, or an email-style identifier — bypassing the experiment's normal allocation. This adds to the variant's existing inclusions; it does not replace them. CONFIRMED from Amplitude…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_add_flag_variant_cohorts",
+    "description": "Add specific cohorts as inclusions on a variant of an Amplitude Experiment feature flag — explicitly assigning these cohorts to this variant regardless of the variant's rollout weight. UNCONFIRMED: unlike the users endpoint, Amplitude's docs don't mention any documented maximum …"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_add_flag_variant_users",
+    "description": "Add specific users, devices, or emails as individual inclusions on a variant of an Amplitude Experiment feature flag — explicitly assigning these identities to this variant regardless of the variant's rollout weight. Amplitude allows up to 2,000 total inclusions per variant; exc…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_bulk_delete_experiment_variant_cohorts",
+    "description": "Remove a specific set of cohorts (by ID) from an experiment variant's targeting, leaving other included cohorts untouched. Limited to 100 IDs per request — split larger lists across multiple calls.\n\nCONFIRMED from Amplitude's docs: despite being a DELETE request, cohort IDs are …"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_bulk_delete_experiment_variant_users",
+    "description": "Remove a specific set of users or devices (by ID) from an experiment variant's inclusion list, leaving all other included users untouched. This is distinct from the remove-all-users tool, which wipes the entire inclusion list regardless of which IDs exist. Limited to 100 user/de…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_bulk_delete_flag_variant_cohorts",
+    "description": "Remove a specific set of cohorts (by ID) from a flag variant's individual-inclusion list — the cohort analog of Bulk Delete Flag Variant Users.\n\nCONFIRMED from Amplitude's docs: despite being a DELETE request, cohort IDs are sent as a JSON body (not query params). The body field…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_bulk_delete_flag_variant_users",
+    "description": "Remove a specific SET of users (by user/device ID) from a flag variant's individual-inclusion list — distinct from Remove All Flag Variant Users, which unconditionally clears every user regardless of ID. Per Amplitude's official docs (verified via two independent doc fetches), t…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_create_deployment",
+    "description": "Create a new deployment in a project. Required fields per Amplitude's docs: projectId, label, and type. A deployment represents one SDK key / environment (for example \"Production\" or \"Development\") that flags and experiments get deployed to. A successful call returns a 200 OK wi…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_create_experiment",
+    "description": "Create a new Amplitude experiment. Required: project_id, key. name is technically optional per this tool (Amplitude's docs disagree), but supply it anyway — every documented example includes it.\n\ndeliveryMethod and rolloutPercentage are not create-time fields — only projectId, k…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_create_experiment_deployment",
+    "description": "Deploy an experiment to one or more deployments. CONFIRMED directly from Amplitude's official docs (exact JSON example: {\"deployments\": [\"<deploymentId>\"]}): the request body field is the plural array 'deployments', not a singular 'deploymentId' — pass a one-element array to dep…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_create_experiment_variant",
+    "description": "Add a new variant to an experiment. CONFIRMED from Amplitude's official docs (verified against the page's raw rendered source, not just its visible text): POST /api/1/experiments/{id}/variants with body {key, name, description, payload, rolloutWeight} — key is the only required …"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_create_flag",
+    "description": "Create a new Amplitude Experiment feature flag. Required: projectId, key. All other fields are optional at creation.\n\nCONFIRMED from Amplitude's docs: tags, rolloutPercentage, enabled, and archive are NOT settable here — set them afterward via update_flag. parentDependencies isn…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_create_flag_deployment",
+    "description": "Deploy a flag to one or more deployments. Per Amplitude's official docs, the request body takes a deployments array of deployment ID strings — {\"deployments\": [\"<deploymentId>\"]} — not a single deploymentId field, so this tool accepts deployment_ids as an array (pass one ID to d…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_create_flag_variant",
+    "description": "Create a new variant for an Amplitude Experiment feature flag. Only the variant key is required — name, description, payload, and rollout weight are all optional. CONFIRMED (live-tested): this org has Feature Experimentation entitlement. Per Amplitude's docs, a successful call r…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_create_holdout_group",
+    "description": "Create a new holdout group. Required: projectId, name, holdoutPercentage. \\`individualInclusion\\`/\\`individualExclusion\\` are named from the holdout's own point of view — inclusion in the holdout means exclusion from experiments, and vice versa.\n\nFIXED (confirmed live both regio…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_create_mutex_group",
+    "description": "Create a new mutex group. Required: projectId, name, slots (JSON-encoded string — see that field's description for shape).\n\nFIXED (confirmed live both regions): this field was previously sent as a raw string instead of a parsed array via body_json_mapping — now uses jsonnet_temp…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_delete_experiment_deployment",
+    "description": "Undeploy an experiment from a specific deployment — the experiment is removed from that deployment only; any other deployments it's on are unaffected. A successful call returns 200 OK with the literal text 'OK' (not a JSON body); this tool reports success from the status code, n…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_delete_experiment_variant",
+    "description": "Permanently remove a variant from an experiment. CONFIRMED from Amplitude's docs: DELETE /api/1/experiments/{id}/variants/{variantKey}, no request body. A successful call returns 200 OK with the literal text \"OK\" — Amplitude does not use 204 No Content here, unlike many REST API…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_delete_flag_deployment",
+    "description": "Undeploy a flag from a specific deployment, identified by deploymentId. This does not delete the deployment itself — a deployment is a shared target that other flags and experiments may also use — it only removes this one flag's association with that deployment. Use List Flag De…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_delete_flag_variant",
+    "description": "Permanently remove a variant from an Amplitude Experiment feature flag. This deletes the variant definition itself — its key, name, description, payload, and rollout weight — not just its user or cohort inclusions. This is irreversible; any experiment allocations or targeting ru…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_get_experiment",
+    "description": "Get complete details for a single Amplitude experiment by its ID. Returns the full experiment object — its shape is CONFIRMED via a live-tested list_experiments call against this org (list_experiments returns objects of this same type): id, projectId, deployments[], key, name, d…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_get_experiment_variant",
+    "description": "Get a single variant's details from an Amplitude experiment, by experiment ID and variant key (the variants[].key value, e.g. \"control\" or \"treatment\"). Use list_experiment_variants or the parent experiment's variants[] array to find valid keys. Amplitude's docs give no example …"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_get_experiment_variant_cohorts",
+    "description": "List the cohorts explicitly included in this experiment variant's targeting. CONFIRMED from Amplitude's docs: GET /api/1/experiments/{id}/variants/{variantKey}/cohorts, no query parameters documented (no pagination). Response is 200 OK with an array of cohort ID strings (not obj…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_get_experiment_variant_users",
+    "description": "List the users and devices explicitly force-bucketed into this experiment variant via inclusions — separate from, and in addition to, the experiment's normal allocation/targeting rules. CONFIRMED from Amplitude's docs: GET /api/1/experiments/{id}/variants/{variantKey}/users, no …"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_get_experiment_version",
+    "description": "Get a single historical version snapshot of an Amplitude experiment, by experiment ID and version ID. Use a version ID returned from list_experiment_versions. Amplitude's docs describe this endpoint only as returning \"details of a specific version of an experiment\" — no example …"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_get_flag",
+    "description": "Get the full configuration of a single Amplitude Experiment feature flag by its ID. Returns the flag's complete details as documented by Amplitude: id, projectId, deployments, key, name, description, enabled, evaluationMode, bucketingKey, bucketingSalt, bucketingUnit, variants, …"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_get_flag_variant",
+    "description": "Get a single variant's details from an Amplitude Experiment feature flag. Returns a JSON object with key (required), and optional payload, name, and description fields. Variant keys may contain letters, numbers, underscores, and hyphens (per Amplitude's docs). This org has confi…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_get_flag_variant_cohorts",
+    "description": "List the cohorts individually assigned (included) to a specific variant of an Amplitude Experiment feature flag. No query parameters, filters, or pagination are documented for this endpoint. Per Amplitude's docs, a successful call returns a 200 OK response with \"the variant's co…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_get_flag_variant_users",
+    "description": "List the users and devices individually assigned (included) to a specific variant of an Amplitude Experiment feature flag — the explicit targeting list, separate from the variant's percentage-based rollout weight. No query parameters, filters, or pagination are documented for th…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_get_flag_version",
+    "description": "Get a single version snapshot of an Amplitude Experiment feature flag. Returns a JSON object with createdAt, createdBy, version (a number), and flagConfig (the full flag configuration as it existed at that version — id, projectId, deployments, key, name, description, enabled, ev…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_get_holdout_group",
+    "description": "Retrieve a single holdout group's full configuration by ID — expected to mirror the shape accepted by Create Holdout Group (name, description, holdoutPercentage, evaluationMode, bucketingKey, experiments, individualInclusion, individualExclusion). UNCONFIRMED (doc gap): Amplitud…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_get_mutex_group",
+    "description": "Retrieve a single mutex group's full configuration by ID — expected to include its slots and which experiments, holdouts, or individuals occupy each one, mirroring the shape accepted by Create Mutex Group (name, description, evaluationMode, bucketingKey, bucketingSalt, and a slo…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_list_all_versions",
+    "description": "List version history across ALL flags and experiments the API key can access, in one global, paginated feed — distinct from amplitudeexperimentmanagement_list_flag_versions and amplitudeexperimentmanagement_list_experiment_versions, which return the version history for one speci…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_list_deployments",
+    "description": "List all deployments in the project. A deployment represents one SDK key / environment (for example \"Production\" or \"Development\") that flags and experiments get deployed to. CONFIRMED from Amplitude's docs: the response follows {\"deployments\": [{\"id\": ..., \"projectId\": ..., \"la…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_list_experiment_deployments",
+    "description": "List the deployments that an experiment is currently deployed to. Amplitude's docs for this endpoint describe the response only as a '200 OK response and an array of JSON objects with the experiment's deployment details', without a concrete field-level example on this specific p…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_list_experiment_variants",
+    "description": "List all variants defined on a single Amplitude experiment. Amplitude's docs document no query parameters and give no example response JSON for this endpoint — expect an array of variant objects matching the variants[] entries embedded in the experiment resource. A live-tested l…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_list_experiment_versions",
+    "description": "List the version history for a single Amplitude experiment — one entry per saved change. Amplitude's docs state versions are \"ordered by creation time, descending\" but document no query parameters for this endpoint (no limit/cursor/date-range filtering) and give no example respo…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_list_experiments",
+    "description": "List Amplitude experiments for the project. Supports cursor-based pagination — pass the response's nextCursor value back as cursor to get the next page — and optional filters. CONFIRMED (live-tested): the real response shape is {\"experiments\": [...], \"nextCursor\": ...} — Amplitu…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_list_flag_deployments",
+    "description": "List the deployments a flag is currently deployed to. Per Amplitude's official docs, a successful call returns 200 OK with an array of JSON objects describing each deployment. UNCONFIRMED: Amplitude's docs don't show a raw JSON response example for this specific flag-scoped endp…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_list_flag_variants",
+    "description": "List all variants defined on a single Amplitude Experiment feature flag. Returns a JSON array of variant objects, each with key (required), and optional payload, name, and description fields. CONFIRMED from Amplitude's docs: no cursor/limit pagination parameters are documented f…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_list_flag_versions",
+    "description": "List the version history for a single Amplitude Experiment feature flag. Returns a JSON array of version objects, each containing createdAt, createdBy, version (a number), and flagConfig (a full snapshot of the flag's configuration at that version, including id, projectId, deplo…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_list_flags",
+    "description": "List Amplitude Experiment feature flags for the project. Supports cursor-based pagination — pass the response's nextCursor value back as cursor to get the next page — and optional filters. CONFIRMED (live-tested): this org has Feature Experimentation entitlement — a real call re…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_list_holdout_groups",
+    "description": "List all holdout groups in the project. A holdout group excludes a fixed percentage of users from every experiment associated with it, so you can measure the overall product impact of those experiments against a clean control population. UNCONFIRMED (doc gap): Amplitude's own AP…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_list_mutex_groups",
+    "description": "List all mutex groups in the project. A mutex group defines a set of \"slots\" so that the experiments, flags, holdouts, and/or individuals assigned to the same slot never run simultaneously for the same user — useful for guaranteeing exclusivity between conflicting tests. UNCONFI…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_remove_all_experiment_variant_users",
+    "description": "Remove ALL users and devices from an experiment variant's inclusion list in a single call — this clears the entire list, not one entry. To remove only one specific user, use the single-user removal tool (DELETE .../users/{userIndex}) instead. To remove a specific named set of us…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_remove_all_flag_variant_users",
+    "description": "Remove ALL users from a flag variant's individual-inclusion list in a single call. This clears the ENTIRE user list for that variant unconditionally — every individually-included user is removed, not just one. There is no way to keep a subset with this endpoint. To remove only o…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_remove_experiment_variant_user",
+    "description": "Remove one specific user or device (by its zero-indexed position) from an experiment variant's inclusion list. Per Amplitude's docs, the userIndex value should come from the 'Get variant inclusions' endpoint's response (GET /api/1/experiments/{id}/variants/{variantKey}/users) — …"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_remove_flag_variant_user",
+    "description": "Remove one specific user from a flag variant's individual-inclusion list, identified by the user's zero-indexed position in that list — not by user ID. Per Amplitude's official docs (confirmed via direct doc fetch), userIndex is documented as type string (e.g. \"0\", \"1\", \"2\"); ge…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_update_deployment",
+    "description": "Edit an existing deployment's label, or archive/restore it. Only the provided fields are changed; omitted fields remain unchanged. CONFIRMED from Amplitude's docs: a successful call returns 200 OK with the literal text \"OK\" as the body, not a JSON object — this tool treats the r…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_update_experiment",
+    "description": "Update an existing Amplitude experiment — partial update; only provided fields change (except end_date, see below). Editable fields: name, description, bucketing_key, bucketing_salt, bucketing_unit, evaluation_mode (remote|local), rollout_percentage (0-100), target_segments (JSO…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_update_experiment_variant",
+    "description": "Edit an existing experiment variant — rename its key, or update name, description, payload, or rolloutWeight. All body fields are optional; omit a field to leave its current value unchanged. CONFIRMED FROM RAW PAGE SOURCE (not just visible rendered text): this endpoint is PATCH,…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_update_flag",
+    "description": "Edit an existing Amplitude Experiment feature flag — partial update, only provided fields change.\n\nCONFIRMED editable: name, description, bucketingKey, bucketingSalt, bucketingUnit, evaluationMode, rolloutPercentage, targetSegments, enabled, archive, tags. CONFIRMED NOT editable…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_update_flag_variant",
+    "description": "Edit an existing flag variant — partial update; a provided \\`payload\\` fully replaces the existing one rather than merging.\n\nAmplitude's docs are self-contradictory on the HTTP method: the endpoint heading says POST, but the runnable curl example uses PATCH against the same URL.…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_update_holdout_group",
+    "description": "Edit an existing holdout group — partial update, only provided fields change. \\`individualInclusion\\`/\\`individualExclusion\\` are named from the holdout's own point of view — inclusion in the holdout means exclusion from experiments, and vice versa. UNCONFIRMED whether array fie…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_update_mutex_group",
+    "description": "Edit an existing mutex group's name, description, or archived state. Only the provided fields are changed; omitted fields remain unchanged. This endpoint does NOT edit slots — to change which experiments, holdouts, or individuals occupy a slot, use amplitudeexperimentmanagement_…"
+  },
+  {
+    "slug": "amplitudeexperimentmanagement",
+    "name": "amplitudeexperimentmanagement_update_mutex_group_slot",
+    "description": "Edit which experiments, holdouts, and/or individuals occupy one slot in a mutex group, without touching the slot's percentage or any other slot. Complex fields are JSON-encoded strings, not native arrays. UNCONFIRMED whether omitting one of experiments/holdouts/individuals leave…"
+  },
+  {
     "slug": "anakinmcp",
     "name": "anakinmcp_agentic_search",
     "description": "Run multi-source deep research. The pipeline searches the web, scrapes the most relevant citations, and uses an LLM to structure the combined data into a unified answer. Async — typically 1–5 minutes. Use this when one URL or a flat search result will not answer the question (co…"
@@ -18585,13 +19160,63 @@
   },
   {
     "slug": "discord",
+    "name": "discord_consume_entitlement",
+    "description": "For one-time purchase consumable SKUs, mark a given entitlement for the user as consumed. The entitlement will have consumed: true when listed afterward. This action cannot be undone. Returns 204 No Content on success. Per Discord's official OpenAPI spec, this endpoint also acce…"
+  },
+  {
+    "slug": "discord",
+    "name": "discord_create_lobby_channel_invite_for_self",
+    "description": "Create a single-use guild invite to a lobby's linked channel, targeted at the calling user. The lobby must have a linked channel and the caller must be a member of the lobby. The invite expires after one hour. Uses a Bearer token with the sdk.social_layer scope. Per Discord's of…"
+  },
+  {
+    "slug": "discord",
+    "name": "discord_create_or_join_lobby",
+    "description": "Create a new lobby identified by a secret, or join the calling user to the existing lobby with that secret if one already exists. Updates lobby metadata and the calling member's metadata on join. Uses a Bearer token with the sdk.social_layer scope. Per Discord's official OpenAPI…"
+  },
+  {
+    "slug": "discord",
+    "name": "discord_delete_current_user_application_role_connection",
+    "description": "Deletes the application role connection for the current user and the given application. Requires an OAuth2 access token with the role_connections.write scope for the application specified in the path."
+  },
+  {
+    "slug": "discord",
+    "name": "discord_delete_test_entitlement",
+    "description": "Delete a currently-active test entitlement. Discord will act as though that user or guild no longer has entitlement to your premium offering. Returns 204 No Content on success. Per Discord's official OpenAPI spec, this endpoint also accepts an OAuth2 Bearer token with the \\`appl…"
+  },
+  {
+    "slug": "discord",
+    "name": "discord_edit_application_command_permissions",
+    "description": "Edit the permissions for a specific application command in a guild. Requires OAuth2 bearer token with applications.commands.permissions.update scope. Returns a guild application command permissions object."
+  },
+  {
+    "slug": "discord",
+    "name": "discord_get_application_command_permissions",
+    "description": "Fetch permissions for a specific application command in a guild. Returns a guild application command permissions object."
+  },
+  {
+    "slug": "discord",
     "name": "discord_get_current_user_application_entitlements",
     "description": "Retrieves entitlements for the current user for a given application. Use when you need to check what premium offerings or subscriptions the authenticated user has access to. Requires the applications.entitlements OAuth2 scope."
   },
   {
     "slug": "discord",
+    "name": "discord_get_current_user_application_role_connection",
+    "description": "Returns the application role connection for the current user and the given application. Requires an OAuth2 access token with the role_connections.write scope for the application specified in the path."
+  },
+  {
+    "slug": "discord",
+    "name": "discord_get_entitlement",
+    "description": "Retrieve a single entitlement for an application by ID. Use to check whether a specific entitlement is active, its type, and its expiration window. Per Discord's official OpenAPI spec, this endpoint also accepts an OAuth2 Bearer token with the \\`applications.entitlements\\` scope…"
+  },
+  {
+    "slug": "discord",
     "name": "discord_get_gateway",
     "description": "Retrieves a valid WebSocket (wss) URL for establishing a Gateway connection to Discord. Use when you need to connect to the Discord Gateway for real-time events. No authentication required."
+  },
+  {
+    "slug": "discord",
+    "name": "discord_get_guild_application_command_permissions",
+    "description": "Fetch permissions for all commands in a guild. Returns an array of guild application command permissions objects. Per Discord's official OpenAPI spec, this endpoint also accepts an OAuth2 Bearer token with the \\`applications.commands.permissions.update\\` scope (in addition to Bo…"
   },
   {
     "slug": "discord",
@@ -18611,7 +19236,12 @@
   {
     "slug": "discord",
     "name": "discord_get_invite_deprecated",
-    "description": "DEPRECATED: Use discord_resolve_invite instead. Retrieves information about a specific invite code including guild and channel details. This endpoint is deprecated — prefer the Resolve Invite tool for new integrations."
+    "description": "Retrieves information about a specific invite code, including guild and channel details. Use discord_resolve_invite instead, which supports additional query parameters such as guild_scheduled_event_id."
+  },
+  {
+    "slug": "discord",
+    "name": "discord_get_lobby_messages",
+    "description": "Retrieve the most recent messages in a Discord lobby. The calling user must be a member of the lobby. Uses a Bearer token with the sdk.social_layer scope. Per Discord's official OpenAPI spec, this endpoint also accepts a Bot Token (in addition to OAuth2) — use this tool for user…"
   },
   {
     "slug": "discord",
@@ -18640,13 +19270,38 @@
   },
   {
     "slug": "discord",
+    "name": "discord_get_sku_subscription",
+    "description": "Retrieve a single subscription for a SKU by its ID. Returns a subscription object with its status, current billing period, and the entitlements it grants. Per Discord's official OpenAPI spec, this endpoint also accepts an OAuth2 Bearer token (in addition to Bot Token) — use this…"
+  },
+  {
+    "slug": "discord",
     "name": "discord_get_user",
     "description": "Retrieve information about a Discord user. With OAuth Bearer token, use '@me' as user_id to return the authenticated user's information. With a Bot token, you can query any user by their ID. Returns username, avatar, discriminator, locale, premium status, and email (if email sco…"
   },
   {
     "slug": "discord",
+    "name": "discord_leave_lobby",
+    "description": "Remove the calling user from the specified Discord lobby. Safe to call even if the user is no longer a member, but fails if the lobby does not exist. Uses a Bearer token for authorization. Per Discord's official OpenAPI spec, this endpoint also accepts a Bot Token (in addition t…"
+  },
+  {
+    "slug": "discord",
+    "name": "discord_link_channel_to_lobby",
+    "description": "Link an existing guild text channel to a Discord lobby, or unlink any currently linked channel by omitting channel_id. Uses a Bearer token for authorization; the caller must be a lobby member with the CanLinkLobby lobby member flag. Per Discord's official OpenAPI spec, this endp…"
+  },
+  {
+    "slug": "discord",
+    "name": "discord_list_guild_channels",
+    "description": "Retrieve all channels in a Discord guild (server). Returns a list of channel objects including text channels, voice channels, categories, and threads. Per Discord's official OpenAPI spec, this endpoint also accepts a plain OAuth2 Bearer token (no specific scope required beyond a…"
+  },
+  {
+    "slug": "discord",
     "name": "discord_list_my_guilds",
     "description": "Lists the current user's guilds, returning partial data (id, name, icon, owner, permissions, features) for each. Primarily used for displaying server lists or verifying guild memberships. Requires the 'guilds' OAuth2 scope."
+  },
+  {
+    "slug": "discord",
+    "name": "discord_list_sku_subscriptions",
+    "description": "Retrieve all subscriptions containing a given SKU, filtered by user. Returns a list of subscription objects representing recurring payments for that SKU. Per Discord's official OpenAPI spec, this endpoint also accepts an OAuth2 Bearer token (in addition to Bot Token) — use this …"
   },
   {
     "slug": "discord",
@@ -18662,6 +19317,1041 @@
     "slug": "discord",
     "name": "discord_retrieve_user_connections",
     "description": "Retrieves a list of the authenticated user's connected third-party accounts on Discord, such as Twitch, YouTube, GitHub, Steam, and others. Requires the 'connections' OAuth2 scope."
+  },
+  {
+    "slug": "discord",
+    "name": "discord_send_lobby_message",
+    "description": "Send a message to a Discord lobby. The calling user must be a member of the lobby. Uses a Bearer token with the sdk.social_layer scope. Per Discord's official OpenAPI spec, this endpoint also accepts a Bot Token (in addition to OAuth2) — use this tool for user-authorized OAuth c…"
+  },
+  {
+    "slug": "discord",
+    "name": "discord_update_current_user_application_role_connection",
+    "description": "Updates and returns the application role connection for the current user and the given application. Requires an OAuth2 access token with the role_connections.write scope for the application specified in the path."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_add_guild_member",
+    "description": "Add a user to a guild using their OAuth2 access token with the guilds.join scope. Returns 201 if the user was added, or 204 if already a member."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_add_guild_member_role",
+    "description": "Add a role to a guild member. Requires MANAGE_ROLES permission. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_add_lobby_member",
+    "description": "Add the specified user to a Discord lobby. If the user is already a member, updates their metadata and flags instead. Returns the lobby member object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_add_thread_member",
+    "description": "Add another user to a thread. Requires the thread to not be archived. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_begin_guild_prune",
+    "description": "Begin a prune operation to kick inactive members. Requires KICK_MEMBERS permission. Returns a pruned object with the count of kicked members (or null if compute_prune_count is false)."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_bulk_delete_messages",
+    "description": "Delete multiple messages in a Discord channel in a single request (2-100 messages). Messages older than 2 weeks cannot be deleted this way. Requires MANAGE_MESSAGES permission."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_bulk_guild_ban",
+    "description": "Ban up to 200 users from a guild and optionally delete their recent messages. Requires both BAN_MEMBERS and MANAGE_GUILD permissions. Returns object with banned_users and failed_users arrays."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_bulk_overwrite_global_application_commands",
+    "description": "Bulk overwrite all global application commands. Takes a full list of commands to replace existing ones. Any commands not included will be deleted. Returns an array of application command objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_bulk_overwrite_guild_application_commands",
+    "description": "Bulk overwrite all application commands registered in a guild. Commands not included will be deleted. Returns an array of application command objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_bulk_update_lobby_members",
+    "description": "Add, update, or remove up to 25 members from a Discord lobby in a single request. Members with remove_member false (the default) are upserted; members with remove_member true are removed. Users unknown to Discord return a 404 error. Users that fail permission checks, or that alr…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_consume_entitlement",
+    "description": "For one-time purchase consumable SKUs, mark a given entitlement for the user as consumed. The entitlement will have consumed: true when listed afterward. This action cannot be undone. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_application_emoji",
+    "description": "Create a new emoji owned by a Discord application (app emoji). Returns the new emoji object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_auto_moderation_rule",
+    "description": "Create a new Auto Moderation rule for a guild. Requires the MANAGE_GUILD permission. Fires an Auto Moderation Rule Create Gateway event. Returns the new auto moderation rule object on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_channel_invite",
+    "description": "Create a new invite for a Discord channel. Requires CREATE_INSTANT_INVITE permission. Returns an invite object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_dm",
+    "description": "Create a new DM channel with a user. Returns a DM channel object. If a DM channel already exists with the user, it is returned."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_global_application_command",
+    "description": "Create a new global application command. If a command with the same name already exists, it will be overwritten. Returns the created command object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_group_dm",
+    "description": "Create a new group DM channel with multiple users using their OAuth2 access tokens (granted the gdm.join scope). Returns a DM channel object. This endpoint was intended to be used with the now-deprecated GameBridge SDK and is limited to 10 active group DMs. Fires a Channel Creat…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_guild_application_command",
+    "description": "Create a new application command for a specific guild. Guild commands are only available in the guild they are created in. Returns the created command object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_guild_ban",
+    "description": "Ban a user from a Discord guild. Requires BAN_MEMBERS permission. Optionally delete recent messages from the banned user."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_guild_channel",
+    "description": "Create a new channel in a guild. Requires MANAGE_CHANNELS permission. Returns the new channel object. Each permission_overwrites entry may specify 'allow_names'/'deny_names' (arrays of named permission flags) instead of raw 'allow'/'deny' integers — the correct bitfield is compu…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_guild_emoji",
+    "description": "Create a new emoji for a guild. Requires CREATE_GUILD_EXPRESSIONS permission. Returns the new emoji object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_guild_role",
+    "description": "Create a new role for a guild. Requires MANAGE_ROLES permission. Returns the new role object. Full permission flag reference (name=decimal value, OR multiple together): CREATE_INSTANT_INVITE=1, KICK_MEMBERS=2, BAN_MEMBERS=4, ADMINISTRATOR=8, MANAGE_CHANNELS=16, MANAGE_GUILD=32, …"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_guild_scheduled_event",
+    "description": "Create a new scheduled event in a Discord guild. Entity type determines the event location: 1=STAGE_INSTANCE, 2=VOICE (requires channel_id), 3=EXTERNAL (requires entity_metadata with location and scheduled_end_time)."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_guild_soundboard_sound",
+    "description": "Create a new soundboard sound for the guild. Requires the CREATE_GUILD_EXPRESSIONS permission. Sounds have a max file size of 512kb and a max duration of 5.2 seconds. Fires a Guild Soundboard Sound Create Gateway event. Returns the new soundboard sound object on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_guild_template",
+    "description": "Create a template from a guild's current state. Requires the MANAGE_GUILD permission. Returns the created guild template object on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_interaction_response",
+    "description": "Respond to an interaction from Discord. Must be called within 3 seconds of receiving the interaction. Type determines the response kind: 1=PONG, 4=CHANNEL_MESSAGE_WITH_SOURCE, 5=DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE, 6=DEFERRED_UPDATE_MESSAGE, 7=UPDATE_MESSAGE, 8=APPLICATION_COMM…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_lobby",
+    "description": "Create a new Discord lobby for matchmaking, optionally adding members to it. Discord Social SDK clients cannot join or leave a lobby created via this API. Returns a lobby object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_lobby_channel_invite_for_self",
+    "description": "Create a single-use guild invite to a lobby's linked channel, targeted at the calling user. The lobby must have a linked channel and the caller must be a member of the lobby. The invite expires after one hour. Returns a lobby invite object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_lobby_channel_invite_for_user",
+    "description": "Create a single-use guild invite to a lobby's linked channel on behalf of an application, targeted at the specified user. The lobby must have a linked channel. The invite expires after one hour. Uses a Bot token for authorization. Returns a lobby invite object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_message",
+    "description": "Send a message to a Discord channel. At least one of content, embeds, sticker_ids, or components must be provided. Supports rich embeds, message references for replies, and components."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_or_join_lobby",
+    "description": "Create a new lobby identified by a secret, or join the calling user to the existing lobby with that secret if one already exists. Updates lobby metadata and the calling member's metadata on join. Returns a lobby object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_reaction",
+    "description": "Add a reaction to a message in a Discord channel. The emoji parameter should be URL-encoded (e.g., a Unicode emoji like %F0%9F%94%A5 for 🔥, or name:id for custom emojis)."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_stage_instance",
+    "description": "Create a new Stage instance associated with a Stage channel, making the channel go live. Requires the user to be a moderator of the Stage channel (MANAGE_CHANNELS, MUTE_MEMBERS, and MOVE_MEMBERS permissions). Fires a Stage Instance Create Gateway event. Returns the new Stage ins…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_test_entitlement",
+    "description": "Create a test entitlement to a given SKU for a given guild or user. Discord will act as though that user or guild has entitlement to your premium offering. After creating a test entitlement, reload your Discord client to see the server or user gain premium access. Returns a part…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_create_webhook",
+    "description": "Create a new webhook for a Discord channel. Requires MANAGE_WEBHOOKS permission. Returns the newly created webhook object with its token."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_crosspost_message",
+    "description": "Crosspost a message in an announcement channel to all following channels. Requires SEND_MESSAGES permission if the current user wrote the message, or MANAGE_MESSAGES if they did not."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_all_reactions",
+    "description": "Delete all reactions on a message. Requires MANAGE_MESSAGES permission. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_all_reactions_for_emoji",
+    "description": "Delete all reactions for a specific emoji on a message. Requires MANAGE_MESSAGES permission. Use URL-encoded emoji format. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_application_emoji",
+    "description": "Delete an emoji owned by a Discord application. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_auto_moderation_rule",
+    "description": "Delete an Auto Moderation rule for a guild. Requires the MANAGE_GUILD permission. Fires an Auto Moderation Rule Delete Gateway event. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_channel",
+    "description": "Delete a channel or close a private message. For guild channels, requires MANAGE_CHANNELS permission. Deleting a category does not delete its child channels. Returns the deleted channel object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_channel_invite",
+    "description": "Delete an invite by its code. Requires MANAGE_CHANNELS permission for guild channel invites or MANAGE_GUILD. Returns the deleted invite object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_channel_permission",
+    "description": "Delete a channel permission overwrite for a user or role in a channel. Requires MANAGE_ROLES permission. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_global_application_command",
+    "description": "Delete a global application command. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_guild_application_command",
+    "description": "Delete a guild application command. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_guild_emoji",
+    "description": "Delete a guild emoji. Requires MANAGE_GUILD_EXPRESSIONS permission. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_guild_integration",
+    "description": "Delete an attached integration for a guild. Deletes any associated webhooks and kicks the associated bot if there is one. Requires MANAGE_GUILD permission. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_guild_invite",
+    "description": "Delete an invite by its code. Requires the MANAGE_CHANNELS permission on the channel this invite belongs to, or MANAGE_GUILD to remove any invite across the guild. Discord's invite-deletion endpoint is not guild-scoped in the URL — the invite code alone identifies it. Returns th…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_guild_role",
+    "description": "Delete a guild role. Requires MANAGE_ROLES permission. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_guild_scheduled_event",
+    "description": "Delete a guild scheduled event. Requires MANAGE_EVENTS permission. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_guild_soundboard_sound",
+    "description": "Delete the given guild soundboard sound. For sounds created by the current user, requires either the CREATE_GUILD_EXPRESSIONS or MANAGE_GUILD_EXPRESSIONS permission. For other sounds, requires the MANAGE_GUILD_EXPRESSIONS permission. Fires a Guild Soundboard Sound Delete Gateway…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_guild_sticker",
+    "description": "Delete a guild sticker. Requires MANAGE_GUILD_EXPRESSIONS permission. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_guild_template",
+    "description": "Delete a guild template. Requires the MANAGE_GUILD permission. Returns the deleted guild template object on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_lobby",
+    "description": "Delete a Discord lobby if it exists. Safe to call even if the lobby is already deleted. Returns nothing."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_message",
+    "description": "Permanently delete a message from a Discord channel. This action is irreversible. Requires MANAGE_MESSAGES permission for messages sent by others."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_original_interaction_response",
+    "description": "Delete the initial response to an interaction. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_own_reaction",
+    "description": "Remove the current user's own reaction from a Discord message. The emoji parameter should be URL-encoded."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_stage_instance",
+    "description": "Delete the Stage instance for a Stage channel, ending the live Stage. Requires the user to be a moderator of the Stage channel (MANAGE_CHANNELS, MUTE_MEMBERS, and MOVE_MEMBERS permissions). Fires a Stage Instance Delete Gateway event. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_test_entitlement",
+    "description": "Delete a currently-active test entitlement. Discord will act as though that user or guild no longer has entitlement to your premium offering. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_user_reaction",
+    "description": "Delete a reaction made by a specific user on a message. Requires MANAGE_MESSAGES permission. Use URL-encoded emoji format (e.g., %F0%9F%94%A5 for fire emoji, or name:id for custom emoji)."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_webhook",
+    "description": "Permanently delete a Discord webhook. Requires MANAGE_WEBHOOKS permission. This action is irreversible."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_webhook_message",
+    "description": "Delete a previously sent webhook message. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_delete_webhook_with_token",
+    "description": "Delete a webhook using its token instead of OAuth authentication. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_edit_channel_permissions",
+    "description": "Edit the channel permission overwrites for a user or role in a channel. Only usable for guild channels. Requires MANAGE_ROLES permission. Returns 204 No Content on success. Full permission flag reference (name=decimal value, OR multiple together): CREATE_INSTANT_INVITE=1, KICK_M…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_edit_current_application",
+    "description": "Edit properties of the app associated with the requesting bot user. Only properties that are passed are updated. Returns the updated application object on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_edit_global_application_command",
+    "description": "Edit a global application command. Returns the updated command object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_edit_guild_application_command",
+    "description": "Edit a guild application command. Returns the updated command object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_edit_message",
+    "description": "Edit a previously sent message in a Discord channel. Only the author of the message can edit it. Supports updating content, embeds, flags, allowed mentions, components, and attachments."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_edit_original_interaction_response",
+    "description": "Edit the initial response to an interaction. Returns the updated message object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_edit_webhook_message",
+    "description": "Edit a previously sent webhook message. Returns the updated message object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_end_poll",
+    "description": "Immediately end an active poll in a Discord message. You cannot end polls created by other users."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_execute_github_compatible_webhook",
+    "description": "Send a GitHub webhook event payload to a Discord webhook, for use as the Payload URL when configuring a GitHub repository webhook. Supports the commit_comment, create, delete, fork, issue_comment, issues, member, public, pull_request, pull_request_review, pull_request_review_com…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_execute_slack_compatible_webhook",
+    "description": "Send a message to a Discord webhook using a Slack-compatible payload format, so tools that only speak Slack's incoming webhook format can post into Discord. Discord does not support Slack's channel, icon_emoji, mrkdwn, or mrkdwn_in properties."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_execute_webhook",
+    "description": "Send a message via a Discord webhook. Supports custom username, avatar, embeds, and components. File attachments (multipart/form-data) are not supported by this tool. Use the wait query parameter to receive the created message object in the response."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_follow_announcement_channel",
+    "description": "Follow an announcement channel to send messages to a target channel. Requires MANAGE_WEBHOOKS permission in the target channel. Returns a followed channel object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_answer_voters",
+    "description": "Retrieve a list of users who voted for a specific answer in a Discord poll."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_application_activity_instance",
+    "description": "Retrieve a serialized activity instance for an application, if it exists. Useful for preventing unwanted activity sessions."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_application_emoji",
+    "description": "Retrieve a specific emoji owned by a Discord application by its emoji ID."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_application_role_connection_metadata",
+    "description": "Fetch the list of application role connection metadata records configured for an application. Returns an array of application role connection metadata objects, each describing a comparison type, dictionary key, name, and description used to verify a user's role connection."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_auto_moderation_rule",
+    "description": "Get a single Auto Moderation rule for a guild by its ID. Requires the MANAGE_GUILD permission. Returns an auto moderation rule object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_channel",
+    "description": "Retrieve a Discord channel by its ID. Returns channel information including type, name, topic, permissions, and other metadata."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_channel_invites",
+    "description": "Retrieve a list of invites for a Discord channel. Requires MANAGE_CHANNELS permission. Returns invite objects with metadata."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_channel_message",
+    "description": "Retrieve a specific message from a Discord channel by its message ID."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_channel_webhooks",
+    "description": "Retrieve all webhooks for a Discord channel. Requires MANAGE_WEBHOOKS permission."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_current_application",
+    "description": "Retrieve the full application object associated with the requesting bot user, including installation settings, integration type configuration, and webhook event configuration."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_current_bot_application",
+    "description": "Retrieve the bot's own application object, including its public Client ID, name, icon, and description. Per Discord's official OpenAPI spec, this endpoint is Bot Token only."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_current_user_voice_state",
+    "description": "Retrieve the current user's (the bot's) voice state in a guild, including the connected voice channel, mute and deafen status, and stage speaking request timestamp."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_entitlement",
+    "description": "Retrieve a single entitlement for an application by ID. Use to check whether a specific entitlement is active, its type, and its expiration window."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_global_application_command",
+    "description": "Fetch a specific global application command. Returns the application command object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_global_application_commands",
+    "description": "Fetch all global commands for an application. Returns an array of application command objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild",
+    "description": "Retrieve a Discord guild (server) by its ID. Optionally include approximate member and presence counts."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_application_command",
+    "description": "Fetch a specific application command registered in a guild. Returns the application command object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_application_command_permissions",
+    "description": "Fetch permissions for all commands in a guild. Returns an array of guild application command permissions objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_application_commands",
+    "description": "Fetch all application commands registered in a specific guild. Returns an array of application command objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_audit_log",
+    "description": "Retrieve the audit log for a Discord guild. Returns a list of audit log entries with details about administrative actions. Requires VIEW_AUDIT_LOG permission."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_ban",
+    "description": "Retrieve the ban record for a specific user in a Discord guild. Requires BAN_MEMBERS permission."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_bans",
+    "description": "Retrieve a list of ban objects for users banned from a Discord guild. Requires BAN_MEMBERS permission. Supports pagination via before and after."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_emoji",
+    "description": "Retrieve a specific custom emoji from a Discord guild by its emoji ID."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_integrations",
+    "description": "Retrieve a list of integration objects for a Discord guild. Requires MANAGE_GUILD permission. Returns a maximum of 50 integrations."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_invites",
+    "description": "Retrieve a list of all active invites for a Discord guild. Requires MANAGE_GUILD permission. Returns invite objects with metadata."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_member",
+    "description": "Retrieve a specific member of a Discord guild by their user ID. Returns the guild member object including roles, nickname, and join date."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_onboarding",
+    "description": "Get the onboarding configuration for a guild. Returns the guild onboarding object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_preview",
+    "description": "Retrieve a preview of a Discord guild. For public guilds this is accessible without being a member. Returns guild name, description, icon, emojis, stickers, and approximate counts."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_prune_count",
+    "description": "Get the number of members that would be removed by a prune operation. Requires KICK_MEMBERS permission."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_role",
+    "description": "Retrieve a specific role object from a Discord guild by its role ID."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_role_member_counts",
+    "description": "Retrieve a map of role IDs to the number of guild members with that role. Does not include the @everyone role."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_scheduled_event",
+    "description": "Retrieve a specific scheduled event in a Discord guild by its event ID."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_scheduled_event_users",
+    "description": "Get a list of users subscribed to a guild scheduled event. Returns a list of guild scheduled event user objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_soundboard_sound",
+    "description": "Retrieve a soundboard sound object for the given sound id in a guild. Includes the user field if the bot has the CREATE_GUILD_EXPRESSIONS or MANAGE_GUILD_EXPRESSIONS permission."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_sticker",
+    "description": "Retrieve a specific custom sticker from a Discord guild by its sticker ID."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_vanity_url",
+    "description": "Get the vanity URL for a guild. Requires MANAGE_GUILD permission. The guild must have the VANITY_URL feature enabled. Returns a partial invite object with code and uses."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_voice_regions",
+    "description": "Get a list of voice regions available for a guild. Returns optimal regions that can be used when updating a guild or voice channel's region."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_webhooks",
+    "description": "Retrieve all webhooks for a Discord guild. Requires MANAGE_WEBHOOKS permission."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_welcome_screen",
+    "description": "Retrieve the welcome screen for a Discord guild. The welcome screen is shown to new members when they join."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_guild_widget_settings",
+    "description": "Get the widget settings for a guild. Requires MANAGE_GUILD permission. Returns the guild widget settings object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_invite_target_users",
+    "description": "Get the users allowed to see and accept an invite. Response is a CSV file with the header user_id and each user ID from the file originally passed to invite create, one per line. Requires the caller to be the inviter, or have MANAGE_GUILD permission, or have VIEW_AUDIT_LOG permi…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_invite_target_users_job_status",
+    "description": "Check the status of the asynchronous job that processes target users from a CSV when creating or updating an invite. Requires the caller to be the inviter, or have MANAGE_GUILD permission, or have VIEW_AUDIT_LOG permission. Status values: 0=UNSPECIFIED, 1=PROCESSING, 2=COMPLETED…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_lobby",
+    "description": "Retrieve a Discord lobby object for the specified lobby id, if it exists."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_lobby_messages",
+    "description": "Retrieve the most recent messages in a Discord lobby. The calling user must be a member of the lobby. Returns an array of lobby message objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_original_interaction_response",
+    "description": "Get the initial response to an interaction. Returns the message object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_pinned_messages",
+    "description": "Retrieve pinned messages in a Discord channel using Discord's current paginated pins endpoint (introduced June 2025, replacing the deprecated /channels/{channel.id}/pins). Returns pinned messages ordered most-recently-pinned first."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_reactions",
+    "description": "Retrieve a list of users who reacted to a Discord message with a specific emoji."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_sku_subscription",
+    "description": "Retrieve a single subscription for a SKU by its ID. Returns a subscription object with its status, current billing period, and the entitlements it grants."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_stage_instance",
+    "description": "Retrieve the Stage instance associated with a Stage channel, if one exists (the channel is currently live)."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_sticker",
+    "description": "Retrieve a Discord sticker by its ID. Returns sticker information including name, description, format type, and pack details."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_sticker_pack",
+    "description": "Retrieve a Discord standard sticker pack by its ID. Returns the sticker pack including its name, description, contained stickers, cover sticker, and banner asset."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_thread_member",
+    "description": "Get a member of a thread. Returns a thread member object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_user",
+    "description": "Retrieve information about any Discord user by ID. Pass '@me' as user_id to fetch the bot's own user profile. Returns username, avatar, discriminator, locale, and premium status."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_user_voice_state",
+    "description": "Retrieve the specified user's voice state in a guild, including the connected voice channel, mute and deafen status, and stage speaking request timestamp. If the user is connected to a voice channel, the bot must have permission to connect to that channel."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_webhook",
+    "description": "Retrieve a Discord webhook by its ID. Returns the webhook object including name, channel, guild, and token."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_webhook_message",
+    "description": "Get a previously sent webhook message. Returns the message object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_get_webhook_with_token",
+    "description": "Retrieve a Discord webhook using both its ID and token. Does not require bot authentication. Returns the webhook object without the user field."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_group_dm_add_recipient",
+    "description": "Add a recipient to a Group DM using their OAuth2 access token, which must have been granted the gdm.join scope. Returns 201 if the user was added, or 204 if already a recipient."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_group_dm_remove_recipient",
+    "description": "Remove a recipient from a Group DM. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_join_thread",
+    "description": "Add the current user to a thread. Requires the thread to not be archived. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_kick_guild_member",
+    "description": "Remove (kick) a member from a Discord guild. The user can rejoin via a new invite. Requires KICK_MEMBERS permission."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_leave_guild",
+    "description": "Remove the bot from a guild it belongs to. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_leave_lobby",
+    "description": "Remove the calling user from the specified Discord lobby. Safe to call even if the user is no longer a member, but fails if the lobby does not exist. Returns nothing."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_leave_thread",
+    "description": "Remove the current user from a thread. Requires the thread to not be archived. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_link_channel_to_lobby",
+    "description": "Link an existing guild text channel to a Discord lobby, or unlink any currently linked channel by omitting channel_id. The caller must be a lobby member with the CanLinkLobby lobby member flag. Returns the updated lobby object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_active_guild_threads",
+    "description": "List all active threads in a guild, including public and private threads. Returns a list of channel objects and thread member objects for the current user."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_application_emojis",
+    "description": "Retrieve all emojis owned by a Discord application (app emojis). Returns an object containing a list of emoji objects under the items key."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_auto_moderation_rules",
+    "description": "Get a list of all Auto Moderation rules currently configured for a guild. Requires the MANAGE_GUILD permission. Returns a list of auto moderation rule objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_channel_messages",
+    "description": "Retrieve a list of messages from a Discord channel. Supports pagination using around, before, and after message IDs with a configurable limit."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_default_soundboard_sounds",
+    "description": "Retrieve an array of default soundboard sound objects that can be used by all users."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_guild_channels",
+    "description": "Retrieve all channels in a Discord guild (server). Returns a list of channel objects including text channels, voice channels, categories, and threads."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_guild_emojis",
+    "description": "Retrieve all custom emojis for a Discord guild. Returns a list of emoji objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_guild_members",
+    "description": "Retrieve a list of members in a Discord guild. Requires the GUILD_MEMBERS privileged intent or appropriate bot permissions. Supports pagination via the after parameter."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_guild_roles",
+    "description": "Retrieve all roles in a Discord guild. Returns a list of role objects including permissions, color, and position."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_guild_scheduled_events",
+    "description": "Retrieve a list of scheduled events for a Discord guild. Optionally include user subscription counts."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_guild_soundboard_sounds",
+    "description": "Retrieve the guild's soundboard sounds. Includes user fields if the bot has the CREATE_GUILD_EXPRESSIONS or MANAGE_GUILD_EXPRESSIONS permission. Returns an object with an items array of soundboard sound objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_guild_stickers",
+    "description": "Retrieve all custom stickers for a Discord guild. Returns a list of sticker objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_guild_templates",
+    "description": "Retrieve all guild templates for a guild. Requires the MANAGE_GUILD permission. Returns a list of guild template objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_joined_private_archived_threads",
+    "description": "List private archived threads in a channel that the current user has joined. Returns threads in descending order of archive timestamp."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_private_archived_threads",
+    "description": "List all private archived threads in a channel. Requires MANAGE_THREADS permission and READ_MESSAGE_HISTORY permission. Returns threads in descending order of archive timestamp."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_public_archived_threads",
+    "description": "List all public archived threads in a channel. Returns threads in descending order of archive timestamp. Requires READ_MESSAGE_HISTORY permission."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_sku_subscriptions",
+    "description": "Retrieve all subscriptions containing a given SKU, filtered by user. Returns a list of subscription objects representing recurring payments for that SKU. With Bot Token auth, user_id is required since the bot has no implicit 'current user' context. Supports cursor-based paginati…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_skus",
+    "description": "Retrieve all SKUs (stock-keeping units) for a given Discord application. SKUs represent premium offerings, such as subscriptions, that can be made available to the application's users or guilds. Returns an array of SKU objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_thread_members",
+    "description": "List all members of a thread. Returns an array of thread member objects. When with_member is true, results are paginated using after and limit."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_threads",
+    "description": "Retrieve archived public threads in a Discord channel. Returns threads in descending order by archive timestamp. Requires READ_MESSAGE_HISTORY permission. Note: Discord has no single endpoint that lists every thread type at once — this tool calls the same public-archived-threads…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_list_voice_regions",
+    "description": "Retrieve a list of all available voice regions on Discord. Returns region IDs, names, and whether they are optimal or deprecated."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_application_emoji",
+    "description": "Modify the name of an emoji owned by a Discord application. Returns the updated emoji object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_auto_moderation_rule",
+    "description": "Modify an existing Auto Moderation rule for a guild. Requires the MANAGE_GUILD permission. All parameters are optional. Fires an Auto Moderation Rule Update Gateway event. Returns the updated auto moderation rule object on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_channel",
+    "description": "Modify a channel's settings. Supports text, voice, announcement, stage, and forum channels. Returns the updated channel object. Each permission_overwrites entry may specify 'allow_names'/'deny_names' (arrays of named permission flags) instead of raw 'allow'/'deny' integers — the…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_current_member",
+    "description": "Modify the current user's guild member attributes. Returns the updated guild member object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_current_user",
+    "description": "Modify the bot's own username, avatar, or banner. Returns the updated user object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_current_user_nick",
+    "description": "Deprecated in favor of Modify Current Member. Modifies the nickname of the current user in a guild. Requires CHANGE_NICKNAME permission. Returns a 200 with the nickname on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_current_user_voice_state",
+    "description": "Update the current user's (the bot's) voice state in a stage channel. Returns 204 No Content on success. channel_id must currently point to a stage channel the bot has already joined. MUTE_MEMBERS permission is required to unsuppress; REQUEST_TO_SPEAK permission is required to r…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild",
+    "description": "Modify a guild's settings. Requires MANAGE_GUILD permission. Returns the updated guild object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild_channel_positions",
+    "description": "Modify the positions of channels in a guild. Requires MANAGE_CHANNELS permission. Only channels to be modified need to be included. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild_emoji",
+    "description": "Modify a guild emoji. Requires MANAGE_GUILD_EXPRESSIONS permission. Returns the updated emoji object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild_incident_actions",
+    "description": "Modify the incident actions of a guild, used to temporarily disable invites or direct messages during a raid or spam incident. Requires MANAGE_GUILD permission. Both fields can be enabled for a maximum of 24 hours in the future; supplying null disables the action. Returns the up…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild_member",
+    "description": "Modify attributes of a guild member. Returns the updated guild member object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild_onboarding",
+    "description": "Modify the onboarding configuration of a guild. Requires MANAGE_GUILD and MANAGE_ROLES permissions. Onboarding enforces constraints when enabled: at least 7 default channels, at least 5 of which allow sending messages to @everyone. Returns the updated guild onboarding object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild_role",
+    "description": "Modify a guild role's settings. Requires MANAGE_ROLES permission. Returns the updated role object. Full permission flag reference (name=decimal value, OR multiple together): CREATE_INSTANT_INVITE=1, KICK_MEMBERS=2, BAN_MEMBERS=4, ADMINISTRATOR=8, MANAGE_CHANNELS=16, MANAGE_GUILD…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild_role_positions",
+    "description": "Modify the positions of roles in a guild. Requires MANAGE_ROLES permission. Returns a list of all guild role objects."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild_scheduled_event",
+    "description": "Modify a guild scheduled event. Requires MANAGE_EVENTS permission. To start or end an event, modify the status field. Returns the modified scheduled event object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild_soundboard_sound",
+    "description": "Modify the given guild soundboard sound. For sounds created by the current user, requires either the CREATE_GUILD_EXPRESSIONS or MANAGE_GUILD_EXPRESSIONS permission. For other sounds, requires the MANAGE_GUILD_EXPRESSIONS permission. All parameters are optional. Fires a Guild So…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild_sticker",
+    "description": "Modify a guild sticker's details. Requires MANAGE_GUILD_EXPRESSIONS permission. Returns the updated sticker object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild_template",
+    "description": "Modify a guild template's metadata. Requires the MANAGE_GUILD permission. Returns the guild template object on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild_welcome_screen",
+    "description": "Modify the welcome screen of a Community guild. Requires MANAGE_GUILD permission. Returns the updated welcome screen object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_guild_widget",
+    "description": "Modify the widget settings for a guild. Requires MANAGE_GUILD permission. Returns the updated guild widget settings object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_lobby",
+    "description": "Modify a Discord lobby with new values, if provided. When members is provided, it replaces the full member list — any current member not included is removed from the lobby. Returns the updated lobby object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_stage_instance",
+    "description": "Update fields of an existing Stage instance. Requires the user to be a moderator of the Stage channel (MANAGE_CHANNELS, MUTE_MEMBERS, and MOVE_MEMBERS permissions). Fires a Stage Instance Update Gateway event. Returns the updated Stage instance object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_user_voice_state",
+    "description": "Update another user's voice state in a stage channel. Returns 204 No Content on success. channel_id must currently point to a stage channel the user has already joined. Requires the MUTE_MEMBERS permission. When unsuppressed, non-bot users have their request_to_speak_timestamp s…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_webhook",
+    "description": "Modify a webhook. Requires MANAGE_WEBHOOKS permission. Returns the updated webhook object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_modify_webhook_with_token",
+    "description": "Modify a webhook using its token instead of OAuth authentication. Does not support channel_id field. Returns the updated webhook object (without token)."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_pin_message",
+    "description": "Pin a message in a Discord channel using Discord's current pins endpoint (introduced June 2025, replacing the deprecated /channels/{channel.id}/pins/{message.id}). Requires PIN_MESSAGES permission. A channel can have up to 50 pinned messages."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_remove_guild_ban",
+    "description": "Remove a ban for a user in a Discord guild, allowing them to rejoin. Requires BAN_MEMBERS permission."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_remove_guild_member_role",
+    "description": "Remove a role from a guild member. Requires MANAGE_ROLES permission. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_remove_lobby_member",
+    "description": "Remove the specified user from a Discord lobby. Safe to call even if the user is no longer a member of the lobby, but fails if the lobby does not exist. Returns nothing."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_remove_thread_member",
+    "description": "Remove a user from a thread. Requires MANAGE_THREADS permission or that the current user is the creator of the thread. Returns 204 No Content on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_search_guild_members",
+    "description": "Search for guild members in a Discord guild whose username or nickname starts with the given query string."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_search_guild_messages",
+    "description": "Search for messages matching a query across a Discord guild. Returns matching messages without the reactions key. Requires the READ_MESSAGE_HISTORY permission and access is restricted according to whether the MESSAGE_CONTENT privileged intent is enabled for the application. If t…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_send_lobby_message",
+    "description": "Send a message to a Discord lobby. The calling user must be a member of the lobby. If the lobby has a linked channel, the message is also forwarded there; if forwarding fails (for example due to AutoMod), the lobby message is still delivered to other lobby members. Returns the c…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_send_soundboard_sound",
+    "description": "Send a soundboard sound to a voice channel the user is connected to. Requires the SPEAK and USE_SOUNDBOARD permissions, and also USE_EXTERNAL_SOUNDS if the sound is from a different guild. The user must be connected to the voice channel with a voice state that has deaf, self_dea…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_set_voice_channel_status",
+    "description": "Set a voice channel's status. Requires the SET_VOICE_CHANNEL_STATUS permission, and additionally the MANAGE_CHANNELS permission if the current user is not connected to the voice channel. Returns 204 No Content on success. Fires a Voice Channel Status Update Gateway event."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_start_thread_from_message",
+    "description": "Create a new thread from an existing message in a channel. The thread is a public thread by default. Requires CREATE_PUBLIC_THREADS permission. Returns the new thread channel object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_start_thread_in_forum_channel",
+    "description": "Create a new post (thread) in a forum or media channel, along with its first message. At least one of content, embeds, or sticker_ids must be provided for the message. The current user must have the SEND_MESSAGES permission. Returns the new thread channel object with a nested me…"
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_start_thread_without_message",
+    "description": "Create a new thread that is not attached to an existing message. Type 10=ANNOUNCEMENT_THREAD (in announcement channel), 11=PUBLIC_THREAD, 12=PRIVATE_THREAD. Returns the new thread channel object."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_sync_guild_template",
+    "description": "Sync a template to the guild's current state. Requires the MANAGE_GUILD permission. Returns the guild template object on success."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_trigger_typing",
+    "description": "Post a typing indicator to a Discord channel. The typing indicator lasts for 10 seconds or until a message is sent. Useful for indicating that a bot is processing a request."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_unpin_message",
+    "description": "Unpin a previously pinned message from a Discord channel using Discord's current pins endpoint (introduced June 2025, replacing the deprecated /channels/{channel.id}/pins/{message.id}). Requires PIN_MESSAGES permission."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_update_application_role_connection_metadata",
+    "description": "Update and return the list of application role connection metadata records for an application. Takes a full list of metadata objects to replace the existing ones; any records not included are removed. An application can have a maximum of 5 metadata records."
+  },
+  {
+    "slug": "discordbot",
+    "name": "discordbot_update_lobby_message_moderation_metadata",
+    "description": "Set the moderation metadata for a lobby message. The metadata is app-scoped and delivered to active game clients via the Social SDK as a realtime message update. Uses a Bot token for authorization. Returns HTTP 204 No Content on success."
   },
   {
     "slug": "docsautomatormcp",
@@ -39317,6 +41007,341 @@
     "description": "Query and inspect Mixmax email sequences. Supports actions: list_sequences, get_sequence, get_sequence_insights, find_contact_in_sequences, get_daily_send_count, validate_sequence."
   },
   {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_activity_stream",
+    "description": "Get the raw event stream (activity feed) for one or more specific users over a date range — every event each user did, in order. Useful for inspecting an individual user's journey rather than aggregate analytics. Rate limited to 60 queries/hour and 5 concurrent queries."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_cohorts_list",
+    "description": "List every saved cohort in a Mixpanel project, including each cohort's numeric id, name, member count, description, and creation date. Use the id with 'mixpanelanalytics_profiles_query' (filter_by_cohort) to fetch the profiles in a cohort."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_event_properties",
+    "description": "Get a time series broken down by the values of a single event property, e.g. purchase count per day segmented by product_category. Similar to segmentation, but focused on exploring one property's values rather than an arbitrary 'on' expression."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_event_top_properties",
+    "description": "List the property names most commonly sent with a given event, along with how many times each appears. Useful for discovering what properties are available before writing a segmentation query or property-values lookup."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_event_top_property_values",
+    "description": "List the most common values seen for a given event property, e.g. the top product_category values sent with the 'purchase' event. Useful for discovering what filter/segment values are available before writing a query."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_events_query",
+    "description": "Get aggregate counts for one or more events over time, without any property segmentation. Faster and simpler than 'mixpanelanalytics_segmentation_query' when you just need raw counts for a set of events, e.g. daily counts of 'login' and 'signup' side by side."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_events_top_names",
+    "description": "List the most common event names tracked in the project over its lifetime, ranked by the given analysis type. Useful for discovering what events exist before writing a segmentation or funnel query."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_events_top_today",
+    "description": "Get the top events for today, ranked by count, along with their percent change compared to the same time yesterday. Useful for a quick 'what's happening right now' snapshot."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_funnels_list_saved",
+    "description": "List all saved funnels in a Mixpanel project, returning each funnel's numeric funnel_id and name. Use the funnel_id with 'mixpanelanalytics_funnels_query' to fetch its conversion data."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_funnels_query",
+    "description": "Get conversion data for an existing saved funnel by its funnel_id, showing per-step counts and conversion ratios over time. Use 'mixpanelanalytics_funnels_list_saved' to find a funnel_id. Note: Mixpanel considers this endpoint in maintenance mode and recommends building the funn…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_insights_query",
+    "description": "Get the computed data for an existing saved Insights report by its bookmark_id. This is Mixpanel's recommended, actively maintained way to pull report data (in place of the older segmentation/funnels/retention query endpoints), but it can only run a report that already exists in…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_jql_query",
+    "description": "Run a custom JQL (JavaScript Query Language) script against raw Mixpanel event/profile data for analysis that the standard segmentation/funnel/retention/insights endpoints can't express, e.g. custom aggregations, joins across events and profiles, or arbitrary groupBy/reduce pipe…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_profiles_query",
+    "description": "Query Mixpanel user (or group) profiles and return a paginated list of profiles matching the given filters. Supports filtering by a specific list of distinct_ids, a free-form 'where' expression, or a saved cohort. Rate limited to 60 queries/hour and 5 concurrent queries."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_retention_frequency_query",
+    "description": "Measure how frequently users return to do an event within a period, broken into fine-grained buckets (e.g. how many of the hours in each day a user was active). Useful for engagement/'stickiness' analysis."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_retention_query",
+    "description": "Measure how many users who did a 'born' event came back to do a later event, bucketed into cohorts. Supports 'birth' retention (users grouped by when they first did the born event) or 'compounded' retention (users grouped by every time they did the born event)."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_schema_delete",
+    "description": "Permanently delete the Lexicon schema for a single event or profile property, identified by entity type and name. This removes only the Lexicon schema definition; the underlying event or profile property is not deleted and will show as un-schematized until a new schema is upload…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_schema_get",
+    "description": "Retrieve the Lexicon schema for a single event or profile property, identified by entity type and name. Returns the schema's description, JSON-schema-style property definitions, and Lexicon metadata such as display name, tags, and owners. Returns an error if no schema exists for…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_schema_upload",
+    "description": "Create or replace the Lexicon schema for a single event or profile property, identified by entity type and name. Any existing schema for this entity type and name is fully overwritten with the fields you provide. Use 'description' for a human-readable summary of the entity, 'pro…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_schemas_delete_all",
+    "description": "Permanently delete every schema in the project's Lexicon data dictionary, for both event and profile-property entity types. This removes only the Lexicon schema definitions (descriptions, JSON-schema property definitions, and metadata); the underlying events and profile properti…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_schemas_delete_by_entity",
+    "description": "Permanently delete every Lexicon schema for one entity type ('event' or 'profile') in a Mixpanel project, leaving schemas for the other entity type untouched. Pass 'entity_name' to narrow this to a single schema by name instead of deleting all schemas for the entity type. This r…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_schemas_list",
+    "description": "List all schemas (data dictionary entries) defined in a Mixpanel project's Lexicon, across both event and profile-property entity types. Each schema includes the entity's description, JSON-schema-style property definitions, and Lexicon metadata such as display name, tags, and ow…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_schemas_list_by_entity",
+    "description": "List the Lexicon schemas for one entity type ('event' or 'profile') in a Mixpanel project. Optionally pass 'entity_name' to filter the results down to a single schema by name. Only entities that already have an associated schema are returned. Use 'mixpanelanalytics_schemas_list'…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_schemas_upload_batch",
+    "description": "Create or replace multiple Lexicon schemas in a single call. Each object in 'entries' defines one event or profile property's schema (entity type, name, and JSON-schema definition) and is merged into the project's existing data dictionary. Set 'truncate' to true to first remove …"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_segmentation_average_query",
+    "description": "Get the average value of a numeric property expression per unit time for a single event, e.g. average order value per day. Note: in maintenance mode per Mixpanel — prefer 'mixpanelanalytics_insights_query' for new use cases where possible."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_segmentation_numeric_query",
+    "description": "Get event counts for a single event, bucketed by the numeric value of a property expression (e.g. distribution of purchase amounts). Note: in maintenance mode per Mixpanel — prefer 'mixpanelanalytics_insights_query' for new use cases where possible."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_segmentation_query",
+    "description": "Get event counts for a single event over time, optionally segmented and filtered by properties. Note: Mixpanel's Query API team considers this endpoint in maintenance mode and recommends 'mixpanelanalytics_insights_query' (against a saved Insights report) for new use cases, but …"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_segmentation_sum_query",
+    "description": "Get the sum of a numeric property expression per unit time for a single event, e.g. total revenue per day. Note: in maintenance mode per Mixpanel — prefer 'mixpanelanalytics_insights_query' for new use cases where possible."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_create_event_stream",
+    "description": "Create a new warehouse import that streams warehouse rows into Mixpanel as events. Maps a warehouse table to Mixpanel's Events dataset using 'table_params' to select the source table/columns and 'time_column_name' (plus 'event_name' or 'event_column_name') to derive each event's…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_create_groups",
+    "description": "Create a new warehouse import that syncs warehouse rows into Mixpanel as group profile updates, analogous to 'mixpanelanalytics_warehouse_import_create_people' but for group analytics (e.g. company/account-level profiles) instead of individual users. Maps a warehouse table using…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_create_lookup_table",
+    "description": "Create a new warehouse import that syncs a warehouse table into Mixpanel as a Lookup Table, joining additional properties onto events or user profiles by a shared key (similar in effect to 'mixpanelingestion_lookup_table_replace', but kept continuously in sync from the warehouse…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_create_people",
+    "description": "Create a new warehouse import that syncs warehouse rows into Mixpanel as user profile updates (equivalent to Engage '$set'). Maps a warehouse table to Mixpanel user profiles using 'table_params' to select the source table/columns and 'user_column_name' to identify which column h…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_delete",
+    "description": "Delete a warehouse import's sync configuration, stopping future syncs. By default this only removes the connector configuration — data already imported into Mixpanel is kept. Set 'delete_data' to true to also permanently delete the data previously imported by this connector. Use…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_get",
+    "description": "Get the full configuration and current status of a single warehouse import by id, including its sync schedule ('run_every'), pause state, and warehouse-specific parameters. Use 'mixpanelanalytics_warehouse_imports_list' first to find the import_id."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_history",
+    "description": "Get the history of past sync runs for a warehouse import, e.g. to check when it last ran, whether recent runs succeeded, and how long each run took. Use 'mixpanelanalytics_warehouse_imports_list' to find the import_id first."
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_run_sync",
+    "description": "Manually trigger an immediate sync run for a warehouse import, outside its configured schedule ('run_every'). Use this to pull the latest warehouse data on demand instead of waiting for the next scheduled run, e.g. after fixing an upstream data issue. Use 'mixpanelanalytics_ware…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_import_update",
+    "description": "Pause, resume, or reschedule an existing warehouse import. Use this to stop a sync temporarily ('paused': true), resume it ('paused': false), change how often it runs ('run_every'), or update Databricks-specific cluster settings. Use 'mixpanelanalytics_warehouse_imports_list' or…"
+  },
+  {
+    "slug": "mixpanelanalytics",
+    "name": "mixpanelanalytics_warehouse_imports_list",
+    "description": "List all warehouse import connectors configured for a Mixpanel project, across every warehouse source (Snowflake, BigQuery, Databricks, Redshift). Each entry includes its import id, import type (event stream, people, groups, or lookup table), warehouse source, and current sync s…"
+  },
+  {
+    "slug": "mixpanelcompliance",
+    "name": "mixpanelcompliance_gdpr_deletion_cancel",
+    "description": "Cancel a pending GDPR/CCPA data deletion request before Mixpanel begins permanently erasing the data. Returns no content on success. Cancellation can fail once the deletion has already progressed too far to stop — check 'mixpanelcompliance_gdpr_deletion_status' first if you're u…"
+  },
+  {
+    "slug": "mixpanelcompliance",
+    "name": "mixpanelcompliance_gdpr_deletion_create",
+    "description": "Permanently delete ALL data Mixpanel holds for the given distinct_ids — every event and profile property, across all time. This is irreversible once processing completes, and per Mixpanel's GDPR/CCPA documentation it can take up to 30 days to fully propagate through Mixpanel's s…"
+  },
+  {
+    "slug": "mixpanelcompliance",
+    "name": "mixpanelcompliance_gdpr_deletion_status",
+    "description": "Check the status of a GDPR/CCPA data deletion request previously created with 'mixpanelcompliance_gdpr_deletion_create'. The response's status field is one of: PENDING, STAGING, STARTED, SUCCESS, FAILURE, REVOKED, NOT_FOUND, or UNKNOWN. Deletions can take up to 30 days to reach …"
+  },
+  {
+    "slug": "mixpanelcompliance",
+    "name": "mixpanelcompliance_gdpr_retrieval_create",
+    "description": "Create a GDPR or CCPA Subject Access Request (SAR) for one or more Mixpanel distinct_ids. Mixpanel asynchronously compiles an export of every event and profile property it holds for the given distinct_ids so you can fulfill a data subject's access request. This call only queues …"
+  },
+  {
+    "slug": "mixpanelcompliance",
+    "name": "mixpanelcompliance_gdpr_retrieval_status",
+    "description": "Check the status of a GDPR/CCPA data retrieval (Subject Access Request) previously created with 'mixpanelcompliance_gdpr_retrieval_create'. The response's status field is one of: PENDING, STAGING, STARTED, SUCCESS, FAILURE, REVOKED, NOT_FOUND, or UNKNOWN. Poll this until the sta…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_feature_flags_definitions",
+    "description": "Get the full definitions of every feature flag/experiment configured in a Mixpanel project, including each flag's variants, rollout rules, and linked experiment. Provide either 'project_token' or 'project_id' to authenticate (project_id uses your Service Account credentials)."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_feature_flags_evaluate",
+    "description": "Evaluate all enabled Mixpanel feature flags and experiments for a given user, returning the variant each flag assigns them. Provide either 'project_token' or 'project_id' to authenticate (project_id uses your Service Account credentials)."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_group_batch_update",
+    "description": "Send a batch of mixed group-profile updates to Mixpanel in a single call, analogous to 'mixpanelingestion_profile_batch_update' for user profiles. Each item in 'updates' is a fully-formed update object with its own \"$token\", \"$group_key\", \"$group_id\", and one operation key ($set…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_group_delete",
+    "description": "Permanently delete a Mixpanel group profile and all of its properties, analogous to 'mixpanelingestion_profile_delete' for user profiles. This does not delete historical events associated with the group."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_group_remove",
+    "description": "Remove a specific value from a list-valued property on a Mixpanel group profile, analogous to 'mixpanelingestion_profile_remove' for user profiles. If the value is not present, no change is made."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_group_set",
+    "description": "Set (overwrite) properties on a Mixpanel group profile (e.g. a company or team account), analogous to 'mixpanelingestion_profile_set' for user profiles. Creates the group profile if it does not already exist. Requires Group Analytics to be enabled on your Mixpanel project."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_group_set_once",
+    "description": "Set properties on a Mixpanel group profile only if they are not already set — existing values are never overwritten, analogous to 'mixpanelingestion_profile_set_once' for user profiles. Creates the group profile if it does not already exist."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_group_union",
+    "description": "Add values to a list-valued property on a Mixpanel group profile, ensuring each value only appears once, analogous to 'mixpanelingestion_profile_union' for user profiles. Creates the group profile if it does not already exist."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_group_unset",
+    "description": "Permanently remove one or more named properties (and their values) from a Mixpanel group profile, analogous to 'mixpanelingestion_profile_unset' for user profiles."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_identity_create",
+    "description": "Link an anonymous distinct_id to a known, identified distinct_id by sending a Mixpanel $identify event via /track. Use this the first time you learn a user's real identifier (e.g. after login or signup) so that pre-login and post-login activity is merged onto one profile. Return…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_identity_create_alias",
+    "description": "Create a legacy alias linking a new distinct_id to an existing one by sending a Mixpanel $create_alias event via /track. This is the legacy identity-linking mechanism; for new integrations prefer 'mixpanelingestion_identity_create' ($identify) or 'mixpanelingestion_identity_merg…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_identity_merge",
+    "description": "Merge two distinct_ids into a single identity using Mixpanel's modern Identity Merge API (a $merge event sent through /import, authenticated with your Service Account). All historical events and profile data from both distinct_ids are combined under one identity. Use this instea…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_import_events",
+    "description": "Import a batch of up to 2000 events into Mixpanel via the modern, Service Account-authenticated /import endpoint. This is Mixpanel's recommended way to send events from a trusted server-side integration (unlike the classic /track endpoint). Each event needs an 'event' name and a…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_lookup_table_replace",
+    "description": "Replace the entire contents of a Mixpanel Lookup Table with new CSV data. This overwrites all existing rows in the table — use 'mixpanelingestion_lookup_tables_list' first to find the table's id. The first column of the CSV must be the table's key (matching the property it enric…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_lookup_tables_list",
+    "description": "List the Lookup Tables defined in a Mixpanel project. Returns each table's id and name. Use the id with 'mixpanelingestion_lookup_table_replace' to update a table's contents, or find it in Lexicon under the lookup table's details."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_append",
+    "description": "Append a value to a list-valued property on a Mixpanel user profile via Engage $append. If the property does not yet exist, it is created as a single-element list. Unlike $union, duplicate values are allowed. Useful for ordered logs like \"Recent Searches\"."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_batch_update",
+    "description": "Send a batch of mixed user-profile updates to Mixpanel Engage in a single call. Each item in 'updates' is a fully-formed update object with its own \"$token\", \"$distinct_id\", and one operation key ($set, $set_once, $add, $union, $append, $remove, $unset, or $delete) — the same sh…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_delete",
+    "description": "Permanently delete a Mixpanel user profile and all of its properties via Engage $delete. This does not delete the user's historical events, only their profile. If duplicate profiles exist due to identity merging, set 'ignore_alias' to true so you don't accidentally delete the or…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_increment",
+    "description": "Increment (or decrement, using a negative value) numeric properties on a Mixpanel user profile via Engage $add. The given amounts are added to the existing values; if a property is not yet present it is treated as 0. Useful for counters such as \"Number of Logins\" or \"Files Uploa…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_remove",
+    "description": "Remove a specific value from a list-valued property on a Mixpanel user profile via Engage $remove. If the value is not present, no change is made. The opposite of 'mixpanelingestion_profile_append'."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_set",
+    "description": "Set (overwrite) properties on a Mixpanel user profile via Engage $set. Creates the profile if it does not already exist. Use this for properties that should always reflect the latest value, such as \"Plan\" or \"Last Login\". For properties that should only be set the first time, us…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_set_once",
+    "description": "Set properties on a Mixpanel user profile via Engage $set_once, but only if they are not already set — existing values are never overwritten. Creates the profile if it does not already exist. Useful for properties like \"First Login Date\" that should be recorded once and never ch…"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_union",
+    "description": "Add values to a list-valued property on a Mixpanel user profile via Engage $union, ensuring each value only appears once in the resulting list. Creates the profile if it does not already exist. Useful for properties like \"Purchased Categories\" that accumulate unique values over …"
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_profile_unset",
+    "description": "Permanently remove one or more named properties (and their values) from a Mixpanel user profile via Engage $unset. This deletes the properties themselves, not the profile — use 'mixpanelingestion_profile_delete' to delete the whole profile."
+  },
+  {
+    "slug": "mixpanelingestion",
+    "name": "mixpanelingestion_track_event",
+    "description": "Send a single event to Mixpanel via the classic /track endpoint, authenticated with your Mixpanel Project Token (not your Service Account). Use this for lightweight, fire-and-forget event tracking. For reliable server-side ingestion with validation and duplicate protection, pref…"
+  },
+  {
     "slug": "mobbinmcp",
     "name": "mobbinmcp_search_flows",
     "description": "Search Mobbin for multi-step user flows (e.g. onboarding, checkout) using natural language. Returns flow screens with inline images."
@@ -50588,6 +52613,536 @@
     "slug": "storeleadsmcp",
     "name": "storeleadsmcp_search_technologies",
     "description": "Search technologies used by e-commerce stores. Filter by install count."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_accept_quote_dahlia",
+    "description": "Accept a finalized Quote. Converts it into a subscription or invoice."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_attach_payment_method_dahlia",
+    "description": "Attach a PaymentMethod to a Customer."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_cancel_payment_intent_dahlia",
+    "description": "Cancels a PaymentIntent object when it's in a cancellable state. Depending on the payment method, it may be possible to cancel a PaymentIntent once it has been confirmed and is in requires_capture state."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_cancel_payout_dahlia",
+    "description": "Cancel a payout that has not yet been paid out. Only cancels payouts with status 'pending'."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_cancel_quote_dahlia",
+    "description": "Cancel a Quote that has been finalized but not yet accepted."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_cancel_setup_intent_dahlia",
+    "description": "Cancel a SetupIntent that has not been confirmed."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_cancel_subscription_dahlia",
+    "description": "Cancels a customer's subscription immediately. The customer will not be charged again for the subscription. By default the subscription is canceled immediately but if prorate is set, any remaining charges are refunded."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_close_dispute_dahlia",
+    "description": "Close a dispute and accept the chargeback. This cannot be undone."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_confirm_payment_intent_dahlia",
+    "description": "Confirm that your customer intends to pay with current or provided payment method. Upon confirmation, the PaymentIntent will attempt to initiate a payment. If the payment method requires action (3DS, redirect), the PaymentIntent will move to requires_action."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_confirm_setup_intent_dahlia",
+    "description": "Confirm a SetupIntent and attempt to collect a payment method for future use."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_checkout_session_dahlia",
+    "description": "Create a Checkout Session to accept one-time or subscription payments via Stripe-hosted page."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_coupon_dahlia",
+    "description": "Create a coupon that can be redeemed for a discount on subscriptions or one-time charges."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_customer_dahlia",
+    "description": "Creates a new customer object. Use this to store a customer's payment and billing details. The customer object allows you to perform recurring charges and track multiple charges associated with the same customer."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_customer_portal_session_dahlia",
+    "description": "Creates a session of the customer portal. A portal session describes the instantiation of the customer portal for a particular customer. By visiting the session's URL, the customer can manage their subscriptions and billing details. Portal sessions are short-lived and will expir…"
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_invoice_dahlia",
+    "description": "This endpoint creates a draft invoice for a given customer. The draft invoice created pulls in all pending invoice items on that customer, including prorations. The invoice remains a draft until you finalize the invoice, which allows you to pay, send, and delete the invoice."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_invoice_item_dahlia",
+    "description": "Create an invoice item to be added to a pending invoice."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_payment_intent_dahlia",
+    "description": "Creates a PaymentIntent object. After the PaymentIntent is created, attach a payment method and confirm to continue the payment. You can also create and confirm a PaymentIntent in a single step by using the confirm parameter."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_payment_method_dahlia",
+    "description": "Create a PaymentMethod object. Attach it to a Customer to enable reusable payment."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_payout_dahlia",
+    "description": "Create a payout to send funds to a bank account or debit card."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_plan_dahlia",
+    "description": "Create a Plan (legacy billing API). Consider using Prices instead for new integrations."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_price_dahlia",
+    "description": "Creates a new price for an existing product. Prices define how much and how often to charge for products. This includes one-time prices and recurring prices for subscriptions."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_product_dahlia",
+    "description": "Creates a new product object. Products describe the specific goods or services you offer to your customers. Products are used in conjunction with Prices to configure how much and how often you charge customers."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_promotion_code_dahlia",
+    "description": "Create a promotion code for a coupon that customers can redeem."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_quote_dahlia",
+    "description": "Create a Quote for a subscription or one-time payment, which can be sent to customers for approval."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_refund_dahlia",
+    "description": "Create a refund for a charge or payment intent. Refunds a charge that has previously been created, with optional partial amount."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_setup_intent_dahlia",
+    "description": "Create a SetupIntent to collect payment method details for future off-session payments."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_subscription_dahlia",
+    "description": "Creates a new subscription on an existing customer. Each customer can have multiple active subscriptions if needed."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_subscription_item_dahlia",
+    "description": "Add a new item to an existing subscription."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_tax_rate_dahlia",
+    "description": "Create a tax rate that can be applied to invoices and subscriptions."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_transfer_dahlia",
+    "description": "Create a transfer to send funds to a connected Stripe account (Connect platforms)."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_create_webhook_endpoint_dahlia",
+    "description": "Create a webhook endpoint to receive Stripe event notifications at your HTTPS URL. Supports subscribing to any number of event types (or use * to receive all events)."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_delete_coupon_dahlia",
+    "description": "Delete a coupon. Customers that have already applied this coupon are not affected."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_delete_customer_dahlia",
+    "description": "Permanently deletes a customer. It cannot be undone. Also immediately cancels any active subscriptions on the customer."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_delete_invoice_item_dahlia",
+    "description": "Delete an invoice item. Can only delete items that have not been finalized in an invoice."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_delete_plan_dahlia",
+    "description": "Delete a Plan. Customers subscribed to this plan are not affected."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_delete_subscription_item_dahlia",
+    "description": "Delete a subscription item, removing it from the subscription."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_delete_webhook_endpoint_dahlia",
+    "description": "Delete a webhook endpoint. Once deleted, the endpoint will no longer receive events from Stripe."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_detach_payment_method_dahlia",
+    "description": "Detach a PaymentMethod from a Customer, making it reusable for other customers."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_expire_checkout_session_dahlia",
+    "description": "Expire a Checkout Session before it has been completed. Can only expire sessions in 'open' status."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_finalize_invoice_dahlia",
+    "description": "Stripe automatically finalizes drafts before sending them. However, if you'd like to finalize a draft invoice manually, you can do so using this method. After an invoice is finalized, it can be paid or sent to customers."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_finalize_quote_dahlia",
+    "description": "Finalize a Quote to make it ready to be accepted by the customer."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_account_dahlia",
+    "description": "Retrieve the details of the current Stripe account."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_balance_dahlia",
+    "description": "Retrieve the current balance of the Stripe account, showing available and pending amounts by currency."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_balance_transaction_dahlia",
+    "description": "Retrieve a balance transaction by ID. Balance transactions represent funds moving through the Stripe account."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_charge_dahlia",
+    "description": "Retrieves the details of a charge that has previously been created. Supply the unique charge ID that was returned from your previous request, and Stripe will return the corresponding charge information."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_checkout_session_dahlia",
+    "description": "Retrieve a Checkout Session by ID."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_coupon_dahlia",
+    "description": "Retrieve a coupon by its ID."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_customer_dahlia",
+    "description": "Retrieves the details of an existing customer. You need only supply the unique customer identifier that was returned upon customer creation."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_dispute_dahlia",
+    "description": "Retrieve a dispute by ID. A dispute occurs when a customer questions a charge with their card issuer."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_event_dahlia",
+    "description": "Retrieve an event by ID. Events are Stripe's way of notifying your application about changes."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_invoice_dahlia",
+    "description": "Retrieves the invoice with the given ID. Supply the unique invoice identifier that was returned from your previous request, and Stripe will return the corresponding invoice information."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_invoice_item_dahlia",
+    "description": "Retrieves the invoice item with the given ID. Supply the unique invoice item identifier and Stripe will return the corresponding invoice item information."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_payment_intent_dahlia",
+    "description": "Retrieves the details of a PaymentIntent that was previously created. Supply the unique PaymentIntent ID and Stripe will return the corresponding PaymentIntent information."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_payment_method_dahlia",
+    "description": "Retrieve a PaymentMethod object."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_payout_dahlia",
+    "description": "Retrieve a payout by ID."
+  },
+  { "slug": "stripe", "name": "stripe_get_plan_dahlia", "description": "Retrieve a Plan by ID." },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_price_dahlia",
+    "description": "Retrieves the price with the given ID."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_product_dahlia",
+    "description": "Retrieves the details of an existing product. Supply the unique product ID from either a product creation request or the product list, and Stripe will return the corresponding product information."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_promotion_code_dahlia",
+    "description": "Retrieve a promotion code by ID."
+  },
+  { "slug": "stripe", "name": "stripe_get_quote_dahlia", "description": "Retrieve a Quote by ID." },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_refund_dahlia",
+    "description": "Retrieve the details of an existing refund."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_setup_intent_dahlia",
+    "description": "Retrieve a SetupIntent by ID."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_subscription_dahlia",
+    "description": "Retrieves the subscription with the given ID. Supply the unique subscription identifier that was returned from your previous request, and Stripe will return the corresponding subscription information."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_subscription_item_dahlia",
+    "description": "Retrieves the subscription item with the given ID. Supply the unique subscription item identifier and Stripe will return the corresponding subscription item information."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_tax_rate_dahlia",
+    "description": "Retrieve a tax rate by ID."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_transfer_dahlia",
+    "description": "Retrieve a transfer by ID."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_get_webhook_endpoint_dahlia",
+    "description": "Retrieve a webhook endpoint by ID."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_accounts_dahlia",
+    "description": "List all connected accounts on your platform (Connect platforms only)."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_balance_transactions_dahlia",
+    "description": "List all balance transactions, optionally filtered by currency, source, or type."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_charges_dahlia",
+    "description": "Returns a list of charges you've previously created. The charges are returned in sorted order, with the most recent charges appearing first."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_checkout_sessions_dahlia",
+    "description": "List all Checkout Sessions."
+  },
+  { "slug": "stripe", "name": "stripe_list_coupons_dahlia", "description": "List all coupons." },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_customer_payment_methods_dahlia",
+    "description": "List all PaymentMethods attached to a specific customer."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_customers_dahlia",
+    "description": "Returns a list of your customers. The customers are returned sorted by creation date, with the most recent customers appearing first. Supports filtering by email and pagination for large customer lists."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_disputes_dahlia",
+    "description": "List all disputes, optionally filtered by charge or payment intent."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_events_dahlia",
+    "description": "List all events. Events represent noteworthy activity on your Stripe account."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_invoice_items_dahlia",
+    "description": "Returns a list of your invoice items. Invoice items are returned sorted by creation date, with the most recent invoice items appearing first."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_invoice_line_items_dahlia",
+    "description": "When retrieving an invoice, you'll get a lines property containing the total count of line items and the first handful of those items. There is also a URL where you can retrieve the full (paginated) list of line items."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_invoices_dahlia",
+    "description": "Returns a list of your invoices. The invoices are returned sorted by creation date, with the most recent invoices appearing first."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_payment_intents_dahlia",
+    "description": "Returns a list of PaymentIntents. The PaymentIntents are returned sorted by creation date, with the most recent PaymentIntents appearing first."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_payment_methods_dahlia",
+    "description": "List PaymentMethods for a customer."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_payouts_dahlia",
+    "description": "List all payouts, with optional filters by status and arrival date."
+  },
+  { "slug": "stripe", "name": "stripe_list_plans_dahlia", "description": "List all Plans." },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_prices_dahlia",
+    "description": "Returns a list of your active prices, excluding inline prices. For the list of inactive prices, set active to false."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_products_dahlia",
+    "description": "Returns a list of your products. The products are returned sorted by creation date, with the most recent products appearing first."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_promotion_codes_dahlia",
+    "description": "List all promotion codes."
+  },
+  { "slug": "stripe", "name": "stripe_list_quotes_dahlia", "description": "List all Quotes." },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_refunds_dahlia",
+    "description": "List all refunds, optionally filtered by charge or payment intent."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_setup_intents_dahlia",
+    "description": "List all SetupIntents."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_subscription_items_dahlia",
+    "description": "Returns a list of subscription items for a given subscription. Subscription items represent the component lines of a subscription."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_subscriptions_dahlia",
+    "description": "Returns a list of your subscriptions. The subscriptions are returned sorted by creation date, with the most recent subscriptions appearing first."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_tax_rates_dahlia",
+    "description": "List all tax rates."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_transfers_dahlia",
+    "description": "List all transfers to connected accounts."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_list_webhook_endpoints_dahlia",
+    "description": "List all webhook endpoints."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_pay_invoice_dahlia",
+    "description": "Stripe automatically creates and then attempts to collect payment on invoices for customers on subscriptions according to your subscriptions settings. However, if you'd like to attempt payment on an invoice out of the normal collection schedule or for some other reason, you use …"
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_coupon_dahlia",
+    "description": "Update a coupon's name or metadata."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_customer_dahlia",
+    "description": "Updates the specified customer by setting the values of the parameters passed. Any parameters not provided will be left unchanged."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_dispute_dahlia",
+    "description": "Update a dispute to submit evidence to the card issuer and potentially win the chargeback."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_invoice_item_dahlia",
+    "description": "Update an invoice item's amount, description, or metadata."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_plan_dahlia",
+    "description": "Update a Plan's nickname, active status, or metadata."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_product_dahlia",
+    "description": "Updates the specific product by setting the values of the parameters passed. Any parameters not provided will be left unchanged."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_promotion_code_dahlia",
+    "description": "Update a promotion code's active status or metadata."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_quote_dahlia",
+    "description": "Update a draft Quote."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_refund_dahlia",
+    "description": "Update the metadata on a refund."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_subscription_dahlia",
+    "description": "Updates an existing subscription to match the specified parameters. When updating a subscription, any parameters not provided will be left unchanged."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_subscription_item_dahlia",
+    "description": "Update a subscription item, for example to change the price or quantity."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_tax_rate_dahlia",
+    "description": "Update a tax rate's display name, description, or active status."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_transfer_dahlia",
+    "description": "Update a transfer's metadata."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_update_webhook_endpoint_dahlia",
+    "description": "Update a webhook endpoint's URL, enabled events, or disabled status."
+  },
+  {
+    "slug": "stripe",
+    "name": "stripe_void_invoice_dahlia",
+    "description": "Mark a finalized invoice as void. This cannot be undone. Voiding an invoice is similar to deletion, however it only applies to finalized invoices and maintains a papertrail where the invoice can still be found."
   },
   {
     "slug": "stripemcp",

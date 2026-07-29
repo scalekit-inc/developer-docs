@@ -1,0 +1,148 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="Role"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main"
+  language="python"
+>
+
+  <CB.ClassMethod name="list_roles">
+    Lists all roles in the environment.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.roles.list_roles()
+
+for role in response[0].roles:
+    print(f"Role: {role.name}")
+```
+
+  <CB.ClassMethod name="get_role">
+    Retrieves role details by role name.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.roles.get_role('admin')
+role = response[0].role
+```
+
+  <CB.ClassMethod name="create_role">
+    Creates a new role.
+
+  </CB.ClassMethod>
+
+```python
+from scalekit.v1.roles.roles_pb2 import CreateRole
+
+role = CreateRole()
+role.name = "editor"
+role.display_name = "Editor"
+
+response = scalekit_client.roles.create_role(role)
+```
+
+  <CB.ClassMethod name="update_role">
+    Updates an existing role by name.
+
+  </CB.ClassMethod>
+
+```python
+from scalekit.v1.roles.roles_pb2 import UpdateRole
+
+role = UpdateRole()
+role.display_name = "Senior Editor"
+
+response = scalekit_client.roles.update_role('editor', role)
+```
+
+  <CB.ClassMethod name="delete_role">
+    Deletes a role by name.
+
+  </CB.ClassMethod>
+
+```python
+scalekit_client.roles.delete_role('editor', reassign_role_name='viewer')
+```
+
+  <CB.ClassMethod name="get_role_users_count">
+    Gets the count of users associated with a role.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.roles.get_role_users_count('admin')
+print(f"User count: {response[0].count}")
+```
+
+  <CB.ClassMethod name="list_organization_roles">
+    Lists all organization-specific roles.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.roles.list_organization_roles('org_123456')
+
+for role in response[0].roles:
+    print(f"Role: {role.name}")
+```
+
+  <CB.ClassMethod name="create_organization_role">
+    Creates a new organization-specific role.
+
+  </CB.ClassMethod>
+
+```python
+from scalekit.v1.roles.roles_pb2 import CreateOrganizationRole
+
+role = CreateOrganizationRole()
+role.name = "org_admin"
+role.display_name = "Organization Admin"
+
+response = scalekit_client.roles.create_organization_role('org_123456', role)
+```
+
+  <CB.ClassMethod name="get_organization_role">
+    Retrieves organization-specific role details by name.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.roles.get_organization_role('org_123456', 'org_admin')
+role = response[0].role
+```
+
+  <CB.ClassMethod name="update_organization_role">
+    Updates an existing organization-specific role.
+
+  </CB.ClassMethod>
+
+```python
+from scalekit.v1.roles.roles_pb2 import UpdateRole
+
+role = UpdateRole()
+role.display_name = "Organization Administrator"
+
+response = scalekit_client.roles.update_organization_role(
+    'org_123456',
+    'org_admin',
+    role
+)
+```
+
+  <CB.ClassMethod name="delete_organization_role">
+    Deletes an organization-specific role.
+
+  </CB.ClassMethod>
+
+```python
+scalekit_client.roles.delete_organization_role(
+    'org_123456',
+    'org_admin',
+    reassign_role_name='member'
+)
+```
+
+</CB.ClassBrowser>

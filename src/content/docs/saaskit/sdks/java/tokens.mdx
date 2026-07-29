@@ -1,0 +1,181 @@
+---
+title: Token helpers
+description: Token helpers and verification
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Token helpers
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+
+
+Create and validate API tokens for programmatic access to Scalekit APIs in Java.
+
+Use tokens for service access that is not a full end-user session. Create a token, store it securely, and validate it on incoming requests.
+
+### create
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Tokens" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/TokenClient.java">
+    <CB.ClassMethod name="create" open={true}>
+
+      Creates a new API token for an organization with custom options.
+
+      <CB.ClassMethodInput name="organizationId" type="String">
+        The organization ID to scope the token to
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="userId" type="String">
+        Optional user ID to scope the token to a specific user
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="customClaims" type="Map(String, String)">
+        Optional custom claims key-value pairs
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="expiry" type="Timestamp">
+        Optional expiry timestamp
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="description" type="String">
+        Optional human-readable description
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateTokenResponse">
+        The created resource.
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+import java.util.HashMap;
+import java.util.Map;
+import com.google.protobuf.Timestamp;
+
+Map<String, String> claims = new HashMap<>();
+claims.put("environment", "production");
+
+Timestamp expiry = Timestamp.newBuilder()
+  .setSeconds(System.currentTimeMillis() / 1000 + 86400)
+  .build();
+
+scalekitClient.tokens().create("org_123", "user_123", claims, expiry, "Production access token");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### validate
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Tokens" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/TokenClient.java">
+    <CB.ClassMethod name="validate" open={true}>
+
+      Validates an API token and returns associated context.
+
+      <CB.ClassMethodInput name="token" type="String">
+        The opaque token string or token_id (apit_xxxxx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ValidateTokenResponse">
+        Verified claims or result.
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+scalekitClient.tokens().validate("apit_xxxxx");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### invalidate
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Tokens" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/TokenClient.java">
+    <CB.ClassMethod name="invalidate" open={true}>
+
+      Invalidates (soft deletes) an API token.
+
+      <CB.ClassMethodInput name="token" type="String">
+        The opaque token string or token_id (apit_xxxxx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="void">
+        No return value
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+scalekitClient.tokens().invalidate("apit_xxxxx");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### list
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Tokens" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/TokenClient.java">
+    <CB.ClassMethod name="list" open={true}>
+
+      Lists API tokens for an organization and user with pagination.
+
+      <CB.ClassMethodInput name="organizationId" type="String">
+        The organization ID to list tokens for
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="userId" type="String">
+        The user ID to filter tokens for
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="pageSize" type="int">
+        Page size (default 10, max 30)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="pageToken" type="String">
+        Pagination cursor for next page
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListTokensResponse">
+        Paginated results.
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+scalekitClient.tokens().list("org_123", "user_123", 20, "");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### update
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Tokens" type="client" language="java" source="https://github.com/scalekit-inc/scalekit-sdk-java/blob/main/src/main/java/com/scalekit/api/TokenClient.java">
+    <CB.ClassMethod name="update" open={true}>
+
+      Updates the custom claims and/or description of an existing API token.
+
+      <CB.ClassMethodInput name="token" type="String">
+        The opaque token string or token_id (apit_xxxxx)
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="customClaims" type="Map(String, String)">
+        Claims to merge; set value to "" to remove a claim
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="description" type="String">
+        Replacement description; null leaves unchanged, empty.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateTokenResponse">
+        The updated resource.
+      </CB.ClassMethodOutput>
+
+```java wrap showLineNumbers=false
+import java.util.HashMap;
+import java.util.Map;
+
+Map<String, String> newClaims = new HashMap<>();
+newClaims.put("environment", "staging");
+newClaims.put("old_claim", "");  // Remove this claim
+
+scalekitClient.tokens().update("apit_xxxxx", newClaims, "Updated description");
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
+</div>

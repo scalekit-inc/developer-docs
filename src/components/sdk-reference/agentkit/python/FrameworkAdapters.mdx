@@ -1,0 +1,82 @@
+import { Aside } from '@astrojs/starlight/components'
+import * as CB from '@gesslar/starlight-class-browser'
+
+Pre-built integrations for LangChain and Google ADK. Use these when your agent runs in one of these frameworks and you prefer native tool objects over an MCP URL.
+
+<Aside type="note" title="MCP is the recommended path">
+  Virtual MCP Servers expose a static URL compatible with any MCP-supporting framework. Use framework adapters only when native tool objects are required.
+</Aside>
+
+### LangChain
+
+```bash
+pip install langchain
+```
+
+<CB.ClassBrowser
+  name="LangChainAdapter"
+  type="class"
+  source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/actions/frameworks"
+  language="python"
+>
+
+  <CB.ClassMethod name="actions.langchain.get_tools">
+    <CB.ClassMethodInput name="identifier" type="str">
+        User connected account identifier **Required.**
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="providers" type="list">
+        Filter by provider (e.g. ["google"])
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="tool_names" type="list">
+        Filter by tool name
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="connection_names" type="list">
+        Filter by connection name
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="page_size" type="int">
+        Maximum tools per page.
+      </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="page_token" type="str">
+        Opaque cursor from a previous list response
+      </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="List[StructuredTool]">
+        List[structured tool].
+      </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+```python title="Example"
+from langchain.agents import create_react_agent
+
+tools = scalekit_client.actions.langchain.get_tools(
+    identifier="user@example.com",
+    page_size=100,  # avoid missing tools when a connector has more than the default page
+)
+agent = create_react_agent(llm=llm, tools=tools, prompt=prompt)
+```
+
+</CB.ClassBrowser>
+
+### Google ADK
+
+```bash
+# [].name: Tool name
+# [].description: Tool description
+# [].args_schema: Pydantic schema for the tool inputs
+pip install google-adk
+```
+
+
+Same parameters as `scalekit_client.actions.langchain.get_tools`.
+
+Returns `List[ScalekitGoogleAdkTool]`. Pass it directly to a Google ADK agent.
+
+```python title="Example"
+# [].name: Tool name
+# [].description: Tool description
+# [].args_schema: Pydantic schema for the tool inputs
+tools = scalekit_client.actions.google.get_tools(
+    identifier="user@example.com",
+    page_size=100,
+)
+```
+

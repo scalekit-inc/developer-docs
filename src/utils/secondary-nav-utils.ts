@@ -20,6 +20,16 @@ export function getActiveProduct(
   return 'saaskit'
 }
 
+/**
+ * Self-hosted deployment docs apply to both products and have no secondary-nav
+ * tab or product context of their own (see sidebar.config.ts). Single source of
+ * truth for that path check — HeaderProductToggle and SecondaryNav both need it
+ * to agree on when to show the neutral "Self Hosted" state.
+ */
+export function isSelfHostedPath(pathname: string): boolean {
+  return pathname.startsWith('/self-hosted/')
+}
+
 // Props interface - entry is passed from Header.astro
 export interface SecondaryNavProps {
   entry?: {
@@ -90,12 +100,15 @@ export function getActiveSecondaryNavId(
     return resolveNavMapping(sidebarToSecondaryNav[sidebarId], pathname)
   }
 
-  // 3. Hard-coded fallbacks for pages without a sidebar (e.g. Scalar /apis)
+  // 3. Hard-coded fallbacks for pages without a sidebar (e.g. Scalar /apis, product hubs)
   if (pathname.startsWith('/agentkit/apis')) return 'agentkit-api-reference'
-  if (pathname.startsWith('/saaskit/apis')) return 'rest-apis'
-  if (pathname.startsWith('/apis')) return 'rest-apis'
+  if (pathname.startsWith('/saaskit/apis')) return 'saaskit-apis'
+  if (pathname.startsWith('/apis')) return 'saaskit-apis'
+  if (pathname.startsWith('/saaskit/sdks')) return 'saaskit-sdks'
+  if (pathname === '/sdks' || pathname.startsWith('/sdks/')) return 'saaskit-sdks'
+  if (pathname.startsWith('/agentkit/sdks')) return 'agentkit-sdks'
 
-  // Fallback for AgentKit pages not registered in the sidebar map (e.g. /agentkit/sdks index)
+  // Fallback for AgentKit pages not registered in the sidebar map
   // Routes through the 'connect' mapping which has path overrides for all /agentkit/* paths.
   if (pathname.startsWith('/agentkit/') && sidebarToSecondaryNav['connect']) {
     return resolveNavMapping(sidebarToSecondaryNav['connect'], pathname)

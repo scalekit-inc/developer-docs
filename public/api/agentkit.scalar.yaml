@@ -1430,6 +1430,7 @@ components:
          - TRUSTED_IDP: Trusted Identity Provider federation (e.g. AWS STS AssumeRoleWithWebIdentity)
          - SMART_FHIR: SMART on FHIR (SMART App Launch) — OAuth 2.0 authorization
         for FHIR servers
+         - NO_AUTH: No authentication — connector requires no credentials (e.g. public docs MCP servers)
       type: string
       title: Type of authentication mechanism used for the connected account
       enum:
@@ -1444,6 +1445,7 @@ components:
         - GOOGLE_DWD
         - TRUSTED_IDP
         - SMART_FHIR
+        - NO_AUTH
     connected_accountsCreateConnectedAccountRequest:
       type: object
       properties:
@@ -1453,8 +1455,8 @@ components:
           examples:
             - authorization_details:
                 oauth_token:
-                  access_token: ...
-                  refresh_token: ...
+                  access_token: '...'
+                  refresh_token: '...'
                   scopes:
                     - read
                     - write
@@ -1688,7 +1690,7 @@ components:
           type: object
           examples:
             - api_key: sk_live_...
-              api_secret: ...
+              api_secret: '...'
     connected_accountsTrustedIDPAuth:
       description: |-
         Trusted IDP federated authentication — used for TRUSTED_IDP connections (e.g. AWS Redshift).
@@ -1730,8 +1732,8 @@ components:
           examples:
             - authorization_details:
                 oauth_token:
-                  access_token: ...
-                  refresh_token: ...
+                  access_token: '...'
+                  refresh_token: '...'
                   scopes:
                     - read
                     - write
@@ -2268,12 +2270,14 @@ components:
             - API_KEY
             - BASIC_AUTH
             - BEARER_TOKEN
+            - CUSTOM
             - BASIC
             - OAUTH_M2M
             - TRELLO_OAUTH1
             - GOOGLE_DWD
             - TRUSTED_IDP
             - SMART_FHIR
+            - NO_AUTH
           example: OAUTH
           description: The authorization type of the connected account
         status:
@@ -2309,19 +2313,24 @@ components:
         id:
           type: string
           pattern: ^ca_
+          example: ca_101531404000559370
           description: Connected account identifier
         identifier:
           type: string
+          example: john@acmecorp.com
           description: End-user identifier for the connected account
         connection_id:
           type: string
           pattern: ^conn_
+          example: conn_100668583155073286
           description: Connection identifier
         connection_name:
           type: string
+          example: gmail
           description: Connection key_id when available
         provider:
           type: string
+          example: GMAIL
           description: Provider of the connected account
         authorization_type:
           type: string
@@ -2330,12 +2339,15 @@ components:
             - API_KEY
             - BASIC_AUTH
             - BEARER_TOKEN
+            - CUSTOM
             - BASIC
             - OAUTH_M2M
             - TRELLO_OAUTH1
             - GOOGLE_DWD
             - TRUSTED_IDP
             - SMART_FHIR
+            - NO_AUTH
+          example: OAUTH
           description: Authorization type of the connected account
         status:
           type: string
@@ -2345,14 +2357,17 @@ components:
             - PENDING_AUTH
             - PENDING_VERIFICATION
             - DISCONNECTED
+          example: ACTIVE
           description: Current connected account status
         token_expires_at:
           type: string
           format: date-time
+          example: '2025-12-02T06:59:57.237447Z'
           description: When the access token expires, if known
         last_used_at:
           type: string
           format: date-time
+          example: '2025-12-02T06:00:01.374253Z'
           description: When the connected account was last used
     ConnectedAccountCreatedEvent:
       type: object
@@ -2777,7 +2792,7 @@ x-scalar-active-environment: staging
 x-scalekit-docs-operation-rank:
   default: 0
   path-segments:
-    - match: ':external'
+    - match: :external
       rank: 1
-    - match: ':search'
+    - match: :search
       rank: 2

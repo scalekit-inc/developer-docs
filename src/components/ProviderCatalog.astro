@@ -209,333 +209,356 @@ function cardAttrs(item: (typeof items)[0]) {
 </div>
 
 <script>
-  const catalogEl = document.querySelector('.provider-catalog') as HTMLElement
-  const searchInput = catalogEl?.querySelector('.search-input') as HTMLInputElement | null
-  const categorySelect = catalogEl?.querySelector('#category-select') as HTMLSelectElement | null
-  const authSelect = catalogEl?.querySelector('#auth-select') as HTMLSelectElement | null
-  const noResults = catalogEl?.querySelector('.no-results') as HTMLElement | null
-  const resultMeta = catalogEl?.querySelector('.result-meta') as HTMLElement | null
-  const browseSurface = catalogEl?.querySelector('.browse-surface') as HTMLElement | null
-  const searchSurface = catalogEl?.querySelector('.search-surface') as HTMLElement | null
-  const connectorsBand = catalogEl?.querySelector('[data-band="connectors"]') as HTMLElement | null
-  const toolsBand = catalogEl?.querySelector('[data-band="tools"]') as HTMLElement | null
-  const toolResultsList = toolsBand?.querySelector('.tool-results-list') as HTMLElement | null
-  const searchGrid = catalogEl?.querySelector('[data-search-grid]') as HTMLElement | null
-  const connectorCountEl = catalogEl?.querySelector(
-    '[data-count="connectors"]',
-  ) as HTMLElement | null
-  const toolCountEl = catalogEl?.querySelector('[data-count="tools"]') as HTMLElement | null
+  // ClientRouter re-init: this bundled module executes only once, but the catalog DOM is
+  // destroyed and recreated on every soft navigation. Binding at module scope leaves the
+  // search input on a soft-nav-loaded page wired to a removed element (or not wired at all if
+  // the user types before the module first runs) — search appears dead until a full refresh.
+  // So (re)bind inside a function, guarded per element instance, run on load and page-load.
+  // Mirrors the pattern already used in AgentConnectorsSection.astro.
+  function initProviderCatalog() {
+    const catalogEl = document.querySelector('.provider-catalog') as HTMLElement | null
+    if (!catalogEl || catalogEl.dataset.catalogReady === 'true') return
+    catalogEl.dataset.catalogReady = 'true'
 
-  let slugToTitle: Record<string, string> = {}
-  try {
-    const raw = catalogEl?.dataset.slugMap
-    if (raw) slugToTitle = JSON.parse(raw)
-  } catch {}
+    const searchInput = catalogEl?.querySelector('.search-input') as HTMLInputElement | null
+    const categorySelect = catalogEl?.querySelector('#category-select') as HTMLSelectElement | null
+    const authSelect = catalogEl?.querySelector('#auth-select') as HTMLSelectElement | null
+    const noResults = catalogEl?.querySelector('.no-results') as HTMLElement | null
+    const resultMeta = catalogEl?.querySelector('.result-meta') as HTMLElement | null
+    const browseSurface = catalogEl?.querySelector('.browse-surface') as HTMLElement | null
+    const searchSurface = catalogEl?.querySelector('.search-surface') as HTMLElement | null
+    const connectorsBand = catalogEl?.querySelector(
+      '[data-band="connectors"]',
+    ) as HTMLElement | null
+    const toolsBand = catalogEl?.querySelector('[data-band="tools"]') as HTMLElement | null
+    const toolResultsList = toolsBand?.querySelector('.tool-results-list') as HTMLElement | null
+    const searchGrid = catalogEl?.querySelector('[data-search-grid]') as HTMLElement | null
+    const connectorCountEl = catalogEl?.querySelector(
+      '[data-count="connectors"]',
+    ) as HTMLElement | null
+    const toolCountEl = catalogEl?.querySelector('[data-count="tools"]') as HTMLElement | null
 
-  let activeCategory = 'all'
-  let activeAuth = 'all'
-  let searchQuery = ''
-  let toolIndexCache: Array<{ slug: string; name: string; description: string }> | null = null
+    let slugToTitle: Record<string, string> = {}
+    try {
+      const raw = catalogEl?.dataset.slugMap
+      if (raw) slugToTitle = JSON.parse(raw)
+    } catch {}
 
-  function truncate(str: string, n: number) {
-    if (!str) return ''
-    return str.length > n ? str.slice(0, n - 1) + '…' : str
-  }
+    let activeCategory = 'all'
+    let activeAuth = 'all'
+    let searchQuery = ''
+    let toolIndexCache: Array<{ slug: string; name: string; description: string }> | null = null
 
-  function cardMatches(card: HTMLElement, query: string): boolean {
-    if (!query) return true
-    return (card.dataset.name ?? '').includes(query) || (card.dataset.desc ?? '').includes(query)
-  }
+    function truncate(str: string, n: number) {
+      if (!str) return ''
+      return str.length > n ? str.slice(0, n - 1) + '…' : str
+    }
 
-  function cardMatchesAuth(card: HTMLElement): boolean {
-    return activeAuth === 'all' || card.dataset.auth === activeAuth
-  }
+    function cardMatches(card: HTMLElement, query: string): boolean {
+      if (!query) return true
+      return (card.dataset.name ?? '').includes(query) || (card.dataset.desc ?? '').includes(query)
+    }
 
-  function cardMatchesCategory(card: HTMLElement): boolean {
-    if (activeCategory === 'all') return true
-    const cats = (card.dataset.categories ?? '').split(',').map((c) => c.trim())
-    return cats.includes(activeCategory)
-  }
+    function cardMatchesAuth(card: HTMLElement): boolean {
+      return activeAuth === 'all' || card.dataset.auth === activeAuth
+    }
 
-  /** Browse mode: filter category rails in place */
-  function applyBrowseFilters(): number {
-    const sections = browseSurface?.querySelectorAll<HTMLElement>('.category-section')
-    let totalVisible = 0
+    function cardMatchesCategory(card: HTMLElement): boolean {
+      if (activeCategory === 'all') return true
+      const cats = (card.dataset.categories ?? '').split(',').map((c) => c.trim())
+      return cats.includes(activeCategory)
+    }
 
-    sections?.forEach((section) => {
-      const sectionCategory = section.dataset.category ?? ''
-      const categoryMatch = activeCategory === 'all' || sectionCategory === activeCategory
+    /** Browse mode: filter category rails in place */
+    function applyBrowseFilters(): number {
+      const sections = browseSurface?.querySelectorAll<HTMLElement>('.category-section')
+      let totalVisible = 0
 
-      if (!categoryMatch) {
-        section.style.display = 'none'
+      sections?.forEach((section) => {
+        const sectionCategory = section.dataset.category ?? ''
+        const categoryMatch = activeCategory === 'all' || sectionCategory === activeCategory
+
+        if (!categoryMatch) {
+          section.style.display = 'none'
+          return
+        }
+
+        const cards = section.querySelectorAll<HTMLElement>('.provider-card')
+        let sectionVisible = 0
+
+        cards.forEach((card) => {
+          const show = cardMatchesAuth(card)
+          card.style.display = show ? '' : 'none'
+          if (show) sectionVisible++
+        })
+
+        section.style.display = sectionVisible > 0 ? '' : 'none'
+        totalVisible += sectionVisible
+      })
+
+      return totalVisible
+    }
+
+    /**
+     * Search mode: unique connectors only (one card per slug), then tools.
+     * Multi-category connectors never appear more than once.
+     */
+    function applySearchFilters(): number {
+      if (!searchGrid) return 0
+      let visible = 0
+
+      searchGrid.querySelectorAll<HTMLElement>('.provider-card').forEach((card) => {
+        const show =
+          cardMatches(card, searchQuery) && cardMatchesAuth(card) && cardMatchesCategory(card)
+        card.style.display = show ? '' : 'none'
+        if (show) visible++
+      })
+
+      if (connectorsBand) connectorsBand.hidden = visible === 0
+      if (connectorCountEl) connectorCountEl.textContent = visible > 0 ? String(visible) : ''
+
+      return visible
+    }
+
+    async function loadToolIndex(): Promise<
+      Array<{ slug: string; name: string; description: string }>
+    > {
+      if (toolIndexCache) return toolIndexCache
+      try {
+        const res = await fetch('/data/agent-tools-index.json')
+        if (!res.ok) return []
+        toolIndexCache = await res.json()
+        return toolIndexCache || []
+      } catch {
+        return []
+      }
+    }
+
+    function scoreToolMatches(
+      index: Array<{ slug: string; name: string; description: string }>,
+      query: string,
+    ) {
+      if (!query || !index?.length) return []
+      const q = query.toLowerCase().trim()
+      if (!q) return []
+
+      const terms = q.split(/\s+/).filter(Boolean)
+      const scored: Array<{
+        slug: string
+        name: string
+        description: string
+        title: string
+        score: number
+        href: string
+      }> = []
+
+      // Dedupe tools by connector slug + tool name
+      const seen = new Set<string>()
+
+      for (const entry of index) {
+        const key = `${entry.slug}::${entry.name}`
+        if (seen.has(key)) continue
+        seen.add(key)
+
+        const name = (entry.name || '').toLowerCase()
+        const desc = (entry.description || '').toLowerCase()
+        let score = 0
+
+        if (name.includes(q)) score += 12
+        if (name.startsWith(q)) score += 6
+
+        for (const t of terms) {
+          if (name.includes(t)) score += 4
+          if (desc.includes(t)) score += 1
+        }
+
+        if (score > 0) {
+          const title = slugToTitle[entry.slug] || entry.slug
+          scored.push({
+            ...entry,
+            title,
+            score,
+            href: `/agentkit/connectors/${entry.slug}/#${encodeURIComponent(entry.name)}`,
+          })
+        }
+      }
+
+      scored.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
+      return scored
+    }
+
+    function renderToolResults(matches: ReturnType<typeof scoreToolMatches>) {
+      if (!toolResultsList || !toolsBand) return
+
+      toolResultsList.innerHTML = ''
+
+      if (!matches.length) {
+        toolsBand.hidden = true
+        if (toolCountEl) toolCountEl.textContent = ''
         return
       }
 
-      const cards = section.querySelectorAll<HTMLElement>('.provider-card')
-      let sectionVisible = 0
+      const MAX = 25
+      const toShow = matches.slice(0, MAX)
 
-      cards.forEach((card) => {
-        const show = cardMatchesAuth(card)
-        card.style.display = show ? '' : 'none'
-        if (show) sectionVisible++
+      toShow.forEach((m) => {
+        const el = document.createElement('a')
+        el.className = 'tool-result'
+        el.href = m.href
+
+        const head = document.createElement('div')
+        head.className = 'tool-result-head'
+
+        const nameEl = document.createElement('code')
+        nameEl.className = 'tool-result-name'
+        nameEl.textContent = m.name
+
+        const connectorEl = document.createElement('span')
+        connectorEl.className = 'tool-result-connector'
+        connectorEl.textContent = m.title
+
+        const descEl = document.createElement('div')
+        descEl.className = 'tool-result-desc'
+        descEl.textContent = truncate(m.description, 160)
+
+        head.append(nameEl, connectorEl)
+        el.append(head, descEl)
+        toolResultsList.appendChild(el)
       })
 
-      section.style.display = sectionVisible > 0 ? '' : 'none'
-      totalVisible += sectionVisible
-    })
-
-    return totalVisible
-  }
-
-  /**
-   * Search mode: unique connectors only (one card per slug), then tools.
-   * Multi-category connectors never appear more than once.
-   */
-  function applySearchFilters(): number {
-    if (!searchGrid) return 0
-    let visible = 0
-
-    searchGrid.querySelectorAll<HTMLElement>('.provider-card').forEach((card) => {
-      const show =
-        cardMatches(card, searchQuery) && cardMatchesAuth(card) && cardMatchesCategory(card)
-      card.style.display = show ? '' : 'none'
-      if (show) visible++
-    })
-
-    if (connectorsBand) connectorsBand.hidden = visible === 0
-    if (connectorCountEl) connectorCountEl.textContent = visible > 0 ? String(visible) : ''
-
-    return visible
-  }
-
-  async function loadToolIndex(): Promise<
-    Array<{ slug: string; name: string; description: string }>
-  > {
-    if (toolIndexCache) return toolIndexCache
-    try {
-      const res = await fetch('/data/agent-tools-index.json')
-      if (!res.ok) return []
-      toolIndexCache = await res.json()
-      return toolIndexCache || []
-    } catch {
-      return []
-    }
-  }
-
-  function scoreToolMatches(
-    index: Array<{ slug: string; name: string; description: string }>,
-    query: string,
-  ) {
-    if (!query || !index?.length) return []
-    const q = query.toLowerCase().trim()
-    if (!q) return []
-
-    const terms = q.split(/\s+/).filter(Boolean)
-    const scored: Array<{
-      slug: string
-      name: string
-      description: string
-      title: string
-      score: number
-      href: string
-    }> = []
-
-    // Dedupe tools by connector slug + tool name
-    const seen = new Set<string>()
-
-    for (const entry of index) {
-      const key = `${entry.slug}::${entry.name}`
-      if (seen.has(key)) continue
-      seen.add(key)
-
-      const name = (entry.name || '').toLowerCase()
-      const desc = (entry.description || '').toLowerCase()
-      let score = 0
-
-      if (name.includes(q)) score += 12
-      if (name.startsWith(q)) score += 6
-
-      for (const t of terms) {
-        if (name.includes(t)) score += 4
-        if (desc.includes(t)) score += 1
+      if (matches.length > MAX) {
+        const more = document.createElement('div')
+        more.className = 'tool-result-more'
+        more.textContent = `+ ${matches.length - MAX} more — refine your query`
+        toolResultsList.appendChild(more)
       }
 
-      if (score > 0) {
-        const title = slugToTitle[entry.slug] || entry.slug
-        scored.push({
-          ...entry,
-          title,
-          score,
-          href: `/agentkit/connectors/${entry.slug}/#${encodeURIComponent(entry.name)}`,
-        })
+      toolsBand.hidden = false
+      if (toolCountEl) toolCountEl.textContent = String(matches.length)
+    }
+
+    function setMode(isSearching: boolean) {
+      catalogEl?.classList.toggle('is-searching', isSearching)
+      if (browseSurface) browseSurface.hidden = isSearching
+      if (searchSurface) searchSurface.hidden = !isSearching
+      if (categorySelect) {
+        // Category still filters search results; keep visible
+        categorySelect.disabled = false
       }
     }
 
-    scored.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
-    return scored
-  }
+    function updateMeta(connectorCount: number, toolCount: number) {
+      if (!resultMeta) return
+      const isSearching = searchQuery.length > 0
+      if (!isSearching) {
+        resultMeta.hidden = true
+        resultMeta.textContent = ''
+        return
+      }
 
-  function renderToolResults(matches: ReturnType<typeof scoreToolMatches>) {
-    if (!toolResultsList || !toolsBand) return
+      const parts: string[] = []
+      if (connectorCount > 0) {
+        parts.push(`${connectorCount} connector${connectorCount === 1 ? '' : 's'}`)
+      }
+      if (toolCount > 0) {
+        parts.push(`${toolCount} tool${toolCount === 1 ? '' : 's'}`)
+      }
 
-    toolResultsList.innerHTML = ''
+      if (parts.length === 0) {
+        resultMeta.hidden = true
+        resultMeta.textContent = ''
+        return
+      }
 
-    if (!matches.length) {
-      toolsBand.hidden = true
-      if (toolCountEl) toolCountEl.textContent = ''
-      return
+      resultMeta.hidden = false
+      resultMeta.textContent = parts.join(' · ')
     }
 
-    const MAX = 25
-    const toShow = matches.slice(0, MAX)
-
-    toShow.forEach((m) => {
-      const el = document.createElement('a')
-      el.className = 'tool-result'
-      el.href = m.href
-
-      const head = document.createElement('div')
-      head.className = 'tool-result-head'
-
-      const nameEl = document.createElement('code')
-      nameEl.className = 'tool-result-name'
-      nameEl.textContent = m.name
-
-      const connectorEl = document.createElement('span')
-      connectorEl.className = 'tool-result-connector'
-      connectorEl.textContent = m.title
-
-      const descEl = document.createElement('div')
-      descEl.className = 'tool-result-desc'
-      descEl.textContent = truncate(m.description, 160)
-
-      head.append(nameEl, connectorEl)
-      el.append(head, descEl)
-      toolResultsList.appendChild(el)
-    })
-
-    if (matches.length > MAX) {
-      const more = document.createElement('div')
-      more.className = 'tool-result-more'
-      more.textContent = `+ ${matches.length - MAX} more — refine your query`
-      toolResultsList.appendChild(more)
+    function updateNoResults(connectorVisible: number, toolCount: number) {
+      if (!noResults) return
+      const isSearching = searchQuery.length > 0
+      noResults.hidden = !isSearching || connectorVisible > 0 || toolCount > 0
     }
 
-    toolsBand.hidden = false
-    if (toolCountEl) toolCountEl.textContent = String(matches.length)
-  }
+    // Bump on every run so a slower earlier loadToolIndex cannot overwrite newer results
+    let searchRevision = 0
 
-  function setMode(isSearching: boolean) {
-    catalogEl?.classList.toggle('is-searching', isSearching)
-    if (browseSurface) browseSurface.hidden = isSearching
-    if (searchSurface) searchSurface.hidden = !isSearching
-    if (categorySelect) {
-      // Category still filters search results; keep visible
-      categorySelect.disabled = false
-    }
-  }
+    async function runSearch() {
+      const revision = ++searchRevision
+      const isSearching = searchQuery.length > 0
+      setMode(isSearching)
 
-  function updateMeta(connectorCount: number, toolCount: number) {
-    if (!resultMeta) return
-    const isSearching = searchQuery.length > 0
-    if (!isSearching) {
-      resultMeta.hidden = true
-      resultMeta.textContent = ''
-      return
-    }
+      if (!isSearching) {
+        const browseVisible = applyBrowseFilters()
+        renderToolResults([])
+        updateMeta(0, 0)
+        updateNoResults(browseVisible, 0)
+        return
+      }
 
-    const parts: string[] = []
-    if (connectorCount > 0) {
-      parts.push(`${connectorCount} connector${connectorCount === 1 ? '' : 's'}`)
-    }
-    if (toolCount > 0) {
-      parts.push(`${toolCount} tool${toolCount === 1 ? '' : 's'}`)
-    }
+      const connectorVisible = applySearchFilters()
 
-    if (parts.length === 0) {
-      resultMeta.hidden = true
-      resultMeta.textContent = ''
-      return
-    }
+      // Tools join at 2+ chars so short connector lookups stay clean
+      let toolCount = 0
+      if (searchQuery.length >= 2) {
+        const idx = await loadToolIndex()
+        // Discard if a newer search started while the index was loading
+        if (revision !== searchRevision) return
+        const matches = scoreToolMatches(idx, searchQuery)
+        // If category filter is active, only show tools for connectors in that category
+        let filtered = matches
+        if (activeCategory !== 'all') {
+          const allowed = new Set<string>()
+          searchGrid?.querySelectorAll<HTMLElement>('.provider-card').forEach((card) => {
+            if (cardMatchesCategory(card)) allowed.add(card.dataset.slug ?? '')
+          })
+          filtered = matches.filter((m) => allowed.has(m.slug))
+        }
+        renderToolResults(filtered)
+        toolCount = filtered.length
+      } else {
+        renderToolResults([])
+      }
 
-    resultMeta.hidden = false
-    resultMeta.textContent = parts.join(' · ')
-  }
-
-  function updateNoResults(connectorVisible: number, toolCount: number) {
-    if (!noResults) return
-    const isSearching = searchQuery.length > 0
-    noResults.hidden = !isSearching || connectorVisible > 0 || toolCount > 0
-  }
-
-  // Bump on every run so a slower earlier loadToolIndex cannot overwrite newer results
-  let searchRevision = 0
-
-  async function runSearch() {
-    const revision = ++searchRevision
-    const isSearching = searchQuery.length > 0
-    setMode(isSearching)
-
-    if (!isSearching) {
-      const browseVisible = applyBrowseFilters()
-      renderToolResults([])
-      updateMeta(0, 0)
-      updateNoResults(browseVisible, 0)
-      return
-    }
-
-    const connectorVisible = applySearchFilters()
-
-    // Tools join at 2+ chars so short connector lookups stay clean
-    let toolCount = 0
-    if (searchQuery.length >= 2) {
-      const idx = await loadToolIndex()
-      // Discard if a newer search started while the index was loading
       if (revision !== searchRevision) return
-      const matches = scoreToolMatches(idx, searchQuery)
-      // If category filter is active, only show tools for connectors in that category
-      let filtered = matches
-      if (activeCategory !== 'all') {
-        const allowed = new Set<string>()
-        searchGrid?.querySelectorAll<HTMLElement>('.provider-card').forEach((card) => {
-          if (cardMatchesCategory(card)) allowed.add(card.dataset.slug ?? '')
-        })
-        filtered = matches.filter((m) => allowed.has(m.slug))
-      }
-      renderToolResults(filtered)
-      toolCount = filtered.length
-    } else {
-      renderToolResults([])
+      updateMeta(connectorVisible, toolCount)
+      updateNoResults(connectorVisible, toolCount)
     }
 
-    if (revision !== searchRevision) return
-    updateMeta(connectorVisible, toolCount)
-    updateNoResults(connectorVisible, toolCount)
+    searchInput?.addEventListener('input', (e) => {
+      searchQuery = (e.target as HTMLInputElement).value.toLowerCase().trim()
+      void runSearch()
+    })
+
+    categorySelect?.addEventListener('change', () => {
+      activeCategory = categorySelect.value
+      void runSearch()
+    })
+
+    authSelect?.addEventListener('change', () => {
+      activeAuth = authSelect.value
+      void runSearch()
+    })
+
+    catalogEl?.querySelectorAll<HTMLImageElement>('.provider-logo img').forEach((img) => {
+      img.addEventListener('error', () => {
+        img.style.display = 'none'
+      })
+    })
+
+    // Initial browse state
+    void runSearch()
   }
 
-  searchInput?.addEventListener('input', (e) => {
-    searchQuery = (e.target as HTMLInputElement).value.toLowerCase().trim()
-    void runSearch()
-  })
-
-  categorySelect?.addEventListener('change', () => {
-    activeCategory = categorySelect.value
-    void runSearch()
-  })
-
-  authSelect?.addEventListener('change', () => {
-    activeAuth = authSelect.value
-    void runSearch()
-  })
-
-  catalogEl?.querySelectorAll<HTMLImageElement>('.provider-logo img').forEach((img) => {
-    img.addEventListener('error', () => {
-      img.style.display = 'none'
-    })
-  })
-
-  // Initial browse state
-  void runSearch()
+  // Run when the module first executes (initial load or the soft nav that first loads it), then
+  // again after every subsequent ClientRouter navigation. The astro:page-load listener is
+  // registered once and persists across navigations; the per-element guard prevents double-init.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initProviderCatalog, { once: true })
+  } else {
+    initProviderCatalog()
+  }
+  document.addEventListener('astro:page-load', initProviderCatalog)
 </script>
 
 <style>

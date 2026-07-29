@@ -1,0 +1,250 @@
+---
+title: OAuth clients
+description: OAuth clients for applications
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: OAuth clients
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+
+
+Manage OAuth clients for applications that use Scalekit as an authorization server.
+
+Register clients for your apps, rotate secrets carefully, and scope clients to the right application type.
+
+### CreateClient
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Clients" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/clients.go">
+    <CB.ClassMethod name="CreateClient" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `CreateClient` and returns the result.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="client" type="clientsv1.CreateClient">
+        Client.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateClientResponse">
+        The created resource.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+import (
+  clients "github.com/scalekit-inc/scalekit-sdk-go/v2/pkg/grpc/scalekit/v1/clients"
+)
+
+created, err := scalekitClient.Client().CreateClient(ctx, &clients.CreateClient{
+  Name:                   "My Application",
+  ClientType:             "WEB_APP",
+  PostLoginUris:          []string{"https://myapp.com/callback"},
+  PostLogoutRedirectUris: []string{"https://myapp.com/logout"},
+})
+if err != nil {
+  // handle
+}
+_ = created.Client
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### GetClient
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Clients" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/clients.go">
+    <CB.ClassMethod name="GetClient" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `GetClient` and returns the result.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="clientId" type="string">
+        Client ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetClientResponse">
+        The response payload for this operation.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+got, err := scalekitClient.Client().GetClient(ctx, "client_123")
+if err != nil {
+  // handle
+}
+_ = got.Client
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### ListClients
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Clients" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/clients.go">
+    <CB.ClassMethod name="ListClients" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `ListClients` and returns the result.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="ListClientsOptions">
+        Optional request settings.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListClientsResponse">
+        Paginated results.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+clients, err := scalekitClient.Client().ListClients(ctx, &scalekit.ListClientsOptions{
+  PageSize:  10,
+  PageToken: "",
+})
+if err != nil {
+  // handle
+}
+for _, c := range clients.Clients {
+  _ = c
+}
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### UpdateClient
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Clients" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/clients.go">
+    <CB.ClassMethod name="UpdateClient" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `UpdateClient` and returns the result.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="clientId" type="string">
+        Client ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="client" type="clientsv1.UpdateClient">
+        Client.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="mask" type="fieldmaskpb.FieldMask">
+        Mask.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateClientResponse">
+        The updated resource.
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+import (
+  clients "github.com/scalekit-inc/scalekit-sdk-go/v2/pkg/grpc/scalekit/v1/clients"
+  "google.golang.org/protobuf/types/known/fieldmaskpb"
+)
+
+updated, err := scalekitClient.Client().UpdateClient(ctx, "client_123", &clients.UpdateClient{
+  Name: "Updated Name",
+}, &fieldmaskpb.FieldMask{
+  Paths: []string{"name"},
+})
+if err != nil {
+  // handle
+}
+_ = updated.Client
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### DeleteClient
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Clients" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/clients.go">
+    <CB.ClassMethod name="DeleteClient" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `DeleteClient` and returns the result.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="clientId" type="string">
+        Client ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="error">
+        error
+      </CB.ClassMethodOutput>
+
+```go wrap showLineNumbers=false
+if err := scalekitClient.Client().DeleteClient(ctx, "client_123"); err != nil {
+  // handle
+}
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### AddClientSecret
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Clients" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/clients.go">
+    <CB.ClassMethod name="AddClientSecret" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `AddClientSecret` and returns the result.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="clientId" type="string">
+        Client ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateClientSecretResponse">
+        The created resource.
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### RemoveClientSecret
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Clients" type="client" language="go" source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main/clients.go">
+    <CB.ClassMethod name="RemoveClientSecret" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Runs `RemoveClientSecret` and returns the result.
+
+      <CB.ClassMethodInput name="ctx" type="context.Context">
+        Request context
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="clientId" type="string">
+        Client ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="secretId" type="string">
+        Secret id.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="error">
+        error
+      </CB.ClassMethodOutput>
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
+</div>

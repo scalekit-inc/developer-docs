@@ -1,0 +1,81 @@
+---
+title: 'Mixpanel Compliance connector'
+tableOfContents: true
+description: 'Connect to Mixpanel''s GDPR/CCPA compliance API to submit and track end-user data deletion (right to erasure) and data retrieval (subject access) requests....'
+sidebar:
+  label: 'Mixpanel Compliance'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/mixpanel.svg
+connectorAuthType: Bearer Token
+connectorCategories: [Analytics]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/mixpanelcompliance'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupMixpanelcomplianceSection } from '@components/templates'
+import { QuickstartGenericApikeySection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Mixpanel Compliance credentials with Scalekit so it can authenticate requests on your behalf. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupMixpanelcomplianceSection />
+
+   </details>
+
+4. ### Make your first call
+
+   <QuickstartGenericApikeySection connector="mixpanelcompliance" toolName="mixpanelcompliance_gdpr_deletion_status" providerName="Mixpanel Compliance" toolInputNode="{ tracking_id: 'YOUR_TRACKING_ID', project_token: 'YOUR_PROJECT_TOKEN' }" toolInputPython='{"tracking_id":"YOUR_TRACKING_ID","project_token":"YOUR_PROJECT_TOKEN"}' />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Cancel gdpr deletion** — Cancel a pending GDPR/CCPA data deletion request before Mixpanel begins permanently erasing the data
+- **Create gdpr deletion, gdpr retrieval** — Permanently delete ALL data Mixpanel holds for the given distinct_ids — every event and profile property, across all time
+- **Status gdpr deletion, gdpr retrieval** — Check the status of a GDPR/CCPA data deletion request previously created with 'mixpanelcompliance_gdpr_deletion_create'
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

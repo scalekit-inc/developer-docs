@@ -1,0 +1,157 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="User"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main"
+  language="python"
+>
+
+  <CB.ClassMethod name="list_users">
+    Lists all users in the environment with pagination support.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.users.list_users(
+    page_size=50,
+    page_token='next_page_token'
+)
+
+for user in response[0].users:
+    print(f"User: {user.email}")
+```
+
+  <CB.ClassMethod name="list_organization_users">
+    Lists all users in a specific organization with pagination support.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.users.list_organization_users(
+    'org_123456',
+    page_size=50
+)
+
+for user in response[0].users:
+    print(f"User: {user.email}")
+```
+
+  <CB.ClassMethod name="get_user">
+    Retrieves user details by user ID.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.users.get_user('usr_123456')
+user = response[0].user
+print(f"User: {user.email}")
+```
+
+  <CB.ClassMethod name="get_user_by_external_id">
+    Retrieves user details by external ID.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.users.get_user_by_external_id('external_123')
+user = response[0].user
+```
+
+  <CB.ClassMethod name="create_user_and_membership">
+    Creates a new user and adds them to an organization.
+
+  </CB.ClassMethod>
+
+```python
+from scalekit.v1.users.users_pb2 import CreateUser
+
+user = CreateUser()
+user.email = "john.doe@example.com"
+user.given_name = "John"
+user.family_name = "Doe"
+
+response = scalekit_client.users.create_user_and_membership(
+    'org_123456',
+    user,
+    send_invitation_email=True
+)
+```
+
+  <CB.ClassMethod name="update_user">
+    Updates an existing user by user ID.
+
+  </CB.ClassMethod>
+
+```python
+from scalekit.v1.users.users_pb2 import UpdateUser
+
+user = UpdateUser()
+user.given_name = "John"
+
+response = scalekit_client.users.update_user('usr_123456', user)
+```
+
+  <CB.ClassMethod name="delete_user">
+    Deletes a user by user ID.
+
+  </CB.ClassMethod>
+
+```python
+scalekit_client.users.delete_user('usr_123456')
+```
+
+  <CB.ClassMethod name="create_membership">
+    Creates a membership for a user in an organization.
+
+  </CB.ClassMethod>
+
+```python
+from scalekit.v1.users.users_pb2 import CreateMembership
+
+membership = CreateMembership()
+
+response = scalekit_client.users.create_membership(
+    'org_123456',
+    'usr_123456',
+    membership,
+    send_invitation_email=True
+)
+```
+
+  <CB.ClassMethod name="update_membership">
+    Updates a membership for a user in an organization.
+
+  </CB.ClassMethod>
+
+```python
+from scalekit.v1.users.users_pb2 import UpdateMembership
+
+membership = UpdateMembership()
+
+response = scalekit_client.users.update_membership(
+    'org_123456',
+    'usr_123456',
+    membership
+)
+```
+
+  <CB.ClassMethod name="delete_membership">
+    Deletes a membership for a user in an organization.
+
+  </CB.ClassMethod>
+
+```python
+scalekit_client.users.delete_membership('org_123456', 'usr_123456')
+```
+
+  <CB.ClassMethod name="resend_invite">
+    Resends an invitation email to a user who has a pending invitation.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.users.resend_invite('org_123456', 'usr_123456')
+```
+
+</CB.ClassBrowser>

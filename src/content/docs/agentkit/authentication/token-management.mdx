@@ -133,8 +133,8 @@ if account.status == "ACTIVE":
     print("✓ Tokens are valid")
 elif account.status == "EXPIRED":
     print("⚠ Tokens expired, refresh needed")
-elif account.status == "REVOKED":
-    print("✗ User revoked access, re-authentication needed")
+elif account.status == "PENDING_AUTH":
+    print("✗ Re-authentication needed")
 ```
 
 </TabItem>
@@ -152,8 +152,8 @@ if (account.status === 'ACTIVE') {
   console.log('✓ Tokens are valid');
 } else if (account.status === 'EXPIRED') {
   console.log('⚠ Tokens expired, refresh needed');
-} else if (account.status === 'REVOKED') {
-  console.log('✗ User revoked access, re-authentication needed');
+} else if (account.status === 'PENDING_AUTH') {
+  console.log('✗ Re-authentication needed');
 }
 ```
 
@@ -177,8 +177,8 @@ case "ACTIVE":
     fmt.Println("✓ Tokens are valid")
 case "EXPIRED":
     fmt.Println("⚠ Tokens expired, refresh needed")
-case "REVOKED":
-    fmt.Println("✗ User revoked access, re-authentication needed")
+case "PENDING_AUTH":
+    fmt.Println("✗ Re-authentication needed")
 }
 ```
 
@@ -200,8 +200,8 @@ switch (account.getStatus()) {
     case "EXPIRED":
         System.out.println("⚠ Tokens expired, refresh needed");
         break;
-    case "REVOKED":
-        System.out.println("✗ User revoked access, re-authentication needed");
+    case "PENDING_AUTH":
+        System.out.println("✗ Re-authentication needed");
         break;
 }
 ```
@@ -310,7 +310,7 @@ Understanding how different scenarios affect token expiration:
 - **Network issues**: Connection problems during refresh
 
 **Scalekit behavior:**
-- Account status changes to `EXPIRED` or `REVOKED`
+- Account status changes to `EXPIRED` (refresh needed) or `PENDING_AUTH` (re-authentication needed)
 - Tool execution attempts return authentication errors
 - You receive detailed error information
 - User must re-authenticate to restore access
@@ -332,7 +332,7 @@ try:
     )
 except Exception as e:
     # Check if error is due to token issues
-    if 'EXPIRED' in str(e) or 'REVOKED' in str(e):
+    if 'EXPIRED' in str(e) or 'PENDING_AUTH' in str(e):
         # Get fresh authorization link for user
         link_response = actions.get_authorization_link(
             connection_name="gmail",
@@ -360,7 +360,7 @@ try {
   });
 } catch (error) {
   // Check if error is due to token issues
-  if (error.message.includes('EXPIRED') || error.message.includes('REVOKED')) {
+  if (error.message.includes('EXPIRED') || error.message.includes('PENDING_AUTH')) {
     // Get fresh authorization link for user
     const linkResponse = await scalekit.actions.getAuthorizationLink({
       connectionName: 'gmail',
@@ -395,7 +395,7 @@ result, err := scalekitClient.Actions.ExecuteTool(
 
 if err != nil {
     // Check if error is due to token issues
-    if strings.Contains(err.Error(), "EXPIRED") || strings.Contains(err.Error(), "REVOKED") {
+    if strings.Contains(err.Error(), "EXPIRED") || strings.Contains(err.Error(), "PENDING_AUTH") {
         // Get fresh authorization link for user
         linkResponse, _ := scalekitClient.Actions.GetAuthorizationLink(
             context.Background(),
@@ -431,7 +431,7 @@ try {
     );
 } catch (Exception e) {
     // Check if error is due to token issues
-    if (e.getMessage().contains("EXPIRED") || e.getMessage().contains("REVOKED")) {
+    if (e.getMessage().contains("EXPIRED") || e.getMessage().contains("PENDING_AUTH")) {
         // Get fresh authorization link for user
         AuthorizationLink linkResponse = scalekitClient.actions().getAuthorizationLink(
             "gmail",

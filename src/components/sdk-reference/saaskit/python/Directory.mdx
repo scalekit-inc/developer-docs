@@ -1,0 +1,111 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="Directory"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main"
+  language="python"
+>
+
+  <CB.ClassMethod name="list_directories">
+    Lists all directories for an organization.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.directory.list_directories('org_123456')
+
+for directory in response[0].directories:
+    print(f"Directory: {directory.id}")
+```
+
+  <CB.ClassMethod name="get_directory">
+    Retrieves a specific directory by ID.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.directory.get_directory(
+    'org_123456',
+    'directory_123456'
+)
+directory = response[0].directory
+```
+
+  <CB.ClassMethod name="create_directory">
+    Creates a new directory for an organization.
+
+  </CB.ClassMethod>
+
+```python
+from scalekit.v1.directories.directories_pb2 import CreateDirectory
+
+directory = CreateDirectory()
+directory.provider = "azure"
+
+response = scalekit_client.directory.create_directory(
+    'org_123456',
+    directory
+)
+```
+
+  <CB.ClassMethod name="list_directory_users">
+    Lists all users in a directory with pagination support.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.directory.list_directory_users(
+    'org_123456',
+    'directory_123456',
+    page_size=50
+)
+
+for user in response[0].users:
+    print(f"User: {user.email}")
+```
+
+  <CB.ClassMethod name="list_directory_groups">
+    Lists all groups in a directory with pagination support.
+
+  </CB.ClassMethod>
+
+```python
+response = scalekit_client.directory.list_directory_groups(
+    'org_123456',
+    'directory_123456',
+    page_size=50
+)
+
+for group in response[0].groups:
+    print(f"Group: {group.display_name}")
+```
+
+  <CB.ClassMethod name="enable_directory">
+    Enables a directory for an organization.
+
+  </CB.ClassMethod>
+
+```python
+scalekit_client.directory.enable_directory('org_123456', 'directory_123456')
+```
+
+  <CB.ClassMethod name="disable_directory">
+    Disables a directory for an organization.
+
+  </CB.ClassMethod>
+
+```python
+scalekit_client.directory.disable_directory('org_123456', 'directory_123456')
+```
+
+  <CB.ClassMethod name="delete_directory">
+    Deletes a directory from an organization.
+
+  </CB.ClassMethod>
+
+```python
+scalekit_client.directory.delete_directory('org_123456', 'directory_123456')
+```
+
+</CB.ClassBrowser>

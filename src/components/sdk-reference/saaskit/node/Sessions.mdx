@@ -1,0 +1,59 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="Sessions"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main"
+  language="typescript"
+>
+
+  <CB.ClassMethod name="getSession">
+    Retrieves comprehensive metadata and status for a specific user session. Fetches complete session information including authentication status, device details, IP address, geolocation, and expiration timelines.
+
+  </CB.ClassMethod>
+
+```typescript
+const session = await scalekit.session.getSession('ses_123456');
+
+console.log('Status:', session.status);
+console.log('User:', session.userId);
+console.log('Device:', session.deviceInfo);
+console.log('Location:', session.geoLocation);
+```
+
+  <CB.ClassMethod name="getUserSessions">
+    Retrieves a paginated list of all sessions for a specific user across all devices and browsers. Lists all user sessions with support for filtering by status and time range. Essential for displaying active sessions in account management.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekit.session.getUserSessions('usr_123456', {
+  filter: { status: ['active'] },
+  pageSize: 20
+});
+
+console.log(`User has ${response.totalSize} active sessions`);
+```
+
+  <CB.ClassMethod name="revokeSession">
+    Immediately invalidates a specific user session by setting its status to 'revoked'. Terminates a single session, forcing the user to re-authenticate on that specific device. The revocation is instantaneous and irreversible.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekit.session.revokeSession('ses_123456');
+console.log('Session revoked at:', response.revokedAt);
+```
+
+  <CB.ClassMethod name="revokeAllUserSessions">
+    Immediately invalidates all active sessions for a user across all devices and browsers. Terminates all active sessions simultaneously, forcing the user to re-authenticate everywhere. Only active sessions are revoked.
+
+  </CB.ClassMethod>
+
+```typescript
+const response = await scalekit.session.revokeAllUserSessions('usr_123456');
+
+console.log(`Revoked ${response.totalCount} sessions`);
+```
+
+</CB.ClassBrowser>

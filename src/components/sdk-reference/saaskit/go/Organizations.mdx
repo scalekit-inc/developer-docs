@@ -1,0 +1,231 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="Organizations"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-go/blob/main"
+  language="go"
+>
+
+  <CB.ClassMethod name="CreateOrganization">
+    Creates a new organization (tenant). Organizations represent your B2B customers. Use `ExternalId` to map Scalekit organizations to your internal identifiers.
+
+  </CB.ClassMethod>
+
+```go
+import (
+  "context"
+  "fmt"
+
+  "github.com/scalekit-inc/scalekit-sdk-go/v2"
+)
+
+ctx := context.Background()
+org, err := client.Organization().CreateOrganization(ctx, "Acme Corporation", scalekit.CreateOrganizationOptions{
+  ExternalId: "customer_12345",
+  Metadata: map[string]string{
+    "source": "signup",
+  },
+})
+if err != nil {
+  // handle
+}
+
+fmt.Println("Organization ID:", org.Organization.Id)
+```
+
+  <CB.ClassMethod name="ListOrganization">
+    Retrieves a paginated list of organizations in your environment.
+
+  </CB.ClassMethod>
+
+```go
+orgs, err := client.Organization().ListOrganization(ctx, &scalekit.ListOrganizationOptions{
+  PageSize:  10,
+  PageToken: "",
+})
+if err != nil {
+  // handle
+}
+for _, org := range orgs.Organizations {
+  _ = org.Id
+}
+
+// Use server defaults
+orgs, err = client.Organization().ListOrganization(ctx, nil)
+```
+
+  <CB.ClassMethod name="GetOrganization">
+    Fetches an organization by Scalekit organization ID.
+
+  </CB.ClassMethod>
+
+```go
+org, err := client.Organization().GetOrganization(ctx, "org_123")
+if err != nil {
+  // handle
+}
+_ = org.Organization
+```
+
+  <CB.ClassMethod name="GetOrganizationByExternalId">
+    Fetches an organization by your external ID (if set).
+
+  </CB.ClassMethod>
+
+```go
+org, err := client.Organization().GetOrganizationByExternalId(ctx, "customer_12345")
+if err != nil {
+  // handle
+}
+_ = org.Organization
+```
+
+  <CB.ClassMethod name="UpdateOrganization">
+    Updates an organization by Scalekit organization ID.
+
+  </CB.ClassMethod>
+
+```go
+updated, err := client.Organization().UpdateOrganization(
+  ctx,
+  "org_123",
+  &organizations.UpdateOrganization{
+    DisplayName: func() *string { s := "Updated name"; return &s }(),
+  },
+)
+if err != nil {
+  // handle
+}
+_ = updated.Organization
+```
+
+  <CB.ClassMethod name="UpdateOrganizationByExternalId">
+    Updates an organization by your external ID.
+
+  </CB.ClassMethod>
+
+```go
+updated, err := client.Organization().UpdateOrganizationByExternalId(
+  ctx,
+  "customer_12345",
+  &organizations.UpdateOrganization{
+    DisplayName: func() *string { s := "Updated name"; return &s }(),
+  },
+)
+if err != nil {
+  // handle
+}
+_ = updated.Organization
+```
+
+  <CB.ClassMethod name="DeleteOrganization">
+    Deletes an organization by Scalekit organization ID.
+
+  </CB.ClassMethod>
+
+```go
+if err := client.Organization().DeleteOrganization(ctx, "org_123"); err != nil {
+  // handle
+}
+```
+
+  <CB.ClassMethod name="GeneratePortalLink">
+    Generates an admin portal link for an organization.
+
+  </CB.ClassMethod>
+
+```go
+link, err := client.Organization().GeneratePortalLink(ctx, "org_123")
+if err != nil {
+  // handle
+}
+_ = link.Url
+```
+
+  <CB.ClassMethod name="UpdateOrganizationSettings">
+    Updates organization settings (feature toggles).
+
+  </CB.ClassMethod>
+
+```go
+resp, err := client.Organization().UpdateOrganizationSettings(ctx, "org_123", scalekit.OrganizationSettings{
+  Features: []scalekit.Feature{
+    {Name: "sso", Enabled: true},
+    {Name: "dir_sync", Enabled: true},
+  },
+})
+if err != nil {
+  // handle
+}
+_ = resp.Organization.Settings
+```
+
+  <CB.ClassMethod name="UpsertUserManagementSettings">
+    Creates or updates user management settings for an organization.
+
+  </CB.ClassMethod>
+
+```go
+maxUsers := int32(150)
+settings, err := client.Organization().UpsertUserManagementSettings(
+  ctx,
+  "org_123",
+  scalekit.OrganizationUserManagementSettings{
+    MaxAllowedUsers: &maxUsers,
+  },
+)
+if err != nil {
+  // handle
+}
+_ = settings.MaxAllowedUsers
+```
+
+  <CB.ClassMethod name="GetOrganizationSessionPolicy">
+    Retrieves the session policy for an organization. Returns `PolicySource = SessionPolicySourceApplication` when the organization inherits application-level defaults, or `PolicySource = SessionPolicySourceCustom` with the configured timeout values when a custom policy is active.
+
+  </CB.ClassMethod>
+
+```go
+policy, err := client.Organization().GetOrganizationSessionPolicy(ctx, "org_123")
+if err != nil {
+  // handle
+}
+if policy.PolicySource == scalekit.SessionPolicySourceCustom {
+  _ = policy.AbsoluteSessionTimeout.GetValue()
+}
+```
+
+  <CB.ClassMethod name="UpdateOrganizationSessionPolicy">
+    Sets a custom session policy for an organization or reverts it to application defaults. Pass `PolicySource: SessionPolicySourceApplication` to revert. Pass `PolicySource: SessionPolicySourceCustom` with timeout values to activate a custom policy. The system applies the stricter of application and organization values at session creation time.
+
+  </CB.ClassMethod>
+
+```go
+timeout := int32(360)
+idleTimeout := int32(60)
+idleEnabled := true
+policy, err := client.Organization().UpdateOrganizationSessionPolicy(ctx, "org_123", scalekit.OrganizationSessionPolicy{
+  PolicySource:               scalekit.SessionPolicySourceCustom,
+  AbsoluteSessionTimeout:     &timeout,
+  AbsoluteSessionTimeoutUnit: scalekit.TimeUnitMinutes,
+  IdleSessionTimeoutEnabled:  &idleEnabled,
+  IdleSessionTimeout:         &idleTimeout,
+  IdleSessionTimeoutUnit:     scalekit.TimeUnitMinutes,
+})
+if err != nil {
+  // handle
+}
+_ = policy
+
+// Revert to application defaults
+reverted, err := client.Organization().UpdateOrganizationSessionPolicy(ctx, "org_123", scalekit.OrganizationSessionPolicy{
+  PolicySource: scalekit.SessionPolicySourceApplication,
+})
+if err != nil {
+  // handle
+}
+_ = reverted
+```
+
+</CB.ClassBrowser>
