@@ -38,12 +38,12 @@ These methods sit next to session management—use them when implementing hosted
       <CB.ClassMethodInput name="user" type="UserInput">
         User profile fields.
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="object" hint="MessageShape(typeof EmptySchema)">
-        Empty response on successful update
+      <CB.ClassMethodOutput type="UpdateLoginUserDetailsResponse">
+        Response containing the auth request ID (`response.authRequestId`), which you can use to look up the user's authentication journey in the auth logs.
       </CB.ClassMethodOutput>
 
 ```typescript wrap showLineNumbers=false
-await scalekit.auth.updateLoginUserDetails(
+const response = await scalekit.auth.updateLoginUserDetails(
   'conn_abc123',
   'login_xyz789',
   {
@@ -51,6 +51,9 @@ await scalekit.auth.updateLoginUserDetails(
     sub: 'unique_user_id_456',
   }
 );
+
+// The auth request ID can be used to look up the authentication journey via auth logs.
+console.log(response.authRequestId);
 ```
 
     </CB.ClassMethod>

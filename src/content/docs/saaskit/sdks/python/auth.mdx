@@ -38,12 +38,12 @@ These methods sit next to session management—use them when implementing hosted
       <CB.ClassMethodInput name="user" type="Optional[Mapping[str, Any]]">
         User profile fields.
       </CB.ClassMethodInput>
-      <CB.ClassMethodOutput type="Empty">
-        The updated resource.
+      <CB.ClassMethodOutput type="Tuple[UpdateLoginUserDetailsResponse, grpc.Call]">
+        Tuple of the response (carrying `auth_request_id`) and the gRPC call metadata. Use the auth request ID to look up the user's authentication journey in the auth logs.
       </CB.ClassMethodOutput>
 
 ```python wrap showLineNumbers=false
-scalekit_client.auth.update_login_user_details(
+response = scalekit_client.auth.update_login_user_details(
     'conn_abc123',
     'login_xyz789',
     {
@@ -51,6 +51,9 @@ scalekit_client.auth.update_login_user_details(
         'sub': 'unique_user_id_456',
     }
 )
+
+# The auth request ID can be used to look up the authentication journey via auth logs.
+print(response[0].auth_request_id)
 ```
 
     </CB.ClassMethod>
