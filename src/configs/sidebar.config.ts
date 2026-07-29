@@ -138,9 +138,7 @@ export const sidebar = [
           'authenticate/run-e2e-tests',
           'guides/dashboard/auth-logs',
           'fsa/guides/migration-guide',
-          // Section root (not /overview/) so this cross-topic link does not steal
-          // Starlight's isCurrent mark from Self-hosted overview in its own sidebar.
-          { label: 'Self-hosted deployment', link: '/self-hosted/' },
+          { label: 'Self-hosted deployment', link: '/self-hosted' },
         ],
       },
     ],
@@ -220,9 +218,7 @@ export const sidebar = [
           'agentkit/advanced/launch-checklist',
           'agentkit/authentication/troubleshooting',
           { label: 'Migrate from Composio', link: 'agentkit/advanced/migrate-from-composio' },
-          // Section root (not /overview/) so this cross-topic link does not steal
-          // Starlight's isCurrent mark from Self-hosted overview in its own sidebar.
-          { label: 'Self-hosted deployment', link: '/self-hosted/' },
+          { label: 'Self-hosted deployment', link: '/self-hosted' },
         ],
       },
     ],
