@@ -6,6 +6,8 @@ export const redirects = {
   '/authenticate': '/',
   '/auth-for-saas': '/authenticate/fsa/quickstart/',
   '/home/auth-for-saas': '/home/saaskit/',
+  // Go live links use /self-hosted (not /overview/) so they do not steal sidebar isCurrent.
+  '/self-hosted': '/self-hosted/overview/',
 
   // =============================================================================
   // FULL STACK AUTH (FSA) REDIRECTS
