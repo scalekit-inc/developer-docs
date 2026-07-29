@@ -6,6 +6,10 @@ export const redirects = {
   '/authenticate': '/',
   '/auth-for-saas': '/authenticate/fsa/quickstart/',
   '/home/auth-for-saas': '/home/saaskit/',
+  // Section root → overview (same idea as /agentkit → quickstart). Go live links
+  // use /self-hosted/ so they do not share the overview href and steal isCurrent.
+  '/self-hosted': '/self-hosted/overview/',
+  '/self-hosted/': '/self-hosted/overview/',
 
   // =============================================================================
   // FULL STACK AUTH (FSA) REDIRECTS
