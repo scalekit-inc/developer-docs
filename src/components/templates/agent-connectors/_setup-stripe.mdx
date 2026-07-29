@@ -1,0 +1,42 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your Stripe Secret Key with Scalekit so it can authenticate requests on your behalf. This connector uses a Bearer token — there is no redirect URI or OAuth flow.
+
+<Steps>
+1. ### Choose a sandbox or your live account
+
+   Stripe separates every account into isolated environments: one or more **sandboxes** for testing, and the **live** account for real payments. Each environment has its own API keys, so pick the right one before you continue:
+
+   - Use a **sandbox** (shown as **Test mode** in the dashboard) while you build and test your integration. Sandbox keys are prefixed `sk_test_` and `pk_test_`, and never move real money.
+   - Switch to your **live** account only when you're ready to process real payments. Live keys are prefixed `sk_live_` and `pk_live_`.
+
+   <Aside type="caution" title="Never mix sandbox and live keys">
+     A sandbox Secret Key only works against that sandbox's data — it cannot see or affect your live account, and vice versa. If Scalekit requests fail with an authentication error, confirm you copied the key from the environment you intended.
+   </Aside>
+
+2. ### Get your Secret Key
+
+   - Sign in to the [Stripe Dashboard](https://dashboard.stripe.com) and confirm the environment switcher in the top-left corner shows the sandbox or live account you want keys for.
+   - Go to **Developers** → **API keys**.
+   - Under **Standard keys**, click the **Secret key** row and reveal or copy its value.
+
+     ![Stripe Developers > API keys page showing the Publishable key and Secret key under Standard keys](@/assets/docs/agent-connectors/stripe/api-keys.png)
+
+   <Aside type="tip" title="Quick access from the Workbench">
+     The **Workbench** overview page (**Developers** → **Workbench**) also surfaces a **Testing tools** panel with your current sandbox's **Test keys** and a **View all API keys** shortcut — useful when you're already debugging a request there.
+
+     ![Stripe Workbench overview page with a Testing tools panel showing the Publishable key and a hidden Secret key](@/assets/docs/agent-connectors/stripe/workbench-test-keys.png)
+   </Aside>
+
+   <Aside type="caution" title="Never hard-code secrets">
+     Treat the Secret Key like a password — it grants full API access to whichever environment it belongs to. Store it in an environment variable or secrets manager, never in source code or version control.
+   </Aside>
+
+3. ### Add a connected account in Scalekit
+
+   Connected accounts link a specific user identifier in your system to a Stripe Secret Key. Add one via the dashboard for testing, or via the Scalekit API in production. Use the Secret Key from step 2 as the `token` credential field — see **Set your credentials** above for the request shape.
+
+   <Aside type="note" title="Match your environment across every connected account">
+     If you run sandbox and live traffic through the same Scalekit connection, create separate connected accounts per user and environment so each one holds the matching `sk_test_` or `sk_live_` key.
+   </Aside>
+</Steps>
