@@ -6091,6 +6091,15 @@
             "name": "id",
             "in": "path",
             "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "field-mask"
+            },
+            "description": "Optional. By default, every field present in `user` is updated automatically - this mask is not required for ordinary updates, including clearing a field via an empty string. Set it explicitly only if you want to control precisely which fields are touched.",
+            "name": "update_mask",
+            "in": "query"
           }
         ],
         "responses": {
@@ -6371,6 +6380,15 @@
             "name": "external_id",
             "in": "path",
             "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "field-mask"
+            },
+            "description": "Optional. By default, every field present in `user` is updated automatically - this mask is not required for ordinary updates, including clearing a field via an empty string. Set it explicitly only if you want to control precisely which fields are touched.",
+            "name": "update_mask",
+            "in": "query"
           }
         ],
         "responses": {
@@ -13518,6 +13536,17 @@
               }
             ]
           },
+          "email_verified": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "external_identities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/commonsExternalIdentity"
+            },
+            "readOnly": true
+          },
           "family_name": {
             "description": "Updates the user's family name (last name or surname). Use this field to modify how the user's last name appears throughout the system. Maximum 255 characters allowed.",
             "type": "string",
@@ -13545,6 +13574,11 @@
               "type": "string"
             },
             "examples": [["engineering", "managers"]]
+          },
+          "id": {
+            "description": "id, email_verified, phone_number_verified, and external_identities are OUTPUT_ONLY -\nnever written by an update. They exist here (rather than reserved/absent) solely so a\nclient that reads a profile and PATCHes the same object back (a common pattern) doesn't\nget a validation error for including fields your own GET response returned.",
+            "type": "string",
+            "readOnly": true
           },
           "last_name": {
             "description": "[DEPRECATED] Use family_name instead. User's family name. Maximum 200 characters.",
@@ -13578,6 +13612,10 @@
             "description": "Updates the user's phone number in E.164 international format. Use this field to enable SMS-based authentication methods, two-factor authentication, or phone-based account recovery. The phone number must include the country code and be formatted according to E.164 standards (e.g., `+1` for US numbers). This field is required when enabling SMS authentication features.",
             "type": "string",
             "examples": ["+14155552671"]
+          },
+          "phone_number_verified": {
+            "type": "boolean",
+            "readOnly": true
           },
           "picture": {
             "description": "Updates the URL to the user's profile picture or avatar image. Use this field to set or change the user's profile photo that appears in user interfaces, directory listings, and collaborative features. The URL should point to a publicly accessible image file. Supported formats typically include JPEG, PNG, and GIF. Maximum URL length is 2048 characters.",
@@ -14208,10 +14246,40 @@
       "v1usersUpdateUser": {
         "type": "object",
         "properties": {
+          "create_time": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "email": {
+            "type": "string",
+            "readOnly": true
+          },
+          "environment_id": {
+            "type": "string",
+            "readOnly": true
+          },
           "external_id": {
-            "description": "Your application's unique identifier for this organization, used to link Scalekit with your system.",
+            "description": "Your application's unique identifier for this user, used to link Scalekit with your system.",
             "type": "string",
             "examples": ["ext_12345a67b89c"]
+          },
+          "id": {
+            "description": "id, environment_id, create_time, update_time, email, memberships, and last_login_time are\nOUTPUT_ONLY - never written by an update. They exist here (rather than reserved/absent) so\nthat a client which reads a User and PATCHes the same object back (a common read-modify-\nwrite pattern) doesn't get a validation error for including fields its own GET response\nreturned.",
+            "type": "string",
+            "readOnly": true
+          },
+          "last_login_time": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "memberships": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/commonsOrganizationMembership"
+            },
+            "readOnly": true
           },
           "metadata": {
             "description": "Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).",
@@ -14225,6 +14293,11 @@
                 "location": "nyc-office"
               }
             ]
+          },
+          "update_time": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
           },
           "user_profile": {
             "description": "User's personal information including name, address, and other profile attributes.",
