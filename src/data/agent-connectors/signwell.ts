@@ -261,7 +261,7 @@ export const tools: Tool[] = [
         name: 'name',
         type: 'string',
         required: false,
-        description: `Name of the document to create. Displayed in the Signwell dashboard and emails.`,
+        description: `Name of the document to create. Displayed in the SignWell dashboard and emails.`,
       },
       {
         name: 'redirect_url',
@@ -394,7 +394,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'signwell_delete_api_application',
-    description: `Permanently delete an API Application from the Signwell account.`,
+    description: `Permanently delete an API Application from the SignWell account.`,
     params: [
       {
         name: 'id',
