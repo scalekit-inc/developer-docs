@@ -113,6 +113,8 @@ See [Verify user identity](/agentkit/user-verification/) for configuration and A
 
 The access token expired and Scalekit could not refresh it automatically. Try a manual refresh first. If refresh fails, send the user a new authorization link.
 
+If manual refresh always fails, or the account returns to `EXPIRED` soon after each re-authorization, the connection never received a refresh token. A provider issues one only when the connection requests offline access, so re-authorizing without it produces another short-lived token that expires again. Add the provider's offline-access scope (for example `offline_access` or `refresh_token`) in [Configure scopes](/agentkit/connections/#configure-scopes), then have the user reconnect. See [why OAuth accounts expire](/agentkit/connected-accounts/#detect-when-re-authentication-is-needed) for the full list of causes.
+
 <Tabs syncKey="tech-stack">
   <TabItem label="Python">
 
