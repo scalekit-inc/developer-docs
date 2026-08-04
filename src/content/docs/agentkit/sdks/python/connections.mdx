@@ -1,0 +1,95 @@
+---
+title: Connections
+description: Create environment-level AgentKit connections with scalekit_client.connection
+topic: agentkit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Connections
+prev: false
+next: false
+head:
+  - tag: style
+    content: |
+      starlight-toc a[href='#_top'],
+      starlight-toc li:has(> a[href='#_top']) > a[href='#_top'] {
+        display: none !important;
+      }
+      starlight-toc li:has(> a[href='#_top']) > ul {
+        padding-inline-start: 0 !important;
+      }
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+<div class="sdk-client-page">
+
+
+`scalekit_client.connection` creates the environment-level connections that AgentKit connectors run on. A connection holds the OAuth app credentials, scopes, and redirect URI Scalekit uses when your users authorize a connector, and one connection serves every user in that environment.
+
+**Common path:** create the connection once → connect end-user accounts with [`scalekit_client.actions`](/agentkit/sdks/python/actions/) → run tools.
+
+Most teams create connections in the Scalekit Dashboard — see [Configure a connection](/agentkit/connections/). Use `create_environment_connection` when you provision environments in code, such as seeding a new environment from a setup script or CI job.
+
+The same client also exposes `get_environment_connection`, `update_environment_connection`, and `list_app_connections` for reading and editing connections that already exist.
+
+### create_environment_connection
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
+    <CB.ClassMethod name="create_environment_connection" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Creates a new environment-level connection. Pass `Flags(is_app=True)` to register it as an app connection that AgentKit connectors can use.
+
+      <CB.ClassMethodInput name="connection" type="CreateConnection">
+        CreateConnection object with the provider key and connection type.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="flags" type="Optional[Flags]">
+        Optional. Connection flags (`is_login`, `is_app`).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="CreateConnectionResponse">
+        Create Connection Response
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+import os
+from scalekit.v1.connections.connections_pb2 import (
+    CreateConnection, ConnectionType, Flags, UpdateConnection, OAuthConnectionConfig
+)
+
+# Register the connection at the environment level. is_app=True marks it as an
+# app connection, which is what AgentKit connectors resolve against.
+response = scalekit_client.connection.create_environment_connection(
+    connection=CreateConnection(
+        provider_key='HUBSPOT',
+        type=ConnectionType.OAUTH,
+    ),
+    flags=Flags(is_app=True),
+)
+connection = response[0].connection
+print(f"Created: {connection.id}, Key: {connection.key_id}")
+
+# Attach your own OAuth app credentials so users see your brand on the consent
+# screen. Read them from the environment: a hard-coded client secret leaks to
+# anyone with repository access and lets them impersonate your app with the
+# provider.
+scalekit_client.connection.update_environment_connection(
+    connection_id=connection.id,
+    connection=UpdateConnection(
+        provider_key='HUBSPOT',
+        key_id=connection.key_id,
+        type=ConnectionType.OAUTH,
+        oauth_config=OAuthConnectionConfig(
+            client_id={'value': os.environ['HUBSPOT_CLIENT_ID']},
+            client_secret={'value': os.environ['HUBSPOT_CLIENT_SECRET']},
+        ),
+    ),
+)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+</div>

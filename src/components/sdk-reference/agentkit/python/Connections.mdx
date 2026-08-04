@@ -1,0 +1,48 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+<CB.ClassBrowser
+  name="Connection"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py"
+  language="python"
+>
+
+  <CB.ClassMethod name="create_environment_connection">
+    Creates a new environment-level connection. Pass `Flags(is_app=True)` to register it as an app connection that AgentKit connectors can use.
+
+  </CB.ClassMethod>
+
+```python
+import os
+from scalekit.v1.connections.connections_pb2 import (
+    CreateConnection, ConnectionType, Flags, UpdateConnection, OAuthConnectionConfig
+)
+
+# Register the connection at the environment level. is_app=True marks it as an
+# app connection, which is what AgentKit connectors resolve against.
+response = scalekit_client.connection.create_environment_connection(
+    connection=CreateConnection(
+        provider_key='HUBSPOT',
+        type=ConnectionType.OAUTH,
+    ),
+    flags=Flags(is_app=True),
+)
+connection = response[0].connection
+
+# Attach your own OAuth app credentials from the environment — never hard-code a
+# client secret.
+scalekit_client.connection.update_environment_connection(
+    connection_id=connection.id,
+    connection=UpdateConnection(
+        provider_key='HUBSPOT',
+        key_id=connection.key_id,
+        type=ConnectionType.OAUTH,
+        oauth_config=OAuthConnectionConfig(
+            client_id={'value': os.environ['HUBSPOT_CLIENT_ID']},
+            client_secret={'value': os.environ['HUBSPOT_CLIENT_SECRET']},
+        ),
+    ),
+)
+```
+
+</CB.ClassBrowser>
