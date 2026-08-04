@@ -1,6 +1,6 @@
 ---
 title: "AgentKit: Connect my agent to apps"
-description: Build a working agent that makes authenticated tool calls on behalf of users, using Gmail as the example connector.
+description: Build a working agent that makes authenticated tool calls on behalf of users, using Slack as the example connector.
 tags: [agent-auth, quickstart, ai-agents, oauth, token-vault, tool-integration, delegated-oauth]
 sidebar:
   order: 1
@@ -12,14 +12,14 @@ import quickstartArchitecture from '@/assets/pages/hero/agentkit.svg';
 
 <img
   src={quickstartArchitecture.src}
-  alt="Architecture diagram: an AI agent connects through Scalekit MCP Gateway with delegated auth, scoped permissions, and tool calls to SaaS apps such as Gmail, Slack, and Salesforce."
+  alt="Architecture diagram: an AI agent connects through Scalekit MCP Gateway with delegated auth, scoped permissions, and tool calls to SaaS apps such as Slack, Gmail, and Salesforce."
   width={quickstartArchitecture.width}
   height={quickstartArchitecture.height}
   loading="eager"
   decoding="async"
 />
 
-By the end of this guide, you'll have a working agent that fetches a user's last 5 unread Gmail messages (authenticated with their real account). Scalekit manages the OAuth flow, token storage, and API proxy so you focus on agent logic.
+By the end of this guide, you'll have a working agent that lists a user's Slack channels (authenticated with their real account). Scalekit manages the OAuth flow, token storage, and API proxy so you focus on agent logic.
 
 
 
@@ -28,17 +28,17 @@ By the end of this guide, you'll have a working agent that fetches a user's last
 Complete these steps in the Scalekit dashboard before writing any code:
 
 1. **Create a Scalekit account** at [app.scalekit.com](https://app.scalekit.com).
-2. **Configure a Gmail connector** at Dashboard → **AgentKit** > **Connections** > **Create Connection** → select **Gmail**.
+2. **Confirm the Slack connector** at Dashboard → **AgentKit** > **Connections**.
 
-   Create the connection in the dashboard before running any code. Then copy the exact **Connection name** from that connection and use that value in your code. It must match the dashboard exactly, and it is not always the provider slug `gmail`.
+   Slack is enabled by default in new Scalekit environments, so the connection is already there. Copy the exact **Connection name** from that connection and use that value in your code. It must match the dashboard exactly, and it is not always the provider slug `slack`.
 
-   Gmail is enabled by default in new Scalekit environments. To connect to other services, create a connection for each app under **AgentKit** > **Connections** > **Create Connection**.
+   If the Slack connection is missing, create it at **AgentKit** > **Connections** > **Create Connection** → select **Slack**. To connect to other services, create a connection for each app the same way.
 
-3. **Copy your API credentials** at Dashboard → **Developers → Settings → API Credentials**. Save these three values as environment variables:
+3. **Copy your API credentials** at Dashboard → **Developers → Settings → API Credentials**. Save these four values as environment variables:
    - `SCALEKIT_CLIENT_ID`
    - `SCALEKIT_CLIENT_SECRET`
    - `SCALEKIT_ENV_URL`
-   - `GMAIL_CONNECTION_NAME` (copy the exact Connection name from **AgentKit** > **Connections**)
+   - `SLACK_CONNECTION_NAME` (copy the exact Connection name from **AgentKit** > **Connections**)
 
 ## Build your agent
 
@@ -54,7 +54,7 @@ Complete these steps in the Scalekit dashboard before writing any code:
     The wizard sets up the right plugins and skills for your editors. Complete any browser authorization for the Scalekit MCP server when prompted. Then use the prompt below (or describe your goal in natural language).
 
     ```md title="Implementation prompt" wrap showLineNumbers=false
-    Configure Scalekit agent authentication for Gmail. Provide code to create a connected account, generate an authorization link, and, once the user authorizes, fetch the last 5 unread emails using Scalekit's tool API.
+    Configure Scalekit agent authentication for Slack. Provide code to create a connected account, generate an authorization link, and, once the user authorizes, list the workspace's first 10 channels using Scalekit's tool API.
     ```
 
     <Aside type="caution" title="Review generated code before deploying">
@@ -95,7 +95,7 @@ Complete these steps in the Scalekit dashboard before writing any code:
             os.environ["SCALEKIT_CLIENT_SECRET"],
         )
         actions = scalekit_client.actions
-        connection_name = os.getenv("GMAIL_CONNECTION_NAME")  # must match the Connection name in the dashboard exactly
+        connection_name = os.getenv("SLACK_CONNECTION_NAME")  # must match the Connection name in the dashboard exactly
         ```
       </TabItem>
       <TabItem label="Node.js">
@@ -112,19 +112,19 @@ Complete these steps in the Scalekit dashboard before writing any code:
         );
 
         const actions = scalekit.actions;
-        const connectionName = process.env.GMAIL_CONNECTION_NAME!; // must match the Connection name in the dashboard exactly
+        const connectionName = process.env.SLACK_CONNECTION_NAME!; // must match the Connection name in the dashboard exactly
         ```
       </TabItem>
     </Tabs>
 
     ### 2. Create a connected account
 
-    Scalekit tracks each user's third-party connection as a connected account. This is the record that holds their OAuth tokens. Creating it tells Scalekit to start managing the user's Gmail access on your behalf. This step fails if the Gmail connection has not been created in **AgentKit** > **Connections** yet, or if `connection_name` / `connectionName` does not match the dashboard exactly.
+    Scalekit tracks each user's third-party connection as a connected account. This is the record that holds their OAuth tokens. Creating it tells Scalekit to start managing the user's Slack access on your behalf. This step fails if the Slack connection is missing from **AgentKit** > **Connections**, or if `connection_name` / `connectionName` does not match the dashboard exactly.
 
     <Tabs syncKey="tech-stack">
       <TabItem label="Python">
         ```python wrap {2} showLineNumbers=false frame="none"
-        # Create or retrieve the user's connected Gmail account
+        # Create or retrieve the user's connected Slack account
         response = actions.get_or_create_connected_account(
             connection_name=connection_name,
             identifier="user_123"  # Replace with your system's unique user ID
@@ -135,7 +135,7 @@ Complete these steps in the Scalekit dashboard before writing any code:
       </TabItem>
       <TabItem label="Node.js">
         ```typescript showLineNumbers=false frame="none"
-        // Create or retrieve the user's connected Gmail account
+        // Create or retrieve the user's connected Slack account
         const response = await actions.getOrCreateConnectedAccount({
           connectionName,
           identifier: 'user_123',  // Replace with your system's unique user ID
@@ -157,13 +157,13 @@ Complete these steps in the Scalekit dashboard before writing any code:
         # Generate authorization link if user hasn't authorized or token is expired.
         # Do not call tools until status is ACTIVE — wait for the user to finish OAuth first.
         if connected_account.status != "ACTIVE":
-            print(f"Gmail is not connected: {connected_account.status}")
+            print(f"Slack is not connected: {connected_account.status}")
             link_response = actions.get_authorization_link(
                 connection_name=connection_name,
                 identifier="user_123",
             )
-            print("🔗 click on the link to authorize Gmail", link_response.link)
-            input("⎆ Press Enter after authorizing Gmail...")
+            print("🔗 click on the link to authorize Slack", link_response.link)
+            input("⎆ Press Enter after authorizing Slack...")
             # Re-fetch so connected_account reflects ACTIVE status and a valid id
             response = actions.get_or_create_connected_account(
                 connection_name=connection_name,
@@ -174,7 +174,7 @@ Complete these steps in the Scalekit dashboard before writing any code:
 
         if connected_account.status != "ACTIVE":
             raise RuntimeError(
-                "Gmail is still not ACTIVE. Complete authorization and try again."
+                "Slack is still not ACTIVE. Complete authorization and try again."
             )
         ```
       </TabItem>
@@ -183,13 +183,13 @@ Complete these steps in the Scalekit dashboard before writing any code:
         // Generate authorization link if user hasn't authorized or token is expired.
         // Do not call tools until status is ACTIVE — wait for the user to finish OAuth first.
         if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
-          console.log('gmail is not connected:', connectedAccount?.status);
+          console.log('slack is not connected:', connectedAccount?.status);
           const linkResponse = await actions.getAuthorizationLink({
             connectionName,
             identifier: 'user_123',
           });
-          console.log('🔗 click on the link to authorize gmail', linkResponse.link);
-          console.log('Press Enter after authorizing Gmail...');
+          console.log('🔗 click on the link to authorize slack', linkResponse.link);
+          console.log('Press Enter after authorizing Slack...');
           await new Promise<void>((resolve) => {
             process.stdin.resume();
             process.stdin.once('data', () => {
@@ -207,17 +207,17 @@ Complete these steps in the Scalekit dashboard before writing any code:
         }
 
         if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
-          throw new Error('Gmail is still not ACTIVE. Complete authorization and try again.');
+          throw new Error('Slack is still not ACTIVE. Complete authorization and try again.');
         }
         ```
       </TabItem>
     </Tabs>
 
-    Open the link in a browser and authorize the Gmail connection. Once complete, the connected account status updates to `ACTIVE` and your agent can act on the user's behalf. In CLI samples, wait for that step (for example with `input()` or stdin) before calling tools — otherwise the first run fails because the account is still inactive.
+    Open the link in a browser and authorize the Slack connection. Once complete, the connected account status updates to `ACTIVE` and your agent can act on the user's behalf. In CLI samples, wait for that step (for example with `input()` or stdin) before calling tools — otherwise the first run fails because the account is still inactive.
 
-    ### 4. Fetch emails via tool call
+    ### 4. List Slack channels via tool call
 
-    Pass the tool name and your inputs to Scalekit. It handles the request to Gmail and returns a structured response your agent can reason over directly: no endpoint URLs, auth headers, or response parsing required.
+    Pass the tool name and your inputs to Scalekit. It handles the request to Slack and returns a structured response your agent can reason over directly: no endpoint URLs, auth headers, or response parsing required.
 
     <Tabs syncKey="tech-stack">
       <TabItem label="Python">
@@ -225,11 +225,10 @@ Complete these steps in the Scalekit dashboard before writing any code:
         # Prefer connected_account_id after authorize. If you use identifier instead,
         # also pass connection_name — the pair is required for account resolution.
         tool_response = actions.execute_tool(
-            tool_name="gmail_fetch_mails",
+            tool_name="slack_list_channels",
             connected_account_id=connected_account.id,
             tool_input={
-                "query": "is:unread",
-                "max_results": 5,
+                "limit": 10,
             },
         )
         # Tool output lives under data
@@ -239,15 +238,14 @@ Complete these steps in the Scalekit dashboard before writing any code:
       <TabItem label="Node.js">
         ```typescript showLineNumbers=false frame="none" wrap
         const toolResponse = await actions.executeTool({
-          toolName: 'gmail_fetch_mails',
+          toolName: 'slack_list_channels',
           connectedAccountId: connectedAccount?.id,
           toolInput: {
-            query: 'is:unread',
-            max_results: 5,
+            limit: 10,
           },
         });
         // Tool output lives under data
-        console.log('Recent emails:', toolResponse.data);
+        console.log('Your Slack channels:', toolResponse.data);
         ```
       </TabItem>
     </Tabs>
@@ -259,8 +257,8 @@ Complete these steps in the Scalekit dashboard before writing any code:
 
 Run your agent and confirm:
 
-- The connected account status is `ACTIVE` after the user completes the Gmail OAuth flow.
-- The tool response contains structured email data (subject, sender, snippet, and timestamp) ready for your agent to process.
+- The connected account status is `ACTIVE` after the user completes the Slack OAuth flow.
+- The tool response contains structured channel data (name, ID, topic, and member count) ready for your agent to process.
 
 If the connected account stays in a `non-ACTIVE` state, the user has not completed the OAuth flow. Regenerate the authorization link and try again.
 
