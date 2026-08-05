@@ -1,5 +1,5 @@
 ---
-title: 'Build a Vapi voice assistant that can use any tool with Scalekit'
+title: 'Build a Vapi voice assistant with Scalekit'
 description: 'Use Vapi + Scalekit Virtual MCP for voice assistants to securely access any tool from large catalogs.'
 date: 2026-07-01
 tags: ['Agent auth', 'Voice', 'MCP', 'Vapi']
@@ -35,7 +35,7 @@ The complete source is available in the [vapi-scalekit-voice-demo](https://githu
 - Register and manage individual tools (built-in from connections or custom) directly in the Scalekit UI, and associate them with users/connections.
 - A **Vapi voice assistant** that understands natural language requests (e.g. "List my meetings this week", "Find emails from Acme about the renewal", "Summarize the last thread in #eng-updates on Slack", "Show my open GitHub PRs", "Find the latest proposal in Drive and email it to the team").
 - **Dynamic tool discovery** via a Scalekit Virtual MCP — the assistant only sees the tools you explicitly scoped for that role (selected from the ones you registered). Vapi discovers these at call start via the MCP protocol.
-- **Per-user OAuth without custom code** — Scalekit handles authorization links, token storage, and refresh. Your app just passes the user's identifier.
+- **Per-user OAuth without custom code** — Scalekit handles authorization links, token storage, and refresh. Your app passes the user's identifier.
 - **Access to any tool** — scoping + per-user tokens keep context small and access least-privilege even when the full catalog is huge.
 - A pattern you can extend to other voice platforms or agent frameworks by swapping the client.
 
@@ -244,21 +244,43 @@ In a real application you never manually edit the Vapi dashboard for each user o
 - You then use the Vapi API (authenticated with your `VAPI_PRIVATE_KEY`) to dynamically set or override the MCP tool's `server` (url + Authorization header) on the assistant before starting the call.
 - The identifier always comes from the logged-in user context rather than a `TEST_IDENTIFIER` env var.
 
-Mint a session token (and build the `mcpConfig`) in your backend before each call:
+Mint a session token (and build the `mcpConfig`) in your backend before each call.
+
+Node.js and Python match the demo stack. Go and Java are omitted — the Vapi demo and Virtual MCP token helpers are Node/Python only, and the high-level `create_session_token` API is currently documented for the Python SDK.
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Node.js">
 ```ts title="mint-token.ts"
+// The Node SDK does not expose actions.mcp.create_session_token yet.
+// Mint via the management token + REST, as in the demo route.
 try {
-  const tokenResp = await scalekit.actions.mcp.create_session_token({
-    mcp_config_id: mcpConfigId,
-    identifier: userIdentifier,
-    expiry: '1h',
-  });
+  // Security: mint a short-lived, per-user token server-side so the credential
+  // never reaches the browser, Vapi dashboard, or the LLM.
+  const managementToken = await scalekit.getClientAccessToken();
+  const base = process.env.SCALEKIT_ENV_URL!.replace(/\/$/, '');
+  const tokenRes = await fetch(
+    `${base}/api/v1/actions/mcp/configs/${mcpConfigId}/session-tokens`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${managementToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        identifier: userIdentifier,
+        expiry: '1h',
+      }),
+    },
+  );
+  if (!tokenRes.ok) {
+    throw new Error(await tokenRes.text());
+  }
+  const tokenData = await tokenRes.json();
+  const token = tokenData.token;
 
   const mcpConfig = {
     url: mcpServerUrl,
-    headers: { Authorization: `Bearer ${tokenResp.token}` },
+    headers: { Authorization: `Bearer ${token}` },
   };
 
   // Pass mcpConfig to Vapi (via API or call start)
@@ -269,7 +291,11 @@ try {
   </TabItem>
   <TabItem label="Python">
 ```python title="mint_token.py"
+from datetime import timedelta
+
 try:
+    # Security: mint a short-lived, per-user token server-side so the credential
+    # never reaches the browser, Vapi dashboard, or the LLM.
     token_response = scalekit_client.actions.mcp.create_session_token(
         mcp_config_id=mcp_id,
         identifier=user_identifier,
