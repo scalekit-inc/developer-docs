@@ -1,0 +1,79 @@
+---
+title: 'Mailgun connector'
+tableOfContents: true
+description: 'Connect to Mailgun to send transactional and marketing email, manage domains and DNS/DKIM security, mailing lists, suppressions (bounces, complaints...'
+sidebar:
+  label: 'Mailgun'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/mailgun.svg
+connectorAuthType: API Key
+connectorCategories: [Communication, Marketing]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/mailgun'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupMailgunSection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Mailgun credentials with Scalekit so it can authenticate requests on your behalf. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupMailgunSection />
+
+   </details>
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **List users, unsubscribes, tags** — Get the users on your Mailgun account, with optional filtering by role and pagination
+- **Get users, unsubscribes** — Get the account's own user details for the API key used to authenticate this request, including name, email, role, activation/disabled status, two-factor auth status, and preferences
+- **Delete unsubscribes, tags, subaccounts** — Remove a single email address from a Mailgun domain's unsubscribe (suppression) list
+- **Create unsubscribes, subaccounts, smtp credentials** — Add an email address to a Mailgun domain's unsubscribe (suppression) list, so future deliveries to it are suppressed for the given tag (or all of the domain's mail if no tag is given)
+- **Clear unsubscribes, smtp credentials, domain templates** — Clear (delete) every unsubscribe email address recorded for a Mailgun domain
+- **Update tags, subaccounts** — Update the description of a tag associated with a Mailgun sending domain
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

@@ -1,0 +1,84 @@
+---
+title: 'Postmark connector'
+tableOfContents: true
+description: 'Send and track transactional and broadcast email with Postmark. Manage templates, message streams, bounces, suppressions, webhooks, and delivery...'
+sidebar:
+  label: 'Postmark'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/postmark.svg
+connectorAuthType: API Key
+connectorCategories: [Communication, Developer Tools]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/postmark'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupPostmarkSection } from '@components/templates'
+import { QuickstartGenericApikeySection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Postmark credentials with Scalekit so it can authenticate requests on your behalf. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupPostmarkSection />
+
+   </details>
+
+4. ### Make your first call
+
+   <QuickstartGenericApikeySection connector="postmark" toolName="postmark_get_bounce_counts" providerName="Postmark" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Template validate** — Validate template content without saving it, rendering subject, html_body, and/or text_body against test_render_model to surface syntax errors and preview the rendered output
+- **Update webhook, template, server info** — Update an existing webhook on the current Postmark server by its numeric ID
+- **Stream unarchive message, archive message** — Unarchive a previously archived message stream on the current Postmark server, restoring it to active use before its 30-day deletion window elapses
+- **Send email with template, email, batch emails with templates** — Send a single transactional email rendered from a Postmark template
+- **Message retry inbound, bypass inbound** — Retry processing of an inbound message that previously failed, causing Postmark to attempt delivery to your configured inbound webhook again
+- **List webhooks, templates, suppressions** — List the webhooks configured on the current Postmark server, including each webhook's URL, message stream scope, HTTP auth/header configuration, and which event triggers (Open, Click, Delivery, Bounce, SpamComplaint, SubscriptionChange) are enabled
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

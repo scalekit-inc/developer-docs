@@ -1,0 +1,84 @@
+---
+title: 'SendGrid connector'
+tableOfContents: true
+description: 'Connect to Twilio SendGrid to send transactional and marketing email at scale, manage templates, contacts, lists, segments, and single sends, verify...'
+sidebar:
+  label: 'SendGrid'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/sendgrid.svg
+connectorAuthType: Bearer Token
+connectorCategories: [Communication, Marketing, Developer Tools]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/sendgrid'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupSendgridSection } from '@components/templates'
+import { QuickstartGenericApikeySection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your SendGrid credentials with Scalekit so it can authenticate requests on your behalf. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupSendgridSection />
+
+   </details>
+
+4. ### Make your first call
+
+   <QuickstartGenericApikeySection connector="sendgrid" toolName="sendgrid_get_integrations_by_user" providerName="SendGrid" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Ip warm up, add sub users to** — Put a SendGrid IP address into warmup mode
+- **Token verify sender** — Verify a pending Sender Identity using the verification token SendGrid generated and included in the verification email sent to the address pending verification
+- **Dns validate reverse, set up reverse** — Validate a Reverse DNS record by its id, checking whether the required A record has been correctly set up at your DNS host
+- **Email validate** — Validate a single email address using SendGrid's Email Address Validation service
+- **Link validate branded** — Validate a branded link (link branding / click-tracking domain) by ID: SendGrid re-checks the DNS records (domain_cname and owner_cname) required for that branded link and reports whether it is now valid
+- **Domain validate authenticated, disassociate subuser from, authenticate** — Validate a domain authentication by ID: SendGrid re-checks the DNS records (CNAME/SPF/DKIM, depending on the domain's setup) required for that authenticated domain and reports whether it is now valid
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

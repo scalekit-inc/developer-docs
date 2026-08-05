@@ -1670,4 +1670,34 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'Bearer Token',
     categories: ['Accounting & Finance', 'Developer Tools', 'Automation'],
   },
+  zohocrm: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/zoho_crm.svg',
+    authType: 'OAuth 2.0',
+    categories: ['CRM & Sales'],
+  },
+  mailgun: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/mailgun.svg',
+    authType: 'API Key',
+    categories: ['Communication', 'Marketing'],
+  },
+  resend: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/resend.svg',
+    authType: 'Bearer Token',
+    categories: ['Communication', 'Developer Tools', 'Marketing'],
+  },
+  postmark: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/postmark.svg',
+    authType: 'API Key',
+    categories: ['Communication', 'Developer Tools'],
+  },
+  canva: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/canva.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Design', 'Collaboration'],
+  },
+  sendgrid: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/sendgrid.svg',
+    authType: 'Bearer Token',
+    categories: ['Communication', 'Marketing', 'Developer Tools'],
+  },
 }

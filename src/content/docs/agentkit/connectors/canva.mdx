@@ -1,0 +1,84 @@
+---
+title: 'Canva connector'
+tableOfContents: true
+description: 'Connect to Canva''s Connect API to manage designs, assets, folders, brand templates, comments, autofills, exports, and analytics on the user''s behalf via...'
+sidebar:
+  label: 'Canva'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/canva.svg
+connectorAuthType: OAuth 2.0
+connectorCategories: [Design, Collaboration]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/canva'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupCanvaSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Canva credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupCanvaSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="canva" toolName="canva_brand_template_list" providerName="Canva" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Get user profile, user me, user capabilities** — Get the profile of the Canva user associated with the connected access token
+- **Create resize, merge, folder** — Starts a new asynchronous job to create a resized copy of a design
+- **Update folder, asset** — Update a Canva folder's details using its folder ID
+- **List folder items, design pages, design** — List the items inside a Canva folder, including each item's type (design, folder, image, or brand_template)
+- **Move folder item** — Move an item (a folder, design, image asset, or brand template) to another folder in Canva
+- **Delete folder, asset** — Delete a Canva folder using its folder ID
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

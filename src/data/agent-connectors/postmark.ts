@@ -1,0 +1,1778 @@
+import type { Tool } from '../../types/agent-connectors'
+
+export const tools: Tool[] = [
+  {
+    name: 'postmark_activate_bounce',
+    description: `Reactivate a previously deactivated (bounced) email address on the current Postmark server, so future messages sent to it will be attempted again instead of being suppressed. Use postmark_list_bounces or postmark_get_bounce first to find the bounce ID for the address you want to reactivate.`,
+    params: [
+      {
+        name: 'bounce_id',
+        type: 'integer',
+        required: true,
+        description: `The numeric ID of the bounce whose associated email address should be reactivated. Example: 42.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_archive_message_stream',
+    description: `Archive a message stream on the current Postmark server, removing it from active use. Archived streams are permanently deleted 30 days after archiving unless unarchived. A Server can have at most 10 message streams in total, and the default streams created with the server (e.g. the default Inbound and Outbound streams) cannot be archived.`,
+    params: [
+      {
+        name: 'stream_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier (ID) of the message stream to archive, e.g. "onboarding-emails". Default streams cannot be archived.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_bypass_inbound_message',
+    description: `Bypass (unblock) an inbound message that Postmark blocked because it matched an inbound spam or filtering rule, allowing it to be reprocessed and delivered to your configured inbound webhook. Only messages whose current status is Blocked can be bypassed; calling this on a message that isn't blocked has no additional effect. Takes no request body.`,
+    params: [
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The Postmark Message ID (a UUID) of the blocked inbound message to bypass. Obtain this from postmark_list_inbound_messages (filter status=blocked) or from postmark_get_inbound_message.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_create_inbound_rule',
+    description: `Create a new inbound rule trigger on the Postmark server to block inbound email processing for a specific email address or domain pattern. Provide a single address (e.g. "spam@example.com") or a wildcard domain pattern (e.g. "*@spamdomain.com") in the Rule field. Once created, any inbound message matching the rule is blocked before it reaches your inbound webhook. The response includes the newly created rule's ID, which is needed later to delete the rule.`,
+    params: [
+      {
+        name: 'rule',
+        type: 'string',
+        required: true,
+        description: `The email address or wildcard domain pattern to block from inbound processing. Examples: "spam@example.com" (single address) or "*@spamdomain.com" (entire domain).`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_create_message_stream',
+    description: `Create a new message stream on the current Postmark server. A Server can have up to 10 message streams. Provide a unique ID, a display name, and a MessageStreamType of either Transactional or Broadcasts (the default Inbound stream cannot be created via this endpoint). Optionally configure subscription management for Broadcasts streams.`,
+    params: [
+      {
+        name: 'message_stream_type',
+        type: 'string',
+        required: true,
+        description: `The type of message stream to create. Must be either Transactional or Broadcasts.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Human-friendly display name for the message stream, shown in the Postmark dashboard.`,
+      },
+      {
+        name: 'stream_id',
+        type: 'string',
+        required: true,
+        description: `Unique identifier for the new message stream. Must be unique on the server, lowercase, and may contain letters, numbers, and dashes, e.g. "onboarding-emails". This becomes the stream's ID (Postmark's API field name is "ID").`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Optional free-text description of the message stream's purpose.`,
+      },
+      {
+        name: 'subscription_management_configuration',
+        type: 'object',
+        required: false,
+        description: `Optional object controlling unsubscribe handling for Broadcasts streams. Shape: {"UnsubscribeHandlingType": "none"|"Postmark"|"Custom"}. Use "Postmark" to let Postmark host the unsubscribe page, "Custom" if you manage unsubscribes yourself, or "none" to disable unsubscribe handling.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_create_suppressions',
+    description: `Manually add one or more email addresses to the suppression list for a specific Postmark message stream, preventing Postmark from sending to those addresses on this stream until the suppression is removed. Accepts up to 50 addresses per call. Each item in the suppressions array must be a raw Postmark-shaped object with a single key, e.g. {"EmailAddress": "user@example.com"}. Returns, for each address, whether the suppression was applied (Status: "Suppressed") or why it could not be (e.g. already suppressed for a different reason).`,
+    params: [
+      {
+        name: 'stream_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier (ID) of the message stream to add suppressions to, e.g. "outbound" or "broadcasts".`,
+      },
+      {
+        name: 'suppressions',
+        type: 'array',
+        required: true,
+        description: `Array of email addresses to suppress, up to 50 per call. Each item must be a raw Postmark-shaped object with a single key "EmailAddress", e.g. {"EmailAddress": "user@example.com"} — pass these objects directly, do not use a different inner key name. Example value: [{"EmailAddress": "bounce1@example.com"}, {"EmailAddress": "bounce2@example.com"}].`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_create_template',
+    description: `Create a new email template or layout on the current Postmark server. At least one of html_body or text_body must be provided. subject is required for Standard templates (it does not apply to Layout templates). Use layout_template to associate a Standard template with a parent Layout's alias.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Descriptive name of the template, shown in the Postmark dashboard.`,
+      },
+      {
+        name: 'alias',
+        type: 'string',
+        required: false,
+        description: `Unique alias for the template, used to reference it in the withTemplate send API instead of its numeric ID.`,
+      },
+      {
+        name: 'html_body',
+        type: 'string',
+        required: false,
+        description: `HTML content of the template. Required if text_body is not provided — at least one of html_body or text_body must be set.`,
+      },
+      {
+        name: 'layout_template',
+        type: 'string',
+        required: false,
+        description: `Alias of the parent Layout template this Standard template should render inside. Only relevant when template_type is Standard.`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: false,
+        description: `Subject line template, rendered with the same placeholder data as the body. Required when template_type is Standard; not used for Layout templates.`,
+      },
+      {
+        name: 'template_type',
+        type: 'string',
+        required: false,
+        description: `Type of template to create: Standard (a regular email template) or Layout (a wrapper template other templates can inherit from). Defaults to Standard.`,
+      },
+      {
+        name: 'text_body',
+        type: 'string',
+        required: false,
+        description: `Plain text content of the template. Required if html_body is not provided — at least one of html_body or text_body must be set.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_create_webhook',
+    description: `Create a new webhook on the current Postmark server. Postmark will POST event payloads to the given HTTPS URL as they occur. Optionally scope the webhook to a single message stream, protect the endpoint with basic auth or custom headers, and choose which event triggers (Open, Click, Delivery, Bounce, SpamComplaint, SubscriptionChange) fire it.`,
+    params: [
+      {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `The HTTPS endpoint Postmark will POST event payloads to whenever an enabled trigger fires.`,
+      },
+      {
+        name: 'http_auth',
+        type: 'object',
+        required: false,
+        description: `Optional HTTP basic auth credentials Postmark will send when calling your webhook URL, if your endpoint requires authentication. Shape: {"Username": "...", "Password": "..."}.`,
+      },
+      {
+        name: 'http_headers',
+        type: 'array',
+        required: false,
+        description: `Optional array of custom HTTP headers Postmark will send with each webhook request. Each item shape: {"Name": "...", "Value": "..."}.`,
+      },
+      {
+        name: 'message_stream',
+        type: 'string',
+        required: false,
+        description: `Optional message stream ID to scope this webhook to. If omitted, the webhook applies to the server's default stream behavior.`,
+      },
+      {
+        name: 'triggers',
+        type: 'object',
+        required: false,
+        description: `Optional object enabling specific event triggers for this webhook. Shape: {"Open": {"Enabled": bool, "PostFirstOpenOnly": bool}, "Click": {"Enabled": bool}, "Delivery": {"Enabled": bool}, "Bounce": {"Enabled": bool, "IncludeContent": bool}, "SpamComplaint": {"Enabled": bool, "IncludeContent": bool}, "SubscriptionChange": {"Enabled": bool}}. Only include the trigger keys you want to configure; unspecified triggers keep Postmark's defaults (typically disabled).`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_delete_inbound_rule',
+    description: `Permanently remove an inbound rule trigger from the Postmark server by its ID, restoring normal inbound processing for the previously blocked email address or domain pattern. The ID is the value returned in the ID field when the rule was created (see Create Inbound Rule) or found via List Inbound Rules. This operation cannot be undone — recreate the rule with Create Inbound Rule if it is removed by mistake.`,
+    params: [
+      {
+        name: 'trigger_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the inbound rule trigger to delete, as returned by Create Inbound Rule or found via List Inbound Rules.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_delete_suppressions',
+    description: `Remove one or more manually-created suppressions from a specific Postmark message stream, up to 50 addresses per call. Each item in the suppressions array must be a raw Postmark-shaped object with a single key, e.g. {"EmailAddress": "user@example.com"}. Important: suppressions whose Origin is SpamComplaint cannot be removed via this endpoint — Postmark reports those back as not removed. This endpoint uses HTTP POST (not DELETE) per Postmark's own API design, so it is not annotated as a destructive-method tool, even though it permanently removes eligible suppression records.`,
+    params: [
+      {
+        name: 'stream_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier (ID) of the message stream to remove suppressions from, e.g. "outbound" or "broadcasts".`,
+      },
+      {
+        name: 'suppressions',
+        type: 'array',
+        required: true,
+        description: `Array of email addresses to remove from suppression, up to 50 per call. Each item must be a raw Postmark-shaped object with a single key "EmailAddress", e.g. {"EmailAddress": "user@example.com"}. Note: SpamComplaint-origin suppressions cannot be removed via this endpoint and will be reported back as not removed. Example value: [{"EmailAddress": "bounce1@example.com"}].`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_delete_template',
+    description: `Permanently delete an email template or layout from the current Postmark server, identified by numeric ID or alias. This action cannot be undone; any Standard templates that reference a deleted Layout will need to be updated.`,
+    params: [
+      {
+        name: 'template_id_or_alias',
+        type: 'string',
+        required: true,
+        description: `Numeric ID or alias string of the template to permanently delete.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_delete_webhook',
+    description: `Permanently delete a webhook from the current Postmark server by its numeric ID. Postmark will stop sending event notifications to this webhook's URL immediately. This action cannot be undone.`,
+    params: [
+      {
+        name: 'webhook_id',
+        type: 'string',
+        required: true,
+        description: `The numeric ID of the webhook to delete, as returned by List Webhooks or Create Webhook.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_get_bounce',
+    description: `Retrieve full details for a single bounce by its Postmark bounce ID, including bounce type, the affected email address, timestamp, description, and whether the address has been deactivated. Use postmark_list_bounces first to find the bounce ID you need.`,
+    params: [
+      {
+        name: 'bounce_id',
+        type: 'integer',
+        required: true,
+        description: `The numeric ID of the bounce to retrieve, as returned by postmark_list_bounces. Example: 42.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_get_bounce_counts',
+    description: `Get bounce counts for a Postmark server broken down by day and by bounce type (e.g. HardBounce, SoftBounce, Transient, SpamNotification) for the requested date range. Use this to diagnose deliverability issues over time. Optionally scope results to a specific tag or message stream; omit all filters to get all-time, all-tag, all-stream totals.`,
+    params: [
+      {
+        name: 'fromdate',
+        type: 'string',
+        required: false,
+        description: `Start date (inclusive) for the bounce-count range, formatted YYYY-MM-DD. If omitted, all bounce history up to todate is included.`,
+      },
+      {
+        name: 'messagestream',
+        type: 'string',
+        required: false,
+        description: `Message stream ID to scope the bounce counts to (e.g. 'outbound' or 'broadcasts'). If omitted, counts are aggregated across all message streams.`,
+      },
+      {
+        name: 'tag',
+        type: 'string',
+        required: false,
+        description: `Tag to filter bounce counts by. Only bounced messages that were originally sent with this exact tag are counted. If omitted, all tags (and untagged messages) are included.`,
+      },
+      {
+        name: 'todate',
+        type: 'string',
+        required: false,
+        description: `End date (inclusive) for the bounce-count range, formatted YYYY-MM-DD. If omitted, counts run through today.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_get_bounce_dump',
+    description: `Retrieve the raw source (full RFC 822 message content, including headers) of a bounced message by its Postmark bounce ID. Use this to inspect exactly what was sent and why it may have bounced. Use postmark_list_bounces first to find the bounce ID you need.`,
+    params: [
+      {
+        name: 'bounce_id',
+        type: 'integer',
+        required: true,
+        description: `The numeric ID of the bounce whose raw message source should be retrieved, as returned by postmark_list_bounces. Example: 42.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_get_click_browser_usage',
+    description: `Get link click counts for a Postmark server broken down by browser family (e.g. Chrome, Safari, Firefox, Edge) for the requested date range. Requires link tracking to have been enabled on the sent messages. Use this to understand which browsers your recipients use when clicking links. Optionally scope results to a specific tag or message stream; omit all filters to get all-time, all-tag, all-stream totals.`,
+    params: [
+      {
+        name: 'fromdate',
+        type: 'string',
+        required: false,
+        description: `Start date (inclusive) for the browser-usage range, formatted YYYY-MM-DD. If omitted, all history up to todate is included.`,
+      },
+      {
+        name: 'messagestream',
+        type: 'string',
+        required: false,
+        description: `Message stream ID to scope the browser-usage counts to (e.g. 'outbound' or 'broadcasts'). If omitted, counts are aggregated across all message streams.`,
+      },
+      {
+        name: 'tag',
+        type: 'string',
+        required: false,
+        description: `Tag to filter browser-usage counts by. Only clicks for messages originally sent with this exact tag are counted. If omitted, all tags (and untagged messages) are included.`,
+      },
+      {
+        name: 'todate',
+        type: 'string',
+        required: false,
+        description: `End date (inclusive) for the browser-usage range, formatted YYYY-MM-DD. If omitted, counts run through today.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_get_click_counts',
+    description: `Get link click counts for a Postmark server broken down by day, reporting both unique clicks (one per recipient) and total clicks (including repeat clicks) for the requested date range. Requires link tracking to have been enabled on the sent messages. Optionally scope results to a specific tag or message stream; omit all filters to get all-time, all-tag, all-stream totals.`,
+    params: [
+      {
+        name: 'fromdate',
+        type: 'string',
+        required: false,
+        description: `Start date (inclusive) for the click-count range, formatted YYYY-MM-DD. If omitted, all history up to todate is included.`,
+      },
+      {
+        name: 'messagestream',
+        type: 'string',
+        required: false,
+        description: `Message stream ID to scope the click counts to (e.g. 'outbound' or 'broadcasts'). If omitted, counts are aggregated across all message streams.`,
+      },
+      {
+        name: 'tag',
+        type: 'string',
+        required: false,
+        description: `Tag to filter click counts by. Only clicks for messages originally sent with this exact tag are counted. If omitted, all tags (and untagged messages) are included.`,
+      },
+      {
+        name: 'todate',
+        type: 'string',
+        required: false,
+        description: `End date (inclusive) for the click-count range, formatted YYYY-MM-DD. If omitted, counts run through today.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_get_click_location_stats',
+    description: `Get link click counts for a Postmark server broken down by where in the email the clicked link was located: HTML body, HTML header, text body, or text header, for the requested date range. Requires link tracking to have been enabled on the sent messages. Use this to see whether recipients click links in headers vs. body content. Optionally scope results to a specific tag or message stream; omit all filters to get all-time, all-tag, all-stream totals.`,
+    params: [
+      {
+        name: 'fromdate',
+        type: 'string',
+        required: false,
+        description: `Start date (inclusive) for the click-location range, formatted YYYY-MM-DD. If omitted, all history up to todate is included.`,
+      },
+      {
+        name: 'messagestream',
+        type: 'string',
+        required: false,
+        description: `Message stream ID to scope the click-location counts to (e.g. 'outbound' or 'broadcasts'). If omitted, counts are aggregated across all message streams.`,
+      },
+      {
+        name: 'tag',
+        type: 'string',
+        required: false,
+        description: `Tag to filter click-location counts by. Only clicks for messages originally sent with this exact tag are counted. If omitted, all tags (and untagged messages) are included.`,
+      },
+      {
+        name: 'todate',
+        type: 'string',
+        required: false,
+        description: `End date (inclusive) for the click-location range, formatted YYYY-MM-DD. If omitted, counts run through today.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_get_click_platform_usage',
+    description: `Get link click counts for a Postmark server broken down by platform (Desktop, Webmail, or Mobile) for the requested date range. Requires link tracking to have been enabled on the sent messages. Use this to understand which platforms your recipients use when clicking links. Optionally scope results to a specific tag or message stream; omit all filters to get all-time, all-tag, all-stream totals.`,
+    params: [
+      {
+        name: 'fromdate',
+        type: 'string',
+        required: false,
+        description: `Start date (inclusive) for the click-platform-usage range, formatted YYYY-MM-DD. If omitted, all history up to todate is included.`,
+      },
+      {
+        name: 'messagestream',
+        type: 'string',
+        required: false,
+        description: `Message stream ID to scope the click-platform-usage counts to (e.g. 'outbound' or 'broadcasts'). If omitted, counts are aggregated across all message streams.`,
+      },
+      {
+        name: 'tag',
+        type: 'string',
+        required: false,
+        description: `Tag to filter click-platform-usage counts by. Only clicks for messages originally sent with this exact tag are counted. If omitted, all tags (and untagged messages) are included.`,
+      },
+      {
+        name: 'todate',
+        type: 'string',
+        required: false,
+        description: `End date (inclusive) for the click-platform-usage range, formatted YYYY-MM-DD. If omitted, counts run through today.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_get_delivery_stats',
+    description: `Get a breakdown of delivery statistics for the current Postmark server, including a count of inactive (undeliverable) email addresses and a breakdown of bounce counts by bounce type (e.g. HardBounce, SoftBounce, Transient). Takes no parameters and reflects data for the server whose API token is used to authenticate.`,
+    params: [],
+  },
+  {
+    name: 'postmark_get_email_client_usage',
+    description: `Get email open counts for a Postmark server broken down by the email client used to open the message (e.g. Outlook, Gmail, Apple Mail) for the requested date range. Use this to understand which email clients your recipients use most. Optionally scope results to a specific tag or message stream; omit all filters to get all-time, all-tag, all-stream totals.`,
+    params: [
+      {
+        name: 'fromdate',
+        type: 'string',
+        required: false,
+        description: `Start date (inclusive) for the email-client-usage range, formatted YYYY-MM-DD. If omitted, all history up to todate is included.`,
+      },
+      {
+        name: 'messagestream',
+        type: 'string',
+        required: false,
+        description: `Message stream ID to scope the email-client-usage counts to (e.g. 'outbound' or 'broadcasts'). If omitted, counts are aggregated across all message streams.`,
+      },
+      {
+        name: 'tag',
+        type: 'string',
+        required: false,
+        description: `Tag to filter email-client-usage counts by. Only opens for messages originally sent with this exact tag are counted. If omitted, all tags (and untagged messages) are included.`,
+      },
+      {
+        name: 'todate',
+        type: 'string',
+        required: false,
+        description: `End date (inclusive) for the email-client-usage range, formatted YYYY-MM-DD. If omitted, counts run through today.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_get_email_open_counts',
+    description: `Get email open counts for a Postmark server broken down by day, reporting both unique opens (one per recipient) and total opens (including repeat opens) for the requested date range. Use this to track engagement trends over time. Optionally scope results to a specific tag or message stream; omit all filters to get all-time, all-tag, all-stream totals.`,
+    params: [
+      {
+        name: 'fromdate',
+        type: 'string',
+        required: false,
+        description: `Start date (inclusive) for the open-count range, formatted YYYY-MM-DD. If omitted, all history up to todate is included.`,
+      },
+      {
+        name: 'messagestream',
+        type: 'string',
+        required: false,
+        description: `Message stream ID to scope the open counts to (e.g. 'outbound' or 'broadcasts'). If omitted, counts are aggregated across all message streams.`,
+      },
+      {
+        name: 'tag',
+        type: 'string',
+        required: false,
+        description: `Tag to filter open counts by. Only opens for messages originally sent with this exact tag are counted. If omitted, all tags (and untagged messages) are included.`,
+      },
+      {
+        name: 'todate',
+        type: 'string',
+        required: false,
+        description: `End date (inclusive) for the open-count range, formatted YYYY-MM-DD. If omitted, counts run through today.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_get_email_platform_usage',
+    description: `Get email open counts for a Postmark server broken down by the platform used to open the message (Desktop, Webmail, or Mobile) for the requested date range. Use this to understand which platforms your recipients use to read email. Optionally scope results to a specific tag or message stream; omit all filters to get all-time, all-tag, all-stream totals.`,
+    params: [
+      {
+        name: 'fromdate',
+        type: 'string',
+        required: false,
+        description: `Start date (inclusive) for the platform-usage range, formatted YYYY-MM-DD. If omitted, all history up to todate is included.`,
+      },
+      {
+        name: 'messagestream',
+        type: 'string',
+        required: false,
+        description: `Message stream ID to scope the platform-usage counts to (e.g. 'outbound' or 'broadcasts'). If omitted, counts are aggregated across all message streams.`,
+      },
+      {
+        name: 'tag',
+        type: 'string',
+        required: false,
+        description: `Tag to filter platform-usage counts by. Only opens for messages originally sent with this exact tag are counted. If omitted, all tags (and untagged messages) are included.`,
+      },
+      {
+        name: 'todate',
+        type: 'string',
+        required: false,
+        description: `End date (inclusive) for the platform-usage range, formatted YYYY-MM-DD. If omitted, counts run through today.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_get_inbound_message',
+    description: `Get full details of a single inbound message by its Postmark Message ID, including parsed headers, sender, recipients, tag, mailbox hash, attachment metadata, processing status, and any processing errors.`,
+    params: [
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The Postmark Message ID (a UUID) of the inbound message to retrieve. Obtain this from postmark_list_inbound_messages or from a Postmark inbound webhook payload.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_get_message_clicks',
+    description: `List click (link click tracking) events for a single outbound message, identified by its Postmark Message ID, with pagination via count and offset. Requires Link Tracking to be enabled on the relevant message stream, otherwise no click events will exist for the message.`,
+    params: [
+      {
+        name: 'count',
+        type: 'integer',
+        required: true,
+        description: `Number of click events to return in this page of results.`,
+      },
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The Postmark Message ID (a UUID) of the outbound message whose click events you want to list. Obtain this from postmark_list_outbound_messages or from the MessageID returned when the message was sent.`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: true,
+        description: `Number of click events to skip before starting to return results, used together with count to page through the full result set. Use 0 for the first page, then increment by count for each subsequent page.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_get_message_opens',
+    description: `List open (email open tracking) events for a single outbound message, identified by its Postmark Message ID, with pagination via count and offset. Requires Open Tracking to be enabled on the relevant message stream, otherwise no open events will exist for the message.`,
+    params: [
+      {
+        name: 'count',
+        type: 'integer',
+        required: true,
+        description: `Number of open events to return in this page of results.`,
+      },
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The Postmark Message ID (a UUID) of the outbound message whose open events you want to list. Obtain this from postmark_list_outbound_messages or from the MessageID returned when the message was sent.`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: true,
+        description: `Number of open events to skip before starting to return results, used together with count to page through the full result set. Use 0 for the first page, then increment by count for each subsequent page.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_get_message_stream',
+    description: `Retrieve details about a single message stream on the current Postmark server by its stream ID, including its name, description, type (Transactional/Broadcasts/Inbound), archive status, and subscription management configuration.`,
+    params: [
+      {
+        name: 'stream_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier (ID) of the message stream to retrieve, e.g. "outbound" or "onboarding-emails".`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_get_outbound_message',
+    description: `Get full details of a single outbound message by its Postmark Message ID, including sender, recipients, subject, tag, message stream, current status, and a full history of tracked events (e.g. Sent, Delivered, Opened, Clicked, Bounced) for that message. Does not return the raw SMTP source — use postmark_get_outbound_message_dump for that.`,
+    params: [
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The Postmark Message ID (a UUID) of the outbound message to retrieve. Obtain this from postmark_list_outbound_messages, from the MessageID field returned when the message was sent, or from a Postmark webhook payload.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_get_outbound_message_dump',
+    description: `Get the raw, complete SMTP source of a single outbound message by its Postmark Message ID, exactly as it was transmitted to the receiving mail server — including all MIME headers and body parts. Useful for deep debugging of formatting, encoding, or header issues that aren't visible in the parsed details returned by postmark_get_outbound_message.`,
+    params: [
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The Postmark Message ID (a UUID) of the outbound message whose raw SMTP source you want to retrieve. Obtain this from postmark_list_outbound_messages or from the MessageID returned when the message was sent.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_get_outbound_stats_overview',
+    description: `Get a high-level overview of outbound email activity for a Postmark server: total sent count, bounce counts and rate, spam complaint counts and rate, open counts and rate (unique and total), and click counts and rate (unique and total) for the requested date range. Optionally scope the overview to a specific tag or message stream. Omit all filters to get all-time, all-tag, all-stream totals.`,
+    params: [
+      {
+        name: 'fromdate',
+        type: 'string',
+        required: false,
+        description: `Start date (inclusive) for the overview period, formatted YYYY-MM-DD. If omitted, Postmark includes all-time data up to todate.`,
+      },
+      {
+        name: 'messagestream',
+        type: 'string',
+        required: false,
+        description: `Message stream ID to scope the overview to (e.g. 'outbound' or 'broadcasts'). If omitted, stats are aggregated across all message streams on the server.`,
+      },
+      {
+        name: 'tag',
+        type: 'string',
+        required: false,
+        description: `Tag to filter the overview by. Only messages sent with this exact tag are included. If omitted, the overview covers messages with any tag or no tag.`,
+      },
+      {
+        name: 'todate',
+        type: 'string',
+        required: false,
+        description: `End date (inclusive) for the overview period, formatted YYYY-MM-DD. If omitted, Postmark includes all-time data from fromdate through today.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_get_sent_counts',
+    description: `Get the number of emails sent from a Postmark server broken down by day, along with the total sent count for the requested date range. Use this to chart outbound sending volume over time. Optionally scope results to a specific tag or message stream; omit all filters to get all-time, all-tag, all-stream totals.`,
+    params: [
+      {
+        name: 'fromdate',
+        type: 'string',
+        required: false,
+        description: `Start date (inclusive) for the sent-count range, formatted YYYY-MM-DD. If omitted, all send history up to todate is included.`,
+      },
+      {
+        name: 'messagestream',
+        type: 'string',
+        required: false,
+        description: `Message stream ID to scope the sent counts to (e.g. 'outbound' or 'broadcasts'). If omitted, counts are aggregated across all message streams.`,
+      },
+      {
+        name: 'tag',
+        type: 'string',
+        required: false,
+        description: `Tag to filter sent counts by. Only messages sent with this exact tag are counted. If omitted, all tags (and untagged messages) are included.`,
+      },
+      {
+        name: 'todate',
+        type: 'string',
+        required: false,
+        description: `End date (inclusive) for the sent-count range, formatted YYYY-MM-DD. If omitted, counts run through today.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_get_server_info',
+    description: `Retrieve the full configuration of the current Postmark server, including its name, color, tracking and webhook settings (open/click/bounce/delivery/inbound hook URLs), inbound domain and spam threshold, and SMTP API settings. Takes no parameters and reflects the server whose API token is used to authenticate.`,
+    params: [],
+  },
+  {
+    name: 'postmark_get_spam_complaint_counts',
+    description: `Get the number of spam complaints (recipients marking a message as spam) received for a Postmark server broken down by day for the requested date range. Use this to monitor sender reputation risk over time. Optionally scope results to a specific tag or message stream; omit all filters to get all-time, all-tag, all-stream totals.`,
+    params: [
+      {
+        name: 'fromdate',
+        type: 'string',
+        required: false,
+        description: `Start date (inclusive) for the spam-complaint range, formatted YYYY-MM-DD. If omitted, all history up to todate is included.`,
+      },
+      {
+        name: 'messagestream',
+        type: 'string',
+        required: false,
+        description: `Message stream ID to scope the spam complaint counts to (e.g. 'outbound' or 'broadcasts'). If omitted, counts are aggregated across all message streams.`,
+      },
+      {
+        name: 'tag',
+        type: 'string',
+        required: false,
+        description: `Tag to filter spam complaint counts by. Only complaints for messages originally sent with this exact tag are counted. If omitted, all tags (and untagged messages) are included.`,
+      },
+      {
+        name: 'todate',
+        type: 'string',
+        required: false,
+        description: `End date (inclusive) for the spam-complaint range, formatted YYYY-MM-DD. If omitted, counts run through today.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_get_template',
+    description: `Retrieve a single email template or layout from the current Postmark server by its numeric ID or alias, including its Name, Subject, HtmlBody, TextBody, and associated layout.`,
+    params: [
+      {
+        name: 'template_id_or_alias',
+        type: 'string',
+        required: true,
+        description: `Numeric ID or alias string of the template to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_get_tracked_email_counts',
+    description: `Get counts, broken down by day, of how many outbound emails from a Postmark server were sent with open tracking enabled and how many were sent with link (click) tracking enabled, for the requested date range. Use this to see tracking adoption over time. Optionally scope results to a specific tag or message stream; omit all filters to get all-time, all-tag, all-stream totals.`,
+    params: [
+      {
+        name: 'fromdate',
+        type: 'string',
+        required: false,
+        description: `Start date (inclusive) for the tracked-email range, formatted YYYY-MM-DD. If omitted, all history up to todate is included.`,
+      },
+      {
+        name: 'messagestream',
+        type: 'string',
+        required: false,
+        description: `Message stream ID to scope the tracked-email counts to (e.g. 'outbound' or 'broadcasts'). If omitted, counts are aggregated across all message streams.`,
+      },
+      {
+        name: 'tag',
+        type: 'string',
+        required: false,
+        description: `Tag to filter tracked-email counts by. Only messages sent with this exact tag are counted. If omitted, all tags (and untagged messages) are included.`,
+      },
+      {
+        name: 'todate',
+        type: 'string',
+        required: false,
+        description: `End date (inclusive) for the tracked-email range, formatted YYYY-MM-DD. If omitted, counts run through today.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_get_webhook',
+    description: `Retrieve the full configuration of a single webhook on the current Postmark server by its numeric ID, including its target URL, message stream scope, HTTP auth/header settings, and which event triggers are enabled.`,
+    params: [
+      {
+        name: 'webhook_id',
+        type: 'string',
+        required: true,
+        description: `The numeric ID of the webhook to retrieve, as returned by List Webhooks or Create Webhook.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_list_bounces',
+    description: `List bounces for the current Postmark server with pagination and optional filtering. Returns a paginated array of bounce records (bounce ID, type, email, description, timestamps, and whether the address is inactive/deactivated). Use the type, tag, messageID, date range, or message stream filters to narrow results, and count/offset to page through them.`,
+    params: [
+      {
+        name: 'count',
+        type: 'integer',
+        required: true,
+        description: `Number of bounces to return in this request. Maximum allowed value is 500. Example: 50.`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: true,
+        description: `Number of bounces to skip before starting to return results, for pagination (0-indexed). Example: 0 for the first page, 500 for the next page when count=500.`,
+      },
+      {
+        name: 'email_filter',
+        type: 'string',
+        required: false,
+        description: `Filter bounces to only those for a specific email address. Maps to Postmark's 'emailFilter' query parameter. Example: 'recipient@example.com'.`,
+      },
+      {
+        name: 'from_date',
+        type: 'string',
+        required: false,
+        description: `Filter bounces that occurred on or after this date. Format: YYYY-MM-DD. Maps to Postmark's 'fromdate' query parameter. Example: '2026-06-01'.`,
+      },
+      {
+        name: 'inactive',
+        type: 'boolean',
+        required: false,
+        description: `Filter by whether the bounced email address has been deactivated (true) or is still active (false). Omit to return both.`,
+      },
+      {
+        name: 'message_id',
+        type: 'string',
+        required: false,
+        description: `Filter bounces belonging to a specific Postmark MessageID (the UUID Postmark assigns to a sent message). Maps to Postmark's 'messageID' query parameter. Example: '0ac29aee-c259-4b34-8434-1b3f2a1af9b6'.`,
+      },
+      {
+        name: 'message_stream',
+        type: 'string',
+        required: false,
+        description: `Filter bounces by the message stream they were sent through (e.g. 'outbound' or 'broadcasts'). Maps to Postmark's 'messagestream' query parameter.`,
+      },
+      {
+        name: 'tag',
+        type: 'string',
+        required: false,
+        description: `Filter bounces to messages that were sent with this specific tag. Example: 'welcome-email'.`,
+      },
+      {
+        name: 'to_date',
+        type: 'string',
+        required: false,
+        description: `Filter bounces that occurred on or before this date. Format: YYYY-MM-DD. Maps to Postmark's 'todate' query parameter. Example: '2026-08-01'.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `Filter bounces by Postmark bounce type code, e.g. 'HardBounce' or 'SoftBounce'. See Postmark's bounce type documentation for the full list.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_list_inbound_messages',
+    description: `List messages received (inbound) by a Postmark inbound server, with optional filters for recipient, sender, tag, subject, mailbox hash, processing status, and date range. Returns summary metadata for each matching message but not the full parsed content — use postmark_get_inbound_message for full details of a specific message. Pagination is mandatory: count and offset must always be supplied.`,
+    params: [
+      {
+        name: 'count',
+        type: 'integer',
+        required: true,
+        description: `Number of inbound messages to return in this page of results.`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: true,
+        description: `Number of messages to skip before starting to return results, used together with count to page through the full result set. Use 0 for the first page, then increment by count for each subsequent page.`,
+      },
+      {
+        name: 'from_date',
+        type: 'string',
+        required: false,
+        description: `Filter to messages processed on or after this date, evaluated in US Eastern time. Format YYYY-MM-DD. Maps to Postmark's fromdate query parameter.`,
+      },
+      {
+        name: 'from_email',
+        type: 'string',
+        required: false,
+        description: `Filter results to messages sent from this exact sender email address. Maps to Postmark's fromemail query parameter.`,
+      },
+      {
+        name: 'mailbox_hash',
+        type: 'string',
+        required: false,
+        description: `Filter to messages sent to an inbound address containing this mailbox hash (the portion after the + in a hashed inbound address, e.g. the "sales" portion of hash+sales@inbound.postmarkapp.com). Maps to Postmark's mailboxhash query parameter.`,
+      },
+      {
+        name: 'recipient',
+        type: 'string',
+        required: false,
+        description: `Filter results to messages sent to this exact recipient email address (your Postmark inbound address, e.g. hash@inbound.postmarkapp.com).`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Filter results by processing status. Valid values: blocked (rejected by an inbound rule), processed (successfully processed and delivered to your webhook), queued (accepted, awaiting processing), failed (processing attempted and failed), or scheduled (queued for a delayed retry). Defaults to processed when not specified.`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: false,
+        description: `Filter results to messages whose subject line contains this text.`,
+      },
+      {
+        name: 'tag',
+        type: 'string',
+        required: false,
+        description: `Filter results to messages that were received with this exact tag.`,
+      },
+      {
+        name: 'to_date',
+        type: 'string',
+        required: false,
+        description: `Filter to messages processed on or before this date, evaluated in US Eastern time. Format YYYY-MM-DD. Maps to Postmark's todate query parameter.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_list_inbound_rules',
+    description: `List the inbound rule triggers configured on the Postmark server — the email addresses and domain patterns currently blocked from inbound processing. Supports paging via count (page size) and offset (records to skip). ASSUMPTION: the count/offset pagination parameters and their defaults (count=50, offset=0) are inferred from Postmark's legacy Swagger mirror (postmarkapp.com/swagger/server.yml) for the Inbound Rules section, since the current developer docs site does not separately document paging for this endpoint — verify against a live response if pagination behaves unexpectedly.`,
+    params: [
+      {
+        name: 'count',
+        type: 'integer',
+        required: false,
+        description: `Number of inbound rule records to return per page. Defaults to 50 (assumed from Postmark's standard list pagination convention — not separately confirmed for this endpoint on the current docs site).`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `Number of inbound rule records to skip before starting to return results. Defaults to 0 (assumed from Postmark's standard list pagination convention — not separately confirmed for this endpoint on the current docs site).`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_list_message_clicks',
+    description: `List click (link click tracking) events for outbound messages sent from a Postmark server, with optional filters for recipient, tag, message stream, and the email client / operating system / platform / geolocation that triggered each click. Requires Link Tracking to be enabled on the relevant message stream, otherwise no click events will exist. Pagination is mandatory: count and offset must always be supplied.`,
+    params: [
+      {
+        name: 'count',
+        type: 'integer',
+        required: true,
+        description: `Number of click events to return in this page of results.`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: true,
+        description: `Number of click events to skip before starting to return results, used together with count to page through the full result set. Use 0 for the first page, then increment by count for each subsequent page.`,
+      },
+      {
+        name: 'city',
+        type: 'string',
+        required: false,
+        description: `Filter by the geolocated city from which the link was clicked.`,
+      },
+      {
+        name: 'client_company',
+        type: 'string',
+        required: false,
+        description: `Filter by the company that makes the email client used when the link was clicked (e.g. Google, Microsoft, Apple).`,
+      },
+      {
+        name: 'client_family',
+        type: 'string',
+        required: false,
+        description: `Filter by the client family/category used when the link was clicked (e.g. Chrome, Outlook, Mobile Safari).`,
+      },
+      {
+        name: 'client_name',
+        type: 'string',
+        required: false,
+        description: `Filter by the name of the email client used to view the message when the link was clicked (e.g. Chrome, Outlook, Apple Mail).`,
+      },
+      {
+        name: 'country',
+        type: 'string',
+        required: false,
+        description: `Filter by the geolocated country from which the link was clicked.`,
+      },
+      {
+        name: 'message_stream',
+        type: 'string',
+        required: false,
+        description: `Filter results to click events for messages sent through this message stream ID. Defaults to outbound (the default transactional stream) if not specified. Maps to Postmark's messagestream query parameter.`,
+      },
+      {
+        name: 'os_company',
+        type: 'string',
+        required: false,
+        description: `Filter by the company that makes the operating system used when the link was clicked (e.g. Apple, Microsoft).`,
+      },
+      {
+        name: 'os_family',
+        type: 'string',
+        required: false,
+        description: `Filter by the operating system family used when the link was clicked (e.g. OS X, Windows, iOS).`,
+      },
+      {
+        name: 'os_name',
+        type: 'string',
+        required: false,
+        description: `Filter by the name of the operating system used when the link was clicked (e.g. OS X, Windows, iOS).`,
+      },
+      {
+        name: 'platform',
+        type: 'string',
+        required: false,
+        description: `Filter by the type of platform used when the link was clicked. Valid values: webmail, desktop, or mobile.`,
+      },
+      {
+        name: 'recipient',
+        type: 'string',
+        required: false,
+        description: `Filter results to click events for messages sent to this exact recipient email address.`,
+      },
+      {
+        name: 'region',
+        type: 'string',
+        required: false,
+        description: `Filter by the geolocated region/state from which the link was clicked.`,
+      },
+      {
+        name: 'tag',
+        type: 'string',
+        required: false,
+        description: `Filter results to click events for messages that were sent with this exact tag.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_list_message_opens',
+    description: `List open (email open tracking) events for outbound messages sent from a Postmark server, with optional filters for recipient, tag, message stream, and the email client / operating system / platform / geolocation that triggered each open. Requires Open Tracking to be enabled on the relevant message stream, otherwise no open events will exist. Pagination is mandatory: count and offset must always be supplied.`,
+    params: [
+      {
+        name: 'count',
+        type: 'integer',
+        required: true,
+        description: `Number of open events to return in this page of results.`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: true,
+        description: `Number of open events to skip before starting to return results, used together with count to page through the full result set. Use 0 for the first page, then increment by count for each subsequent page.`,
+      },
+      {
+        name: 'city',
+        type: 'string',
+        required: false,
+        description: `Filter by the geolocated city from which the message was opened.`,
+      },
+      {
+        name: 'client_company',
+        type: 'string',
+        required: false,
+        description: `Filter by the company that makes the email client used to open the message (e.g. Google, Microsoft, Apple).`,
+      },
+      {
+        name: 'client_family',
+        type: 'string',
+        required: false,
+        description: `Filter by the client family/category used to open the message (e.g. Chrome, Outlook, Mobile Safari).`,
+      },
+      {
+        name: 'client_name',
+        type: 'string',
+        required: false,
+        description: `Filter by the name of the email client used to open the message (e.g. Chrome, Outlook, Apple Mail).`,
+      },
+      {
+        name: 'country',
+        type: 'string',
+        required: false,
+        description: `Filter by the geolocated country from which the message was opened.`,
+      },
+      {
+        name: 'message_stream',
+        type: 'string',
+        required: false,
+        description: `Filter results to open events for messages sent through this message stream ID. Defaults to outbound (the default transactional stream) if not specified. Maps to Postmark's messagestream query parameter.`,
+      },
+      {
+        name: 'os_company',
+        type: 'string',
+        required: false,
+        description: `Filter by the company that makes the operating system used to open the message (e.g. Apple, Microsoft).`,
+      },
+      {
+        name: 'os_family',
+        type: 'string',
+        required: false,
+        description: `Filter by the operating system family used to open the message (e.g. OS X, Windows, iOS).`,
+      },
+      {
+        name: 'os_name',
+        type: 'string',
+        required: false,
+        description: `Filter by the name of the operating system used to open the message (e.g. OS X, Windows, iOS).`,
+      },
+      {
+        name: 'platform',
+        type: 'string',
+        required: false,
+        description: `Filter by the type of platform used to open the message. Valid values: webmail, desktop, or mobile.`,
+      },
+      {
+        name: 'recipient',
+        type: 'string',
+        required: false,
+        description: `Filter results to open events for messages sent to this exact recipient email address.`,
+      },
+      {
+        name: 'region',
+        type: 'string',
+        required: false,
+        description: `Filter by the geolocated region/state from which the message was opened.`,
+      },
+      {
+        name: 'tag',
+        type: 'string',
+        required: false,
+        description: `Filter results to open events for messages that were sent with this exact tag.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_list_message_streams',
+    description: `List the message streams configured on the current Postmark server. Message streams separate transactional mail from broadcast/marketing mail so bounce and engagement behavior can be tracked independently. Filter by stream type (All, Inbound, Transactional, Broadcasts) and optionally include archived streams.`,
+    params: [
+      {
+        name: 'include_archived_streams',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include archived message streams in the results. Defaults to false.`,
+      },
+      {
+        name: 'message_stream_type',
+        type: 'string',
+        required: false,
+        description: `Filter streams by type. One of: All, Inbound, Transactional, Broadcasts. Defaults to All.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_list_outbound_messages',
+    description: `List messages sent (outbound) from a Postmark server, with optional filters for recipient, sender, tag, subject, delivery status, message stream, and date range. Returns summary metadata for each matching message (Message ID, subject, recipient, tag, status, received/submitted timestamps) but not the full message body — use postmark_get_outbound_message for full details of a specific message. Pagination is mandatory: count and offset must always be supplied, and Postmark caps count at 500 per request.`,
+    params: [
+      {
+        name: 'count',
+        type: 'integer',
+        required: true,
+        description: `Number of outbound messages to return in this page of results. Must be between 1 and 500 (Postmark's maximum page size for this endpoint).`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: true,
+        description: `Number of messages to skip before starting to return results, used together with count to page through the full result set. Use 0 for the first page, then increment by count for each subsequent page.`,
+      },
+      {
+        name: 'from_date',
+        type: 'string',
+        required: false,
+        description: `Filter to messages processed on or after this date, evaluated in US Eastern time. Format YYYY-MM-DD. Maps to Postmark's fromdate query parameter.`,
+      },
+      {
+        name: 'from_email',
+        type: 'string',
+        required: false,
+        description: `Filter results to messages sent from this exact sender email address. Maps to Postmark's fromemail query parameter.`,
+      },
+      {
+        name: 'message_stream',
+        type: 'string',
+        required: false,
+        description: `Filter results to messages sent through this message stream ID (e.g. the default outbound transactional stream, or a specific broadcast stream). Maps to Postmark's messagestream query parameter.`,
+      },
+      {
+        name: 'recipient',
+        type: 'string',
+        required: false,
+        description: `Filter results to messages sent to this exact recipient email address.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Filter results by delivery status. Valid values: queued (accepted by Postmark, not yet sent to a receiving server), sent (handed off to the receiving server), or processed (accepted by Postmark regardless of eventual delivery outcome, including messages that later bounced).`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: false,
+        description: `Filter results to messages whose subject line contains this text.`,
+      },
+      {
+        name: 'tag',
+        type: 'string',
+        required: false,
+        description: `Filter results to messages that were sent with this exact tag.`,
+      },
+      {
+        name: 'to_date',
+        type: 'string',
+        required: false,
+        description: `Filter to messages processed on or before this date, evaluated in US Eastern time. Format YYYY-MM-DD. Maps to Postmark's todate query parameter.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_list_suppressions',
+    description: `List all suppressed email addresses for a specific Postmark message stream. Suppressions prevent Postmark from sending to an address (e.g. due to a hard bounce, spam complaint, or manual suppression) until the address is reactivated or removed from the suppression list. Optionally filter by suppression reason, origin (who/what created the suppression), a creation-date range, or a single email address. Returns an array of suppression records, each including EmailAddress, SuppressionReason, Origin, and CreatedAt.`,
+    params: [
+      {
+        name: 'stream_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier (ID) of the message stream to list suppressions for, e.g. "outbound" or "broadcasts".`,
+      },
+      {
+        name: 'email_address',
+        type: 'string',
+        required: false,
+        description: `Filter results down to a single specific email address. If omitted, suppressions for all addresses in the stream are returned.`,
+      },
+      {
+        name: 'fromdate',
+        type: 'string',
+        required: false,
+        description: `Start date (inclusive) to filter suppressions by creation date, formatted YYYY-MM-DD. If omitted, no lower bound is applied.`,
+      },
+      {
+        name: 'origin',
+        type: 'string',
+        required: false,
+        description: `Filter results by the origin that created the suppression. One of: Recipient (bounce/complaint reported by the recipient), Customer (added manually via API/dashboard), Admin (added by Postmark support). If omitted, suppressions from all origins are returned.`,
+      },
+      {
+        name: 'suppression_reason',
+        type: 'string',
+        required: false,
+        description: `Filter results to suppressions created for this reason. One of: HardBounce, SpamComplaint, ManualSuppression. If omitted, suppressions of all reasons are returned.`,
+      },
+      {
+        name: 'todate',
+        type: 'string',
+        required: false,
+        description: `End date (inclusive) to filter suppressions by creation date, formatted YYYY-MM-DD. If omitted, no upper bound is applied.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_list_templates',
+    description: `List email templates and layouts on the current Postmark server, with pagination via count and offset. Optionally filter by template_type (All, Standard, or Layout) or by the alias of a parent layout template.`,
+    params: [
+      {
+        name: 'count',
+        type: 'integer',
+        required: false,
+        description: `Number of templates to return in this page of results.`,
+      },
+      {
+        name: 'layout_template',
+        type: 'string',
+        required: false,
+        description: `Filter results to only templates that use the layout with this alias.`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `Number of templates to skip before starting to return results, for pagination.`,
+      },
+      {
+        name: 'template_type',
+        type: 'string',
+        required: false,
+        description: `Filter results by template type: All, Standard, or Layout.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_list_webhooks',
+    description: `List the webhooks configured on the current Postmark server, including each webhook's URL, message stream scope, HTTP auth/header configuration, and which event triggers (Open, Click, Delivery, Bounce, SpamComplaint, SubscriptionChange) are enabled. Optionally filter to webhooks scoped to a specific message stream.`,
+    params: [
+      {
+        name: 'message_stream',
+        type: 'string',
+        required: false,
+        description: `Optional message stream ID to filter webhooks by. If omitted, webhooks for all streams are returned.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_retry_inbound_message',
+    description: `Retry processing of an inbound message that previously failed, causing Postmark to attempt delivery to your configured inbound webhook again. Only messages whose current status is Failed can be retried; calling this on a message that isn't in a failed state has no additional effect. Takes no request body.`,
+    params: [
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The Postmark Message ID (a UUID) of the failed inbound message to retry. Obtain this from postmark_list_inbound_messages (filter status=failed) or from postmark_get_inbound_message.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_send_batch_emails',
+    description: `Send up to 500 individual transactional emails in a single batch request (max 50MB total payload). Each item in the messages array has the same shape as a single Send Email call (from and to are required per message; the rest are optional). Postmark processes each message independently and returns a per-message result array.`,
+    params: [
+      {
+        name: 'messages',
+        type: 'array',
+        required: true,
+        description: `Array of email message objects to send in this batch. Maximum 500 items and 50MB total payload. Each item requires from and to; other fields mirror the single Send Email tool.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_send_batch_emails_with_templates',
+    description: `Send up to 500 template-rendered transactional emails in a single batch request. Each item in the messages array mirrors a single Send Email with Template call: TemplateId or TemplateAlias identifies the template, TemplateModel supplies the render data, and From/To are required. Postmark processes each message independently and returns a per-message result array.`,
+    params: [
+      {
+        name: 'messages',
+        type: 'array',
+        required: true,
+        description: `Array of template-based email message objects to send in this batch. Maximum 500 items. Each item requires From, To, TemplateModel, and exactly one of TemplateId or TemplateAlias.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_send_email',
+    description: `Send a single transactional email through Postmark. Requires a From sender address and one or more To recipients (comma-separated, up to 50). At least one of html_body or text_body must be provided. Supports CC/BCC, a reply-to override, custom headers, attachments, free-form metadata, open/link tracking, and routing through a specific message stream.`,
+    params: [
+      {
+        name: 'from',
+        type: 'string',
+        required: true,
+        description: `Sender email address. Can include a display name, e.g. 'Sender Name <sender@example.com>'. Must be a verified Sender Signature or domain on the Postmark server.`,
+      },
+      {
+        name: 'to',
+        type: 'string',
+        required: true,
+        description: `Recipient email address(es). Multiple addresses are comma-separated, up to 50 total. Each may include a display name, e.g. 'Name <recipient@example.com>'.`,
+      },
+      {
+        name: 'attachments',
+        type: 'array',
+        required: false,
+        description: `Array of file attachments. Each item is an object with Name, Content (base64-encoded file data), ContentType, and an optional ContentID (used to reference inline images from the HTML body via 'cid:').`,
+      },
+      {
+        name: 'bcc',
+        type: 'string',
+        required: false,
+        description: `BCC recipient email address(es), comma-separated for multiple.`,
+      },
+      {
+        name: 'cc',
+        type: 'string',
+        required: false,
+        description: `CC recipient email address(es), comma-separated for multiple.`,
+      },
+      {
+        name: 'headers',
+        type: 'array',
+        required: false,
+        description: `Array of custom email headers to include. Each item is an object with Name and Value keys, e.g. [{"Name":"X-Custom-Header","Value":"value"}].`,
+      },
+      {
+        name: 'html_body',
+        type: 'string',
+        required: false,
+        description: `HTML body content of the email. Required if text_body is not provided — at least one of html_body or text_body must be set.`,
+      },
+      {
+        name: 'message_stream',
+        type: 'string',
+        required: false,
+        description: `The message stream to send this email through. Defaults to 'outbound' for transactional email.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Free-form key-value metadata to attach to the message, returned later in webhooks and message details. Example: {"order-id":"1234"}.`,
+      },
+      {
+        name: 'reply_to',
+        type: 'string',
+        required: false,
+        description: `Reply-To email address to use instead of the From address.`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: false,
+        description: `Subject line of the email.`,
+      },
+      {
+        name: 'tag',
+        type: 'string',
+        required: false,
+        description: `Tag used to categorize this email for tracking and statistics. Maximum 1000 characters.`,
+      },
+      {
+        name: 'text_body',
+        type: 'string',
+        required: false,
+        description: `Plain text body content of the email. Required if html_body is not provided — at least one of html_body or text_body must be set.`,
+      },
+      {
+        name: 'track_links',
+        type: 'string',
+        required: false,
+        description: `Link tracking mode for this email. One of None, HtmlAndText, HtmlOnly, or TextOnly. If omitted, the server's default link-tracking setting is used.`,
+      },
+      {
+        name: 'track_opens',
+        type: 'boolean',
+        required: false,
+        description: `Whether to enable open tracking for this email. If omitted, the server's default open-tracking setting is used.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_send_email_with_template',
+    description: `Send a single transactional email rendered from a Postmark template. Identify the template by template_id or template_alias (exactly one is required) and supply template_model with the data used to render its placeholders. Supports the same From/To/CC/BCC, headers, attachments, metadata, and tracking options as a regular send.`,
+    params: [
+      {
+        name: 'from',
+        type: 'string',
+        required: true,
+        description: `Sender email address. Can include a display name, e.g. 'Sender Name <sender@example.com>'. Must be a verified Sender Signature or domain on the Postmark server.`,
+      },
+      {
+        name: 'template_model',
+        type: 'object',
+        required: true,
+        description: `Data object used to render the template's placeholder variables. Example: {"name":"Jane","product_url":"https://example.com"}.`,
+      },
+      {
+        name: 'to',
+        type: 'string',
+        required: true,
+        description: `Recipient email address(es). Multiple addresses are comma-separated, up to 50 total.`,
+      },
+      {
+        name: 'attachments',
+        type: 'array',
+        required: false,
+        description: `Array of file attachments. Each item is an object with Name, Content (base64-encoded file data), ContentType, and an optional ContentID (used to reference inline images from the rendered HTML via 'cid:').`,
+      },
+      {
+        name: 'bcc',
+        type: 'string',
+        required: false,
+        description: `BCC recipient email address(es), comma-separated for multiple.`,
+      },
+      {
+        name: 'cc',
+        type: 'string',
+        required: false,
+        description: `CC recipient email address(es), comma-separated for multiple.`,
+      },
+      {
+        name: 'headers',
+        type: 'array',
+        required: false,
+        description: `Array of custom email headers to include. Each item is an object with Name and Value keys, e.g. [{"Name":"X-Custom-Header","Value":"value"}].`,
+      },
+      {
+        name: 'inline_css',
+        type: 'boolean',
+        required: false,
+        description: `Whether to inline CSS styles into the rendered HTML. Only applies to templates that use a Layout with a <style> block.`,
+      },
+      {
+        name: 'message_stream',
+        type: 'string',
+        required: false,
+        description: `The message stream to send this email through. Defaults to 'outbound' for transactional email.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Free-form key-value metadata to attach to the message, returned later in webhooks and message details. Example: {"order-id":"1234"}.`,
+      },
+      {
+        name: 'reply_to',
+        type: 'string',
+        required: false,
+        description: `Reply-To email address to use instead of the From address.`,
+      },
+      {
+        name: 'tag',
+        type: 'string',
+        required: false,
+        description: `Tag used to categorize this email for tracking and statistics. Maximum 1000 characters.`,
+      },
+      {
+        name: 'template_alias',
+        type: 'string',
+        required: false,
+        description: `Alias of the template to render. Required if template_id is not provided — exactly one of template_id or template_alias must be set.`,
+      },
+      {
+        name: 'template_id',
+        type: 'integer',
+        required: false,
+        description: `Numeric ID of the template to render. Required if template_alias is not provided — exactly one of template_id or template_alias must be set.`,
+      },
+      {
+        name: 'track_links',
+        type: 'string',
+        required: false,
+        description: `Link tracking mode for this email. One of None, HtmlAndText, HtmlOnly, or TextOnly. If omitted, the server's default link-tracking setting is used.`,
+      },
+      {
+        name: 'track_opens',
+        type: 'boolean',
+        required: false,
+        description: `Whether to enable open tracking for this email. If omitted, the server's default open-tracking setting is used.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_unarchive_message_stream',
+    description: `Unarchive a previously archived message stream on the current Postmark server, restoring it to active use before its 30-day deletion window elapses. Fails if the stream was not archived or if it has already been permanently deleted.`,
+    params: [
+      {
+        name: 'stream_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier (ID) of the archived message stream to restore, e.g. "onboarding-emails".`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_update_message_stream',
+    description: `Update an existing message stream's display name, description, or subscription management configuration on the current Postmark server. The stream's ID and type cannot be changed after creation.`,
+    params: [
+      {
+        name: 'stream_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier (ID) of the message stream to update, e.g. "onboarding-emails".`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `New free-text description of the message stream's purpose. Omit to leave unchanged.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `New human-friendly display name for the message stream. Omit to leave unchanged.`,
+      },
+      {
+        name: 'subscription_management_configuration',
+        type: 'object',
+        required: false,
+        description: `Optional object controlling unsubscribe handling for Broadcasts streams. Shape: {"UnsubscribeHandlingType": "none"|"Postmark"|"Custom"}. Omit to leave unchanged.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_update_server_info',
+    description: `Update configuration settings for the current Postmark server (the server identified by the API token used to authenticate). Every field is optional and only the fields you provide are changed on Postmark's side; fields left blank are not modified. Use this to rename the server, change its color, toggle open/click tracking, or set webhook URLs for delivery, bounce, open, click, and inbound events.`,
+    params: [
+      {
+        name: 'bounce_hook_url',
+        type: 'string',
+        required: false,
+        description: `URL that Postmark will POST to whenever a message sent from this server bounces. Must be a valid HTTPS URL. Maps to Postmark's 'BounceHookUrl' field.`,
+      },
+      {
+        name: 'click_hook_url',
+        type: 'string',
+        required: false,
+        description: `URL that Postmark will POST to whenever a tracked link in a message from this server is clicked. Must be a valid HTTPS URL. Maps to Postmark's 'ClickHookUrl' field.`,
+      },
+      {
+        name: 'color',
+        type: 'string',
+        required: false,
+        description: `Color label shown for this server in the Postmark dashboard. One of: Purple, Blue, Turquoise, Green, Red, Yellow, Grey, Orange. Maps to Postmark's 'Color' field.`,
+      },
+      {
+        name: 'delivery_hook_url',
+        type: 'string',
+        required: false,
+        description: `URL that Postmark will POST to whenever a message sent from this server is successfully delivered. Must be a valid HTTPS URL. Maps to Postmark's 'DeliveryHookUrl' field.`,
+      },
+      {
+        name: 'enable_smtp_api_error_hooks',
+        type: 'boolean',
+        required: false,
+        description: `Whether Postmark should call the bounce webhook for SMTP API errors as well as bounces. Maps to Postmark's 'EnableSmtpApiErrorHooks' field.`,
+      },
+      {
+        name: 'inbound_domain',
+        type: 'string',
+        required: false,
+        description: `Inbound domain to associate with this server's inbound email address, used for parsing incoming email. Maps to Postmark's 'InboundDomain' field.`,
+      },
+      {
+        name: 'inbound_hook_url',
+        type: 'string',
+        required: false,
+        description: `URL that Postmark will POST to whenever this server receives an inbound email. Must be a valid HTTPS URL. Maps to Postmark's 'InboundHookUrl' field.`,
+      },
+      {
+        name: 'inbound_spam_threshold',
+        type: 'integer',
+        required: false,
+        description: `SpamAssassin score threshold above which inbound messages are marked as spam and blocked from forwarding. Higher values are more permissive. Maps to Postmark's 'InboundSpamThreshold' field.`,
+      },
+      {
+        name: 'include_bounce_content_in_hook',
+        type: 'boolean',
+        required: false,
+        description: `Whether the bounce webhook payload should include the full bounce content (raw source). Maps to Postmark's 'IncludeBounceContentInHook' field.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Display name for this Postmark server, shown in the dashboard. Maps to Postmark's 'Name' field. Example: 'Production Server'.`,
+      },
+      {
+        name: 'open_hook_url',
+        type: 'string',
+        required: false,
+        description: `URL that Postmark will POST to whenever a message sent from this server is opened (requires TrackOpens). Must be a valid HTTPS URL. Maps to Postmark's 'OpenHookUrl' field.`,
+      },
+      {
+        name: 'post_first_open_only',
+        type: 'boolean',
+        required: false,
+        description: `Whether the open webhook should fire only for the first open of a message, rather than every open. Maps to Postmark's 'PostFirstOpenOnly' field.`,
+      },
+      {
+        name: 'raw_email_enabled',
+        type: 'boolean',
+        required: false,
+        description: `Whether inbound emails should be posted to the inbound webhook as a raw MIME message instead of Postmark's parsed JSON format. Maps to Postmark's 'RawEmailEnabled' field.`,
+      },
+      {
+        name: 'smtp_api_activated',
+        type: 'boolean',
+        required: false,
+        description: `Whether this server is permitted to send messages via the SMTP API (in addition to the standard email API). Maps to Postmark's 'SmtpApiActivated' field.`,
+      },
+      {
+        name: 'track_links',
+        type: 'string',
+        required: false,
+        description: `Default link-tracking behavior for messages sent from this server. One of: None, HtmlAndText, HtmlOnly, TextOnly. Maps to Postmark's 'TrackLinks' field.`,
+      },
+      {
+        name: 'track_opens',
+        type: 'boolean',
+        required: false,
+        description: `Whether open tracking is enabled by default for messages sent from this server. Maps to Postmark's 'TrackOpens' field.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_update_template',
+    description: `Update an existing email template or layout on the current Postmark server, identified by numeric ID or alias. At least one of html_body or text_body should remain set after the update. subject applies to Standard templates and is not used for Layout templates.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Descriptive name of the template, shown in the Postmark dashboard.`,
+      },
+      {
+        name: 'template_id_or_alias',
+        type: 'string',
+        required: true,
+        description: `Numeric ID or alias string of the template to update.`,
+      },
+      {
+        name: 'alias',
+        type: 'string',
+        required: false,
+        description: `Unique alias for the template, used to reference it in the withTemplate send API instead of its numeric ID.`,
+      },
+      {
+        name: 'html_body',
+        type: 'string',
+        required: false,
+        description: `HTML content of the template. Required if text_body is not also being set to a value — the template must end up with at least one of the two.`,
+      },
+      {
+        name: 'layout_template',
+        type: 'string',
+        required: false,
+        description: `Alias of the parent Layout template this Standard template should render inside.`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: false,
+        description: `Subject line template, rendered with the same placeholder data as the body. Applies to Standard templates; not used for Layout templates.`,
+      },
+      {
+        name: 'text_body',
+        type: 'string',
+        required: false,
+        description: `Plain text content of the template. Required if html_body is not also being set to a value — the template must end up with at least one of the two.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_update_webhook',
+    description: `Update an existing webhook on the current Postmark server by its numeric ID. Any field you omit is left unchanged. Use this to change the target URL, HTTP auth/header configuration, or which event triggers (Open, Click, Delivery, Bounce, SpamComplaint, SubscriptionChange) fire the webhook.`,
+    params: [
+      {
+        name: 'webhook_id',
+        type: 'string',
+        required: true,
+        description: `The numeric ID of the webhook to update, as returned by List Webhooks or Create Webhook.`,
+      },
+      {
+        name: 'http_auth',
+        type: 'object',
+        required: false,
+        description: `Optional replacement HTTP basic auth credentials Postmark will send when calling your webhook URL. Shape: {"Username": "...", "Password": "..."}. Omit to leave unchanged.`,
+      },
+      {
+        name: 'http_headers',
+        type: 'array',
+        required: false,
+        description: `Optional replacement array of custom HTTP headers Postmark will send with each webhook request. Each item shape: {"Name": "...", "Value": "..."}. Omit to leave unchanged.`,
+      },
+      {
+        name: 'triggers',
+        type: 'object',
+        required: false,
+        description: `Optional replacement object enabling specific event triggers for this webhook. Shape: {"Open": {"Enabled": bool, "PostFirstOpenOnly": bool}, "Click": {"Enabled": bool}, "Delivery": {"Enabled": bool}, "Bounce": {"Enabled": bool, "IncludeContent": bool}, "SpamComplaint": {"Enabled": bool, "IncludeContent": bool}, "SubscriptionChange": {"Enabled": bool}}. Omit to leave unchanged; only include the trigger keys you want to change.`,
+      },
+      {
+        name: 'url',
+        type: 'string',
+        required: false,
+        description: `Optional replacement HTTPS endpoint Postmark will POST event payloads to. Omit to leave unchanged.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_validate_template',
+    description: `Validate template content without saving it, rendering subject, html_body, and/or text_body against test_render_model to surface syntax errors and preview the rendered output. Provide at least one of subject, html_body, or text_body to validate.`,
+    params: [
+      {
+        name: 'html_body',
+        type: 'string',
+        required: false,
+        description: `HTML body content to validate. Provide at least one of subject, html_body, or text_body.`,
+      },
+      {
+        name: 'inline_css_for_html_test_render',
+        type: 'boolean',
+        required: false,
+        description: `Whether to inline CSS styles into the rendered HTML preview. Only relevant when html_body uses a Layout with a <style> block.`,
+      },
+      {
+        name: 'layout_template',
+        type: 'string',
+        required: false,
+        description: `Alias of the parent Layout template to validate this content against, if applicable.`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: false,
+        description: `Subject line content to validate. Provide at least one of subject, html_body, or text_body.`,
+      },
+      {
+        name: 'template_type',
+        type: 'string',
+        required: false,
+        description: `Type of template being validated: Standard or Layout. Affects which placeholders (e.g. {{{@content}}}) are considered valid.`,
+      },
+      {
+        name: 'test_render_model',
+        type: 'object',
+        required: false,
+        description: `Sample data object used to render the placeholders in subject, html_body, and text_body for this validation. Example: {"name":"Jane"}.`,
+      },
+      {
+        name: 'text_body',
+        type: 'string',
+        required: false,
+        description: `Plain text body content to validate. Provide at least one of subject, html_body, or text_body.`,
+      },
+    ],
+  },
+]
