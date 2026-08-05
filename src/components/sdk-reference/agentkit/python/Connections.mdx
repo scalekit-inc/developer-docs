@@ -1,0 +1,119 @@
+import * as CB from '@gesslar/starlight-class-browser'
+
+Environment-level app connections on `scalekit_client.connection`. Create, list, get, and update AgentKit connections in code.
+
+<CB.ClassBrowser
+  name="Connection"
+  type="client"
+  source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py"
+  language="python"
+>
+
+  <CB.ClassMethod name="create_environment_connection">
+    Creates a new environment-level connection. Pass `Flags(is_app=True)` to register it as an app connection that AgentKit connectors can use.
+
+    <CB.ClassMethodInput name="connection" type="CreateConnection">
+      CreateConnection object with the provider key and connection type.
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="flags" type="Optional[Flags]">
+      Optional. Connection flags (`is_login`, `is_app`).
+    </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="CreateConnectionResponse">
+      Create Connection Response
+    </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+```python title="create_connection.py"
+from scalekit.v1.connections.connections_pb2 import (
+    CreateConnection, ConnectionType, Flags
+)
+
+response = scalekit_client.connection.create_environment_connection(
+    connection=CreateConnection(
+        provider_key='HUBSPOT',
+        type=ConnectionType.OAUTH,
+    ),
+    flags=Flags(is_app=True),
+)
+connection = response[0].connection
+```
+
+  <CB.ClassMethod name="list_app_connections">
+    Lists environment-level app connections. Filter by provider or search by connection name (key ID) or provider.
+
+    <CB.ClassMethodInput name="page_size" type="Optional[int]">
+      Results per page (max 30).
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="page_token" type="Optional[str]">
+      Optional. Token for pagination.
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="provider" type="Optional[str]">
+      Optional. Filter by provider (e.g. `HUBSPOT`).
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="query" type="Optional[str]">
+      Optional. Free-text search on connection name (key ID) or provider (3–100 characters).
+    </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="ListAppConnectionsResponse">
+      List App Connections Response
+    </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+```python title="list_connections.py"
+response = scalekit_client.connection.list_app_connections()
+
+for conn in response[0].connections:
+    print(f"Connection: {conn.id}, Provider: {conn.provider_key}")
+```
+
+  <CB.ClassMethod name="get_environment_connection">
+    Returns an environment-level connection by its id.
+
+    <CB.ClassMethodInput name="connection_id" type="str">
+      Connection id to retrieve.
+    </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="GetConnectionResponse">
+      Get Connection Response
+    </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+```python title="get_connection.py"
+response = scalekit_client.connection.get_environment_connection('conn_123456')
+conn = response[0].connection
+```
+
+  <CB.ClassMethod name="update_environment_connection">
+    Updates an environment-level connection. Use after create to attach OAuth app credentials from environment variables.
+
+    <CB.ClassMethodInput name="connection_id" type="str">
+      Connection id to update.
+    </CB.ClassMethodInput>
+    <CB.ClassMethodInput name="connection" type="UpdateConnection">
+      UpdateConnection object with fields to update.
+    </CB.ClassMethodInput>
+    <CB.ClassMethodOutput type="UpdateConnectionResponse">
+      Update Connection Response
+    </CB.ClassMethodOutput>
+  </CB.ClassMethod>
+
+```python title="update_connection.py"
+import os
+from scalekit.v1.connections.connections_pb2 import (
+    UpdateConnection, ConnectionType, OAuthConnectionConfig
+)
+
+# Never hard-code a client secret — read credentials from the environment.
+scalekit_client.connection.update_environment_connection(
+    connection_id='conn_123456',
+    connection=UpdateConnection(
+        provider_key='HUBSPOT',
+        key_id='hubspot-key',
+        type=ConnectionType.OAUTH,
+        oauth_config=OAuthConnectionConfig(
+            client_id={'value': os.environ['HUBSPOT_CLIENT_ID']},
+            client_secret={'value': os.environ['HUBSPOT_CLIENT_SECRET']},
+        ),
+    ),
+)
+```
+
+</CB.ClassBrowser>
