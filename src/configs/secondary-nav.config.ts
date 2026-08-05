@@ -10,6 +10,7 @@ import {
   IconLucideCode,
   IconLucideWorkflow,
   IconRiAiGenerate2,
+  IconSolarServerPathOutline,
 } from '../utils/icon-map'
 import IconLucideHome from '~icons/lucide/home'
 import IconSolarLayersOutline from '~icons/solar/layers-outline'
@@ -59,6 +60,12 @@ const agentKitItems: NavItem[] = [
     href: '/agentkit/apis/#description/quickstart',
     label: 'APIs',
     iconComponent: IconApi,
+  },
+  {
+    id: 'enterprise-deployment',
+    href: '/self-hosted/overview/',
+    label: 'Enterprise Deployment',
+    iconComponent: IconSolarServerPathOutline,
   },
 ]
 
@@ -170,6 +177,12 @@ const saasKitItems: NavItem[] = [
     href: '/saaskit/apis/#description/quickstart',
     label: 'APIs',
     iconComponent: IconApi,
+  },
+  {
+    id: 'enterprise-deployment',
+    href: '/self-hosted/overview/',
+    label: 'Enterprise Deployment',
+    iconComponent: IconSolarServerPathOutline,
   },
 ]
 

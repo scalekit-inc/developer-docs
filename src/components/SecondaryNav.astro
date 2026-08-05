@@ -2,13 +2,14 @@
 import { secondaryNavConfig, IconLucideCheck } from '../configs/secondary-nav.config'
 import {
   getActiveProduct,
-  getActiveSecondaryNavId,
   isCurrentPage,
   isSelfHostedPath,
   getDisplayLabel,
   getDisplayIcon,
   type SecondaryNavProps,
 } from '../utils/secondary-nav-utils'
+import type { NavItem } from '../configs/secondary-nav.config'
+import type { DocsProduct } from '../configs/self-hosted'
 
 import { IconLucideChevronDown as IconChevronDown } from '../utils/icon-map'
 
@@ -16,247 +17,261 @@ const { entry } = Astro.props satisfies SecondaryNavProps
 
 const searchParams = Astro.url.searchParams
 const activeProduct = getActiveProduct(Astro.url.pathname, entry?.data?.topic, searchParams)
-const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry, searchParams)
-const navItems = secondaryNavConfig[activeProduct]
+const isSharedPath = isSelfHostedPath(Astro.url.pathname)
 
-// Self-hosted deployment docs apply to both products and have no tab of their own
-// (see sidebar.config.ts) — showing either product's tab row here would misrepresent
-// the page, so the row disappears entirely instead of showing a half-relevant one.
-const isSelfHosted = isSelfHostedPath(Astro.url.pathname)
+// Shared self-hosted pages: render both product rows so the client can swap without
+// a full rebuild. SSR shows AgentKit (cold default). Unambiguous pages render one row.
+const productsToRender: DocsProduct[] = isSharedPath ? ['agentkit', 'saaskit'] : [activeProduct]
+
+function renderNavItemClass(item: NavItem, pathname: string): string {
+  const isCurrent = isCurrentPage(pathname, item, entry, searchParams)
+  return `nav-item ${isCurrent ? 'current' : ''} ${item.shared ? 'shared' : ''}`
+}
 ---
 
 {
-  !isSelfHosted && (
-    <>
-      <nav class="secondary-nav sl-hidden md:sl-flex" aria-label="Main topics navigation">
-        <div class="nav-section nav-left">
-          <div class="nav-items">
-            {navItems.map((item) => {
-              const hasDropdown = Boolean(item.children && item.children.length > 0)
-              const isCurrent = isCurrentPage(Astro.url.pathname, item, entry, searchParams)
-              const IconComponent = hasDropdown
-                ? getDisplayIcon(Astro.url.pathname, item, entry, searchParams)
-                : item.iconComponent
-              const label = hasDropdown
-                ? getDisplayLabel(Astro.url.pathname, item, entry, searchParams)
-                : item.label
-              const itemClass = `nav-item ${isCurrent ? 'current' : ''} ${item.shared ? 'shared' : ''}`
+  productsToRender.map((product) => {
+    const navItems = secondaryNavConfig[product]
+    const isVisible = product === activeProduct
+    return (
+      <div
+        class="secondary-nav-product"
+        data-product={product}
+        {...(isVisible ? {} : { hidden: true })}
+      >
+        <nav class="secondary-nav sl-hidden md:sl-flex" aria-label="Main topics navigation">
+          <div class="nav-section nav-left">
+            <div class="nav-items">
+              {navItems.map((item) => {
+                const hasDropdown = Boolean(item.children && item.children.length > 0)
+                const isCurrent = isCurrentPage(Astro.url.pathname, item, entry, searchParams)
+                const IconComponent = hasDropdown
+                  ? getDisplayIcon(Astro.url.pathname, item, entry, searchParams)
+                  : item.iconComponent
+                const label = hasDropdown
+                  ? getDisplayLabel(Astro.url.pathname, item, entry, searchParams)
+                  : item.label
+                const itemClass = renderNavItemClass(item, Astro.url.pathname)
+
+                return (
+                  <div
+                    class={`nav-item-wrapper ${hasDropdown ? 'has-dropdown' : ''}`}
+                    data-keep-parent-label={item.keepParentLabel ? 'true' : undefined}
+                  >
+                    {hasDropdown ? (
+                      <button
+                        type="button"
+                        class={itemClass}
+                        data-nav-key={item.href}
+                        aria-expanded="false"
+                        aria-current={isCurrent ? 'page' : undefined}
+                      >
+                        <div class="nav-item-content">
+                          {IconComponent && <IconComponent class="nav-icon" />}
+                          {label && <span class="nav-label">{label}</span>}
+                          <IconChevronDown class="dropdown-icon" />
+                        </div>
+                      </button>
+                    ) : (
+                      <a
+                        href={item.href}
+                        class={itemClass}
+                        aria-current={isCurrent ? 'page' : undefined}
+                        data-astro-prefetch="viewport"
+                        data-product-context={
+                          item.id === 'enterprise-deployment' ? product : undefined
+                        }
+                      >
+                        <div class="nav-item-content">
+                          {IconComponent && <IconComponent class="nav-icon" />}
+                          {item.label && <span class="nav-label">{item.label}</span>}
+                        </div>
+                      </a>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </nav>
+
+        {/* Dropdown portal to ensure menu overlays main content */}
+        <div class="dropdown-portal">
+          {navItems
+            .filter((item) => item.children && item.children.length > 0)
+            .map((item) => {
+              const hasColumnGroups = item.children?.some((child) => child.columnGroup)
+              const leftItems = item.children?.filter((child) => child.columnGroup === 'left') || []
+              const rightItems =
+                item.children?.filter((child) => child.columnGroup === 'right') || []
+              const ungroupedItems = item.children?.filter((child) => !child.columnGroup) || []
 
               return (
                 <div
-                  class={`nav-item-wrapper ${hasDropdown ? 'has-dropdown' : ''}`}
-                  data-keep-parent-label={item.keepParentLabel ? 'true' : undefined}
+                  class="dropdown-menu"
+                  data-dropdown
+                  data-nav-key={item.href}
+                  data-dropdown-id={item.id}
                 >
-                  {hasDropdown ? (
-                    <button
-                      type="button"
-                      class={itemClass}
-                      data-nav-key={item.href}
-                      aria-expanded="false"
-                      aria-current={isCurrent ? 'page' : undefined}
-                    >
-                      <div class="nav-item-content">
-                        {IconComponent && <IconComponent class="nav-icon" />}
-                        {label && <span class="nav-label">{label}</span>}
-                        <IconChevronDown class="dropdown-icon" />
+                  <div class={`dropdown-content ${hasColumnGroups ? 'has-columns' : ''}`}>
+                    {hasColumnGroups ? (
+                      <div class="dropdown-columns">
+                        {leftItems.length > 0 && (
+                          <div class="dropdown-column dropdown-column-left">
+                            {leftItems.map((child, index) => (
+                              <>
+                                {index === 0 && child.sectionLabel && (
+                                  <>
+                                    <div class="dropdown-section-label">{child.sectionLabel}</div>
+                                    {child.sectionDescription && (
+                                      <div class="dropdown-section-description">
+                                        {child.sectionDescription}
+                                      </div>
+                                    )}
+                                    {child.sectionHref && child.sectionCtaLabel && (
+                                      <a href={child.sectionHref} class="dropdown-section-cta">
+                                        {child.sectionCtaLabel}
+                                      </a>
+                                    )}
+                                  </>
+                                )}
+                                <a
+                                  href={child.href}
+                                  class={`dropdown-item ${child.description ? 'with-description' : ''} ${isCurrentPage(Astro.url.pathname, child, entry, searchParams) ? 'current' : ''}`}
+                                  aria-current={
+                                    isCurrentPage(Astro.url.pathname, child, entry, searchParams)
+                                      ? 'page'
+                                      : undefined
+                                  }
+                                  data-nav-label={child.label}
+                                  data-dropdown-label={child.dropdownLabel || child.label}
+                                  data-astro-prefetch="viewport"
+                                >
+                                  <div class="dropdown-item-icon-wrapper">
+                                    {(function () {
+                                      const ChildIcon = child.iconComponent
+                                      return ChildIcon && <ChildIcon class="dropdown-item-icon" />
+                                    })()}
+                                  </div>
+                                  <div class="dropdown-item-content">
+                                    <span class="dropdown-item-label">
+                                      {child.dropdownLabel || child.label}
+                                    </span>
+                                    {child.description && (
+                                      <span class="dropdown-item-description">
+                                        {child.description}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <IconLucideCheck class="dropdown-item-check-icon" />
+                                </a>
+                                {child.showDivider && <div class="dropdown-divider" />}
+                              </>
+                            ))}
+                          </div>
+                        )}
+                        {leftItems.length > 0 && rightItems.length > 0 && (
+                          <div class="dropdown-column-separator" />
+                        )}
+                        {rightItems.length > 0 && (
+                          <div class="dropdown-column dropdown-column-right">
+                            {rightItems.map((child, index) => (
+                              <>
+                                {index === 0 && child.sectionLabel && (
+                                  <>
+                                    <div class="dropdown-section-label">{child.sectionLabel}</div>
+                                    {child.sectionDescription && (
+                                      <div class="dropdown-section-description">
+                                        {child.sectionDescription}
+                                      </div>
+                                    )}
+                                    {child.sectionHref && child.sectionCtaLabel && (
+                                      <a href={child.sectionHref} class="dropdown-section-cta">
+                                        {child.sectionCtaLabel}
+                                      </a>
+                                    )}
+                                  </>
+                                )}
+                                <a
+                                  href={child.href}
+                                  class={`dropdown-item dropdown-item-shortcut ${child.description ? 'with-description' : ''} ${isCurrentPage(Astro.url.pathname, child, entry, searchParams) ? 'current' : ''}`}
+                                  aria-current={
+                                    isCurrentPage(Astro.url.pathname, child, entry, searchParams)
+                                      ? 'page'
+                                      : undefined
+                                  }
+                                  data-nav-label={child.label}
+                                  data-dropdown-label={child.dropdownLabel || child.label}
+                                  data-astro-prefetch="viewport"
+                                >
+                                  <div class="dropdown-item-icon-wrapper">
+                                    {(function () {
+                                      const ChildIcon = child.iconComponent
+                                      return ChildIcon && <ChildIcon class="dropdown-item-icon" />
+                                    })()}
+                                  </div>
+                                  <div class="dropdown-item-content">
+                                    <span class="dropdown-item-label">
+                                      {child.dropdownLabel || child.label}
+                                    </span>
+                                    {child.description && (
+                                      <span class="dropdown-item-description">
+                                        {child.description}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <IconLucideCheck class="dropdown-item-check-icon" />
+                                </a>
+                                {child.showDivider && <div class="dropdown-divider" />}
+                              </>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                    </button>
-                  ) : (
-                    <a
-                      href={item.href}
-                      class={itemClass}
-                      aria-current={isCurrent ? 'page' : undefined}
-                      data-astro-prefetch="viewport"
-                    >
-                      <div class="nav-item-content">
-                        {IconComponent && <IconComponent class="nav-icon" />}
-                        {item.label && <span class="nav-label">{item.label}</span>}
-                      </div>
-                    </a>
-                  )}
+                    ) : (
+                      <>
+                        {ungroupedItems.map((child) => (
+                          <>
+                            {child.sectionLabel && (
+                              <div class="dropdown-section-label">{child.sectionLabel}</div>
+                            )}
+                            <a
+                              href={child.href}
+                              class={`dropdown-item ${child.description ? 'with-description' : ''} ${isCurrentPage(Astro.url.pathname, child, entry, searchParams) ? 'current' : ''}`}
+                              aria-current={
+                                isCurrentPage(Astro.url.pathname, child, entry, searchParams)
+                                  ? 'page'
+                                  : undefined
+                              }
+                              data-astro-prefetch="viewport"
+                            >
+                              <div class="dropdown-item-icon-wrapper">
+                                {(function () {
+                                  const ChildIcon = child.iconComponent
+                                  return ChildIcon && <ChildIcon class="dropdown-item-icon" />
+                                })()}
+                              </div>
+                              <div class="dropdown-item-content">
+                                <span class="dropdown-item-label">{child.label}</span>
+                                {child.description && (
+                                  <span class="dropdown-item-description">{child.description}</span>
+                                )}
+                              </div>
+                              <IconLucideCheck class="dropdown-item-check-icon" />
+                            </a>
+                            {child.showDivider && <div class="dropdown-divider" />}
+                          </>
+                        ))}
+                      </>
+                    )}
+                  </div>
                 </div>
               )
             })}
-          </div>
         </div>
-      </nav>
-
-      {/* Dropdown portal to ensure menu overlays main content */}
-      <div id="dropdown-portal" class="dropdown-portal">
-        {navItems
-          .filter((item) => item.children && item.children.length > 0)
-          .map((item) => {
-            // Check if this dropdown has column groups
-            const hasColumnGroups = item.children?.some((child) => child.columnGroup)
-            const leftItems = item.children?.filter((child) => child.columnGroup === 'left') || []
-            const rightItems = item.children?.filter((child) => child.columnGroup === 'right') || []
-            const ungroupedItems = item.children?.filter((child) => !child.columnGroup) || []
-
-            return (
-              <div
-                class="dropdown-menu"
-                data-dropdown
-                data-nav-key={item.href}
-                data-dropdown-id={item.id}
-              >
-                <div class={`dropdown-content ${hasColumnGroups ? 'has-columns' : ''}`}>
-                  {hasColumnGroups ? (
-                    <div class="dropdown-columns">
-                      {leftItems.length > 0 && (
-                        <div class="dropdown-column dropdown-column-left">
-                          {leftItems.map((child, index) => (
-                            <>
-                              {index === 0 && child.sectionLabel && (
-                                <>
-                                  <div class="dropdown-section-label">{child.sectionLabel}</div>
-                                  {child.sectionDescription && (
-                                    <div class="dropdown-section-description">
-                                      {child.sectionDescription}
-                                    </div>
-                                  )}
-                                  {child.sectionHref && child.sectionCtaLabel && (
-                                    <a href={child.sectionHref} class="dropdown-section-cta">
-                                      {child.sectionCtaLabel}
-                                    </a>
-                                  )}
-                                </>
-                              )}
-                              <a
-                                href={child.href}
-                                class={`dropdown-item ${child.description ? 'with-description' : ''} ${isCurrentPage(Astro.url.pathname, child, entry, searchParams) ? 'current' : ''}`}
-                                aria-current={
-                                  isCurrentPage(Astro.url.pathname, child, entry, searchParams)
-                                    ? 'page'
-                                    : undefined
-                                }
-                                data-nav-label={child.label}
-                                data-dropdown-label={child.dropdownLabel || child.label}
-                                data-astro-prefetch="viewport"
-                              >
-                                <div class="dropdown-item-icon-wrapper">
-                                  {(function () {
-                                    const ChildIcon = child.iconComponent
-                                    return ChildIcon && <ChildIcon class="dropdown-item-icon" />
-                                  })()}
-                                </div>
-                                <div class="dropdown-item-content">
-                                  <span class="dropdown-item-label">
-                                    {child.dropdownLabel || child.label}
-                                  </span>
-                                  {child.description && (
-                                    <span class="dropdown-item-description">
-                                      {child.description}
-                                    </span>
-                                  )}
-                                </div>
-                                <IconLucideCheck class="dropdown-item-check-icon" />
-                              </a>
-                              {child.showDivider && <div class="dropdown-divider" />}
-                            </>
-                          ))}
-                        </div>
-                      )}
-                      {leftItems.length > 0 && rightItems.length > 0 && (
-                        <div class="dropdown-column-separator" />
-                      )}
-                      {rightItems.length > 0 && (
-                        <div class="dropdown-column dropdown-column-right">
-                          {rightItems.map((child, index) => (
-                            <>
-                              {index === 0 && child.sectionLabel && (
-                                <>
-                                  <div class="dropdown-section-label">{child.sectionLabel}</div>
-                                  {child.sectionDescription && (
-                                    <div class="dropdown-section-description">
-                                      {child.sectionDescription}
-                                    </div>
-                                  )}
-                                  {child.sectionHref && child.sectionCtaLabel && (
-                                    <a href={child.sectionHref} class="dropdown-section-cta">
-                                      {child.sectionCtaLabel}
-                                    </a>
-                                  )}
-                                </>
-                              )}
-                              <a
-                                href={child.href}
-                                class={`dropdown-item dropdown-item-shortcut ${child.description ? 'with-description' : ''} ${isCurrentPage(Astro.url.pathname, child, entry, searchParams) ? 'current' : ''}`}
-                                aria-current={
-                                  isCurrentPage(Astro.url.pathname, child, entry, searchParams)
-                                    ? 'page'
-                                    : undefined
-                                }
-                                data-nav-label={child.label}
-                                data-dropdown-label={child.dropdownLabel || child.label}
-                                data-astro-prefetch="viewport"
-                              >
-                                <div class="dropdown-item-icon-wrapper">
-                                  {(function () {
-                                    const ChildIcon = child.iconComponent
-                                    return ChildIcon && <ChildIcon class="dropdown-item-icon" />
-                                  })()}
-                                </div>
-                                <div class="dropdown-item-content">
-                                  <span class="dropdown-item-label">
-                                    {child.dropdownLabel || child.label}
-                                  </span>
-                                  {child.description && (
-                                    <span class="dropdown-item-description">
-                                      {child.description}
-                                    </span>
-                                  )}
-                                </div>
-                                <IconLucideCheck class="dropdown-item-check-icon" />
-                              </a>
-                              {child.showDivider && <div class="dropdown-divider" />}
-                            </>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <>
-                      {ungroupedItems.map((child) => (
-                        <>
-                          {child.sectionLabel && (
-                            <div class="dropdown-section-label">{child.sectionLabel}</div>
-                          )}
-                          <a
-                            href={child.href}
-                            class={`dropdown-item ${child.description ? 'with-description' : ''} ${isCurrentPage(Astro.url.pathname, child, entry, searchParams) ? 'current' : ''}`}
-                            aria-current={
-                              isCurrentPage(Astro.url.pathname, child, entry, searchParams)
-                                ? 'page'
-                                : undefined
-                            }
-                            data-astro-prefetch="viewport"
-                          >
-                            <div class="dropdown-item-icon-wrapper">
-                              {(function () {
-                                const ChildIcon = child.iconComponent
-                                return ChildIcon && <ChildIcon class="dropdown-item-icon" />
-                              })()}
-                            </div>
-                            <div class="dropdown-item-content">
-                              <span class="dropdown-item-label">{child.label}</span>
-                              {child.description && (
-                                <span class="dropdown-item-description">{child.description}</span>
-                              )}
-                            </div>
-                            <IconLucideCheck class="dropdown-item-check-icon" />
-                          </a>
-                          {child.showDivider && <div class="dropdown-divider" />}
-                        </>
-                      ))}
-                    </>
-                  )}
-                </div>
-              </div>
-            )
-          })}
       </div>
-    </>
-  )
+    )
+  })
 }
 
 <style>
@@ -278,6 +293,10 @@ const isSelfHosted = isSelfHostedPath(Astro.url.pathname)
     left: 0;
     pointer-events: none;
     z-index: var(--sl-z-index-dropdown, 15);
+  }
+
+  .secondary-nav-product[hidden] {
+    display: none !important;
   }
 
   .secondary-nav {
@@ -688,7 +707,7 @@ const isSelfHosted = isSelfHostedPath(Astro.url.pathname)
     const navKey = dropdown.getAttribute('data-nav-key')
     if (!navKey) return null
     return document.querySelector(
-      `.nav-item-wrapper.has-dropdown .nav-item[data-nav-key="${navKey}"]`,
+      `.secondary-nav-product:not([hidden]) .nav-item-wrapper.has-dropdown .nav-item[data-nav-key="${navKey}"]`,
     )
   }
 
@@ -892,10 +911,49 @@ const isSelfHosted = isSelfHostedPath(Astro.url.pathname)
   /** Abort prior bindings when client-side router swaps the page */
   let secondaryNavAbort = null
 
+  function applySharedProductRow() {
+    const phrase = document.getElementById('product-phrase')
+    if (!phrase || phrase.getAttribute('data-shared-path') !== 'true') return
+    const storageKey = phrase.getAttribute('data-storage-key') || 'sk-active-product'
+    let product = phrase.getAttribute('data-ssr-product') || 'agentkit'
+    const param = new URLSearchParams(location.search).get('product')
+    if (param === 'agentkit' || param === 'saaskit') {
+      product = param
+    } else {
+      try {
+        const stored = sessionStorage.getItem(storageKey)
+        if (stored === 'agentkit' || stored === 'saaskit') product = stored
+      } catch {}
+    }
+    document.querySelectorAll('.secondary-nav-product[data-product]').forEach((row) => {
+      if (row.getAttribute('data-product') === product) row.removeAttribute('hidden')
+      else row.setAttribute('hidden', '')
+    })
+  }
+
   function initSecondaryNav() {
     secondaryNavAbort?.abort()
     secondaryNavAbort = new AbortController()
     const { signal } = secondaryNavAbort
+
+    applySharedProductRow()
+
+    // Persist product when entering shared Enterprise Deployment from a product row
+    document.addEventListener(
+      'click',
+      (e) => {
+        const link = e.target instanceof Element ? e.target.closest('[data-product-context]') : null
+        if (!(link instanceof HTMLElement)) return
+        const product = link.getAttribute('data-product-context')
+        if (product !== 'agentkit' && product !== 'saaskit') return
+        const phrase = document.getElementById('product-phrase')
+        const storageKey = phrase?.getAttribute('data-storage-key') || 'sk-active-product'
+        try {
+          sessionStorage.setItem(storageKey, product)
+        } catch {}
+      },
+      { signal, capture: true },
+    )
 
     // Close any dropdown left open from the previous page
     hideAllDropdowns()
@@ -923,7 +981,7 @@ const isSelfHosted = isSelfHostedPath(Astro.url.pathname)
       if (!navKey) return
 
       const dropdown = document.querySelector(
-        `#dropdown-portal [data-dropdown][data-nav-key="${navKey}"]`,
+        `.secondary-nav-product:not([hidden]) .dropdown-portal [data-dropdown][data-nav-key="${navKey}"]`,
       )
       if (!dropdown) return
 

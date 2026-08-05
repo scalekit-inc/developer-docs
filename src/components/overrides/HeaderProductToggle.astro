@@ -5,6 +5,7 @@ import {
   isSelfHostedPath,
   type SecondaryNavProps,
 } from '../../utils/secondary-nav-utils'
+import { PRODUCT_STORAGE_KEY } from '../../configs/self-hosted'
 import { IconLucideUsers, IconLucideBot } from '../../utils/icon-map'
 import { IconLucideCheck } from '../../configs/secondary-nav.config'
 
@@ -14,26 +15,19 @@ const searchParams = Astro.url.searchParams
 const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry, searchParams)
 const activeProduct = getActiveProduct(Astro.url.pathname, entry?.data?.topic, searchParams)
 
-// Self-hosted deployment docs apply to both products, so neither AgentKit nor
-// Auth for SaaS is "active" there. Show a neutral "Self Hosted" label instead —
-// it isn't a selectable dropdown option (yet), just the current-page state.
-// Keep product-active flags false on these routes even if topic or ?product=
-// would otherwise resolve to AgentKit/SaaSKit (label and dropdown must agree).
-const isSelfHosted = isSelfHostedPath(Astro.url.pathname)
+// Self-hosted routes are shared; product is resolved (cold default AgentKit or
+// ?product=). Client restores SaaS from sessionStorage when needed. Never show
+// a third "Self Hosted" product option in the picker.
+const isSharedPath = isSelfHostedPath(Astro.url.pathname)
 
 // activeId !== null means the page is in the doc system with a known nav context.
 // Shared items (rest-apis, sdks, etc.) live in SaasKit nav, so activeProduct covers them.
-const isAgentKitActive = !isSelfHosted && activeProduct === 'agentkit'
-const isSaaSKitActive = !isSelfHosted && activeProduct === 'saaskit' && activeId !== null
-const hasSelection = isAgentKitActive || isSaaSKitActive || isSelfHosted
+// On self-hosted, treat product as selected even if secondary mapping is still resolving.
+const isAgentKitActive = activeProduct === 'agentkit'
+const isSaaSKitActive = activeProduct === 'saaskit' && (activeId !== null || isSharedPath)
+const hasSelection = isAgentKitActive || isSaaSKitActive
 
-const activeLabel = isSelfHosted
-  ? 'Self Hosted'
-  : isAgentKitActive
-    ? 'AgentKit'
-    : isSaaSKitActive
-      ? 'Auth for SaaS'
-      : null
+const activeLabel = isAgentKitActive ? 'AgentKit' : isSaaSKitActive ? 'Auth for SaaS' : null
 
 const productLinks = [
   {
@@ -55,7 +49,13 @@ const productLinks = [
 ]
 ---
 
-<div class="product-phrase sl-hidden md:sl-flex" id="product-phrase">
+<div
+  class="product-phrase sl-hidden md:sl-flex"
+  id="product-phrase"
+  data-shared-path={isSharedPath ? 'true' : 'false'}
+  data-ssr-product={activeProduct}
+  data-storage-key={PRODUCT_STORAGE_KEY}
+>
   <div class="product-dropdown" id="product-dropdown">
     <button
       class={`product-dropdown__trigger${!hasSelection ? ' is-placeholder' : ''}`}
@@ -124,7 +124,112 @@ const productLinks = [
 <script>
   let productToggleAbort: AbortController | null = null
 
+  const PRODUCT_LABELS: Record<string, string> = {
+    agentkit: 'AgentKit',
+    saaskit: 'Auth for SaaS',
+  }
+
+  function getStorageKey(): string {
+    const phrase = document.getElementById('product-phrase')
+    return phrase?.getAttribute('data-storage-key') || 'sk-active-product'
+  }
+
+  /**
+   * Resolve product for the current page: ?product= wins, then path signals,
+   * then session memory on shared paths, then SSR default baked into the DOM.
+   */
+  function resolveClientProduct(): string | null {
+    const phrase = document.getElementById('product-phrase')
+    if (!phrase) return null
+
+    const isShared = phrase.getAttribute('data-shared-path') === 'true'
+    const ssrProduct = phrase.getAttribute('data-ssr-product')
+    const paramProduct = new URLSearchParams(location.search).get('product')
+    const storageKey = getStorageKey()
+
+    let knownProduct: string | null = null
+    if (paramProduct === 'agentkit' || paramProduct === 'saaskit') {
+      knownProduct = paramProduct
+    } else if (location.pathname.startsWith('/agentkit/')) {
+      knownProduct = 'agentkit'
+    } else if (!isShared) {
+      // Unambiguous non-AgentKit docs page → SaaS product context
+      knownProduct = 'saaskit'
+    }
+
+    if (knownProduct) {
+      try {
+        sessionStorage.setItem(storageKey, knownProduct)
+      } catch {
+        /* private mode */
+      }
+    }
+
+    if (isShared) {
+      try {
+        const stored = sessionStorage.getItem(storageKey)
+        if (stored === 'agentkit' || stored === 'saaskit') {
+          return stored
+        }
+      } catch {
+        /* private mode */
+      }
+      return ssrProduct === 'saaskit' ? 'saaskit' : 'agentkit'
+    }
+
+    return knownProduct || ssrProduct
+  }
+
+  function applyProductChrome(product: string) {
+    const trigger = document.getElementById('product-dropdown-trigger') as HTMLButtonElement | null
+    if (!trigger) return
+
+    const label = PRODUCT_LABELS[product]
+    if (!label) return
+
+    const labelEl = trigger.querySelector('.product-label')
+    const prefixEl = trigger.querySelector('.phrase-prefix')
+    if (labelEl) {
+      labelEl.textContent = label
+    } else if (prefixEl) {
+      const span = document.createElement('span')
+      span.id = 'product-label'
+      span.className = 'product-label'
+      span.textContent = label
+      prefixEl.replaceWith(span)
+      trigger.classList.remove('is-placeholder')
+      trigger.setAttribute('data-has-selection', 'true')
+    }
+
+    document
+      .querySelectorAll('#product-dropdown .product-dropdown__item[data-storage-value]')
+      .forEach((item) => {
+        const active = item.getAttribute('data-storage-value') === product
+        item.classList.toggle('is-active', active)
+        item.setAttribute('aria-selected', String(active))
+      })
+
+    // Secondary nav dual-row: show the matching product's tab set on shared paths
+    document.querySelectorAll('.secondary-nav-product[data-product]').forEach((row) => {
+      const rowProduct = row.getAttribute('data-product')
+      if (rowProduct === product) {
+        row.removeAttribute('hidden')
+      } else {
+        row.setAttribute('hidden', '')
+      }
+    })
+
+    document.dispatchEvent(new CustomEvent('sk:product-context', { detail: { product } }))
+  }
+
+  function restoreProductContext() {
+    const product = resolveClientProduct()
+    if (product) applyProductChrome(product)
+  }
+
   function initProductToggle() {
+    restoreProductContext()
+
     const trigger = document.getElementById('product-dropdown-trigger') as HTMLButtonElement | null
     const dropdown = document.getElementById('product-dropdown')
     if (!trigger || !dropdown) return
@@ -220,13 +325,22 @@ const productLinks = [
       { signal },
     )
 
-    // Product switch: close menu + optimistic label/active state so chrome
-    // updates before the soft navigation paints the new secondary nav.
+    // Product switch: persist product, optimistic label, then navigate.
     dropdown.addEventListener(
       'click',
       (e) => {
         const option = (e.target as Element | null)?.closest?.('[data-product-switch]')
         if (!(option instanceof HTMLElement)) return
+
+        const storageValue = option.getAttribute('data-storage-value')
+        if (storageValue === 'agentkit' || storageValue === 'saaskit') {
+          try {
+            sessionStorage.setItem(getStorageKey(), storageValue)
+          } catch {
+            /* private mode */
+          }
+          applyProductChrome(storageValue)
+        }
 
         const label = option.getAttribute('data-label')
         const labelEl = trigger.querySelector('.product-label')
