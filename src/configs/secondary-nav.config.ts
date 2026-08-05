@@ -95,6 +95,24 @@ const saasKitItems: NavItem[] = [
     iconComponent: IconMcp,
   },
   {
+    id: 'saaskit-sdks',
+    href: '/sdks/',
+    label: 'SDKs',
+    iconComponent: IconSdk,
+  },
+  {
+    id: 'saaskit-apis',
+    href: '/saaskit/apis/#description/quickstart',
+    label: 'APIs',
+    iconComponent: IconApi,
+  },
+  {
+    id: 'enterprise-deployment',
+    href: '/self-hosted/overview/',
+    label: 'Enterprise Deployment',
+    iconComponent: IconSolarServerPathOutline,
+  },
+  {
     id: 'developer-resources',
     href: '#developer-resources',
     label: 'Developer Resources',
@@ -165,24 +183,6 @@ const saasKitItems: NavItem[] = [
         columnGroup: 'right',
       },
     ],
-  },
-  {
-    id: 'saaskit-sdks',
-    href: '/sdks/',
-    label: 'SDKs',
-    iconComponent: IconSdk,
-  },
-  {
-    id: 'saaskit-apis',
-    href: '/saaskit/apis/#description/quickstart',
-    label: 'APIs',
-    iconComponent: IconApi,
-  },
-  {
-    id: 'enterprise-deployment',
-    href: '/self-hosted/overview/',
-    label: 'Enterprise Deployment',
-    iconComponent: IconSolarServerPathOutline,
   },
 ]
 
