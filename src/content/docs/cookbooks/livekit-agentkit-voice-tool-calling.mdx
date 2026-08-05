@@ -1,0 +1,265 @@
+---
+title: 'Build a LiveKit voice agent with Scalekit AgentKit tools'
+description: 'Give a LiveKit voice agent secure access to Google Calendar and 200+ AgentKit connectors — no token ever reaches the browser or the LLM.'
+date: 2026-07-02
+sidebar:
+  label: 'LiveKit voice agent'
+tableOfContents: true
+excerpt: >
+  A voice agent that checks a calendar or sends an email needs an OAuth token for that API — and LiveKit's Agents framework has no opinion on where that token comes from. This cookbook wires Scalekit AgentKit into a LiveKit Node agent using direct tool calls, carrying the user's identity through LiveKit's own dispatch metadata so the token never reaches the browser or the LLM.
+featured: false
+authors:
+  - name: 'Saif'
+    title: 'Developer Advocate'
+    url: 'https://www.linkedin.com/in/saif-shines/'
+    picture: '/images/blog/authors/saif.png'
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+A voice agent that answers "what's on my calendar?" needs a Google OAuth token scoped to that specific user. [LiveKit](https://livekit.io) handles the realtime voice pipeline — speech-to-text, the LLM turn, text-to-speech, turn detection — but it has no built-in concept of per-user third-party credentials. Wire that up yourself and you're building a token vault, a refresh cycle, and a way to keep both out of reach of the browser and the LLM, before you've written a single line of agent logic.
+
+Scalekit AgentKit removes that layer. It stores one OAuth session per connector per user and exposes a single `executeTool` call that runs any of 200+ connector actions on that user's behalf. This cookbook connects a LiveKit Node.js agent to AgentKit directly — no MCP server, no separate auth service — and shows the one non-obvious part: getting the *identity* of the person talking to the agent from the browser to the worker process without ever exposing a credential.
+
+## What you are building
+
+- **A Next.js route** that dispatches a LiveKit agent into a room and mints a browser access token, carrying a Scalekit connection identifier through LiveKit's dispatch `metadata` — the only channel between the two.
+- **A standalone LiveKit agent worker** (a separate Node process, not a Next.js route) that reads that identifier from `ctx.job.metadata` and calls `scalekit.actions.executeTool()` directly when the LLM decides to check the calendar.
+- **A pattern that generalizes**: swap `googlecalendar_list_events` for any AgentKit tool name and the identity-passing mechanism stays identical.
+
+The complete, working source (including the Next.js UI, both API routes, and the agent) is in [livekit-scalekit-voice-agent](https://github.com/scalekit-developers/livekit-scalekit-voice-agent).
+
+## Prerequisites
+
+- A [LiveKit Cloud](https://cloud.livekit.io) project — copy `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET` from **Settings → Keys**. No `lk` CLI login is required; the app and the agent both read these three values from the environment.
+- A Scalekit account with **AgentKit** enabled and a `googlecalendar` connection that shows as **Active** for the identifier you'll test with. See [Configure a connection](/agentkit/connections/).
+- **Node.js 20.11+** — the agent worker uses `import.meta.filename`, which older Node versions don't have.
+
+<Steps>
+
+1. ## Install dependencies
+
+   This is a two-process app: a Next.js frontend/API layer, and a standalone agent worker that runs as a separate `tsx` process.
+
+   ```bash title="Terminal"
+   npm install @scalekit-sdk/node livekit-server-sdk livekit-client @livekit/components-react @livekit/agents zod next react react-dom
+   npm install -D tsx typescript
+   ```
+
+   `@livekit/agents` is the Node Agents SDK — it ships the `voice.AgentSession` pipeline, the `defineAgent`/`cli.runApp` worker entrypoint, and the `llm.tool()` helper for function tools. `@scalekit-sdk/node` is the same Scalekit client either side of this app uses to call AgentKit.
+
+2. ## Set environment variables
+
+   Create `.env.local` at the project root:
+
+   ```bash title=".env.local"
+   # Scalekit — Settings → API Credentials in your Scalekit dashboard
+   SCALEKIT_ENV_URL=https://your-env.scalekit.com
+   SCALEKIT_CLIENT_ID=skc_your_client_id
+   SCALEKIT_CLIENT_SECRET=your_client_secret
+
+   # Demo-only stand-in for a real authenticated user's identifier
+   TEST_IDENTIFIER=user@example.com
+
+   # LiveKit Cloud — Settings → Keys
+   LIVEKIT_URL=wss://your-project.livekit.cloud
+   LIVEKIT_API_KEY=your_api_key
+   LIVEKIT_API_SECRET=your_api_secret
+   ```
+
+   `TEST_IDENTIFIER` stands in for whatever your app uses to identify a logged-in user. In production this comes from the authenticated session, never from a static env var — see [Production notes](#production-notes).
+
+3. ## Carry the identifier through LiveKit dispatch metadata
+
+   The Next.js route that starts a call is the only place that decides which Scalekit identity the agent runs as. It never sends a token — just the identifier — inside LiveKit's own `metadata` field on the agent dispatch:
+
+   ```typescript title="app/api/livekit/start/route.ts"
+   import { randomUUID } from 'node:crypto';
+   import { NextResponse } from 'next/server';
+   import { AccessToken, AgentDispatchClient } from 'livekit-server-sdk';
+
+   const AGENT_NAME = 'scalekit-voice-agent';
+
+   export async function POST(req: Request) {
+     const livekitUrl = process.env.LIVEKIT_URL!;
+     const apiKey = process.env.LIVEKIT_API_KEY!;
+     const apiSecret = process.env.LIVEKIT_API_SECRET!;
+
+     const { identifier } = await req.json();
+     const roomName = `voice-${randomUUID()}`;
+     const metadata = JSON.stringify({ scalekitConnectionId: identifier });
+
+     const dispatchClient = new AgentDispatchClient(livekitUrl, apiKey, apiSecret);
+     await dispatchClient.createDispatch(roomName, AGENT_NAME, { metadata });
+
+     const at = new AccessToken(apiKey, apiSecret, { identity: `user-${randomUUID()}` });
+     at.addGrant({ roomJoin: true, room: roomName });
+     const token = await at.toJwt();
+
+     return NextResponse.json({ roomName, token, url: livekitUrl, identifier });
+   }
+   ```
+
+   `createDispatch(roomName, agentName, { metadata })` tells LiveKit's cloud infrastructure to route this room to a worker registered under `agentName` — you'll register the same string in the next step. `metadata` is a plain JSON string; LiveKit stores it and hands it to the worker's job context untouched. The browser only ever receives `token` (a room-join JWT) and `roomName` — never a Scalekit credential.
+
+   <Aside type="caution" title="This is the entire security boundary">
+     Everything downstream trusts that `identifier` came from your authenticated backend, not from user input. In this demo it falls back to `TEST_IDENTIFIER` for convenience — in production, derive it from the session on the server, never from a request body field a client could set directly.
+   </Aside>
+
+4. ## Read the identifier and call the tool directly
+
+   The agent worker is a separate file, run as its own process — not a Next.js route. It parses the same metadata shape the dispatch call sent, then wires a Scalekit-backed function tool:
+
+   ```typescript title="agent/src/agent.ts"
+   import { ScalekitClient } from '@scalekit-sdk/node';
+   import { cli, defineAgent, llm, ServerOptions, voice, type JobContext } from '@livekit/agents';
+   import { z } from 'zod';
+
+   const scalekit = new ScalekitClient(
+     process.env.SCALEKIT_ENV_URL!,
+     process.env.SCALEKIT_CLIENT_ID!,
+     process.env.SCALEKIT_CLIENT_SECRET!,
+   );
+
+   const entry = async (ctx: JobContext): Promise<void> => {
+     await ctx.connect();
+
+     const metadata = JSON.parse(ctx.job.metadata || '{}') as { scalekitConnectionId?: string };
+     const identifier = metadata.scalekitConnectionId || process.env.TEST_IDENTIFIER || 'demo-connection';
+
+     const googlecalendar_list_events = llm.tool({
+       description: "List events from the user's Google Calendar. Use this when the user asks about their schedule.",
+       parameters: z.object({
+         calendar_id: z.string().optional().describe("Defaults to 'primary'."),
+       }),
+       execute: async ({ calendar_id }) => {
+         const result = await scalekit.actions.executeTool({
+           connector: 'googlecalendar',
+           identifier,
+           toolName: 'googlecalendar_list_events',
+           toolInput: { calendar_id: calendar_id ?? 'primary' },
+         });
+         return result.data ?? result;
+       },
+     });
+
+     const agent = new voice.Agent({
+       instructions: "You are a helpful voice assistant. Check the user's calendar when asked.",
+       tools: { googlecalendar_list_events },
+     });
+
+     const session = new voice.AgentSession({
+       llm: 'openai/gpt-4o-mini',
+       stt: 'assemblyai/universal-streaming',
+       tts: 'cartesia/sonic-2',
+     });
+
+     await session.start({ agent, room: ctx.room });
+     await session.generateReply({ instructions: 'Greet the user and offer to help with their calendar.' });
+   };
+
+   export default defineAgent({ entry });
+
+   cli.runApp(new ServerOptions({ agent: import.meta.filename, agentName: 'scalekit-voice-agent' }));
+   ```
+
+   Three things worth naming explicitly:
+
+   - **`llm.tool()`'s object key is the tool's name** — there's no `name` field inside the call. The LLM sees the tool as `googlecalendar_list_events` because that's the key in the `tools: { googlecalendar_list_events }` map.
+   - **`voice.Agent` is a plain constructor** — `new voice.Agent({ instructions, tools })`. There's no static factory method.
+   - **The three model strings are [LiveKit Inference](https://docs.livekit.io/agents/) identifiers**, not your own API keys. They route STT/LLM/TTS through LiveKit Cloud's gateway, billed to your LiveKit project — no separate OpenAI, AssemblyAI, or Cartesia account needed to get this running.
+
+   `agentName: 'scalekit-voice-agent'` must match the string `AgentDispatchClient.createDispatch()` used in step 3 exactly. That's the only thing connecting the two processes — get it wrong and the dispatch succeeds, a room gets created, and the agent simply never joins it.
+
+5. ## Run both processes
+
+   ```bash title="Terminal 1 — Next.js app"
+   npm run dev
+   ```
+
+   ```bash title="Terminal 2 — agent worker"
+   npx tsx watch --env-file=.env.local agent/src/agent.ts dev
+   ```
+
+   `--env-file` matters here: Next.js loads `.env.local` automatically, but a plain `tsx` process doesn't unless you tell it to.
+
+</Steps>
+
+## Testing
+
+Confirm the identity actually reaches the agent before wiring up a browser. Hit the dispatch route directly:
+
+```bash title="Terminal"
+curl -X POST http://localhost:3000/api/livekit/start \
+  -H 'Content-Type: application/json' \
+  -d '{"identifier":"user@example.com"}'
+```
+
+The agent worker's terminal should log the same identifier within a couple of seconds:
+
+```text title="Terminal 2 output" showLineNumbers=false
+[scalekit-voice-agent] job=AJ_giyT9fjSxPg8 room=voice-2eb7cc3d-... identifier=user@example.com
+```
+
+If that line doesn't appear, the agent never received the dispatch — see [Common mistakes](#common-mistakes) below before checking anything else. Once it does, open your frontend, click **Start**, and ask "what's on my calendar today?" — the agent should call `executeTool`, get back real calendar data, and speak a summary.
+
+## Common mistakes
+
+<details>
+<summary>Agent never joins the room</summary>
+
+`agentName` in `ServerOptions` doesn't match the second argument to `createDispatch()`. LiveKit's dispatch matches by exact string — there's no error, no timeout message, just a room with no agent in it.
+
+**Solution:** Compare the two strings directly. In the code above, both are `'scalekit-voice-agent'`. A trailing space or a casing difference is enough to break this silently.
+</details>
+
+<details>
+<summary><code>TypeError: ... is not a function</code> around <code>voice.Agent</code></summary>
+
+Older examples (including early drafts of this pattern) show `voice.Agent.create({...})`. That method doesn't exist in `@livekit/agents` — `voice.Agent` is a plain constructor: `new voice.Agent({ instructions, tools })`.
+
+**Solution:** Use `new voice.Agent(...)`, not a static factory.
+</details>
+
+<details>
+<summary><code>dev:agent</code> can't find <code>SCALEKIT_ENV_URL</code> or <code>LIVEKIT_URL</code></summary>
+
+The agent worker is a standalone Node process. Unlike Next.js, it does not load `.env.local` on its own.
+
+**Solution:** Run it with `tsx watch --env-file=.env.local agent/src/agent.ts dev`, not a bare `tsx agent/src/agent.ts`.
+</details>
+
+<details>
+<summary>Agent speaks a generic error instead of calendar data</summary>
+
+The identifier reaching the agent doesn't have an **Active** `googlecalendar` connection in Scalekit — most often because `TEST_IDENTIFIER` (or whatever the frontend sent) doesn't match the identifier you authorized in the dashboard.
+
+**Solution:** Check **AgentKit → Connections** in the Scalekit dashboard, or call `scalekit.tools.listScopedTools(identifier, { filter: {} })` from a debug route to confirm which tools that exact identifier can see.
+</details>
+
+## Production notes
+
+**No token ever reaches the browser or the LLM.** The Next.js route returns a room-join JWT (scoped to one room) and the identifier string — never a Scalekit credential. The agent worker is the only process that ever constructs a `ScalekitClient`, and `executeTool()`'s result — plain calendar data — is the only thing that reaches the LLM.
+
+**MCP isn't available in this SDK yet.** As of `@livekit/agents` 1.4.11, there is no MCP toolset for the Node Agents SDK — direct `executeTool()` calls, as shown above, are the only path. Check the installed version's type declarations before assuming otherwise; this changes over time.
+
+**Derive the identifier from a real session, not a static env var.** `TEST_IDENTIFIER` is a demo convenience. In production, read it from your authenticated user's session on the server that handles the dispatch request — never from a client-supplied field.
+
+**Add more tools by changing one string.** The `connector`/`toolName` pair in `executeTool()` is the only connector-specific part of this code. Swap `googlecalendar_list_events` for any of [200+ AgentKit connectors](/agentkit/connectors/) and the identity-passing mechanism is unchanged.
+
+## Next steps
+
+- [Configure more connectors](/agentkit/connectors/) — extend beyond Google Calendar to Gmail, Slack, or GitHub.
+- [Connected accounts](/agentkit/connected-accounts/) — check connection status and revoke access programmatically.
+- [AgentKit quickstart](/agentkit/quickstart/) — connect your first user in under five minutes.
+- [LiveKit Agents docs](https://docs.livekit.io/agents/) — turn detection, interruption handling, and telephony/SIP.
+
+## Related resources
+
+| Topic | Link |
+|---|---|
+| AgentKit overview | [Overview](/agentkit/overview/) |
+| All connectors | [Connectors](/agentkit/connectors/) |
+| Connected accounts | [Manage connected accounts](/agentkit/connected-accounts/) |
+| Sample repository | [livekit-scalekit-voice-agent](https://github.com/scalekit-developers/livekit-scalekit-voice-agent) |
+| LiveKit Agents docs | [docs.livekit.io/agents](https://docs.livekit.io/agents/) |
