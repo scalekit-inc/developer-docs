@@ -1,0 +1,41 @@
+import { Steps, Aside, Badge } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with the Canva connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. Then complete the configuration in your application as follows:
+
+<Steps>
+1. ### Create a Canva integration
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **Canva** and click **Create**.
+    - Go to [Canva Developer Portal](https://www.canva.com/developers/) > **Your integrations** and click **Create an integration**.
+    - Choose **Public** or **Private** based on who should be able to install it, then enter an integration name (for example, `Agent Connect`).
+
+      ![Configure your Canva integration](@/assets/docs/agent-connectors/canva/configure-integration.png)
+
+2. ### Get client credentials
+
+    - On the **Configuration** page, under **Credentials**, copy the **Client ID**.
+    - Click **Generate a secret** to create a **Client Secret**, then copy it. Canva only shows the secret once — store it securely.
+
+3. ### Set up auth redirects
+
+    - In the Scalekit dashboard, on the connection you created, copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+    - In the Canva Developer Portal, go to **Authentication** in the left menu. Under **Authorized redirects**, click **Add another URL**, paste the redirect URI from Scalekit, and save.
+
+      ![Add authorized redirect URL in Canva](@/assets/docs/agent-connectors/canva/add-authentication.png)
+
+    <Aside type="note" title="Multiple redirect URLs">
+      Add one redirect URL per Scalekit environment (for example, one for development and one for production). Canva sends users back to whichever URL matches the request, so keep each environment's connection using its own redirect URI.
+    </Aside>
+
+4. ### Add credentials in Scalekit
+
+    - In the Scalekit dashboard, open the connection you created and enter:
+      - Client ID (from step 2)
+      - Client Secret (from step 2)
+      - Scopes (see [Canva Connect API scopes reference](https://www.canva.dev/docs/connect/appendix/scopes/) — grant only what your agent needs, for example `design:content:read` and `design:content:write`)
+    - Click **Save**.
+
+5. ### Submit for review <Badge text="Required for production" />
+
+    Canva integrations start in **Draft** and only work for accounts on your own team. Before other users can connect, go to **Submit for review** in the Canva Developer Portal and follow the checklist to move your integration to production.
+</Steps>

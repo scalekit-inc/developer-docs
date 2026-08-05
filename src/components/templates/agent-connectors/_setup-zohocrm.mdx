@@ -1,0 +1,35 @@
+import { Steps, Aside, Badge } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with the Zoho CRM connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. Then complete the configuration in your application as follows:
+
+<Steps>
+1. ### Set up auth redirects
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **Zoho CRM** and click **Create**. Copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+    - Go to [Zoho API Console](https://api-console.zoho.com/) and click **Add Client** > **Server-based Applications**.
+    - Enter a **Client Name** and **Homepage URL**. Under **Authorized Redirect URIs**, paste the redirect URI from Scalekit, then click **Create**.
+
+      ![Client Details in Zoho API Console](@/assets/docs/agent-connectors/zohocrm/client-details.png)
+
+2. ### Get client credentials
+
+    - On the app you created, go to the **Client Secret** tab.
+    - Copy the **Client ID** and **Client Secret**. Zoho only shows the full secret once — store it securely.
+
+3. ### Match your Zoho data center <Badge text="Multi-DC accounts only" />
+
+    Zoho hosts accounts in different regional data centers (`zoho.com`, `zoho.eu`, `zoho.in`, and others). If your users sign in from a data center other than the default, enable it here so their tokens resolve correctly.
+
+    - Go to the **Settings** tab on your app.
+    - Under **Multi-DC**, enable the data centers your users belong to (for example, **EU (zoho.eu)** or **IN (zoho.in)**).
+
+      ![Multi-DC settings in Zoho API Console](@/assets/docs/agent-connectors/zohocrm/settings-multidc.png)
+
+4. ### Add credentials in Scalekit
+
+    - In the Scalekit dashboard, open the connection you created and enter:
+      - Client ID (from step 2)
+      - Client Secret (from step 2)
+      - Scopes (see [Zoho CRM OAuth scopes reference](https://www.zoho.com/crm/developer/docs/api/v7/scopes.html) — grant only what your agent needs, for example `ZohoCRM.modules.ALL`)
+    - Click **Save**.
+</Steps>
