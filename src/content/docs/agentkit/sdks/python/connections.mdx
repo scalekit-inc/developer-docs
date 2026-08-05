@@ -1,6 +1,6 @@
 ---
 title: Connections
-description: Create environment-level AgentKit connections with scalekit_client.connection
+description: Manage environment-level AgentKit connections with scalekit_client.connection
 topic: agentkit-sdks
 tableOfContents:
   minHeadingLevel: 3
@@ -27,20 +27,18 @@ import '@/styles/sdk-reference.css'
 <div class="sdk-client-page">
 
 
-`scalekit_client.connection` creates the environment-level connections that AgentKit connectors run on. A connection holds the OAuth app credentials, scopes, and redirect URI Scalekit uses when your users authorize a connector, and one connection serves every user in that environment.
+`scalekit_client.connection` manages the environment-level connections that AgentKit connectors run on. A connection holds the OAuth app credentials, scopes, and redirect URI Scalekit uses when your users authorize a connector, and one connection serves every user in that environment.
 
-**Common path:** create the connection once → connect end-user accounts with [`scalekit_client.actions`](/agentkit/sdks/python/actions/) → run tools.
+**Common path:** create the connection once → attach OAuth credentials with `update_environment_connection` → connect end-user accounts with [`scalekit_client.actions`](/agentkit/sdks/python/actions/) → run tools.
 
-Most teams create connections in the Scalekit Dashboard — see [Configure a connection](/agentkit/connections/). Use `create_environment_connection` when you provision environments in code, such as seeding a new environment from a setup script or CI job.
+Most teams create connections in the Scalekit Dashboard — see [Configure a connection](/agentkit/connections/). Use these methods when you provision or manage environments in code, such as seeding a new environment from a setup script or CI job.
 
-The same client also exposes `get_environment_connection`, `update_environment_connection`, and `list_app_connections` for reading and editing connections that already exist.
+These methods cover environment-level **app** connections (`Flags(is_app=True)`). Organization-scoped SSO connection APIs stay on the [SaaSKit connection reference](/saaskit/sdks/python/connection/).
 
 ### create_environment_connection
 <div class="sdk-method-section">
   <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
     <CB.ClassMethod name="create_environment_connection" open={true}>
-      <CB.ClassModifier type="async" slot="modifiers" />
-
       Creates a new environment-level connection. Pass `Flags(is_app=True)` to register it as an app connection that AgentKit connectors can use.
 
       <CB.ClassMethodInput name="connection" type="CreateConnection">
@@ -53,10 +51,9 @@ The same client also exposes `get_environment_connection`, `update_environment_c
         Create Connection Response
       </CB.ClassMethodOutput>
 
-```python wrap showLineNumbers=false
-import os
+```python title="create_connection.py" wrap showLineNumbers=false
 from scalekit.v1.connections.connections_pb2 import (
-    CreateConnection, ConnectionType, Flags, UpdateConnection, OAuthConnectionConfig
+    CreateConnection, ConnectionType, Flags
 )
 
 # Register the connection at the environment level. is_app=True marks it as an
@@ -70,16 +67,107 @@ response = scalekit_client.connection.create_environment_connection(
 )
 connection = response[0].connection
 print(f"Created: {connection.id}, Key: {connection.key_id}")
+```
 
-# Attach your own OAuth app credentials so users see your brand on the consent
-# screen. Read them from the environment: a hard-coded client secret leaks to
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### list_app_connections
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
+    <CB.ClassMethod name="list_app_connections" open={true}>
+      Lists environment-level app connections. Filter by provider or search by connection name (key ID) or provider.
+
+      <CB.ClassMethodInput name="page_size" type="Optional[int]">
+        Results per page (max 30).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="page_token" type="Optional[str]">
+        Optional. Token for pagination.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="provider" type="Optional[str]">
+        Optional. Filter by provider (e.g. `HUBSPOT`).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="query" type="Optional[str]">
+        Optional. Free-text search on connection name (key ID) or provider (3–100 characters).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListAppConnectionsResponse">
+        List App Connections Response
+      </CB.ClassMethodOutput>
+
+```python title="list_connections.py" wrap showLineNumbers=false
+response = scalekit_client.connection.list_app_connections()
+
+for conn in response[0].connections:
+    print(f"Connection: {conn.id}, Provider: {conn.provider_key}")
+
+# Filter by provider
+response = scalekit_client.connection.list_app_connections(
+    provider='HUBSPOT',
+    page_size=10,
+)
+
+# Search by connection name or provider
+response = scalekit_client.connection.list_app_connections(query='hubspot')
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### get_environment_connection
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
+    <CB.ClassMethod name="get_environment_connection" open={true}>
+      Returns an environment-level connection by its id.
+
+      <CB.ClassMethodInput name="connection_id" type="str">
+        Connection id to retrieve.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="GetConnectionResponse">
+        Get Connection Response
+      </CB.ClassMethodOutput>
+
+```python title="get_connection.py" wrap showLineNumbers=false
+response = scalekit_client.connection.get_environment_connection('conn_123456')
+conn = response[0].connection
+print(f"Provider: {conn.provider_key}, Type: {conn.type}, Key: {conn.key_id}")
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### update_environment_connection
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="Connection" type="client" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/connection.py">
+    <CB.ClassMethod name="update_environment_connection" open={true}>
+      Updates an environment-level connection. Use this after create to attach your own OAuth app credentials so users see your brand on the consent screen.
+
+      <CB.ClassMethodInput name="connection_id" type="str">
+        Connection id to update.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="connection" type="UpdateConnection">
+        UpdateConnection object with fields to update.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="UpdateConnectionResponse">
+        Update Connection Response
+      </CB.ClassMethodOutput>
+
+```python title="update_connection.py" wrap showLineNumbers=false
+import os
+from scalekit.v1.connections.connections_pb2 import (
+    UpdateConnection, ConnectionType, OAuthConnectionConfig
+)
+
+# Read credentials from the environment: a hard-coded client secret leaks to
 # anyone with repository access and lets them impersonate your app with the
 # provider.
-scalekit_client.connection.update_environment_connection(
-    connection_id=connection.id,
+response = scalekit_client.connection.update_environment_connection(
+    connection_id='conn_123456',
     connection=UpdateConnection(
         provider_key='HUBSPOT',
-        key_id=connection.key_id,
+        key_id='hubspot-key',
         type=ConnectionType.OAUTH,
         oauth_config=OAuthConnectionConfig(
             client_id={'value': os.environ['HUBSPOT_CLIENT_ID']},
@@ -87,9 +175,16 @@ scalekit_client.connection.update_environment_connection(
         ),
     ),
 )
+conn = response[0].connection
+print(f"Updated: {conn.id}")
 ```
 
     </CB.ClassMethod>
   </CB.ClassBrowser>
 </div>
 </div>
+
+## Next steps
+
+- [Connected accounts](/agentkit/sdks/python/actions/) — connect end-user accounts and run tools on their behalf
+- [Configure a connection](/agentkit/connections/) — create connections in the Scalekit Dashboard
