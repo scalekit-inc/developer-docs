@@ -10,6 +10,7 @@ import {
   IconLucideCode,
   IconLucideWorkflow,
   IconRiAiGenerate2,
+  IconSolarServerPathOutline,
 } from '../utils/icon-map'
 import IconLucideHome from '~icons/lucide/home'
 import IconSolarLayersOutline from '~icons/solar/layers-outline'
@@ -21,6 +22,7 @@ export interface NavItem {
   href: string
   label: string
   dropdownLabel?: string
+  /** Icons still used inside dropdown panels; top-level secondary nav is text-only. */
   iconComponent?: any
   children?: NavItem[]
   keepParentLabel?: boolean
@@ -33,6 +35,11 @@ export interface NavItem {
   columnGroup?: 'left' | 'right'
   /** Temporary shared item — will be split into product-specific entries once the SDK docs are ready */
   shared?: boolean
+  /**
+   * Vertical delimiter before this item (splits journey tabs from reference/ops).
+   * No group labels — order + hairline only (avoids colliding with header "product").
+   */
+  dividerBefore?: boolean
 }
 
 const agentKitItems: NavItem[] = [
@@ -47,6 +54,8 @@ const agentKitItems: NavItem[] = [
     href: '/agentkit/connectors/',
     label: 'Connectors',
     iconComponent: IconLucideBlocks,
+    // Catalog / tooling — right of delimiter with SDKs, APIs, deploy
+    dividerBefore: true,
   },
   {
     id: 'agentkit-sdks',
@@ -60,6 +69,12 @@ const agentKitItems: NavItem[] = [
     label: 'APIs',
     iconComponent: IconApi,
   },
+  {
+    id: 'enterprise-deployment',
+    href: '/self-hosted/overview/',
+    label: 'Enterprise Deployment',
+    iconComponent: IconSolarServerPathOutline,
+  },
 ]
 
 const saasKitItems: NavItem[] = [
@@ -68,6 +83,12 @@ const saasKitItems: NavItem[] = [
     href: '/authenticate/fsa/quickstart/',
     label: 'SaaSKit',
     iconComponent: IconSolarLayersOutline,
+  },
+  {
+    id: 'saaskit-mcp-auth',
+    href: '/authenticate/mcp/quickstart/',
+    label: 'MCP Auth',
+    iconComponent: IconMcp,
   },
   {
     id: 'saaskit-sso',
@@ -82,10 +103,23 @@ const saasKitItems: NavItem[] = [
     iconComponent: IconPhUsersFourLight,
   },
   {
-    id: 'saaskit-mcp-auth',
-    href: '/authenticate/mcp/quickstart/',
-    label: 'MCP Auth',
-    iconComponent: IconMcp,
+    id: 'saaskit-sdks',
+    href: '/sdks/',
+    label: 'SDKs',
+    iconComponent: IconSdk,
+    dividerBefore: true,
+  },
+  {
+    id: 'saaskit-apis',
+    href: '/saaskit/apis/#description/quickstart',
+    label: 'APIs',
+    iconComponent: IconApi,
+  },
+  {
+    id: 'enterprise-deployment',
+    href: '/self-hosted/overview/',
+    label: 'Enterprise Deployment',
+    iconComponent: IconSolarServerPathOutline,
   },
   {
     id: 'developer-resources',
@@ -158,18 +192,6 @@ const saasKitItems: NavItem[] = [
         columnGroup: 'right',
       },
     ],
-  },
-  {
-    id: 'saaskit-sdks',
-    href: '/sdks/',
-    label: 'SDKs',
-    iconComponent: IconSdk,
-  },
-  {
-    id: 'saaskit-apis',
-    href: '/saaskit/apis/#description/quickstart',
-    label: 'APIs',
-    iconComponent: IconApi,
   },
 ]
 

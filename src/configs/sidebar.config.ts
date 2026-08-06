@@ -138,7 +138,6 @@ export const sidebar = [
           'authenticate/run-e2e-tests',
           'guides/dashboard/auth-logs',
           'fsa/guides/migration-guide',
-          { label: 'Self-hosted deployment', link: '/self-hosted' },
         ],
       },
     ],
@@ -218,7 +217,6 @@ export const sidebar = [
           'agentkit/advanced/launch-checklist',
           'agentkit/authentication/troubleshooting',
           { label: 'Migrate from Composio', link: 'agentkit/advanced/migrate-from-composio' },
-          { label: 'Self-hosted deployment', link: '/self-hosted' },
         ],
       },
     ],
@@ -719,10 +717,9 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
   // Modular SCIM sidebar → SaaSKit SCIM tab
   'modular-scim': 'saaskit-scim',
 
-  // Self-hosted deployment has no secondary-nav tab of its own and applies to both
-  // products — deliberately omitted here so no tab (e.g. "Developer Resources")
-  // shows as current while on /self-hosted/**. See HeaderProductToggle.astro for
-  // the neutral "Self Hosted" header state this pairs with.
+  // Self-hosted deployment is shared by both products; both secondary nav rows
+  // include the same enterprise-deployment tab id so either product can highlight it.
+  'self-hosted': 'enterprise-deployment',
 
   // Agent connectors sidebar → AgentKit Connectors tab
   'agent-connectors': 'agentkit-connectors',

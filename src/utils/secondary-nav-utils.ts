@@ -1,33 +1,44 @@
 import { sidebar, sidebarToSecondaryNav, type SecondaryNavMapping } from '../configs/sidebar.config'
 import { buildPathToSidebarMap, getSidebarIdForPath } from '../configs/sidebar-utils'
+import {
+  SELF_HOSTED_COLD_DEFAULT_PRODUCT,
+  isDocsProduct,
+  type DocsProduct,
+} from '../configs/self-hosted'
 import { isHashOnly, normalizePath } from './path-matching'
 import type { NavItem } from '../configs/secondary-nav.config'
 import { IconLucideLayoutGrid } from './icon-map'
 
 /**
+ * Self-hosted deployment docs are shared by both products. Header and secondary
+ * nav keep the visitor's product (AgentKit or Auth for SaaS) — never a third
+ * "Self Hosted" product option.
+ */
+export function isSelfHostedPath(pathname: string): boolean {
+  return pathname.startsWith('/self-hosted/')
+}
+
+/**
  * Determines which product is active based on the current page context.
- * Frontmatter topic takes precedence over path-based detection.
+ * Frontmatter topic and path take precedence; shared self-hosted routes use
+ * ?product= then a cold default (sessionStorage is applied client-side only).
  */
 export function getActiveProduct(
   pathname: string,
   topic?: string,
   searchParams?: URLSearchParams,
-): 'agentkit' | 'saaskit' {
+): DocsProduct {
+  const productParam = searchParams?.get('product')
+  if (isDocsProduct(productParam)) return productParam
+
   if (topic === 'connect') return 'agentkit'
   if (pathname.startsWith('/agentkit/')) return 'agentkit'
-  // Preserve product context on shared pages (e.g. /apis/ linked from AgentKit nav)
-  if (searchParams?.get('product') === 'agentkit') return 'agentkit'
-  return 'saaskit'
-}
 
-/**
- * Self-hosted deployment docs apply to both products and have no secondary-nav
- * tab or product context of their own (see sidebar.config.ts). Single source of
- * truth for that path check — HeaderProductToggle and SecondaryNav both need it
- * to agree on when to show the neutral "Self Hosted" state.
- */
-export function isSelfHostedPath(pathname: string): boolean {
-  return pathname.startsWith('/self-hosted/')
+  // Shared self-hosted docs: server-side cold default is AgentKit. Client restores
+  // SaaS from sessionStorage when the visitor arrived from Auth for SaaS.
+  if (isSelfHostedPath(pathname)) return SELF_HOSTED_COLD_DEFAULT_PRODUCT
+
+  return 'saaskit'
 }
 
 // Props interface - entry is passed from Header.astro
