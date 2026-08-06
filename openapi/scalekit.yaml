@@ -873,6 +873,80 @@ paths:
             schema:
               $ref: '#/components/schemas/UserServiceResendInviteBody'
         required: true
+  /api/v1/logs/authentication/requests:
+    get:
+      description: Returns a paginated list of authentication request logs for the current environment, ordered most-recent first. Use this endpoint to audit login activity, investigate failed authentications, or build security dashboards. Filter by email, status (INITIATED, PENDING, SUCCESS, FAILED), time window, resource ID, or client ID. Status filters are case-insensitive. The response includes cursor tokens for forward and backward pagination and the total matching count. Pass next_page_token or prev_page_token as page_token on the next call to page through results.
+      tags:
+        - Authentication Logs
+      summary: List authentication requests
+      operationId: AuditLogsService_ListAuthRequests
+      parameters:
+        - schema:
+            type: integer
+            format: int64
+          description: Maximum number of authentication requests to return in a single page. If omitted, the server applies a default page size.
+          name: page_size
+          in: query
+        - schema:
+            type: string
+          description: Opaque cursor from a previous response's next_page_token or prev_page_token. Omit on the first request.
+          name: page_token
+          in: query
+        - schema:
+            type: string
+          description: Filter authentication requests by the end-user email associated with the login attempt.
+          name: email
+          in: query
+        - schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+          description: "Filter by authentication request status. Accepted values: INITIATED, PENDING, SUCCESS, FAILED. Matching is case-insensitive."
+          name: status
+          in: query
+        - schema:
+            type: string
+            format: date-time
+          description: Inclusive lower bound for the authentication request timestamp (UTC). Only events at or after this time are returned.
+          name: start_time
+          in: query
+        - schema:
+            type: string
+            format: date-time
+          description: Inclusive upper bound for the authentication request timestamp (UTC). Only events at or before this time are returned.
+          name: end_time
+          in: query
+        - schema:
+            type: string
+          description: Filter authentication requests by resource identifier (for example an MCP resource ID).
+          name: resource_id
+          in: query
+        - schema:
+            type: string
+          description: Filter authentication logs by client ID
+          name: client_id
+          in: query
+      responses:
+        "200":
+          description: Authentication requests page returned successfully; includes authRequests, pagination tokens, and total_size
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/auditlogsListAuthLogResponse"
+        "400":
+          description: Invalid request - page_token is malformed, status filter value is not one of INITIATED, PENDING, SUCCESS, or FAILED, or start_time is after end_time
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errdetailsErrorInfo"
+        "401":
+          description: Missing or invalid Authorization header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errdetailsErrorInfo"
   /api/v1/mcp/configs:
     get:
       description: Lists MCP configurations for the current environment with optional filters for id, name prefix, and provider.
@@ -5722,6 +5796,144 @@ servers:
   - url: https://$SCALEKIT_ENVIRONMENT_URL
 components:
   schemas:
+    auditlogsListAuthLogResponse:
+      type: object
+      properties:
+        authRequests:
+          description: Authentication requests matching the filter, ordered most-recent first. Empty when no events match.
+          type: array
+          items:
+            type: object
+            $ref: "#/components/schemas/auditlogsAuthLogRequest"
+        next_page_token:
+          description: Opaque cursor for the next page. Empty when the current page is the last. Pass back as page_token to fetch the next page.
+          type: string
+          examples:
+            - "3"
+        prev_page_token:
+          description: Opaque cursor for the previous page. Empty when the current page is the first. Pass back as page_token to fetch the previous page.
+          type: string
+          examples:
+            - "1"
+        total_size:
+          description: Total number of authentication requests matching the filter across all pages.
+          type: integer
+          format: int64
+          examples:
+            - 128
+    auditlogsAuthLogRequest:
+      type: object
+      properties:
+        auth_request_id:
+          description: Unique identifier for this authentication request.
+          type: string
+          examples:
+            - ar_1234567890123456
+        client_id:
+          description: Unique identifier of the client associated with this authentication event
+          type: string
+          examples:
+            - skc_1234567890
+        client_name:
+          description: Display name of the client
+          type: string
+          examples:
+            - Default
+        client_type:
+          description: Type of the client application (e.g., ENV, NTV, SPA, M2M)
+          type: string
+          examples:
+            - ENV
+        connection_details:
+          description: Connections involved in this authentication request, including provider and organization context.
+          type: array
+          items:
+            type: object
+            $ref: "#/components/schemas/auditlogsConnectionDetails"
+        connection_id:
+          description: Primary connection ID used for this authentication request.
+          type: string
+          examples:
+            - conn_1234567890123456
+        connection_provider:
+          description: Identity provider for the primary connection (for example OKTA or GOOGLE).
+          type: string
+          examples:
+            - OKTA
+        connection_type:
+          description: Type of the primary connection (for example OIDC or SAML).
+          type: string
+          examples:
+            - OIDC
+        email:
+          description: End-user email associated with the authentication attempt, when available.
+          type: string
+          examples:
+            - user@example.com
+        environment_id:
+          description: Environment ID where the authentication request occurred.
+          type: string
+          examples:
+            - env_1234567890123456
+        organization_id:
+          description: Organization ID associated with this authentication request, when resolved.
+          type: string
+          examples:
+            - org_1234567890123456
+        resource_id:
+          description: Resource identifier associated with this authentication request, when present.
+          type: string
+          examples:
+            - res_1234567890
+        resource_name:
+          description: Display name of the resource associated with this authentication request, when present.
+          type: string
+          examples:
+            - Production MCP Server
+        resource_type:
+          description: Type of the resource associated with this authentication request, when present.
+          type: string
+          examples:
+            - mcp
+        status:
+          description: "Outcome of the authentication request: INITIATED, PENDING, SUCCESS, or FAILED."
+          type: string
+          examples:
+            - SUCCESS
+        timestamp:
+          description: UTC timestamp when this authentication request was recorded.
+          type: string
+          format: date-time
+          examples:
+            - 2024-06-15T14:30:00Z
+        workflow:
+          description: Authentication workflow that produced this log entry, when available.
+          type: string
+          examples:
+            - sso
+    auditlogsConnectionDetails:
+      type: object
+      properties:
+        connection_id:
+          description: Connection ID for this connection detail entry.
+          type: string
+          examples:
+            - conn_1234567890123456
+        connection_provider:
+          description: Identity provider for this connection.
+          type: string
+          examples:
+            - OKTA
+        connection_type:
+          description: Connection type (for example OIDC or SAML).
+          type: string
+          examples:
+            - OIDC
+        organization_id:
+          description: Organization that owns this connection.
+          type: string
+          examples:
+            - org_1234567890123456
     HelpInfoLink:
       description: A documentation or reference link.
       type: object

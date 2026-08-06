@@ -80,6 +80,8 @@ tags:
     description: Organization and environment roles for RBAC.
   - name: Sessions
     description: Session policies and session management.
+  - name: Authentication Logs
+    description: Authentication request audit logs for login activity and troubleshooting.
   - name: Domains
     description: Organization domains and domain verification.
   - name: API Auth
@@ -816,6 +818,129 @@ paths:
             schema:
               $ref: '#/components/schemas/UserServiceResendInviteBody'
         required: true
+  /api/v1/logs/authentication/requests:
+    get:
+      description: Returns a paginated list of authentication request logs for the current environment, ordered most-recent first. Use this endpoint to audit login activity, investigate failed authentications, or build security dashboards. Filter by email, status (INITIATED, PENDING, SUCCESS, FAILED), time window, resource ID, or client ID. Status filters are case-insensitive. The response includes cursor tokens for forward and backward pagination and the total matching count. Pass next_page_token or prev_page_token as page_token on the next call to page through results.
+      tags:
+        - Authentication Logs
+      summary: List authentication requests
+      operationId: AuditLogsService_ListAuthRequests
+      parameters:
+        - schema:
+            type: integer
+            format: int64
+          description: Maximum number of authentication requests to return in a single page. If omitted, the server applies a default page size.
+          name: page_size
+          in: query
+        - schema:
+            type: string
+          description: Opaque cursor from a previous response's next_page_token or prev_page_token. Omit on the first request.
+          name: page_token
+          in: query
+        - schema:
+            type: string
+          description: Filter authentication requests by the end-user email associated with the login attempt.
+          name: email
+          in: query
+        - schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+          description: 'Filter by authentication request status. Accepted values: INITIATED, PENDING, SUCCESS, FAILED. Matching is case-insensitive.'
+          name: status
+          in: query
+        - schema:
+            type: string
+            format: date-time
+          description: Inclusive lower bound for the authentication request timestamp (UTC). Only events at or after this time are returned.
+          name: start_time
+          in: query
+        - schema:
+            type: string
+            format: date-time
+          description: Inclusive upper bound for the authentication request timestamp (UTC). Only events at or before this time are returned.
+          name: end_time
+          in: query
+        - schema:
+            type: string
+          description: Filter authentication requests by resource identifier (for example an MCP resource ID).
+          name: resource_id
+          in: query
+        - schema:
+            type: string
+          description: Filter authentication logs by client ID
+          name: client_id
+          in: query
+      responses:
+        '200':
+          description: Authentication requests page returned successfully; includes authRequests, pagination tokens, and total_size
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/auditlogsListAuthLogResponse'
+        '400':
+          description: Invalid request - page_token is malformed, status filter value is not one of INITIATED, PENDING, SUCCESS, or FAILED, or start_time is after end_time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errdetailsErrorInfo'
+        '401':
+          description: Missing or invalid Authorization header
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errdetailsErrorInfo'
+      x-codeSamples:
+        - label: Node.js SDK
+          lang: javascript
+          source: |-
+            // List authentication request logs (most recent first)
+            const res = await fetch(
+              `${process.env.SCALEKIT_ENVIRONMENT_URL}/api/v1/logs/authentication/requests?page_size=10&status=SUCCESS`,
+              {
+                headers: {
+                  Authorization: `Bearer ${accessToken}`,
+                },
+              },
+            )
+            const data = await res.json()
+            // data.authRequests, data.next_page_token, data.total_size
+        - label: Python SDK
+          lang: python
+          source: |-
+            import os
+            import requests
+
+            # List authentication request logs (most recent first)
+            res = requests.get(
+                f"{os.environ['SCALEKIT_ENVIRONMENT_URL']}/api/v1/logs/authentication/requests",
+                headers={"Authorization": f"Bearer {access_token}"},
+                params={
+                    "page_size": 10,
+                    "status": ["SUCCESS", "FAILED"],
+                },
+            )
+            data = res.json()
+            # data["authRequests"], data["next_page_token"], data["total_size"]
+        - label: Go SDK
+          lang: go
+          source: "package main\n\nimport (\n\t\"fmt\"\n\t\"io\"\n\t\"net/http\"\n\t\"os\"\n)\n\n// List authentication request logs (most recent first)\nfunc listAuthRequests(accessToken string) error {\n\turl := fmt.Sprintf(\n\t\t\"%s/api/v1/logs/authentication/requests?page_size=10&status=SUCCESS\",\n\t\tos.Getenv(\"SCALEKIT_ENVIRONMENT_URL\"),\n\t)\n\treq, err := http.NewRequest(http.MethodGet, url, nil)\n\tif err != nil {\n\t\treturn err\n\t}\n\treq.Header.Set(\"Authorization\", \"Bearer \"+accessToken)\n\n\tres, err := http.DefaultClient.Do(req)\n\tif err != nil {\n\t\treturn err\n\t}\n\tdefer res.Body.Close()\n\tbody, err := io.ReadAll(res.Body)\n\tif err != nil {\n\t\treturn err\n\t}\n\tfmt.Println(string(body))\n\treturn nil\n}"
+        - label: Java SDK
+          lang: java
+          source: |-
+            // List authentication request logs (most recent first)
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(System.getenv("SCALEKIT_ENVIRONMENT_URL")
+                    + "/api/v1/logs/authentication/requests?page_size=10&status=SUCCESS"))
+                .header("Authorization", "Bearer " + accessToken)
+                .GET()
+                .build();
+
+            HttpResponse<String> response = HttpClient.newHttpClient()
+                .send(request, HttpResponse.BodyHandlers.ofString());
+            // response.body() contains authRequests, next_page_token, total_size
   /api/v1/mcp/configs:
     get:
       description: Lists MCP configurations for the current environment with optional filters for id, name prefix, and provider.
@@ -1835,7 +1960,7 @@ paths:
           required: true
         - schema:
             type: string
-          description: "Include additional data in the response. Valid values: 'permissions' (direct permissions only), 'permissions:all' (includes inherited permissions)"
+          description: 'Include additional data in the response. Valid values: ''permissions'' (direct permissions only), ''permissions:all'' (includes inherited permissions)'
           name: include
           in: query
       responses:
@@ -1960,7 +2085,7 @@ paths:
           required: true
         - schema:
             type: string
-          description: "Include additional data in the response. Valid values: 'permissions' (direct permissions only), 'permissions:all' (includes inherited permissions)"
+          description: 'Include additional data in the response. Valid values: ''permissions'' (direct permissions only), ''permissions:all'' (includes inherited permissions)'
           name: include
           in: query
       responses:
@@ -4451,7 +4576,7 @@ paths:
       parameters:
         - schema:
             type: string
-          description: "Include additional data in the response. Valid values: 'permissions' (direct permissions only), 'permissions:all' (includes inherited permissions from role hierarchy)"
+          description: 'Include additional data in the response. Valid values: ''permissions'' (direct permissions only), ''permissions:all'' (includes inherited permissions from role hierarchy)'
           name: include
           in: query
       responses:
@@ -4584,7 +4709,7 @@ paths:
           required: true
         - schema:
             type: string
-          description: "Include additional data in the response. Valid values: 'permissions' (direct permissions only), 'permissions:all' (includes inherited permissions from role hierarchy)"
+          description: 'Include additional data in the response. Valid values: ''permissions'' (direct permissions only), ''permissions:all'' (includes inherited permissions from role hierarchy)'
           name: include
           in: query
       responses:
@@ -5341,7 +5466,7 @@ paths:
               type: string
           style: form
           explode: true
-          description: "Filter sessions by one or more status values. Possible values: 'active', 'expired', 'revoked', 'logout'. Leave empty to include all statuses. Multiple values use OR logic (e.g., status=['active', 'expired'] returns sessions that are either active OR expired)."
+          description: 'Filter sessions by one or more status values. Possible values: ''active'', ''expired'', ''revoked'', ''logout''. Leave empty to include all statuses. Multiple values use OR logic (e.g., status=[''active'', ''expired''] returns sessions that are either active OR expired).'
           name: filter.status
           in: query
         - schema:
@@ -7202,6 +7327,144 @@ webhooks:
           description: Webhook received successfully
 components:
   schemas:
+    auditlogsListAuthLogResponse:
+      type: object
+      properties:
+        authRequests:
+          description: Authentication requests matching the filter, ordered most-recent first. Empty when no events match.
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/auditlogsAuthLogRequest'
+        next_page_token:
+          description: Opaque cursor for the next page. Empty when the current page is the last. Pass back as page_token to fetch the next page.
+          type: string
+          examples:
+            - '3'
+        prev_page_token:
+          description: Opaque cursor for the previous page. Empty when the current page is the first. Pass back as page_token to fetch the previous page.
+          type: string
+          examples:
+            - '1'
+        total_size:
+          description: Total number of authentication requests matching the filter across all pages.
+          type: integer
+          format: int64
+          examples:
+            - 128
+    auditlogsAuthLogRequest:
+      type: object
+      properties:
+        auth_request_id:
+          description: Unique identifier for this authentication request.
+          type: string
+          examples:
+            - ar_1234567890123456
+        client_id:
+          description: Unique identifier of the client associated with this authentication event
+          type: string
+          examples:
+            - skc_1234567890
+        client_name:
+          description: Display name of the client
+          type: string
+          examples:
+            - Default
+        client_type:
+          description: Type of the client application (e.g., ENV, NTV, SPA, M2M)
+          type: string
+          examples:
+            - ENV
+        connection_details:
+          description: Connections involved in this authentication request, including provider and organization context.
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/auditlogsConnectionDetails'
+        connection_id:
+          description: Primary connection ID used for this authentication request.
+          type: string
+          examples:
+            - conn_1234567890123456
+        connection_provider:
+          description: Identity provider for the primary connection (for example OKTA or GOOGLE).
+          type: string
+          examples:
+            - OKTA
+        connection_type:
+          description: Type of the primary connection (for example OIDC or SAML).
+          type: string
+          examples:
+            - OIDC
+        email:
+          description: End-user email associated with the authentication attempt, when available.
+          type: string
+          examples:
+            - user@example.com
+        environment_id:
+          description: Environment ID where the authentication request occurred.
+          type: string
+          examples:
+            - env_1234567890123456
+        organization_id:
+          description: Organization ID associated with this authentication request, when resolved.
+          type: string
+          examples:
+            - org_1234567890123456
+        resource_id:
+          description: Resource identifier associated with this authentication request, when present.
+          type: string
+          examples:
+            - res_1234567890
+        resource_name:
+          description: Display name of the resource associated with this authentication request, when present.
+          type: string
+          examples:
+            - Production MCP Server
+        resource_type:
+          description: Type of the resource associated with this authentication request, when present.
+          type: string
+          examples:
+            - mcp
+        status:
+          description: 'Outcome of the authentication request: INITIATED, PENDING, SUCCESS, or FAILED.'
+          type: string
+          examples:
+            - SUCCESS
+        timestamp:
+          description: UTC timestamp when this authentication request was recorded.
+          type: string
+          format: date-time
+          examples:
+            - '2024-06-15T14:30:00Z'
+        workflow:
+          description: Authentication workflow that produced this log entry, when available.
+          type: string
+          examples:
+            - sso
+    auditlogsConnectionDetails:
+      type: object
+      properties:
+        connection_id:
+          description: Connection ID for this connection detail entry.
+          type: string
+          examples:
+            - conn_1234567890123456
+        connection_provider:
+          description: Identity provider for this connection.
+          type: string
+          examples:
+            - OKTA
+        connection_type:
+          description: Connection type (for example OIDC or SAML).
+          type: string
+          examples:
+            - OIDC
+        organization_id:
+          description: Organization that owns this connection.
+          type: string
+          examples:
+            - org_1234567890123456
     HelpInfoLink:
       description: A documentation or reference link.
       type: object
@@ -7266,7 +7529,7 @@ components:
           examples:
             - 360
         absolute_session_timeout_unit:
-          description: "Unit for absolute_session_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES."
+          description: 'Unit for absolute_session_timeout. Accepted values: ''MINUTES'', ''HOURS'', ''DAYS''. Defaults to MINUTES.'
           $ref: '#/components/schemas/commonsTimeUnit'
           examples:
             - MINUTES
@@ -7282,7 +7545,7 @@ components:
           examples:
             - true
         idle_session_timeout_unit:
-          description: "Unit for idle_session_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES."
+          description: 'Unit for idle_session_timeout. Accepted values: ''MINUTES'', ''HOURS'', ''DAYS''. Defaults to MINUTES.'
           $ref: '#/components/schemas/commonsTimeUnit'
           examples:
             - MINUTES
@@ -7360,7 +7623,7 @@ components:
           type: array
           items:
             type: string
-            default: "['ATTESTATION_KEY_COMPROMISE', 'USER_VERIFICATION_BYPASS', 'USER_KEY_REMOTE_COMPROMISE', 'USER_KEY_PHYSICAL_COMPROMISE', 'REVOKED']"
+            default: '[''ATTESTATION_KEY_COMPROMISE'', ''USER_VERIFICATION_BYPASS'', ''USER_KEY_REMOTE_COMPROMISE'', ''USER_KEY_PHYSICAL_COMPROMISE'', ''REVOKED'']'
         validate_anchors:
           description: when set to true enables the validation of the attestation statement against the trust anchor from the metadata statement.
           type: boolean
@@ -8262,8 +8525,8 @@ components:
           examples:
             - authorization_details:
                 oauth_token:
-                  access_token: '...'
-                  refresh_token: '...'
+                  access_token: ...
+                  refresh_token: ...
                   scopes:
                     - read
                     - write
@@ -8497,7 +8760,7 @@ components:
           type: object
           examples:
             - api_key: sk_live_...
-              api_secret: '...'
+              api_secret: ...
     connected_accountsTrustedIDPAuth:
       description: |-
         Trusted IDP federated authentication — used for TRUSTED_IDP connections (e.g. AWS Redshift).
@@ -8539,8 +8802,8 @@ components:
           examples:
             - authorization_details:
                 oauth_token:
-                  access_token: '...'
-                  refresh_token: '...'
+                  access_token: ...
+                  refresh_token: ...
                   scopes:
                     - read
                     - write
@@ -8614,7 +8877,7 @@ components:
       type: object
       properties:
         attribute_mapping:
-          description: "Maps identity provider attributes to user profile fields. For example, {'email': 'user.mail', 'name': 'user.displayName'}."
+          description: 'Maps identity provider attributes to user profile fields. For example, {''email'': ''user.mail'', ''name'': ''user.displayName''}.'
           type: object
           additionalProperties:
             type: string
@@ -10202,7 +10465,7 @@ components:
           examples:
             - 360
         absolute_session_timeout_unit:
-          description: "Unit for absolute_session_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'."
+          description: 'Unit for absolute_session_timeout. Accepted values: ''minutes'', ''hours'', ''days''. Responses always return ''minutes''.'
           $ref: '#/components/schemas/commonsTimeUnit'
           examples:
             - minutes
@@ -10218,7 +10481,7 @@ components:
           examples:
             - true
         idle_session_timeout_unit:
-          description: "Unit for idle_session_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'."
+          description: 'Unit for idle_session_timeout. Accepted values: ''minutes'', ''hours'', ''days''. Responses always return ''minutes''.'
           $ref: '#/components/schemas/commonsTimeUnit'
           examples:
             - minutes
@@ -10785,7 +11048,7 @@ components:
           examples:
             - 120.0.0.0
         device_type:
-          description: "Categorized device type classification. Possible values: 'desktop' (traditional computers), 'mobile' (smartphones and small tablets), 'tablet' (large tablets), 'other'. Useful for displaying session information by device category."
+          description: 'Categorized device type classification. Possible values: ''desktop'' (traditional computers), ''mobile'' (smartphones and small tablets), ''tablet'' (large tablets), ''other''. Useful for displaying session information by device category.'
           type: string
           examples:
             - desktop
@@ -10795,7 +11058,7 @@ components:
           examples:
             - 192.0.2.1
         location:
-          description: "Geographic location information derived from IP address geolocation. Includes country, region, city, and coordinates. Note: Based on IP location data and may not represent the user's exact physical location."
+          description: 'Geographic location information derived from IP address geolocation. Includes country, region, city, and coordinates. Note: Based on IP location data and may not represent the user''s exact physical location.'
           $ref: '#/components/schemas/v1sessionsLocation'
         os:
           description: 'Operating system name extracted from the user agent and device headers. Examples: macOS, Windows, Linux, iOS, Android.'
@@ -10960,7 +11223,7 @@ components:
           examples:
             - ses_1234567890123456
         status:
-          description: "Current operational status of the session. Possible values: 'active' (session is valid and requests are allowed), 'expired' (session terminated due to idle or absolute timeout), 'revoked' (session was administratively revoked), 'logout' (user explicitly logged out). Use this to determine if the session can be used for new requests."
+          description: 'Current operational status of the session. Possible values: ''active'' (session is valid and requests are allowed), ''expired'' (session terminated due to idle or absolute timeout), ''revoked'' (session was administratively revoked), ''logout'' (user explicitly logged out). Use this to determine if the session can be used for new requests.'
           type: string
           examples:
             - active
@@ -11387,7 +11650,7 @@ components:
           examples:
             - Doe
         first_name:
-          description: "[DEPRECATED] Use given_name instead. User's given name. Maximum 200 characters."
+          description: '[DEPRECATED] Use given_name instead. User''s given name. Maximum 200 characters.'
           type: string
           examples:
             - John
@@ -11410,7 +11673,7 @@ components:
             - - engineering
               - managers
         last_name:
-          description: "[DEPRECATED] Use family_name instead. User's family name. Maximum 200 characters."
+          description: '[DEPRECATED] Use family_name instead. User''s family name. Maximum 200 characters.'
           type: string
           examples:
             - Doe
@@ -11889,12 +12152,12 @@ components:
           examples:
             - San Francisco
         latitude:
-          description: "Latitude coordinate of the estimated location. Decimal format (e.g., '37.7749'). Note: Represents IP geolocation center and may not be precise."
+          description: 'Latitude coordinate of the estimated location. Decimal format (e.g., ''37.7749''). Note: Represents IP geolocation center and may not be precise.'
           type: string
           examples:
             - '37.7749'
         longitude:
-          description: "Longitude coordinate of the estimated location. Decimal format (e.g., '-122.4194'). Note: Represents IP geolocation center and may not be precise."
+          description: 'Longitude coordinate of the estimated location. Decimal format (e.g., ''-122.4194''). Note: Represents IP geolocation center and may not be precise.'
           type: string
           examples:
             - '-122.4194'
@@ -11955,7 +12218,7 @@ components:
       type: object
       properties:
         external_id:
-          description: Your application's unique identifier for this organization, used to link Scalekit with your system.
+          description: Your application's unique identifier for this user, used to link Scalekit with your system.
           type: string
           examples:
             - ext_12345a67b89c
@@ -14881,7 +15144,7 @@ x-scalar-active-environment: staging
 x-scalekit-docs-operation-rank:
   default: 0
   path-segments:
-    - match: :external
+    - match: ':external'
       rank: 1
-    - match: :search
+    - match: ':search'
       rank: 2
