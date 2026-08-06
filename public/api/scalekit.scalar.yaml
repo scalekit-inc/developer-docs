@@ -846,6 +846,11 @@ paths:
             type: array
             items:
               type: string
+              enum:
+                - INITIATED
+                - PENDING
+                - SUCCESS
+                - FAILED
           style: form
           explode: true
           description: 'Filter by authentication request status. Accepted values: INITIATED, PENDING, SUCCESS, FAILED. Matching is case-insensitive.'
@@ -881,7 +886,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/auditlogsListAuthLogResponse'
         '400':
-          description: Invalid request - page_token is malformed, status filter value is not one of INITIATED, PENDING, SUCCESS, or FAILED, or start_time is after end_time
+          description: Invalid request - page_token is malformed, or status filter value is not one of INITIATED, PENDING, SUCCESS, or FAILED
           content:
             application/json:
               schema:
@@ -896,51 +901,23 @@ paths:
         - label: Node.js SDK
           lang: javascript
           source: |-
-            // List authentication request logs (most recent first)
-            const res = await fetch(
-              `${process.env.SCALEKIT_ENVIRONMENT_URL}/api/v1/logs/authentication/requests?page_size=10&status=SUCCESS`,
-              {
-                headers: {
-                  Authorization: `Bearer ${accessToken}`,
-                },
-              },
-            )
-            const data = await res.json()
-            // data.authRequests, data.next_page_token, data.total_size
+            // Authentication Logs are not available in the Node.js SDK public API yet.
+            // Use the REST API (GET /api/v1/logs/authentication/requests).
         - label: Python SDK
           lang: python
           source: |-
-            import os
-            import requests
-
-            # List authentication request logs (most recent first)
-            res = requests.get(
-                f"{os.environ['SCALEKIT_ENVIRONMENT_URL']}/api/v1/logs/authentication/requests",
-                headers={"Authorization": f"Bearer {access_token}"},
-                params={
-                    "page_size": 10,
-                    "status": ["SUCCESS", "FAILED"],
-                },
-            )
-            data = res.json()
-            # data["authRequests"], data["next_page_token"], data["total_size"]
+            # Authentication Logs are not available in the Python SDK public API yet.
+            # Use the REST API (GET /api/v1/logs/authentication/requests).
         - label: Go SDK
           lang: go
-          source: "package main\n\nimport (\n\t\"fmt\"\n\t\"io\"\n\t\"net/http\"\n\t\"os\"\n)\n\n// List authentication request logs (most recent first)\nfunc listAuthRequests(accessToken string) error {\n\turl := fmt.Sprintf(\n\t\t\"%s/api/v1/logs/authentication/requests?page_size=10&status=SUCCESS\",\n\t\tos.Getenv(\"SCALEKIT_ENVIRONMENT_URL\"),\n\t)\n\treq, err := http.NewRequest(http.MethodGet, url, nil)\n\tif err != nil {\n\t\treturn err\n\t}\n\treq.Header.Set(\"Authorization\", \"Bearer \"+accessToken)\n\n\tres, err := http.DefaultClient.Do(req)\n\tif err != nil {\n\t\treturn err\n\t}\n\tdefer res.Body.Close()\n\tbody, err := io.ReadAll(res.Body)\n\tif err != nil {\n\t\treturn err\n\t}\n\tfmt.Println(string(body))\n\treturn nil\n}"
+          source: |-
+            // Authentication Logs are not available in the Go SDK public API yet.
+            // Use the REST API (GET /api/v1/logs/authentication/requests).
         - label: Java SDK
           lang: java
           source: |-
-            // List authentication request logs (most recent first)
-            HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(System.getenv("SCALEKIT_ENVIRONMENT_URL")
-                    + "/api/v1/logs/authentication/requests?page_size=10&status=SUCCESS"))
-                .header("Authorization", "Bearer " + accessToken)
-                .GET()
-                .build();
-
-            HttpResponse<String> response = HttpClient.newHttpClient()
-                .send(request, HttpResponse.BodyHandlers.ofString());
-            // response.body() contains authRequests, next_page_token, total_size
+            // Authentication Logs are not part of the Java SDK public API yet.
+            // Use the REST API (GET /api/v1/logs/authentication/requests).
   /api/v1/mcp/configs:
     get:
       description: Lists MCP configurations for the current environment with optional filters for id, name prefix, and provider.
@@ -7429,6 +7406,11 @@ components:
         status:
           description: 'Outcome of the authentication request: INITIATED, PENDING, SUCCESS, or FAILED.'
           type: string
+          enum:
+            - INITIATED
+            - PENDING
+            - SUCCESS
+            - FAILED
           examples:
             - SUCCESS
         timestamp:

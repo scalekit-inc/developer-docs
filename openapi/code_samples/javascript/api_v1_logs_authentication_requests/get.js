@@ -1,11 +1,2 @@
-// List authentication request logs (most recent first)
-const res = await fetch(
-  `${process.env.SCALEKIT_ENVIRONMENT_URL}/api/v1/logs/authentication/requests?page_size=10&status=SUCCESS`,
-  {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  },
-)
-const data = await res.json()
-// data.authRequests, data.next_page_token, data.total_size
+// Authentication Logs are not available in the Node.js SDK public API yet.
+// Use the REST API (GET /api/v1/logs/authentication/requests).

@@ -901,6 +901,11 @@ paths:
             type: array
             items:
               type: string
+              enum:
+                - INITIATED
+                - PENDING
+                - SUCCESS
+                - FAILED
           style: form
           explode: true
           description: "Filter by authentication request status. Accepted values: INITIATED, PENDING, SUCCESS, FAILED. Matching is case-insensitive."
@@ -936,7 +941,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/auditlogsListAuthLogResponse"
         "400":
-          description: Invalid request - page_token is malformed, status filter value is not one of INITIATED, PENDING, SUCCESS, or FAILED, or start_time is after end_time
+          description: Invalid request - page_token is malformed, or status filter value is not one of INITIATED, PENDING, SUCCESS, or FAILED
           content:
             application/json:
               schema:
@@ -5898,6 +5903,11 @@ components:
         status:
           description: "Outcome of the authentication request: INITIATED, PENDING, SUCCESS, or FAILED."
           type: string
+          enum:
+            - INITIATED
+            - PENDING
+            - SUCCESS
+            - FAILED
           examples:
             - SUCCESS
         timestamp:
