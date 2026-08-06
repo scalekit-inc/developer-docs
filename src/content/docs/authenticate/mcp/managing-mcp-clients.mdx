@@ -154,10 +154,10 @@ Once revoked, the user will need to go through the authorization flow again to g
 
 ### Revoke access from a public MCP client
 
-Public MCP clients cannot revoke tokens through the OAuth token revocation endpoint. Clients registered through Dynamic Client Registration (DCR) or a Client ID Metadata Document (CIMD) are **public clients**: they have no client secret. The revocation endpoint requires client authentication, so a direct revoke call from these clients returns an `invalid_client` error. This response is expected, not a misconfiguration.
+On Scalekit, MCP clients registered through Dynamic Client Registration (`DCR`) or a Client ID Metadata Document (`CIMD`) are public clients: they have no client secret. Scalekit's OAuth token revocation endpoint requires client authentication, so a direct revoke call from these clients returns `invalid_client`. That response is expected, not a misconfiguration.
 
 To revoke access, use one of the supported paths instead:
 
-- **Revoke consent from the dashboard**: revoke the user's consent from the **Consents** tab, as described in [Revoke user access](#revoke-user-access).
-- **Disconnect in the client**: most MCP clients expose a **Disconnect** action that clears the stored tokens on the client side.
-- **Revoke the session in your own system**: when you use bring your own auth, revoke the user's session in your auth system. The next request that reaches the MCP server returns `401 Unauthorized`, which prompts the client to authenticate again.
+- **Revoke consent from the dashboard**: revoke the user's consent from the **Consents** tab, as described in [Revoke user access](/authenticate/mcp/managing-mcp-clients/#revoke-user-access).
+- **Disconnect in the client**: most MCP clients expose a **Disconnect** action that clears tokens stored on the client. This is local sign-out only; it does not revoke the grant on Scalekit.
+- **Revoke the session in your own system**: when you use [Bring your own auth](/authenticate/mcp/custom-auth/), revoke the user's session in your auth system. After your MCP server rejects that session, the next request returns `401 Unauthorized` and the client must authenticate again.
