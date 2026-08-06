@@ -29,7 +29,7 @@ The flow is:
     ```python
     # Create or retrieve the connected account for this user
     response = actions.get_or_create_connected_account(
-        connection_name="slack",
+        connection_name="github-connect",
         identifier="user_123"  # your app's unique user ID
     )
     connected_account = response.connected_account
@@ -37,7 +37,7 @@ The flow is:
     # Generate the authorization link if the account is not yet active
     if connected_account.status != "ACTIVE":
         link_response = actions.get_authorization_link(
-            connection_name="slack",
+            connection_name="github-connect",
             identifier="user_123"
         )
         auth_url = link_response.link
@@ -50,7 +50,7 @@ The flow is:
 
     // Create or retrieve the connected account for this user
     const response = await actions.getOrCreateConnectedAccount({
-      connectionName: 'slack',
+      connectionName: 'github-connect',
       identifier: 'user_123',  // your app's unique user ID
     });
 
@@ -59,7 +59,7 @@ The flow is:
     // Generate the authorization link if the account is not yet active
     if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
       const linkResponse = await actions.getAuthorizationLink({
-        connectionName: 'slack',
+        connectionName: 'github-connect',
         identifier: 'user_123',
       });
       const authUrl = linkResponse.link;
@@ -75,7 +75,7 @@ How you deliver the link depends on your application:
 
 - **Web app:** redirect the user to `auth_url` directly if they're in an active browser session
 - **Email or notification:** send the link when the user isn't actively in your app, or when connecting at their own pace is acceptable
-- **In-app prompt:** show a button ("Connect Slack") when you want to prompt connection at a specific moment in the user's workflow
+- **In-app prompt:** show a button ("Connect GitHub") when you want to prompt connection at a specific moment in the user's workflow
 
 Once the user opens the link and approves the OAuth consent screen, Scalekit exchanges the authorization code for tokens and marks the connected account `ACTIVE`. You do not need to handle the OAuth callback yourself.
 
@@ -91,7 +91,7 @@ Check the connected account status before executing tools. Tokens can expire or 
   <TabItem label="Python">
     ```python
     response = actions.get_or_create_connected_account(
-        connection_name="slack",
+        connection_name="github-connect",
         identifier="user_123"
     )
     connected_account = response.connected_account
@@ -102,7 +102,7 @@ Check the connected account status before executing tools. Tokens can expire or 
 
     if connected_account.status != "ACTIVE":
         link_response = actions.get_authorization_link(
-            connection_name="slack",
+            connection_name="github-connect",
             identifier="user_123"
         )
         # Redirect or send link_response.link to the user
@@ -113,7 +113,7 @@ Check the connected account status before executing tools. Tokens can expire or 
     import { ConnectorStatus } from '@scalekit-sdk/node/lib/pkg/grpc/scalekit/v1/connected_accounts/connected_accounts_pb';
 
     const response = await actions.getOrCreateConnectedAccount({
-      connectionName: 'slack',
+      connectionName: 'github-connect',
       identifier: 'user_123',
     });
 
@@ -125,7 +125,7 @@ Check the connected account status before executing tools. Tokens can expire or 
 
     if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
       const linkResponse = await actions.getAuthorizationLink({
-        connectionName: 'slack',
+        connectionName: 'github-connect',
         identifier: 'user_123',
       });
       // Redirect or send linkResponse.link to the user

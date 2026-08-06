@@ -39,7 +39,7 @@ Use `get_or_create_connected_account` as the safe default when a user may be con
   <TabItem label="Python">
 ```python
 response = actions.get_or_create_connected_account(
-    connection_name="slack",
+    connection_name="github-connect",
     identifier="user_123"
 )
 connected_account = response.connected_account
@@ -49,7 +49,7 @@ print(f"Status: {connected_account.status}")
   <TabItem label="Node.js">
 ```typescript
 const response = await actions.getOrCreateConnectedAccount({
-  connectionName: 'slack',
+  connectionName: 'github-connect',
   identifier: 'user_123',
 });
 
@@ -74,7 +74,7 @@ Your code is the same regardless of connector type. Scalekit determines the righ
 ```python
 if connected_account.status != "ACTIVE":
     link_response = actions.get_authorization_link(
-        connection_name="slack",
+        connection_name="github-connect",
         identifier="user_123"
     )
     # Redirect or send link_response.link to the user
@@ -86,7 +86,7 @@ import { ConnectorStatus } from '@scalekit-sdk/node/lib/pkg/grpc/scalekit/v1/con
 
 if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
   const linkResponse = await actions.getAuthorizationLink({
-    connectionName: 'slack',
+    connectionName: 'github-connect',
     identifier: 'user_123',
   });
   // Redirect or send linkResponse.link to the user
@@ -130,8 +130,8 @@ The `connected_account.status_updated` event fires on every status transition an
     "id": "ca_133400349586228019",
     "identifier": "john@acmecorp.com",
     "connection_id": "conn_133400101014995480",
-    "connection_name": "slack",
-    "provider": "SLACK",
+    "connection_name": "github-connect",
+    "provider": "GITHUB",
     "authorization_type": "OAUTH",
     "status": "EXPIRED",
     "old_status": "ACTIVE"
@@ -163,7 +163,7 @@ When you receive this event, [generate a new authorization link](#handle-inactiv
 
 ```typescript
 const listResponse = await actions.listConnectedAccounts({
-  connectionName: 'slack',
+  connectionName: 'github-connect',
 });
 console.log('Connected accounts:', listResponse);
 ```
@@ -174,7 +174,7 @@ Deleting a connected account removes the user's credentials and authorization st
 
 ```typescript
 await actions.deleteConnectedAccount({
-  connectionName: 'slack',
+  connectionName: 'github-connect',
   identifier: 'user_123',
 });
 ```

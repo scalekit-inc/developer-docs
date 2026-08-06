@@ -16,7 +16,7 @@ next:
 
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 
-Scalekit ships pre-built tools for every connector in the catalog: Slack, Gmail, GitHub, Salesforce, Notion, Linear, HubSpot, and more. Each tool has an LLM-ready schema and returns structured output. Your agent passes inputs; Scalekit injects the user's credentials and handles the API call.
+Scalekit ships pre-built tools for every connector in the catalog: GitHub, Slack, Gmail, Salesforce, Notion, Linear, HubSpot, and more. Each tool has an LLM-ready schema and returns structured output. Your agent passes inputs; Scalekit injects the user's credentials and handles the API call.
 
 This page assumes you have an `ACTIVE` connected account for the user. If not, see [Authorize a user](/agentkit/tools/authorize/).
 
@@ -31,7 +31,7 @@ from google.protobuf.json_format import MessageToDict
 
 scoped_response, _ = actions.tools.list_scoped_tools(
     identifier="user_123",
-    filter={"connection_names": ["slack"]},   # optional; omit for all connectors
+    filter={"connection_names": ["github-connect"]},   # optional; omit for all connectors
     page_size=100,                            # fetch beyond the default page
 )
 for scoped_tool in scoped_response.tools:
@@ -43,7 +43,7 @@ for scoped_tool in scoped_response.tools:
   <TabItem label="Node.js">
 ```typescript
 const { tools } = await scalekit.tools.listScopedTools('user_123', {
-  filter: { connectionNames: ['slack'] },     // use filter: {} to list every connector
+  filter: { connectionNames: ['github-connect'] },     // use filter: {} to list every connector
   pageSize: 100,                              // fetch beyond the default page
 });
 for (const tool of tools) {
@@ -69,18 +69,18 @@ Use `execute_tool` / `executeTool` to run a named tool for a specific user. Scal
 ```python
 # connected account is selected using the user identifier and the connection name
 result = actions.execute_tool(
-    tool_name="slack_list_channels",
+    tool_name="github_repo_star",
     identifier="user_123",
-    connection_name="slack",
-    tool_input={"limit": 10},
+    connection_name="github-connect",
+    tool_input={"owner": "scalekit-inc", "repo": "scalekit-sdk-python"},
 )
 print(result.data)
 
 # alternatively, use the connected account ID
 # result = actions.execute_tool(
-#     tool_name="slack_list_channels",
+#     tool_name="github_repo_star",
 #     connected_account_id="ca_xxxxxx",
-#     tool_input={"limit": 10},
+#     tool_input={"owner": "scalekit-inc", "repo": "scalekit-sdk-python"},
 # )
 ```
   </TabItem>
@@ -88,18 +88,18 @@ print(result.data)
 ```typescript
 // connected account is selected using the user identifier and the connector
 const result = await scalekit.actions.executeTool({
-  toolName: 'slack_list_channels',
+  toolName: 'github_repo_star',
   identifier: 'user_123',
-  connector: 'slack',
-  toolInput: { limit: 10 },
+  connector: 'github-connect',
+  toolInput: { owner: 'scalekit-inc', repo: 'scalekit-sdk-node' },
 });
 console.log(result.data);
 
 // alternatively, use the connected account ID
 // const result = await scalekit.actions.executeTool({
-//   toolName: 'slack_list_channels',
+//   toolName: 'github_repo_star',
 //   connectedAccountId: 'ca_xxxxxx',
-//   toolInput: { limit: 10 },
+//   toolInput: { owner: 'scalekit-inc', repo: 'scalekit-sdk-node' },
 // });
 ```
   </TabItem>
@@ -167,7 +167,7 @@ client = anthropic.Anthropic()
 # 1. Fetch tools scoped to this user
 scoped_response, _ = actions.tools.list_scoped_tools(
     identifier="user_123",
-    filter={"connection_names": ["slack"]},
+    filter={"connection_names": ["github-connect"]},
     page_size=100,  # fetch beyond the default page so no connector tools are missed
 )
 llm_tools = [
@@ -180,7 +180,7 @@ llm_tools = [
 ]
 
 # 2. Send to LLM
-messages = [{"role": "user", "content": "Summarize the channels in my Slack workspace"}]
+messages = [{"role": "user", "content": "List my 5 most recently updated GitHub repositories"}]
 response = client.messages.create(
     model="claude-sonnet-4-6",
     max_tokens=1024,
@@ -211,7 +211,7 @@ const anthropic = new Anthropic();
 
 // 1. Fetch tools scoped to this user
 const { tools } = await scalekit.tools.listScopedTools('user_123', {
-  filter: { connectionNames: ['slack'] },
+  filter: { connectionNames: ['github-connect'] },
   pageSize: 100, // fetch beyond the default page so no connector tools are missed
 });
 const llmTools = tools.map((t) => ({
@@ -222,7 +222,7 @@ const llmTools = tools.map((t) => ({
 
 // 2. Send to LLM
 const messages: Anthropic.MessageParam[] = [
-  { role: 'user', content: 'Summarize the channels in my Slack workspace' },
+  { role: 'user', content: 'List my 5 most recently updated GitHub repositories' },
 ];
 const response = await anthropic.messages.create({
   model: 'claude-sonnet-4-6',
@@ -262,12 +262,12 @@ from langchain.agents import create_agent
 
 tools = actions.langchain.get_tools(
     identifier="user_123",
-    connection_names=["slack"],
+    connection_names=["github-connect"],
     page_size=100,  # avoid missing tools when a connector has more than the default page
 )
 llm = ChatOpenAI(model="claude-sonnet-4-6")
 agent = create_agent(model=llm, tools=tools, system_prompt="You are a helpful assistant.")
-result = agent.invoke({"messages": [{"role": "user", "content": "List the channels in my Slack workspace"}]})
+result = agent.invoke({"messages": [{"role": "user", "content": "List my 5 most recently updated GitHub repositories"}]})
 ```
   </TabItem>
   <TabItem label="Google ADK">
@@ -275,15 +275,15 @@ result = agent.invoke({"messages": [{"role": "user", "content": "List the channe
 from google.adk.agents import Agent
 from google.adk.models.lite_llm import LiteLlm
 
-slack_tools = actions.google.get_tools(
+github_tools = actions.google.get_tools(
     identifier="user_123",
-    connection_names=["slack"],
+    connection_names=["github-connect"],
     page_size=100,  # avoid missing tools when a connector has more than the default page
 )
 agent = Agent(
-    name="slack_assistant",
+    name="github_assistant",
     model=LiteLlm(model="claude-sonnet-4-6"),
-    tools=slack_tools,
+    tools=github_tools,
 )
 ```
   </TabItem>
@@ -292,7 +292,7 @@ agent = Agent(
 import { generateText, jsonSchema, tool } from 'ai';
 
 const { tools: scopedTools } = await scalekit.tools.listScopedTools('user_123', {
-  filter: { connectionNames: ['slack'] },
+  filter: { connectionNames: ['github-connect'] },
   pageSize: 100, // fetch beyond the default page so no connector tools are missed
 });
 const tools = Object.fromEntries(
@@ -342,7 +342,7 @@ Check three things:
 <details>
 <summary>Connection names differ across environments</summary>
 
-Connection names are workspace-specific. Don't hard-code them. Use environment variables (`SLACK_CONNECTION_NAME`, `GITHUB_CONNECTION_NAME`) and reference those in API calls.
+Connection names are workspace-specific. Don't hard-code them. Use environment variables (`GITHUB_CONNECTION_NAME`, `GMAIL_CONNECTION_NAME`) and reference those in API calls.
 
 </details>
 
