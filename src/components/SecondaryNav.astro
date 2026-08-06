@@ -5,7 +5,6 @@ import {
   isCurrentPage,
   isSelfHostedPath,
   getDisplayLabel,
-  getDisplayIcon,
   type SecondaryNavProps,
 } from '../utils/secondary-nav-utils'
 import type { NavItem } from '../configs/secondary-nav.config'
@@ -45,50 +44,57 @@ function renderNavItemClass(item: NavItem, pathname: string): string {
               {navItems.map((item) => {
                 const hasDropdown = Boolean(item.children && item.children.length > 0)
                 const isCurrent = isCurrentPage(Astro.url.pathname, item, entry, searchParams)
-                const IconComponent = hasDropdown
-                  ? getDisplayIcon(Astro.url.pathname, item, entry, searchParams)
-                  : item.iconComponent
+                // Top-level secondary nav is text-only (icons crowded Auth for SaaS).
+                // Dropdown panels still use per-item icons for scannability.
                 const label = hasDropdown
                   ? getDisplayLabel(Astro.url.pathname, item, entry, searchParams)
                   : item.label
                 const itemClass = renderNavItemClass(item, Astro.url.pathname)
 
                 return (
-                  <div
-                    class={`nav-item-wrapper ${hasDropdown ? 'has-dropdown' : ''}`}
-                    data-keep-parent-label={item.keepParentLabel ? 'true' : undefined}
-                  >
-                    {hasDropdown ? (
-                      <button
-                        type="button"
-                        class={itemClass}
-                        data-nav-key={item.href}
-                        aria-expanded="false"
-                        aria-current={isCurrent ? 'page' : undefined}
-                      >
-                        <div class="nav-item-content">
-                          {IconComponent && <IconComponent class="nav-icon" />}
-                          {label && <span class="nav-label">{label}</span>}
-                          <IconChevronDown class="dropdown-icon" />
-                        </div>
-                      </button>
-                    ) : (
-                      <a
-                        href={item.href}
-                        class={itemClass}
-                        aria-current={isCurrent ? 'page' : undefined}
-                        data-astro-prefetch="viewport"
-                        data-product-context={
-                          item.id === 'enterprise-deployment' ? product : undefined
-                        }
-                      >
-                        <div class="nav-item-content">
-                          {IconComponent && <IconComponent class="nav-icon" />}
-                          {item.label && <span class="nav-label">{item.label}</span>}
-                        </div>
-                      </a>
+                  <>
+                    {item.dividerBefore && (
+                      <div class="nav-group-divider" role="separator" aria-hidden="true" />
                     )}
-                  </div>
+                    {item.groupLabel && (
+                      <span class="nav-group-label" aria-hidden="true">
+                        {item.groupLabel}
+                      </span>
+                    )}
+                    <div
+                      class={`nav-item-wrapper ${hasDropdown ? 'has-dropdown' : ''}`}
+                      data-keep-parent-label={item.keepParentLabel ? 'true' : undefined}
+                    >
+                      {hasDropdown ? (
+                        <button
+                          type="button"
+                          class={itemClass}
+                          data-nav-key={item.href}
+                          aria-expanded="false"
+                          aria-current={isCurrent ? 'page' : undefined}
+                        >
+                          <div class="nav-item-content">
+                            {label && <span class="nav-label">{label}</span>}
+                            <IconChevronDown class="dropdown-icon" />
+                          </div>
+                        </button>
+                      ) : (
+                        <a
+                          href={item.href}
+                          class={itemClass}
+                          aria-current={isCurrent ? 'page' : undefined}
+                          data-astro-prefetch="viewport"
+                          data-product-context={
+                            item.id === 'enterprise-deployment' ? product : undefined
+                          }
+                        >
+                          <div class="nav-item-content">
+                            {item.label && <span class="nav-label">{item.label}</span>}
+                          </div>
+                        </a>
+                      )}
+                    </div>
+                  </>
                 )
               })}
             </div>
@@ -325,16 +331,46 @@ function renderNavItemClass(item: NavItem, pathname: string): string {
   .nav-items {
     font-weight: 500;
     display: flex;
+    align-items: center;
     padding: 0.25rem 0;
     overflow-x: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
     justify-content: flex-start;
-    gap: 0.125rem;
+    gap: 0.0625rem;
   }
 
   .nav-items::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Quiet group labels — scannable structure without competing with tab text (Emil: unseen detail) */
+  .nav-group-label {
+    flex-shrink: 0;
+    align-self: center;
+    margin: 0 0.15rem 0 0.35rem;
+    padding: 0;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--sl-color-gray-3);
+    line-height: 1;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .nav-group-label:first-child {
+    margin-left: 0.75rem;
+  }
+
+  /* Single hairline between product journeys and reference/ops */
+  .nav-group-divider {
+    flex-shrink: 0;
+    align-self: stretch;
+    width: 1px;
+    margin: 0.55rem 0.45rem;
+    background: var(--sl-color-gray-5);
   }
 
   .nav-item-wrapper {
@@ -347,7 +383,8 @@ function renderNavItemClass(item: NavItem, pathname: string): string {
     display: flex;
     align-items: center;
     margin: 0.25rem 0;
-    padding: 0.35rem 0.9rem;
+    /* Text-only tabs: tighter horizontal padding frees space for Enterprise Deployment */
+    padding: 0.35rem 0.55rem;
     color: var(--sl-color-gray-2);
     text-decoration: none;
     white-space: nowrap;
@@ -361,7 +398,12 @@ function renderNavItemClass(item: NavItem, pathname: string): string {
     cursor: pointer;
     transition:
       color 0.15s ease,
-      background-color 0.15s ease;
+      background-color 0.15s ease,
+      transform 0.12s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .nav-item:active {
+    transform: scale(0.97);
   }
 
   .nav-item:hover {
@@ -392,14 +434,13 @@ function renderNavItemClass(item: NavItem, pathname: string): string {
   .nav-item-content {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.15rem;
     line-height: 1.2;
   }
 
+  /* Top-level icons removed; keep class for any residual dropdown/header reuse */
   .nav-icon {
-    width: 1rem;
-    height: 1rem;
-    flex-shrink: 0;
+    display: none;
   }
 
   .nav-label {
@@ -410,11 +451,12 @@ function renderNavItemClass(item: NavItem, pathname: string): string {
 
   /* Dropdown styles via portal overlay */
   .dropdown-icon {
-    width: 1rem;
-    height: 1rem;
+    width: 0.875rem;
+    height: 0.875rem;
     flex-shrink: 0;
-    transition: transform 0.2s ease;
-    margin-left: 0.1rem;
+    transition: transform 0.15s cubic-bezier(0.23, 1, 0.32, 1);
+    margin-left: 0.05rem;
+    opacity: 0.7;
   }
 
   .nav-item-wrapper.has-dropdown:hover .dropdown-icon,
@@ -689,15 +731,33 @@ function renderNavItemClass(item: NavItem, pathname: string): string {
 
   @media (max-width: 72rem) {
     .nav-item {
-      padding: 0.35rem 0.75rem;
+      padding: 0.35rem 0.45rem;
     }
 
     .nav-label {
       font-size: var(--sl-text-xs);
     }
 
+    .nav-group-label {
+      font-size: 0.6rem;
+      margin-left: 0.2rem;
+      margin-right: 0.1rem;
+    }
+
+    .nav-group-divider {
+      margin-left: 0.3rem;
+      margin-right: 0.3rem;
+    }
+
     .nav-left .nav-items {
-      margin-left: 0.75rem;
+      margin-left: 0.5rem;
+    }
+  }
+
+  /* Prefer less motion on press scale */
+  @media (prefers-reduced-motion: reduce) {
+    .nav-item:active {
+      transform: none;
     }
   }
 </style>

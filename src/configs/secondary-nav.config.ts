@@ -22,6 +22,7 @@ export interface NavItem {
   href: string
   label: string
   dropdownLabel?: string
+  /** Icons still used inside dropdown panels; top-level secondary nav is text-only. */
   iconComponent?: any
   children?: NavItem[]
   keepParentLabel?: boolean
@@ -34,6 +35,13 @@ export interface NavItem {
   columnGroup?: 'left' | 'right'
   /** Temporary shared item — will be split into product-specific entries once the SDK docs are ready */
   shared?: boolean
+  /**
+   * Quiet group label rendered before this item (start of a secondary-nav group).
+   * Used on Auth for SaaS to separate product journeys from reference/ops.
+   */
+  groupLabel?: string
+  /** Vertical delimiter before this item (typically starts the second group). */
+  dividerBefore?: boolean
 }
 
 const agentKitItems: NavItem[] = [
@@ -42,6 +50,7 @@ const agentKitItems: NavItem[] = [
     href: '/agentkit/quickstart/',
     label: 'AgentKit',
     iconComponent: IconLucideHome,
+    groupLabel: 'Products',
   },
   {
     id: 'agentkit-connectors',
@@ -54,6 +63,8 @@ const agentKitItems: NavItem[] = [
     href: '/agentkit/sdks/',
     label: 'SDKs',
     iconComponent: IconSdk,
+    groupLabel: 'Reference',
+    dividerBefore: true,
   },
   {
     id: 'agentkit-api-reference',
@@ -75,6 +86,13 @@ const saasKitItems: NavItem[] = [
     href: '/authenticate/fsa/quickstart/',
     label: 'SaaSKit',
     iconComponent: IconSolarLayersOutline,
+    groupLabel: 'Products',
+  },
+  {
+    id: 'saaskit-mcp-auth',
+    href: '/authenticate/mcp/quickstart/',
+    label: 'MCP Auth',
+    iconComponent: IconMcp,
   },
   {
     id: 'saaskit-sso',
@@ -89,16 +107,12 @@ const saasKitItems: NavItem[] = [
     iconComponent: IconPhUsersFourLight,
   },
   {
-    id: 'saaskit-mcp-auth',
-    href: '/authenticate/mcp/quickstart/',
-    label: 'MCP Auth',
-    iconComponent: IconMcp,
-  },
-  {
     id: 'saaskit-sdks',
     href: '/sdks/',
     label: 'SDKs',
     iconComponent: IconSdk,
+    groupLabel: 'Reference',
+    dividerBefore: true,
   },
   {
     id: 'saaskit-apis',
