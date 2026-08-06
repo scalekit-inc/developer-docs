@@ -151,3 +151,13 @@ As an administrator, you can revoke a user's consent for a specific MCP Client a
 4. Click the **Revoke** or **Delete** action for that user.
 
 Once revoked, the user will need to go through the authorization flow again to grant consent if they want to use the MCP Client.
+
+### Revoke access from a public MCP client
+
+Public MCP clients cannot revoke tokens through the OAuth token revocation endpoint. Clients registered through Dynamic Client Registration (DCR) or a Client ID Metadata Document (CIMD) are **public clients**: they have no client secret. The revocation endpoint requires client authentication, so a direct revoke call from these clients returns an `invalid_client` error. This response is expected, not a misconfiguration.
+
+To revoke access, use one of the supported paths instead:
+
+- **Revoke consent from the dashboard**: revoke the user's consent from the **Consents** tab, as described in [Revoke user access](#revoke-user-access).
+- **Disconnect in the client**: most MCP clients expose a **Disconnect** action that clears the stored tokens on the client side.
+- **Revoke the session in your own system**: when you use bring your own auth, revoke the user's session in your auth system. The next request that reaches the MCP server returns `401 Unauthorized`, which prompts the client to authenticate again.
