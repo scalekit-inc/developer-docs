@@ -36,11 +36,9 @@ export interface NavItem {
   /** Temporary shared item — will be split into product-specific entries once the SDK docs are ready */
   shared?: boolean
   /**
-   * Quiet group label shown above this item's group (e.g. "product", "resources").
-   * Only set on the first item of each group.
+   * Vertical delimiter before this item (splits journey tabs from reference/ops).
+   * No group labels — order + hairline only (avoids colliding with header "product").
    */
-  groupLabel?: string
-  /** Vertical delimiter before this item (starts a new group, typically "resources"). */
   dividerBefore?: boolean
 }
 
@@ -50,15 +48,13 @@ const agentKitItems: NavItem[] = [
     href: '/agentkit/quickstart/',
     label: 'AgentKit',
     iconComponent: IconLucideHome,
-    groupLabel: 'product',
   },
   {
     id: 'agentkit-connectors',
     href: '/agentkit/connectors/',
     label: 'Connectors',
     iconComponent: IconLucideBlocks,
-    // Catalog / tooling — not a core product capability journey
-    groupLabel: 'resources',
+    // Catalog / tooling — right of delimiter with SDKs, APIs, deploy
     dividerBefore: true,
   },
   {
@@ -87,7 +83,6 @@ const saasKitItems: NavItem[] = [
     href: '/authenticate/fsa/quickstart/',
     label: 'SaaSKit',
     iconComponent: IconSolarLayersOutline,
-    groupLabel: 'product',
   },
   {
     id: 'saaskit-mcp-auth',
@@ -112,7 +107,6 @@ const saasKitItems: NavItem[] = [
     href: '/sdks/',
     label: 'SDKs',
     iconComponent: IconSdk,
-    groupLabel: 'resources',
     dividerBefore: true,
   },
   {
