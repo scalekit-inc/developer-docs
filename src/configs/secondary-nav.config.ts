@@ -52,7 +52,7 @@ const agentKitItems: NavItem[] = [
   {
     id: 'agentkit-connectors',
     href: '/agentkit/connectors/',
-    label: 'MCP Connectors',
+    label: 'Connectors',
     iconComponent: IconLucideBlocks,
     // Catalog / tooling — right of delimiter with SDKs, APIs, deploy
     dividerBefore: true,
