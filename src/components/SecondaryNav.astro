@@ -26,11 +26,27 @@ function renderNavItemClass(item: NavItem, pathname: string): string {
   const isCurrent = isCurrentPage(pathname, item, entry, searchParams)
   return `nav-item ${isCurrent ? 'current' : ''} ${item.shared ? 'shared' : ''}`
 }
+
+/** Split a flat item list into labeled clusters (label sits above the item row). */
+function groupNavItems(items: NavItem[]): { label?: string; items: NavItem[] }[] {
+  const groups: { label?: string; items: NavItem[] }[] = []
+  for (const item of items) {
+    if (groups.length === 0 || item.dividerBefore) {
+      groups.push({ label: item.groupLabel, items: [item] })
+    } else if (item.groupLabel) {
+      groups.push({ label: item.groupLabel, items: [item] })
+    } else {
+      groups[groups.length - 1].items.push(item)
+    }
+  }
+  return groups
+}
 ---
 
 {
   productsToRender.map((product) => {
     const navItems = secondaryNavConfig[product]
+    const navGroups = groupNavItems(navItems)
     const isVisible = product === activeProduct
     return (
       <div
@@ -41,62 +57,72 @@ function renderNavItemClass(item: NavItem, pathname: string): string {
         <nav class="secondary-nav sl-hidden md:sl-flex" aria-label="Main topics navigation">
           <div class="nav-section nav-left">
             <div class="nav-items">
-              {navItems.map((item) => {
-                const hasDropdown = Boolean(item.children && item.children.length > 0)
-                const isCurrent = isCurrentPage(Astro.url.pathname, item, entry, searchParams)
-                // Top-level secondary nav is text-only (icons crowded Auth for SaaS).
-                // Dropdown panels still use per-item icons for scannability.
-                const label = hasDropdown
-                  ? getDisplayLabel(Astro.url.pathname, item, entry, searchParams)
-                  : item.label
-                const itemClass = renderNavItemClass(item, Astro.url.pathname)
-
-                return (
-                  <>
-                    {item.dividerBefore && (
-                      <div class="nav-group-divider" role="separator" aria-hidden="true" />
-                    )}
-                    {item.groupLabel && (
+              {navGroups.map((group, groupIndex) => (
+                <>
+                  {groupIndex > 0 && (
+                    <div class="nav-group-divider" role="separator" aria-hidden="true" />
+                  )}
+                  <div class="nav-group">
+                    {group.label && (
                       <span class="nav-group-label" aria-hidden="true">
-                        {item.groupLabel}
+                        {group.label}
                       </span>
                     )}
-                    <div
-                      class={`nav-item-wrapper ${hasDropdown ? 'has-dropdown' : ''}`}
-                      data-keep-parent-label={item.keepParentLabel ? 'true' : undefined}
-                    >
-                      {hasDropdown ? (
-                        <button
-                          type="button"
-                          class={itemClass}
-                          data-nav-key={item.href}
-                          aria-expanded="false"
-                          aria-current={isCurrent ? 'page' : undefined}
-                        >
-                          <div class="nav-item-content">
-                            {label && <span class="nav-label">{label}</span>}
-                            <IconChevronDown class="dropdown-icon" />
+                    <div class="nav-group-items">
+                      {group.items.map((item) => {
+                        const hasDropdown = Boolean(item.children && item.children.length > 0)
+                        const isCurrent = isCurrentPage(
+                          Astro.url.pathname,
+                          item,
+                          entry,
+                          searchParams,
+                        )
+                        // Top-level secondary nav is text-only; dropdown panels keep icons.
+                        const label = hasDropdown
+                          ? getDisplayLabel(Astro.url.pathname, item, entry, searchParams)
+                          : item.label
+                        const itemClass = renderNavItemClass(item, Astro.url.pathname)
+
+                        return (
+                          <div
+                            class={`nav-item-wrapper ${hasDropdown ? 'has-dropdown' : ''}`}
+                            data-keep-parent-label={item.keepParentLabel ? 'true' : undefined}
+                          >
+                            {hasDropdown ? (
+                              <button
+                                type="button"
+                                class={itemClass}
+                                data-nav-key={item.href}
+                                aria-expanded="false"
+                                aria-current={isCurrent ? 'page' : undefined}
+                              >
+                                <div class="nav-item-content">
+                                  {label && <span class="nav-label">{label}</span>}
+                                  <IconChevronDown class="dropdown-icon" />
+                                </div>
+                              </button>
+                            ) : (
+                              <a
+                                href={item.href}
+                                class={itemClass}
+                                aria-current={isCurrent ? 'page' : undefined}
+                                data-astro-prefetch="viewport"
+                                data-product-context={
+                                  item.id === 'enterprise-deployment' ? product : undefined
+                                }
+                              >
+                                <div class="nav-item-content">
+                                  {item.label && <span class="nav-label">{item.label}</span>}
+                                </div>
+                              </a>
+                            )}
                           </div>
-                        </button>
-                      ) : (
-                        <a
-                          href={item.href}
-                          class={itemClass}
-                          aria-current={isCurrent ? 'page' : undefined}
-                          data-astro-prefetch="viewport"
-                          data-product-context={
-                            item.id === 'enterprise-deployment' ? product : undefined
-                          }
-                        >
-                          <div class="nav-item-content">
-                            {item.label && <span class="nav-label">{item.label}</span>}
-                          </div>
-                        </a>
-                      )}
+                        )
+                      })}
                     </div>
-                  </>
-                )
-              })}
+                  </div>
+                </>
+              ))}
             </div>
           </div>
         </nav>
@@ -313,8 +339,8 @@ function renderNavItemClass(item: NavItem, pathname: string): string {
     isolation: isolate;
     background-color: var(--sl-color-bg);
     border-bottom: 1px solid var(--sl-color-hairline-shade);
-    /* Reserve row height so product-switch soft-nav does not collapse chrome */
-    min-height: 2.75rem;
+    /* Two-line groups (label + tabs) — reserve height so soft-nav does not collapse chrome */
+    min-height: 3.15rem;
   }
 
   .nav-section {
@@ -331,45 +357,61 @@ function renderNavItemClass(item: NavItem, pathname: string): string {
   .nav-items {
     font-weight: 500;
     display: flex;
-    align-items: center;
-    padding: 0.25rem 0;
+    align-items: stretch;
+    padding: 0.2rem 0 0.3rem;
     overflow-x: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
     justify-content: flex-start;
-    gap: 0.0625rem;
+    gap: 0;
   }
 
   .nav-items::-webkit-scrollbar {
     display: none;
   }
 
-  /* Quiet group labels — scannable structure without competing with tab text (Emil: unseen detail) */
+  /* Group = label above + items row (matches product | resources mock) */
+  .nav-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    min-width: 0;
+    padding: 0 0.15rem;
+  }
+
+  .nav-group:first-child {
+    padding-left: 0.65rem;
+  }
+
+  .nav-group-items {
+    display: flex;
+    align-items: center;
+    gap: 0.0625rem;
+    min-width: 0;
+  }
+
+  /* Soft lowercase label above the cluster — muted so tabs stay primary */
   .nav-group-label {
-    flex-shrink: 0;
-    align-self: center;
-    margin: 0 0.15rem 0 0.35rem;
+    display: block;
+    margin: 0 0 0.1rem 0.55rem;
     padding: 0;
-    font-size: 0.65rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    font-size: 0.6875rem;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    text-transform: lowercase;
     color: var(--sl-color-gray-3);
-    line-height: 1;
+    line-height: 1.2;
     user-select: none;
     pointer-events: none;
   }
 
-  .nav-group-label:first-child {
-    margin-left: 0.75rem;
-  }
-
-  /* Single hairline between product journeys and reference/ops */
+  /* Hairline between product and resources groups */
   .nav-group-divider {
     flex-shrink: 0;
     align-self: stretch;
     width: 1px;
-    margin: 0.55rem 0.45rem;
+    margin: 0.45rem 0.55rem 0.35rem;
     background: var(--sl-color-gray-5);
   }
 
@@ -382,9 +424,9 @@ function renderNavItemClass(item: NavItem, pathname: string): string {
   .nav-item {
     display: flex;
     align-items: center;
-    margin: 0.25rem 0;
+    margin: 0;
     /* Text-only tabs: tighter horizontal padding frees space for Enterprise Deployment */
-    padding: 0.35rem 0.55rem;
+    padding: 0.25rem 0.55rem;
     color: var(--sl-color-gray-2);
     text-decoration: none;
     white-space: nowrap;
@@ -731,7 +773,7 @@ function renderNavItemClass(item: NavItem, pathname: string): string {
 
   @media (max-width: 72rem) {
     .nav-item {
-      padding: 0.35rem 0.45rem;
+      padding: 0.25rem 0.45rem;
     }
 
     .nav-label {
@@ -739,18 +781,21 @@ function renderNavItemClass(item: NavItem, pathname: string): string {
     }
 
     .nav-group-label {
-      font-size: 0.6rem;
-      margin-left: 0.2rem;
-      margin-right: 0.1rem;
+      font-size: 0.625rem;
+      margin-left: 0.45rem;
     }
 
     .nav-group-divider {
-      margin-left: 0.3rem;
-      margin-right: 0.3rem;
+      margin-left: 0.35rem;
+      margin-right: 0.35rem;
+    }
+
+    .nav-group:first-child {
+      padding-left: 0.4rem;
     }
 
     .nav-left .nav-items {
-      margin-left: 0.5rem;
+      margin-left: 0.25rem;
     }
   }
 

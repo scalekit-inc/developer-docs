@@ -36,11 +36,11 @@ export interface NavItem {
   /** Temporary shared item — will be split into product-specific entries once the SDK docs are ready */
   shared?: boolean
   /**
-   * Quiet group label rendered before this item (start of a secondary-nav group).
-   * Used on Auth for SaaS to separate product journeys from reference/ops.
+   * Quiet group label shown above this item's group (e.g. "product", "resources").
+   * Only set on the first item of each group.
    */
   groupLabel?: string
-  /** Vertical delimiter before this item (typically starts the second group). */
+  /** Vertical delimiter before this item (starts a new group, typically "resources"). */
   dividerBefore?: boolean
 }
 
@@ -50,7 +50,7 @@ const agentKitItems: NavItem[] = [
     href: '/agentkit/quickstart/',
     label: 'AgentKit',
     iconComponent: IconLucideHome,
-    groupLabel: 'Products',
+    groupLabel: 'product',
   },
   {
     id: 'agentkit-connectors',
@@ -63,7 +63,7 @@ const agentKitItems: NavItem[] = [
     href: '/agentkit/sdks/',
     label: 'SDKs',
     iconComponent: IconSdk,
-    groupLabel: 'Reference',
+    groupLabel: 'resources',
     dividerBefore: true,
   },
   {
@@ -86,7 +86,7 @@ const saasKitItems: NavItem[] = [
     href: '/authenticate/fsa/quickstart/',
     label: 'SaaSKit',
     iconComponent: IconSolarLayersOutline,
-    groupLabel: 'Products',
+    groupLabel: 'product',
   },
   {
     id: 'saaskit-mcp-auth',
@@ -111,7 +111,7 @@ const saasKitItems: NavItem[] = [
     href: '/sdks/',
     label: 'SDKs',
     iconComponent: IconSdk,
-    groupLabel: 'Reference',
+    groupLabel: 'resources',
     dividerBefore: true,
   },
   {
