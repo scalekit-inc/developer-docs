@@ -1700,4 +1700,9 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'Bearer Token',
     categories: ['Communication', 'Marketing', 'Developer Tools'],
   },
+  facebookadsmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/facebook.svg',
+    authType: 'OAuth2.1',
+    categories: ['Marketing', 'Analytics'],
+  },
 }
