@@ -289,7 +289,8 @@ export const sidebar = [
     ],
   },
   {
-    label: 'Self-hosted',
+    // TopicsDropdown (mobile drawer) + topic chrome — match desktop "Enterprise Deployment" language
+    label: 'Enterprise Deployment',
     id: 'self-hosted',
     link: '/self-hosted/overview/',
     icon: 'server',
@@ -617,7 +618,7 @@ export const topics = {
   // Modular SCIM (directory provisioning)
   'modular-scim': ['/directory/**/*'],
 
-  // Self-hosted deployment (dedicated sidebar for on-prem docs)
+  // Enterprise Deployment topic (on-prem / self-hosted docs; id stays self-hosted for paths)
   'self-hosted': ['/self-hosted/**/*'],
 
   // Agent connectors (dedicated connectors sidebar — must come before connect)
