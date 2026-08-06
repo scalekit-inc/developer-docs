@@ -57,14 +57,15 @@ const agentKitItems: NavItem[] = [
     href: '/agentkit/connectors/',
     label: 'Connectors',
     iconComponent: IconLucideBlocks,
+    // Catalog / tooling — not a core product capability journey
+    groupLabel: 'resources',
+    dividerBefore: true,
   },
   {
     id: 'agentkit-sdks',
     href: '/agentkit/sdks/',
     label: 'SDKs',
     iconComponent: IconSdk,
-    groupLabel: 'resources',
-    dividerBefore: true,
   },
   {
     id: 'agentkit-api-reference',
