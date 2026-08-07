@@ -25,7 +25,7 @@ Check the connected account status first. That tells you whether the user never 
 ```python
 account = scalekit_client.actions.get_connected_account(
     identifier="user_123",
-    connection_name="gmail",
+    connection_name="github-connect",
 )
 
 print(account.status)  # ACTIVE, EXPIRED, PENDING_AUTH, PENDING_VERIFICATION, or DISCONNECTED
@@ -38,7 +38,7 @@ print(account.scopes)
 ```typescript
 const account = await scalekit.actions.getConnectedAccount({
   identifier: 'user_123',
-  connectionName: 'gmail',
+  connectionName: 'github-connect',
 });
 
 console.log(account.status); // ACTIVE, EXPIRED, PENDING_AUTH, PENDING_VERIFICATION, or DISCONNECTED
@@ -56,7 +56,7 @@ console.log(account.scopes);
 | `PENDING_VERIFICATION` | OAuth succeeded; user identity verification is still required |
 | `DISCONNECTED` | Account was manually disconnected |
 
-If status is `ACTIVE` but a tool still fails, run a read-only tool (for example `gmail_get_profile`) to confirm the connection end to end. The error message usually points to scopes, credentials, or provider rate limits.
+If status is `ACTIVE` but a tool still fails, run a read-only tool (for example `github_user_get_authenticated`) to confirm the connection end to end. The error message usually points to scopes, credentials, or provider rate limits.
 
 To catch status changes without polling, subscribe to `connected_account.status_updated`. For automatic refresh failures, also subscribe to `connected_account.token_refresh_failed`. See [Detect when re-authentication is needed](/agentkit/connected-accounts/#detect-when-re-authentication-is-needed) for payload details and filtering.
 
@@ -73,7 +73,7 @@ The user has not finished OAuth, or you initiated re-authentication and the user
 ```python
 if account.status == "PENDING_AUTH":
     link = scalekit_client.actions.get_authorization_link(
-        connection_name="gmail",
+        connection_name="github-connect",
         identifier="user_123",
     )
     print(link.link)
@@ -85,7 +85,7 @@ if account.status == "PENDING_AUTH":
 ```typescript
 if (account.status === 'PENDING_AUTH') {
   const link = await scalekit.actions.getAuthorizationLink({
-    connectionName: 'gmail',
+    connectionName: 'github-connect',
     identifier: 'user_123',
   });
   console.log(link.link);
@@ -122,11 +122,11 @@ If manual refresh always fails, or the account returns to `EXPIRED` soon after e
 try:
     account = scalekit_client.actions.refresh_connected_account(
         identifier="user_123",
-        connection_name="gmail",
+        connection_name="github-connect",
     )
     if account.status != "ACTIVE":
         link = scalekit_client.actions.get_authorization_link(
-            connection_name="gmail",
+            connection_name="github-connect",
             identifier="user_123",
         )
         print(link.link)
@@ -141,11 +141,11 @@ except Exception as exc:
 try {
   const refreshed = await scalekit.actions.refreshConnectedAccount({
     identifier: 'user_123',
-    connectionName: 'gmail',
+    connectionName: 'github-connect',
   });
   if (refreshed.status !== 'ACTIVE') {
     const link = await scalekit.actions.getAuthorizationLink({
-      connectionName: 'gmail',
+      connectionName: 'github-connect',
       identifier: 'user_123',
     });
     console.log(link.link);
@@ -248,7 +248,7 @@ Work through these checks in order:
 1. Confirm status with `get_connected_account`
 2. Call `refresh_connected_account` / `refreshConnectedAccount`
 3. Compare `account.scopes` to the scopes your tool requires
-4. Run a read-only tool (for example `gmail_get_profile`) to isolate the failure
+4. Run a read-only tool (for example `github_user_get_authenticated`) to isolate the failure
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Python">
@@ -256,17 +256,17 @@ Work through these checks in order:
 ```python
 account = scalekit_client.actions.get_connected_account(
     identifier="user_123",
-    connection_name="gmail",
+    connection_name="github-connect",
 )
 
 scalekit_client.actions.refresh_connected_account(
     identifier="user_123",
-    connection_name="gmail",
+    connection_name="github-connect",
 )
 
 result = scalekit_client.actions.execute_tool(
     identifier="user_123",
-    tool_name="gmail_get_profile",
+    tool_name="github_user_get_authenticated",
     tool_input={},
 )
 print(result.data)
@@ -278,17 +278,17 @@ print(result.data)
 ```typescript
 const account = await scalekit.actions.getConnectedAccount({
   identifier: 'user_123',
-  connectionName: 'gmail',
+  connectionName: 'github-connect',
 });
 
 await scalekit.actions.refreshConnectedAccount({
   identifier: 'user_123',
-  connectionName: 'gmail',
+  connectionName: 'github-connect',
 });
 
 const result = await scalekit.actions.executeTool({
   identifier: 'user_123',
-  toolName: 'gmail_get_profile',
+  toolName: 'github_user_get_authenticated',
   toolInput: {},
 });
 console.log(result.data);
@@ -415,7 +415,7 @@ Open **AgentKit** > **Connected Accounts** in the dashboard and review status, r
 When you contact [support](mailto:support@scalekit.com), include:
 
 - Connected account ID or user `identifier`
-- Connection name (for example `gmail`, `slack`)
+- Connection name (for example `github-connect`, `slack`)
 - Full error text and timestamp
 - Steps that reproduce the failure
 
