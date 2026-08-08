@@ -190,3 +190,11 @@ MCP’s OAuth 2.1 profile reduces a few common risks in the authorization code f
 - **Strict redirect URI validation**: Servers must only allow pre-registered redirect URIs and enforce an exact match to reduce redirect attacks.
 - **Short-lived tokens**: Authorization servers should issue short-lived access tokens to limit impact if a token leaks.
 - **Granular scopes**: Use narrow scopes (for example, `todo:read`, `todo:write`) so apps request only what they need and users can understand what they’re granting.
+
+## Scopes and the consent screen
+
+Scopes on an MCP authorization request describe what the **client** — Claude, ChatGPT, Cursor, or your own app — is allowed to do. The client requests them, and Scalekit shows them to the user on the consent screen.
+
+**Every sign-in includes a set of standard scopes you cannot remove.** Alongside the custom scopes you define for your server (for example, `todo:read`), a request carries the OpenID Connect scopes `openid`, `profile`, and `email` so the client can identify the user it acts for, plus `offline_access` so Scalekit can issue a refresh token and keep the connection alive without re-prompting the user. These are platform defaults and do not appear as removable options on the consent screen. On a [bring-your-own-auth](/authenticate/mcp/custom-auth/) server, `profile` and `email` expose only the values you send in the user-details handoff — a placeholder email, for example — never data you do not provide.
+
+**Scopes are not per-user permissions.** A scope reflects what the client requested, not what an individual user is allowed to do, and the consent screen does not currently let a user grant a subset of the requested scopes. Do not rely on consent-time scope selection to enforce per-user access. Instead, enforce authority when a tool runs: check the acting user's role or permission inside each tool handler before executing, and reject the call otherwise. Consent decides what is granted; a runtime check decides what is actually usable. This is the model major identity providers use, and it stays correct when a user's role changes after they first consent.
