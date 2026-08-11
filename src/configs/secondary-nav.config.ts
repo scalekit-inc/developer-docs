@@ -75,6 +75,28 @@ const agentKitItems: NavItem[] = [
     label: 'Enterprise Deployment',
     iconComponent: IconSolarServerPathOutline,
   },
+  {
+    // Mirrors the Auth for SaaS dropdown. Reference shelves are not journey
+    // phases, so they sit behind one disclosure rather than competing with the
+    // journey tabs for weight.
+    id: 'agentkit-developer-resources',
+    href: '#agentkit-developer-resources',
+    label: 'Developer Resources',
+    iconComponent: IconHugeiconsResourcesAdd,
+    children: [
+      {
+        id: 'agentkit-cookbooks',
+        href: '/agentkit/cookbooks/',
+        label: 'Developer Resources',
+        dropdownLabel: 'Cookbooks',
+        iconComponent: IconLucideBookOpenText,
+        description: 'Build agent integrations with step-by-step recipes',
+        sectionLabel: 'RESOURCES',
+        sectionDescription: 'Recipes and guides for building with AgentKit',
+        columnGroup: 'right',
+      },
+    ],
+  },
 ]
 
 const saasKitItems: NavItem[] = [
@@ -175,8 +197,8 @@ const saasKitItems: NavItem[] = [
         columnGroup: 'right',
       },
       {
-        id: 'cookbooks',
-        href: '/cookbooks/',
+        id: 'saaskit-cookbooks',
+        href: '/saaskit/cookbooks/',
         label: 'Developer Resources',
         dropdownLabel: 'Cookbooks',
         iconComponent: IconLucideBookOpenText,

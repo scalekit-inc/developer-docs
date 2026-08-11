@@ -641,8 +641,9 @@ export const topics = {
     '/guides/**/*',
     '/browse/**/*',
     '/reference/**/*',
-    '/cookbooks',
-    '/cookbooks/**/*',
+    '/cookbooks', // Hub page linking to both per-product cookbook shelves
+    '/saaskit/cookbooks',
+    '/saaskit/cookbooks/**/*',
     '/**/*', // Catch-all: anything not matched above defaults here
   ],
 
@@ -737,6 +738,7 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
       '/agentkit/tools/agent-tools-quickstart': 'agentkit-quickstart',
       '/agentkit/openclaw': 'agentkit-quickstart',
       '/agentkit/frameworks': 'agentkit-quickstart',
+      '/agentkit/cookbooks': 'agentkit-cookbooks',
     },
   },
 
@@ -762,7 +764,8 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
       '/authenticate/interceptors': 'workflows',
       '/reference/interceptors': 'workflows',
       '/reference/admin-portal': 'workflows',
-      '/cookbooks': 'cookbooks',
+      '/saaskit/cookbooks': 'saaskit-cookbooks',
+      '/cookbooks': 'saaskit-cookbooks',
     },
   },
 

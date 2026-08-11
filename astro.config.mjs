@@ -120,7 +120,16 @@ export default defineConfig({
         ...(!process.env.NETLIFY
           ? [
               starlightLinksValidator({
-                exclude: ['/apis/**'],
+                // Blog listing, tag, and author pages are injected routes rather
+                // than content entries, so the validator cannot resolve them.
+                // Individual posts are real entries and stay validated.
+                exclude: [
+                  '/apis/**',
+                  '/agentkit/cookbooks/',
+                  '/saaskit/cookbooks/',
+                  '/agentkit/cookbooks/tags/**',
+                  '/saaskit/cookbooks/tags/**',
+                ],
               }),
             ]
           : []),
@@ -147,8 +156,18 @@ export default defineConfig({
         // theme switcher. Discovery goes through the secondary nav instead.
         starlightBlog([
           {
-            prefix: 'cookbooks',
-            title: 'Cookbooks',
+            prefix: 'agentkit/cookbooks',
+            title: 'AgentKit cookbooks',
+            navigation: 'none',
+            rss: false,
+            metrics: {
+              readingTime: true,
+              words: 'total',
+            },
+          },
+          {
+            prefix: 'saaskit/cookbooks',
+            title: 'Auth for SaaS cookbooks',
             navigation: 'none',
             rss: false,
             metrics: {
