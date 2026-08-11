@@ -1,10 +1,14 @@
 ---
-import Default from '@astrojs/starlight/components/MarkdownContent.astro'
+// starlight-blog's own override branches internally: blog posts get post chrome
+// (author byline, reading time), every other page falls through to Starlight's
+// default. Nesting it here keeps that behaviour — rendering Starlight's default
+// directly would shadow the plugin and silently drop the chrome.
+import BlogMarkdownContent from 'starlight-blog/overrides/MarkdownContent.astro'
 import VideosMarkdownContent from 'starlight-videos/components/MarkdownContent.astro'
 import ImageZoom from 'starlight-image-zoom/components/ImageZoom.astro'
 ---
 
 <ImageZoom />
 <VideosMarkdownContent>
-  <Default><slot /></Default>
+  <BlogMarkdownContent><slot /></BlogMarkdownContent>
 </VideosMarkdownContent>

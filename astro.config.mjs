@@ -140,14 +140,23 @@ export default defineConfig({
           },
           // No baseUrl — prevents llms.txt generation (already handled by starlight-llms-txt)
         }),
-        starlightBlog({
-          prefix: 'cookbooks',
-          rss: false,
-          metrics: {
-            readingTime: true,
-            words: 'total',
+        // Array form: starlight-blog 0.28+ supports multiple blog instances, one
+        // per prefix. Posts map to an instance by directory (src/content/docs/<prefix>/).
+        // `navigation: 'none'` keeps each instance out of the header — with several
+        // instances the default ('header-end') stacks a link per blog beside the
+        // theme switcher. Discovery goes through the secondary nav instead.
+        starlightBlog([
+          {
+            prefix: 'cookbooks',
+            title: 'Cookbooks',
+            navigation: 'none',
+            rss: false,
+            metrics: {
+              readingTime: true,
+              words: 'total',
+            },
           },
-        }),
+        ]),
       ],
       head: [
         {
