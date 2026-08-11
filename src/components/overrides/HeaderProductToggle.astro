@@ -220,15 +220,21 @@ const productLinks = [
         item.setAttribute('aria-selected', String(active))
       })
 
-    // Secondary nav dual-row: show the matching product's tab set on shared paths
-    document.querySelectorAll('.secondary-nav-product[data-product]').forEach((row) => {
-      const rowProduct = row.getAttribute('data-product')
-      if (rowProduct === product) {
-        row.removeAttribute('hidden')
-      } else {
-        row.setAttribute('hidden', '')
-      }
-    })
+    // Secondary nav dual-row: show the matching product's tab set on shared paths.
+    // Only shared paths render both rows. Everywhere else renders a single row for
+    // the current product, and hiding it would leave the nav empty until the next
+    // page finishes loading — so leave it alone and let navigation replace it.
+    const navRows = document.querySelectorAll('.secondary-nav-product[data-product]')
+    if (navRows.length > 1) {
+      navRows.forEach((row) => {
+        const rowProduct = row.getAttribute('data-product')
+        if (rowProduct === product) {
+          row.removeAttribute('hidden')
+        } else {
+          row.setAttribute('hidden', '')
+        }
+      })
+    }
 
     document.dispatchEvent(new CustomEvent('sk:product-context', { detail: { product } }))
   }
