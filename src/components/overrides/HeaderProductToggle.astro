@@ -158,8 +158,10 @@ const productLinks = [
     } else if (location.pathname.startsWith('/agentkit/')) {
       knownProduct = 'agentkit'
     } else if (!isShared && hasProductContext) {
-      // Unambiguous non-AgentKit docs page → SaaS product context
-      knownProduct = 'saaskit'
+      // The server already resolved this page's product from its path or its
+      // frontmatter topic — topic 'connect' is AgentKit even outside /agentkit/.
+      // Mirror that instead of assuming SaaS.
+      knownProduct = ssrProduct === 'agentkit' ? 'agentkit' : 'saaskit'
     }
 
     if (knownProduct) {
