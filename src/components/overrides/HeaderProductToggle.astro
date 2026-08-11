@@ -54,6 +54,7 @@ const productLinks = [
   id="product-phrase"
   data-shared-path={isSharedPath ? 'true' : 'false'}
   data-ssr-product={activeProduct}
+  data-has-product-context={hasSelection ? 'true' : 'false'}
   data-storage-key={PRODUCT_STORAGE_KEY}
 >
   <div class="product-dropdown" id="product-dropdown">
@@ -144,6 +145,10 @@ const productLinks = [
 
     const isShared = phrase.getAttribute('data-shared-path') === 'true'
     const ssrProduct = phrase.getAttribute('data-ssr-product')
+    // The server already decided whether this page sits inside a product's doc
+    // system. Pages outside it (home, 404, standalone landers) resolve to the
+    // 'saaskit' default in getActiveProduct() but must still read as unselected.
+    const hasProductContext = phrase.getAttribute('data-has-product-context') === 'true'
     const paramProduct = new URLSearchParams(location.search).get('product')
     const storageKey = getStorageKey()
 
@@ -152,7 +157,7 @@ const productLinks = [
       knownProduct = paramProduct
     } else if (location.pathname.startsWith('/agentkit/')) {
       knownProduct = 'agentkit'
-    } else if (!isShared) {
+    } else if (!isShared && hasProductContext) {
       // Unambiguous non-AgentKit docs page → SaaS product context
       knownProduct = 'saaskit'
     }
@@ -176,6 +181,10 @@ const productLinks = [
       }
       return ssrProduct === 'saaskit' ? 'saaskit' : 'agentkit'
     }
+
+    // Nothing on this page identifies a product: leave the placeholder alone
+    // rather than falling back to the 'saaskit' SSR default.
+    if (!knownProduct && !hasProductContext) return null
 
     return knownProduct || ssrProduct
   }
