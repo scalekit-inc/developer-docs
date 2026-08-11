@@ -95,6 +95,15 @@ const agentKitItems: NavItem[] = [
         sectionDescription: 'Recipes and guides for building with AgentKit',
         columnGroup: 'right',
       },
+      {
+        id: 'agentkit-how-to',
+        href: '/agentkit/how-to/',
+        label: 'Developer Resources',
+        dropdownLabel: 'How-to guides',
+        iconComponent: IconLucideBookOpenText,
+        description: 'Short answers to dashboard and workspace tasks',
+        columnGroup: 'right',
+      },
     ],
   },
 ]
@@ -203,6 +212,15 @@ const saasKitItems: NavItem[] = [
         dropdownLabel: 'Cookbooks',
         iconComponent: IconLucideBookOpenText,
         description: 'Implement common patterns with step-by-step recipes',
+        columnGroup: 'right',
+      },
+      {
+        id: 'saaskit-how-to',
+        href: '/saaskit/how-to/',
+        label: 'Developer Resources',
+        dropdownLabel: 'How-to guides',
+        iconComponent: IconLucideBookOpenText,
+        description: 'Short answers to dashboard, workspace, and account tasks',
         columnGroup: 'right',
       },
       {

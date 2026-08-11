@@ -1,0 +1,67 @@
+---
+title: 'Inspect a user connection in the dashboard'
+description: 'Find a specific connected account in the Scalekit dashboard and read its state when an agent fails a tool call.'
+date: 2026-08-11
+excerpt: >
+  When an agent stops reaching a user's Gmail or GitHub, the answer is usually the state of that
+  user's connected account. This walks through finding the account in the dashboard and reading
+  what its state is telling you.
+tags: ['AgentKit', 'Connections', 'Troubleshooting']
+sidebar:
+  label: 'Inspect a user connection'
+tableOfContents: true
+authors:
+  - name: 'Saif'
+    title: 'Developer Advocate'
+    url: 'https://www.linkedin.com/in/saif-shines/'
+    picture: '/images/blog/authors/saif.png'
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+When an agent suddenly cannot reach a user's Gmail, Calendar, or GitHub, the cause is almost always
+the state of that user's **connected account** rather than your code. The dashboard shows that state
+directly, which is faster than adding logging and redeploying.
+
+## Find the connection
+
+Go to **Dashboard > Connections** and select the connection the agent uses — the name you pass as
+`connection_name` in your code, such as `github-connect`.
+
+Each connection lists the connected accounts created against it. One row exists per user identifier
+you have authorized.
+
+<Aside type="note" title="One account per user, per connection">
+  A connected account is scoped to a single connection. A user who has authorized both Gmail and
+  GitHub has two connected accounts, and they can be in different states.
+</Aside>
+
+## Read the state
+
+The row's status is the diagnosis. Only `ACTIVE` accounts can serve tool calls.
+
+| State | What it means | What to do |
+| --- | --- | --- |
+| `ACTIVE` | Credentials are valid and tool calls will work | Look elsewhere — the connection is healthy |
+| `EXPIRED` | The access token expired | Send the user a fresh authorization link |
+| `PENDING_AUTH` | The user never finished authenticating, or re-authentication is in progress | Send or re-send the authorization link |
+| `PENDING_VERIFICATION` | OAuth finished but identity verification has not | Have the user complete verification |
+| `DISCONNECTED` | The account was disconnected manually | Send a fresh authorization link |
+
+For what each state means in code, see
+[Manage connected accounts](/agentkit/connected-accounts/). For the failure modes behind each one,
+see [Troubleshoot connection errors](/agentkit/authentication/troubleshooting/).
+
+## Recover a broken connection
+
+Every non-`ACTIVE` state is fixed the same way: generate a new authorization link and send it to the
+user. The link opens a Scalekit-hosted page that adapts to the connection's auth type, so you do not
+branch on connector type in your own code.
+
+Once the user completes it, the row returns to `ACTIVE` and tool calls resume.
+
+## Check the connection itself
+
+If every account on a connection is failing rather than one, the problem is the connection, not the
+users. Confirm on the connection's own page that its credentials are still valid — a rotated or
+expired OAuth client on the provider side takes down every account beneath it at once.

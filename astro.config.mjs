@@ -127,8 +127,12 @@ export default defineConfig({
                   '/apis/**',
                   '/agentkit/cookbooks/',
                   '/saaskit/cookbooks/',
+                  '/agentkit/how-to/',
+                  '/saaskit/how-to/',
                   '/agentkit/cookbooks/tags/**',
                   '/saaskit/cookbooks/tags/**',
+                  '/agentkit/how-to/tags/**',
+                  '/saaskit/how-to/tags/**',
                 ],
               }),
             ]
@@ -174,6 +178,23 @@ export default defineConfig({
               readingTime: true,
               words: 'total',
             },
+          },
+          // How-to shelves carry short dashboard and workspace answers. Reading
+          // time is blog furniture that reads wrong on a two-minute "delete my
+          // account" answer, so it stays off here.
+          {
+            prefix: 'agentkit/how-to',
+            title: 'AgentKit how-to guides',
+            navigation: 'none',
+            rss: false,
+            metrics: { readingTime: false, words: false },
+          },
+          {
+            prefix: 'saaskit/how-to',
+            title: 'Auth for SaaS how-to guides',
+            navigation: 'none',
+            rss: false,
+            metrics: { readingTime: false, words: false },
           },
         ]),
       ],

@@ -507,4 +507,14 @@ export const redirects = {
     '/saaskit/cookbooks/sync-b2b-billing-with-chargebee/',
   '/cookbooks/search-scalekit-docs-in-your-ide':
     '/saaskit/cookbooks/search-scalekit-docs-in-your-ide/',
+
+  // =============================================================================
+  // WORKSPACE HOW-TO REDIRECTS
+  // =============================================================================
+  // Workspace and account administration pages moved out of the Developer Kit
+  // guides into the Auth for SaaS how-to shelf.
+
+  '/dev-kit/guides/dashboard/billing': '/saaskit/how-to/billing/',
+  '/dev-kit/guides/dashboard/environments': '/saaskit/how-to/environments/',
+  '/dev-kit/guides/dashboard/manage-team-members': '/saaskit/how-to/manage-team-members/',
 }
